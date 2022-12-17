@@ -1,0 +1,219 @@
+<template>
+  <Table
+    :columns="columns"
+    :data="organizations"
+    :body-style="{ height: '300px' }"
+    :pagination="meta.pagination"
+    :loading="loading"
+    @change="$emit('change', $event)"
+    @rowClick="showContacts"
+  >
+    <template #statuses="slotProps">
+      <div class="w-full flex items-center text-primary-dark">
+        <font-awesome-icon
+          class="mx-1"
+          size="lg"
+          icon="check-circle"
+          v-if="slotProps.item.profile_completed"
+        />
+        <badge
+          v-if="slotProps.item.is_verified"
+          width="18px"
+          height="18px"
+          class="text-white bg-green-500 mx-1"
+          :title="$t('adminOrganization.org_verified')"
+          >V</badge
+        >
+        <badge
+          v-if="slotProps.item.is_active"
+          width="18px"
+          height="18px"
+          class="text-white bg-green-500 mx-1"
+          :title="$t('adminOrganization.org_active')"
+          >A</badge
+        >
+      </div>
+    </template>
+    <template #incidents="slotProps">
+      <div
+        v-if="slotProps.item.incidents.length > 0"
+        class="w-full flex items-center"
+      >
+        {{ getIncidentName(slotProps.item.incidents[0]) }}
+      </div>
+    </template>
+    <template #actions="slotProps">
+      <div class="flex mr-2 justify-end w-full items-center">
+        <base-button
+          :text="$t('actions.approve')"
+          :alt="$t('actions.approve')"
+          variant="solid"
+          size="small"
+          class="mx-2"
+          :action="
+            () => {
+              approveOrganization(slotProps.item.id);
+            }
+          "
+        />
+        <base-button
+          :text="$t('actions.reject')"
+          :alt="$t('actions.reject')"
+          variant="outline"
+          size="small"
+          class="mx-2"
+          :action="
+            () => {
+              rejectOrganization(slotProps.item.id);
+            }
+          "
+        />
+        <base-link
+          v-if="currentUser && currentUser.isAdmin"
+          :href="`/admin/organization/${slotProps.item.id}`"
+          text-variant="bodysm"
+          class="px-2"
+          >{{ $t('actions.edit') }}</base-link
+        >
+      </div>
+    </template>
+  </Table>
+</template>
+
+<script>
+import { useI18n } from 'vue-i18n';
+import axios from 'axios';
+import Table from '../Table.vue';
+import Organization from '../../models/Organization';
+import Incident from '../../models/Incident';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import useDialogs from '@/hooks/useDialogs';
+
+export default {
+  name: 'OrganizationApprovalTable',
+  components: { Table },
+  props: {
+    organizations: {
+      type: Array,
+      default: () => [],
+    },
+    meta: {
+      type: Object,
+      default: () => {
+        return {};
+      },
+    },
+    loading: Boolean,
+  },
+  setup(props, { emit }) {
+    const { t } = useI18n();
+    const { currentUser } = useCurrentUser();
+    const { confirm, prompt } = useDialogs();
+
+    async function getOrganizationContacts(organizationId) {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/ghost_users?organization=${organizationId}`,
+      );
+      return response.data.results;
+    }
+    function getIncidentName(id) {
+      const incident = Incident.find((element) => id(element));
+      return incident && incident.name;
+    }
+    async function showContacts(organization) {
+      const contacts = await getOrganizationContacts(organization.id);
+      const contact = contacts.length > 0 ? contacts[0] : null;
+      await confirm({
+        title: t('adminOrganization.organization_contact'),
+        content: `
+          <div>${contact.first_name} ${contact.last_name}</div>
+          <div>${contact.title ?? ''}</div>
+          <div>${contact.email}</div>
+          <div>${contact.mobile}</div>
+          </p>
+        `,
+      });
+    }
+    async function approveOrganization(organizationId) {
+      const result = await prompt({
+        title: t('actions.approve_organization'),
+        content: t('orgApprovalTable.give_approve_reason'),
+      });
+      if (result) {
+        await Organization.api().approve(organizationId, result.reason);
+        emit('reload');
+      }
+    }
+    async function rejectOrganization(organizationId) {
+      const result = await prompt({
+        title: t('actions.reject_organization'),
+        content: t('orgApprovalTable.give_reject_reason'),
+      });
+      if (result) {
+        await Organization.api().reject(
+          organizationId,
+          result.reason,
+          result.note,
+        );
+        emit('reload');
+      }
+    }
+
+    return {
+      currentUser,
+      getIncidentName,
+      showContacts,
+      approveOrganization,
+      rejectOrganization,
+      columns: [
+        {
+          title: t('ID'),
+          dataIndex: 'id',
+          key: 'id',
+          width: '75px',
+        },
+        {
+          title: t('orgApprovalTable.name'),
+          dataIndex: 'name',
+          key: 'name',
+          width: '1.5fr',
+        },
+        {
+          title: t('orgApprovalTable.org_statuses'),
+          dataIndex: 'statuses',
+          key: 'statuses',
+          width: '0.75fr',
+        },
+        {
+          title: t('orgApprovalTable.website'),
+          dataIndex: 'url',
+          key: 'url',
+          width: '1fr',
+        },
+        {
+          title: t('adminOrganization.admin_notes'),
+          dataIndex: 'admin_notes',
+          key: 'admin_notes',
+          width: '2fr',
+        },
+        {
+          title: t('incidentApprovalTable.incident'),
+          dataIndex: 'incidents',
+          key: 'incidents',
+          width: '1fr',
+        },
+        {
+          title: '',
+          dataIndex: 'actions',
+          key: 'actions',
+          width: '1.5fr',
+        },
+      ],
+    };
+  },
+};
+</script>
+
+<style scoped></style>
