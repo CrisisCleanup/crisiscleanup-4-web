@@ -1,0 +1,88 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm run lint
+
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install
+
+      - name: Type check
+        run: pnpm run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: pnpm
+
+      - run: pnpm install
+      - run: pnpm run test:unit
+
+  test-e2e:
+    runs-on: ubuntu-latest
+    if: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache
+          key: cypress-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - uses: pnpm/action-setup@v2
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: pnpm
+
+      - run: pnpm install
+
+      - name: Cypress PNPM Patch
+        run: cp pnpm-lock.yaml package-lock.json
+
+      - name: Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          install-command: echo
+          build: pnpm run build
+          start: pnpm run test:e2e
