@@ -1,0 +1,8 @@
+.DS_Store
+dist
+public
+node_modules
+**/coverage/**
+coverage
+.pnpm-debug.log
+pnpm-lock.yaml
