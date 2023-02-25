@@ -20,7 +20,7 @@
               label="name_t"
               :placeholder="$t('locationVue.location_type')"
               select-classes="bg-white border text-xs location-select p-1"
-              @input="getLocations"
+              @update:modelValue="getLocations"
             />
             <base-button
               :text="$t('actions.create_location')"
@@ -96,9 +96,7 @@ export default defineComponent({
       }
       if (locationTypeFilter.value) {
         params.type = locationTypeFilter.value;
-        console.log(locationTypeFilter.value);
       }
-      console.log('test');
       const results = await Location.api().get(
         `/locations?${getQueryString(params)}`,
         {
