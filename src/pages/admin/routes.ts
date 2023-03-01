@@ -4,9 +4,9 @@ import AdminPage from './Index.vue';
 import AdminCms from './AdminCms.vue';
 import AdminDashboard from './AdminDashboard.vue';
 import AdminTicketDashboard from './AdminTicketDashboard.vue';
-// import AdminEvents from '@/pages/admin/AdminEvents.vue';
-// import AdminCosts from '@/pages/admin/AdminCosts.vue';
+// Import AdminEvents from '@/pages/admin/AdminEvents.vue';
 import AdminIncidentWizard from './AdminIncidentWizard.vue';
+import AdminCosts from '@/pages/admin/AdminCosts.vue';
 import AdminLocalizations from '@/pages/admin/AdminLocalizations.vue';
 
 const routes = [
@@ -45,11 +45,11 @@ const routes = [
         name: 'nav.admin_ticket_dashboard',
         component: AdminTicketDashboard,
       },
-      // {
-      //   path: 'costs',
-      //   name: 'nav.costs',
-      //   component: AdminCosts,
-      // },
+      {
+        path: 'costs',
+        name: 'nav.costs',
+        component: AdminCosts,
+      },
       {
         path: 'cms',
         name: 'nav.cms',
