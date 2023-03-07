@@ -135,3 +135,6 @@ Sentry.init({
 });
 
 app.mount('#app');
+
+// set app instance to window
+(window as any).app = app;
