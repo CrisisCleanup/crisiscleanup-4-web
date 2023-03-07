@@ -46,7 +46,7 @@ module.exports = {
     'unicorn/no-array-reduce': 0,
     '@typescript-eslint/naming-convention': 0,
     'import/no-unassigned-import': 0,
-    'import/no-cycle': 0,
+    'import/no-cycle': 2,
   },
   overrides: [
     {
