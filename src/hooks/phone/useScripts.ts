@@ -6,11 +6,11 @@ import type { Ref } from 'vue';
 import { computed } from 'vue';
 import * as config from 'tailwind.config';
 import moment from 'moment';
+import type { I18n, VueI18n } from 'vue-i18n';
 import { wrap } from '../../utils/wrap';
 import type Incident from '../../models/Incident';
 import type Worksite from '../../models/Worksite';
 import useCurrentUser from '../useCurrentUser';
-import { i18n } from '@/main';
 
 const { theme } = config;
 
@@ -36,6 +36,7 @@ export default ({ callType, incident, recentWorksite }: UseScriptsProps) => {
   const _callType: Ref<keyof typeof CallType> = wrap(callType);
   const _incident = wrap(incident);
   const _recentWorksite = wrap(recentWorksite);
+  const i18n = inject('i18n') as I18n<VueI18n>;
 
   const scriptColors = {
     [CallType.INBOUND]: theme.extend.colors['phone-inbound'],

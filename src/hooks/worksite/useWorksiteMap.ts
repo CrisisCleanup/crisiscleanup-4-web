@@ -6,13 +6,13 @@ import { type Container } from 'pixi.js';
 import type { LatLng, HeatLayer, LeafletMouseEvent } from 'leaflet';
 import { getMarkerLayer, mapTileLayer, mapAttribution } from '../../utils/map';
 import Location from '../../models/Location';
-import { i18n } from '@/main';
 import useRenderedMarkers from './useRenderedMarkers';
 import type { LayerGroup, PixiLayer } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 import useEmitter from '@/hooks/useEmitter';
 import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
+import { I18n, VueI18n } from 'vue-i18n';
 
 export type MapUtils = {
   getMap: () => L.Map;
@@ -142,6 +142,7 @@ export default (
   }
 
   async function addMarkerToMap(location: LatLng) {
+    const i18n = inject('i18n') as I18n<VueI18n>;
     removeLayer('temp_markers');
     const { emitter } = useEmitter();
 

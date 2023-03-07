@@ -1,7 +1,8 @@
 import * as Sentry from '@sentry/browser';
-import { i18n } from '../main';
+import type { I18n, VueI18n } from 'vue-i18n';
 
 export function getErrorMessage(error: any) {
+  const i18n = inject('i18n') as I18n<VueI18n>;
   if (!error.response || !error.response.status) {
     Sentry.captureException(error);
     // If (window.vue.$log) {

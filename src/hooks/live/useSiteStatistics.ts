@@ -1,8 +1,8 @@
 import axios from 'axios';
 import moment from 'moment';
 import type { Ref } from 'vue';
+import type { I18n, VueI18n } from 'vue-i18n';
 import { getQueryString } from '@/utils/urls';
-import { i18n } from '@/main';
 import type { SiteStatistic } from '@/hooks/live/types';
 import type Organization from '@/models/Organization';
 
@@ -194,6 +194,7 @@ export default function useSiteStatistics(
   }
 
   async function getIncidentStats() {
+    const i18n = inject('i18n') as I18n<VueI18n>;
     const { start_date, incident } = queryFilter.value;
     const params = {
       start_date: start_date.format('YYYY-MM-DD'),

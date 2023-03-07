@@ -1,9 +1,9 @@
 import AgentLibrary from 'cf-agent-library';
 import axios from 'axios';
+import type { I18n, VueI18n } from 'vue-i18n';
 import { store } from '../store';
 import User from '../models/User';
 import Incident from '../models/Incident';
-import { i18n } from '../main';
 import useEmitter from "@/hooks/useEmitter";
 
 const LANGUAGE_ID_MAPPING: Record<any, any> = {
@@ -294,6 +294,8 @@ export default class PhoneService {
     this.username = username;
     this.password = password;
     this.agent_id = agentId;
+
+    const i18n = inject('i18n') as I18n<VueI18n>;
     const currentUser = User.find(this.store.getters['auth/userId']);
     return new Promise((resolve, reject) => {
       if (!currentUser?.mobile) {

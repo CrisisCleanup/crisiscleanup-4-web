@@ -23,7 +23,6 @@ import {
   randomIntFromInterval,
 } from '../../utils/map';
 import Location from '../../models/Location';
-import { i18n } from '../../main';
 import { colors, templates } from '@/icons/icons_templates';
 import type {
   LiveGraphics,
@@ -33,6 +32,7 @@ import type {
 } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 import type Incident from '@/models/Incident';
+import { I18n, VueI18n } from 'vue-i18n';
 
 export type MapUtils = {
   getMap: () => L.Map;
@@ -592,6 +592,7 @@ export default (
   }
 
   async function addMarkerToMap(location: LatLng) {
+    const i18n = inject('i18n') as I18n<VueI18n>;
     let markerLocation = location;
     const container = getPixiContainer() as any;
     if (!markerLocation) {

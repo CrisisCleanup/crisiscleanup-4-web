@@ -69,8 +69,7 @@ const getI18n = (messages = {}) => {
     messages,
   });
 };
-
-export const i18n = getI18n();
+const i18n = getI18n();
 
 if (AuthService.getUser()) {
   axios.defaults.withCredentials = true;
@@ -109,6 +108,8 @@ app.directive('tooltip', VTooltip);
 app.use(store);
 // provide axios globally
 app.provide('axios', axios);
+// provide i18n globally instead of exporting it to avoid circular dependencies
+app.provide('i18n', i18n);
 
 app.use(Vue3Mq);
 app.use(router);

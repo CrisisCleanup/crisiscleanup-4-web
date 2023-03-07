@@ -1,14 +1,15 @@
 import type { Ref } from 'vue';
 import useDialogs from '@/hooks/useDialogs';
 import UnclaimCases from '@/components/UnclaimCases.vue';
-import { i18n } from '@/main';
 import Worksite from '@/models/Worksite';
+import type { I18n, VueI18n } from 'vue-i18n';
 
 export default (
   selectedTableItems: Ref<Set<number>>,
   onComplete: () => void,
 ) => ({
   async showUnclaimModal() {
+    const i18n = inject('i18n') as I18n<VueI18n>;
     const { component } = useDialogs();
 
     let options: Record<string, boolean> | null = {};
