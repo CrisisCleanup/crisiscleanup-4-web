@@ -40,6 +40,9 @@
       <div class="text-lg my-1">
         {{ $t('mapVue.personal_info_hidden') }}
       </div>
+      <div class="podlink">
+        <a href="//pod.crisiscleanup.org">Checkout the Podcast</a>
+      </div>
     </div>
   </Home>
 </template>
@@ -220,5 +223,10 @@ export default defineComponent({
 }
 .input {
   @apply m-2;
+}
+.podlink {
+  @apply text-lg my-1 mr-1;
+  z-index: 9999;
+  position: relative;
 }
 </style>
