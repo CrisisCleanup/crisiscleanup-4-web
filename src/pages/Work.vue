@@ -307,7 +307,7 @@
             downloadWorksites([worksite?.id]);
           }
         "
-        @onPrintWorksite="() => printWorksite(worksite?.id)"
+        @onPrintWorksite="() => printWorksite(parseInt(worksite?.id))"
         @onFlagCase="
           () => {
             showFlags = true;
@@ -828,7 +828,7 @@ export default defineComponent({
       updateUserState({});
     }
 
-    const datesList = ref<any[]>([]);
+    const datesList = ref<Array<{ id: any; updated_at: any }> | undefined>([]);
 
     function getDatesList() {
       const layer = mapUtils?.getCurrentMarkerLayer();
@@ -975,7 +975,7 @@ export default defineComponent({
       selectedTableItems.value = selectedItems;
     }
 
-    async function shareWorksite(id: number) {
+    const shareWorksite: any = async (id: number) => {
       loading.value = true;
       let noClaimText = '';
       let worksiteToShare = await Worksite.find(id);
@@ -985,7 +985,7 @@ export default defineComponent({
       if (hasClaimedWorkType) {
         noClaimText = '';
       } else {
-        const result = await prompt({
+        const result = (await prompt({
           title: t('casesVue.share_case'),
           content: t('casesVue.please_claim_if_share'),
           actions: {
@@ -1006,7 +1006,7 @@ export default defineComponent({
                 'border text-base p-2 px-4 mx-2 text-black border-primary-light',
             },
           },
-        });
+        })) as Record<string, any>;
 
         if (result.key === 'cancel' || !result) {
           return;
@@ -1064,7 +1064,7 @@ export default defineComponent({
       );
       await reloadCase();
       $toasted.success(t('casesVue.sucessfully_shared_case'));
-    }
+    };
 
     async function printWorksite(id: number) {
       loading.value = true;
@@ -1076,7 +1076,7 @@ export default defineComponent({
       if (hasClaimedWorkType) {
         file = await Worksite.api().printWorksite(id, '');
       } else {
-        const result = await prompt({
+        const result = (await prompt({
           title: t('actions.print_case'),
           content: t('casesVue.please_claim_if_print'),
           actions: {
@@ -1098,7 +1098,7 @@ export default defineComponent({
                 'border text-base p-2 px-4 mx-2 text-black border-primary-light',
             },
           },
-        });
+        })) as Record<string, any>;
 
         if (result.key === 'claimAndPrint') {
           file = await Worksite.api().printWorksite(id, '');
@@ -1312,7 +1312,7 @@ export default defineComponent({
             loadStatesForUser();
           },
           false,
-          bounds,
+          bounds as any,
         );
       } catch {}
 
@@ -1351,7 +1351,6 @@ export default defineComponent({
       emitter.emit('phone_component:open', 'news');
     }
     const selectedExisting = (w: { id: string }) => {
-      console.log('test');
       worksiteId.value = w.id;
       isViewing.value = true;
       if (showingMap.value) {
@@ -1375,7 +1374,7 @@ export default defineComponent({
         );
       }
       reloadMap();
-    }
+    };
 
     return {
       addMarkerToMap,
