@@ -3,7 +3,7 @@
     <form
       v-if="invitation && invitation.existing_user"
       ref="form"
-      class="form w-108 flex flex-col"
+      class="form w-108 flex flex-col mb-80"
       @submit.prevent="transfer"
     >
       <div class="text-2xl font-light">
@@ -241,7 +241,7 @@ export default {
         }
       } catch {
         await $toasted.error(t('invitationSignup.invitation_dead'));
-        router.push('/login');
+        // router.push('/login');
       }
     });
 
@@ -259,17 +259,11 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      '. main main main main main'
-      '. main main main main main'
-      '. main main main main main';
-  }
-}
-
 .input {
   @apply m-2;
+}
+.form {
+  z-index: 1000;
+  position: relative;
 }
 </style>
