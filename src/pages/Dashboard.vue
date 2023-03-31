@@ -925,7 +925,12 @@ export default defineComponent({
       }
       loading.value = true;
       await reloadDashBoard();
-      loading.value = false;
+      if (currentUser.value.organization.is_active) {
+        loading.value = false;
+      } else {
+        await store.dispatch('auth/logout');
+        await router.replace('/login');
+      }
     });
 
     return {
