@@ -116,6 +116,7 @@
       <div
         v-for="item of data"
         :key="item.id"
+        :id="item.id"
         :style="gridStyleRow"
         class="hover:bg-crisiscleanup-light-grey border-b js-table-row"
         :class="{
