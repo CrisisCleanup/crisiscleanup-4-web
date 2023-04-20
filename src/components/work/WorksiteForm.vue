@@ -688,6 +688,7 @@ export default {
     }
 
     function clearWorksiteStorage() {
+      worksite.value = {};
       StorageService.removeItem('currentWorksite');
     }
 
