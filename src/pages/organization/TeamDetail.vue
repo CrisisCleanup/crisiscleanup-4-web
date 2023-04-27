@@ -882,6 +882,11 @@ export default defineComponent({
       if (result === 'no' || result === 'cancel') {
         return;
       }
+      await removeFromTeam(
+        allTeamUsers.value.map((item) => Number.parseInt(item!.id)),
+      );
+      for (const item of assignedWorksites.value)
+        await removeWorksiteFromTeam(Number.parseInt(item.id));
 
       await Team.api().delete(`/teams/${team.value?.id}`, {
         delete: team.value?.id,
