@@ -144,7 +144,7 @@
 </template>
 
 <script lang="ts">
-import { throttle } from 'lodash';
+import { throttle, shuffle } from 'lodash';
 import moment from 'moment';
 import enums from '../store/modules/enums';
 import Table from '@/components/Table.vue';
@@ -162,6 +162,7 @@ export default defineComponent({
   name: 'OtherOrganizations',
   components: { Table },
   setup(props) {
+    const initLoad = ref(true);
     const store = useStore();
     const ccuApi = useApi();
     const { t, locale } = useI18n();
@@ -343,8 +344,17 @@ export default defineComponent({
           console.error('Org data is not defined');
           return;
         }
+<<<<<<< HEAD
 
         organizations.data = orgData.value.results.sort(otherOrgSorterFunc);
+=======
+        if (initLoad.value && orgData.value) {
+          organizations.data = shuffle(orgData.value.results);
+          initLoad.value = false;
+        } else {
+          organizations.data = orgData.value.results.sort(otherOrgSorterFunc);
+        }
+>>>>>>> feat(org): randomized list of orgs on initial load
         const newPagination = {
           ...pagination,
           total: orgData.value.count,
