@@ -559,19 +559,19 @@ export default defineComponent({
   props: {
     incident: {
       type: Object,
-      default: () => {
+      default() {
         return {};
       },
     },
     currentFilters: {
       type: Object,
-      default: () => {
+      default() {
         return {};
       },
     },
     locations: {
       type: Array,
-      default: () => {
+      default() {
         return [];
       },
     },
@@ -623,40 +623,41 @@ export default defineComponent({
           );
         });
       }
+
       return [];
     });
     const fieldsCount = computed(() => {
-      return filters.value.fields.count;
+      return filters.value.fields.getCount() || 0;
     });
     const statusCount = computed(() => {
-      return filters.value.statuses.count;
+      return filters.value.statuses.getCount() || 0;
     });
     const statusGroupCount = computed(() => {
-      return filters.value.statusGroups.count;
+      return filters.value.statusGroups.getCount() || 0;
     });
     const flagsCount = computed(() => {
-      return filters.value.flags.count;
+      return filters.value.flags.getCount() || 0;
     });
     const formDataCount = computed(() => {
-      return filters.value.form_data.count;
+      return filters.value.form_data.getCount() || 0;
     });
     const locationsCount = computed(() => {
-      return filters.value.locations.count;
+      return filters.value.locations.getCount() || 0;
     });
     const missingWorkTypeCount = computed(() => {
-      return filters.value.missingWorkType.count;
+      return filters.value.missingWorkType.getCount() || 0;
     });
     const teamsCount = computed(() => {
-      return filters.value.teams.count;
+      return filters.value.teams.getCount() || 0;
     });
     const myTeamCount = computed(() => {
-      return filters.value.my_team.count;
+      return filters.value.my_team.getCount() || 0;
     });
     const datesCount = computed(() => {
-      return filters.value.dates.count;
+      return filters.value.dates.getCount() || 0;
     });
     const survivorCount = computed(() => {
-      return filters.value.survivors.count;
+      return filters.value.survivors.getCount() || 0;
     });
     const teams = computed(() => {
       return Team.all();
@@ -770,20 +771,24 @@ export default defineComponent({
         }
       }
     }
+
     function setOpenClosed(value, status) {
       filters.value.statusGroups.data.open = false;
       filters.value.statusGroups.data.closed = false;
       if (value) {
         filters.value.statusGroups.data[status] = value;
       }
+
       filters.value.statusGroups.data = {
         ...filters.value.statusGroups.data,
       };
     }
+
     function expandSection(key) {
       expanded.value[key] = !expanded.value[key];
       expanded.value = { ...expanded.value };
     }
+
     function getFieldsForType(workType) {
       if (props.incident && props.incident.form_fields) {
         return props.incident.form_fields.filter((field) => {
@@ -795,11 +800,14 @@ export default defineComponent({
           if (parent) {
             if_selected_then_work_type = parent.if_selected_then_work_type;
           }
+
           return if_selected_then_work_type === workType;
         });
       }
+
       return [];
     }
+
     function clearAllFilters() {
       filters.value = {
         fields: new WorksiteFieldsFilter('fields', {}),
