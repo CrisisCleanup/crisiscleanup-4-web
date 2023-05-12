@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
 import { momentFromNow } from '@/filters';
 import useWorktypeImages from '@/hooks/worksite/useWorktypeImages';
 
@@ -58,15 +57,15 @@ export default defineComponent({
       return $t(tag, translated_attrs);
     }
     const getHeader = () => {
-      if (props.currentEvent.attr.patient_wwtsp) {
-        const svg = getWorktypeSVG(
+      if (props.currentEvent.attr) {
+        const work_type = props.currentEvent.attr.patient_name_t;
+        return getWorktypeSVG(
           {
-            work_type: props.currentEvent.attr.patient_wwtsp[0].work_type_key,
-            status: props.currentEvent.attr.patient_wwtsp[0].status,
+            work_type: work_type.substring(work_type.indexOf('.') + 1, work_type.length),
+            status: props.currentEvent.attr.patient_status,
           },
           25,
         );
-        return svg;
       }
     };
 
