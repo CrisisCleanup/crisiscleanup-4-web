@@ -344,17 +344,14 @@ export default defineComponent({
           console.error('Org data is not defined');
           return;
         }
-<<<<<<< HEAD
 
-        organizations.data = orgData.value.results.sort(otherOrgSorterFunc);
-=======
         if (initLoad.value && orgData.value) {
           organizations.data = shuffle(orgData.value.results);
           initLoad.value = false;
         } else {
           organizations.data = orgData.value.results.sort(otherOrgSorterFunc);
         }
->>>>>>> feat(org): randomized list of orgs on initial load
+
         const newPagination = {
           ...pagination,
           total: orgData.value.count,
