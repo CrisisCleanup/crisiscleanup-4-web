@@ -37,7 +37,7 @@
             </div>
           </div>
 
-          <div class="modal-footer flex-shrink">
+          <div v-if="!hideFooter" class="modal-footer flex-shrink">
             <div class="flex items-center justify-center py-2 border-t">
               <div class="flex flex-col items-center justify-center">
                 <base-button
@@ -130,6 +130,10 @@ export default defineComponent({
       default: () => {
         return {};
       },
+    },
+    hideFooter: {
+      type: Boolean,
+      default: false,
     },
   },
 });
