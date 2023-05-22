@@ -48,7 +48,7 @@ describe('Crisis Cleanup Home Pages Validation', () => {
         
          }) 
     
-    // Blogs Page is not secured, cypress doesn't handles unsecured pages
+    // Blogs Page is not secured, I'm trying to find solution for this.
        it('Validate Blogs', () => {
         
       // 1st way
