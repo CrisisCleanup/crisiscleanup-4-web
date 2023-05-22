@@ -115,8 +115,8 @@
       </div>
       <div
         v-for="item of data"
-        :key="item.id"
         :id="item.id"
+        :key="item.id"
         :style="gridStyleRow"
         class="hover:bg-crisiscleanup-light-grey border-b js-table-row"
         :class="{
@@ -125,69 +125,73 @@
         }"
         @click="rowClick(item, $event)"
       >
-        <div
-          v-if="enableSelection && $mq !== 'sm'"
-          class="flex items-center p-2 border-b"
-        >
-          <base-checkbox
-            :model-value="selectedItems.has(item.id)"
-            class="mb-5 js-select-item"
-            data-cy="tableview_actionSelect"
-            @update:modelValue="
-              (value) => {
-                setChecked(item, value);
-              }
-            "
-          />
-        </div>
-        <div
-          v-if="hasRowDetails && $mq !== 'sm'"
-          class="flex items-center p-2 lg:border-b md:border-b"
-        >
-          <font-awesome-icon
-            class="cursor-pointer"
-            size="md"
-            :icon="showingDetails.has(item.id) ? 'caret-up' : 'caret-down'"
-            @click="setShowingDetails(item)"
-          />
-        </div>
-        <div
-          v-for="column of columns"
-          :key="column.key"
-          class="flex items-center p-2 lg:border-b md:border-b cursor-pointer"
-          :class="column.class || []"
-          :style="column.style || []"
-          @click="handleColumnAction(column, item[column.key], item)"
-        >
-          <slot :name="column.key" :item="item">
-            <span v-if="$mq === 'sm'" class="font-semibold mr-2">
-              {{ column.title }}:
-            </span>
-            <template
-              v-if="
-                item[column.key] || item[column.key] === 0 || column.transformer
+        <slot name="row" :item="item">
+          <div
+            v-if="enableSelection && $mq !== 'sm'"
+            class="flex items-center p-2 border-b"
+          >
+            <base-checkbox
+              :model-value="selectedItems.has(item.id)"
+              class="mb-5 js-select-item"
+              data-cy="tableview_actionSelect"
+              @update:modelValue="
+                (value) => {
+                  setChecked(item, value);
+                }
               "
-            >
-              <span v-if="column.transformer">{{
-                column.transformer(item[column.key], item)
-              }}</span>
-              <span v-else>{{
-                column.subKey
-                  ? item[column.key][column.subKey]
-                  : item[column.key]
-              }}</span>
-            </template>
-          </slot>
-        </div>
-        <div
-          v-if="hasRowDetails"
-          v-show="showingDetails.has(item.id)"
-          :style="`grid-column-start: 1; grid-column-end: ${
-            columns.length + 1
-          };`"
-        >
-          <slot name="rowDetails" :item="item"></slot>
-        </div>
+            />
+          </div>
+          <div
+            v-if="hasRowDetails && $mq !== 'sm'"
+            class="flex items-center p-2 lg:border-b md:border-b"
+          >
+            <font-awesome-icon
+              class="cursor-pointer"
+              size="md"
+              :icon="showingDetails.has(item.id) ? 'caret-up' : 'caret-down'"
+              @click="setShowingDetails(item)"
+            />
+          </div>
+          <div
+            v-for="column of columns"
+            :key="column.key"
+            class="flex items-center p-2 lg:border-b md:border-b cursor-pointer"
+            :class="column.class || []"
+            :style="column.style || []"
+            @click="handleColumnAction(column, item[column.key], item)"
+          >
+            <slot :name="column.key" :item="item">
+              <span v-if="$mq === 'sm'" class="font-semibold mr-2">
+                {{ column.title }}:
+              </span>
+              <template
+                v-if="
+                  item[column.key] ||
+                  item[column.key] === 0 ||
+                  column.transformer
+                "
+              >
+                <span v-if="column.transformer">{{
+                  column.transformer(item[column.key], item)
+                }}</span>
+                <span v-else>{{
+                  column.subKey
+                    ? item[column.key][column.subKey]
+                    : item[column.key]
+                }}</span>
+              </template>
+            </slot>
+          </div>
+          <div
+            v-if="hasRowDetails"
+            v-show="showingDetails.has(item.id)"
+            :style="`grid-column-start: 1; grid-column-end: ${
+              columns.length + 1
+            };`"
+          >
+            <slot name="rowDetails" :item="item"></slot>
+          </div>
+        </slot>
       </div>
       <div
         v-if="data.length === 0"
