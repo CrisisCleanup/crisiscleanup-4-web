@@ -1,4 +1,4 @@
-/// <reference types ='cypress' />
+// /// <reference types ='cypress' />
 import 'cypress-file-upload';
 
 describe('Crisis Cleanup Home Pages Validation', () => {
