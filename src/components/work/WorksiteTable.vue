@@ -8,6 +8,8 @@
     class="mt-6 shadow-lg"
     :query="worksiteQuery"
     enable-selection
+    :enable-filter="showClosed"
+    filter="[['key_work_type.status', '=', 'closed_completed']]"
     @rowClick="
       (worksite) => {
         $emit('rowClick', worksite);
@@ -19,7 +21,7 @@
       <div
         v-if="
           showClosed &&
-          slotProps.item.key_work_type.status === 'closed_completed'
+          slotProps.item.key_work_type.status !== 'closed_completed'
         "
       ></div>
     </template>

@@ -17,6 +17,7 @@
       ></base-input>
       <slot name="header-actions"> </slot>
     </div>
+    {{ filter }}
     <Table
       :columns="columns"
       :data="data"
@@ -84,6 +85,13 @@ export default defineComponent({
     enableSelection: {
       type: Boolean,
     },
+    enableFilter: {
+      type: Boolean,
+    },
+    filter: {
+      type: Array,
+      default: [[]],
+    },
     columns: {
       type: Array,
       default() {
@@ -128,6 +136,7 @@ export default defineComponent({
       const params = {
         offset: pagination ? pagination.pageSize * (pagination.page - 1) : 0,
         limit: pagination ? pagination.pageSize : 10,
+        filter: props.enableFilter ? props.filter : [[]],
         ...props.query,
       };
       params.search = props.query.search || search.value;
