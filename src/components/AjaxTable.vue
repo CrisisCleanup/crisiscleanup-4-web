@@ -103,7 +103,7 @@ export default defineComponent({
       },
     },
   },
-  setup(props) {
+  setup(props, context) {
     const defaultColumns = ref<any[]>([]);
     const data = ref<any[]>([]);
     const search = ref<string>('');
@@ -147,6 +147,7 @@ export default defineComponent({
         ...sorter,
       };
       loading.value = false;
+      await nextTick(() => context.emit('change', data.value));
     };
 
     onMounted(async () => {

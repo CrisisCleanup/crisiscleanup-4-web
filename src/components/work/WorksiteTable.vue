@@ -1,4 +1,5 @@
 <template>
+  <base-checkbox v-model="showClosed">Show Closed</base-checkbox>
   <AjaxTable
     ref="table"
     :columns="columns"
@@ -14,6 +15,14 @@
     "
     @selectionChanged="(payload) => $emit('selectionChanged', payload)"
   >
+    <template #row="slotProps">
+      <div
+        v-if="
+          showClosed &&
+          slotProps.item.key_work_type.status === 'closed_completed'
+        "
+      ></div>
+    </template>
     <template #work_types="slotProps">
       <div class="flex flex-col">
         <div
@@ -44,16 +53,18 @@ import {
   getStatusName,
 } from '../../filters';
 import AjaxTable from '@/components/AjaxTable.vue';
+import BaseCheckbox from '@/components/BaseCheckbox.vue';
 
 export default defineComponent({
   name: 'WorksiteTable',
-  components: { AjaxTable },
+  components: { BaseCheckbox, AjaxTable },
   props: {
     worksiteQuery: { type: Object, default: null, required: false },
   },
 
   setup() {
     const { t } = useI18n();
+    const showClosed = ref(false);
 
     const columns = ref([
       {
@@ -103,6 +114,7 @@ export default defineComponent({
       getColorForStatus,
       getWorkTypeName,
       getStatusName,
+      showClosed,
     };
   },
 });
