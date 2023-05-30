@@ -11,6 +11,7 @@
               <span class="text-base font-bold">{{ title }}</span>
               <ccu-icon
                 :alt="$t('actions.cancel')"
+                data-testid="testCancelButton"
                 size="xs"
                 type="cancel"
                 @click.native="
@@ -24,7 +25,7 @@
 
           <div class="modal-body flex-grow p-3">
             <div>
-              <div v-html="content"></div>
+              <div v-html="content" data-testid="testContentDiv"></div>
             </div>
           </div>
 
@@ -36,6 +37,7 @@
               >
                 <base-button
                   :alt="$t('actions.ok')"
+                  data-testid="testOkButton"
                   variant="solid"
                   class="px-6 p-3"
                   :action="
@@ -54,6 +56,7 @@
               >
                 <base-button
                   v-for="(value, key) in actions"
+                  data-testid="testActionsButton"
                   :key="key"
                   :alt="value.text"
                   :variant="value.type"

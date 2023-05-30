@@ -3,6 +3,7 @@
     <div class="flex flex-col items-center justify-between">
       <base-input
         :model-value="globalSearch"
+        data-testid="testGlobalSearch"
         icon="search"
         class="w-full mx-4"
         :placeholder="$t('actions.search_everywhere')"
@@ -20,25 +21,34 @@
         <DatabaseAccess class="mx-3 my-1" />
         <base-button
           :text="$t('adminDashboard.arcgis_upload')"
+          :alt="$t('adminDashboard.arcgis_upload')"
+          data-testid="testArcgisUploadButton"
           variant="solid"
           size="medium"
           :action="showArcGisUploader"
         />
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testPendingOrganizationsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="py-4 px-4 flex items-center justify-between border-b">
           <div class="text-gray-500">
             {{ $t('adminDashboard.pending_organizations') }}
           </div>
-          <base-button icon="sync" :action="getOrganizationsForApproval" />
+          <base-button
+            icon="sync"
+            :action="getOrganizationsForApproval"
+            :alt="$t('adminDashboard.refresh_pending_organizations')"
+            data-testid="testRefreshPendingOrganizationsButton"
+          />
         </div>
         <div class="py-4 px-4 border-b flex items-center">
           <base-button
             class="mr-2 border-r pr-2"
+            data-testid="testPendingOrganizationsActionRequiredButton"
             size="medium"
             :text="$t('adminDashboard.action_required')"
+            :alt="$t('adminDashboard.action_required')"
             :class="[
               organizationApprovalView === 'default' ? 'text-primary-dark' : '',
             ]"
@@ -48,8 +58,10 @@
 
           <base-button
             class="mr-2 border-r pr-2"
+            data-testid="testPendingOrganizationsRecentlyApprovedButton"
             size="medium"
             :text="$t('adminDashboard.recently_approved')"
+            :alt="$t('adminDashboard.recently_approved')"
             :class="[
               organizationApprovalView === 'approved'
                 ? 'text-primary-dark'
@@ -61,8 +73,10 @@
 
           <base-button
             class="mr-2"
+            data-testid="testPendingOrganizationsRecentlyRejectedButton"
             size="medium"
             :text="$t('adminDashboard.recently_rejected')"
+            :alt="$t('adminDashboard.recently_rejected')"
             :class="[
               organizationApprovalView === 'rejected'
                 ? 'text-primary-dark'
@@ -81,19 +95,26 @@
         </div>
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testRedeployRequestsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="py-4 px-4 flex items-center justify-between border-b">
           <div class="text-gray-500">
             {{ $t('adminDashboard.redeploy_requests') }}
           </div>
-          <base-button icon="sync" :action="getIncidentRequests" />
+          <base-button
+            icon="sync"
+            data-testid="testRefreshRedeployRequestsButton"
+            :action="getIncidentRequests"
+            :alt="$t('adminDashboard.refresh_incident_redeploy_requests')"
+          />
         </div>
         <div class="py-4 px-4 border-b flex items-center">
           <base-button
             class="mr-2 border-r pr-2"
+            data-testid="testRedeployRequestsActionRequiredButton"
             size="medium"
             :text="$t('adminDashboard.action_required')"
+            :alt="$t('adminDashboard.action_required')"
             :class="[redeployView === 'default' ? 'text-primary-dark' : '']"
             variant="text"
             :action="() => setRedeployViewView('default')"
@@ -101,8 +122,10 @@
 
           <base-button
             class="mr-2 border-r pr-2"
+            data-testid="testRedeployRequestsRecentlyApprovedButton"
             size="medium"
             :text="$t('adminDashboard.recently_approved')"
+            :alt="$t('adminDashboard.recently_approved')"
             :class="[redeployView === 'approved' ? 'text-primary-dark' : '']"
             variant="text"
             :action="() => setRedeployViewView('approved')"
@@ -110,8 +133,10 @@
 
           <base-button
             class="mr-2"
+            data-testid="testRedeployRequestsRecentlyRejectedButton"
             size="medium"
             :text="$t('adminDashboard.recently_rejected')"
+            :alt="$t('adminDashboard.recently_rejected')"
             :class="[redeployView === 'rejected' ? 'text-primary-dark' : '']"
             variant="text"
             :action="() => setRedeployViewView('rejected')"
@@ -125,15 +150,16 @@
         </div>
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testWorksiteImportDiv">
       <WorksiteImport class="m-4 pt-2 shadow bg-white w-full"></WorksiteImport>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testOrganizationsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="p2-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
+              :alt="$t('adminDashboard.organizations')"
               :action="
                 () => {
                   organizations.visible = !organizations.visible;
@@ -145,6 +171,7 @@
           </span>
           <base-input
             :model-value="organizations.search"
+            data-testid="testOrganizationsSearch"
             icon="search"
             class="w-72 mx-4"
             :placeholder="$t('actions.search')"
@@ -166,12 +193,14 @@
         </div>
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testUsersDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="p2-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
+              data-testid="testUsersSearch"
+              :alt="$t('adminDashboard.users')"
               :action="
                 () => {
                   users.visible = !users.visible;
@@ -204,12 +233,14 @@
         </div>
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testGhostUsersDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="p2-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
+              data-testid="testGhostUsersSearch"
+              :alt="$t('adminDashboard.ghost_users')"
               :action="
                 () => {
                   ghostUsers.visible = !ghostUsers.visible;
@@ -242,12 +273,14 @@
         </div>
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testInvitationRequestsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="p2-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
+              data-testid="testInvitationRequestsSearch"
+              :alt="$t('adminDashboard.invitation_requests')"
               :action="
                 () => {
                   invitationRequests.visible = !invitationRequests.visible;
@@ -280,12 +313,14 @@
         </div>
       </div>
     </div>
-    <div class="flex">
+    <div class="flex" data-testid="testInvitationsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
         <div class="p2-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
+              data-testid="testInvitationsSearch"
+              :alt="$t('adminDashboard.invitations')"
               :action="
                 () => {
                   invitations.visible = !invitations.visible;

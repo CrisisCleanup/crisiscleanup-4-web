@@ -3,11 +3,13 @@
     <section>
       <base-input
         v-model="url"
+        data-testid="testUrlTextInput"
         class="w-full"
         :placeholder="$t('arcGisUploader.arcgis_url')"
       ></base-input>
       <base-select
         :model-value="incident"
+        data-testid="testIncidentSelect"
         class="my-2"
         :options="incidents"
         searchable
@@ -19,14 +21,17 @@
       />
       <base-input
         v-model="prefix"
+        data-testid="testPrefixTextInput"
         class="w-full"
         :placeholder="$t('arcGisUploader.unique_id_prefix')"
       ></base-input>
     </section>
     <base-button
       variant="solid"
+      data-testid="testImportGisButton"
       :action="importGis"
       :text="$t('actions.import')"
+      :alt="$t('actions.import')"
       class="p-3 px-6 text-xs"
     />
   </div>

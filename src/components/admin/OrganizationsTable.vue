@@ -12,6 +12,7 @@
       <div class="w-full flex items-center">
         <font-awesome-icon
           v-if="slotProps.item.profile_completed"
+          :title="$t('adminOrganization.profile_completed')"
           class="mx-1 text-primary-dark"
           size="lg"
           icon="check-circle"
@@ -38,6 +39,7 @@
       <div class="flex mr-2 w-full items-center">
         <base-button
           v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
+          data-testid="testApproveButton"
           :text="$t('actions.approve')"
           :alt="$t('actions.approve')"
           variant="solid"
@@ -51,6 +53,7 @@
         />
         <base-button
           v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
+          data-testid="testRejectButton"
           :text="$t('actions.reject')"
           :alt="$t('actions.reject')"
           variant="outline"
@@ -64,6 +67,7 @@
         />
         <base-link
           v-if="currentUser && currentUser.isAdmin"
+          data-testid="testOrganizationLink"
           :href="`/admin/organization/${slotProps.item.id}`"
           text-variant="bodysm"
           class="px-2"

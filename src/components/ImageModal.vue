@@ -13,6 +13,8 @@
               >
                 <font-awesome-icon
                   icon="file-pdf"
+                  data-testid="testPdfIcon"
+                  :alt="$t('imageModal.upload_pdf_ok')"
                   size="3x"
                   class="cursor-pointer"
                 />
@@ -25,6 +27,7 @@
               />
               <ccu-icon
                 :alt="$t('actions.delete')"
+                data-testid="testDeleteIcon"
                 size="xs"
                 type="trash"
                 class="absolute right-0 top-0 m-1 mr-3 p-1 image-close bg-white"

@@ -12,24 +12,32 @@
           <div class="flex items-center gap-2">
             <base-button
               v-if="currentLocalization.id"
+              data-testid="testDeleteAllButton"
               :action="deleteAll"
+              :alt="$t('actions.delete')"
               class="px-2 py-1 bg-crisiscleanup-dark-red text-white"
               >{{ $t('actions.delete') }}
             </base-button>
             <base-button
               :action="clearLocalization"
+              :alt="$t('actions.clear')"
+              data-testid="testClearLocalizationButton"
               variant="outline"
               class="px-2 py-1"
               >{{ $t('actions.clear') }}
             </base-button>
             <base-button
               :action="saveLocalization"
+              :alt="$t('actions.save')"
+              data-testid="testSaveLocalizationButton"
               variant="solid"
               class="px-2 py-1"
               >{{ $t('actions.save') }}
             </base-button>
             <base-button
               :action="saveAndClear"
+              :alt="$t('actions.save_and_clear')"
+              data-testid="testSaveAndClearButton"
               variant="solid"
               class="px-2 py-1"
               >{{ $t('actions.save_and_clear') }}
@@ -41,21 +49,28 @@
         </div>
         <base-input
           v-model="currentLocalization.group"
+          data-testid="testGroupTextInput"
           :placeholder="$t('adminLocalizations.group')"
           class="mb-2"
         />
         <base-input
           v-model="currentLocalization.label"
+          data-testid="testLabelTextInput"
           :placeholder="$t('adminLocalizations.label')"
           class="mb-2"
         />
         <base-input
           disabled
+          data-testid="testGroupLabelTextInput"
           :model-value="`${currentLocalization.group}.${currentLocalization.label}`"
           :placeholder="$t('adminLocalizations.group_label')"
           class="mb-2"
         />
-        <base-checkbox v-model="currentLocalization.is_front_end" class="mb-2">
+        <base-checkbox
+          v-model="currentLocalization.is_front_end"
+          class="mb-2"
+          data-testid="testAvailableFrontendCheckbox"
+        >
           {{ $t('adminLocalizations.available_frontend') }}
         </base-checkbox>
       </div>
@@ -67,12 +82,16 @@
           <div class="flex items-center gap-2">
             <base-button
               :action="addNewText"
+              :alt="$t('actions.new')"
+              data-testid="testNewButton"
               variant="outline"
               class="px-2 py-1"
               >{{ $t('actions.new') }}
             </base-button>
             <base-button
               :action="autoTranslate"
+              :alt="$t('actions.generate_translations')"
+              data-testid="testGenerateTranslationsButton"
               variant="outline"
               class="px-2 py-1"
               >{{ $t('actions.generate_translations') }}
@@ -86,6 +105,7 @@
         >
           <base-select
             :key="text.language"
+            data-testid="testLanguageSelect"
             v-model="text.language"
             class="flex-1"
             :options="languages"
@@ -96,6 +116,7 @@
           />
           <base-input
             v-model="text.text"
+            data-testid="testTextTextInput"
             class="w-full flex-1"
             type="search"
             :placeholder="$t('adminLocalizations.text')"
@@ -104,6 +125,7 @@
           ></base-input>
           <ccu-icon
             :alt="$t('actions.cancel')"
+            data-testid="testCancelButton"
             size="small"
             type="trash"
             class="flex-initial w-6"
@@ -115,6 +137,7 @@
           />
           <ccu-icon
             :alt="$t('actions.edit')"
+            data-testid="testEditIcon"
             size="small"
             type="edit"
             class="flex-initial w-6"
@@ -126,6 +149,7 @@
           />
           <font-awesome-icon
             :alt="$t('actions.preview')"
+            data-testid="testPreviewIcon"
             size="small"
             icon="eye"
             class="flex-initial w-6"
@@ -142,6 +166,7 @@
       <div class="flex flex-wrap items-center gap-2">
         <base-input
           class="flex-1"
+          data-testid="testSearchGroupLabelTextSearch"
           height="48"
           :placeholder="$t('adminLocalizations.search_group_label_text')"
           @update:modelValue="
@@ -153,6 +178,7 @@
         />
         <base-input
           class="flex-1"
+          data-testid="testSearchLabelsOnlySearch"
           height="48"
           :placeholder="$t('adminLocalizations.search_labels_only')"
           @update:modelValue="
@@ -164,6 +190,7 @@
         />
         <base-select
           class="flex-1"
+          data-testid="testFilterGroupsInput"
           searchable
           :placeholder="$t('adminLocalizations.filter_groups')"
           :options="groups"

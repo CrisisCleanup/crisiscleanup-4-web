@@ -15,7 +15,7 @@
     @selectionChanged="(payload) => $emit('selectionChanged', payload)"
   >
     <template #work_types="slotProps">
-      <div class="flex flex-col">
+      <div class="flex flex-col" data-testid="testWorksiteTableDiv">
         <div
           v-for="work_type in slotProps.item.work_types"
           :key="`${work_type.id}`"
@@ -24,6 +24,7 @@
         >
           <badge
             class="mx-1"
+            :title="getStatusName(work_type.status)"
             :color="
               getColorForStatus(work_type.status, Boolean(work_type.claimed_by))
             "

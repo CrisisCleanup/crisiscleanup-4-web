@@ -7,6 +7,7 @@
         :placeholder="placeholder"
         :required="required"
         :tooltip="tooltip"
+        data-testid="testWorksiteSearchInputSearch"
         @update:modelValue="worksitesSearch"
         @input.stop=""
         @focus="isFocused = true"
@@ -17,6 +18,7 @@
       <div
         v-if="results.length > 0 && value.length > 0 && isFocused"
         class="absolute bg-white z-50 h-auto max-h-84 overflow-auto min-w-84"
+        data-testid="testWorsiteSearchResultsDiv"
       >
         <div v-for="result in results" :key="result.label">
           <template v-if="result.options.length > 0"
@@ -60,7 +62,7 @@
       :class="iconClasses"
     >
       <ccu-icon
-        :alt="$t('actions.help_alt')"
+        :alt="$t('worksiteSearchInput.search_help')"
         :type="tooltip ? 'info' : icon"
         size="small"
       />

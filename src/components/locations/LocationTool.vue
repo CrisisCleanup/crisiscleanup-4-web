@@ -4,6 +4,7 @@
       <base-select
         class="flex-1"
         :placeholder="$t('locationTool.search_several_area_types')"
+        data-testid="testSearchSeveralAreaTypesSelect"
         searchable
         item-key="id"
         label="name"
@@ -27,6 +28,7 @@
       <base-select
         :model-value="currentLocationType"
         :options="locationTypes"
+        data-testid="testLocationTypesSelect"
         item-key="id"
         label="name_t"
         class="ml-3 flex-1"
@@ -42,6 +44,7 @@
     <div class="layers-tool flex-grow relative map-item">
       <div
         ref="buttons"
+        data-testid="testMapButtonsDiv"
         class="absolute w-full h-8 ml-4 mt-4 flex"
         style="z-index: 1001"
       >
@@ -49,6 +52,7 @@
           <MapButton
             button-class="border bg-white"
             icon="map-undo"
+            data-testid="testUndoButton"
             :disabled="history.length === 0"
             :title="$t('actions.undo')"
             ccu-event="user_ui-draw-undo"
@@ -61,6 +65,7 @@
           />
           <MapButton
             button-class="border bg-white"
+            data-testid="testRedoButton"
             icon="map-redo"
             :disabled="history.length === 0"
             :title="$t('actions.redo')"
@@ -76,6 +81,7 @@
           <MapButton
             button-class="border bg-white"
             icon="map-rect"
+            data-testid="testDrawRectangleButton"
             :title="$t('locationTool.draw_rectangle')"
             :actions="[{ id: 'cancel', text: $t('actions.cancel') }]"
             :disabled="Boolean(!currentDraw) || currentDraw !== 'Rectangle'"
@@ -90,6 +96,7 @@
           <MapButton
             button-class="border bg-white"
             :title="$t('locationTool.draw_polygon')"
+            data-testid="testDrawPolygonButton"
             icon="map-poly"
             :actions="[{ id: 'cancel', text: $t('actions.cancel') }]"
             :disabled="Boolean(!currentDraw) || currentDraw !== 'Polygon'"
@@ -104,6 +111,7 @@
           <MapButton
             button-class="border bg-white"
             :title="$t('locationTool.draw_circle')"
+            data-testid="testDrawCircleButton"
             icon="map-circle"
             :actions="[{ id: 'cancel', text: $t('actions.cancel') }]"
             :disabled="Boolean(!currentDraw) || currentDraw !== 'Circle'"
@@ -119,6 +127,7 @@
             v-if="currentPolygon"
             button-class="border bg-white"
             :title="$t('locationTool.grow_shrink')"
+            data-testid="testGrowShrinkButton"
             icon="map-buffer"
             :disabled="Boolean(!currentDraw) || currentDraw !== 'Buffer'"
             :selected="Boolean(currentDraw) && currentDraw === 'Buffer'"
@@ -127,6 +136,7 @@
           <MapButton
             button-class="border bg-white"
             icon="map-sweep"
+            data-testid="testClearDrawingButton"
             :title="$t('locationTool.clear_drawing')"
             @click="clearAll"
           />
@@ -134,7 +144,9 @@
         <base-button
           class="bg-white p-1 border ml-5 flex items-center justify-center px-2"
           style="height: 37px"
+          data-testid="testUploadLayerPlusButton"
           :text="$t('locationTool.upload_layer_plus')"
+          :alt="$t('locationTool.upload_layer_plus')"
           :action="
             () => {
               showingUploadModal = true;
@@ -144,12 +156,14 @@
         <modal
           v-if="showingUploadModal"
           modal-classes="bg-white w-3/4 shadow"
+          data-testid="testUploadLayerModal"
           :title="$t('locationTool.upload_layer')"
           @cancel="showingUploadModal = false"
         >
           <div class="flex items-center justify-center w-full">
             <LayerUploadTool
               :key="currentLayerUpload"
+              data-testid="testLayerUploadToolDiv"
               class="flex w-full justify-center items-center"
               @addedLayer="
                 (layer) => {
@@ -159,7 +173,7 @@
             />
           </div>
           <div v-if="currentLayerUpload" class="text-center">
-            {{ $t('Selected Location:') }} {{ currentLayerUpload[0].name }}
+            {{ $t('locationTool.selected_location') }} {{ currentLayerUpload[0].name }}
           </div>
           <div slot="footer" class="p-3 flex items-center justify-center">
             <base-button
@@ -169,6 +183,8 @@
                 }
               "
               :text="$t('actions.cancel')"
+              :alt="$t('actions.cancel')"
+              data-testid="testCancelButton"
               variant="outline"
               class="ml-2 p-3 px-6 text-xs"
             />
@@ -176,6 +192,8 @@
               variant="solid"
               :action="applyCurrentLayerUpload"
               :text="$t('actions.apply')"
+              :alt="$t('actions.apply')"
+              data-testid="testApplyButton"
               class="ml-2 p-3 px-6 text-xs"
             />
           </div>
@@ -187,6 +205,7 @@
         >
           <base-checkbox
             :disabled="worksitesLoading"
+            data-testid="testShowCasesCheckbox"
             @update:modelValue="toggleWorksites"
           >
             {{ $t('locationTool.show_cases') }}
@@ -197,7 +216,10 @@
           class="bg-white p-1 border ml-5 flex items-center justify-center"
           style="height: 37px"
         >
-          <base-checkbox @update:modelValue="toggleIncidents">
+          <base-checkbox
+            data-testid="testShowIncidentsCheckbox"
+            @update:modelValue="toggleIncidents"
+          >
             {{ $t('locationTool.show_incidents') }}
           </base-checkbox>
         </div>
@@ -206,6 +228,7 @@
     </div>
     <div
       v-show="showingPopup"
+      data-testid="testGrowShrinkModal"
       ref="popup"
       class="popup-content flex flex-col items-center justify-center w-40"
     >
@@ -217,6 +240,7 @@
         <div class="my-1 flex flex-col items-center">
           <input
             v-model="currentBufferDistance"
+            data-testid="testCurrentBufferDistanceRange"
             type="range"
             min="-100"
             max="100"
@@ -225,6 +249,7 @@
           <div class="pr-2 flex items-center justify-center gap-2">
             <base-input
               v-model="currentBufferDistance"
+              data-testid="testCurrentBufferDistanceTextInput"
               width="50"
               height="25"
             />
@@ -233,6 +258,8 @@
         </div>
         <base-button
           :text="$t('actions.save')"
+          :alt="$t('actions.save')"
+          data-testid="testBufferSaveButton"
           variant="solid"
           class="flex-grow px-3 py-1 my-1"
           :action="
@@ -247,6 +274,8 @@
         <div class="flex text-primary-dark">
           <base-button
             :text="$t('actions.add')"
+            :alt="$t('actions.add')"
+            data-testid="testAddPolyButton"
             ccu-event="user_ui-draw-add"
             :action="
               () => {
@@ -258,6 +287,8 @@
           />
           <base-button
             :text="$t('actions.subtract')"
+            :alt="$t('actions.subtract')"
+            data-testid="testSubtractPolyButton"
             ccu-event="user_ui-draw-subtract"
             :action="
               () => {

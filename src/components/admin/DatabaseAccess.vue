@@ -15,6 +15,7 @@
         <div>
           <tag-input
             v-model="addresses"
+            data-testid="testAddIpAddressTextInput"
             v-model:tags="addressesToAdd"
             :placeholder="$t('databaseAccess.add_ip')"
             :add-on-key="[13, 32, ',']"
@@ -26,6 +27,7 @@
     </modal>
     <base-button
       :text="$t('databaseAccess.database_access')"
+      :alt="$t('databaseAccess.database_access')"
       variant="solid"
       size="medium"
       :action="

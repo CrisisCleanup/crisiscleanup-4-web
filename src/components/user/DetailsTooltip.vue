@@ -7,6 +7,7 @@
     <base-text :style="[nameStyle]" class="details-name" variant="body">
       <span
         v-if="userItem"
+        data-testid="testUserFullNameContent"
         :class="`${nameClass} tooltip-target cursor-pointer hover:text-primary-dark`"
         >{{ userItem.full_name }}</span
       >
@@ -15,17 +16,28 @@
     <template #popper>
       <div class="tooltip-content">
         <div v-if="userItem" class="text-base">{{ userItem.full_name }}</div>
-        <div v-if="userItem" class="text-xs">
+        <div
+          v-if="userItem"
+          class="text-xs"
+          data-testid="testUserOrganizationDiv"
+        >
           {{ userItem.organization.name }}
         </div>
-        <div v-if="userItem" class="mt-2">
-          <font-awesome-icon icon="envelope" />
+        <div
+          v-if="userItem"
+          class="mt-2"
+          data-testid="testUserEmailDiv"
+        >
+          <font-awesome-icon icon="envelope" :alt="$t('actions.email')" />
           <a :href="`mailto:${userItem.email}`" class="ml-1">{{
             userItem.email
           }}</a>
         </div>
-        <div v-if="userItem && userItem.mobile">
-          <font-awesome-icon icon="phone" />
+        <div
+          v-if="userItem && userItem.mobile"
+          data-testid="testUserMobileDiv"
+        >
+          <font-awesome-icon icon="phone" :alt="$t('actions.call')" />
           <a :href="`tel:${userItem.mobile}`" class="ml-1">{{
             userItem.mobile
           }}</a>

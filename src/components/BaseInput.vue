@@ -7,7 +7,6 @@
       :is="textArea ? 'textarea' : 'input'"
       ref="input"
       :class="[inputClasses, defaultInputClasses, selector]"
-      :data-cy="selector"
       :style="[cssVars, inputStyle]"
       :type="passwordView || type || 'search'"
       :value.prop="modelValue"
@@ -34,7 +33,7 @@
     >
       <ccu-icon
         :alt="$t('actions.edit')"
-        data-cy="js-break-glass"
+        data-testid="testBreakGlassButton"
         type="edit"
         size="small"
         class="js-break-glass"

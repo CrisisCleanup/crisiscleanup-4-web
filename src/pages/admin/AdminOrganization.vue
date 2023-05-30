@@ -13,6 +13,7 @@
       <div class="flex py-1">
         <base-button
           :text="$t('actions.save')"
+          data-testid="testSaveOrganizationButton"
           variant="solid"
           size="medium"
           class="mr-2"
@@ -21,6 +22,8 @@
         <template v-if="!organization.approved_by && !organization.rejected_by">
           <base-button
             :text="$t('actions.approve')"
+            :alt="$t('actions.approve')"
+            data-testid="testApproveOrganizationButton"
             variant="solid"
             size="medium"
             class="mr-2"
@@ -32,6 +35,8 @@
           />
           <base-button
             :text="$t('actions.reject')"
+            :alt="$t('actions.reject')"
+            data-testid="testRejectOrganizationButton"
             variant="outline"
             size="medium"
             :action="
@@ -51,6 +56,7 @@
           </div>
           <FloatingInput
             v-model="organization.name"
+            data-testid="testNameTextInput"
             type="text"
             class="input text-sm"
             size="small"
@@ -58,6 +64,7 @@
           />
           <FloatingInput
             v-model="organization.email"
+            data-testid="testEmailTextInput"
             type="text"
             class="input text-sm"
             size="large"
@@ -65,6 +72,7 @@
           />
           <FloatingInput
             v-model="organization.phone1"
+            data-testid="testPhone1TextInput"
             type="text"
             class="input text-sm"
             size="large"
@@ -72,6 +80,7 @@
           />
           <FloatingInput
             v-model="organization.address"
+            data-testid="testAddressTextInput"
             type="text"
             class="input text-sm"
             size="large"
@@ -79,6 +88,7 @@
           />
           <FloatingInput
             v-model="organization.url"
+            data-testid="testUrlTextInput"
             type="text"
             class="input text-sm"
             size="large"
@@ -93,6 +103,7 @@
             </div>
             <base-input
               v-model="organization.facebook"
+              data-testid="testFacebookTextInput"
               size="small"
               :placeholder="$t('profileOrg.facebook')"
             />
@@ -104,36 +115,49 @@
             </div>
             <base-input
               v-model="organization.twitter"
+              data-testid="testTwitterTextInput"
               size="small"
               :placeholder="$t('profileOrg.twitter')"
             />
           </div>
           <textarea
             v-model="organization.admin_notes"
+            data-testid="testAdminNotesTextarea"
             class="border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none resize-none w-full"
             rows="4"
             :placeholder="$t('adminOrganization.admin_notes')"
           />
           <FloatingInput
             v-model="organization.automatically_approve_user_domain"
+            data-testid="testAutomaticallyApproveUserDomainTextInput"
             :placeholder="$t('adminOrganization.auto_approve_domain')"
             class="input text-sm pb-4 sm:pb-0"
             size="large"
           />
-          <base-checkbox v-model="organization.is_active" class="mb-4 sm:mb-0">
-            Is Active
+          <base-checkbox
+            v-model="organization.is_active"
+            class="mb-4 sm:mb-0"
+            data-testid="testIsActiveCheckbox"
+          >
+            {{ $t('profileOrg.is_active') }}
           </base-checkbox>
           <base-checkbox
             v-model="organization.is_verified"
+            data-testid="testIsVerifiedCheckbox"
             class="mb-4 sm:mb-0"
           >
-            Org Verified
+            {{ $t('profileOrg.is_verified') }}
           </base-checkbox>
-          <base-checkbox v-model="organization.publish" class="mb-4 sm:mb-0">
-            Publish
+          <base-checkbox
+            v-model="organization.publish"
+            data-testid="testPublishCheckbox"
+            class="mb-4 sm:mb-0"
+          >
+            {{ $t('profileOrg.publish') }}
           </base-checkbox>
           <base-select
             v-model="organization.type_t"
+            data-testid="testOrganizationTypeSelect"
             :placeholder="$t('profileOrg.organization_type')"
             class="my-2"
             :options="organizationTypes"
@@ -144,6 +168,7 @@
           <base-select
             :model-value="currentRole"
             :placeholder="$t('adminOrganization.role')"
+            data-testid="testRoleSelect"
             class="my-2"
             :options="roles"
             select-classes="p-1"
@@ -159,6 +184,7 @@
           />
           <base-select
             v-model="organization.approve_reject_reason_t"
+            data-testid="testApproveRejectReasonTSelect"
             :placeholder="$t('orgApprovalTable.give_approve_reason')"
             class="my-2"
             :options="approveRejectReasons"
@@ -173,6 +199,8 @@
             </base-text>
             <base-button
               :text="$t('actions.generate_api_key')"
+              :alt="$t('actions.generate_api_key')"
+              data-testid="testGenerateApiKeyButton"
               variant="solid"
               size="medium"
               :action="generateApiKey"
@@ -192,6 +220,7 @@
               <div v-if="!logoUrl">
                 <DragDrop
                   class="sm:w-84 sm:h-16 text-center mr-6 border border-dashed"
+                  data-testid="testOrganizationLogoFile"
                   container-class="flex-row items-center justify-center"
                   :choose-title="$t('profileOrg.upload_org_logo')"
                   :drag-title="$t('profileOrg.logo_specs')"
@@ -206,6 +235,7 @@
               <div v-else>
                 <img
                   class="w-84"
+                  data-testid="testOrganizationLogoIcon"
                   :src="logoUrl"
                   :alt="$t('profileOrg.organization_logo')"
                 />
@@ -221,6 +251,8 @@
                 >
                   <base-button
                     class="text-center pb-4 cursor-pointer"
+                    data-testid="testUpdateLogoButton"
+                    :alt="$t('actions.update_logo')"
                     :show-spinner="uploading"
                     :disabled="uploading"
                     >{{ $t('actions.update_logo') }}
@@ -240,6 +272,7 @@
               grid-template-columns: max-content max-content max-content max-content;
               grid-column-gap: 10px;
             "
+            data-testid="testPrimaryContactsDiv"
             class="border px-2 py-1"
           >
             <template
@@ -269,6 +302,7 @@
               grid-template-columns: max-content max-content max-content max-content;
               grid-column-gap: 10px;
             "
+            data-testid="testGhostUsersDiv"
             class="max-h-xl overflow-auto border px-2 py-1"
           >
             <template v-for="contact in ghostUsers" :key="contact.email">
@@ -293,6 +327,7 @@
             <base-button
               :action="copyUsers"
               :text="$t('actions.copy_users')"
+              :alt="$t('actions.copy_users')"
               variant="solid"
               size="small"
             />
@@ -303,6 +338,7 @@
               grid-template-columns: max-content max-content max-content max-content max-content;
               grid-column-gap: 10px;
             "
+            data-testid="testAllUsersDiv"
             class="max-h-xl overflow-auto border px-2 py-1"
           >
             <template v-for="user in users" :key="user.id">
@@ -326,7 +362,7 @@
               </base-link>
             </template>
           </div>
-          <base-text variant="h3">
+          <base-text variant="h3" data-testid="testGeneralInfoContent">
             {{ $t('adminOrganization.general_info') }}
           </base-text>
           <base-text>
@@ -395,7 +431,10 @@
         </div>
       </div>
     </div>
-    <div class="bg-white p-3 shadow text-sm mr-4 mt-6">
+    <div
+      class="bg-white p-3 shadow text-sm mr-4 mt-6"
+      data-testid="testCapabilitiesDiv"
+    >
       <base-text variant="h2" :weight="600">
         {{ $t('adminOrganization.capabilities') }}
       </base-text>
@@ -416,7 +455,10 @@
         "
       />
     </div>
-    <div class="bg-white p-3 shadow text-sm mr-4 mt-6">
+    <div
+      class="bg-white p-3 shadow text-sm mr-4 mt-6"
+      data-testid="testIncidentsDiv"
+    >
       <base-text variant="h2" :weight="600">
         {{ $t('adminOrganization.incidents') }}
       </base-text>
@@ -426,6 +468,7 @@
             <base-select
               :placeholder="$t('adminOrganization.incident')"
               :model-value="incidentToAdd"
+              data-testid="testIncidentToAddSelect"
               class="my-2 mr-1 w-108"
               select-classes="h-full p-1"
               :options="selectableIncidents"
@@ -441,6 +484,8 @@
             />
             <base-button
               :text="$t('actions.add')"
+              :alt="$t('actions.add')"
+              data-testid="testAddIncidentButton"
               size="large"
               variant="solid"
               :action="
@@ -458,7 +503,7 @@
             {{ getIncidentName(incident, incidents) }}
           </div>
 
-          <base-text variant="h3">
+          <base-text variant="h3" data-testid="testPendingRequestsContent">
             {{ $t('adminOrganization.pending_requests') }}
           </base-text>
           <div
@@ -482,7 +527,7 @@
                   }"
                 >
                   <ccu-icon
-                    :alt="$t('actions.help_alt')"
+                    :alt="$t('adminOrganization.pending_requests')"
                     type="info"
                     size="small"
                     class="mr-2"
@@ -493,7 +538,9 @@
               <div class="flex">
                 <base-button
                   v-if="request.is_verified"
+                  data-testid="testApproveIncidentButton"
                   :text="$t('actions.approve')"
+                  :alt="$t('actions.approve')"
                   variant="solid"
                   size="small"
                   class="mx-2 w-24"
@@ -505,7 +552,9 @@
                 />
                 <base-button
                   v-if="request.is_verified"
+                  data-testid="testRejectIncidentButton"
                   :text="$t('actions.reject')"
+                  :alt="$t('actions.reject')"
                   variant="outline"
                   size="small"
                   class="mx-2 w-24"
@@ -519,7 +568,7 @@
             </template>
           </div>
         </div>
-        <div class="mx-3">
+        <div class="mx-3" data-testid="testApprovedIncidentsDiv">
           <base-text variant="h3">
             {{ $t('adminOrganization.current_incidents') }}
           </base-text>
@@ -549,12 +598,15 @@
           <div class="flex items-center justify-start w-full">
             <GroupSearchInput
               v-model="groupToAdd"
+              data-testid="testGroupToAddSelect"
               class="mr-1 w-108"
               style="z-index: 10"
               size="large"
             />
             <base-button
               :text="$t('actions.add')"
+              :alt="$t('actions.add')"
+              data-testid="testGroupToAddButton"
               size="large"
               variant="solid"
               :action="
@@ -585,6 +637,7 @@
               {{ group.name }}
               <ccu-icon
                 :alt="$t('actions.delete')"
+                data-testid="testDeleteGroupIcon"
                 class="ml-1"
                 size="xs"
                 type="cancel"
@@ -600,14 +653,16 @@
       </div>
     </div>
     <div class="flex">
-      <div class="w-1/2 bg-white shadow mt-6 mr-3">
+      <div class="w-1/2 bg-white shadow mt-6 mr-3" data-testid="testPrimaryLocationDiv">
         <div class="border-b px-8 py-4 font-semibold">
           {{ $t('adminOrganization.primary_location') }}
         </div>
         <div class="py-2 flex items-center justify-center">
           <base-button
             v-if="organization.primary_location"
+            data-testid="testEditPrimaryResponseAreaButton"
             :text="$t('profileOrg.edit_response_area')"
+            :alt="$t('profileOrg.edit_response_area')"
             variant="solid"
             class="px-2 py-1"
             :action="
@@ -618,9 +673,11 @@
           />
           <base-button
             v-else
+            data-testid="testAddPrimaryResponseAreaButton"
             class="px-2 py-1"
             variant="solid"
             :text="$t('profileOrg.add_response_area')"
+            :alt="$t('profileOrg.add_response_area')"
             :action="
               () => {
                 editLocation('primary_location');
@@ -630,14 +687,16 @@
         </div>
         <div id="primary-location" ref="primaryMap" class="w-full h-84" />
       </div>
-      <div class="w-1/2 bg-white shadow mt-6">
+      <div class="w-1/2 bg-white shadow mt-6" data-testid="testSecondaryLocationDiv">
         <div class="border-b px-8 py-4 font-semibold">
           {{ $t('adminOrganization.secondary_location') }}
         </div>
         <div class="py-2 flex items-center justify-center">
           <base-button
             v-if="organization.secondary_location"
+            data-testid="testEditSecondaryResponseAreaButton"
             :text="$t('profileOrg.edit_response_area')"
+            :alt="$t('profileOrg.edit_response_area')"
             variant="solid"
             class="px-2 py-1"
             :action="
@@ -648,9 +707,11 @@
           />
           <base-button
             v-else
+            data-testid="testAddSecondaryResponseAreaButton"
             class="px-2 py-1"
             variant="solid"
             :text="$t('profileOrg.add_response_area')"
+            :alt="$t('profileOrg.add_response_area')"
             :action="
               () => {
                 editLocation('secondary_location');
@@ -662,6 +723,7 @@
       </div>
       <modal
         v-if="showingApiKeyModal"
+        data-testid="testOrgApiKeysModal"
         :title="$t('adminOrganization.org_api_keys')"
         modal-classes="max-w-sm"
         closeable
@@ -670,6 +732,7 @@
         <div class="flex flex-col items-center justify-center p-3">
           <FloatingInput
             :value="apiKey"
+            data-testid="testApiKeyTextInput"
             disabled
             class="w-full"
             input-classes=""
@@ -677,6 +740,8 @@
           <base-button
             :action="copyApiKey"
             :text="$t('actions.copy_key')"
+            :alt="$t('actions.copy_key')"
+            data-testid="testCopyKeyButton"
             variant="solid"
             size="medium"
             class="my-2"

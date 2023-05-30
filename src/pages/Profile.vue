@@ -1,5 +1,9 @@
 <template>
-  <div style="height: 85%" class="h-full flex justify-center">
+  <div
+    style="height: 85%"
+    class="h-full flex justify-center"
+    data-testid="testProfileDiv"
+  >
     <div class="h-full flex flex-col w-11/12 sm:w-3/4 shadow my-6">
       <div class="h-full w-full bg-white flex flex-col">
         <div
@@ -9,6 +13,7 @@
           <div class="flex justify-end">
             <base-button
               variant="solid"
+              data-testid="testSaveButton"
               class="px-4 py-2"
               :text="$t('actions.save')"
               :alt="$t('actions.save')"
@@ -22,24 +27,33 @@
               <Avatar
                 :initials="currentUser.first_name"
                 :url="currentUser.profilePictureUrl"
+                data-testid="testFirstNameAvatarIcon"
                 class="p-1"
                 size="large"
               />
               <DragDrop
                 class="text-primary-dark cursor-pointer"
+                data-testid="testProfilePictureUploadFile"
                 :disabled="uploading"
                 @files="handleProfilePictureUpload"
               >
                 <base-button
                   class="text-center pb-4 cursor-pointer"
+                  data-testid="testChangePhotoButton"
                   :show-spinner="uploading"
                   :disabled="uploading"
+                  :alt="$t('actions.change_photo')"
                   >{{ $t('actions.change_photo') }}
                 </base-button>
               </DragDrop>
 
-              <base-button variant="solid" class="py-2 px-4"
-                >{{ $t('actions.view_id_badge') }}
+              <base-button
+                variant="solid"
+                data-testid="testViewIdBadgeButton"
+                class="py-2 px-4"
+                :alt="$t('actions.view_id_badge')"
+              >
+                {{ $t('actions.view_id_badge') }}
               </base-button>
             </div>
             <div class="user-form p-10 sm:p-8">
@@ -52,6 +66,7 @@
                       }}</label>
                       <base-input
                         name="first_name"
+                        data-testid="testFirstNameTextInput"
                         size="large"
                         :model-value="currentUser.first_name"
                         :placeholder="$t('profileUser.first_name_placeholder')"
@@ -69,6 +84,7 @@
                       }}</label>
                       <base-input
                         name="mobile"
+                        data-testid="testMobileTextInput"
                         size="large"
                         :model-value="currentUser.mobile"
                         :placeholder="$t('profileUser.mobile_placeholder')"
@@ -89,6 +105,7 @@
                       }}</label>
                       <base-input
                         name="last_name"
+                        data-testid="testLastNameTextInput"
                         size="large"
                         :model-value="currentUser.last_name"
                         :placeholder="$t('profileUser.last_name_placeholder')"
@@ -106,6 +123,7 @@
                       }}</label>
                       <base-input
                         name="email"
+                        data-testid="testEmailTextInput"
                         :model-value="currentUser.email"
                         size="large"
                         :placeholder="$t('profileUser.email_placeholder ')"
@@ -125,6 +143,7 @@
                     <p>{{ $t('profileUser.user_roles') }}</p>
                     <UserRolesSelect
                       class="w-full flex-grow border border-crisiscleanup-dark-100"
+                      data-testid="testUserRolesSelect"
                       :user="currentUser"
                     />
                   </div>
@@ -132,6 +151,7 @@
                     <p>{{ $t('profileUser.equipment') }}</p>
                     <base-select
                       v-model="currentUser.equipment"
+                      data-testid="testEquipmentSelect"
                       :model-value="currentUser.equipment"
                       :options="[]"
                       item-key="value"
@@ -144,6 +164,7 @@
                 <div class="flex pb-4">
                   <base-select
                     :model-value="currentUser.languageIds"
+                    data-testid="testLanguagesSelect"
                     multiple
                     :options="languages"
                     item-key="id"
@@ -172,6 +193,7 @@
                       <img
                         src="https://simpleicons.org/icons/facebook.svg"
                         class="w-8 mr-4"
+                        :alt="$t('profileUser.facebook')"
                       />
                       <label class="pr-3">{{
                         $t('profileUser.facebook')
@@ -179,6 +201,7 @@
                     </div>
                     <base-input
                       :model-value="currentUser.facebook"
+                      data-testid="testFacebookTextInput"
                       size="small"
                       :placeholder="$t('profileUser.facebook')"
                       @update:modelValue="
@@ -197,6 +220,7 @@
                       <img
                         src="https://simpleicons.org/icons/twitter.svg"
                         class="w-8 mr-2"
+                        :alt="$t('profileUser.twitter')"
                       />
                       <label class="pr-3">{{
                         $t('profileUser.twitter')
@@ -204,6 +228,7 @@
                     </div>
                     <base-input
                       :model-value="currentUser.twitter"
+                      data-testid="testTwitterTextInput"
                       size="small"
                       :placeholder="$t('profileUser.twitter')"
                       @update:modelValue="
@@ -223,7 +248,9 @@
               <div class="my-2">
                 <base-button
                   variant="solid"
+                  data-testid="testChangePasswordButton"
                   class="px-4 py-1"
+                  :alt="$t('actions.change_password')"
                   :action="
                     () => {
                       $router.push(`/password/new?email=${currentUser.email}`);
@@ -244,7 +271,9 @@
                 <div class="my-2">
                   <base-button
                     variant="solid"
+                    data-testid="testChangeOrganizationButton"
                     class="px-4 py-1"
+                    :alt="$t('profileUser.change_organization')"
                     :action="
                       () => {
                         showChangeOrganizationModal = true;
@@ -259,11 +288,12 @@
                   />
                 </div>
               </div>
-              <div class="mt-6">
+              <div class="mt-6" data-testid="testNotificationSettingsDiv">
                 <h3>{{ $t('profileUser.notification_settings') }}</h3>
                 <div class="flex flex-col py-3">
                   <base-radio
                     class="mb-2"
+                    data-testid="testHasNotificationsYesRadio"
                     name="Yes"
                     type="boolean"
                     :model-value="
@@ -273,6 +303,7 @@
                   />
                   <base-radio
                     class="mb-2"
+                    data-testid="testHasNotificationsNoRadio"
                     name="No"
                     type="boolean"
                     :model-value="
@@ -286,6 +317,7 @@
                   >
                     <div
                       v-for="(value, key) in notifications"
+                      :data-testid="`testNotificationSettingsKey${key}Div`"
                       :key="key"
                       class="flex w-1/2"
                     >
@@ -306,6 +338,8 @@
                 <h3 class="pb-4">{{ $t('profileUser.troubleshooting') }}</h3>
                 <base-button
                   :text="$t('profileUser.reset_user_states')"
+                  :alt="$t('profileUser.reset_user_states')"
+                  data-testid="testResetUserStatesButton"
                   variant="solid"
                   class="px-4 py-1"
                   :action="resetStates"
@@ -315,6 +349,8 @@
                 </p>
                 <base-button
                   :text="$t('profileUser.reset_user_preferences')"
+                  :alt="$t('profileUser.reset_user_preferences')"
+                  data-testid="testResetUserPreferencesButton"
                   variant="solid"
                   class="px-4 py-1"
                   :action="resetPreferences"
@@ -326,6 +362,7 @@
                 <div v-if="false" class="extra-settings">
                   <base-checkbox
                     v-model="currentUser.preferences.enable_worksite_caching"
+                    data-testid="testEnableWorksiteCachingCheckbox"
                   >
                     {{ $t('profileUser.enable_worksite_caching') }}
                   </base-checkbox>

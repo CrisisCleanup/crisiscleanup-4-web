@@ -2,6 +2,7 @@
   <div class="p-3 flex flex-col">
     <base-select
       class="bg-white h-12 mb-3 w-120 absolute"
+      data-testid="testSelectStatusSelect"
       :options="displayStatuses"
       searchable
       item-key="status"
@@ -13,6 +14,7 @@
         <div class="flex items-center justify-start absolute left-0 top-0 px-2">
           <badge
             class="ml-1 mr-3"
+            :title="getStatusName(option.status)"
             :color="getColorForStatus(option.status, true)"
           />
           {{ getStatusName(option.status) }}
@@ -22,6 +24,7 @@
         <div class="flex items-center justify-start">
           <badge
             class="ml-1 mr-3"
+            :title="getStatusName(option.status)"
             :color="getColorForStatus(option.status, true)"
           />
           {{ getStatusName(option.status) }}

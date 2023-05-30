@@ -1,9 +1,14 @@
 <template>
-  <div v-if="worksite" class="form h-full">
+  <div
+    v-if="worksite"
+    data-testid="testWorksiteFormContentDiv"
+    class="form h-full"
+  >
     <div class="form-header">
       <div class="flex p-1">
         <flag
           v-for="flag in worksite.flags"
+          :data-testid="`test${flag.reason_t}Flag`"
           :key="flag.reason_t"
           :flag-reason="flag.reason_t"
           removable
@@ -16,9 +21,13 @@
         $t('caseForm.property_information')
       }}</SectionHeading>
       <section class="px-3 pb-3">
-        <WorksiteNotes :worksite="worksite" @saveNote="saveNote" />
+        <WorksiteNotes
+          :worksite="worksite"
+          data-testid="testWorksiteNotesContent"
+          @saveNote="saveNote"
+        />
 
-        <div class="flex flex-row">
+        <div class="flex flex-row" data-testid="testNameContent">
           <div class="flex-1">
             <label
               class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
@@ -33,16 +42,18 @@
                   class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
                   >{{ $t('formLabels.phone1') }}</label
                 >
-                <div>{{ worksite.phone1 }}</div>
+                <div data-testid="testPhoneDiv">{{ worksite.phone1 }}</div>
               </div>
               <div v-if="can && can('phone_agent')" class="flex-1">
                 <base-button
                   v-tooltip="{ content: 'Call Number', html: true }"
+                  data-testid="testCallNumberButton"
                   ccu-icon="phone-classic"
                   icon-size="md"
                   size="xxs"
                   variant="outline"
                   class="worksite__dialer"
+                  :alt="$t('formLabels.call_number')"
                   :action="() => openDialerTab(worksite.phone1)"
                 />
               </div>
@@ -55,7 +66,7 @@
             class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
             >{{ $t('formLabels.address') }}</label
           >
-          <div>{{ worksiteAddress }}</div>
+          <div data-testid="testAddressDiv">{{ worksiteAddress }}</div>
         </div>
       </section>
       <SectionHeading :count="3" class="mb-3"
@@ -63,9 +74,11 @@
         <template #action>
           <base-button
             v-if="workTypesUnclaimed.length > 0"
+            data-testid="testClaimAllButton"
             class="ml-2 p-1 px-3 text-xs"
             variant="solid"
             :text="$t('actions.claim_all_alt')"
+            :alt="$t('actions.claim_all_alt')"
             :action="
               () => {
                 return claimWorkType(
@@ -77,9 +90,11 @@
           <template v-if="workTypesClaimedByOthersUnrequested.length > 0">
             <base-button
               v-if="incident.turn_on_release && workTypesReleaseable.length > 0"
+              data-testid="testReleaseAllButton"
               class="ml-2 p-1 px-3 text-xs"
               variant="solid"
               :text="$t('actions.release_all')"
+              :alt="$t('actions.release_all')"
               :action="
                 () => {
                   return releaseWorkType(
@@ -91,7 +106,9 @@
             <base-button
               v-else
               class="ml-2 p-1 px-3 border-black border-2 border-black text-xs"
+              data-testid="testRequestAllButton"
               :text="$t('actions.request_all')"
+              :alt="$t('actions.request_all')"
               :action="
                 () => {
                   requestingWorkTypes = true;
@@ -103,7 +120,10 @@
         </template>
       </SectionHeading>
       <section class="px-3 pb-3">
-        <div v-if="Object.keys(workTypesClaimedByOthers).length > 0">
+        <div
+          v-if="Object.keys(workTypesClaimedByOthers).length > 0"
+          data-testid="testWorkTypesClaimedByOthersDiv"
+        >
           <label
             class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
             >{{ $t('caseView.claimed_by') }}</label
@@ -144,9 +164,11 @@
 
                   <base-button
                     v-if="incident.turn_on_release && isStaleCase(work_type)"
+                    :data-testid="`testRelease${work_type.work_type}Button`"
                     class="ml-2 p-1 px-3 text-xs"
                     variant="solid"
                     :text="$t('actions.release')"
+                    :alt="$t('actions.release')"
                     :action="
                       () => {
                         return releaseWorkType([work_type.work_type]);
@@ -157,6 +179,7 @@
                   <template v-else>
                     <base-button
                       v-if="!worksiteRequestWorkTypeIds.has(work_type.id)"
+                      :data-testid="`testRequest${work_type.work_type}Button`"
                       type="link"
                       :action="
                         () => {
@@ -167,9 +190,13 @@
                         }
                       "
                       :text="$t('actions.request')"
+                      :alt="$t('actions.request')"
                       class="ml-2 p-1 px-3 text-xs"
                     />
-                    <div v-else class="ml-2 p-1 px-3 text-xs">
+                    <div
+                      v-else class="ml-2 p-1 px-3 text-xs"
+                      data-testid="testRequestedDiv"
+                    >
                       {{ $t('caseView.requested') }}
                     </div>
                   </template>
@@ -180,7 +207,11 @@
                         .join(', ')
                     }}
                   </div>
-                  <div v-if="work_type.recur" class="recurrence">
+                  <div
+                    v-if="work_type.recur"
+                    data-testid="testNextRecurrenceDiv"
+                    class="recurrence"
+                  >
                     {{ getRecurrenceString(work_type.recur) }}
                     <br />
                     {{ $t('caseView.next') }}
@@ -212,6 +243,7 @@
                 }}</span>
                 <WorksiteStatusDropdown
                   class="block"
+                  :data-testid="`testWorksiteStatusDropdown${work_type.work_type}Select`"
                   :phase="incident.phase"
                   :current-work-type="work_type"
                   @input="
@@ -222,12 +254,14 @@
                 />
                 <base-button
                   variant="solid"
+                  :data-testid="`testUnclaim${work_type.work_type}Button`"
                   :action="
                     () => {
                       return unclaimWorkType([work_type.work_type]);
                     }
                   "
                   :text="$t('actions.unclaim')"
+                  :alt="$t('actions.unclaim')"
                   class="ml-2 p-1 px-3 text-xs"
                 />
                 <div class="work-list">
@@ -260,6 +294,7 @@
                 }}</span>
                 <WorksiteStatusDropdown
                   class="block"
+                  :data-testid="`testWorksiteStatusDropdown${work_type.work_type}Div`"
                   :phase="incident.phase"
                   :current-work-type="work_type"
                   @input="
@@ -270,12 +305,14 @@
                 />
                 <base-button
                   variant="solid"
+                  :data-testid="`testClaim${work_type.work_type}Button`"
                   :action="
                     () => {
                       return claimWorkType([work_type.work_type]);
                     }
                   "
                   :text="$t('actions.claim')"
+                  :alt="$t('actions.claim')"
                   class="ml-2 p-1 px-3 text-xs"
                 />
                 <div class="work-list">
@@ -314,9 +351,11 @@
     <div class="form-footer flex justify-between p-3 gap-2">
       <base-button
         v-if="workTypesClaimedByOrganization.length > 0"
+        :data-testid="`testUnclaim${work_type.work_type}Button`"
         size="medium"
         class="m-1 text-black p-3 px-4 border-2 border-black flex-grow"
         :text="$t('actions.unclaim')"
+        :alt="$t('actions.unclaim')"
         :action="
           () => {
             return unclaimWorkType();
@@ -325,10 +364,12 @@
       />
       <base-button
         v-if="workTypesUnclaimed.length > 0"
+        :data-testid="`testClaim${work_type.work_type}Button`"
         size="medium"
         variant="solid"
         class="m-1 text-black p-3 px-4 flex-grow"
         :text="$t('actions.claim')"
+        :alt="$t('actions.claim')"
         :action="
           () => {
             showingClaimModal = true;
@@ -337,9 +378,11 @@
       />
       <base-button
         v-if="workTypesClaimedByOthersUnrequested.length > 0"
+        :data-testid="`testRequest${work_type.work_type}Button`"
         size="medium"
         class="m-1 text-black p-3 px-4 border-2 border-black flex-grow"
         :text="$t('actions.request')"
+        :alt="$t('actions.request')"
         :action="
           () => {
             requestingWorkTypes = true;
@@ -349,10 +392,11 @@
       />
       <base-button
         size="medium"
+        data-testid="testCloseWorksiteButton"
         variant="solid"
         class="m-1 text-black p-3 px-4 flex-grow"
-        data-cy="caseview-actions-done"
         :text="$t('actions.done')"
+        :alt="$t('actions.done')"
         :action="
           () => {
             $emit('closeWorksite');

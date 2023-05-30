@@ -2,6 +2,7 @@
   <v-popover popper-class="popover menu" placement="bottom-end" class="text-xs">
     <div
       class="badge-holder rounded-lg"
+      data-testid="testCurrentWorkTypeStatusDiv"
       :class="size === 'sm' ? 'px-1' : 'px-2'"
       :style="dropdownStyle"
     >
@@ -16,6 +17,7 @@
       </div>
       <font-awesome-icon
         class="tooltip-target"
+        :alt="$t('actions.select_status')"
         :class="size === 'sm' ? '' : 'mx-1'"
         size="sm"
         icon="chevron-down"
@@ -28,6 +30,7 @@
       >
         <div
           v-for="status in displayStatuses"
+          :data-testid="`testStatus${status.id}Div`"
           :key="`${status.id}`"
           class="cursor-pointer py-1 hover:bg-crisiscleanup-light-grey"
           :class="{ selected: currentItem === status.selectionKey }"

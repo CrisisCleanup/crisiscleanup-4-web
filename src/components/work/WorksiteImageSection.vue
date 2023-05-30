@@ -2,12 +2,18 @@
   <section class="flex">
     <DragDrop
       class="w-20 h-20 border-solid border-2"
+      data-testid="testImageUploaderFile"
       :disabled="uploading"
       @files="handleFileUpload"
     >
       <div class="flex items-center justify-center">
         <font-awesome-icon v-if="uploading" size="lg" icon="spinner" spin />
-        <font-awesome-icon v-else size="lg" icon="camera" />
+        <font-awesome-icon
+          v-else
+          size="lg"
+          icon="camera"
+          :alt="$t('formLabels.upload_photos')"
+        />
       </div>
     </DragDrop>
 
@@ -15,6 +21,7 @@
       <ImageModal
         :image-list="worksite.files ? worksite.files : imageList"
         :disable-modal="disableModal"
+        data-testid="testImageUploaderModal"
         @removeImage="deleteFile"
       />
     </div>

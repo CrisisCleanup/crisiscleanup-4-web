@@ -2,6 +2,7 @@
   <div id="cms" class="bg-white p-3 cms">
     <base-input
       v-model="cmsItem.title"
+      data-testid="testTitleTextInput"
       :placeholder="$t('adminCMS.title')"
       class="mb-2"
     />
@@ -10,6 +11,7 @@
     </template>
     <base-input
       v-else
+      data-testid="testContentTextInput"
       v-model="cmsItem.content"
       :placeholder="$t('adminCMS.content')"
       class="mb-2"
@@ -21,6 +23,12 @@
             ? $t('adminCMS.toggle_regular_mode')
             : $t('adminCMS.toggle_advanced_mode')
         "
+        :alt="
+          showHtml
+            ? $t('adminCMS.toggle_regular_mode')
+            : $t('adminCMS.toggle_advanced_mode')
+        "
+        data-testid="testToggleRegularAdvancedModeButton"
         variant="link"
         :action="
           () => {
@@ -35,18 +43,20 @@
           popperClass: 'interactive-tooltip w-auto',
           html: true,
         }"
-        :alt="$t('actions.help_alt')"
+        data-testid="testCmsHelpIcon"
         type="help"
         size="large"
       />
     </div>
     <datepicker
       v-model="cmsItem.publish_at"
+      data-testid="testPublishAtDatePickerInput"
       auto-apply
       format="yyyy-MM-dd"
     ></datepicker>
     <base-input
       v-model="cmsItem.list_order"
+      data-testid="testListOrderTextInput"
       :placeholder="$t('adminCMS.list_order')"
       class="my-2 w-40"
       type="number"
@@ -54,6 +64,7 @@
     <tag-input
       v-model="tags"
       v-model:tags="tagsToAdd"
+      data-testid="testAddTagsInput"
       :placeholder="$t('actions.add_tags')"
       :autocomplete-items="tagsAutoComplete"
       :add-on-key="[13, 32, ',']"
@@ -61,13 +72,18 @@
       class="my-4"
       @tags-changed="(newTags) => (tagsToAdd = newTags)"
     />
-    <base-checkbox v-model="cmsItem.is_active" class="pb-2">{{
-      $t('adminCMS.is_active')
-    }}</base-checkbox>
+    <base-checkbox
+      v-model="cmsItem.is_active"
+      data-testid="testIsActiveCheckbox"
+      class="pb-2"
+    >
+      {{$t('adminCMS.is_active')}}
+    </base-checkbox>
 
     <div class="flex items-center">
       <DragDrop
         class="cursor-pointer py-2"
+        data-testid="testUploadThumbnailFile"
         container-class="items-start"
         :multiple="false"
         @files="
@@ -78,6 +94,7 @@
       >
         <base-button
           class="cursor-pointer px-3 py-1"
+          data-testid="testUploadThumbnailButton"
           variant="solid"
           :text="$t('actions.upload_thumbnail')"
           :alt="$t('actions.upload_thumbnail')"
@@ -88,6 +105,7 @@
 
       <a
         v-if="cmsItem.thumbnail_file"
+        data-testid="testThumbnailFileLink"
         :href="cmsItem.thumbnail_file.blog_url"
         target="_blank"
         :title="cmsItem.thumbnail_file.filename"
@@ -99,29 +117,36 @@
     <div class="flex justify-end">
       <base-button
         type="bare"
+        data-testid="testClearItemButton"
         class="p-3 w-32 mr-3"
         variant="outline"
         :action="clearItem"
         :text="$t('actions.clear')"
+        :alt="$t('actions.clear')"
       />
       <base-button
         type="bare"
+        data-testid="testShowPreviewButton"
         class="p-3 w-32 mr-3"
         variant="solid"
         :action="showPreview"
         :text="$t('actions.show_preview')"
+        :alt="$t('actions.show_preview')"
       />
       <base-button
         type="bare"
+        data-testid="testSaveButton"
         class="p-3 w-32"
         variant="solid"
         :action="saveItem"
         :text="$t('actions.save')"
+        :alt="$t('actions.save')"
       />
     </div>
 
     <AjaxTable
       ref="table"
+      data-testid="testCmsTableTable"
       :enable-search="true"
       :columns="columns"
       :url="tableUrl"
@@ -133,6 +158,7 @@
         <div class="px-4 py-2">
           <base-checkbox
             class="pb-2"
+            data-testid="testActiveOnlyCheckbox"
             @update:modelValue="
               (value) => {
                 if (value) {
@@ -154,6 +180,7 @@
         <div class="flex mr-2 justify-center w-full">
           <ccu-icon
             :alt="$t('actions.delete')"
+            data-testid="testDeleteIcon"
             size="small"
             type="trash"
             class="mx-2"
@@ -168,6 +195,7 @@
       <template #tags="slotProps">
         <tag
           v-for="tag in slotProps.item.tags"
+          data-testid="testTagListContent"
           :key="`${tag}:${slotProps.item.id}`"
           class="mx-1"
           >{{ tag }}</tag

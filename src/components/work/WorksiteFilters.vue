@@ -3,6 +3,7 @@
     v-if="show"
     modal-classes="bg-white max-w-2xl shadow"
     modal-style="min-height: 60%"
+    data-testid="testFiltersModal"
   >
     <div class="flex flex-col h-full">
       <div class="p-3">
@@ -26,6 +27,7 @@
               :key="key + identifier"
             >
               <tag
+                :data-testid="`testFilters${label}Label`"
                 closeable
                 class="m-1"
                 @closed="
@@ -42,6 +44,7 @@
         <div>
           <base-button
             type="bare"
+            data-testid="testClearFiltersButton"
             :text="$t('actions.clear_filters')"
             :alt="$t('actions.clear_filters')"
             class="text-yellow-500 text-underline w-32"
@@ -54,6 +57,7 @@
         <div class="w-1/4 border-r">
           <div
             class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testGeneralSectionDiv"
             :class="{
               'border-l-4 border-l-black': currentSection === 'general',
             }"
@@ -68,6 +72,7 @@
           </div>
           <div
             class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testPersonalSectionDiv"
             :class="{
               'border-l-4 border-l-black': currentSection === 'personal',
             }"
@@ -82,6 +87,7 @@
           </div>
           <div
             class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testFlagsSectionDiv"
             :class="{
               'border-l-4 border-l-black': currentSection === 'flags',
             }"
@@ -96,6 +102,7 @@
           </div>
           <div
             class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testWorkSectionDiv"
             :class="{ 'border-l-4 border-l-black': currentSection === 'work' }"
             @click="currentSection = 'work'"
           >
@@ -108,6 +115,7 @@
           </div>
           <div
             v-if="teams.length > 0"
+            data-testid="testTeamsSectionDiv"
             class="p-3 px-4 border-b cursor-pointer"
             :class="{ 'border-l-4 border-l-black': currentSection === 'teams' }"
             @click="currentSection = 'teams'"
@@ -121,6 +129,7 @@
           </div>
           <div
             class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testLocationsSectionDiv"
             :class="{
               'border-l-4 border-l-black': currentSection === 'locations',
             }"
@@ -135,6 +144,7 @@
           </div>
           <div
             class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testDateSectionDiv"
             :class="{
               'border-l-4 border-l-black': currentSection === 'dates',
             }"
@@ -158,6 +168,7 @@
                 v-model="
                   filters.locations.data['organization_primary_location']
                 "
+                data-testid="testOrganizationPrimaryLocationCheckbox"
                 class="block my-1"
               >
                 {{ $t('worksiteFilters.in_primary_response_area') }}
@@ -166,6 +177,7 @@
                 v-model="
                   filters.locations.data['organization_secondary_location']
                 "
+                data-testid="testOrganizationSecondaryLocationCheckbox"
                 class="block my-1"
               >
                 {{ $t('worksiteFilters.in_secondary_response_area') }}
@@ -178,6 +190,7 @@
               <base-checkbox
                 v-model="filters.my_team.data.my_team"
                 class="block my-1"
+                data-testid="testMyTeamCheckbox"
               >
                 {{ $t('worksiteFilters.assigned_to_my_team') }}
               </base-checkbox>
@@ -188,16 +201,19 @@
               </div>
               <base-checkbox
                 v-model="filters.statusGroups.data['unclaimed']"
+                data-testid="testUnclaimedCheckbox"
                 class="block my-1"
                 >{{ $t('worksiteFilters.unclaimed') }}
               </base-checkbox>
               <base-checkbox
                 v-model="filters.statusGroups.data['claimed_by_org']"
+                data-testid="testClaimedByOrgCheckbox"
                 class="block my-1"
                 >{{ $t('worksiteFilters.claimed_by_my_org') }}
               </base-checkbox>
               <base-checkbox
                 v-model="filters.statusGroups.data['reported_by_org']"
+                data-testid="testReportedByOrgCheckbox"
                 class="block my-1"
                 >{{ $t('worksiteFilters.reported_by_my_org') }}
               </base-checkbox>
@@ -208,6 +224,7 @@
               </div>
               <base-checkbox
                 class="block my-1"
+                data-testid="testOpenCheckbox"
                 :model-value="filters.statusGroups.data['open']"
                 @update:modelValue="
                   (value) => {
@@ -218,6 +235,7 @@
               </base-checkbox>
               <base-checkbox
                 class="block my-1"
+                data-testid="testClosedCheckbox"
                 :model-value="filters.statusGroups.data['closed']"
                 @update:modelValue="
                   (value) => {
@@ -239,6 +257,7 @@
               >
                 <base-checkbox
                   class="block my-1"
+                  :data-testid="`testStatus${status.status}Checkbox`"
                   :model-value="filters.statuses.data[status.status]"
                   @update:modelValue="
                     (value) => {
@@ -260,6 +279,7 @@
               </div>
               <base-checkbox
                 v-for="flag in flagTypes"
+                :data-testid="`testFlag${flag}Checkbox`"
                 :key="flag"
                 class="block my-1"
                 :model-value="filters.flags.data[flag]"
@@ -280,6 +300,7 @@
               </div>
               <base-checkbox
                 v-model="filters.survivors.data.member_of_my_organization"
+                data-testid="testMemberOfMyOrganizationCheckbox"
                 class="block my-1"
               >
                 {{ $t('worksiteFilters.member_of_my_org') }}
@@ -297,6 +318,7 @@
                   'veteran',
                 ]"
                 :key="data"
+                :data-testid="`testPersonal${data}Checkbox`"
                 class="block my-1"
                 :model-value="filters.form_data.data[data]"
                 @update:modelValue="
@@ -317,13 +339,18 @@
               class="p-2 px-4 mb-2 bg-crisiscleanup-light-grey"
             >
               <div class="flex items-center justify-between">
-                <base-checkbox v-model="filters.fields.data[f.key]">{{
-                  f.name_t
-                }}</base-checkbox>
+                <base-checkbox
+                  v-model="filters.fields.data[f.key]"
+                  :data-testid="`testWorkType${f.key}Checkbox`"
+                >
+                  {{f.name_t}}
+                </base-checkbox>
                 <font-awesome-icon
                   v-if="filters.fields.data[f.key]"
+                  :data-testid="`testWorkType${f.key}Icon`"
                   class="cursor-pointer"
                   size="md"
+                  :alt="expanded[f.key] ? $t('actions.hide_options') : $t('actions.show_options')"
                   :icon="expanded[f.key] ? 'caret-up' : 'caret-down'"
                   @click="expandSection(f.key)"
                 />
@@ -397,7 +424,7 @@
               </div>
             </div>
             <div class="status-group mb-2">
-              <div class="my-1 text-base">
+              <div class="my-1 text-base" data-testid="testMissingWorkTypeCheckbox">
                 {{ $t('worksiteFilters.missing_information') }}
               </div>
               <base-checkbox
@@ -415,6 +442,7 @@
               </div>
               <base-checkbox
                 v-for="team in teams"
+                :data-testid="`testTeam${team.id}Checkbox`"
                 :key="`${team.id}`"
                 class="block my-1"
                 :model-value="filters.teams.data[team.id]"
@@ -438,6 +466,7 @@
                   v-model="
                     filters.locations.data['organization_primary_location']
                   "
+                  data-testid="testOrganizationPrimaryLocation2Checkbox"
                   class="block my-1"
                 >
                   {{ $t('worksiteFilters.in_primary_response_area') }}
@@ -446,18 +475,20 @@
                   v-model="
                     filters.locations.data['organization_secondary_location']
                   "
+                  data-testid="testOrganizationSecondaryLocation2Checkbox"
                   class="block my-1"
                 >
                   {{ $t('worksiteFilters.in_secondary_response_area') }}
                 </base-checkbox>
               </div>
               <div class="mb-2">
-                <div class="my-1 text-base">
+                <div class="my-1 text-base" data-testid="testMyLocationsDiv">
                   {{ $t('worksiteFilters.my_locations') }}
                 </div>
                 <div v-for="location in locations" :key="`${location.id}`">
                   <base-checkbox
                     class="block my-1"
+                    :data-testid="`testMyLocations${location.id}Checkbox`"
                     :model-value="filters.locations.data[location.id]"
                     @update:modelValue="
                       (value) => {
@@ -481,6 +512,7 @@
                 </div>
                 <datepicker
                   v-model="filters.dates.data.created"
+                  data-testid="testCreatedDatePickerInput"
                   input-class="h-10 p-1 outline-none w-56 border border-crisiscleanup-dark-100 text-sm mb-2"
                   wrapper-class="flex-grow"
                   :formatter="{
@@ -494,6 +526,7 @@
                 </div>
                 <datepicker
                   v-model="filters.dates.data.updated"
+                  data-testid="testUpdatedDatePickerInput"
                   input-class="h-10 p-1 outline-none w-56 border border-crisiscleanup-dark-100 text-sm mb-2"
                   wrapper-class="flex-grow"
                   :formatter="{
@@ -513,6 +546,7 @@
         <base-button
           :text="$t('actions.cancel')"
           :alt="$t('actions.cancel')"
+          data-testid="testCancelButton"
           size="medium"
           class="m-1 border-2 border-black px-6 py-2"
           :action="
@@ -524,6 +558,7 @@
         <base-button
           :text="$t('actions.apply_filters')"
           :alt="$t('actions.apply_filters')"
+          data-testid="testApplyFiltersButton"
           ccu-event="user_ui-turn-on_filter"
           size="medium"
           class="m-1 p-3 px-6"
