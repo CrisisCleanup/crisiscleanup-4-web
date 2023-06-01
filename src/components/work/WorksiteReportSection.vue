@@ -61,7 +61,8 @@
               <div v-if="currentTimeEdit.id === entry.id">
                 <input
                   class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
-                  @update:modelValue="
+                  :value="currentTimeEdit.volunteers ? currentTimeEdit.volunteers : entry.volunteers"
+                  @update:modelValue="() =>
                     currentTimeEdit.volunteers = $event.target.value
                   "
                   v-model="editVolunteersToAdd"
