@@ -61,11 +61,7 @@
               <div v-if="currentTimeEdit.id === entry.id">
                 <input
                   class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
-                  :value="currentTimeEdit.volunteers ? currentTimeEdit.volunteers : entry.volunteers"
-                  @update:modelValue="() =>
-                    currentTimeEdit.volunteers = $event.target.value
-                  "
-                  v-model="editVolunteersToAdd"
+                  v-model="currentTimeEdit.volunteers"
                 />
               </div>
               <div v-else>
@@ -225,7 +221,6 @@ export default defineComponent({
           currentTimeEdit.value.seconds,
           currentTimeEdit.value.volunteers,
         );
-        console.log(currentTimeEdit.value,'currentTimeEdit')
         currentTimeEdit.value = {};
         await Worksite.api().fetch(props.worksite.id);
       } catch (error) {
