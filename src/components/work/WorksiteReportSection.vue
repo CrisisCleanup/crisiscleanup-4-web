@@ -46,7 +46,7 @@
             <th class="border p-1 break-all" width="90px">
               {{ $t('caseView.volunteers') }}
             </th>
-            <th class="border p-1 break-all">
+            <th class="border p-1 break-word">
               {{ $t('caseView.hours_per_volunteer') }}
             </th>
             <th width="20px"></th>
