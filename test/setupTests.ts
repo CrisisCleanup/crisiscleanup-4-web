@@ -37,6 +37,7 @@ vi.mock('vue3-mq', async () => {
     ...actual,
   };
 });
+vi.mock('axios');
 
 class MockWorker {
   private readonly url: string;
