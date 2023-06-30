@@ -17,7 +17,7 @@
       >
         <div
           v-for="r in mobileRoutes"
-          :key="route.key"
+          :key="r.key"
           class="flex flex-col items-center"
         >
           <a :href="r.to" class="text-white flex flex-col">
@@ -33,7 +33,9 @@
         </div>
       </footer>
     </div>
-
+    <div v-else class="flex h-screen items-center justify-center">
+      <spinner show-quote />
+    </div>
     <modal
       v-if="showingMoreLinks"
       data-testid="testShowingMoreLinksModal"
