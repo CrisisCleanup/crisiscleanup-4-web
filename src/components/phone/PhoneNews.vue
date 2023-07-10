@@ -1,9 +1,6 @@
 <template>
   <tabs ref="tabs" class="" tab-details-classes="h-full overflow-auto">
-    <tab
-      :name="$t('phoneDashboard.news')"
-      data-testid="testPhoneNewsDiv"
-    >
+    <tab :name="$t('phoneDashboard.news')" data-testid="testPhoneNewsDiv">
       <ul>
         <li
           v-for="newItem in news"
@@ -38,6 +35,39 @@
         </li>
       </ul>
     </tab>
+    <tab name="User Guide">
+      <li
+        v-for="newItem in userGuide"
+        :key="newItem.id"
+        class="hover:bg-crisiscleanup-light-grey cursor-pointer border-b-2"
+        @click="() => showDetails(newItem)"
+      >
+        <div class="p-2 flex">
+          <img
+            v-if="newItem.thumbnail_file"
+            :src="newItem.thumbnail_file.blog_url"
+            class="w-20 h-20 mr-2"
+            :alt="newItem.thumbnail_file"
+          />
+          <img
+            v-else
+            src="../../assets/cc-logo.svg"
+            class="w-20 h-20 mr-2"
+            alt="crisis-cleanup-logo"
+          />
+          <div class="h-20 overflow-y-hidden">
+            <div
+              class="text-xl sm:text-sm my-1 font-bold truncate"
+              v-html="$t(formatCmsItem(newItem.title))"
+            ></div>
+            <p
+              class="text-xs line-clamp-3"
+              v-html="$t(formatCmsItem(newItem.content))"
+            ></p>
+          </div>
+        </div>
+      </li>
+    </tab>
   </tabs>
 </template>
 
@@ -68,6 +98,7 @@ export default defineComponent({
 
     const newsInterval = ref(undefined);
     const news = ref([]);
+    const userGuide = ref([]);
     const unreadCount = ref(0);
 
     async function getNews() {
@@ -89,6 +120,12 @@ export default defineComponent({
         }&sort=-publish_at&limit=10`,
       );
       news.value = response.data.results;
+      const userResponse = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/cms?tags=user-guide&sort=-publish_at&limit=10`,
+      );
+      userGuide.value = userResponse.data.results;
     }
 
     async function showDetails(newItem) {
@@ -124,6 +161,7 @@ export default defineComponent({
       news,
       unreadCount,
       newsInterval,
+      userGuide,
       formatCmsItem,
       showDetails,
     };
