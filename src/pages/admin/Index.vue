@@ -1,5 +1,13 @@
 <template>
-  <PageTabBar :tabs="tabs" />
+  <PageTabBar
+    v-if="
+      isBugCountFinished &&
+      bugReportsData &&
+      isTicketCountFinished &&
+      ticketCountData
+    "
+    :tabs="tabs"
+  />
 </template>
 
 <script lang="ts">
@@ -10,6 +18,32 @@ export default defineComponent({
   name: 'AdminPage',
   components: { PageTabBar },
   setup() {
+    const ticketCount = ref(0);
+    const bugReportCount = ref(0);
+    const ccuApi = useApi();
+    const { isFinished: isBugCountFinished, data: bugReportsData } = ccuApi(
+      '/bug_reports',
+      {
+        method: 'GET',
+      },
+    );
+    whenever(isBugCountFinished, () => {
+      const bugsTab = tabs.find((tab) => tab.key === 'nav.bugs');
+      bugsTab.title = `Bugs (${bugReportsData.value.count})`;
+    });
+
+    const { isFinished: isTicketCountFinished, data: ticketCountData } = ccuApi(
+      'zendesk/search/count.json?query=type:ticket status<solved',
+      {
+        method: 'GET',
+      },
+    );
+    whenever(isTicketCountFinished, () => {
+      const ticketTab = tabs.find((tab) => tab.key === 'nav.admin_tickets');
+      console.log(ticketCount.value);
+      ticketTab.title = `Tickets (${ticketCountData.value.count})`;
+    });
+
     const tabs = reactive([
       reactive({
         key: 'nav.admin_dashboard',
@@ -24,6 +58,9 @@ export default defineComponent({
         key: 'nav.admin_tickets',
       }),
       reactive({
+        key: 'nav.bugs',
+      }),
+      reactive({
         key: 'nav.cms',
       }),
       reactive({
@@ -32,11 +69,15 @@ export default defineComponent({
       reactive({
         key: 'nav.localizations',
       }),
-      reactive({
-        key: 'nav.bugs',
-      }),
     ]);
-    return { tabs };
+
+    return {
+      tabs,
+      isBugCountFinished,
+      bugReportsData,
+      isTicketCountFinished,
+      ticketCountData,
+    };
   },
 });
 </script>

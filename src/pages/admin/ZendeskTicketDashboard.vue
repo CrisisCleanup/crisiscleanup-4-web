@@ -2,6 +2,7 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import _ from 'lodash';
+import { useMq } from 'vue3-mq';
 import TicketCards from '@/components/Tickets/TicketCards.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { makeTableColumns } from '@/utils/table';
@@ -13,7 +14,9 @@ import BaseText from '@/components/BaseText.vue';
 import { momentFromNow, capitalize } from '@/filters';
 import type User from '@/models/User';
 import useEmitter from '@/hooks/useEmitter';
+import BaseSelect from '@/components/BaseSelect.vue';
 
+const mq = useMq();
 const { emitter } = useEmitter();
 const { t } = useI18n();
 const axiosInstance = axios.create({
@@ -195,18 +198,79 @@ const getUsersRelatedToTickets = () => {
     });
 };
 
-const columns = makeTableColumns([
-  ['status', '8%', t('helpdesk.ticket_status')],
-  ['created_at', '5%', t('helpdesk.ticket_created_at')],
-  ['account_type', '10%', t('helpdesk.account_type')],
-  ['roles', '16%', t('helpdesk.roles')],
-  ['app', '6%', t('helpdesk.app_platform')],
-  ['assignee', '10%', t('helpdesk.assignee')],
-  ['requester', '8%', t('helpdesk.requester')],
-  ['description', '25%', t('helpdesk.description')],
-  ['advanced_ticket', '7%', t('helpdesk.full_ticket')],
-  ['zendesk', '5%', t('helpdesk.zendesk_link')],
-]);
+const columns = [
+  {
+    title: t('helpdesk.ticket_status'),
+    dataIndex: 'status',
+    key: 'status',
+    sortable: true,
+    width: '8%',
+  },
+  {
+    title: t('helpdesk.ticket_created_at'),
+    dataIndex: 'created_at',
+    key: 'created_at',
+    sortable: true,
+    width: '5%',
+  },
+  {
+    title: t('helpdesk.account_type'),
+    dataIndex: 'account_type',
+    key: 'account_type',
+    sortable: true,
+    width: '10%',
+  },
+  {
+    title: t('helpdesk.roles'),
+    dataIndex: 'roles',
+    key: 'roles',
+    sortable: true,
+    width: '16%',
+  },
+  {
+    title: t('helpdesk.app_platform'),
+    dataIndex: 'app',
+    key: 'app',
+    sortable: true,
+    width: '6%',
+  },
+  {
+    title: t('helpdesk.assignee'),
+    dataIndex: 'assignee',
+    key: 'assignee',
+    sortable: true,
+    width: '10%',
+  },
+  {
+    title: t('helpdesk.requester'),
+    dataIndex: 'requester',
+    key: 'requester',
+    sortable: true,
+    width: '8%',
+  },
+  {
+    title: t('helpdesk.description'),
+    dataIndex: 'description',
+    key: 'description',
+    sortable: true,
+    width: '25%',
+  },
+  {
+    title: t('helpdesk.full_ticket'),
+    dataIndex: 'advanced_ticket',
+    key: 'advanced_ticket',
+    sortable: true,
+    width: '7%',
+  },
+  {
+    title: t('helpdesk.zendesk_link'),
+    dataIndex: 'zendesk',
+    key: 'zendesk',
+    sortable: true,
+    width: '5%',
+  },
+];
+
 const showTicketModal = (ticket: Ticket) => {
   ticketModal.value = !ticketModal.value;
   activeTicket.value = ticket;
@@ -330,12 +394,39 @@ const getAgentList = () => {
     });
 };
 
-emitter.on('closeModal', () => {
-  showTicketModal();
+emitter.on('closeTicketModal', () => {
+  ticketModal.value = false;
 });
 // watch(ticketsWithUsers, (newValue, oldValue) => {
 //   console.log('ticket data has changed', newValue, oldValue);
 // });
+const sorterEnums = {
+  OLDEST: 'oldest',
+  STATUS: 'status',
+  AGENT: 'agent',
+  REQUESTER: 'requester',
+};
+const ticketSorter = ref();
+const sorterObject = {
+  [sorterEnums.STATUS]: ['status'],
+  [sorterEnums.AGENT]: ['assignee_id'],
+  [sorterEnums.REQUESTER]: ['requester_id'],
+  [sorterEnums.OLDEST]: null,
+};
+
+const changeTicketSorting = (sorter) => {
+  ticketSorter.value = sorter;
+};
+
+const ticketsWithUsersSorted = computed(() => {
+  const sortingKey = sorterObject[ticketSorter.value];
+
+  if (sortingKey) {
+    return _.orderBy(ticketsWithUsers.value, sortingKey);
+  }
+
+  return ticketsWithUsers.value;
+});
 
 onMounted(() => {
   isLoading.value = true;
@@ -346,164 +437,206 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-12">
-    <div
-      v-if="ticketTotals"
-      class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-4"
-    >
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.total_tickets') }}</span>
-        {{ ticketStats.total }}</BaseText
+  <div>
+    <div class="grid grid-cols-12">
+      <div
+        v-if="ticketTotals"
+        class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-12 md:col-span-4"
       >
-      <BaseText
-        ><span class="font-bold text-[#c19700]">{{
-          t('helpdesk.new_tickets')
-        }}</span
-        >{{ ticketStats.newTickets }}</BaseText
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.total_tickets') }}</span>
+          {{ ticketStats.total }}
+        </BaseText>
+        <BaseText
+          ><span class="font-bold text-[#c19700]">{{
+            t('helpdesk.new_tickets')
+          }}</span>
+          {{ ticketStats.newTickets }}
+        </BaseText>
+        <BaseText
+          ><span class="font-bold text-[#0042ed]">{{
+            t('helpdesk.open_tickets')
+          }}</span>
+          {{ ticketStats.open }}</BaseText
+        >
+        <BaseText
+          ><span class="font-bold text-[#6b6b6b]">{{
+            t('helpdesk.pending_tickets')
+          }}</span>
+          {{ ticketStats.pending }}</BaseText
+        >
+      </div>
+      <div
+        v-if="ticketTotals"
+        class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-12 md:col-span-4"
       >
-      <BaseText
-        ><span class="font-bold text-[#0042ed]">{{
-          t('helpdesk.open_tickets')
-        }}</span>
-        {{ ticketStats.open }}</BaseText
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.web_platform') }}</span>
+          {{ ticketStats.app_type?.web ?? 0 }}</BaseText
+        >
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.ios_platform') }}</span>
+          {{ ticketStats.app_type?.ios ?? 0 }}</BaseText
+        >
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.android_platform') }}</span>
+          {{ ticketStats.app_type?.android ?? 0 }}</BaseText
+        >
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.unknown_platform') }}</span>
+          {{ ticketStats.app_type?.unknown ?? 0 }}</BaseText
+        >
+      </div>
+      <div
+        v-if="ticketTotals"
+        class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-12 md:col-span-4"
       >
-      <BaseText
-        ><span class="font-bold text-[#6b6b6b]">{{
-          t('helpdesk.pending_tickets')
-        }}</span
-        >{{ ticketStats.pending }}</BaseText
+        <!--      could not get these to return just number instead of key:value pair as undefined for key-->
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.user_count') }}</span>
+          {{ ticketStats.users?.undefined }}
+        </BaseText>
+        <BaseText
+          ><span class="font-bold">{{ t('helpdesk.other') }}</span>
+          {{ ticketStats.survivors?.undefined }}</BaseText
+        >
+      </div>
+      <div
+        class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-12 md:col-span-4"
       >
+        <BaseSelect
+          :model-value="ticketSorter"
+          select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded py-2"
+          class="w-full"
+          label="name"
+          :placeholder="t('helpdesk.sort_by')"
+          item-key="id"
+          :options="sorterObject"
+          @update:model-value="(v) => changeTicketSorting(v)"
+        />
+      </div>
     </div>
-    <div
-      v-if="ticketTotals"
-      class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-4"
+    <Table
+      v-if="usersRelatedToTickets && usersRelatedToTickets.data"
+      :columns="columns"
+      :data="ticketsWithUsersSorted"
     >
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.web_platform') }}</span>
-        {{ ticketStats.app_type?.web ?? 0 }}</BaseText
-      >
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.ios_platform') }}</span>
-        {{ ticketStats.app_type?.ios ?? 0 }}</BaseText
-      >
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.android_platform') }}</span>
-        {{ ticketStats.app_type?.android ?? 0 }}</BaseText
-      >
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.unknown_platform') }}</span>
-        {{ ticketStats.app_type?.unknown ?? 0 }}</BaseText
-      >
-    </div>
-    <div
-      v-if="ticketTotals"
-      class="flex border p-4 m-2 rounded-md items-center justify-evenly col-span-4"
-    >
-      <!--      could not get these to return just number instead of key:value pair as undefined for key-->
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.user_count') }}</span>
-        {{ ticketStats.users?.undefined }}
-      </BaseText>
-      <BaseText
-        ><span class="font-bold">{{ t('helpdesk.other') }}</span>
-        {{ ticketStats.survivors?.undefined }}</BaseText
-      >
-    </div>
+      <template #status="slotProps">
+        <span v-if="mq.mdMinus" class="font-bold">Status: </span>
+        <div :class="[slotProps.item.status + '-tag', 'ticket-status text-xl']">
+          {{ capitalize(slotProps.item.status) }}
+        </div>
+      </template>
+      <template #created_at="slotProps">
+        <BaseText
+          ><span v-if="mq.mdMinus" class="font-bold">Created At: </span>
+          {{ momentFromNow(slotProps.item.created_at) }}
+        </BaseText>
+      </template>
+
+      <template #account_type="slotProps">
+        <span v-if="mq.mdMinus" class="font-bold">Account Type: </span>
+        <div
+          v-if="slotProps.item.user.ccu_user"
+          style="color: #3498db"
+          class="user-type rounded-md text-center p-2 my-2"
+        >
+          {{ t('helpdesk.user_account') }}
+        </div>
+
+        <div
+          v-else
+          class="user-type rounded-md text-center p-2 my-2"
+          style="color: #27ae60"
+        >
+          {{ t('helpdesk.other') }}
+        </div>
+      </template>
+
+      <template #roles="slotProps">
+        <span v-if="mq.mdMinus" class="font-bold">Roles: </span>
+        <UserRolesSelect
+          v-if="slotProps.item.user.ccu_user"
+          style="pointer-events: none"
+          class="w-full flex-grow border border-crisiscleanup-dark-100 mx-2"
+          data-testid="testUserRolesSelect"
+          :user="slotProps.item.user.ccu_user"
+        />
+        <div v-else class="flex items-center justify-center">
+          {{ t('helpdesk.no_account') }}
+        </div>
+      </template>
+      <template #assignee="slotProps">
+        <BaseText
+          ><span v-if="mq.mdMinus" class="font-bold">Assignee: </span>
+          {{ _.find(agents, { id: slotProps.item.assignee_id })?.name || '-' }}
+        </BaseText>
+      </template>
+      <template #app="slotProps">
+        <BaseText
+          ><span v-if="mq.mdMinus" class="font-bold">App: </span
+          >{{
+            slotProps.item.custom_fields.find(
+              (field) => field.id === 17295140815757,
+            ).value || '-'
+          }}</BaseText
+        >
+      </template>
+      <template #requester="slotProps">
+        <BaseText>
+          <span v-if="mq.mdMinus" class="font-bold">Requester:</span>
+          {{
+            slotProps.item.user?.ccu_user
+              ? slotProps.item.user?.ccu_user?.first_name +
+                ' ' +
+                slotProps.item.user?.ccu_user?.last_name
+              : slotProps.item.user.name
+          }}
+        </BaseText>
+      </template>
+
+      <template #description="slotProps">
+        <BaseText>
+          <span v-if="mq.mdMinus" class="font-bold">Description: </span
+          >{{ removeSubmittedFromFooter(slotProps.item.subject) }}
+        </BaseText>
+      </template>
+
+      <template #advanced_ticket="slotProps">
+        <BaseButton
+          :action="() => showTicketModal(slotProps.item)"
+          :text="t('helpdesk.open_ticket_status')"
+          variant="primary"
+          class="p-2 rounded-md text-lg"
+          :class="mq.mdMinus && 'w-full'"
+        />
+      </template>
+
+      <template #zendesk="slotProps">
+        <base-link
+          :href="`https://crisiscleanup.zendesk.com/agent/tickets/${slotProps.item.id}`"
+          text-variant="bodysm"
+          class="px-2 w-14 border rounded-md flex items-center justify-center"
+          :class="mq.mdMinus && 'w-full'"
+          target="_blank"
+        >
+          <img
+            alt="zendesk icon"
+            src="../../assets/icons/zendesk.svg"
+            class="w-8 md:w-14"
+          />
+        </base-link>
+      </template>
+    </Table>
   </div>
-  <Table
-    v-if="usersRelatedToTickets && usersRelatedToTickets.data"
-    :columns="columns"
-    :data="ticketsWithUsers"
-  >
-    <template #status="slotProps">
-      <div :class="[slotProps.item.status + '-tag', 'ticket-status text-xl']">
-        {{ capitalize(slotProps.item.status) }}
-      </div>
-    </template>
-    <template #created_at="slotProps">{{
-      momentFromNow(slotProps.item.created_at)
-    }}</template>
-
-    <template #account_type="slotProps">
-      <div
-        v-if="slotProps.item.user.ccu_user"
-        :style="`border-color: #3498DB; color: #3498DB`"
-        class="user-type border rounded-md text-center p-2 mx-4 my-2 text-xl"
-      >
-        {{ t('helpdesk.user_account') }}
-      </div>
-
-      <div
-        v-else
-        class="user-type border rounded-md text-center p-2 mx-4 my-2 text-xl"
-        style="border-color: #27ae60; color: #27ae60"
-      >
-        {{ t('helpdesk.other') }}
-      </div>
-    </template>
-
-    <template #roles="slotProps">
-      <UserRolesSelect
-        v-if="slotProps.item.user.ccu_user"
-        style="pointer-events: none"
-        class="w-full flex-grow border border-crisiscleanup-dark-100"
-        data-testid="testUserRolesSelect"
-        :user="slotProps.item.user.ccu_user"
-      />
-      <div v-else class="flex items-center justify-center">
-        {{ t('helpdesk.no_account') }}
-      </div>
-    </template>
-    <template #assignee="slotProps">
-      {{ _.find(agents, { id: slotProps.item.assignee_id })?.name || '-' }}
-    </template>
-    <template #app="slotProps">
-      {{
-        slotProps.item.custom_fields.find(
-          (field) => field.id === 17295140815757,
-        ).value || '-'
-      }}
-    </template>
-    <template #requester="slotProps">
-      {{
-        slotProps.item.user?.ccu_user
-          ? slotProps.item.user?.ccu_user?.first_name +
-            ' ' +
-            slotProps.item.user?.ccu_user?.last_name
-          : slotProps.item.user.name
-      }}
-    </template>
-
-    <template #description="slotProps">{{
-      removeSubmittedFromFooter(slotProps.item.subject)
-    }}</template>
-
-    <template #advanced_ticket="slotProps">
-      <BaseButton
-        :action="() => showTicketModal(slotProps.item)"
-        :text="t('helpdesk.open_ticket_status')"
-        variant="primary"
-        class="p-2 rounded-md text-lg"
-      />
-    </template>
-
-    <template #zendesk="slotProps">
-      <base-link
-        :href="`https://crisiscleanup.zendesk.com/agent/tickets/${slotProps.item.id}`"
-        text-variant="bodysm"
-        class="px-2 w-14 border rounded-md"
-        target="_blank"
-      >
-        <img alt="zendesk icon" src="../../assets/icons/zendesk.svg"
-      /></base-link>
-    </template>
-  </Table>
 
   <modal
     v-if="ticketModal"
     closeable
     :title="'Ticket: ' + activeTicket.id"
-    class="p-10"
+    :fullscreen="mq.mdMinus"
+    :class="mq.mdMinus ? '' : 'p-10'"
+    modal-classes="overflow-auto"
     @close="showTicketModal()"
   >
     <template #default>
@@ -521,6 +654,7 @@ onMounted(() => {
         @change="fetchTickets"
       />
     </template>
+    <template #footer><span v-if="mq.mdMinus"></span></template>
   </modal>
 </template>
 
@@ -547,25 +681,25 @@ onMounted(() => {
 
 .new-tag {
   color: #c19700;
-  border: 2px solid #c19700;
+  //border: 2px solid #c19700;
   @apply p-2 rounded-md;
 }
 
 .open-tag {
   color: #0042ed;
-  border: 2px solid #0042ed;
+  //border: 2px solid #0042ed;
   @apply p-2 rounded-md;
 }
 
 .solved-tag {
   color: #f21b1b;
-  border: 2px solid #f21b1b;
+  //border: 2px solid #f21b1b;
   @apply p-2 rounded-md;
 }
 
 .pending-tag {
   color: #6b6b6b;
-  border: 2px solid #6b6b6b;
+  //border: 2px solid #6b6b6b;
   @apply p-2 rounded-md;
 }
 </style>
