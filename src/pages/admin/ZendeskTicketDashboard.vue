@@ -391,7 +391,7 @@ onMounted(() => {
         {{ ticketStats.app_type?.android ?? 0 }}</BaseText
       >
       <BaseText
-        ><span class="font-bold">{{ t('~~unknown') }}</span>
+        ><span class="font-bold">{{ t('helpdesk.unknown_platform') }}</span>
         {{ ticketStats.app_type?.unknown ?? 0 }}</BaseText
       >
     </div>
@@ -405,7 +405,7 @@ onMounted(() => {
         {{ ticketStats.users?.undefined }}
       </BaseText>
       <BaseText
-        ><span class="font-bold">{{ t('~~Other') }}</span>
+        ><span class="font-bold">{{ t('helpdesk.other') }}</span>
         {{ ticketStats.survivors?.undefined }}</BaseText
       >
     </div>
@@ -438,7 +438,7 @@ onMounted(() => {
         class="user-type border rounded-md text-center p-2 mx-4 my-2 text-xl"
         style="border-color: #27ae60; color: #27ae60"
       >
-        {{ t('~~Other') }}
+        {{ t('helpdesk.other') }}
       </div>
     </template>
 

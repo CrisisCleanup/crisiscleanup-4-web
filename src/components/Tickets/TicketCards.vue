@@ -318,7 +318,7 @@ const replyToTicket = (replyStatus: string) => {
 };
 
 const deleteTicket = () => {
-  toast.info('~~coming soon!');
+  toast.info('helpdesk.coming_soon');
   // axiosInstance
   //   .delete(`/tickets/${props.ticketData.id}.json`).then((response: AxiosResponse<unknown>) => {
   //   if (response.status === 200) {
@@ -630,7 +630,7 @@ onMounted(async () => {
           :style="`border-color: #F39C12; color: #F39C12`"
           class="user-type border rounded-md text-center p-2 mx-4 my-2 text-xl"
         >
-          {{ t('~~Ghost User') }}
+          {{ t('helpdesk.ghost_user') }}
         </div>
       </div>
       <div class="flex items-center justify-center border-y-2 border-gray-400">
@@ -733,7 +733,7 @@ onMounted(async () => {
           :style="`border-color: #F39C12; color: #F39C12`"
           class="user-type border rounded-md text-center p-2 mx-4 my-2 text-xl"
         >
-          {{ t('~~Ghost User') }}
+          {{ t('helpdesk.ghost_user') }}
         </div>
 
         <div
@@ -744,7 +744,7 @@ onMounted(async () => {
           :style="`border-color: #B2BEB5; color: #B2BEB5`"
           class="user-type border rounded-md text-center p-2 mx-4 my-2 text-xl"
         >
-          {{ t('~~No Role') }}
+          {{ t('helpdesk.no_role') }}
         </div>
       </div>
     </div>
@@ -883,7 +883,7 @@ onMounted(async () => {
         <modal
           v-if="macroModalVisibility"
           closeable
-          :title="t('~~Macros')"
+          :title="t('helpdesk.macros')"
           class="p-10"
           @close="showMacroModal()"
         >
@@ -958,7 +958,7 @@ onMounted(async () => {
     <modal
       v-if="worksiteModal"
       closeable
-      :title="t('~~Worksite')"
+      :title="t('helpdesk.worksite')"
       class="p-10"
       @close="showWorksiteModal()"
     >
