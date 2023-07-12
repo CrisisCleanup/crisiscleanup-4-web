@@ -483,7 +483,7 @@ onMounted(() => {
           {{ ticketStats.app_type?.android ?? 0 }}</BaseText
         >
         <BaseText
-          ><span class="font-bold">{{ t('~~unknown') }}</span>
+          ><span class="font-bold">{{ t('helpdesk.unknown_platform') }}</span>
           {{ ticketStats.app_type?.unknown ?? 0 }}</BaseText
         >
       </div>
@@ -497,7 +497,7 @@ onMounted(() => {
           {{ ticketStats.users?.undefined }}
         </BaseText>
         <BaseText
-          ><span class="font-bold">{{ t('~~Other') }}</span>
+          ><span class="font-bold">{{ t('helpdesk.other') }}</span>
           {{ ticketStats.survivors?.undefined }}</BaseText
         >
       </div>
@@ -509,7 +509,7 @@ onMounted(() => {
           select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded py-2"
           class="w-full"
           label="name"
-          :placeholder="t('~~Selected Sorter')"
+          :placeholder="t('helpdesk.sort_by')"
           item-key="id"
           :options="sorterObject"
           @update:model-value="(v) => changeTicketSorting(v)"
@@ -549,7 +549,7 @@ onMounted(() => {
           class="user-type rounded-md text-center p-2 my-2"
           style="color: #27ae60"
         >
-          {{ t('~~Other') }}
+          {{ t('helpdesk.other') }}
         </div>
       </template>
 
