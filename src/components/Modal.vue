@@ -9,7 +9,7 @@
           "
           :style="modalStyle"
         >
-          <div class="modal-header flex-shrink">
+          <div class="modal-header flex-shrink" :class="modalHeaderClasses">
             <slot name="header">
               <div
                 v-if="title"
@@ -99,6 +99,10 @@ export default defineComponent({
       type: null,
       default: null,
     },
+    modalHeaderClasses: {
+      type: null,
+      default: null,
+    },
     modalBodyClasses: {
       type: null,
       default: null,
@@ -137,6 +141,21 @@ export default defineComponent({
         isFullScreen.value = !isFullScreen.value;
       }
     }
+
+    onMounted(() => {
+      // see: https://css-tricks.com/prevent-page-scrolling-when-a-modal-is-open/
+      // When the modal is shown, we want a fixed body
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${window.scrollY}px`;
+    });
+
+    onBeforeUnmount(() => {
+      // When the modal is hidden...
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    });
 
     return {
       isFullScreen,
