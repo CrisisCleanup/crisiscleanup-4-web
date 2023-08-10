@@ -166,8 +166,8 @@ export default defineComponent({
       formatCmsItem,
       showDetails,
     };
-  },
-});
+  }
+}});
 </script>
 
 <style scoped>
