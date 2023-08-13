@@ -414,12 +414,7 @@
               init();
             }
           "
-          @navigateToWorksite="
-            (id) => {
-              worksiteId = id;
-              isEditing = true;
-            }
-          "
+          @navigateToWorksite="onSelectExistingWorksite"
           @geocoded="addMarkerToMap"
         />
       </div>
@@ -892,12 +887,7 @@
               }
             "
             @closeWorksite="clearCase"
-            @navigateToWorksite="
-              (id) => {
-                worksiteId = id;
-                isEditing = true;
-              }
-            "
+            @navigateToWorksite="onSelectExistingWorksite"
             @geocoded="addMarkerToMap"
           />
         </div>
@@ -1194,7 +1184,6 @@ export default defineComponent({
     function onSelectExistingWorksite(worksite) {
       // only show worksite on map if on map view
       if (showingMap.value && !showingTable.value) {
-        console.log('pushing worksite to map', worksite);
         router.push({
           query: { showOnMap: true },
         });
@@ -1262,7 +1251,7 @@ export default defineComponent({
 
     async function reloadMap() {
       getWorksites().then((markers) => {
-        mapUtils.value.reloadMap(
+        mapUtils?.value?.reloadMap(
           markers,
           markers.map((m) => m.id),
         );
@@ -1279,7 +1268,7 @@ export default defineComponent({
 
       if (showingMap.value) {
         getWorksites().then((markers) => {
-          mapUtils.value.reloadMap(
+          mapUtils?.value?.reloadMap(
             markers,
             markers.map((m) => m.id),
           );
@@ -1382,7 +1371,7 @@ export default defineComponent({
       (value) => {
         if (value) {
           getWorksites().then((markers) => {
-            mapUtils.value.reloadMap(
+            mapUtils?.value?.reloadMap(
               markers,
               markers.map((m) => m.id),
             );
