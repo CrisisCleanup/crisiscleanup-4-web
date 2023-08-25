@@ -160,9 +160,13 @@ jobs:
           echo "CCU_E2E_SUMMARY=$(cat $message_file)" >> $GITHUB_ENV
           echo "CCU_E2E_ALL_SUCCESS=$all_success" >> $GITHUB_ENV
 
+          echo "Output..."
+          echo ${{ env.CCU_E2E_SUMMARY }}
+          echo ${{ env.CCU_E2E_ALL_SUCCESS }}
+
       - name: 🟢 Notify Slack 🟢
         uses: rtCamp/action-slack-notify@v2
-        if: env.CCU_E2E_ALL_SUCCESS == true
+        if: env.CCU_E2E_ALL_SUCCESS == 'true'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
@@ -179,7 +183,7 @@ jobs:
 
       - name: 🔴 Notify Slack 🔴
         uses: rtCamp/action-slack-notify@v2
-        if: env.CCU_E2E_ALL_SUCCESS == false
+        if: env.CCU_E2E_ALL_SUCCESS == 'false'
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
