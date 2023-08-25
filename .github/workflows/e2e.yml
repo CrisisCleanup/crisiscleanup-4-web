@@ -18,10 +18,6 @@ jobs:
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     needs: [versions]
-    outputs:
-      TEST_STAGE: ${{ steps.results.outputs.TEST_STAGE }}
-      TEST_PROJECT: ${{ steps.results.outputs.TEST_PROJECT }}
-      TEST_STATUS: ${{ steps.results.outputs.TEST_STATUS }}
     strategy:
       fail-fast: false
       matrix:
@@ -103,7 +99,7 @@ jobs:
         run: pnpm exec playwright install --with-deps ${{ matrix.project }}
 
       - name: 🎭 Playwright tests
-        run: pnpm run test:e2e:${{ matrix.stage }} --project=${{ matrix.project }}
+        run: pnpm run test:e2e:${{ matrix.stage }} --project=${{ matrix.project }} --shard=1/20
 
       - name: 📤 Upload blob report to GitHub Actions Artifacts
         if: always()
@@ -117,38 +113,56 @@ jobs:
         shell: bash
         if: always()
         run: |
-          echo "TEST_STAGE=${{ matrix.stage }}" >> $GITHUB_OUTPUT
-          echo "TEST_PROJECT=${{ matrix.project }}" >> $GITHUB_OUTPUT
-          # The current status of the job. Possible values are success, failure, or cancelled.
-          echo "TEST_STATUS=${{ job.status }}" >> $GITHUB_OUTPUT
+          mkdir -p e2e-job-outputs
+          echo 'TEST_STATUS=${{ job.status }}' >> e2e-job-outputs/${{ matrix.stage }}_${{ matrix.project }}.txt
 
-  notify-failed:
-    name: 🔴 Notify Failure 🔴
+      - uses: actions/upload-artifact@v3
+        with:
+          name: e2e-job-outputs
+          path: e2e-job-outputs/*.txt
+
+  notify-slack:
+    name: 🔔 Notify Slack 🔔
     needs: [e2e]
     runs-on: ubuntu-latest
     if: always()
+    env:
+      E2E_SUMMARY_FILE: e2e-summary.txt
     steps:
-      - name: Notify Slack
-        uses: rtCamp/action-slack-notify@v2
-        if: needs.e2e.outputs.TEST_STATUS == 'failure'
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_ICON: ${{ secrets.SLACK_ICON }}
-          SLACK_USERNAME: 'CrisisCleanup Bot'
-          SLACK_CHANNEL: 'core'
-          SLACK_COLOR: '#D94F37'
-          SLACK_TITLE: 'E2e Tests Failed!'
-          SLACK_MESSAGE: '🧪 E2e Tests Failed... Someone broke something! 😦'
+      - uses: actions/download-artifact@v3
+        with:
+          name: e2e-job-outputs
+          path: e2e-job-outputs
 
-  notify-success:
-    name: 🟢 Notify Success 🟢
-    needs: [e2e]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Notify Slack
+      - id: e2e-outputs
+        shell: bash
+        if: always()
+        run: |
+          # Read values from all files under e2e-job-outputs/*.txt
+          all_success=true  # Variable to track if all files have 'success'
+          for file in e2e-job-outputs/*.txt; do
+            if [[ -f $file ]]; then
+              prefix=$(basename "$file" .txt)
+              prefix="${prefix^^}"  # Uppercase the prefix
+              echo "${prefix}: " >> ${{ env.E2E_SUMMARY_FILE }}
+              while IFS='=' read -r key value; do
+                if [[ ! -z $key && ! -z $value ]]; then
+                  echo "\t${key} => ${value}" >> ${{ env.E2E_SUMMARY_FILE }}
+                fi
+              done < "$file"
+              echo ""
+              # Check if the file has 'success' status
+              if ! grep -q "TEST_STATUS=success" "$file"; then
+                all_success=false
+              fi
+            fi
+          done
+          echo "CCU_E2E_SUMMARY=$(cat $message_file)" >> $GITHUB_ENV
+          echo "CCU_E2E_ALL_SUCCESS=$all_success" >> $GITHUB_ENV
+
+      - name: 🟢 Notify Slack 🟢
         uses: rtCamp/action-slack-notify@v2
-        if: needs.e2e.outputs.TEST_STATUS == 'success'
+        if: env.CCU_E2E_ALL_SUCCESS == true
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
@@ -156,44 +170,26 @@ jobs:
           SLACK_CHANNEL: 'core'
           SLACK_COLOR: '#13E768'
           SLACK_TITLE: 'E2e Tests Passed!'
-          SLACK_MESSAGE: '🧪 E2e Tests Passed!!'
+          SLACK_MESSAGE: |
+            🧪 E2e Tests Passed!! 🎉
 
-  merge-e2e-reports:
-    # Merge reports after playwright-tests, even if some shards have failed
-    name: 🔄 Merge Playwright Reports | ${{ matrix.stage }}
-    if: always()
-    needs: [versions, e2e]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        stage: [development, staging, production]
-    steps:
-      - uses: actions/checkout@v3
+            SUMMARY:
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: ${{ needs.versions.outputs.PNPM_VERSION }}
+            ${{ env.CCU_E2E_SUMMARY }}
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ needs.versions.outputs.NODE_VERSION }}
-          cache: pnpm
+      - name: 🔴 Notify Slack 🔴
+        uses: rtCamp/action-slack-notify@v2
+        if: env.CCU_E2E_ALL_SUCCESS == false
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_ICON: ${{ secrets.SLACK_ICON }}
+          SLACK_USERNAME: 'CrisisCleanup Bot'
+          SLACK_CHANNEL: 'core'
+          SLACK_COLOR: '#D94F37'
+          SLACK_TITLE: 'E2e Tests Failed!'
+          SLACK_MESSAGE: |
+            🧪 E2e Tests Failed... Someone broke something! 😦
 
-      - name: 📥 Install dependencies
-        run: pnpm install
+            SUMMARY:
 
-      - name: 📥 Download blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: all-blob-reports-${{ matrix.stage }}
-          path: all-blob-reports
-
-      - name: 🔄 Merge all blob reports into HTML Report
-        run: pnpm exec playwright merge-reports --reporter html ./all-blob-reports
-
-      - name: 📤 Upload HTML report (${{ matrix.stage }})
-        uses: actions/upload-artifact@v3
-        with:
-          name: e2e-report-${{ matrix.stage }}-${{ github.run_id }}-attempt_${{ github.run_attempt }}
-          path: playwright-report
-          retention-days: 7
+            ${{ env.CCU_E2E_SUMMARY }}
