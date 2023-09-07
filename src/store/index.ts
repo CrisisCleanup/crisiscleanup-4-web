@@ -11,6 +11,7 @@ import enums from './modules/enums';
 import locale from './modules/locale';
 import loading from './modules/loading';
 import events from './modules/events';
+import work from './modules/work';
 
 // Import events from './modules/events';
 import phone from './modules/phone';
@@ -44,6 +45,7 @@ export const store = createStore<CCURootState>({
     phone,
     map,
     // Ui,
+    work,
   },
   plugins: [VuexORM.install(database)],
   strict: debug,

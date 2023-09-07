@@ -963,7 +963,7 @@ export default defineComponent({
     const mostRecentlySavedWorksite = ref<any>(null);
     const selectedTableItems = ref<Set<number>>(new Set());
     const availableWorkTypes = ref({});
-    const sviSliderValue = ref(100);
+    const sviSliderValue = ref(store.getters['work/getSviScale']);
     const dateSliderValue = ref(100);
     let mapUtils: MapUtils | null;
     const unreadChatCount = ref(0);
@@ -999,10 +999,6 @@ export default defineComponent({
 
         if (states.appliedFilters) {
           filterQuery.value = states.appliedFilters;
-        }
-
-        if (states.sviLevel) {
-          sviSliderValue.value = states.sviLevel;
         }
 
         if (states.dateLevel) {
@@ -1259,6 +1255,8 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
+      store.commit('work/setSviScale', value);
+      if (value === 100) return;
       sviSliderValue.value = Number(value);
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
@@ -1328,10 +1326,6 @@ export default defineComponent({
     });
 
     function filterDates(value: number) {
-      if (sviSliderValue.value !== 100) {
-        filterSvi(100);
-      }
-
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
       const dl = getDatesList(container?.children?.length);
@@ -1872,6 +1866,7 @@ export default defineComponent({
       }
 
       await init();
+      filterSvi(store.getters['work/getSviScale']);
     });
     function focusNewsTab() {
       emitter.emit('phone_component:close');
