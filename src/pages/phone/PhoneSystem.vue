@@ -166,21 +166,21 @@
         </PhoneComponentButton>
         <PhoneComponentButton
           name="zoom"
-          data-testid="testZoomMeetingButton"
-          :alt="$t('~~Join CCU Zoom Meeting Room')"
+          data-testid="testChimeMeetingRoom"
+          :alt="$t('~~Join CCU Phone Agents Meeting Room')"
           class="phone-system__action"
           component-class="phone-system__action-content phone-system__action-content--zoom"
         >
           <template #button>
             <div class="w-full h-full flex items-center justify-center">
-              <ccu-icon type="zoom" class="p-1" size="medium" />
+              <ccu-icon type="chime" class="p-1" size="medium" />
             </div>
           </template>
           <template #component>
             <div class="flex items-center justify-center p-3 gap-2">
-              <a href="https://bit.ly/ccuzoom" target="_blank"
+              <a href="https://app.chime.aws/meetings/ccuphoneagents" target="_blank"
                 ><div class="bg-primary-light py-1 px-4">
-                  Join Zoom Chatroom
+                  Join Chime Room
                 </div></a
               >
             </div>
@@ -679,22 +679,22 @@
               </PhoneComponentButton>
               <PhoneComponentButton
                 name="zoom"
-                data-testid="testZoomMeetingButton"
-                :alt="$t('~~Join CCU Zoom Meeting Room')"
+                data-testid="testChimeMeetingRoom"
+                :alt="$t('~~Join CCU Phone Agents Meeting Room')"
                 class="phone-system__action"
                 component-class="phone-system__action-content phone-system__action-content--zoom"
               >
                 <template #button>
                   <div class="w-full h-full flex items-center justify-center">
-                    <ccu-icon type="zoom" class="p-1" size="medium" />
+                    <ccu-icon type="chime" class="p-1" size="medium" />
                   </div>
                 </template>
                 <template #component>
                   <div class="flex items-center justify-center p-3 gap-2">
-                    <a href="https://bit.ly/ccuzoom" target="_blank"
-                      ><div class="bg-primary-light py-1 px-4">
-                        Join Zoom Chatroom
-                      </div></a
+                    <a href="https://app.chime.aws/meetings/ccuphoneagents" target="_blank"
+                    ><div class="bg-primary-light py-1 px-4">
+                      Join Chime Room
+                    </div></a
                     >
                   </div>
                 </template>
