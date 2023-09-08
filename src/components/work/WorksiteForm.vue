@@ -314,7 +314,7 @@
             {{ $t('caseForm.address_problems') }}
           </base-checkbox>
         </div>
-        <div  class="my-1 py-1">
+        <div v-if="!worksite.isHighPriority" class="my-1 py-1">
           <base-checkbox
             v-model="isHighPriority"
             class="text-primary-dark"
@@ -495,8 +495,6 @@ export default defineComponent({
     const dirtyFields = ref(new Set());
     const worksite = ref<Record<string, any>>({});
     const updatedFiles = ref([]);
-
-
     const updateImage = (formData) => {
       updatedFiles.value.push(formData.id);
     };
@@ -1055,12 +1053,14 @@ export default defineComponent({
               Worksite.api().addNote(worksite.value.id, n),
             ),
           );
+          if (isHighPriority.value) {
             await Worksite.api().addFlag(worksite.value.id, {
               reason_t: 'flag.worksite_high_priority',
-              is_high_priority: isHighPriority.value,
+              is_high_priority: true,
               notes: '',
               requested_action: '',
             });
+          }
 
           if (isFavorite.value) {
             await Worksite.api().favorite(worksite.value.id);
@@ -1081,12 +1081,14 @@ export default defineComponent({
             worksiteImageSection.value.saveToWorkSite(file, worksiteId);
           }
 
-          await Worksite.api().addFlag(worksite.value.id, {
-            reason_t: 'flag.worksite_high_priority',
-            is_high_priority: isHighPriority.value,
-            notes: '',
-            requested_action: '',
-          });
+          if (isHighPriority.value) {
+            await Worksite.api().addFlag(worksiteId, {
+              reason_t: 'flag.worksite_high_priority',
+              is_high_priority: true,
+              notes: '',
+              requested_action: '',
+            });
+          }
 
           if (isFavorite.value) {
             await Worksite.api().favorite(worksiteId);
@@ -1376,11 +1378,6 @@ export default defineComponent({
       await initForm();
       if (route.query.showOnMap) {
         emit('jumpToCase', props.worksiteId);
-      }
-
-      if(worksite.value.isHighPriority){
-        isHighPriority.value = worksite.value.isHighPriority
-
       }
     });
 
