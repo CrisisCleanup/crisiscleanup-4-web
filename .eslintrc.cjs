@@ -44,6 +44,7 @@ const config = {
     '@typescript-eslint/consistent-type-imports': 'warn',
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
     '@typescript-eslint/triple-slash-reference': 'off',
+    '@typescript-eslint/member-ordering': 'warn',
     'n/file-extension-in-import': 'off',
     'import/extensions': 0,
     'import/no-anonymous-default-export': 0,
