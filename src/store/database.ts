@@ -19,6 +19,7 @@ import Layer from '../models/Layer';
 import PasswordResetRequest from '../models/PasswordResetRequest';
 import UserRole from '@/models/UserRole';
 import Affiliate from '@/models/Affiliate';
+import WorkType from '@/models/WorkType';
 
 const database = new Database();
 database.register(User, {});
@@ -32,6 +33,7 @@ database.register(Role, {});
 database.register(PhoneStatus, {});
 database.register(WorksiteRequest, {});
 database.register(Worksite, {});
+database.register(WorkType, {});
 database.register(PhoneOutbound, {});
 database.register(Team, {});
 database.register(Layer, {});
