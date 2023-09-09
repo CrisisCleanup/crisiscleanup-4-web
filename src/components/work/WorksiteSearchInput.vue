@@ -86,6 +86,7 @@ import { getWorkTypeImage } from '../../filters/index';
 export default defineComponent({
   name: 'WorksiteSearchInput',
   components: { BaseInput },
+  emits: ['input', 'selectedGeocode', 'selectedExisting', 'clearSuggestions'],
   props: {
     value: {
       type: String,
