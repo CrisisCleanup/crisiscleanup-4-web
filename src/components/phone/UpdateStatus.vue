@@ -1,6 +1,6 @@
 <template>
   <form class="bg-white flex flex-col">
-    <div 
+    <div
       class="flex flex-col flex-wrap text-center status-wrapper"
       data-testid="testStatusSelectorDiv"
     >
@@ -23,7 +23,7 @@
       </div>
     </div>
     <textarea
-      :model-value="callNotes"
+      v-model="callNotes"
       data-testid="testCallNoteTextarea"
       rows="3"
       class="text-base border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none p-2 my-2 resize-none w-full"

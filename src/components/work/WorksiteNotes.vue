@@ -161,7 +161,7 @@ export default defineComponent({
 
     async function saveNote() {
       if (currentNote.value.length <= 1) {
-        toast.error(t('~~Please Submit Longer Note!'));
+        toast.error(t('info.submit_longer_note'));
       } else {
         emit('saveNote', currentNote.value);
         emit('input', '');
