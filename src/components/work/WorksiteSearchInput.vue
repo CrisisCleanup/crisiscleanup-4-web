@@ -23,11 +23,11 @@
         <div v-for="result in results" :key="result.label">
           <template v-if="result.options.length > 0"
             >{{ result.label }}
-            <div v-for="option in result.options" :key="option">
+            <div v-for="option in result.options" :key="option.id">
               <div
                 v-if="result.label === 'Geocode'"
                 class="flex flex-col sm:text-lg text-base p-1 cursor-pointer hover:bg-crisiscleanup-light-grey border-b"
-                @click="() => $emit('selectedGeocode', option)"
+                @click="() => onSelectGeocode(option)"
               >
                 <div>{{ option.description }}</div>
               </div>
@@ -35,7 +35,7 @@
               <div
                 v-else
                 class="flex items-center p-1 cursor-pointer hover:bg-crisiscleanup-light-grey border-b"
-                @click="() => $emit('selectedExisting', option)"
+                @click="() => onSelectExisting(option)"
               >
                 <div
                   class="mr-1 case-svg-container"
@@ -86,7 +86,6 @@ import { getWorkTypeImage } from '../../filters/index';
 export default defineComponent({
   name: 'WorksiteSearchInput',
   components: { BaseInput },
-  emits: ['input', 'selectedGeocode', 'selectedExisting', 'clearSuggestions'],
   props: {
     value: {
       type: String,
@@ -129,6 +128,7 @@ export default defineComponent({
       default: true,
     },
   },
+  emits: ['input', 'selectedGeocode', 'selectedExisting', 'clearSuggestions'],
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();
     const store = useStore();
@@ -141,19 +141,24 @@ export default defineComponent({
       }
     });
 
-    function searchWorksites(search, incident) {
+    function searchWorksites(search: string, incidentId: number) {
       return axios.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incident}`,
+        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incidentId}`,
       );
     }
 
-    async function geocoderSearch(value) {
+    async function geocoderSearch(value: string) {
       return await GeocoderService.getMatchingAddresses(value, 'USA');
     }
 
-    const results = ref([]);
+    const results = ref<
+      {
+        label: string;
+        options: Record<string, any>[];
+      }[]
+    >([]);
 
     function onBlur() {
       setTimeout(() => {
@@ -161,10 +166,10 @@ export default defineComponent({
       }, 200);
     }
 
-    async function worksitesSearch(value) {
+    async function worksitesSearch(value: string) {
       emit('input', value);
-      let geocode = [];
-      let worksites = [];
+      let geocode: Awaited<ReturnType<typeof geocoderSearch>> = [];
+      let worksites: Worksite[] = [];
       if (props.useWorksites) {
         const sites = await searchWorksites(value, currentIncidentId.value);
         worksites = sites.data.results;
@@ -255,7 +260,7 @@ export default defineComponent({
       const workType = Worksite.getWorkType(
         workTypes,
         null,
-        currentUser.organization,
+        currentUser!.organization,
       );
 
       if (!workType) {
@@ -263,6 +268,16 @@ export default defineComponent({
       }
 
       return getWorkTypeImage(workType);
+    }
+
+    function onSelectGeocode(option: Record<string, any>) {
+      console.info('onSelectGeocode', option);
+      emit('selectedGeocode', option);
+    }
+
+    function onSelectExisting(option: Record<string, any>) {
+      console.info('onSelectExisting', option);
+      emit('selectedExisting', option);
     }
 
     return {
@@ -279,6 +294,8 @@ export default defineComponent({
       getWorkImage,
       isFocused,
       onBlur,
+      onSelectGeocode,
+      onSelectExisting,
     };
   },
 });
