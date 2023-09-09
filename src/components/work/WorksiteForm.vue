@@ -1347,11 +1347,14 @@ export default defineComponent({
       { immediate: true },
     );
 
-    watch(props.worksiteId, (newValue) => {
-      if (!newValue) {
-        worksite.value = {};
-      }
-    });
+    watch(
+      () => props.worksiteId,
+      (newValue) => {
+        if (!newValue) {
+          worksite.value = {};
+        }
+      },
+    );
 
     watch(isWrongLocation, (newValue) => {
       if (newValue !== shouldSelectOnMap.value) {

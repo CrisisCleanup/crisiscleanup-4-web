@@ -754,34 +754,46 @@ export default defineComponent({
       return results.entities?.locations;
     }
 
-    watch(currentPolygon.value as object, (newValue) => {
-      emit('changed', newValue);
-    });
+    watch(
+      () => currentPolygon.value,
+      (newValue) => {
+        emit('changed', newValue);
+      },
+    );
 
-    watch(stateRefs.currentBufferDistance, () => {
-      drawBuffer();
-    });
+    watch(
+      () => stateRefs.currentBufferDistance,
+      () => {
+        drawBuffer();
+      },
+    );
 
-    watch(props.incident as any, (newValue: number) => {
-      if (newValue) {
-        getWorksites({ organization: null, incident: newValue });
-      }
+    watch(
+      () => props.incident,
+      (newValue: number) => {
+        if (newValue) {
+          getWorksites({ organization: null, incident: newValue });
+        }
 
-      toggleWorksites(false);
-    });
+        toggleWorksites(false);
+      },
+    );
 
-    watch(props.organization as any, (newValue: number) => {
-      if (newValue) {
-        getWorksites({ organization: newValue, incident: null });
-      }
+    watch(
+      () => props.organization,
+      (newValue: number) => {
+        if (newValue) {
+          getWorksites({ organization: newValue, incident: null });
+        }
 
-      const organization = Organization.find(newValue);
-      const incidents = organization?.incident_list;
-      getIncidentLocations(incidents || []);
-      toggleWorksites(false);
-      toggleIncidents(false);
-      stateRefs.incidentLayer.value = new L.LayerGroup();
-    });
+        const organization = Organization.find(newValue);
+        const incidents = organization?.incident_list;
+        getIncidentLocations(incidents || []);
+        toggleWorksites(false);
+        toggleIncidents(false);
+        stateRefs.incidentLayer.value = new L.LayerGroup();
+      },
+    );
 
     onMounted(async () => {
       LocationType.api().get('/location_types', {
