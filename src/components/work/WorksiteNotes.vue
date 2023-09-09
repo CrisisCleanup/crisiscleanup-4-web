@@ -123,6 +123,7 @@
 <script lang="ts">
 import { computed, ref } from 'vue';
 import moment from 'moment';
+import { useToast } from 'vue-toastification';
 import { momentFromNow } from '../../filters/index';
 
 export default defineComponent({
@@ -145,6 +146,8 @@ export default defineComponent({
     const expandedNotes = ref({});
     const showingAllNotes = ref(false);
     const currentNote = ref('');
+    const toast = useToast();
+    const { t } = useI18n();
 
     const sortedNotes = computed(() => {
       if (!props.worksite.notes) {
@@ -157,10 +160,14 @@ export default defineComponent({
     });
 
     async function saveNote() {
-      emit('saveNote', currentNote.value);
-      emit('input', '');
-      addingNotes.value = false;
-      currentNote.value = '';
+      if (currentNote.value.length <= 1) {
+        toast.error(t('~~Please Submit Longer Note!'));
+      } else {
+        emit('saveNote', currentNote.value);
+        emit('input', '');
+        addingNotes.value = false;
+        currentNote.value = '';
+      }
     }
 
     function cancelNote() {
