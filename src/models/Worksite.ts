@@ -3,6 +3,7 @@ import enums from '../store/modules/enums';
 import { getQueryString } from '../utils/urls';
 import Organization from './Organization';
 import User from './User';
+import type WorkType from './WorkType';
 import CCUModel from '@/models/base';
 
 export default class Worksite extends CCUModel {
@@ -34,7 +35,7 @@ export default class Worksite extends CCUModel {
 
   flags!: any[];
 
-  work_types!: any[];
+  work_types!: WorkType[];
 
   favorite!: boolean;
   favorite_id!: string | undefined;
