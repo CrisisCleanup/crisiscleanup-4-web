@@ -8,7 +8,7 @@
         :required="required"
         :tooltip="tooltip"
         data-testid="testWorksiteSearchInputSearch"
-        @update:modelValue="worksitesSearch"
+        @update:model-value="debouncedSearch"
         @input.stop=""
         @focus="onFocus"
         @blur="onBlur"
@@ -83,12 +83,14 @@
 import { computed, ref } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
+import { debounce } from 'lodash';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import GeocoderService from '../../services/geocoder.service';
 import BaseInput from '../BaseInput.vue';
 import Worksite from '@/models/Worksite';
 import { getWorkTypeImage } from '@/filters/index';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
+import type WorkType from '@/models/WorkType';
 
 export default defineComponent({
   name: 'WorksiteSearchInput',
@@ -199,12 +201,13 @@ export default defineComponent({
         const sites = await searchWorksites(value, currentIncidentId.value);
         worksites.value = sites.data.results;
       }
+
       if (props.useGeocoder) {
         geocoderResults.value = await geocoderSearch(value);
       }
     }
 
-    function getWorkImage(workTypes) {
+    function getWorkImage(workTypes: WorkType[]) {
       const workType = Worksite.getWorkType(
         workTypes,
         null,
@@ -228,21 +231,22 @@ export default defineComponent({
       isFocused.value = true;
     }
 
-    function onSelectGeocode(option: Record<string, any>) {
+    function onSelectGeocode(option: (typeof geocoderResults.value)[0]) {
       console.info('onSelectGeocode', option);
       emit('selectedGeocode', option);
     }
 
-    function onSelectExisting(option: Record<string, any>) {
+    function onSelectExisting(option: Worksite) {
       console.info('onSelectExisting', option);
       emit('selectedExisting', option);
-      addRecentWorksite(option as Worksite);
+      addRecentWorksite(option);
     }
 
     return {
       currentUser,
       iconClasses,
       worksitesSearch,
+      debouncedSearch: debounce(worksitesSearch, 300),
       results,
       getWorkImage,
       isFocused,
