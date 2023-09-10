@@ -1,7 +1,7 @@
 import moment from 'moment';
-import MD5 from 'crypto-js/md5';
 import axios from 'axios';
 import { DbService } from '../services/db.service';
+import { generateHash } from './helpers';
 import type Worksite from '@/models/Worksite';
 
 export type CachedCase = Worksite;
@@ -23,13 +23,12 @@ const loadCases = async (query: Record<string, unknown>) => {
 };
 
 const loadCasesCached = async (query: Record<string, unknown>) => {
-  const hashCode = (s: string) => MD5(s).toString();
   const queryKeys = Object.keys(query).sort();
   const sortedQuery: Record<string, unknown> = {};
   for (const key of queryKeys) {
     sortedQuery[key] = query[key];
   }
-  const queryHash = hashCode(JSON.stringify(sortedQuery));
+  const queryHash = generateHash(JSON.stringify(sortedQuery));
   const cacheKeys = {
     CASES: `cachedCases:${queryHash}`,
     UPDATED: `casesUpdated:${queryHash}`,
