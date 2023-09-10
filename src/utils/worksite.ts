@@ -1,4 +1,5 @@
 import moment from 'moment';
+import MD5 from 'crypto-js/md5';
 import axios from 'axios';
 import { DbService } from '../services/db.service';
 import type Worksite from '@/models/Worksite';
@@ -22,16 +23,14 @@ const loadCases = async (query: Record<string, any>) => {
 };
 
 const loadCasesCached = async (query: Record<string, any>) => {
-  const hashCode = (string_: string) =>
-    string_
-      .split('')
-      .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0);
+  const hashCode = (s: string) => MD5(s).toString();
   const queryHash = hashCode(JSON.stringify(query));
   const cacheKeys = {
     CASES: `cachedCases:${queryHash}`,
     UPDATED: `casesUpdated:${queryHash}`,
     RECONCILED: `casesReconciled:${queryHash}`,
   };
+  console.debug('loadCasesCached::QueryHash', query, queryHash);
   const cachedCases = (await DbService.getItem(
     cacheKeys.CASES,
   )) as CachedCaseResponse;
