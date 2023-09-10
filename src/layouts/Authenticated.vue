@@ -122,10 +122,7 @@
           (!currentOrganization.is_active || !currentOrganization.is_verified)
         "
       >
-        <OrganizationInactiveModal
-          :organization="currentOrganization"
-          @user-logged-out="logoutApp"
-        />
+        <OrganizationInactiveModal @user-logged-out="logoutApp" />
       </template>
       <div v-if="transferRequest">
         <CompletedTransferModal
