@@ -1,20 +1,21 @@
 import axios from 'axios';
-import moment from 'moment';
 import * as Sentry from '@sentry/vue';
 import type State from '@vuex-orm/core/dist/src/model/contracts/State';
 import { type ActionContext } from 'vuex';
 import { AuthService } from '../../services/auth.service';
 import type User from '../../models/User';
 
+// todo: remove
+
 const AuthState = {
-  user: AuthService.getUser(),
+  user: undefined,
   showLoginModal: false,
 };
 
 // Getters
 const getters = {
   isLoggedIn(state: State) {
-    return state.user && AuthService.getAccessTokenExpiry().isAfter(moment());
+    return Boolean(state.user);
   },
   isOrphan(state: State) {
     return state.user && !state.user.organization;
@@ -62,7 +63,6 @@ const mutations = {
   setUser(state: State, user: User) {
     state.user = user;
     if (user) {
-      AuthService.saveUser(user);
       Sentry.setUser({
         ...state.user,
         id: state.user.id,
@@ -71,7 +71,6 @@ const mutations = {
       });
     } else {
       Sentry.setUser(null);
-      AuthService.removeUser();
     }
   },
   setShowLoginModal(state: State, toggle: boolean) {
