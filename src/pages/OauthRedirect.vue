@@ -5,34 +5,51 @@
 </template>
 
 <script>
-import { onMounted } from 'vue';
-import { AuthService } from '@/services/auth.service';
+import { useRoute } from 'vue-router';
 import Spinner from '@/components/Spinner.vue';
+import { useAuthStore } from '@/hooks/useAuth';
 
 export default {
   name: 'OauthRedirect',
   components: { Spinner },
   setup() {
-    onMounted(() => {
-      const authorizationCode = new URLSearchParams(window.location.search).get(
-        'code',
-      );
-      const state = new URLSearchParams(window.location.search).get('state');
+    // todo: handle as route guard
+    const router = useRouter();
+    const route = useRoute();
+    const authStore = useAuthStore();
 
-      // Exchange the authorization code for an access token
-      AuthService.exchangeAuthorizationCode(authorizationCode)
-        .then(() => {
-          redirectToDesiredPage(state);
-        })
-        .catch((error) => {
-          console.error('OAuth token exchange failed:', error);
-          // Handle the error, e.g., display an error message to the user
-        });
-    });
+    if (authStore.isAuthenticated.value) {
+      // todo: grab redirect url
+      router.push({ name: 'nav.dashboard_no_incident' });
+    }
 
-    const redirectToDesiredPage = (state) => {
-      window.location = state || '/dashboard';
-    };
+    // authenticated
+    watch(
+      authStore.isAuthenticated,
+      (isAuthed) => {
+        console.log('redir is authed watch:', isAuthed);
+        if (isAuthed) {
+          router.push({
+            name: 'nav.dashboard_no_incident',
+          });
+        }
+      },
+      { immediate: true, flush: 'sync' },
+    );
+
+    const authorizationCode = computedEager(() => route.query.code);
+
+    // exchange
+    watch(
+      authorizationCode,
+      async (code) => {
+        console.log('watch code:', code);
+        if (code) {
+          await authStore.exchange(code);
+        }
+      },
+      { immediate: true, flush: 'sync' },
+    );
   },
 };
 </script>
