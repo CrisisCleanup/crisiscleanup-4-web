@@ -1,11 +1,18 @@
 import moment from 'moment';
 import Bowser from 'bowser';
-import * as Sentry from '@sentry/vue';
 import type { Config } from '@vuex-orm/plugin-axios';
+import createDebug from 'debug';
 import { AuthService } from '../services/auth.service';
 import Language from './Language';
 import Role from './Role';
+import { useAuthStore } from '@/hooks/';
 import CCUModel from '@/models/base';
+
+const debug = createDebug('@crisiscleanup:model:User');
+
+export interface UserState {
+  currentUserId: number | undefined;
+}
 
 export default class User extends CCUModel {
   static entity = 'users';
@@ -32,6 +39,7 @@ export default class User extends CCUModel {
 
   mobile!: string;
 
+  accepted_terms!: boolean;
   accepted_terms_timestamp!: string;
 
   states!: Record<string, any>;
@@ -70,16 +78,6 @@ export default class User extends CCUModel {
       referring_user: this.attr({}),
       lineage: this.attr([]),
     };
-  }
-
-  static afterUpdate(model: User) {
-    if (model.id === User.store().getters['auth/userId']) {
-      AuthService.updateUser(model.$toJson());
-      Sentry.setUser(model.$toJson());
-      Sentry.setContext('user_states', model.states);
-      Sentry.setContext('user_preferences', model.preferences);
-      // User.store().commit("auth/setAcl", useRouter());
-    }
   }
 
   get hasProfilePicture() {
@@ -317,6 +315,7 @@ export default class User extends CCUModel {
           // eslint-disable-next-line import/no-named-as-default-member
           userAgent: Bowser.parse(window.navigator.userAgent),
         };
+
         await User.update({
           where: currentUser.id,
           data: {
@@ -358,13 +357,6 @@ export default class User extends CCUModel {
         if (reload) {
           await this.get('/users/me', {});
         }
-      },
-      async acceptTerms() {
-        const currentUser = User.find(AuthService.getUser()?.id);
-        await this.patch(`/users/${currentUser?.id}`, {
-          accepted_terms: true,
-          accepted_terms_timestamp: moment().toISOString(),
-        });
       },
     },
   };
