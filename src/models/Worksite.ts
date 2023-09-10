@@ -9,8 +9,6 @@ import CCUModel from '@/models/base';
 export default class Worksite extends CCUModel {
   static entity = 'worksites';
 
-  id!: string;
-
   name!: string;
 
   case_number!: string;
@@ -22,8 +20,6 @@ export default class Worksite extends CCUModel {
   postal_code!: string;
 
   state!: string;
-
-  updated_at!: string;
 
   location!: any;
 
@@ -46,7 +42,7 @@ export default class Worksite extends CCUModel {
 
   static fields() {
     return {
-      id: this.string(''),
+      id: this.attr(null),
       address: this.string(''),
       location: this.attr(null),
       case_number: this.attr(null),
