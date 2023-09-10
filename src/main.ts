@@ -52,7 +52,6 @@ import Tabs from './components/tabs/Tabs.vue';
 import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
-import { AuthService } from './services/auth.service';
 import TreeMenu from '@/components/TreeMenu.vue';
 
 library.add(fas);
@@ -69,10 +68,7 @@ const getI18n = (messages = {}) => {
 
 export const i18n = getI18n();
 
-if (AuthService.getUser()) {
-  axios.defaults.withCredentials = true;
-  axios.defaults.headers.common.Authorization = `Bearer ${AuthService.getAccessToken()}`;
-}
+axios.defaults.withCredentials = true;
 
 const buildApp = (app: VueApp) =>
   app
