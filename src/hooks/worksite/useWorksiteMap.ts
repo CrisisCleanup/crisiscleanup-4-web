@@ -70,6 +70,7 @@ export default (
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
+        layer.destroy();
       }
     });
   };
