@@ -118,8 +118,9 @@
       </template>
       <template
         v-if="
-          currentOrganization &&
-          (!currentOrganization.is_active || !currentOrganization.is_verified)
+        false
+          // currentOrganization &&
+          // (!currentOrganization.is_active || !currentOrganization.is_verified)
         "
       >
         <OrganizationInactiveModal @user-logged-out="logoutApp" />
@@ -149,13 +150,13 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import moment from 'moment';
-import { useRoute, useRouter } from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import axios from 'axios';
-import { useI18n } from 'vue-i18n';
-import { useStore } from 'vuex';
-import { useMq } from 'vue3-mq';
+import {useI18n} from 'vue-i18n';
+import {useStore} from 'vuex';
+import {useMq} from 'vue3-mq';
 import Incident from '../models/Incident';
 import User from '../models/User';
 import Organization from '../models/Organization';
@@ -167,13 +168,12 @@ import NavMenu from '../components/navigation/NavMenu.vue';
 import TermsandConditionsModal from '../components/modals/TermsandConditionsModal.vue';
 import Header from '../components/header/Header.vue';
 import CompletedTransferModal from '../components/modals/CompletedTransferModal.vue';
-import { AuthService } from '../services/auth.service';
 import LoginForm from '../components/LoginForm.vue';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
 import DisasterIcon from '@/components/DisasterIcon.vue';
 import useDialogs from '@/hooks/useDialogs';
-import { useZendesk, ZendeskCommand, ZendeskTarget } from '@/hooks';
+import {useAuthStore, useCurrentUser, useZendesk, ZendeskCommand, ZendeskTarget} from '@/hooks';
 import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
@@ -195,6 +195,8 @@ export default defineComponent({
   setup() {
     const mq = useMq();
 
+    const authStore = useAuthStore();
+    const { currentUser, updateCurrentUser } = useCurrentUser();
     const route = useRoute();
     const router = useRouter();
     const $http = axios;
@@ -209,11 +211,13 @@ export default defineComponent({
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
-    const user = computed(() => store.getters['auth/user']);
+    // const user = computed(() => store.getters['auth/user']);
+    // const user = computed(() => User.find());
+    // const user = authStore.currentUser;
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
     const portal = computed(() => store.getters['enums/portal']);
-    const userId = computed(() => store.getters['auth/userId']);
+    // const userId = computed(() => store.getters['auth/userId']);
 
     const slideOverVisible = ref(false);
     const toggle = () => {
@@ -226,7 +230,7 @@ export default defineComponent({
     const showingMoreLinks = ref(false);
     const transferRequest = ref(null);
 
-    const currentUser = computed(() => User.find(userId.value));
+    // const currentUser = authStore.currentUser;
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
@@ -342,6 +346,7 @@ export default defineComponent({
     // store.commit('auth/setShowLoginModal', false);
 
     const handleChange = async (value: string) => {
+      // if(!value) return;
       await Incident.api().fetchById(value);
       await User.api().updateUserState({
         incident: value,
@@ -363,7 +368,10 @@ export default defineComponent({
     const { setupLanguage } = useSetupLanguage();
 
     const acceptTermsAndConditions = async () => {
-      await User.api().acceptTerms();
+      await updateCurrentUser({
+        accepted_terms: true,
+        accepted_terms_timestamp: moment().toISOString(),
+      });
       showAcceptTermsModal.value = false;
     };
 
@@ -403,15 +411,13 @@ export default defineComponent({
           handleChange(value as string);
         }
       },
+      // { immediate: true }
     );
 
     onMounted(() => {
       emitter.on('update:incident', (incidentId) => {
         handleChange(incidentId);
       });
-      if (route.params.incident_id) {
-        handleChange(route.params.incident_id as string);
-      }
     });
 
     // update zendesk current user.
@@ -445,29 +451,32 @@ export default defineComponent({
       }
     });
 
-    onMounted(async () => {
-      loading.value = true;
-      let u;
-
-      try {
-        try {
-          await User.api().get('/users/me', {});
-          u = User.find(userId.value);
-          if (u) {
-            AuthService.updateUser(u.$toJson());
-          }
-        } catch {
-          await AuthService.refreshAccessToken();
-          await User.api().get('/users/me', {});
-          u = User.find(userId.value);
-          if (u) {
-            AuthService.updateUser(u.$toJson());
-          }
-        }
-      } catch {
-        await AuthService.removeUser();
-        await logoutApp();
+    const onCurrentUserUnSub = whenever(currentUser, async (user) => {
+      console.log('current suer watch');
+      if (!user) {
+        console.log('missing user:', user)
+        return;
       }
+      loading.value = true;
+      // let u;
+      //   try {
+      //     await User.api().get('/users/me', {});
+      //     u = User.find(userId.value);
+      //     if (u) {
+      //       AuthService.updateUser(u.$toJson());
+      //     }
+      //   } catch {
+      //     await AuthService.refreshAccessToken();
+      //     await User.api().get('/users/me', {});
+      //     u = User.find(userId.value);
+      //     if (u) {
+      //       AuthService.updateUser(u.$toJson());
+      //     }
+      //   }
+      // } catch {
+      //   await AuthService.removeUser();
+      //   await logoutApp();
+      // }
 
       await Incident.api().get(
         '/incidents?fields=id,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
@@ -477,7 +486,7 @@ export default defineComponent({
       );
 
       await Promise.any([
-        Organization.api().get(`/organizations/${user.value.organization.id}`),
+        Organization.api().get(`/organizations/${user.organization.id}`),
         Language.api().get('/languages', {
           dataKey: 'results',
         }),
@@ -498,10 +507,11 @@ export default defineComponent({
 
       await getUserTransferRequests();
       await setupLanguage();
-      store.commit('acl/setUserAcl', user.value.id);
+      store.commit('acl/setUserAcl', user.id);
 
       let incidentId =
         route.params.incident_id || currentUser?.value?.approved_incidents?.[0];
+
       if (!incidentId) {
         const incident = Incident.query().orderBy('id', 'desc').first();
         if (incident) {
@@ -547,14 +557,15 @@ export default defineComponent({
 
       loading.value = false;
       ready.value = true;
+      onCurrentUserUnSub();
     });
 
     return {
-      user,
+      user: currentUser,
       showLoginModal,
       currentIncidentId,
       portal,
-      userId,
+      // userId,
       loading,
       ready,
       showAcceptTermsModal,
