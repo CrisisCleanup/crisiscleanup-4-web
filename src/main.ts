@@ -140,8 +140,4 @@ if (import.meta.env.PROD) {
   initSentry(app);
 }
 
-void router
-  .isReady()
-  .then(() => app.mount('#app'))
-  // eslint-disable-next-line unicorn/prefer-top-level-await
-  .catch(console.error);
+app.mount('#app');
