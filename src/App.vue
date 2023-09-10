@@ -2,6 +2,7 @@
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { whenever } from '@vueuse/core';
 import { useStore } from 'vuex';
 import { DialogWrapper } from 'vue3-promise-dialog';
 import axios, { type AxiosError } from 'axios';
@@ -87,7 +88,7 @@ export default defineComponent({
       store.commit('enums/setPortal', enums.portal.data);
     }
 
-    watch(
+    whenever(
       () => route.name,
       (n) => {
         const newTitle = `${t(n?.toString() || '')}: Crisis Cleanup`;
