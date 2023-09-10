@@ -7,7 +7,7 @@ import { DialogWrapper } from 'vue3-promise-dialog';
 import axios, { type AxiosError } from 'axios';
 import { hash } from './utils/promise';
 import { AuthService } from './services/auth.service';
-import { useProvideZendesk } from '@/hooks';
+import { useProvideZendesk, useAuthStore } from '@/hooks';
 
 export default defineComponent({
   name: 'App',
@@ -15,6 +15,8 @@ export default defineComponent({
     DialogWrapper,
   },
   setup() {
+    const authStore = useAuthStore();
+    authStore.getMe();
     const route = useRoute();
     const defaultLayout = 'authenticated';
     const layout = computed(
@@ -95,6 +97,9 @@ export default defineComponent({
       },
       { immediate: true },
     );
+
+    axios.defaults.headers.CCU_PORTAL_KEY = import.meta.env.VITE_APP_PORTAL_KEY;
+    axios.defaults.headers.CCU_WEB_URL = window.location.href;
 
     onMounted(async () => {
       if (import.meta.env.NODE_ENV === 'development') {
