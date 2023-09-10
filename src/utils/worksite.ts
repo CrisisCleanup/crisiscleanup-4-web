@@ -10,8 +10,8 @@ export interface CachedCaseResponse {
   results: CachedCase[];
 }
 
-const loadCases = async (query: Record<string, any>) => {
-  const response = await axios.get(
+const loadCases = async (query: Record<string, unknown>) => {
+  const response = await axios.get<CachedCaseResponse>(
     `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_all`,
     {
       params: {
@@ -22,10 +22,10 @@ const loadCases = async (query: Record<string, any>) => {
   return response.data;
 };
 
-const loadCasesCached = async (query: Record<string, any>) => {
+const loadCasesCached = async (query: Record<string, unknown>) => {
   const hashCode = (s: string) => MD5(s).toString();
   const queryKeys = Object.keys(query).sort();
-  const sortedQuery: Record<string, any> = {};
+  const sortedQuery: Record<string, unknown> = {};
   for (const key of queryKeys) {
     sortedQuery[key] = query[key];
   }
@@ -44,21 +44,17 @@ const loadCasesCached = async (query: Record<string, any>) => {
     moment().toISOString()) as string; // ISO date string
   if (cachedCases) {
     const [response, reconciliationResponse] = await Promise.all([
-      axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/worksites_all`, {
-        params: {
-          ...query,
-          updated_at__gt: casesUpdated,
-        },
+      loadCases({
+        ...query,
+        updated_at__gt: casesUpdated,
       }),
-      axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/worksites_all`, {
-        params: {
-          updated_at__gt: casesReconciled,
-          fields: 'id,incident',
-        },
+      loadCases({
+        updated_at__gt: casesReconciled,
+        fields: 'id,incident',
       }),
     ]);
 
-    for (const element of reconciliationResponse.data.results) {
+    for (const element of reconciliationResponse.results) {
       const itemIndex = cachedCases.results.findIndex(
         (o) => o.id === element.id,
       );
@@ -71,14 +67,13 @@ const loadCasesCached = async (query: Record<string, any>) => {
     }
 
     await DbService.setItem(cacheKeys.RECONCILED, moment().toISOString());
-
     await DbService.setItem(cacheKeys.CASES, cachedCases);
 
-    if (response.data.count === 0) {
+    if (response.count === 0) {
       return cachedCases;
     }
 
-    for (const element of response.data.results) {
+    for (const element of response.results) {
       const itemIndex = cachedCases.results.findIndex(
         (o) => o.id === element.id,
       );
@@ -96,17 +91,10 @@ const loadCasesCached = async (query: Record<string, any>) => {
     return cachedCases;
   }
 
-  const response = await axios.get<CachedCaseResponse>(
-    `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_all`,
-    {
-      params: {
-        ...query,
-      },
-    },
-  );
-  await DbService.setItem(cacheKeys.CASES, response.data);
+  const results = await loadCases(query);
+  await DbService.setItem(cacheKeys.CASES, results);
   await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
-  return response.data;
+  return results;
 };
 
 const loadCaseImagesCached = async (query: Record<string, any>) => {
