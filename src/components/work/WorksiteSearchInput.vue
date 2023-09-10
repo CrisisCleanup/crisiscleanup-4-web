@@ -137,7 +137,14 @@ export default defineComponent({
       default: true,
     },
   },
-  emits: ['input', 'selectedGeocode', 'selectedExisting', 'clearSuggestions'],
+  emits: [
+    'input',
+    'focus',
+    'blur',
+    'selectedGeocode',
+    'selectedExisting',
+    'clearSuggestions',
+  ],
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();
     const store = useStore();
@@ -224,11 +231,13 @@ export default defineComponent({
 
     function onBlur() {
       setTimeout(() => {
+        emit('blur');
         isFocused.value = false;
       }, 200);
     }
 
     function onFocus() {
+      emit('focus');
       isFocused.value = true;
     }
 
