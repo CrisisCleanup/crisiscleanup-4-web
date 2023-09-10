@@ -113,13 +113,15 @@ const authStore = () => {
   const route = useRoute();
   const store = useStore();
 
+  // Initialize auth state.
   const authState = reactive<AuthState>({
     userId: undefined,
-    // refreshToken: null,
-    // accessToken: null,
     status: AuthStatus.INIT,
   });
 
+  // Hook for current user response object.
+  // This is to maintain SRP / enable management of current user state
+  // w/o tightly coupling it to authentication state.
   const onCurrentUserHook = createEventHook<{
     id: number;
     [key: string]: unknown;
@@ -131,10 +133,6 @@ const authStore = () => {
     async (response) => {
       debug('user me state data: %O', usersMeState.data.value);
       if (response?.id) {
-        // await User.insertOrUpdate({
-        //   data: response,
-        //   insertOrUpdate: [String(response.id)],
-        // });
         await onCurrentUserHook.trigger(response);
         authState.userId = response.id;
         authState.status = AuthStatus.AUTHENTICATED;
@@ -177,6 +175,7 @@ const authStore = () => {
   // readonly current user id ref.
   const currentUserId = toRef(() => authState.userId);
 
+  // todo: remove after auth removal
   const currentUser = computed(() =>
     authState.userId ? User.find(authState.userId) : undefined,
   );
@@ -229,7 +228,6 @@ const authStore = () => {
       authState.accessToken = response.access_token;
       authState.refreshToken = response.refresh_token;
       authState.status = AuthStatus.AUTHENTICATED;
-      // axios.defaults.headers.common.Authorization = `Bearer ${response.access_token}`;
     }
   });
 
@@ -240,7 +238,6 @@ const authStore = () => {
   const refreshMe = () => {
     console.log('REFRESHING:', authState);
     authState.status = AuthStatus.REFRESHING;
-    // void getMe();
   };
 
   // Oauth authorize.
