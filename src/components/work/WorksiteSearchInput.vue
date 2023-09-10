@@ -156,27 +156,10 @@ export default defineComponent({
     const geocoderResults = ref<Awaited<ReturnType<typeof geocoderSearch>>>([]);
     const { recentWorksites, addRecentWorksite, deleteRecentWorksite } =
       useRecentWorksites();
+
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Tab') {
-        emit('clearSuggestions');
-      }
-    });
-
-    function searchWorksites(search: string, incidentId: number) {
-      return axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incidentId}`,
-      );
-    }
-
-    async function geocoderSearch(value: string) {
-      return GeocoderService.getMatchingAddresses(value, 'USA');
-    }
-
     const results = computed(() => {
       const _results = [
         {
@@ -195,6 +178,12 @@ export default defineComponent({
       return _results;
     });
 
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Tab') {
+        emit('clearSuggestions');
+      }
+    });
+
     async function worksitesSearch(value: string) {
       emit('input', value);
       if (props.useWorksites) {
@@ -205,6 +194,18 @@ export default defineComponent({
       if (props.useGeocoder) {
         geocoderResults.value = await geocoderSearch(value);
       }
+    }
+
+    function searchWorksites(search: string, incidentId: number) {
+      return axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incidentId}`,
+      );
+    }
+
+    async function geocoderSearch(value: string) {
+      return GeocoderService.getMatchingAddresses(value, 'USA');
     }
 
     function getWorkImage(workTypes: WorkType[]) {
