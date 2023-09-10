@@ -269,6 +269,62 @@ export default defineComponent({
   height: 30px;
 }
 
+#autosuggest__input {
+  outline: none;
+  width: 100%;
+  height: 32px;
+  border-radius: 0;
+  border: solid 1px #dadada;
+  padding: 10px;
+  position: relative;
+  @apply text-sm;
+}
+
+.invalid #autosuggest__input[required] {
+  @apply border-crisiscleanup-red-100;
+}
+
+.large #autosuggest__input {
+  height: 50px;
+  @apply text-base;
+}
+
+.has-icon #autosuggest__input {
+  width: 100%;
+  border-right: 0;
+}
+
+.has-tooltip #autosuggest__input {
+  width: 100%;
+}
+
+#autosuggest__input::placeholder {
+  @apply text-crisiscleanup-dark-200;
+}
+
+#autosuggest__input {
+  -webkit-appearance: none;
+}
+
+.autosuggest__results {
+  font-weight: 200;
+  min-width: 10vw;
+  max-width: 100vw;
+  position: absolute;
+  z-index: 10000001;
+  border: 1px solid #e0e0e0;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  background: white;
+  padding: 0;
+  overflow: auto;
+  max-height: 400px;
+}
+
+.full .autosuggest__results {
+  width: max-content;
+}
+
 .autocomplete .icon-container {
   width: 40px;
   height: 40px;
@@ -283,5 +339,15 @@ export default defineComponent({
 .autocomplete .large.icon-container {
   width: 50px;
   height: 50px;
+}
+
+.autosuggest__results-before {
+  @apply text-gray-400 text-sm font-bold px-1;
+}
+
+@media screen and (max-width: 640px) {
+  .autosuggest__results {
+    min-width: 97vw;
+  }
 }
 </style>
