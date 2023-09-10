@@ -6,7 +6,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div class="flex items-center p-1">
+  <div class="flex items-center p-1 space-x-2">
     <BaseText> {{ t('nav.download_app') }}</BaseText>
     <a
       href="https://apps.apple.com/us/app/crisis-cleanup/id6463570192"
@@ -16,7 +16,6 @@ const { t } = useI18n();
         data-testid="testDownloadIosLink"
         :alt="t('nav.ccu_ios')"
         size="xl"
-        class="p-1 py-2"
         type="ios-round"
         linked
       />
@@ -29,7 +28,6 @@ const { t } = useI18n();
         data-testid="testDownloadAndroidLink"
         :alt="t('nav.ccu_android')"
         size="xl"
-        class="p-1 py-2"
         type="android-round"
         linked
       />
