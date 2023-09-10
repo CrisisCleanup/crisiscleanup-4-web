@@ -50,15 +50,15 @@
                   {{ option.address }}, {{ option.city }}, {{ option.state }}
                 </div>
                 <!-- Only show clear on recent worksite entry -->
-                <font-awesome-icon
-                  v-if="result.label === searchSections.RECENTS"
-                  icon="times"
-                  :alt="$t('actions.clear')"
-                  :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`"
-                  class="p-1 w-4"
-                  size="medium"
-                  @click="() => deleteRecentWorksite(option.id)"
-                />
+                <!-- <font-awesome-icon -->
+                <!--   v-if="result.label === searchSections.RECENTS" -->
+                <!--   icon="times" -->
+                <!--   :alt="$t('actions.clear')" -->
+                <!--   :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`" -->
+                <!--   class="p-1 w-4" -->
+                <!--   size="medium" -->
+                <!--   @click="() => deleteRecentWorksite(option.id)" -->
+                <!-- /> -->
               </div>
             </div>
           </template>
@@ -154,8 +154,8 @@ export default defineComponent({
     });
     const worksites = ref<Worksite[]>([]);
     const geocoderResults = ref<Awaited<ReturnType<typeof geocoderSearch>>>([]);
-    const { recentWorksites, addRecentWorksite, deleteRecentWorksite } =
-      useRecentWorksites();
+    // const { recentWorksites, addRecentWorksite, deleteRecentWorksite } =
+    //   useRecentWorksites();
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
@@ -179,10 +179,10 @@ export default defineComponent({
 
     const results = computed(() => {
       const _results = [
-        {
-          label: searchSections.RECENTS,
-          options: recentWorksites.value,
-        },
+        // {
+        //   label: searchSections.RECENTS,
+        //   options: recentWorksites.value,
+        // },
         {
           label: searchSections.SEARCH,
           options: worksites.value,
@@ -239,7 +239,7 @@ export default defineComponent({
     function onSelectExisting(option: Worksite) {
       console.info('onSelectExisting', option);
       emit('selectedExisting', option);
-      addRecentWorksite(option);
+      // addRecentWorksite(option);
     }
 
     return {
@@ -251,7 +251,7 @@ export default defineComponent({
       getWorkImage,
       isFocused,
       searchSections,
-      deleteRecentWorksite,
+      // deleteRecentWorksite,
       onFocus,
       onBlur,
       onSelectGeocode,
