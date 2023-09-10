@@ -81,6 +81,8 @@ import downloadPlayStoreBadge from './assets/icons/download-playstore-badge.svg'
 import appleAppStore from './assets/icons/appleAppStore.svg';
 import googlePlayStore from './assets/icons/googlePlayStore.svg';
 import zoom from './assets/icons/zoom.svg'
+import iosRound from './assets/icons/ios-round.svg'
+import androidRound from './assets/icons/android-round.svg'
 // DISASTER ICONS
 import contaminatedWater from './assets/disaster_icons/contaminated-water.svg';
 import earthquake from './assets/disaster_icons/earthquake.svg';
@@ -264,7 +266,9 @@ export const ICON_MAP = {
   'google-play-store': googlePlayStore,
   'apple-app-store': appleAppStore,
   'sticky-note-solid': stickyNoteSolid,
-  'zoom': zoom
+  'zoom': zoom,
+   'ios-round': iosRound,
+    'android-round': androidRound
 };
 
 export const ICONS = Object.fromEntries(

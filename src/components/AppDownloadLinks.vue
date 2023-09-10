@@ -15,9 +15,9 @@ const { t } = useI18n();
       <ccu-icon
         data-testid="testDownloadIosLink"
         :alt="t('nav.ccu_ios')"
-        size="large"
+        size="xl"
         class="p-1 py-2"
-        type="apple-app-store"
+        type="ios-round"
         linked
       />
     </a>
@@ -28,9 +28,9 @@ const { t } = useI18n();
       <ccu-icon
         data-testid="testDownloadAndroidLink"
         :alt="t('nav.ccu_android')"
-        size="large"
+        size="xl"
         class="p-1 py-2"
-        type="google-play-store"
+        type="android-round"
         linked
       />
     </a>
