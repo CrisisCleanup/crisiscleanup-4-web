@@ -28,6 +28,7 @@ const loadCasesCached = async (query: Record<string, unknown>) => {
   for (const key of queryKeys) {
     sortedQuery[key] = query[key];
   }
+
   const queryHash = generateHash(JSON.stringify(sortedQuery));
   const cacheKeys = {
     CASES: `cachedCases:${queryHash}`,
@@ -38,17 +39,17 @@ const loadCasesCached = async (query: Record<string, unknown>) => {
   const cachedCases = (await DbService.getItem(
     cacheKeys.CASES,
   )) as CachedCaseResponse;
-  const casesUpdated = (await DbService.getItem(cacheKeys.UPDATED)) as string; // ISO date string
-  const casesReconciled = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
+  const casesUpdatedAt = (await DbService.getItem(cacheKeys.UPDATED)) as string; // ISO date string
+  const casesReconciledAt = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
     moment().toISOString()) as string; // ISO date string
   if (cachedCases) {
     const [response, reconciliationResponse] = await Promise.all([
       loadCases({
         ...query,
-        updated_at__gt: casesUpdated,
+        updated_at__gt: casesUpdatedAt,
       }),
       loadCases({
-        updated_at__gt: casesReconciled,
+        updated_at__gt: casesReconciledAt,
         fields: 'id,incident',
       }),
     ]);
