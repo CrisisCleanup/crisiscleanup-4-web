@@ -3,7 +3,6 @@
     v-if="!route.disabled"
     :to="route.to"
     class="menu-item router-link p-2 border-b border-t border-gray-800"
-    :class="{ 'router-link-active': isActive }"
     :data-testid="`test${route.key}Link`"
   >
     <div :key="route.key" class="flex flex-col items-center relative">
