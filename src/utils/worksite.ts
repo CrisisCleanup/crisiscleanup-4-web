@@ -27,15 +27,17 @@ const loadCasesCached = async (query: Record<string, any>) => {
       .split('')
       .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0);
   const queryHash = hashCode(JSON.stringify(query));
+  const cacheKeys = {
+    CASES: `cachedCases:${queryHash}`,
+    UPDATED: `casesUpdated:${queryHash}`,
+    RECONCILED: `casesReconciled:${queryHash}`,
+  };
   const cachedCases = (await DbService.getItem(
-    `cachedCases:${queryHash}`,
+    cacheKeys.CASES,
   )) as CachedCaseResponse;
-  const casesUpdated = (await DbService.getItem(
-    `casesUpdated:${queryHash}`,
-  )) as string; // ISO date string
-  const casesReconciled = ((await DbService.getItem(
-    `casesReconciled:${queryHash}`,
-  )) || moment().toISOString()) as string; // ISO date string
+  const casesUpdated = (await DbService.getItem(cacheKeys.UPDATED)) as string; // ISO date string
+  const casesReconciled = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
+    moment().toISOString()) as string; // ISO date string
   if (cachedCases) {
     const [response, reconciliationResponse] = await Promise.all([
       axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/worksites_all`, {
@@ -64,12 +66,9 @@ const loadCasesCached = async (query: Record<string, any>) => {
       }
     }
 
-    await DbService.setItem(
-      `casesReconciled:${queryHash}`,
-      moment().toISOString(),
-    );
+    await DbService.setItem(cacheKeys.RECONCILED, moment().toISOString());
 
-    await DbService.setItem(`cachedCases:${queryHash}`, cachedCases);
+    await DbService.setItem(cacheKeys.CASES, cachedCases);
 
     if (response.data.count === 0) {
       return cachedCases;
@@ -88,11 +87,8 @@ const loadCasesCached = async (query: Record<string, any>) => {
 
     cachedCases.count = cachedCases.results.length;
 
-    await DbService.setItem(`cachedCases:${queryHash}`, cachedCases);
-    await DbService.setItem(
-      `casesUpdated:${queryHash}`,
-      moment().toISOString(),
-    );
+    await DbService.setItem(cacheKeys.CASES, cachedCases);
+    await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
     return cachedCases;
   }
 
@@ -104,8 +100,8 @@ const loadCasesCached = async (query: Record<string, any>) => {
       },
     },
   );
-  await DbService.setItem(`cachedCases:${queryHash}`, response.data);
-  await DbService.setItem(`casesUpdated:${queryHash}`, moment().toISOString());
+  await DbService.setItem(cacheKeys.CASES, response.data);
+  await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
   return response.data;
 };
 
