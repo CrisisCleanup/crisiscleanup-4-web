@@ -10,7 +10,7 @@
         data-testid="testWorksiteSearchInputSearch"
         @update:modelValue="worksitesSearch"
         @input.stop=""
-        @focus="isFocused = true"
+        @focus="onFocus"
         @blur="onBlur"
       >
       </base-input>
@@ -270,6 +270,10 @@ export default defineComponent({
       return getWorkTypeImage(workType);
     }
 
+    function onFocus() {
+      isFocused.value = true;
+    }
+
     function onSelectGeocode(option: Record<string, any>) {
       console.info('onSelectGeocode', option);
       emit('selectedGeocode', option);
@@ -293,6 +297,7 @@ export default defineComponent({
       results,
       getWorkImage,
       isFocused,
+      onFocus,
       onBlur,
       onSelectGeocode,
       onSelectExisting,
