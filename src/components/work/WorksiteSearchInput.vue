@@ -222,9 +222,7 @@ export default defineComponent({
     }
 
     function onBlur() {
-      setTimeout(() => {
-        isFocused.value = false;
-      }, 200);
+      isFocused.value = false;
     }
 
     function onFocus() {
