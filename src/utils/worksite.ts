@@ -24,7 +24,12 @@ const loadCases = async (query: Record<string, any>) => {
 
 const loadCasesCached = async (query: Record<string, any>) => {
   const hashCode = (s: string) => MD5(s).toString();
-  const queryHash = hashCode(JSON.stringify(query));
+  const queryKeys = Object.keys(query).sort();
+  const sortedQuery: Record<string, any> = {};
+  for (const key of queryKeys) {
+    sortedQuery[key] = query[key];
+  }
+  const queryHash = hashCode(JSON.stringify(sortedQuery));
   const cacheKeys = {
     CASES: `cachedCases:${queryHash}`,
     UPDATED: `casesUpdated:${queryHash}`,
