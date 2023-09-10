@@ -5,9 +5,8 @@ import { useI18n } from 'vue-i18n';
 import { whenever } from '@vueuse/core';
 import { useStore } from 'vuex';
 import { DialogWrapper } from 'vue3-promise-dialog';
-import axios, { type AxiosError } from 'axios';
+import axios from 'axios';
 import { hash } from './utils/promise';
-import { AuthService } from './services/auth.service';
 import { useProvideZendesk, useAuthStore } from '@/hooks';
 
 export default defineComponent({
@@ -107,79 +106,7 @@ export default defineComponent({
         eventsInterval.value = setInterval(pushCurrentEvents, 2000);
       }
 
-      axios.defaults.headers.CCU_PORTAL_KEY =
-        import.meta.env.VITE_APP_PORTAL_KEY;
-      axios.defaults.headers.CCU_WEB_URL = window.location.href;
-
-      // Intercept and handle unauthenticated requests
-      // TODO: This belongs in a proper hook, not in entry.
-      const isReauthenticating = ref(false);
-      const reauthSubscribers = ref<Array<(token: string) => unknown>>([]);
-
-      axios.interceptors.response.use(null, function (error: AxiosError) {
-        if (error.response && error.response.status === 401) {
-          // If no one else is reauthenticating, start the process
-          if (!isReauthenticating.value) {
-            isReauthenticating.value = true;
-            AuthService.refreshAccessToken()
-              .then(() => {
-                Promise.allSettled(
-                  reauthSubscribers.value.map((cb) =>
-                    cb(AuthService.getAccessToken()!),
-                  ),
-                );
-                isReauthenticating.value = false;
-                reauthSubscribers.value = [];
-              })
-              .catch((error) => {
-                console.error(error);
-                // should have already been redirected by this point.
-                isReauthenticating.value = false;
-                reauthSubscribers.value = [];
-              });
-          }
-
-          // wait for the reauth to finish then retry the request.
-          return new Promise((resolve) => {
-            reauthSubscribers.value.push((token) =>
-              resolve(
-                axios({
-                  ...error.config!,
-                  headers: {
-                    ...error.config!.headers,
-                    Authorization: `Bearer ${token}`,
-                  },
-                }),
-              ),
-            );
-          });
-        }
-
-        return error;
-      });
       await getEnums();
-
-      const oauthTokenChannel = new BroadcastChannel('oauthTokenChannel');
-      const logoutChannel = new BroadcastChannel('logoutChannel');
-
-      // eslint-disable-next-line unicorn/prefer-add-event-listener
-      oauthTokenChannel.onmessage = (event) => {
-        const token = JSON.parse(event.data);
-        axios
-          .get(`${import.meta.env.VITE_APP_API_BASE_URL}/users/me`, {
-            headers: {
-              Authorization: `Bearer ${token.access_token}`,
-            },
-          })
-          .then((user) => {
-            AuthService.saveUser(user.data);
-          });
-      };
-
-      // eslint-disable-next-line unicorn/prefer-add-event-listener
-      logoutChannel.onmessage = () => {
-        window.location.href = '/';
-      };
     });
 
     // 360042012811
