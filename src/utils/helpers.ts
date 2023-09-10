@@ -1,5 +1,6 @@
 import { useI18n } from 'vue-i18n';
 import { i18n } from '../main';
+import { MD5 } from 'crypto-js';
 
 /**
  * Convert rem to pixels.
@@ -66,4 +67,8 @@ export function numeral(
   }
 
   return formatter.format(value || 0);
+}
+
+export function generateHash(s: string) {
+  return MD5(s).toString();
 }
