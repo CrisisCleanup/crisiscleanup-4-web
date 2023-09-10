@@ -16,16 +16,16 @@
       </base-input>
 
       <div
-        v-if="results.length > 0 && value.length > 0 && isFocused"
+        v-if="results.length > 0 && isFocused"
         class="absolute bg-white z-50 h-auto max-h-84 overflow-auto min-w-84"
         data-testid="testWorsiteSearchResultsDiv"
       >
         <div v-for="result in results" :key="result.label">
-          <template v-if="result.options.length > 0"
-            >{{ result.label }}
+          <template v-if="result.options.length > 0">
+            <h3 class="p-1">{{ result.label }}</h3>
             <div v-for="option in result.options" :key="option.id">
               <div
-                v-if="result.label === 'Geocode'"
+                v-if="result.label === searchSections.GEOCODER"
                 class="flex flex-col sm:text-lg text-base p-1 cursor-pointer hover:bg-crisiscleanup-light-grey border-b"
                 @click="() => onSelectGeocode(option)"
               >
@@ -49,13 +49,22 @@
                   <br />
                   {{ option.address }}, {{ option.city }}, {{ option.state }}
                 </div>
+                <!-- Only show clear on recent worksite entry -->
+                <font-awesome-icon
+                  v-if="result.label === searchSections.RECENTS"
+                  icon="times"
+                  :alt="$t('actions.clear')"
+                  :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`"
+                  class="p-1 w-4"
+                  size="medium"
+                  @click="() => deleteRecentWorksite(option.id)"
+                />
               </div>
             </div>
           </template>
         </div>
       </div>
     </div>
-
     <div
       v-if="icon || tooltip"
       class="icon-container flex items-center justify-center"
@@ -71,17 +80,15 @@
 </template>
 
 <script lang="ts">
-// import Highlighter from 'vue-highlight-words';
-// import Worksite from '../../models/Worksite';
-// import { getWorkTypeImage } from '../../filters';
-import { computed, nextTick, ref } from 'vue';
+import { computed, ref } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import GeocoderService from '../../services/geocoder.service';
 import BaseInput from '../BaseInput.vue';
-import Worksite from '../../models/Worksite';
-import { getWorkTypeImage } from '../../filters/index';
+import Worksite from '@/models/Worksite';
+import { getWorkTypeImage } from '@/filters/index';
+import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 
 export default defineComponent({
   name: 'WorksiteSearchInput',
@@ -132,6 +139,21 @@ export default defineComponent({
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();
     const store = useStore();
+    const isFocused = ref(false);
+    const searchSections = {
+      SEARCH: 'Search',
+      GEOCODER: 'Geocoder',
+      RECENTS: 'Recents',
+    } as const;
+    const iconClasses = ref({
+      large: props.size === 'large',
+      base: props.size !== 'large',
+      'has-tooltip': Boolean(props.tooltip),
+    });
+    const worksites = ref<Worksite[]>([]);
+    const geocoderResults = ref<Awaited<ReturnType<typeof geocoderSearch>>>([]);
+    const { recentWorksites, addRecentWorksite, deleteRecentWorksite } =
+      useRecentWorksites();
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
@@ -150,112 +172,38 @@ export default defineComponent({
     }
 
     async function geocoderSearch(value: string) {
-      return await GeocoderService.getMatchingAddresses(value, 'USA');
+      return GeocoderService.getMatchingAddresses(value, 'USA');
     }
 
-    const results = ref<
-      {
-        label: string;
-        options: Record<string, any>[];
-      }[]
-    >([]);
-
-    function onBlur() {
-      setTimeout(() => {
-        isFocused.value = false;
-      }, 200);
-    }
+    const results = computed(() => {
+      const _results = [
+        {
+          label: searchSections.RECENTS,
+          options: recentWorksites.value,
+        },
+        {
+          label: searchSections.SEARCH,
+          options: worksites.value,
+        },
+        {
+          label: searchSections.GEOCODER,
+          options: geocoderResults.value,
+        },
+      ];
+      return _results;
+    });
 
     async function worksitesSearch(value: string) {
       emit('input', value);
-      let geocode: Awaited<ReturnType<typeof geocoderSearch>> = [];
-      let worksites: Worksite[] = [];
       if (props.useWorksites) {
         const sites = await searchWorksites(value, currentIncidentId.value);
-        worksites = sites.data.results;
+        worksites.value = sites.data.results;
       }
-
       if (props.useGeocoder) {
-        geocode = await geocoderSearch(value);
+        geocoderResults.value = await geocoderSearch(value);
       }
-
-      results.value = [
-        {
-          label: 'Search',
-          options: worksites,
-        },
-        {
-          label: 'Geocode',
-          options: geocode,
-        },
-      ];
     }
 
-    const selected = ref('');
-    const isFocused = ref(false);
-    const filteredOptions = ref([]);
-    const timeout = ref(null);
-    const debounceMilliseconds = ref(50);
-    const classes = ref({
-      'flex-grow': true,
-      relative: true,
-      'text-base': true,
-      'font-light': true,
-      large: props.size === 'large',
-      base: props.size !== 'large',
-      'has-icon': Boolean(props.icon),
-      'has-tooltip': Boolean(props.tooltip),
-      full: Boolean(props.full),
-      invalid: !props.skipValidation,
-    });
-    const iconClasses = ref({
-      large: props.size === 'large',
-      base: props.size !== 'large',
-      'has-tooltip': Boolean(props.tooltip),
-    });
-    const text = ref('');
-
-    // shouldRenderSuggestions(size, loading) {
-    //   return size > 0 && !loading;
-    // },
-    // renderSuggestion(suggestion) {
-    //   if (suggestion.name === 'geocoder') {
-    //     return (
-    //       <div class="flex flex-col sm:text-lg text-base p-1 cursor-pointer hover:bg-crisiscleanup-light-grey border-b">
-    //         <div>{suggestion.item.description}</div>
-    //       </div>
-    //     );
-    //   }
-    //   return (
-    //     <div class="flex items-center p-1 cursor-pointer hover:bg-crisiscleanup-light-grey border-b">
-    //       <span>{this.getWorkImage(suggestion.item.work_types)}</span>
-    //       <div
-    //         className="flex flex-col text-sm"
-    //         style={{ width: this.width || 'auto' }}
-    //       >
-    //         <Highlighter
-    //           highlightClassName="highlight"
-    //           searchWords={[this.text]}
-    //           autoEscape={true}
-    //           textToHighlight={`${suggestion.item.name}, ${suggestion.item.case_number}`}
-    //         />
-    //         <br />
-    //         <Highlighter
-    //           highlightClassName="highlight"
-    //           searchWords={[this.text]}
-    //           autoEscape={true}
-    //           textToHighlight={`${suggestion.item.address}, ${suggestion.item.city}, ${suggestion.item.state}`}
-    //         />
-    //       </div>
-    //     </div>
-    //   );
-    // },
-    // getSuggestionValue(suggestion) {
-    //   if (suggestion.name === 'geocoder') {
-    //     return suggestion.item.description;
-    //   }
-    //   return suggestion.item.name;
-    // },
     function getWorkImage(workTypes) {
       const workType = Worksite.getWorkType(
         workTypes,
@@ -270,6 +218,12 @@ export default defineComponent({
       return getWorkTypeImage(workType);
     }
 
+    function onBlur() {
+      setTimeout(() => {
+        isFocused.value = false;
+      }, 200);
+    }
+
     function onFocus() {
       isFocused.value = true;
     }
@@ -282,21 +236,18 @@ export default defineComponent({
     function onSelectExisting(option: Record<string, any>) {
       console.info('onSelectExisting', option);
       emit('selectedExisting', option);
+      addRecentWorksite(option as Worksite);
     }
 
     return {
-      selected,
-      filteredOptions,
-      timeout,
-      debounceMilliseconds,
-      classes,
-      iconClasses,
-      text,
       currentUser,
+      iconClasses,
       worksitesSearch,
       results,
       getWorkImage,
       isFocused,
+      searchSections,
+      deleteRecentWorksite,
       onFocus,
       onBlur,
       onSelectGeocode,
