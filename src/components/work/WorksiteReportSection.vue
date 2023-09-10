@@ -61,10 +61,10 @@
               <div v-if="currentTimeEdit.id === entry.id">
                 <input
                   class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
-                  :value="entry.volunteers"
                   @update:modelValue="
                     currentTimeEdit.volunteers = $event.target.value
                   "
+                  v-model="editVolunteersToAdd"
                 />
               </div>
               <div v-else>
@@ -75,10 +75,8 @@
               <div v-if="currentTimeEdit.id === entry.id">
                 <input
                   class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
-                  :value="entry.seconds / 3600"
-                  @update:modelValue="
-                    currentTimeEdit.seconds = $event.target.value * 3600
-                  "
+                  v-model="editHoursPerVolunteer"
+
                 />
               </div>
               <div v-else>
@@ -159,7 +157,8 @@ export default defineComponent({
     const addingTime = ref(false);
     const currentTimeEdit = ref({});
     const timeForm = ref(null);
-
+    const editHoursPerVolunteer = ref(0)
+    const editVolunteersToAdd = ref(0)
     const timeEnteredByMyOrganization = computed(() => {
       if (props.worksite) {
         return props.worksite.time.filter(
@@ -217,11 +216,15 @@ export default defineComponent({
 
     async function saveTimeEntry() {
       try {
+        currentTimeEdit.value.seconds = editHoursPerVolunteer.value * 3600
+        currentTimeEdit.value.volunteers = editVolunteersToAdd.value
+
         await Worksite.api().updateTimeEntry(
           currentTimeEdit.value.id,
           currentTimeEdit.value.seconds,
           currentTimeEdit.value.volunteers,
         );
+        console.log(currentTimeEdit.value,'currentTimeEdit')
         currentTimeEdit.value = {};
         await Worksite.api().fetch(props.worksite.id);
       } catch (error) {
@@ -230,13 +233,19 @@ export default defineComponent({
     }
 
     function editTimeEntry(entry) {
+      editHoursPerVolunteer.value = entry.seconds / 3600
+      editVolunteersToAdd.value = entry.volunteers
+
       currentTimeEdit.value.id = entry.id;
       currentTimeEdit.value.seconds = entry.seconds;
       currentTimeEdit.value.volunteers = entry.volunteers;
       currentTimeEdit.value = { ...currentTimeEdit.value };
+
     }
 
     return {
+      editHoursPerVolunteer,
+      editVolunteersToAdd,
       volunteersToAdd,
       hoursPerVolunteer,
       addingTime,
