@@ -150,7 +150,7 @@ export default defineComponent({
     },
     useRecents: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   emits: [
