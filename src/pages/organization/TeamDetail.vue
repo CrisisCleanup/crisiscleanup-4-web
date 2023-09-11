@@ -626,6 +626,7 @@ import { getQueryString } from '@/utils/urls';
 import Table from '@/components/Table.vue';
 import useDialogs from '@/hooks/useDialogs';
 import User from '@/models/User';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'TeamDetail',
@@ -653,10 +654,7 @@ export default defineComponent({
     const { t } = useI18n();
     const { component: dialogComponent, selection, confirm } = useDialogs();
     const $http = axios;
-    const currentUser = computed(
-      () => User.find(store.getters['auth/userId']) as User,
-    );
-    const currentUsers = ref([]);
+    const { currentUser } = useCurrentUser();
     const userResults = ref<User[]>([]);
     const caseResults = ref<Record<string, any>[]>([]);
     const usersToAdd = ref([]);

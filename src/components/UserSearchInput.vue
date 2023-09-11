@@ -24,6 +24,7 @@
 
 <script lang="ts">
 import User from '@/models/User';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'UserSearchInput',
@@ -40,9 +41,8 @@ export default defineComponent({
   },
   emits: ['selectedUser'],
   setup(props, { emit }) {
-    const store = useStore();
     const userResults = ref<User[]>([]);
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const { currentUser } = useCurrentUser();
     const selectedUser = ref<unknown>();
 
     async function onUserSearch(value: string) {

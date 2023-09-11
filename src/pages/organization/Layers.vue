@@ -52,25 +52,24 @@
 </template>
 
 <script lang="ts">
-import { useToast } from 'vue-toastification';
-import { debounce } from 'lodash';
+import {useToast} from 'vue-toastification';
+import {debounce} from 'lodash';
 import LayerUploadTool from '@/components/locations/LayerUploadTool.vue';
 import LocationTable from '@/components/LocationTable.vue';
-import User from '@/models/User';
 import Location from '@/models/Location';
 import LocationType from '@/models/LocationType';
-import { getQueryString } from '@/utils/urls';
-import { getErrorMessage } from '@/utils/errors';
+import {getQueryString} from '@/utils/urls';
+import {getErrorMessage} from '@/utils/errors';
+import {useCurrentUser} from '@/hooks';
 
 export default defineComponent({
   name: 'Layers',
   components: { LocationTable, LayerUploadTool },
   setup() {
-    const store = useStore();
     const toasted = useToast();
     const { t } = useI18n();
 
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const { currentUser } = useCurrentUser();
     const locationTypes = computed(() => LocationType.all());
     const locationTypeFilter = ref();
     const currentSearch = ref<string>('');

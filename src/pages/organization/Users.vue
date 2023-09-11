@@ -416,6 +416,7 @@ import UserInvitedByFilter from '@/utils/data_filters/UserInvitedByFilter';
 import Modal from '@/components/Modal.vue';
 import UserEditModal from '@/pages/organization/UserEditModal.vue';
 import { getErrorMessage } from '@/utils/errors';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'Users',
@@ -453,9 +454,9 @@ export default defineComponent({
     const roles = computed(() => {
       return Role.all();
     });
-    const currentUser = computed(() => {
-      return User.find(store.getters['auth/userId']);
-    });
+    const {
+      currentUser,
+    } = useCurrentUser()
     const filterCount = computed(() => {
       return Object.values(filters).reduce((total, obj) => {
         return total + obj.getCount();

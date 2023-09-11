@@ -71,6 +71,7 @@
 import { computed } from 'vue';
 import Avatar from '../Avatar.vue';
 import User from '@/models/User';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'UserProfileMenu',
@@ -82,10 +83,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const store = useStore();
-    const currentUser = computed(() => {
-      return User.find(store.getters['auth/userId']) as User;
-    });
+    const { currentUser } = useCurrentUser();
 
     const styles = computed(() => ({
       title:

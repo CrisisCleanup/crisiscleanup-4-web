@@ -51,6 +51,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useStore } from 'vuex';
 import User from '../../models/User';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'CompletedTransferModal',
@@ -62,8 +63,7 @@ export default defineComponent({
   },
 
   setup(props, context) {
-    const store = useStore();
-    const currentUser = User.find(store.getters['auth/userId']);
+    const { currentUser } = useCurrentUser()
     const $http = axios;
     const router = useRouter();
 

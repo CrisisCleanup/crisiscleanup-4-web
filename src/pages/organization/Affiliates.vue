@@ -163,6 +163,7 @@ import Organization from '@/models/Organization';
 import User from '@/models/User';
 import Table from '@/components/Table.vue';
 import OrganizationSearchInputVue from '@/components/OrganizationSearchInput.vue';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'Affiliates',
@@ -208,7 +209,7 @@ export default defineComponent({
     ]);
 
     const affiliates = computed(() => Affiliate.all());
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const {currentUser} = useCurrentUser()
 
     const getAffiliateRequests = async () => {
       loading.value = true;

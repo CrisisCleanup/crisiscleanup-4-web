@@ -702,9 +702,9 @@ export default defineComponent({
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
-    const currentUser = computed(() =>
-      User.find(User.store().getters['auth/userId']),
-    );
+    const {
+      currentUser
+    } = useCurrentUser();
     const currentIncident = computed(() =>
       Incident.find(currentIncidentId.value),
     );

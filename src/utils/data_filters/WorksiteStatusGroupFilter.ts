@@ -4,10 +4,12 @@ import enums from '../../store/modules/enums';
 import User from '../../models/User';
 import { store } from '../../store';
 import Filter from './Filter';
+import {useCurrentUser} from "@/hooks";
 
 export default class WorksiteStatusGroupFilter extends Filter {
   packFunction() {
-    const currentUser = User.find(store.getters['auth/userId'])!;
+    const currentUserStore = useCurrentUser();
+    const currentUser = currentUserStore.currentUser.value;
     const packed: Record<string, unknown> = {};
     if (this.data.unclaimed) {
       packed.work_type__claimed_by__isnull = true;

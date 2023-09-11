@@ -42,11 +42,11 @@ import type Incident from '@/models/Incident';
 import Organization from '@/models/Organization';
 import User from '@/models/User';
 import { getErrorMessage } from '@/utils/errors';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'RequestRedeploy',
   setup() {
-    const store = useStore();
     const { t } = useI18n();
     const toast = useToast();
 
@@ -56,15 +56,9 @@ export default defineComponent({
     const incidentRequests = ref<
       (Record<string, any> & { incident: string })[]
     >([]);
-
-    const currentUser = computed(() => {
-      return User.find(store.getters['auth/userId']) as User;
-    });
-    const currentOrganization = computed(() => {
-      return Organization.find(
-        currentUser.value.organization.id,
-      ) as Organization;
-    });
+    const {
+      currentOrganization,
+    } = useCurrentUser()
     const incidentList = computed(() => {
       if (incidents.value) {
         return incidents.value.filter(

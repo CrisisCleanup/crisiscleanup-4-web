@@ -88,6 +88,7 @@ import Organization from '@/models/Organization';
 import OrganizationSearchInput from '@/components/OrganizationSearchInput.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { EMAIL_REGEX } from '@/utils/form';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'InviteUsers',
@@ -118,12 +119,10 @@ export default defineComponent({
       },
     ]);
 
-    const currentUser = computed(() => {
-      return User.find(store.getters['auth/userId']);
-    });
-    const currentOrganization = computed(() => {
-      return Organization.find(currentUser.value?.organization.id);
-    });
+    const {
+      currentUser,
+      currentOrganization
+    } = useCurrentUser();
 
     async function onOrganizationSearch(value: string) {
       const results = await Organization.api().get(
