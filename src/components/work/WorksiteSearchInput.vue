@@ -195,7 +195,7 @@ export default defineComponent({
         fuseOptions: {
           keys: recentWorksiteSearchKeys,
           isCaseSensitive: false,
-          threshold: 0.9,
+          threshold: 0.1,
         },
         matchAllWhenSearchEmpty: true,
       };
