@@ -2,9 +2,11 @@ import { computed } from 'vue';
 import * as Sentry from '@sentry/vue';
 import createDebug from 'debug';
 import Bowser from 'bowser';
+import type { RouteLocationRaw } from 'vue-router';
 import User from '../models/User';
 import { getErrorMessage } from '../utils/errors';
 import { useAuthStore } from './useAuth';
+import Organization from '@/models/Organization';
 
 const debug = createDebug('@crisiscleanup:useCurrentUser');
 
@@ -59,6 +61,7 @@ const mergeUserStates = (
  */
 export default function useCurrentUser() {
   const authStore = useAuthStore();
+  const router = useRouter();
 
   const currentUser = computed(() =>
     authStore.currentUserId.value
@@ -66,9 +69,28 @@ export default function useCurrentUser() {
       : undefined,
   );
 
+  const currentOrganization = computed(() =>
+    currentUser.value?.organization?.id
+      ? Organization.find(currentUser.value?.organization?.id)
+      : undefined,
+  );
+
   // Readonly user states and preferences.
   const userStates = computed(() => currentUser.value?.states);
   const userPreferences = computed(() => currentUser.value?.preferences);
+
+  const isOrphan = computedEager(
+    () => currentUser.value && !currentUser.value?.organization,
+  );
+  const isOrganizationInactive = computedEager(
+    () =>
+      currentUser.value &&
+      currentUser.value.organization &&
+      !currentUser.value.organization.is_active,
+  );
+  const isAdmin = computedEager(
+    () => currentUser.value && currentUser.value?.active_roles.includes(1),
+  );
 
   // Insert or update the user when the current user is retrieved.
   authStore.onCurrentUserHook.on(async (data) =>
@@ -84,6 +106,15 @@ export default function useCurrentUser() {
     Sentry.setUser(newUser.$toJson());
     Sentry.setContext('user_states', newUser.states);
     Sentry.setContext('user_preferences', newUser.preferences);
+  });
+
+  // Handle orphaned users.
+  whenever(isOrphan, async () => {
+    const requestAccessLocation: RouteLocationRaw = {
+      name: 'nav.request_access',
+      query: { orphan: String(true) },
+    };
+    await router.replace(requestAccessLocation);
   });
 
   /**
@@ -123,17 +154,22 @@ export default function useCurrentUser() {
   const updateCurrentUserDebounced = useDebounceFn(updateCurrentUser, 300, {
     maxWait: 1000,
   });
+
   const updateUserStatesDebounced = useDebounceFn(updateUserStates, 300, {
     maxWait: 1000,
   });
 
   return {
     currentUser,
+    currentOrganization,
     updateUserStates,
     updateCurrentUser,
     updateCurrentUserDebounced,
     updateUserStatesDebounced,
     userStates,
     userPreferences,
+    isAdmin,
+    isOrganizationInactive,
+    isOrphan,
   };
 }
