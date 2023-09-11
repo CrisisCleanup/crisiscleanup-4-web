@@ -301,4 +301,5 @@ export const BUTTON_VARIANTS = {
   TEXT: 'text',
 };
 
+export const SVG_STROKE_WIDTH = 0.5;
 export const INTERACTIVE_ZOOM_LEVEL = 12;
