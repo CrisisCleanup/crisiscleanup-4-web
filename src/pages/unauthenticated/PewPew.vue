@@ -174,7 +174,7 @@
                   <UserProfileMenu
                     invert
                     data-testid="testLogoutLink"
-                    @auth:logout="() => $store.dispatch('auth/logout')"
+                    @auth:logout="logout"
                   />
                 </template>
               </div>
@@ -564,6 +564,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const authStore = useAuthStore();
 
     const queryFilter = ref({
       start_date: moment().add(-60, 'days'),
@@ -889,6 +890,7 @@ export default defineComponent({
       stopChartTabCirculationTimer,
       displayedWorkTypeSvgs,
       getWorkTypeName,
+      logout: () => authStore.logout()
     };
   },
 });
