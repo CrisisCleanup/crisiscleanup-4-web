@@ -204,27 +204,23 @@ export default defineComponent({
 
     const { currentUser, updateCurrentUser, updateUserStates } =
       useCurrentUser();
+    const authStore = useAuthStore();
     const route = useRoute();
     const router = useRouter();
     const $http = axios;
-    const { t, setLocaleMessage, locale } = useI18n();
+    const { t } = useI18n();
     const store = useStore();
     const { $can } = useAcl();
     const zendesk = useZendesk()!;
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
 
-    // const { $log } = context.root;
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
-    // const user = computed(() => store.getters['auth/user']);
-    // const user = computed(() => User.find());
-    // const user = authStore.currentUser;
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
     const portal = computed(() => store.getters['enums/portal']);
-    // const userId = computed(() => store.getters['auth/userId']);
 
     const slideOverVisible = ref(false);
     const toggle = () => {
@@ -236,8 +232,6 @@ export default defineComponent({
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
     const transferRequest = ref(null);
-
-    // const currentUser = authStore.currentUser;
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
@@ -391,11 +385,6 @@ export default defineComponent({
       });
     };
 
-    const logoutApp = async () => {
-      await store.dispatch('auth/logout');
-      await router.push('/login');
-    };
-
     async function showIncidentSelectionModal() {
       const result = await selection({
         title: t('Select Incident'),
@@ -465,25 +454,6 @@ export default defineComponent({
         return;
       }
       loading.value = true;
-      // let u;
-      //   try {
-      //     await User.api().get('/users/me', {});
-      //     u = User.find(userId.value);
-      //     if (u) {
-      //       AuthService.updateUser(u.$toJson());
-      //     }
-      //   } catch {
-      //     await AuthService.refreshAccessToken();
-      //     await User.api().get('/users/me', {});
-      //     u = User.find(userId.value);
-      //     if (u) {
-      //       AuthService.updateUser(u.$toJson());
-      //     }
-      //   }
-      // } catch {
-      //   await AuthService.removeUser();
-      //   await logoutApp();
-      // }
 
       await Incident.api().get(
         '/incidents?fields=id,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
@@ -586,7 +556,7 @@ export default defineComponent({
       logoRoute,
       // login,
       acceptTermsAndConditions,
-      logoutApp,
+      logoutApp: () => authStore.logout(),
       // logoutByPhoneNumber,
       handleChange,
       isLandscape,
