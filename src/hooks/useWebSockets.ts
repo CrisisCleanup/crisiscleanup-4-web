@@ -1,4 +1,4 @@
-import { AuthService } from '../services/auth.service';
+import { useAuthStore } from '@/hooks';
 
 export function useWebSockets(
   url: string,
@@ -8,9 +8,10 @@ export function useWebSockets(
   const endpoint = import.meta.env.VITE_APP_API_BASE_URL.replace('http', 'ws');
   let socket: WebSocket | undefined;
   let send;
+  const authStore = useAuthStore();
 
   function connect() {
-    socket = new WebSocket(`${endpoint}${url}`);
+    socket = new WebSocket(`${endpoint}${url}?bearer=${authStore.currentAccessToken.value}`);
 
     const sendMessage = (message: Record<any, any>) => {
       socket?.send(JSON.stringify(message));
