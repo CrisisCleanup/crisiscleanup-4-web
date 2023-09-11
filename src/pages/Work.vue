@@ -1259,10 +1259,10 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
-      if(timesUsed.value < 2){
-        timesUsed.value++
-        return;
-      }
+      // if(timesUsed.value < 2){
+      //   timesUsed.value++
+      //   return;
+      // }
       sviSliderValue.value = Number(value);
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
@@ -1332,7 +1332,7 @@ export default defineComponent({
     });
 
     function filterDates(value: number) {
-      if (sviSliderValue.value !== 100) {
+      if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         filterSvi(100);
       }
 
