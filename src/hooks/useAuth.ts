@@ -3,13 +3,12 @@ import { reactive, type Ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute } from 'vue-router';
 import {
+  createEventHook,
   createSharedComposable,
   useStorage,
-  createEventHook,
 } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import createDebug from 'debug';
-import User from '@/models/User';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 
 const debug = createDebug('@crisiscleanup:useUser');
@@ -99,10 +98,7 @@ const authStore = () => {
   );
 
   // User token state.
-  const exchangeState = useAxios<{
-    access_token: string;
-    refresh_token: string;
-  }>(
+  const exchangeState = useAxios<TokenResponse>(
     '/o/token/',
     {
       method: 'POST',
@@ -208,21 +204,7 @@ const authStore = () => {
 
   // readonly current user id ref.
   const currentUserId = toRef(() => authState.userId);
-
-  // todo: remove after auth removal
-  const currentUser = computed(() =>
-    authState.userId ? User.find(authState.userId) : undefined,
-  );
-
-  // todo: remove after auth removal
-  whenever(
-    currentUser,
-    (newUser) => {
-      console.log('current user changed:', newUser);
-      store.commit('auth/setUser', newUser);
-    },
-    { flush: 'pre', immediate: true },
-  );
+  const currentAccessToken = toRef(() => authState.accessToken);
 
   // React to auth state changes.
   watch(
@@ -292,6 +274,14 @@ const authStore = () => {
     },
   );
 
+  // Sync acl user id.
+  whenever(
+    () => authState.userId,
+    () => {
+      store.commit('acl/setUserAcl', user.id);
+    },
+  );
+
   // Attempt to fetch current
   const getMe = async () => usersMeState.execute();
 
@@ -348,8 +338,6 @@ const authStore = () => {
       },
       data: params.toString(),
     });
-    axios.defaults.xsrfCookieName = 'csrftoken';
-    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
   };
 
   // Handle logout state.
@@ -377,9 +365,9 @@ const authStore = () => {
     authorize,
     exchange,
     logout,
-    currentUser,
     onCurrentUserHook,
     currentUserId,
+    currentAccessToken,
   };
 };
 
