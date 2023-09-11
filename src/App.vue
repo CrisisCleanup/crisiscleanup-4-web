@@ -28,7 +28,7 @@ export default defineComponent({
     const eventsInterval = ref<ReturnType<typeof setInterval> | null>(null);
 
     async function pushCurrentEvents(): Promise<void> {
-      if (store.getters['auth/isLoggedIn']) {
+      if (authStore.isAuthenticated.value) {
         await store.dispatch('events/pushEvents');
       }
     }
