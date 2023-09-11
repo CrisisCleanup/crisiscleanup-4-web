@@ -969,7 +969,7 @@ export default defineComponent({
     const unreadChatCount = ref(0);
     const unreadUrgentChatCount = ref(0);
     const unreadNewsCount = ref(0);
-
+    const timesUsed = ref(0)
     const { showUnclaimModal } = useWorksiteTableActions(
       selectedTableItems,
       () => {
@@ -1254,6 +1254,10 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
+      if(timesUsed.value < 2){
+        timesUsed.value++
+        return;
+      }
       sviSliderValue.value = Number(value);
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
