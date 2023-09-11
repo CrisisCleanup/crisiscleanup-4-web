@@ -6,6 +6,7 @@ import enums from '../store/modules/enums';
 import { colors as iconColors, templates } from '../icons/icons_templates';
 import Organization from '../models/Organization';
 import type { WorkType } from '@/models/types';
+import { SVG_STROKE_WIDTH } from '@/constants';
 
 export function snakeToTitleCase(value: string) {
   if (!value) return '';
@@ -103,6 +104,7 @@ export const getWorkTypeImage = (workType: WorkType) => {
   if (svgColors) {
     return worksiteTemplate
       .replaceAll('{{fillColor}}', svgColors.fillColor)
+      .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
       .replaceAll('{{strokeColor}}', svgColors.strokeColor)
       .replaceAll('{{multiple}}', '');
   }

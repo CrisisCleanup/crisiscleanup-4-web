@@ -72,6 +72,7 @@ export default (
         sprite.anchor.set(0.5, 0.5);
         const svg = markerTemplate
           .replaceAll('{{fillColor}}', isFilteredMarker ? 'white' : fillColor)
+          .replaceAll('{{strokeWidth}}', '0.5')
           .replaceAll(
             '{{strokeColor}}',
             isFilteredMarker ? fillColor : 'white',
@@ -108,6 +109,7 @@ export default (
 
         const typeSvg = detailedTemplate
           .replaceAll('{{fillColor}}', isFilteredMarker ? 'white' : fillColor)
+          .replaceAll('{{strokeWidth}}', '0.5')
           .replaceAll(
             '{{strokeColor}}',
             isFilteredMarker ? strokeColor : 'white',

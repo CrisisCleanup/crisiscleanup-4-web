@@ -1,3 +1,4 @@
+import { SVG_STROKE_WIDTH } from '@/constants';
 import { colors, templates } from '../../icons/icons_templates';
 
 const getWorktypeColors = (worktype: any) => {
@@ -12,6 +13,7 @@ const getWorktypeSVG = (worktype: any, size = 53) => {
   const { fillColor, strokeColor } = getWorktypeColors(worktype);
   const svg = template
     .replaceAll('{{fillColor}}', fillColor)
+    .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
     .replaceAll('{{strokeColor}}', strokeColor)
     .replaceAll(/(width="[1-99]+")/g, `width="${size}"`)
     .replaceAll(/(height="[1-99]+")/g, `height="${size}"`);
