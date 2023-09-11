@@ -5,7 +5,6 @@
 </template>
 
 <script lang="ts">
-import { AuthService } from '@/services/auth.service';
 import { useAuthStore } from '@/hooks/useAuth';
 import Spinner from '@/components/Spinner.vue';
 
@@ -40,7 +39,6 @@ export default defineComponent({
         flush: 'sync',
       },
     );
-
   },
 });
 </script>
