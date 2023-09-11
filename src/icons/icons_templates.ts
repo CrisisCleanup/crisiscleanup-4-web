@@ -56,12 +56,12 @@ const colors: Record<string, Record<string, any>> = {
     strokeColor: '#82D78C',
   },
   'closed_out-of-scope_unclaimed': {
-    fillColor: '#1D1D1D',
-    strokeColor: '#1D1D1D',
+    fillColor: '#7F7F7F',
+    strokeColor: '#5d5d5d',
   },
   'closed_out-of-scope_claimed': {
-    fillColor: '#1D1D1D',
-    strokeColor: '#1D1D1D',
+    fillColor: '#7F7F7F',
+    strokeColor: '#5d5d5d',
   },
   'closed_done-by-others_unclaimed': {
     fillColor: '#82D78C',
@@ -96,20 +96,20 @@ const colors: Record<string, Record<string, any>> = {
     strokeColor: '#82D78C',
   },
   'closed_marked-for-deletion_unclaimed': {
-    fillColor: '#1D1D1D',
-    strokeColor: '#1D1D1D',
+    fillColor: '#7F7F7F',
+    strokeColor: '#5d5d5d',
   },
   'closed_marked-for-deletion_claimed': {
-    fillColor: '#1D1D1D',
-    strokeColor: '#1D1D1D',
+    fillColor: '#7F7F7F',
+    strokeColor: '#5d5d5d',
   },
   closed_rejected_unclaimed: {
-    fillColor: '#1D1D1D',
-    strokeColor: '#1D1D1D',
+    fillColor: '#7F7F7F',
+    strokeColor: '#5d5d5d',
   },
   closed_rejected_claimed: {
-    fillColor: '#1D1D1D',
-    strokeColor: '#1D1D1D',
+    fillColor: '#7F7F7F',
+    strokeColor: '#5d5d5d',
   },
   need_unfilled_unclaimed: {
     fillColor: '#d0021b',
