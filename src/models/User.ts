@@ -1,18 +1,8 @@
-import moment from 'moment';
-import Bowser from 'bowser';
-import type { Config } from '@vuex-orm/plugin-axios';
+import type {Config} from '@vuex-orm/plugin-axios';
 import createDebug from 'debug';
-import { AuthService } from '../services/auth.service';
 import Language from './Language';
 import Role from './Role';
-import { useAuthStore, useCurrentUser } from '@/hooks';
 import CCUModel from '@/models/base';
-
-const debug = createDebug('@crisiscleanup:model:User');
-
-export interface UserState {
-  currentUserId: number | undefined;
-}
 
 export default class User extends CCUModel {
   static entity = 'users';
@@ -187,16 +177,6 @@ export default class User extends CCUModel {
 
   static apiConfig: Config = {
     actions: {
-      login(email: string, password: string) {
-        return this.post(
-          `/api-token-auth`,
-          {
-            email,
-            password,
-          },
-          { save: false },
-        );
-      },
       inviteUser(email: string, organization = null) {
         const data: Record<string, any> = {
           invitee_email: email,
@@ -249,28 +229,6 @@ export default class User extends CCUModel {
           },
           { save: false },
         );
-      },
-      async clearUserStates() {
-        const currentUser = User.find(User.store().getters['auth/userId']);
-        await this.patch(
-          `/users/${currentUser?.id}`,
-          {
-            states: {},
-          },
-          { save: false },
-        );
-        await this.get('/users/me');
-      },
-      async clearUserPreferences() {
-        const currentUser = User.find(User.store().getters['auth/userId']);
-        await this.patch(
-          `/users/${currentUser?.id}`,
-          {
-            preferences: {},
-          },
-          { save: false },
-        );
-        await this.get('/users/me');
       },
     },
   };
