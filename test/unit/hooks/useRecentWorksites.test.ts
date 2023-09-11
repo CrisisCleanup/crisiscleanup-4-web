@@ -46,7 +46,6 @@ describe('useRecentWorksites', () => {
     await nextTick();
     deleteRecentWorksite(worksite.id);
     await nextTick();
-    console.log('hello world');
     expect(recentWorksites.value).not.toContainEqual(worksite);
   });
 
