@@ -80,6 +80,7 @@
           display-property="name"
           :placeholder="$t('actions.search')"
           skip-validation
+          use-recents
           class="mx-4 py-1 inset-1"
           @selectedExisting="handleSelectedExisting"
           @input="
@@ -368,6 +369,7 @@
                 :placeholder="$t('actions.search')"
                 size="medium"
                 skip-validation
+                use-recents
                 class="mx-4 py-1"
                 @selectedExisting="handleSelectedExisting"
                 @input="

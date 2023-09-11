@@ -293,6 +293,7 @@
           display-property="name"
           :placeholder="$t('actions.search')"
           skip-validation
+          use-recents
           class="mx-4 py-1 inset-1"
           @selectedExisting="onSelectExistingWorksite"
           @input="
@@ -497,6 +498,7 @@
               size="medium"
               skip-validation
               class="mx-2 w-full"
+              use-recents
               @selectedExisting="onSelectExistingWorksite"
               @input="
                 (value) => {
