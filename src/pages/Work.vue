@@ -1259,7 +1259,6 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
-      if (value === 100) return;
       sviSliderValue.value = Number(value);
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
@@ -1267,7 +1266,7 @@ export default defineComponent({
       if (sviList && container) {
         const count = Math.floor((sviList.length * Number(value)) / 100);
         const filteredSvi = sviList.slice(0, count);
-        const minSvi = filteredSvi[filteredSvi.length - 1]?.svi || 0;
+        const minSvi = filteredSvi[filteredSvi.length - 1]?.svi || 0.999;
         for (const markerSprite of container.children) {
           markerSprite.visible = markerSprite.svi > minSvi;
         }
