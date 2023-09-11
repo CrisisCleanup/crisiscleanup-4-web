@@ -105,6 +105,7 @@ import UserProfileMenu from './UserProfileMenu.vue';
 import User from '@/models/User';
 import BaseText from "@/components/BaseText.vue";
 import AppDownloadLinks from "@/components/AppDownloadLinks.vue";
+import {useCurrentUser} from "@/hooks";
 export default defineComponent({
   name: 'Header',
   components: {
@@ -130,9 +131,8 @@ export default defineComponent({
     const { component } = useDialogs();
     const { $can } = useAcl();
     const { t } = useI18n();
-    const store = useStore();
 
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const { currentUser } = useCurrentUser()
     async function showCurrentUser() {
       await component({
         title: `User: ${currentUser?.value?.id} | ${currentUser?.value?.first_name} ${currentUser?.value?.last_name}`,

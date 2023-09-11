@@ -121,7 +121,8 @@ export default class PhoneService {
 
   async onNewCall(info: any) {
     // Log.debug('callinfo: ', info);
-    const currentUser = User.find(this.store.getters['auth/userId']);
+    const currentUserStore = useCurrentUser();
+    const currentUser = currentUserStore.currentUser.value;
     this.callInfo = info;
     let state = null;
     if (info.callType === 'INBOUND') {
@@ -291,7 +292,8 @@ export default class PhoneService {
     this.username = username;
     this.password = password;
     this.agent_id = agentId;
-    const currentUser = User.find(this.store.getters['auth/userId']);
+    const currentUserStore = useCurrentUser();
+    const currentUser = currentUserStore.currentUser.value;
     return new Promise((resolve, reject) => {
       if (!currentUser?.mobile) {
         throw new Error(

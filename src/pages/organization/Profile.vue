@@ -633,6 +633,7 @@ import Card from '@/components/cards/Card.vue';
 import CapabilityGrid from '@/components/CapabilityGrid.vue';
 import RequestRedeploy from '@/components/RequestRedeploy.vue';
 import useCapabilities from '@/hooks/useCapabilities';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'Profile',
@@ -675,19 +676,11 @@ export default defineComponent({
       }),
     );
     const roles = computed(() => Role.all());
-    const currentUser = computed(() => {
-      return User.find(store.getters['auth/userId']) as User;
-    });
-    const currentOrganization = computed(() => {
-      return Organization.find(
-        currentUser.value.organization.id,
-      ) as Organization;
-    });
-    const organization = computed(() => {
-      return Organization.find(
-        currentUser.value.organization.id,
-      ) as Organization;
-    });
+    const {
+      currentUser,
+        currentOrganization,
+    } = useCurrentUser();
+    const organization = currentOrganization;
     const canEditLocation = computed(() => {
       return (
         organization.value &&

@@ -108,6 +108,7 @@ import Worksite from '@/models/Worksite';
 import Avatar from '@/components/Avatar.vue';
 import { getQueryString } from '@/utils/urls';
 import enums from '@/store/modules/enums';
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'Teams',
@@ -120,9 +121,9 @@ export default defineComponent({
     const usersWithoutTeams = ref<User[]>([]);
     const teams = ref<Team[]>([]);
 
-    const currentUser = computed(
-      () => User.find(store.getters['auth/userId']) as User,
-    );
+    const {
+      currentUser,
+    } = useCurrentUser();
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'] as number,
     );

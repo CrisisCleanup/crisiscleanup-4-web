@@ -2,10 +2,12 @@ import { useI18n } from 'vue-i18n';
 import User from '../../models/User';
 import { store } from '../../store';
 import Filter from './Filter';
+import {useCurrentUser} from "@/hooks";
 
 export default class UserLocationsFilter extends Filter {
   packFunction() {
-    const currentUser = User.find(store.getters['auth/userId'])!;
+    const currentUserStore = useCurrentUser();
+    const currentUser = currentUserStore.currentUser.value;
     const packed: Record<string, any> = {};
     if (this.data.organization_primary_location) {
       packed.organization_primary_location = currentUser.organization.id;

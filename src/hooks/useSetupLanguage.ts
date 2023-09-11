@@ -7,17 +7,18 @@ import { i18n } from '@/main';
 import { store } from '@/store';
 import Language from '@/models/Language';
 import User from '@/models/User';
+import {useCurrentUser} from "@/hooks/index";
 
 export default function useSetupLanguage() {
   return {
     async setupLanguage() {
       const { setLocaleMessage, locale } = i18n.global;
       let currentLanguage: string;
-      const currentUser = User.find(store.getters['auth/userId']);
+      const { currentUser } = useCurrentUser();
       if (currentUser?.primary_language || currentUser?.secondary_language) {
         const userLanguage =
-          Language.find(currentUser?.primary_language) ||
-          Language.find(currentUser?.secondary_language);
+          Language.find(currentUser.value?.primary_language) ||
+          Language.find(currentUser.value?.secondary_language);
 
         currentLanguage = detectBrowserLanguage() as string;
         if (userLanguage) {
