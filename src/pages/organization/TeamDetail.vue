@@ -823,18 +823,23 @@ export default defineComponent({
     };
 
     const addUsers = async () => {
-      await Team.update({
-        where: team.value?.id,
-        data: {
-          users: [
-            ...new Set([...(team.value?.users || []), ...usersToAdd.value]),
-          ],
-        },
-      });
-      await updateCurrentTeam();
-      usersToAdd.value = [];
-      showAddMembersModal.value = false;
-      ctx.emit('reload');
+      try {
+        await Team.update({
+          where: team.value?.id,
+          data: {
+            users: [
+              ...new Set([...(team.value?.users || []), ...usersToAdd.value]),
+            ],
+          },
+        });
+        await updateCurrentTeam();
+        usersToAdd.value = [];
+        showAddMembersModal.value = false;
+        ctx.emit('reload');
+        $toasted.success('Successfully Added User');
+      } catch (e) {
+        $toasted.error(e);
+      }
     };
 
     const updateNotes = (value: string) => {
@@ -903,14 +908,19 @@ export default defineComponent({
 
     const removeFromTeam = async (userIds: number[]) => {
       const newUsers = team.value?.users.filter((id) => !userIds.includes(id));
-      await Team.update({
-        where: team.value?.id,
-        data: {
-          users: newUsers,
-        },
-      });
-      await updateCurrentTeam();
-      ctx.emit('reload');
+      try {
+        await Team.update({
+          where: team.value?.id,
+          data: {
+            users: newUsers,
+          },
+        });
+        $toasted.success('Removed User From Team')
+        await updateCurrentTeam();
+        ctx.emit('reload');
+      } catch(e) {
+        $toasted.error(e);
+      }
     };
 
     const removeWorksiteFromTeam = async (worksiteId: number) => {
@@ -994,11 +1004,16 @@ export default defineComponent({
         return;
       }
 
-      await Team.api().delete(`/teams/${team.value?.id}`, {
-        delete: team.value?.id,
-      });
-      ctx.emit('reload');
-      await router.push('/organization/teams');
+      try {
+        await Team.api().delete(`/teams/${team.value?.id}`, {
+          delete: team.value?.id,
+        });
+        $toasted.success('Successfully Deleted Team');
+        ctx.emit('reload');
+        await router.push('/organization/teams');
+      } catch(e) {
+        $toasted.error(e);
+      }
     };
 
     const showOnMap = async (worksite: Worksite) => {

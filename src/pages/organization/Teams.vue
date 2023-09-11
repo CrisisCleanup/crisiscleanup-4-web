@@ -120,7 +120,7 @@
       :cases="claimedWorktypes"
       :teams="teams"
       @close="creatingTeam = false"
-      @saved="getData"
+      @saved="onTeamCreate"
     />
   </div>
 </template>
@@ -136,6 +136,7 @@ import enums from '@/store/modules/enums';
 import { useCurrentUser } from '@/hooks';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
 import ListDropdown from '@/pages/lists/ListDropdown.vue';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: 'Teams',
@@ -148,6 +149,7 @@ export default defineComponent({
     const usersWithoutTeams = ref<User[]>([]);
     const teams = ref<Team[]>([]);
     const selectedTeams = ref([]);
+    const $toast = useToast();
 
     const { currentUser } = useCurrentUser();
     const currentIncidentId = computed(
@@ -264,9 +266,15 @@ export default defineComponent({
       await getClaimedWorksites();
     };
 
+    const onTeamCreate = () => {
+      $toast.success('Successfully Created Team');
+      getData();
+    };
+
     const onSearch = async () => {
       await getTeams();
     };
+
     const toggleTeamSelection = (id: number) => {
       selectedTeams.value = selectedTeams.value.includes(id)
         ? selectedTeams.value.filter((t) => t !== id)
@@ -300,6 +308,7 @@ export default defineComponent({
       selectedTeams,
       toggleTeamSelection,
       currentIncidentId,
+      onTeamCreate,
     };
   },
 });
