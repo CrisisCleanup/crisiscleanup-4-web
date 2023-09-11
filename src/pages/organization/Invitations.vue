@@ -396,7 +396,6 @@ export default defineComponent({
         );
         await persistentInvitationsTable.value.getData();
       } catch (error) {
-        debugger;
         await $toasted.error(getErrorMessage(error));
       }
     }

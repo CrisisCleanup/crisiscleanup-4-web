@@ -14,6 +14,13 @@
         @onZoomIncidentCenter="goToIncidentCenter"
         @onZoomInteractive="goToInteractive"
       />
+      <WorksitePhotoMap
+        :case-images="caseImages"
+        v-else-if="showingPhotoMap && caseImages.length > 0"
+        :key="caseImages.length"
+        class="mb-16"
+        @load-case="loadCase"
+      />
       <div v-else-if="showingTable" class="mt-20 p-2 border">
         <div class="text-base p-2 mb-1 text-center w-full">
           Cases for {{ incidentName }}
@@ -116,6 +123,16 @@
           icon-size="sm"
           :title="$t('casesVue.map_view')"
           :alt="$t('casesVue.map_view')"
+          :action="showPhotoMap"
+          class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+        />
+        <base-button
+          v-if="showingPhotoMap"
+          icon="image"
+          icon-size="sm"
+          :title="$t('casesVue.photo_map_view')"
+          :alt="$t('casesVue.photo_map_view')"
+          data-testid="testPhotoMapViewIcon"
           :action="showMap"
           class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
@@ -313,6 +330,22 @@
                 ccu-event="user_ui-view-table"
                 @click="showTable"
               />
+              <ccu-icon
+                v-if="caseImages.length > 0"
+                :alt="$t('casesVue.photo_map_view')"
+                data-testid="testPhotoMapViewIcon"
+                size="medium"
+                class="mr-4 cursor-pointer"
+                :class="
+                  showingPhotoMap
+                    ? 'text-primary-light'
+                    : 'text-crisiscleanup-dark-100'
+                "
+                ccu-event="user_ui-view-photo-map"
+                type="image"
+                @click="showPhotoMap"
+                :fa="true"
+              />
               <span v-if="allWorksiteCount" class="font-thin">
                 <span
                   v-if="allWorksiteCount === filteredWorksiteCount"
@@ -384,7 +417,7 @@
             >{{ overDueFilterLabel }}</tag
           >
           <div
-            v-if="!collapsedUtilityBar && !showingTable"
+            v-if="!collapsedUtilityBar && !showingTable && !showingPhotoMap"
             class="flex justify-center items-center"
           >
             <Slider
@@ -420,8 +453,12 @@
           </div>
         </div>
         <div class="work-page__main-content">
-          <div v-if="showingMap" class="work-page__main-content--map">
+          <div
+            v-if="showingMap || showingPhotoMap"
+            class="work-page__main-content--map"
+          >
             <SimpleMap
+              v-if="showingMap"
               :map-loading="mapLoading"
               data-testid="testSimpleMapdiv"
               show-zoom-buttons
@@ -430,6 +467,12 @@
               @onZoomOut="zoomOut"
               @onZoomIncidentCenter="goToIncidentCenter"
               @onZoomInteractive="goToInteractive"
+            />
+            <WorksitePhotoMap
+              :key="caseImages.length"
+              v-else-if="showingPhotoMap && caseImages.length > 0"
+              :case-images="caseImages"
+              @load-case="loadCase"
             />
             <div ref="phoneButtons" class="work-page__actions">
               <div
@@ -803,10 +846,10 @@
 import {
   computed,
   defineComponent,
+  nextTick,
   onMounted,
   ref,
   watch,
-  nextTick,
 } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
@@ -826,7 +869,7 @@ import WorksiteTable from '../components/work/WorksiteTable.vue';
 import CaseHeader from '../components/work/CaseHeader.vue';
 import Worksite from '../models/Worksite';
 import CaseHistory from '../components/work/CaseHistory.vue';
-import { loadCasesCached } from '../utils/worksite';
+import { loadCaseImagesCached, loadCasesCached } from '../utils/worksite';
 import { averageGeolocation } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import User from '../models/User';
@@ -848,7 +891,9 @@ import useWorksiteTableActions from '@/hooks/worksite/useWorksiteTableActions';
 import ShareWorksite from '@/components/modals/ShareWorksite.vue';
 import useEmitter from '@/hooks/useEmitter';
 import Organization from '@/models/Organization';
-import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
+import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
+
+const INTERACTIVE_ZOOM_LEVEL = 12;
 
 export default defineComponent({
   name: 'Work',
@@ -866,6 +911,7 @@ export default defineComponent({
     SimpleMap,
     PhoneComponentButton,
     WorksiteSearchInput,
+    WorksitePhotoMap,
   },
   setup() {
     const router = useRouter();
@@ -892,12 +938,13 @@ export default defineComponent({
 
     const showingMap = ref<boolean>(true);
     const showingTable = ref<boolean>(false);
+    const showingPhotoMap = ref<boolean>(false);
     const showHistory = ref<boolean>(false);
     const showFlags = ref<boolean>(false);
     const showMobileMap = ref<boolean>(false);
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
-    const searchingWorksites = ref<boolean>(false);
+    const caseImages = ref<Record<string, any>[]>([]);
     const mapLoading = ref<boolean>(false);
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
@@ -939,11 +986,13 @@ export default defineComponent({
         if (states.showingMap) {
           showingMap.value = true;
           showingTable.value = false;
+          showingPhotoMap.value = false;
         }
 
         if (states.showingTable) {
           showingTable.value = true;
           showingMap.value = false;
+          showingPhotoMap.value = false;
         }
 
         if (states.appliedFilters) {
@@ -1025,6 +1074,12 @@ export default defineComponent({
       });
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
+
+      loadCaseImagesCached({
+        ...worksiteQuery.value,
+      }).then((response) => {
+        caseImages.value = response.results;
+      });
       return response.results;
     }
 
@@ -1054,12 +1109,14 @@ export default defineComponent({
     const showTable = () => {
       showingTable.value = true;
       showingMap.value = false;
+      showingPhotoMap.value = false;
       updateUserState({});
     };
 
     const showMap = (reload = false) => {
       showingTable.value = false;
       showingMap.value = true;
+      showingPhotoMap.value = true;
       if (reload) {
         reloadMap().then(() => {
           updateUserState({});
@@ -1070,6 +1127,12 @@ export default defineComponent({
         init();
       });
       updateUserState({});
+    };
+
+    const showPhotoMap = () => {
+      showingTable.value = false;
+      showingMap.value = false;
+      showingPhotoMap.value = true;
     };
 
     const showingDetails = computed<boolean>(() => {
@@ -1804,6 +1867,7 @@ export default defineComponent({
       if (route.query.showTable) {
         showingTable.value = true;
         showingMap.value = false;
+        showingPhotoMap.value = false;
       }
 
       await init();
@@ -1838,6 +1902,8 @@ export default defineComponent({
       isViewing,
       searchWorksites,
       showingTable,
+      showPhotoMap,
+      showingPhotoMap,
       selectedChat,
       showingMap,
       mapLoading,
@@ -1906,12 +1972,11 @@ export default defineComponent({
       clearQuery,
       mq,
       showingSearchModal,
+      caseImages,
     };
   },
 });
 </script>
-
-<script setup></script>
 
 <style lang="postcss">
 .work-page {
