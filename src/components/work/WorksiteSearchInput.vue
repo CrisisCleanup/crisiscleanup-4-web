@@ -182,6 +182,7 @@ export default defineComponent({
     const { recentWorksites, addRecentWorksite, deleteRecentWorksite } =
       useRecentWorksites();
 
+    const searchQuery = computed(() => props.value);
     const fuseOptions = computed<UseFuseOptions<Worksite>>(() => {
       const recentWorksiteSearchKeys = [
         'id',
@@ -201,7 +202,7 @@ export default defineComponent({
       };
     });
     const { results: _filteredRecentWorksites } = useFuse(
-      computed(() => props.value),
+      searchQuery,
       recentWorksites,
       fuseOptions,
     );
