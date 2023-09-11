@@ -57,7 +57,7 @@
                   :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`"
                   class="p-1 w-4"
                   size="medium"
-                  @click="() => deleteRecentWorksite(option.id)"
+                  @click="() => deleteRecent(option.id)"
                 />
               </div>
             </div>
@@ -167,6 +167,12 @@ export default defineComponent({
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
+
+    const filteredWorksites = computed(() => {
+      return worksites.value.filter(
+        (w) => !recentWorksites.value.some((_w) => _w.id === w.id),
+      );
+    });
     const results = computed(() => {
       const _results = [
         {
@@ -175,7 +181,7 @@ export default defineComponent({
         },
         {
           label: searchSections.SEARCH,
-          options: worksites.value,
+          options: filteredWorksites.value,
         },
         {
           label: searchSections.GEOCODER,
@@ -252,6 +258,10 @@ export default defineComponent({
       addRecentWorksite(option);
     }
 
+    function deleteRecent(worksiteId: number) {
+      deleteRecentWorksite(worksiteId);
+    }
+
     return {
       currentUser,
       iconClasses,
@@ -261,7 +271,7 @@ export default defineComponent({
       getWorkImage,
       isFocused,
       searchSections,
-      deleteRecentWorksite,
+      deleteRecent,
       onFocus,
       onBlur,
       onSelectGeocode,
