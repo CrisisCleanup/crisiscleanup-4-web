@@ -27,9 +27,10 @@
           size="large"
           required
           :placeholder="$t('formLabels.phone1')"
-          :fa-icon="
-            currentIncident.auto_contact && worksite.id ? 'comment' : null
+          :icon="
+            currentIncident.auto_contact && worksite.id ? 'send-sms' : null
           "
+          icon-size="lg"
           :tooltip="
             currentIncident.auto_contact && worksite.id
               ? $t('caseForm.sms')
@@ -46,9 +47,10 @@
           selector="js-worksite-phone2"
           size="large"
           :placeholder="$t('formLabels.phone2')"
-          :fa-icon="
-            currentIncident.auto_contact && worksite.id ? 'comment' : null
+          :icon="
+            currentIncident.auto_contact && worksite.id ? 'send-sms' : null
           "
+          icon-size="lg"
           :tooltip="
             currentIncident.auto_contact && worksite.id
               ? $t('caseForm.sms')
