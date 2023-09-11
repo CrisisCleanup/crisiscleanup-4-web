@@ -118,7 +118,7 @@
       </template>
       <template
         v-if="
-        false
+          false
           // currentOrganization &&
           // (!currentOrganization.is_active || !currentOrganization.is_verified)
         "
@@ -150,13 +150,13 @@
 </template>
 
 <script lang="ts">
-import {computed, onMounted, ref, watch} from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import moment from 'moment';
-import {useRoute, useRouter} from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import {useI18n} from 'vue-i18n';
-import {useStore} from 'vuex';
-import {useMq} from 'vue3-mq';
+import { useI18n } from 'vue-i18n';
+import { useStore } from 'vuex';
+import { useMq } from 'vue3-mq';
 import Incident from '../models/Incident';
 import User from '../models/User';
 import Organization from '../models/Organization';
@@ -173,10 +173,17 @@ import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
 import DisasterIcon from '@/components/DisasterIcon.vue';
 import useDialogs from '@/hooks/useDialogs';
-import {useAuthStore, useCurrentUser, useZendesk, ZendeskCommand, ZendeskTarget} from '@/hooks';
+import {
+  useAuthStore,
+  useCurrentUser,
+  useZendesk,
+  ZendeskCommand,
+  ZendeskTarget,
+} from '@/hooks';
 import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
+import { getErrorMessage } from '@/utils/errors';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -195,8 +202,8 @@ export default defineComponent({
   setup() {
     const mq = useMq();
 
-    const authStore = useAuthStore();
-    const { currentUser, updateCurrentUser } = useCurrentUser();
+    const { currentUser, updateCurrentUser, updateUserStates } =
+      useCurrentUser();
     const route = useRoute();
     const router = useRouter();
     const $http = axios;
@@ -348,7 +355,7 @@ export default defineComponent({
     const handleChange = async (value: string) => {
       // if(!value) return;
       await Incident.api().fetchById(value);
-      await User.api().updateUserState({
+      await updateUserStates({
         incident: value,
       });
       store.commit('incident/setCurrentIncidentId', value);
@@ -454,7 +461,7 @@ export default defineComponent({
     const onCurrentUserUnSub = whenever(currentUser, async (user) => {
       console.log('current suer watch');
       if (!user) {
-        console.log('missing user:', user)
+        console.log('missing user:', user);
         return;
       }
       loading.value = true;
@@ -544,9 +551,7 @@ export default defineComponent({
         await Incident.api().fetchById(incidentId);
       } catch {
         store.commit('incident/setCurrentIncidentId', null);
-        User.api().updateUserState({
-          incident: null,
-        });
+        updateUserStates({ incident: null }).catch(getErrorMessage);
         const incident = Incident.query().orderBy('id', 'desc').first();
         if (incident) {
           store.commit('incident/setCurrentIncidentId', false);

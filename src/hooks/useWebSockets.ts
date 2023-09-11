@@ -10,9 +10,7 @@ export function useWebSockets(
   let send;
 
   function connect() {
-    socket = new WebSocket(
-      `${endpoint}${url}?bearer=${AuthService.getAccessToken()}`,
-    );
+    socket = new WebSocket(`${endpoint}${url}`);
 
     const sendMessage = (message: Record<any, any>) => {
       socket?.send(JSON.stringify(message));

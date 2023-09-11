@@ -1,8 +1,8 @@
 import { store } from '../store';
-import User from '../models/User';
+import { useCurrentUser } from '@/hooks';
 
 function $can(rule: string) {
-  const currentUser = User.find(store.getters['auth/userId']);
+  const { currentUser } = useCurrentUser();
   const acl = store.getters['acl/acl'];
   return acl.can(currentUser, rule);
 }

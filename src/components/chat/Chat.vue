@@ -168,7 +168,7 @@ export default defineComponent({
     const searchLoading = ref(false);
     let sendToWebsocket: (data: Partial<Message>) => void;
     const messagesBox = ref<HTMLDivElement | null>(null);
-    const { currentUser } = useCurrentUser();
+    const { currentUser, updateUserStates, userStates } = useCurrentUser();
     const $toasted = useToast();
 
     const sortedMessages = computed(() => {
@@ -244,8 +244,8 @@ export default defineComponent({
         limit: 1,
         is_urgent: false,
       } as Record<string, any>;
-      if (currentUser?.states[props.stateKey]) {
-        parameters.created_at__gte = currentUser.states[props.stateKey];
+      if (userStates.value?.[props.stateKey]) {
+        parameters.created_at__gte = userStates.value?.[props.stateKey];
       }
 
       const queryString = getQueryString(parameters);
@@ -262,8 +262,8 @@ export default defineComponent({
         limit: 1,
         is_urgent: true,
       } as Record<string, any>;
-      if (currentUser?.states[props.stateKey]) {
-        parameters.created_at__gte = currentUser.states[props.stateKey];
+      if (userStates.value?.[props.stateKey]) {
+        parameters.created_at__gte = userStates.value?.[props.stateKey];
       }
 
       const queryString = getQueryString(parameters);
@@ -273,16 +273,16 @@ export default defineComponent({
       emit('unreadUrgentCount', response.data.count);
     }
 
-    function sendMessage() {
+    async function sendMessage() {
       sendToWebsocket({
         content: currentMessage.value,
         is_urgent: urgent.value,
       });
       currentMessage.value = '';
       urgent.value = false;
-      User.api().updateUserState(
-        { [props.stateKey]: moment().toISOString() },
-        {},
+      await updateUserStates(
+      { [props.stateKey]: moment().toISOString() },
+      {},
       );
     }
 

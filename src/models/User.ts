@@ -5,7 +5,7 @@ import createDebug from 'debug';
 import { AuthService } from '../services/auth.service';
 import Language from './Language';
 import Role from './Role';
-import { useAuthStore } from '@/hooks/';
+import { useAuthStore, useCurrentUser } from '@/hooks';
 import CCUModel from '@/models/base';
 
 const debug = createDebug('@crisiscleanup:model:User');
@@ -271,92 +271,6 @@ export default class User extends CCUModel {
           { save: false },
         );
         await this.get('/users/me');
-      },
-      async updateUserState(
-        globalStates: Record<string, any>,
-        incidentStates: Record<string, any>,
-        reload = false,
-      ) {
-        /* Update user states JSON with new states.
-
-           To be backwards-compatible with clients without per-incident states,
-           update top-level with both globalStates and incidentStates
-           and then update state for current incident with incidentStates.
-        */
-        let currentUser = User.find(User.store().getters['auth/userId']);
-
-        if (!currentUser) {
-          return;
-        }
-
-        const states = (currentUser && currentUser.states) || {};
-        const currentIncident = globalStates.incident || states.incident;
-        let updatedStates = {
-          ...states,
-          ...globalStates,
-          ...incidentStates,
-        };
-        let updatedIncidentStates = states.incidents || {};
-        if (incidentStates) {
-          const currentIncidentStates =
-            updatedIncidentStates[currentIncident] || {};
-          updatedIncidentStates = {
-            ...updatedIncidentStates,
-            [currentIncident]: {
-              ...currentIncidentStates,
-              ...incidentStates,
-            },
-          };
-        }
-
-        updatedStates = {
-          ...updatedStates,
-          incidents: updatedIncidentStates,
-          // eslint-disable-next-line import/no-named-as-default-member
-          userAgent: Bowser.parse(window.navigator.userAgent),
-        };
-
-        await User.update({
-          where: currentUser.id,
-          data: {
-            states: updatedStates,
-          },
-        });
-        currentUser = User.find(AuthService.getUser()?.id);
-        await this.patch(
-          `/users/${currentUser?.id}`,
-          {
-            states: updatedStates,
-          },
-          { save: false },
-        );
-        if (reload) {
-          await this.get('/users/me');
-        }
-      },
-      async updateUserPreferences(
-        preferences: Record<string, any>,
-        reload = false,
-      ) {
-        const currentUser = User.find(AuthService.getUser()?.id);
-        if (!currentUser) {
-          return;
-        }
-
-        const newPreferences = {
-          ...currentUser.preferences,
-          ...preferences,
-        };
-        await this.patch(
-          `/users/${currentUser.id}`,
-          {
-            preferences: newPreferences,
-          },
-          { save: false },
-        );
-        if (reload) {
-          await this.get('/users/me', {});
-        }
       },
     },
   };

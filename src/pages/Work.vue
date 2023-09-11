@@ -896,6 +896,7 @@ import Organization from '@/models/Organization';
 import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
+import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
   name: 'Work',
@@ -934,9 +935,8 @@ export default defineComponent({
       return name;
     });
 
-    const currentUser = computed(() =>
-      User.find(User.store().getters['auth/userId']),
-    );
+
+    const {currentUser, updateUserStates } = useCurrentUser();
 
     const showingMap = ref<boolean>(true);
     const showingTable = ref<boolean>(false);
@@ -1030,12 +1030,7 @@ export default defineComponent({
         dateLevel: dateSliderValue.value,
         ...data,
       };
-      User.api().updateUserState(
-        {
-          incident: currentIncidentId.value,
-        },
-        newStates,
-      );
+      updateUserStates({incident: currentIncidentId.value}).catch(getErrorMessage);
     }
 
     const hasOverdueFilter = computed(() => {
