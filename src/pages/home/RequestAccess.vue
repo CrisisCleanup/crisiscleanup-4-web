@@ -214,7 +214,7 @@ import Home from '@/layouts/Home.vue';
 import InvitationRequest from '@/models/InvitationRequest';
 import Language from '@/models/Language';
 import { getErrorMessage } from '@/utils/errors';
-import { AuthService } from '@/services/auth.service';
+import { useAuthStore } from '@/hooks';
 
 export default defineComponent({
   name: 'RequestAccess',
@@ -223,6 +223,7 @@ export default defineComponent({
     const route = useRoute();
     const $toasted = useToast();
     const form = ref<HTMLFormElement | null>(null);
+    const authStore = useAuthStore();
 
     const state = reactive({
       firstName: '',
@@ -301,7 +302,7 @@ export default defineComponent({
         dataKey: 'results',
       });
       if (route.query.orphan) {
-        AuthService.refreshAndSaveUser().catch(null);
+        authStore.getMe();
       }
     });
 
