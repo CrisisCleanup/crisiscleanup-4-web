@@ -360,11 +360,7 @@
     </section>
     <section v-else class="px-8 py-4">
       <base-text variant="h1">
-        {{
-          $t(
-            '~~Invalid/expired survivor token or worksite does not exist for that survivor token',
-          )
-        }}
+        {{ $t('survivorContact.invalid_expired_token')}}
       </base-text>
     </section>
     <section class="faqs p-8">
@@ -627,9 +623,7 @@ export default defineComponent({
           },
         );
         if (result instanceof AxiosError && result.response.status === 404) {
-          $toasted.error(
-            '~~Survivor Token not found. Worksite might be deleted',
-          );
+          $toasted.error(t('survivorContact.invalid_expired_token'));
         }
         if (filesOnly) {
           state.survivorToken.files = result.data.files;

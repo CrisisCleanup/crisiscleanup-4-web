@@ -8,7 +8,7 @@ export function getErrorMessage(error: any) {
     return t('info.unknown_error');
   }
   if (error.response.status === 404) {
-    return t('~~404 Entity/Item not found.');
+    return t('info.error_404');
   }
   if (error.response.status === 500) {
     return t('info.error_500');

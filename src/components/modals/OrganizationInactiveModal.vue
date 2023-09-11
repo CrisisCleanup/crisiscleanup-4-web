@@ -1,6 +1,6 @@
 <template>
   <modal
-    :title="$t('~~Organization Inactive')"
+    :title="$t('orgInactive.title')"
     data-testid="testVerificationTitleModal"
     modal-classes="max-w-lg h-auto verification-modal"
     :closeable="true"
@@ -9,11 +9,7 @@
     <div class="overflow-auto">
       <div class="px-3">
         <div
-          v-html="
-            $t(
-              `~~We're sorry. Your username and password are correct, but your organization is not currently active. Please contact helpdesk if you have any questions.`,
-            )
-          "
+          v-html="$t(`orgInactive.sorry_not_active_contact_helpdesk`)"
         ></div>
       </div>
     </div>

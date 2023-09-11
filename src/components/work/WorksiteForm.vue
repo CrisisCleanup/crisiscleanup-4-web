@@ -768,8 +768,8 @@ export default defineComponent({
     async function sendSms(phone: string) {
       try {
         const result = await confirm({
-          title: t(`~~Confirm`),
-          content: t(`~~Are you sure you want to send sms to ${phone}`),
+          title: t(`actions.confirm`),
+          content: t(`caseForm.confirm_send_sms`),
           actions: {
             no: {
               text: t('actions.cancel'),
