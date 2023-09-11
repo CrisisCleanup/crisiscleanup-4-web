@@ -156,6 +156,7 @@ import { useStore } from 'vuex';
 import { templates } from '../../icons/icons_templates';
 import Worksite from '../../models/Worksite';
 import { momentFromNow } from '../../filters';
+import { SVG_STROKE_WIDTH } from '@/constants';
 
 export default defineComponent({
   name: 'CaseHeader',
@@ -182,6 +183,7 @@ export default defineComponent({
       const template = templates.important;
       return template
         .replaceAll('{{fillColor}}', 'grey')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
@@ -189,6 +191,7 @@ export default defineComponent({
       const template = templates.important;
       return template
         .replaceAll('{{fillColor}}', 'red')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
@@ -196,6 +199,7 @@ export default defineComponent({
       const template = templates.favorite;
       return template
         .replaceAll('{{fillColor}}', 'grey')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
@@ -204,6 +208,7 @@ export default defineComponent({
       const template = templates.favorite;
       return template
         .replaceAll('{{fillColor}}', 'red')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });

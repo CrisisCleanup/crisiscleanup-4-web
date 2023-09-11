@@ -82,6 +82,7 @@ export default (
   const isPaused = ref<boolean | undefined>(false);
   const svg = templates.orb
     .replaceAll('{{fillColor}}', '#61D5F8')
+    .replaceAll('{{strokeWidth}}', '0.5')
     .replaceAll('{{strokeColor}}', 'black');
   const orbTexture = Texture.from(svg);
 
@@ -177,6 +178,7 @@ export default (
       const template = templates[workType] || templates.unknown;
       const svg = template
         .replaceAll('{{fillColor}}', '#61D5F8')
+        .replaceAll('{{strokeWidth}}', '0.5')
         .replaceAll('{{strokeColor}}', 'black')
         .replaceAll('{{multiple}}', '');
       return {
@@ -375,6 +377,7 @@ export default (
           patientMarkerSprite.live = true;
           const svg = markerTemplate
             .replaceAll('{{fillColor}}', color)
+            .replaceAll('{{strokeWidth}}', '0.5')
             .replaceAll('{{strokeColor}}', 'black');
           let texture = textureMap[color];
           if (!texture) {
@@ -392,6 +395,7 @@ export default (
           const detailedTemplate = templates[workTypeKey] || templates.unknown;
           const typeSvg = detailedTemplate
             .replaceAll('{{fillColor}}', color)
+            .replaceAll('{{strokeWidth}}', '0.5')
             .replaceAll('{{strokeColor}}', 'black');
 
           patientMarkerSprite.basicTexture = texture;
@@ -505,6 +509,7 @@ export default (
             patientMarkerSprite.anchor.set(0.5, 0.5);
             const svg = markerTemplate
               .replaceAll('{{fillColor}}', color)
+              .replaceAll('{{strokeWidth}}', '0.5')
               .replaceAll('{{strokeColor}}', 'black');
             let texture = textureMap[color];
             if (!texture) {
@@ -526,6 +531,7 @@ export default (
               templates[workTypeKey] || templates.unknown;
             const typeSvg = detailedTemplate
               .replaceAll('{{fillColor}}', color)
+              .replaceAll('{{strokeWidth}}', '0.5')
               .replaceAll('{{strokeColor}}', 'black');
 
             patientMarkerSprite.basicTexture = texture;

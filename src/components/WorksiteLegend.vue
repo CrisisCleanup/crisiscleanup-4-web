@@ -116,6 +116,7 @@ export default defineComponent({
         const template = templates[workType] || templates.unknown;
         const svg = template
           .replaceAll('{{fillColor}}', 'black')
+          .replaceAll('{{strokeWidth}}', '0.5')
           .replaceAll('{{strokeColor}}', 'black')
           .replaceAll('{{multiple}}', '');
         return {
@@ -126,11 +127,15 @@ export default defineComponent({
     });
     const defaultWorkTypeSvgs = [
       {
-        svg: templates.important.replaceAll('{{fillColor}}', 'black'),
+        svg: templates.important
+          .replaceAll('{{fillColor}}', 'black')
+          .replaceAll('{{strokeWidth}}', '0.5'),
         name: t(`worksiteMap.high_priority`),
       },
       {
-        svg: templates.favorite.replaceAll('{{fillColor}}', 'black'),
+        svg: templates.favorite
+          .replaceAll('{{fillColor}}', 'black')
+          .replaceAll('{{strokeWidth}}', '0.5'),
         name: t(`worksiteMap.member_of_my_organization`),
       },
     ];
