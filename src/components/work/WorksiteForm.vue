@@ -442,6 +442,7 @@ import WorksiteSearchInput from './WorksiteSearchInput.vue';
 import SectionHeading from './SectionHeading.vue';
 import WorksiteNotes from './WorksiteNotes.vue';
 import Language from '@/models/Language';
+import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -540,6 +541,8 @@ export default defineComponent({
     const searchWorksitesNameResults = ref([]);
     const form = ref(null);
     const worksiteImageSection = ref(null);
+
+    const { addRecentWorksite } = useRecentWorksites();
 
     const currentIncident = computed(() => {
       return Incident.find(props.incidentId);
@@ -1105,6 +1108,8 @@ export default defineComponent({
           }
 
           worksite.value = Worksite.find(worksiteId);
+          console.info('Saved worksite!', worksite.value);
+          addRecentWorksite(worksite.value as Worksite);
         }
 
         await $toasted.success(t('caseForm.new_case_success'));
