@@ -5,6 +5,7 @@ import User from '../models/User';
 import Incident from '../models/Incident';
 import { i18n } from '../main';
 import useEmitter from '@/hooks/useEmitter';
+import { useCurrentUser } from '@/hooks';
 
 const LANGUAGE_ID_MAPPING: Record<any, any> = {
   2: import.meta.env.VITE_APP_ENGLISH_PHONE_GATEWAY,
@@ -110,13 +111,10 @@ export default class PhoneService {
       );
       return response.data.username;
     } catch {
-      await User.api().updateUserState(
-        {
-          currentAgentId: null,
-        },
-        null,
-        true,
-      );
+      const { updateUserStates } = useCurrentUser();
+      await updateUserStates({
+        currentAgentId: null,
+      })
       return import.meta.env.VITE_APP_PHONE_DEFAULT_USERNAME;
     }
   }
@@ -158,9 +156,8 @@ export default class PhoneService {
         );
 
         await Incident.api().fetchById(response.data.incident_id[0]);
-        await User.api().updateUserState({
-          incident: response.data.incident_id[0],
-        });
+        const { updateUserStates } = useCurrentUser();
+        await updateUserStates({ incident: response.data.incident_id[0] });
         this.store.commit(
           'incident/setCurrentIncidentId',
           response.data.incident_id[0],

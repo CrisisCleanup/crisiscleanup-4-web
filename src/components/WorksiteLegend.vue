@@ -97,6 +97,7 @@ import { colors, templates } from '../icons/icons_templates';
 import User from '../models/User';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { getWorkTypeName } from '../filters/index';
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'WorksiteLegend',
@@ -108,9 +109,9 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18n();
-    const { currentUser } = useCurrentUser();
+    const { currentUser, userStates, updateUserStates } = useCurrentUser();
 
-    const showingLegend = ref(true);
+    const showingLegend = ref(userStates.value?.showingLegend ?? true);
     const displayedWorkTypeSvgs = computed(() => {
       return Object.keys(props.availableWorkTypes).map((workType) => {
         const template = templates[workType] || templates.unknown;
@@ -152,13 +153,11 @@ export default defineComponent({
 
     function toggleLegend(status) {
       showingLegend.value = status;
-      User.api().updateUserState({ showingLegend: status }, {});
+      updateUserStates({ showingLegend: status }, {}).catch(getErrorMessage);
     }
 
-    onMounted(() => {
-      showingLegend.value = currentUser
-        ? currentUser.states.showingLegend
-        : true;
+    watch(showingLegend, async (newValue) => {
+      await updateUserStates({ showingLegend: newValue }, {});
     });
 
     return {

@@ -1,3 +1,5 @@
+import type {RouteRecordRaw} from 'vue-router';
+import {useAuthStore} from '@/hooks'
 import Login from './Login.vue';
 import RequestAccess from '@/pages/home/RequestAccess.vue';
 import About from '@/pages/home/About.vue';
@@ -17,6 +19,12 @@ export default [
     component: Login,
     name: 'nav.login',
     meta: { layout: 'unauthenticated', noAuth: true },
+    // redirect: '/dashboard',
+    // redirect: async (to) => {
+    //   const authStore = useAuthStore();
+      // authST
+      // return await authStore.authorize(to.params.from ?? '/dashboard');
+    // },
   },
   {
     path: '/request_access',
@@ -84,4 +92,4 @@ export default [
     name: 'nav.register',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
-];
+] as RouteRecordRaw[];

@@ -89,6 +89,7 @@ import Report from '@/models/Report';
 import User from '@/models/User';
 import { groupBy } from '@/utils/array';
 import useCurrentUser from '@/hooks/useCurrentUser';
+import {getErrorMessage} from "@/utils/errors";
 
 export default defineComponent({
   name: 'Reports',
@@ -98,6 +99,7 @@ export default defineComponent({
     const { currentUser } = useCurrentUser();
     const route = useRoute();
     const router = useRouter();
+    const { updateUserStates } = useCurrentUser()
 
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
@@ -149,9 +151,9 @@ export default defineComponent({
         })
         .get();
       newReportIds.value = new Set(newReports.map((r) => r.id));
-      User.api().updateUserState({
+      updateUserStates({
         reports_last_accessed: moment().toISOString(),
-      });
+     }).catch(getErrorMessage);
     });
 
     return {

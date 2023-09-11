@@ -1054,6 +1054,7 @@ import CaseFlag from '@/components/work/CaseFlag.vue';
 import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
 import { averageGeolocation } from '@/utils/map';
 import type { MapUtils } from '@/hooks/worksite/useLiveMap';
+import {useCurrentUser} from '@/hooks'
 
 export default defineComponent({
   name: 'PhoneSystem',
@@ -1088,6 +1089,8 @@ export default defineComponent({
     const { currentUser } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
     const mq = useMq();
+
+    const {updateUserStates} = useCurrentUser()
 
     const imageUrl = ref('');
     const numberClicks = ref(0);
@@ -1835,7 +1838,7 @@ export default defineComponent({
       goToInteractive,
       goToIncidentCenter,
       getWorkTypeName,
-      updateUserState: User.api().updateUserState,
+      updateUserState: updateUserStates,
       moment,
       retryFailedCall,
       onSelectionChanged,

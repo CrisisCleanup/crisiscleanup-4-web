@@ -504,6 +504,7 @@ import useDialogs from '../hooks/useDialogs';
 import ReportWidget from '@/components/reports/ReportWidget.vue';
 import { transformWidgetData } from '@/utils/reports';
 import { numeral } from '@/utils/helpers';
+import {useCurrentUser} from '@/hooks'
 import BaseText from "@/components/BaseText.vue";
 
 export default defineComponent({
@@ -524,6 +525,7 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const { prompt } = useDialogs();
+    const {updateCurrentUser, userPreferences} = useCurrentUser()
     const usersToInvite = ref('');
     const totalWorksites = ref(0);
     const totalClaimed = ref(0);
@@ -974,10 +976,13 @@ export default defineComponent({
     }
 
     async function archiveRequest(id) {
-      const preferences = currentUser.value.preferences || {};
+      const preferences = currentUser.value?.preferences || {};
       const archivedRequests = preferences.archived_worksite_requests || [];
-      await User.api().updateUserPreferences({
-        archived_worksite_requests: [id, ...archivedRequests],
+      await updateCurrentUser({
+        preferences: {
+          ...preferences,
+          archived_worksite_requests: [id, ...archivedRequests],
+        },
       });
       await getWorksiteRequests();
     }
