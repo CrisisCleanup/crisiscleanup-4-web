@@ -5,6 +5,7 @@ import axios from 'axios';
 import { AuthService } from '../services/auth.service';
 import auth from './modules/auth';
 import incident from './modules/incident';
+import worksite from './modules/worksite';
 import database from './database';
 import acl from './modules/acl';
 import enums from './modules/enums';
@@ -36,6 +37,7 @@ export const store = createStore<CCURootState>({
     acl,
     events,
     incident,
+    worksite,
     loading,
     locale,
     enums,
