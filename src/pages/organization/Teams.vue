@@ -95,7 +95,7 @@
       :cases="claimedWorktypes"
       :teams="teams"
       @close="creatingTeam = false"
-      @saved="getData"
+      @saved="onTeamCreate"
     />
   </div>
 </template>
@@ -108,6 +108,7 @@ import Worksite from '@/models/Worksite';
 import Avatar from '@/components/Avatar.vue';
 import { getQueryString } from '@/utils/urls';
 import enums from '@/store/modules/enums';
+import { useToast } from 'vue-toastification';
 import {useCurrentUser} from "@/hooks";
 
 export default defineComponent({
@@ -120,6 +121,7 @@ export default defineComponent({
     const users = ref<User[]>([]);
     const usersWithoutTeams = ref<User[]>([]);
     const teams = ref<Team[]>([]);
+    const $toast = useToast();
 
     const {
       currentUser,
@@ -238,6 +240,11 @@ export default defineComponent({
       await getClaimedWorksites();
     };
 
+    const onTeamCreate = () => {
+      $toast.success('Successfully Created Team');
+      getData();
+    }
+
     const onSearch = async () => {
       await getTeams();
     };
@@ -266,6 +273,7 @@ export default defineComponent({
       teams,
       currentUser,
       claimedWorktypes,
+      onTeamCreate,
     };
   },
 });
