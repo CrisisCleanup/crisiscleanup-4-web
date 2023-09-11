@@ -152,13 +152,12 @@
 <script lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import moment from 'moment';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { useMq } from 'vue3-mq';
 import Incident from '../models/Incident';
-import User from '../models/User';
 import Organization from '../models/Organization';
 import Language from '../models/Language';
 import Report from '../models/Report';
@@ -184,6 +183,7 @@ import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
+import { store } from '@/store';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -202,8 +202,13 @@ export default defineComponent({
   setup() {
     const mq = useMq();
 
-    const { currentUser, updateCurrentUser, updateUserStates } =
-      useCurrentUser();
+    const {
+      currentUser,
+      updateCurrentUser,
+      updateUserStates,
+      isOrganizationInactive,
+      isOrphan,
+    } = useCurrentUser();
     const authStore = useAuthStore();
     const route = useRoute();
     const router = useRouter();
@@ -214,6 +219,33 @@ export default defineComponent({
     const zendesk = useZendesk()!;
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
+
+    router.beforeEach(async (to, from, next) => {
+      const { setupLanguage } = useSetupLanguage();
+      await setupLanguage();
+      store.commit('events/addEvent', {
+        event_key: 'user_ui-read_page',
+        created_at: moment().toISOString(),
+        attr: {
+          api_endpoint: to.fullPath,
+        },
+      });
+
+      // route guard for inactive organizations.
+      if (isOrganizationInactive.value) {
+        authStore.logout();
+        return next();
+      }
+      // Orphaned Users can't really login this will navigate to a public landing page once it is built
+      if (isOrphan.value) {
+        const requestAccessLocation: RouteLocationRaw = {
+          name: 'nav.request_access',
+          query: { orphan: String(true) },
+        };
+        next(requestAccessLocation);
+      }
+      next();
+    });
 
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],

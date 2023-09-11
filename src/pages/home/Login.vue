@@ -1,6 +1,5 @@
 <template>
   <div class="h-screen flex items-center justify-center">
-    <text>login</text>
     <spinner show-quote />
   </div>
 </template>

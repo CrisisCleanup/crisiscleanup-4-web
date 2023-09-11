@@ -64,6 +64,7 @@ import { useI18n } from 'vue-i18n';
 import useNavigation from '@/hooks/useNavigation';
 import useAcl from '@/hooks/useAcl';
 import User from '@/models/User';
+import { useAuthStore, useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'PewPewNavBar',
@@ -77,10 +78,10 @@ export default defineComponent({
     const store = useStore();
     const { $can } = useAcl();
     const { t } = useI18n();
-    const isLoggedIn = computed(() => store.getters['auth/isLoggedIn']);
+    const { currentUser } = useCurrentUser();
+    const { isAuthenticated: isLoggedIn } = useAuthStore();
 
     const currentIncidentId = store.getters['incident/currentIncidentId'];
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
 
     const { HomeNavigation, FooterNavigation } = useNavigation();
     const publicRoutes = computed(() => {
@@ -131,10 +132,10 @@ export default defineComponent({
     });
 
     const navRoutes = computed(() => {
-      const _routeDefs = store.getters['auth/isLoggedIn']
+      const _routeDefs = isLoggedIn.value
         ? routes.value
         : publicRoutes.value;
-      const _routeRootKey = store.getters['auth/isLoggedIn']
+      const _routeRootKey = isLoggedIn.value
         ? 'nav'
         : 'publicNav';
       const map = _.map(_routeDefs, (value, key) => {
