@@ -57,7 +57,7 @@
                   :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`"
                   class="p-1 w-4"
                   size="medium"
-                  @click="() => deleteRecent(option.id)"
+                  @click="(e) => deleteRecent(e, option.id)"
                 />
               </div>
             </div>
@@ -314,7 +314,8 @@ export default defineComponent({
       addRecentWorksite(option);
     }
 
-    function deleteRecent(worksiteId: number) {
+    function deleteRecent(e: Event, worksiteId: number) {
+      e.stopPropagation();
       deleteRecentWorksite(worksiteId);
     }
 
