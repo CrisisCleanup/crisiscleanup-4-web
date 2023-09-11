@@ -19,6 +19,7 @@ export enum AuthStatus {
   ANONYMOUS = 'ANONYMOUS',
   AUTHENTICATED = 'AUTHENTICATED',
   REFRESHING = 'REFRESHING',
+  LOGOUT = 'LOGOUT',
 }
 
 export interface AuthState {
@@ -42,6 +43,17 @@ interface AuthorizeProps {
   clientId: string;
   redirectUri?: string;
   state: string;
+}
+
+interface AuthorizedToken {
+  access_token: string;
+  access_token_expiry: string;
+  refresh_token: string;
+  revoked: undefined | string;
+  updated: string;
+  created: string;
+  user: number;
+  application: number;
 }
 
 /**
@@ -87,7 +99,10 @@ const authStore = () => {
   );
 
   // User token state.
-  const tokenState = useAxios<{ access_token: string; refresh_token: string }>(
+  const exchangeState = useAxios<{
+    access_token: string;
+    refresh_token: string;
+  }>(
     '/o/token/',
     {
       method: 'POST',
@@ -96,6 +111,21 @@ const authStore = () => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
+    },
+    authInstance,
+    {
+      immediate: false,
+      resetOnExecute: false,
+    },
+  );
+
+  // Authorized tokens state.
+  const tokensState = useAxios<{ results: AuthorizedToken[] }>(
+    '/authorized_tokens',
+    {
+      method: 'GET',
+      withCredentials: true,
+      baseURL: import.meta.env.VITE_APP_API_BASE_URL,
     },
     authInstance,
     {
@@ -135,6 +165,10 @@ const authStore = () => {
       if (response?.id) {
         await onCurrentUserHook.trigger(response);
         authState.userId = response.id;
+        if (!authState.accessToken) {
+          await tokensState.execute();
+        }
+
         authState.status = AuthStatus.AUTHENTICATED;
       } else {
         authState.userId = undefined;
@@ -204,6 +238,15 @@ const authStore = () => {
         newStatus === AuthStatus.ANONYMOUS &&
         oldStatus !== AuthStatus.ANONYMOUS;
 
+      const movedToLogout =
+        newStatus === AuthStatus.LOGOUT && oldStatus !== AuthStatus.LOGOUT;
+
+      // LOGOUT -> ANONYMOUS
+      if (movedToLogout) {
+        await doLogout().finally(async () => authorize(route?.path));
+        return;
+      }
+
       // INIT/AUTHENTICATED/REFRESHING -> ANONYMOUS
       if (movedToAnon) {
         await authorize(route?.path);
@@ -221,15 +264,33 @@ const authStore = () => {
     },
   );
 
-  // React to token response.
-  watch(tokenState.data, async (response) => {
-    debug('got token response: %O', response);
+  // React to token response from exchange.
+  watch(exchangeState.data, async (response) => {
+    debug('got token response from exchange: %O', response);
     if (response?.access_token) {
       authState.accessToken = response.access_token;
       authState.refreshToken = response.refresh_token;
-      authState.status = AuthStatus.AUTHENTICATED;
     }
   });
+
+  // React to token response from session.
+  watch(tokensState.data, async (response) => {
+    debug('got token response from session: %O', response);
+    const token = response?.results?.[0];
+    if (token) {
+      authState.accessToken = token.access_token;
+      authState.refreshToken = token.refresh_token;
+    }
+  });
+
+  // Sync access token to axios header.
+  whenever(
+    () => authState.accessToken,
+    async (newToken) => {
+      debug('updating axios header with new token: %O', authState);
+      axios.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+    },
+  );
 
   // Attempt to fetch current
   const getMe = async () => usersMeState.execute();
@@ -280,13 +341,32 @@ const authStore = () => {
       code_verifier: verifierStorage.value,
     });
 
-    await tokenState.execute('/o/token/', {
+    await exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       data: params.toString(),
     });
+    axios.defaults.xsrfCookieName = 'csrftoken';
+    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+  };
+
+  // Handle logout state.
+  const doLogout = async () => {
+    await authInstance.post('/logout/', null, {
+      headers: {
+        'Content-Type': 'application/x-ww-form-urlencoded',
+      },
+    });
+  };
+
+  // Move to log out.
+  const logout = () => {
+    authState.status = AuthStatus.LOGOUT;
+    authState.userId = undefined;
+    authState.accessToken = undefined;
+    authState.refreshToken = undefined;
   };
 
   return {
@@ -296,6 +376,7 @@ const authStore = () => {
     isRefreshing,
     authorize,
     exchange,
+    logout,
     currentUser,
     onCurrentUserHook,
     currentUserId,
