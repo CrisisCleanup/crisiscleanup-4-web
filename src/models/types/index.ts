@@ -12,6 +12,15 @@ export interface CCUBaseFields {
   updated_by: number;
 }
 
+export interface CCUApiListResponse<
+  T extends Record<string, any> = Record<string, any>,
+> {
+  count: number;
+  next: string;
+  previous: string | null;
+  results: T[];
+}
+
 export interface WorkType {
   id: number;
   key: string;
@@ -160,4 +169,23 @@ export interface CmsItem {
   title: string;
   content: string;
   thumbnail_file?: { blog_url: string };
+}
+
+export type PhoneDnisResponse = CCUApiListResponse<PhoneDnisResult>;
+
+export interface PhoneDnisResult {
+  id: number;
+  dnis: number;
+  number_of_inbound_calls: number;
+  number_of_outbound_calls: number;
+  area_code: number;
+  last_action: string | null;
+  last_status: string | null;
+  last_call_at: string | null;
+  created_at: string;
+  meta: Record<string, unknown>;
+  location_name: string;
+  state_name: string;
+  timezone: string;
+  worksites: any[];
 }
