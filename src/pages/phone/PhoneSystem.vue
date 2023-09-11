@@ -1154,13 +1154,12 @@ export default defineComponent({
       dialManualOutbound,
     } = connectFirst;
 
-    const prefillData = computed(function () {
-      if (caller.value?.dnis) {
+    const prefillData = computed(() => {
+      if (caller.value) {
         return {
-          phone1: caller.value?.dnis,
+          phone1: caller.value?.dnis ?? '',
         };
       }
-
       return {};
     });
     const callsWaiting = computed(function () {
