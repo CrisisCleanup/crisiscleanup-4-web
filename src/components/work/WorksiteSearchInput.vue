@@ -57,7 +57,7 @@
                   icon="times"
                   :alt="$t('actions.clear')"
                   :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`"
-                  class="p-1 w-4"
+                  class="p-1 w-4 ml-auto"
                   size="medium"
                   @click="(e) => deleteRecent(e, option.id)"
                 />
