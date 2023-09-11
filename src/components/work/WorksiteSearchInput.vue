@@ -22,7 +22,9 @@
       >
         <div v-for="result in results" :key="result.label">
           <template v-if="result.options.length > 0">
-            <h3 class="p-1">{{ result.label }}</h3>
+            <h4 class="p-0.5 text-sm font-bold bg-gray-200">
+              {{ result.label }}
+            </h4>
             <div v-for="option in result.options" :key="option.id">
               <div
                 v-if="result.label === searchSections.GEOCODER"
