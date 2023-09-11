@@ -54,12 +54,6 @@ export default defineComponent({
         maxZoom: MAX_ZOOM,
       }).addTo(map);
 
-      // Add a tile layer (background map)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
       // Create a marker cluster group
       const markers = L.markerClusterGroup({
         zoomToBoundsOnClick: true,
