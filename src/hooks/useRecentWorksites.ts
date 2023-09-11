@@ -30,7 +30,6 @@ export const useRecentWorksites = () => {
     });
     // Check if the size of the Map exceeds the limit
     if (_recentWorksites.value.size > storeLimit) {
-      console.info('map exceeding limit', _recentWorksites.value);
       // Find the oldest entry
       let oldestKey = null;
       let oldestTimestamp = Number.POSITIVE_INFINITY;
@@ -49,7 +48,6 @@ export const useRecentWorksites = () => {
   }
 
   function deleteRecentWorksite(worksiteId: number) {
-    console.info('deleting recent worksite', worksiteId);
     return _recentWorksites.value.delete(Number(worksiteId));
   }
 

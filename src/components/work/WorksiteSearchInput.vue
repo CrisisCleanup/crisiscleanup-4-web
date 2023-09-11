@@ -213,9 +213,6 @@ export default defineComponent({
 
       return _filteredRecentWorksites.value.map((r) => r.item);
     });
-    watchEffect(() =>
-      console.log('filteredRecent', props.value, filteredRecentWorksites.value),
-    );
     const filteredWorksites = computed(() => {
       if (!props.useRecents) {
         return worksites.value;
