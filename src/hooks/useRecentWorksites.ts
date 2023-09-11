@@ -9,11 +9,18 @@ export const useRecentWorksites = () => {
   const storeKey = 'recent_worksites';
   const storeLimit = 4;
 
-  const _recentWorksitesMap = ref(new Map<number, WorksiteWithTimestamp>());
-  const _recentWorksites = useLocalStorage(storeKey, _recentWorksitesMap);
+  const _recentWorksitesMap = new Map<number, WorksiteWithTimestamp>();
+  const _recentWorksites = useStorage(
+    storeKey,
+    _recentWorksitesMap,
+    window.localStorage,
+    {},
+  );
 
   const recentWorksites = computed(() => {
-    return [..._recentWorksites.value.values()].map((item) => item.worksite);
+    return [..._recentWorksites.value.values()]
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .map((item) => item.worksite);
   });
 
   function addRecentWorksite(worksite: Worksite) {
@@ -26,21 +33,17 @@ export const useRecentWorksites = () => {
       console.info('map exceeding limit', _recentWorksites.value);
       // Find the oldest entry
       let oldestKey = null;
-      // set first entry as oldest timestamp
-      // let oldestTimestamp = Number.POSITIVE_INFINITY;
-      let oldestTimestamp = (
-        _recentWorksites.value.values().next().value as WorksiteWithTimestamp
-      ).timestamp;
+      let oldestTimestamp = Number.POSITIVE_INFINITY;
       for (const [key, value] of _recentWorksites.value.entries()) {
         if (value.timestamp < oldestTimestamp) {
           oldestTimestamp = value.timestamp;
           oldestKey = key;
         }
+      }
 
-        // Remove the oldest entry
-        if (oldestKey !== null) {
-          deleteRecentWorksite(oldestKey);
-        }
+      // Remove the oldest entry
+      if (oldestKey !== null) {
+        deleteRecentWorksite(oldestKey);
       }
     }
   }
@@ -51,12 +54,16 @@ export const useRecentWorksites = () => {
   }
 
   function clearRecentWorksites() {
-    _recentWorksitesMap.value = new Map();
-    _recentWorksites.value = _recentWorksitesMap.value;
+    _recentWorksites.value.clear();
+  }
+
+  function getRecentWorksite(worksiteId: number) {
+    return _recentWorksites.value.get(worksiteId)?.worksite;
   }
 
   return {
     recentWorksites,
+    getRecentWorksite,
     addRecentWorksite,
     deleteRecentWorksite,
     clearRecentWorksites,
