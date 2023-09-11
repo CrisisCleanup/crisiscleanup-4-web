@@ -109,8 +109,8 @@ export default function useCurrentUser() {
    * @param incidentStates Per Incident states.
    */
   const updateUserStates = async (
-    globalStates: Record<string, unknown>,
-    incidentStates: Record<string, unknown>,
+    globalStates: Record<string, unknown> = {},
+    incidentStates: Record<string, unknown> = {},
   ) => {
     const newStates = mergeUserStates(
       currentUser.value?.states ?? {},
