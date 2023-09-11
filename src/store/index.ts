@@ -3,6 +3,7 @@ import * as VuexORM from '@vuex-orm/core';
 import VuexORMAxios from '@vuex-orm/plugin-axios';
 import axios from 'axios';
 import incident from './modules/incident';
+import worksite from './modules/worksite';
 import database from './database';
 import acl from './modules/acl';
 import enums from './modules/enums';
@@ -32,6 +33,7 @@ export const store = createStore<CCURootState>({
     acl,
     events,
     incident,
+    worksite,
     loading,
     locale,
     enums,
