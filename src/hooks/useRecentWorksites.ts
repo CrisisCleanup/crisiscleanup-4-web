@@ -19,7 +19,7 @@ export const useRecentWorksites = () => {
 
   const recentWorksites = computed(() => {
     return [..._recentWorksites.value.values()]
-      .sort((a, b) => a.timestamp - b.timestamp)
+      .sort((a, b) => b.timestamp - a.timestamp)
       .map((item) => item.worksite);
   });
 
