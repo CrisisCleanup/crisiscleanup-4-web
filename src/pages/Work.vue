@@ -1260,6 +1260,7 @@ export default defineComponent({
 
     function filterSvi(value: number) {
       sviSliderValue.value = Number(value);
+      if (value === 100) return;
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
       const sviList = getSviList(container?.children?.length);
