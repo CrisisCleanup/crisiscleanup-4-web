@@ -207,6 +207,7 @@
           required
           use-geocoder
           class="w-full"
+          :use-recents="false"
           @input="(v) => updateWorksite(v, 'address')"
           @selectedExisting="onWorksiteSelect"
           @selectedGeocode="onGeocodeSelect"
