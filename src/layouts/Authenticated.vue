@@ -376,10 +376,8 @@ export default defineComponent({
       },
     ]);
 
-    // store.commit('auth/setShowLoginModal', false);
-
     const handleChange = async (value: string) => {
-      // if(!value) return;
+      if (!value) return;
       await Incident.api().fetchById(value);
       await updateUserStates({
         incident: value,
@@ -439,7 +437,7 @@ export default defineComponent({
           handleChange(value as string);
         }
       },
-      // { immediate: true }
+      { immediate: true },
     );
 
     onMounted(() => {
@@ -516,7 +514,6 @@ export default defineComponent({
 
       await getUserTransferRequests();
       await setupLanguage();
-      store.commit('acl/setUserAcl', user.id);
 
       let incidentId =
         route.params.incident_id || currentUser?.value?.approved_incidents?.[0];
