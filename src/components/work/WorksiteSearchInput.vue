@@ -84,6 +84,7 @@ import { computed, ref } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
 import { debounce } from 'lodash';
+import { useFuse, type UseFuseOptions } from '@vueuse/integrations/useFuse';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import GeocoderService from '../../services/geocoder.service';
 import BaseInput from '../BaseInput.vue';
@@ -91,6 +92,15 @@ import Worksite from '@/models/Worksite';
 import { getWorkTypeImage } from '@/filters/index';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import type WorkType from '@/models/WorkType';
+
+type GeocoderResult = Awaited<
+  ReturnType<typeof GeocoderService.getMatchingAddresses>
+>[0];
+
+interface WorksiteSearchResult {
+  label: string;
+  options: Worksite[] | GeocoderResult[];
+}
 
 export default defineComponent({
   name: 'WorksiteSearchInput',
@@ -136,6 +146,10 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    useRecents: {
+      type: Boolean,
+      default: true,
+    },
   },
   emits: [
     'input',
@@ -148,6 +162,10 @@ export default defineComponent({
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();
     const store = useStore();
+    const currentIncidentId = computed(
+      () => store.getters['incident/currentIncidentId'],
+    );
+
     const isFocused = ref(false);
     const searchSections = {
       SEARCH: 'Search',
@@ -160,25 +178,62 @@ export default defineComponent({
       'has-tooltip': Boolean(props.tooltip),
     });
     const worksites = ref<Worksite[]>([]);
-    const geocoderResults = ref<Awaited<ReturnType<typeof geocoderSearch>>>([]);
+    const geocoderResults = ref<GeocoderResult[]>([]);
     const { recentWorksites, addRecentWorksite, deleteRecentWorksite } =
       useRecentWorksites();
 
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
+    const fuseOptions = computed<UseFuseOptions<Worksite>>(() => {
+      const recentWorksiteSearchKeys = [
+        'id',
+        'name',
+        'case_number',
+        'address',
+        'city',
+        'state',
+      ];
+      return {
+        fuseOptions: {
+          keys: recentWorksiteSearchKeys,
+          isCaseSensitive: false,
+          threshold: 0.9,
+        },
+        matchAllWhenSearchEmpty: true,
+      };
+    });
+    const { results: _filteredRecentWorksites } = useFuse(
+      computed(() => props.value),
+      recentWorksites,
+      fuseOptions,
     );
+    const filteredRecentWorksites = computed(() => {
+      if (!props.useRecents) {
+        return [];
+      }
 
+      return _filteredRecentWorksites.value.map((r) => r.item);
+    });
+    watchEffect(() =>
+      console.log('filteredRecent', props.value, filteredRecentWorksites.value),
+    );
     const filteredWorksites = computed(() => {
+      if (!props.useRecents) {
+        return worksites.value;
+      }
+
       return worksites.value.filter(
-        (w) => !recentWorksites.value.some((_w) => _w.id === w.id),
+        (w) => !recentWorksites.value.some((rw) => rw.id === w.id),
       );
     });
     const results = computed(() => {
-      const _results = [
-        {
+      const _results: WorksiteSearchResult[] = [];
+      if (props.useRecents) {
+        _results.push({
           label: searchSections.RECENTS,
-          options: recentWorksites.value,
-        },
+          options: filteredRecentWorksites.value,
+        });
+      }
+
+      _results.push(
         {
           label: searchSections.SEARCH,
           options: filteredWorksites.value,
@@ -187,7 +242,7 @@ export default defineComponent({
           label: searchSections.GEOCODER,
           options: geocoderResults.value,
         },
-      ];
+      );
       return _results;
     });
 
@@ -247,7 +302,7 @@ export default defineComponent({
       isFocused.value = true;
     }
 
-    function onSelectGeocode(option: (typeof geocoderResults.value)[0]) {
+    function onSelectGeocode(option: GeocoderResult) {
       console.info('onSelectGeocode', option);
       emit('selectedGeocode', option);
     }
