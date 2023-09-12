@@ -45,7 +45,7 @@
         <slot></slot>
       </div>
       <div v-if="loading" class="flex h-full items-center justify-center">
-        <spinner show-quote/>
+        <spinner show-quote />
       </div>
     </div>
 
@@ -113,6 +113,7 @@ export default defineComponent({
       default: false,
     },
   },
+  emits: ['done'],
 
   setup(_, { slots, emit }) {
     const $toasted = useToast();
@@ -175,6 +176,11 @@ export default defineComponent({
         const onSave = currentStep?.value?.props['on-save'];
         if (onSave) {
           await onSave();
+        }
+
+        if (isLast.value) {
+          emit('done');
+          return;
         }
       } catch (error) {
         await $toasted.error(getErrorMessage(error));

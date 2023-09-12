@@ -9,6 +9,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import autoImport from 'unplugin-auto-import/vite';
 import inspect from 'vite-plugin-inspect';
 import inspector from 'vite-plugin-vue-inspector';
+import markdownRawPlugin from 'vite-raw-plugin';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import mkcert from 'vite-plugin-mkcert';
 import postcssConfig from './postcss.config';
@@ -54,6 +55,9 @@ export default defineConfig(async ({ command }) => {
       project: 'crisiscleanup-4-web',
     }),
     mkcert(),
+    markdownRawPlugin({
+      fileRegex: /\.svgr$/,
+    }),
   ];
 
   const configs: Array<Partial<UserConfig>> = [];
