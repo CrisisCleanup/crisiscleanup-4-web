@@ -162,7 +162,7 @@ export default defineComponent({
     const timeEnteredByMyOrganization = computed(() => {
       if (props.worksite) {
         return props.worksite.time.filter(
-          (type) => type.created_by_org === currentUser.organization.id,
+          (type) => type.created_by_org === currentUser.value.organization.id,
         );
       }
 
@@ -173,7 +173,7 @@ export default defineComponent({
       let time = [];
       if (props.worksite) {
         time = props.worksite.time.filter(
-          (type) => type.created_by_org !== currentUser.organization.id,
+          (type) => type.created_by_org !== currentUser.value.organization.id,
         );
       }
 

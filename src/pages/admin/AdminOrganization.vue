@@ -1310,7 +1310,7 @@ export default defineComponent({
             organization: stateRefs.organization.value.id,
             org_role: stateRefs.roleToAdd.value,
             approved_at: moment().toISOString(),
-            approved_by: currentUser.id,
+            approved_by: currentUser.value.id,
           },
         );
       }
@@ -1329,8 +1329,8 @@ export default defineComponent({
                   organization: stateRefs.organization.value.id,
                   incident: id,
                   approved_at: moment().toISOString(),
-                  approved_by: currentUser.id,
-                  requested_by: currentUser.id,
+                  approved_by: currentUser.value.id,
+                  requested_by: currentUser.value.id,
                 },
               ),
             ),

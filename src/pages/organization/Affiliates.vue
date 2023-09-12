@@ -48,11 +48,11 @@
             <div slot="footer" class="p-3 flex">
               <base-button
                 :action="
-                () => {
-                  showingAffiliateModal = false;
-                  selectedAffiliate = null;
-                }
-              "
+                  () => {
+                    showingAffiliateModal = false;
+                    selectedAffiliate = null;
+                  }
+                "
                 :text="$t('actions.cancel')"
                 :alt="$t('actions.cancel')"
                 data-testid="testCancelButton"
@@ -62,12 +62,12 @@
                 variant="solid"
                 data-testid="testInviteButton"
                 :action="
-                () => {
-                  sendAffiliateRequest(selectedAffiliate);
-                  showingAffiliateModal = false;
-                  selectedAffiliate = null;
-                }
-              "
+                  () => {
+                    sendAffiliateRequest(selectedAffiliate);
+                    showingAffiliateModal = false;
+                    selectedAffiliate = null;
+                  }
+                "
                 :text="$t('actions.invite')"
                 :alt="$t('actions.invite')"
                 class="ml-2 p-3 px-6 text-xs"
@@ -163,7 +163,7 @@ import Organization from '@/models/Organization';
 import User from '@/models/User';
 import Table from '@/components/Table.vue';
 import OrganizationSearchInputVue from '@/components/OrganizationSearchInput.vue';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Affiliates',
@@ -209,7 +209,7 @@ export default defineComponent({
     ]);
 
     const affiliates = computed(() => Affiliate.all());
-    const {currentUser} = useCurrentUser()
+    const { currentUser } = useCurrentUser();
 
     const getAffiliateRequests = async () => {
       loading.value = true;

@@ -81,9 +81,9 @@ export default ({ callType, incident, recentWorksite }: UseScriptsProps) => {
 
   const currentScript = computed(
     () =>
-      currentUser &&
+      currentUser.value &&
       i18n.global.t(Scripts[_callType.value ?? CallType.INBOUND], {
-        name: currentUser.first_name,
+        name: currentUser.value.first_name,
         incidentType: _incident.value ? _incident.value.incident_type : '',
         timeAgo: _recentWorksite.value
           ? moment(_recentWorksite.value.updated_at).fromNow()

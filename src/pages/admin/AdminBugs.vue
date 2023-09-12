@@ -147,7 +147,7 @@ export default defineComponent({
     };
     const resolveBug = async (id: number) => {
       await axios.patch(`${tableUrl}/${id}`, {
-        resolved_by: currentUser.id,
+        resolved_by: currentUser.value.id,
         resolved_at: moment().toISOString(),
       });
       tableQuery.value = {
