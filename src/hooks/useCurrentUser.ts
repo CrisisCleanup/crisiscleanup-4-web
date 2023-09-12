@@ -151,13 +151,9 @@ export default function useCurrentUser() {
     await updateCurrentUser({ states: newStates });
   };
 
-  const updateCurrentUserDebounced = useDebounceFn(updateCurrentUser, 300, {
-    maxWait: 1000,
-  });
+  const updateCurrentUserDebounced = useDebounceFn(updateCurrentUser, 300);
 
-  const updateUserStatesDebounced = useDebounceFn(updateUserStates, 300, {
-    maxWait: 1000,
-  });
+  const updateUserStatesDebounced = useDebounceFn(updateUserStates, 300);
 
   return {
     currentUser,
