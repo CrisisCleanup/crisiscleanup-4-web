@@ -187,8 +187,9 @@ const authStore = () => {
       }
 
       if (
-        err?.response?.status === 401 &&
-        route?.meta?.layout === 'authenticated'
+        (err?.response?.status === 401 &&
+          route?.meta?.layout === 'authenticated') ||
+        ['nav.login', 'nav.token'].includes(route.name)
       ) {
         debug('recv 401; user not authenticated.');
         authState.userId = undefined;
