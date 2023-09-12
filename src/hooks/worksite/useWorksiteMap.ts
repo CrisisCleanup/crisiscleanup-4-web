@@ -13,6 +13,7 @@ import useEmitter from '@/hooks/useEmitter';
 import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
 import { store } from '@/store';
+import { getErrorMessage } from '@/utils/errors';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -73,7 +74,12 @@ export default (
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
-        layer.destroy();
+        try {
+          layer.destroy();
+        } catch (error) {
+          console.error('Error destroying map layer', layer, error);
+          getErrorMessage(error);
+        }
       }
     });
   };

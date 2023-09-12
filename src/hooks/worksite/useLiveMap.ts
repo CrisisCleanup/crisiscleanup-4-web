@@ -32,6 +32,7 @@ import type {
 } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 import type Incident from '@/models/Incident';
+import { getErrorMessage } from '@/utils/errors';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -126,7 +127,12 @@ export default (
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
-        layer.destroy();
+        try {
+          layer.destroy();
+        } catch (error) {
+          console.error('Error destroying map layer', layer, error);
+          getErrorMessage(error);
+        }
       }
     });
   };
