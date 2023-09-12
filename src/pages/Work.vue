@@ -1030,7 +1030,7 @@ export default defineComponent({
         dateLevel: dateSliderValue.value,
         ...data,
       };
-      updateUserStates({incident: currentIncidentId.value}).catch(getErrorMessage);
+      updateUserStates({incident: currentIncidentId.value}, newStates).catch(getErrorMessage);
     }
 
     const hasOverdueFilter = computed(() => {
