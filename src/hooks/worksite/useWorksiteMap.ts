@@ -12,6 +12,7 @@ import type Worksite from '@/models/Worksite';
 import useEmitter from '@/hooks/useEmitter';
 import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
+import { store } from '@/store';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -46,6 +47,8 @@ export default (
   useGoogleMaps = false,
   mapBounds = null,
 ) => {
+  const addToVisited = (wId: number) =>
+    store.commit('worksite/addVisitedWorksite', wId);
   let loadMarker: (marker: Sprite & Worksite, index: number) => void = (
     marker,
     index,
@@ -92,6 +95,15 @@ export default (
       const marker = findMarker(e.latlng);
       if (marker) {
         onMarkerClick(marker);
+        addToVisited(marker.id);
+        const markerToRerender =
+          markers.find((m) => m.id === marker.id) ?? marker;
+        try {
+          renderMarkerSprite(markerToRerender, markerToRerender.index);
+        } catch (error) {
+          console.error(error);
+        }
+        map.panBy([1, 0]);
       }
     });
 
@@ -215,6 +227,7 @@ export default (
     if (map && worksite && container) {
       container.visible = false;
       map.setView([worksite.latitude, worksite.longitude], 18);
+      addToVisited(worksite.id as number);
       if (showPopup) {
         const popup = L.popup({ className: 'pixi-popup' });
         popup
