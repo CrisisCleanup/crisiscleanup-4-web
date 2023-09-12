@@ -10,6 +10,7 @@ import {
 import { useAxios } from '@vueuse/integrations/useAxios';
 import createDebug from 'debug';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
+import { getErrorMessage } from '@/utils/errors';
 
 const debug = createDebug('@crisiscleanup:useUser');
 
@@ -73,21 +74,6 @@ const buildAuthorizeUrl = (props: AuthorizeProps) => {
     state: props.state,
   }).toString();
   return url.toString();
-};
-
-const buildRevokeUrl = (
-  token: string,
-  clientId: string = import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
-) => {
-  const url = new URL(
-    '/o/revoke_token/',
-    new URL(import.meta.env.VITE_APP_API_BASE_URL),
-  );
-  url.search = new URLSearchParams({
-    token,
-    client_id: clientId,
-  });
-  return url;
 };
 
 const authStore = () => {
@@ -238,10 +224,21 @@ const authStore = () => {
       const movedToLogout =
         newStatus === AuthStatus.LOGOUT && oldStatus !== AuthStatus.LOGOUT;
 
-      // LOGOUT -> ANONYMOUS
+      const logoutToAnon =
+        newStatus === AuthStatus.ANONYMOUS && oldStatus === AuthStatus.LOGOUT;
+
+      // * -> LOGOUT
       if (movedToLogout) {
         await doLogout().finally(async () => authorize(route?.path));
         return;
+      }
+
+      // LOGOUT -> ANONYMOUS
+      if (logoutToAnon) {
+        authState.userId = undefined;
+        authState.accessToken = undefined;
+        authState.refreshToken = undefined;
+        authState.userId = undefined;
       }
 
       // INIT/AUTHENTICATED/REFRESHING -> ANONYMOUS
@@ -357,33 +354,40 @@ const authStore = () => {
 
   // Handle logout state.
   const doLogout = async () => {
-    await Promise.allSettled(
-      [authState.accessToken, authState.refreshToken]
-        .filter(Boolean)
-        .map(async (token) => doRevokeToken(token)),
-    );
-    await authInstance.post('/logout/', null, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
+    try {
+      await authInstance.post('/logout/', null, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          Authorization: `Bearer ${authState.accessToken}`,
+        },
+      });
+      if (authState.refreshToken) await doRevokeToken(authState.refreshToken);
+      if (authState.accessToken) await doRevokeToken(authState.accessToken);
+      authState.status = AuthStatus.ANONYMOUS;
+    } catch (error: unknown) {
+      throw new Error(getErrorMessage(error));
+    }
   };
 
+  // Revoke given token.
   const doRevokeToken = async (token: string) => {
-    const payload = buildRevokeUrl(token);
-    return authInstance.post('/o/revoke_token/', payload.toString(), {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+    return authInstance.post(
+      '/o/revoke_token/',
+      new URLSearchParams({
+        token,
+        client_id: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
+      }).toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
       },
-    });
+    );
   };
 
   // Move to log out.
   const logout = () => {
     authState.status = AuthStatus.LOGOUT;
-    authState.userId = undefined;
-    authState.accessToken = undefined;
-    authState.refreshToken = undefined;
   };
 
   return {
