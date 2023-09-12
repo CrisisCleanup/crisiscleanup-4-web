@@ -7,6 +7,8 @@ import moment from 'moment';
 import { templates, colors } from '../../icons/icons_templates';
 import type Worksite from '@/models/Worksite';
 import type { PixiLayer } from '@/utils/types/map';
+import { SVG_STROKE_WIDTH } from '@/constants';
+import { store } from '@/store';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
 
@@ -30,6 +32,7 @@ export default (
   let kdBushIndex: any = null;
 
   function renderMarkerSprite(marker: Sprite & Worksite, index: number) {
+    const visitedWorksiteIds = store.getters['worksite/visitedWorksiteIds'];
     map.eachLayer((layer: L.Layer) => {
       if ((layer as L.Layer & PixiLayer).key === 'marker_layer') {
         const markerTemplate = templates.circle;
@@ -54,6 +57,7 @@ export default (
         sprite.index = index;
         sprite.id = marker.id;
         const isFilteredMarker = !visibleMarkerIds.includes(marker.id);
+        const isVisitedMarker = visitedWorksiteIds.includes(marker.id);
         if (isFilteredMarker) {
           sprite.zIndex = 0;
           sprite.alpha = 0.3;
@@ -72,10 +76,13 @@ export default (
         sprite.anchor.set(0.5, 0.5);
         const svg = markerTemplate
           .replaceAll('{{fillColor}}', isFilteredMarker ? 'white' : fillColor)
-          .replaceAll('{{strokeWidth}}', '0.5')
+          .replaceAll(
+            '{{strokeWidth}}',
+            isVisitedMarker ? '2' : SVG_STROKE_WIDTH.toString(),
+          )
           .replaceAll(
             '{{strokeColor}}',
-            isFilteredMarker ? fillColor : 'white',
+            isVisitedMarker ? '#9370db' : isFilteredMarker ? fillColor : 'white',
           );
         let texture = textureMap[fillColor];
         if (!texture) {
@@ -109,10 +116,13 @@ export default (
 
         const typeSvg = detailedTemplate
           .replaceAll('{{fillColor}}', isFilteredMarker ? 'white' : fillColor)
-          .replaceAll('{{strokeWidth}}', '0.5')
+          .replaceAll(
+            '{{strokeWidth}}',
+            isVisitedMarker ? '5' : SVG_STROKE_WIDTH.toString(),
+          )
           .replaceAll(
             '{{strokeColor}}',
-            isFilteredMarker ? strokeColor : 'white',
+            isVisitedMarker ? '#9370db' : isFilteredMarker ? fillColor : 'white',
           )
           .replaceAll(
             '{{multiple}}',
