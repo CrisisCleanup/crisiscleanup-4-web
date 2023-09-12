@@ -292,8 +292,8 @@ const authStore = () => {
   // Sync acl user id.
   whenever(
     () => authState.userId,
-    () => {
-      store.commit('acl/setUserAcl', user.id);
+    (value) => {
+      store.commit('acl/setUserAcl', value);
     },
   );
 
