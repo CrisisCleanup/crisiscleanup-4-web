@@ -186,7 +186,10 @@ const authStore = () => {
         return;
       }
 
-      if (err?.response?.status === 401) {
+      if (
+        err?.response?.status === 401 &&
+        route?.meta?.layout === 'authenticated'
+      ) {
         debug('recv 401; user not authenticated.');
         authState.userId = undefined;
         authState.status = AuthStatus.ANONYMOUS;
