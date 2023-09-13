@@ -9,6 +9,7 @@ import {
 } from '@vueuse/core';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import createDebug from 'debug';
+import moment from 'moment';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 
@@ -275,9 +276,14 @@ const authStore = () => {
   watch(tokensState.data, async (response) => {
     debug('got token response from session: %O', response);
     const token = response?.results?.[0];
-    if (token) {
+    if (token && moment(token.access_token_expiry).isAfter(moment())) {
       authState.accessToken = token.access_token;
       authState.refreshToken = token.refresh_token;
+    } else {
+      debug('Existing auth tokens expired. Re-authorizing..');
+      authState.userId = undefined;
+      authState.status = AuthStatus.ANONYMOUS;
+      await authorize(route?.path, true);
     }
   });
 
