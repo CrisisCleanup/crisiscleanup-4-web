@@ -188,11 +188,9 @@ const authStore = () => {
 
     await router.isReady();
     const isAuthLayout = route?.meta?.layout === 'authenticated';
-    const shouldForce = [
-      'nav.login',
-      'nav.token',
-      'nav.dashboard_home',
-    ].includes(route?.name);
+    const shouldForce = ['nav.login', 'nav.dashboard_home'].includes(
+      route?.name,
+    );
 
     if (err?.response?.status === 401 && (isAuthLayout || shouldForce)) {
       debug('recv 401; user not authenticated.');
