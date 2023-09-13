@@ -1,7 +1,7 @@
 import axios, { type AxiosError } from 'axios';
 import { reactive, type Ref } from 'vue';
 import { useStore } from 'vuex';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   createEventHook,
   createSharedComposable,
@@ -138,6 +138,7 @@ const authStore = () => {
   });
 
   const route = useRoute();
+  const router = useRouter();
   const store = useStore();
 
   // Initialize auth state.
@@ -176,29 +177,30 @@ const authStore = () => {
   );
 
   // Failure to fetch current user.
-  whenever(
-    usersMeState.error as Ref<AxiosError>,
-    async (err: AxiosError) => {
-      debug('error state: (state: %O) %O', authState, err);
+  whenever(usersMeState.error as Ref<AxiosError>, async (err: AxiosError) => {
+    debug('error state: (state: %O) %O', authState, err);
 
-      if (authState.refreshToken) {
-        refreshMe();
-        return;
-      }
+    // todo: refresh
+    // if (authState.refreshToken) {
+    //   refreshMe();
+    //   return;
+    // }
 
-      if (
-        (err?.response?.status === 401 &&
-          route?.meta?.layout === 'authenticated') ||
-        ['nav.login', 'nav.token'].includes(route.name)
-      ) {
-        debug('recv 401; user not authenticated.');
-        authState.userId = undefined;
-        authState.status = AuthStatus.ANONYMOUS;
-        await authorize(route?.path, true);
-      }
-    },
-    { flush: 'pre', immediate: true },
-  );
+    await router.isReady();
+    const isAuthLayout = route?.meta?.layout === 'authenticated';
+    const shouldForce = [
+      'nav.login',
+      'nav.token',
+      'nav.dashboard_home',
+    ].includes(route?.name);
+
+    if (err?.response?.status === 401 && (isAuthLayout || shouldForce)) {
+      debug('recv 401; user not authenticated.');
+      authState.userId = undefined;
+      authState.status = AuthStatus.ANONYMOUS;
+      await authorize(route?.path, true);
+    }
+  });
 
   const isAuthenticated = computedEager(
     () => authState.status === AuthStatus.AUTHENTICATED,
