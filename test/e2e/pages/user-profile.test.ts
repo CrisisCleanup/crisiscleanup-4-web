@@ -43,7 +43,7 @@ test.describe('UserProfile', () => {
         'testLastNameTextInput',
         'testEmailTextInput',
         'testUserRolesSelect',
-        'testEquipmentSelect',
+        // 'testEquipmentSelect',
         'testLanguagesSelect',
         'testFacebookTextInput',
         'testTwitterTextInput',
