@@ -15,6 +15,7 @@
       step-default-classes="flex items-center justify-center h-8 cursor-pointer px-2"
       step-active-classes=""
       :loading="loading"
+      @done="onCompletedIncident"
     >
       <Step
         :name="$t('incidentBuilder.general_incident_info')"
@@ -49,26 +50,12 @@
         />
       </Step>
       <Step :name="$t('incidentBuilder.assets')">
-        <Card>
-          <template #header>
-            <div class="flex items-center justify-between w-full mr-4">
-              <base-text class="px-5 py-3">
-                {{ $t('incidentBuilder.handbill') }}
-              </base-text>
-              <base-button
-                :text="$t('actions.create')"
-                :alt="$t('actions.create')"
-                data-testid="testCreateButton"
-                variant="solid"
-                class="px-2 py-1"
-                :action="() => {}"
-              ></base-button>
-            </div>
-          </template>
-          <iframe v-if="savedIncident" class="h-64 m-5" :src="handBillUrl" />
-        </Card>
+        <IncidentAssetBuilder
+          :incident="savedIncident"
+          :anis="savedAniIncidents"
+          :selectable-work-types="selectableWorkTypes"
+        />
       </Step>
-      <Step :name="$t('incidentBuilder.notifications')"></Step>
     </Wizard>
   </div>
 </template>
@@ -85,10 +72,13 @@ import Incident from '@/models/Incident';
 import IncidentForm from '@/components/admin/incidents/IncidentForm.vue';
 import IncidentFormBuilder from '@/components/admin/incidents/IncidentFormBuilder.vue';
 import IncidentLocationEditor from '@/components/admin/incidents/IncidentLocationEditor.vue';
+import IncidentAssetBuilder from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: 'AdminIncidentWizard',
   components: {
+    IncidentAssetBuilder,
     IncidentLocationEditor,
     IncidentFormBuilder,
     IncidentForm,
@@ -96,7 +86,7 @@ export default defineComponent({
     Step,
     Wizard,
   },
-  setup(props, { emit }) {
+  setup() {
     const route = useRoute();
 
     const currentIncident = ref({
@@ -116,25 +106,28 @@ export default defineComponent({
     });
     const currentLocation = ref(null);
     const formFieldTree = ref(null);
-    const savedIncident = ref(null);
+    const savedIncident = ref<Incident>(null);
     const savedAniIncidents = ref([]);
     const loading = ref(false);
+    const { t } = useI18n();
+    const $toasted = useToast();
 
-    const handBillUrl = computed(() => {
-      if (savedIncident.value) {
-        return `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${
-          savedIncident.value.id
-        }/handbill`;
+    const selectableWorkTypes = computed(() => {
+      if (formFieldTree.value) {
+        const workInfoSection = formFieldTree.value.find(
+          (f) => f.label_t === 'formLabels.work_info',
+        );
+        return workInfoSection?.children.map((child) => {
+          return child.if_selected_then_work_type;
+        });
       }
 
-      return null;
+      return [];
     });
 
     const currentIncidentLocation = computed(() => {
       if (savedIncident.value && savedIncident.value.locations.length > 0) {
-        return savedIncident.value.locations[
-          savedIncident.value.locations.length - 1
-        ];
+        return savedIncident.value.locations.at(-1);
       }
 
       return null;
@@ -268,6 +261,10 @@ export default defineComponent({
       );
     }
 
+    async function onCompletedIncident() {
+      await $toasted.success(t('~~Created incident successfully.'));
+    }
+
     onMounted(async () => {
       if (route.params.incident_id) {
         await loadIncident(route.params.incident_id);
@@ -275,9 +272,7 @@ export default defineComponent({
     });
 
     return {
-      loadIncident,
       saveIncidentFields,
-      updateIncident,
       saveIncident,
       deleteAniIncident,
       currentIncident,
@@ -287,8 +282,9 @@ export default defineComponent({
       savedIncident,
       savedAniIncidents,
       loading,
-      handBillUrl,
+      selectableWorkTypes,
       currentIncidentLocation,
+      onCompletedIncident,
     };
   },
 });

@@ -147,3 +147,10 @@ export type LocationJoin = {
   title: string | undefined;
   notes: string | undefined;
 } & CCUBaseFields;
+
+export interface Ani {
+  id: number;
+  ani?: number;
+  incident?: number;
+  phone_number?: string;
+}
