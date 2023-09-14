@@ -11,8 +11,10 @@ const config = {
     'plugin:vue/vue3-recommended', // See: https://eslint.vuejs.org/user-guide/#bundle-configurations
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
-    // for unplugin-auto-import
-    './.eslintrc-auto-import.json',
+    'plugin:unicorn/recommended',
+    'plugin:import/recommended',
+    'plugin:promise/recommended',
+    './.eslintrc-auto-import.json', // for unplugin-auto-import
   ],
   // See: https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser
   parser: 'vue-eslint-parser',
@@ -32,7 +34,14 @@ const config = {
       },
     },
   },
-  plugins: ['vue', '@typescript-eslint'],
+  plugins: [
+    'vue',
+    '@typescript-eslint',
+    'prettier',
+    'unicorn',
+    'import',
+    'promise',
+  ],
   rules: {
     camelcase: 'off',
     'no-warning-comments': 'off',
