@@ -58,6 +58,7 @@ const config = {
     'unicorn/filename-case': 'off',
     'unicorn/prevent-abbreviations': 'off',
     'unicorn/no-array-reduce': 'off',
+    'unicorn/no-null': 'error', // The 'unicorn/no-null' rule is intentionally enabled. See: https://github.com/sindresorhus/meta/discussions/7
     '@typescript-eslint/naming-convention': 'off',
     'import/no-unassigned-import': 'off',
     'import/no-cycle': 'off',
