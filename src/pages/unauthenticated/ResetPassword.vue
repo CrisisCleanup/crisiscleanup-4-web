@@ -39,8 +39,8 @@
       </div>
       <form
         v-if="tokenValid === true"
-        data-testid="testPasswordResetFormDiv"
         ref="form"
+        data-testid="testPasswordResetFormDiv"
         class="w-108 flex flex-col"
         autocomplete="off"
       >
@@ -85,7 +85,7 @@
         <div class="flex flex-col items-center justify-center mt-32">
           <img src="" />
           <base-text variant="h1" class="mb-6" data-testid="testSuccessContent">
-            {{$t('info.success')}}
+            {{ $t('info.success') }}
           </base-text>
           <base-text class="w-3/4 text-center" variant="body" wieght="300">{{
             $t('resetPassword.password_reset')

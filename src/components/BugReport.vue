@@ -145,7 +145,7 @@ export default {
         return;
       }
       const formData = new FormData();
-      formData.append('upload', fileList[fileList.length - 1]);
+      formData.append('upload', fileList.at(-1));
       formData.append('type_t', 'fileTypes.other_file');
       uploading.value = true;
       try {

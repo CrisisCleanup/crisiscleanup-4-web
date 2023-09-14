@@ -28,10 +28,10 @@
       enable-pagination
       :enable-selection="enableSelection"
       :loading="loading"
+      v-bind="$attrs"
       @change="getData"
       @rowClick="(payload) => $emit('rowClick', payload)"
       @selectionChanged="(payload) => $emit('selectionChanged', payload)"
-      v-bind="$attrs"
     >
       <template v-for="(_, slot) of $slots" #[slot]="scope"
         ><slot :name="slot" v-bind="scope"

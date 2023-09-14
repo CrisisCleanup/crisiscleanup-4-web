@@ -633,7 +633,7 @@ import Card from '@/components/cards/Card.vue';
 import CapabilityGrid from '@/components/CapabilityGrid.vue';
 import RequestRedeploy from '@/components/RequestRedeploy.vue';
 import useCapabilities from '@/hooks/useCapabilities';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Profile',
@@ -676,10 +676,7 @@ export default defineComponent({
       }),
     );
     const roles = computed(() => Role.all());
-    const {
-      currentUser,
-        currentOrganization,
-    } = useCurrentUser();
+    const { currentUser, currentOrganization } = useCurrentUser();
     const organization = currentOrganization;
     const canEditLocation = computed(() => {
       return (
@@ -960,7 +957,7 @@ export default defineComponent({
       }
 
       const formData = new FormData();
-      formData.append('upload', fileList[fileList.length - 1]);
+      formData.append('upload', fileList.at(-1));
       formData.append('type_t', type);
       uploading.value = true;
       try {

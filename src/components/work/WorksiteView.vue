@@ -530,7 +530,9 @@ export default defineComponent({
         const list = worksite.value.work_types.filter(
           (type) =>
             type.claimed_by &&
-            !currentUser.value.organization.affiliates.includes(type.claimed_by),
+            !currentUser.value.organization.affiliates.includes(
+              type.claimed_by,
+            ),
         );
         return groupBy(list, 'claimed_by');
       }

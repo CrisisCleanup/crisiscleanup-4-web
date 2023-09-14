@@ -105,8 +105,8 @@
         >
           <base-select
             :key="text.language"
-            data-testid="testLanguageSelect"
             v-model="text.language"
+            data-testid="testLanguageSelect"
             class="flex-1"
             :options="languages"
             item-key="id"
@@ -413,20 +413,15 @@ export default defineComponent({
     async function saveLocalization() {
       let response;
       try {
-        if (currentLocalization.value.id) {
-          response = await axios.put(
-            `${tableUrl}/${currentLocalization.value.id}`,
-            {
+        response = await (currentLocalization.value.id
+          ? axios.put(`${tableUrl}/${currentLocalization.value.id}`, {
               ...currentLocalization.value,
               group_label: `${currentLocalization.value.group}.${currentLocalization.value.label}`,
-            },
-          );
-        } else {
-          response = await axios.post(tableUrl, {
-            ...currentLocalization.value,
-            group_label: `${currentLocalization.value.group}.${currentLocalization.value.label}`,
-          });
-        }
+            })
+          : axios.post(tableUrl, {
+              ...currentLocalization.value,
+              group_label: `${currentLocalization.value.group}.${currentLocalization.value.label}`,
+            }));
 
         currentLocalization.value = response.data;
         await saveLocalizationTexts();

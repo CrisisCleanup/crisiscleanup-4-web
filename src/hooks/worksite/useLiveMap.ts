@@ -173,7 +173,7 @@ export default (
     const markerSpeed: number =
       Number((100 / liveMarkers.length).toFixed(0)) * cadence;
     generatePoints(liveMarkers, markerSpeed);
-    return undefined;
+    return;
   };
 
   function setLegend(createdWorkTypes: string[]) {
@@ -783,7 +783,7 @@ export default (
         });
         const count = Math.floor((sviList.length * Number(value)) / 100);
         const filteredSvi = sviList.slice(0, count);
-        const minSvi = filteredSvi[filteredSvi.length - 1].svi;
+        const minSvi = filteredSvi.at(-1).svi;
         for (const markerSprite of sprites) {
           markerSprite.visible = markerSprite.svi > minSvi;
         }

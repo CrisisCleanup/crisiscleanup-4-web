@@ -71,7 +71,7 @@
 import { computed } from 'vue';
 import Avatar from '../Avatar.vue';
 import User from '@/models/User';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'UserProfileMenu',

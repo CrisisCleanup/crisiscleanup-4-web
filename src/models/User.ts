@@ -1,4 +1,4 @@
-import type {Config} from '@vuex-orm/plugin-axios';
+import type { Config } from '@vuex-orm/plugin-axios';
 import createDebug from 'debug';
 import Language from './Language';
 import Role from './Role';

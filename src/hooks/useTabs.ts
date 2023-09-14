@@ -51,7 +51,7 @@ export default ({
     tabs: tabs.map(({ key, ...rest }) =>
       reactive(
         _.defaults(rest, {
-          title: _.startCase(_.last(_.last(key.split('.')).split('_'))),
+          title: _.startCase(key.split('.').at(-1).split('_').at(-1)),
           route: { name: key },
           key,
         }),

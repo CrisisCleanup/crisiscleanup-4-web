@@ -177,9 +177,8 @@ test.describe('DashboardPage', () => {
       const getIncidentSelectorLabelLocator = (locator: Locator) =>
         locator.locator('.multiselect-single-label');
       const getIncidentSelectorTextContent = async (locator: Locator) => {
-        const text = await getIncidentSelectorLabelLocator(
-          locator,
-        ).textContent();
+        const text =
+          await getIncidentSelectorLabelLocator(locator).textContent();
         if (!text) {
           console.error(
             'Incident Selector Text Content is invalid... Returning empty value',
@@ -190,9 +189,8 @@ test.describe('DashboardPage', () => {
         return text;
       };
 
-      const initialSelectedIncidentName = await getIncidentSelectorTextContent(
-        incidentSelector,
-      );
+      const initialSelectedIncidentName =
+        await getIncidentSelectorTextContent(incidentSelector);
       if (!initialSelectedIncidentName) {
         throw new Error('Unable to infer initial incident name');
       }
@@ -224,17 +222,15 @@ test.describe('DashboardPage', () => {
       await assertIncidentNameInInfoDivs(initialSelectedIncidentName);
 
       await selectOptionFromIncidentSelector(4);
-      const newIncidentName = await getIncidentSelectorTextContent(
-        incidentSelector,
-      );
+      const newIncidentName =
+        await getIncidentSelectorTextContent(incidentSelector);
       // expect(newIncidentName).not.toBe(initialSelectedIncidentName);
       console.info('New Incident Name', newIncidentName);
       await assertIncidentNameInInfoDivs(newIncidentName);
 
       await selectOptionFromIncidentSelector(1);
-      const anotherIncidentName = await getIncidentSelectorTextContent(
-        incidentSelector,
-      );
+      const anotherIncidentName =
+        await getIncidentSelectorTextContent(incidentSelector);
       // expect(anotherIncidentName).not.toBe(initialSelectedIncidentName);
       console.info('Another Incident Name', anotherIncidentName);
       await assertIncidentNameInInfoDivs(anotherIncidentName);

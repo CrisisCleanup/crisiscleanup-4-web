@@ -280,10 +280,7 @@ export default defineComponent({
       });
       currentMessage.value = '';
       urgent.value = false;
-      await updateUserStates(
-      { [props.stateKey]: moment().toISOString() },
-      {},
-      );
+      await updateUserStates({ [props.stateKey]: moment().toISOString() }, {});
     }
 
     async function toggleFavorite(

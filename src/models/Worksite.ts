@@ -5,7 +5,7 @@ import Organization from './Organization';
 import User from './User';
 import type WorkType from './WorkType';
 import CCUModel from '@/models/base';
-import {useAuthStore} from "@/hooks";
+import { useAuthStore } from '@/hooks';
 
 export default class Worksite extends CCUModel {
   static entity = 'worksites';
@@ -230,13 +230,10 @@ export default class Worksite extends CCUModel {
           );
         }
 
-        const {currentUserId} = useAuthStore()
+        const { currentUserId } = useAuthStore();
         const eventUserIds = worksite.response.data.events
           .map((event) => event.created_by)
-          .filter(
-            (userId) =>
-              Number(userId) !== Number(currentUserId.value),
-          );
+          .filter((userId) => Number(userId) !== Number(currentUserId.value));
         if (eventUserIds.length > 0) {
           await User.api().get(`/users?id__in=${eventUserIds.join(',')}`, {
             dataKey: 'results',

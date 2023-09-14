@@ -20,7 +20,7 @@
       </div>
     </div>
     <div
-      v-else 
+      v-else
       class="px-2 py-1 w-full text-white bg-crisiscleanup-green-300"
       data-testid="testIsCompletedDiv"
     >
@@ -105,10 +105,15 @@
               data-testid="testWorktypeSVGIcon"
               v-html="getSVG(c.worktype)"
             ></div>
-            <div class="px-1" data-testid="testCaseNumberDiv">{{ c.caseNumber }}</div>
+            <div class="px-1" data-testid="testCaseNumberDiv">
+              {{ c.caseNumber }}
+            </div>
           </div>
           <div class="px-1" data-testid="testCaseNameDiv">{{ c.name }}</div>
-          <div class="text-xs text-crisiscleanup-dark-200 p-1" data-testid="testCaseAddressStateDiv">
+          <div
+            class="text-xs text-crisiscleanup-dark-200 p-1"
+            data-testid="testCaseAddressStateDiv"
+          >
             {{ c.address }} {{ c.state }}
           </div>
         </div>

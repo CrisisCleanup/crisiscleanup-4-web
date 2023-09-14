@@ -110,7 +110,9 @@
             :alt="$t('adminDashboard.refresh_incident_redeploy_requests')"
           />
         </div>
-        <div class="py-4 px-4 border-b grid md:grid-cols-3 grid-cols-1 items-center">
+        <div
+          class="py-4 px-4 border-b grid md:grid-cols-3 grid-cols-1 items-center"
+        >
           <base-button
             class="mr-2 md:border-r pr-2"
             data-testid="testRedeployRequestsActionRequiredButton"
@@ -167,7 +169,7 @@
                   organizations.visible = !organizations.visible;
                 }
               "
-            >-</base-button
+              >-</base-button
             >
             {{ $t('adminDashboard.organizations') }}
           </span>
@@ -208,7 +210,7 @@
                   users.visible = !users.visible;
                 }
               "
-            >-</base-button
+              >-</base-button
             >
             {{ $t('adminDashboard.users') }}
           </span>
@@ -248,7 +250,7 @@
                   ghostUsers.visible = !ghostUsers.visible;
                 }
               "
-            >-</base-button
+              >-</base-button
             >
             {{ $t('adminDashboard.ghost_users') }}
           </span>
@@ -288,7 +290,7 @@
                   invitationRequests.visible = !invitationRequests.visible;
                 }
               "
-            >-</base-button
+              >-</base-button
             >
             {{ $t('adminDashboard.invitation_requests') }}
           </span>
@@ -328,7 +330,7 @@
                   invitations.visible = !invitations.visible;
                 }
               "
-            >-</base-button
+              >-</base-button
             >
             {{ $t('adminDashboard.invitations') }}
           </span>

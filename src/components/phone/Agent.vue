@@ -93,13 +93,13 @@
 </template>
 
 <script lang="ts">
-import {reactive, ref} from 'vue';
+import { reactive, ref } from 'vue';
 import LanguageTag from '../tags/LanguageTag.vue';
 import useConnectFirst from '../../hooks/useConnectFirst';
 import EditAgentModal from './EditAgentModal.vue';
 import PhoneIndicator from './PhoneIndicator.vue';
 import usePhoneService from '@/hooks/phone/usePhoneService';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Agent',

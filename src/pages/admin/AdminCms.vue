@@ -11,8 +11,8 @@
     </template>
     <base-input
       v-else
-      data-testid="testContentTextInput"
       v-model="cmsItem.content"
+      data-testid="testContentTextInput"
       :placeholder="$t('adminCMS.content')"
       class="mb-2"
     />
@@ -77,7 +77,7 @@
       data-testid="testIsActiveCheckbox"
       class="pb-2"
     >
-      {{$t('adminCMS.is_active')}}
+      {{ $t('adminCMS.is_active') }}
     </base-checkbox>
 
     <div class="flex items-center">
@@ -195,8 +195,8 @@
       <template #tags="slotProps">
         <tag
           v-for="tag in slotProps.item.tags"
-          data-testid="testTagListContent"
           :key="`${tag}:${slotProps.item.id}`"
+          data-testid="testTagListContent"
           class="mx-1"
           >{{ tag }}</tag
         >
@@ -302,26 +302,21 @@ export default defineComponent({
 
     async function saveItem() {
       try {
-        if (cmsItem.value.id) {
-          await axios.put(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/admins/cms/${
-              cmsItem.value.id
-            }`,
-            {
-              ...cmsItem.value,
-              publish_at: moment(cmsItem.value.publish_at).toISOString(),
-              tags: tagsToAdd.value.map((a) => a.text),
-            },
-          );
-        } else {
-          await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/admins/cms`,
-            {
+        await (cmsItem.value.id
+          ? axios.put(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/admins/cms/${
+                cmsItem.value.id
+              }`,
+              {
+                ...cmsItem.value,
+                publish_at: moment(cmsItem.value.publish_at).toISOString(),
+                tags: tagsToAdd.value.map((a) => a.text),
+              },
+            )
+          : axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/admins/cms`, {
               ...cmsItem.value,
               tags: tagsToAdd.value.map((a) => a.text),
-            },
-          );
-        }
+            }));
 
         await $toasted.success(t('adminCMS.saved_item'));
         table.value.getData().catch(() => {});
@@ -360,7 +355,7 @@ export default defineComponent({
       }
 
       const formData = new FormData();
-      formData.append('upload', fileList[fileList.length - 1]);
+      formData.append('upload', fileList.at(-1));
       formData.append('type_t', 'fileTypes.other_file');
       uploading.value = true;
       try {

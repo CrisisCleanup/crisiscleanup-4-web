@@ -74,8 +74,8 @@
             >
               <base-button
                 v-for="(value, key) in actions"
-                data-testid="testButtonActionButton"
                 :key="key"
+                data-testid="testButtonActionButton"
                 :alt="value.text"
                 :variant="value.type"
                 class="px-6 p-3 mx-2"

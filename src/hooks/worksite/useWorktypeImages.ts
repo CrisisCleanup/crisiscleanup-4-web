@@ -15,8 +15,8 @@ const getWorktypeSVG = (worktype: any, size = 53) => {
     .replaceAll('{{fillColor}}', fillColor)
     .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
     .replaceAll('{{strokeColor}}', strokeColor)
-    .replaceAll(/(width="[1-99]+")/g, `width="${size}"`)
-    .replaceAll(/(height="[1-99]+")/g, `height="${size}"`);
+    .replaceAll(/(width="[1-9]+")/g, `width="${size}"`)
+    .replaceAll(/(height="[1-9]+")/g, `height="${size}"`);
   return svg;
 };
 

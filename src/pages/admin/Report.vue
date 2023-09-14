@@ -6,8 +6,8 @@
     ></div>
     <ReportFilters
       v-if="report"
-      data-testid="testReportFiltersContent"
       :key="currentIncidentId"
+      data-testid="testReportFiltersContent"
       :inputs="report.inputs"
       @onFilter="runReport"
       @onCSV="runCsvReport"
@@ -16,9 +16,9 @@
     <spinner v-if="loading" size="xl" />
     <div
       v-for="[key, value] in Object.entries(transformedData)"
-      :data-testid="`testReportCard${key}Div`"
       v-else
       :key="key"
+      :data-testid="`testReportCard${key}Div`"
       class="flex flex-col justify-center my-10 ml-8"
     >
       <ReportWidget

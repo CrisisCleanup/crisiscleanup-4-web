@@ -1,8 +1,8 @@
 <template>
   <base-select
     :key="user.id"
-    data-testid="testUserRolesSelect"
     v-model="selectedRoleIds"
+    data-testid="testUserRolesSelect"
     multiple
     searchable
     :clearable="false"
@@ -105,9 +105,8 @@ export default defineComponent({
       for (const roleId of rolesToRemove) {
         payload.push({
           method: 'delete',
-          url: `/user_roles/${
-            currentRoles.find((ur) => ur.role?.id === roleId)?.id
-          }`,
+          url: `/user_roles/${currentRoles.find((ur) => ur.role?.id === roleId)
+            ?.id}`,
           data: {},
         });
       }

@@ -64,7 +64,7 @@
     </div>
 
     <div class="form-row">
-      <base-checkbox 
+      <base-checkbox
         v-model="currentIncident.auto_contact"
         data-testid="testCurrentIncidentAutoContactCheckbox"
         class="mb-3"

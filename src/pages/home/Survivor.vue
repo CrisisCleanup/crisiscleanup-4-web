@@ -1,9 +1,6 @@
 <template>
   <Home>
-    <div
-      class="grid--main px-5 sm:px-0"
-      data-testid="testInfoForSurvivorsDiv"
-    >
+    <div class="grid--main px-5 sm:px-0" data-testid="testInfoForSurvivorsDiv">
       <h1 class="text-4xl" v-html="$t('survivor.info_for_survivors')"></h1>
       <div class="row mb-6">
         <p v-html="$t('survivor.intro')"></p>

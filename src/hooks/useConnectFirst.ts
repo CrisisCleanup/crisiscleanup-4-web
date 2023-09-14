@@ -22,7 +22,7 @@ export default function useConnectFirst(context: {
   const currentAgent = ref<any>(null);
   const dialing = ref(false);
 
-  const {currentUser} = useCurrentUser();
+  const { currentUser } = useCurrentUser();
 
   const languages = computed(() => currentUser?.value?.languages);
   const statuses = computed(() => PhoneStatus.all());

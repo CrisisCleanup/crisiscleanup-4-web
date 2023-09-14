@@ -90,14 +90,14 @@ export default defineComponent({
     const emailValidation = [
       {
         classes: 'email',
-        rule: /[\w.!#$%&’*+/=?^`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*/,
+        rule: /[\w!#$%&*+./=?^`{|}~’-]+@[\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*/,
         disableAdd: true,
       },
     ];
     const phoneValidation = [
       {
         classes: 'phone',
-        rule: /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/,
+        rule: /^\(?(\d{3})\)?[ -]?(\d{3})[ -]?(\d{4})$/,
         disableAdd: true,
       },
     ];

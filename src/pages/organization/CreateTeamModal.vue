@@ -292,8 +292,8 @@ import Avatar from '@/components/Avatar.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { getQueryString } from '@/utils/urls';
 import WorksiteStatusDropdown from '@/components/WorksiteStatusDropdown.vue';
-import User from '@/models/User';
-import {useCurrentUser} from "@/hooks";
+import type User from '@/models/User';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'CreateTeamModal',

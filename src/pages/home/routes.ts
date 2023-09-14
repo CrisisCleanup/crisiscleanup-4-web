@@ -1,5 +1,5 @@
-import type {RouteRecordRaw} from 'vue-router';
-import {useAuthStore} from '@/hooks'
+import type { RouteRecordRaw } from 'vue-router';
+import { useAuthStore } from '@/hooks';
 import Login from './Login.vue';
 import RequestAccess from '@/pages/home/RequestAccess.vue';
 import About from '@/pages/home/About.vue';
@@ -11,7 +11,7 @@ import Contributions from '@/pages/home/Contributions.vue';
 import Privacy from '@/pages/home/Privacy.vue';
 import Terms from '@/pages/home/Terms.vue';
 import RegisterOrganization from '@/pages/home/RegisterOrganization.vue';
-import PersistentInvitationSignup from "@/pages/home/PersistentInvitationSignup.vue";
+import PersistentInvitationSignup from '@/pages/home/PersistentInvitationSignup.vue';
 
 export default [
   {
@@ -22,8 +22,8 @@ export default [
     // redirect: '/dashboard',
     // redirect: async (to) => {
     //   const authStore = useAuthStore();
-      // authST
-      // return await authStore.authorize(to.params.from ?? '/dashboard');
+    // authST
+    // return await authStore.authorize(to.params.from ?? '/dashboard');
     // },
   },
   {

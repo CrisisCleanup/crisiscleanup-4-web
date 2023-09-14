@@ -2,8 +2,8 @@
   <Home>
     <form
       v-if="invitation && invitation.existing_user"
-      data-testid="testInvitationTransferFormDiv"
       ref="form"
+      data-testid="testInvitationTransferFormDiv"
       class="form w-108 flex flex-col"
       @submit.prevent="transfer"
     >
@@ -115,8 +115,8 @@
       />
       <base-input
         ref="confirm_password"
-        data-testid="testConfirmPasswordTextInput"
         v-model="confirmPassword"
+        data-testid="testConfirmPasswordTextInput"
         type="password"
         class="input"
         size="large"

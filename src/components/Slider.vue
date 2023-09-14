@@ -147,7 +147,9 @@ $secondary: var(--secondary-color);
 .activated.range-slider__range {
   // Range Handle
   &::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px white, 0 0 0 6px #fece09;
+    box-shadow:
+      0 0 0 3px white,
+      0 0 0 6px #fece09;
     @apply bg-primary-light;
     &:hover {
       @apply bg-primary-light;
@@ -159,7 +161,9 @@ $secondary: var(--secondary-color);
   }
 
   &::-moz-range-thumb {
-    box-shadow: 0 0 0 3px white, 0 0 0 6px #fece09;
+    box-shadow:
+      0 0 0 3px white,
+      0 0 0 6px #fece09;
     @apply bg-primary-light;
     &:hover {
       @apply bg-primary-light;
@@ -174,7 +178,9 @@ $secondary: var(--secondary-color);
 .range-slider__range {
   // Range Handle
   &::-webkit-slider-thumb {
-    box-shadow: 0 0 0 3px $secondary, 0 0 0 5px $primary;
+    box-shadow:
+      0 0 0 3px $secondary,
+      0 0 0 5px $primary;
     @apply bg-primary-light;
     &:hover {
       @apply bg-primary-light;
@@ -186,7 +192,9 @@ $secondary: var(--secondary-color);
   }
 
   &::-moz-range-thumb {
-    box-shadow: 0 0 0 3px $secondary, 0 0 0 5px $primary;
+    box-shadow:
+      0 0 0 3px $secondary,
+      0 0 0 5px $primary;
     @apply bg-primary-light;
     &:hover {
       @apply bg-primary-light;
@@ -211,7 +219,9 @@ $secondary: var(--secondary-color);
     appearance: none;
     width: $range-handle-size;
     height: $range-handle-size;
-    box-shadow: 0 0 0 3px $secondary, 0 0 0 5px $primary;
+    box-shadow:
+      0 0 0 3px $secondary,
+      0 0 0 5px $primary;
     border-radius: 50%;
     background-color: $primary;
     cursor: pointer;
@@ -234,7 +244,9 @@ $secondary: var(--secondary-color);
     background-color: $primary;
     cursor: pointer;
     transition: background 0.15s ease-in-out;
-    box-shadow: 0 0 0 3px $secondary, 0 0 0 5px $primary;
+    box-shadow:
+      0 0 0 3px $secondary,
+      0 0 0 5px $primary;
 
     &:hover {
       background-color: $primary;

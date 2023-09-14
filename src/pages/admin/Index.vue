@@ -1,17 +1,11 @@
 <template>
-  <PageTabBar
-    v-if="
-      bugReportsData &&
-      ticketCountData
-    "
-    :tabs="tabs"
-  />
+  <PageTabBar v-if="bugReportsData && ticketCountData" :tabs="tabs" />
 </template>
 
 <script lang="ts">
 import { reactive, ref, watch, onMounted } from 'vue';
 import PageTabBar from '../../layouts/page/PageTabBar.vue';
-import useAcl from "@/hooks/useAcl";
+import useAcl from '@/hooks/useAcl';
 
 export default defineComponent({
   name: 'AdminPage',

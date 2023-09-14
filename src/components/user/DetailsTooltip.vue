@@ -23,20 +23,13 @@
         >
           {{ userItem.organization.name }}
         </div>
-        <div
-          v-if="userItem"
-          class="mt-2"
-          data-testid="testUserEmailDiv"
-        >
+        <div v-if="userItem" class="mt-2" data-testid="testUserEmailDiv">
           <font-awesome-icon icon="envelope" :alt="$t('actions.email')" />
           <a :href="`mailto:${userItem.email}`" class="ml-1">{{
             userItem.email
           }}</a>
         </div>
-        <div
-          v-if="userItem && userItem.mobile"
-          data-testid="testUserMobileDiv"
-        >
+        <div v-if="userItem && userItem.mobile" data-testid="testUserMobileDiv">
           <font-awesome-icon icon="phone" :alt="$t('actions.call')" />
           <a :href="`tel:${userItem.mobile}`" class="ml-1">{{
             userItem.mobile

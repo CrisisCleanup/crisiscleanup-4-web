@@ -11,7 +11,9 @@ export function useWebSockets(
   const authStore = useAuthStore();
 
   function connect() {
-    socket = new WebSocket(`${endpoint}${url}?bearer=${authStore.currentAccessToken.value}`);
+    socket = new WebSocket(
+      `${endpoint}${url}?bearer=${authStore.currentAccessToken.value}`,
+    );
 
     const sendMessage = (message: Record<any, any>) => {
       socket?.send(JSON.stringify(message));

@@ -82,7 +82,11 @@ export default (
           )
           .replaceAll(
             '{{strokeColor}}',
-            isVisitedMarker ? '#9370db' : isFilteredMarker ? fillColor : 'white',
+            isVisitedMarker
+              ? '#9370db'
+              : (isFilteredMarker
+              ? fillColor
+              : 'white'),
           );
         let texture = textureMap[fillColor];
         if (!texture) {
@@ -122,7 +126,11 @@ export default (
           )
           .replaceAll(
             '{{strokeColor}}',
-            isVisitedMarker ? '#9370db' : isFilteredMarker ? fillColor : 'white',
+            isVisitedMarker
+              ? '#9370db'
+              : (isFilteredMarker
+              ? fillColor
+              : 'white'),
           )
           .replaceAll(
             '{{multiple}}',
@@ -174,7 +182,7 @@ export default (
 
     const dx = p1.x - p2.x;
     const dy = p1.y - p2.y;
-    return Math.sqrt(dx ** 2 + dy ** 2);
+    return Math.hypot(dx, dy);
   }
 
   function findMarker(latlng: L.LatLng) {

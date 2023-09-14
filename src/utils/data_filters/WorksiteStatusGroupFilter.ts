@@ -4,7 +4,7 @@ import enums from '../../store/modules/enums';
 import User from '../../models/User';
 import { store } from '../../store';
 import Filter from './Filter';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default class WorksiteStatusGroupFilter extends Filter {
   packFunction() {

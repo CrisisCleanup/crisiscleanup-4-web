@@ -55,10 +55,10 @@
             data-testid="testCancelButton"
             class="ml-2 p-3 px-6 mr-1 text-xs border border-black"
             :action="
-            () => {
-              showMergeModal = false;
-            }
-          "
+              () => {
+                showMergeModal = false;
+              }
+            "
           />
           <base-button
             variant="solid"
@@ -69,7 +69,6 @@
             class="ml-2 p-3 px-6 text-xs"
           />
         </div>
-
       </template>
     </modal>
   </div>

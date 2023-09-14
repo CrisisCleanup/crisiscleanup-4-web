@@ -46,8 +46,8 @@
     <div v-if="value.type === 'pie'" class="grid grid-flow-col">
       <ReportPieChart
         :id="`d3Chart-${widgetKey}`"
-        :data-testid="`testReportPieChart${widgetKey}Chart`"
         :key="JSON.stringify(currentFilters)"
+        :data-testid="`testReportPieChart${widgetKey}Chart`"
         :data="
           Object.entries(value.data).map(([reportKey, reportValue]) => ({
             titleKey: reportKey,
@@ -65,8 +65,8 @@
     >
       <ReportLineChart
         :id="`d3Chart-${widgetKey}`"
-        :data-testid="`testReportLineChart${widgetKey}Chart`"
         :key="JSON.stringify(currentFilters)"
+        :data-testid="`testReportLineChart${widgetKey}Chart`"
         :data="value.data"
         :display-options="value.display_options"
         :group-by="value.group_by"
@@ -79,8 +79,8 @@
     >
       <ReportBarChart
         :id="`d3Chart-${widgetKey}`"
-        :data-testid="`testReportBarChart${widgetKey}Chart`"
         :key="JSON.stringify(currentFilters)"
+        :data-testid="`testReportBarChart${widgetKey}Chart`"
         :data="value.data"
         :report-name="widgetKey"
         :group-by="value.group_by"

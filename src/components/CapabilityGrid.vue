@@ -32,8 +32,8 @@
         </div>
         <div
           v-for="phase in phases"
-          :data-testid="`testCapability${capability.id}Phase${phase.phase_key}Div`"
           :key="`${capability.id}:${phase.phase_key}`"
+          :data-testid="`testCapability${capability.id}Phase${phase.phase_key}Div`"
           class="text-xs text-center bg-crisiscleanup-grid-grey flex items-center justify-center mb-1 cursor-pointer"
           @click="
             () => {

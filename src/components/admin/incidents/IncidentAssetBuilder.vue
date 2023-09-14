@@ -97,16 +97,16 @@
         >
           <IncidentAssetEditor
             :key="asset.content"
+            :ref="
+              (el) =>
+                setEditorRef(el, asset.asset_type, asset.language, asset.ani)
+            "
             v-model="asset.content"
             :print-size="AssetPrintOptions[asset.asset_type].printSize"
             :print-container-style="
               AssetPrintOptions[asset.asset_type].printContainerStyle
             "
             :per-page="AssetPrintOptions[asset.asset_type].perPage"
-            :ref="
-              (el) =>
-                setEditorRef(el, asset.asset_type, asset.language, asset.ani)
-            "
           />
           <div class="flex mt-2 items-center justify-between">
             <div class="flex gap-5 items-center">
@@ -136,10 +136,10 @@
                   icon-size="md"
                 />
                 <base-button
+                  v-if="asset.id"
                   :action="() => deleteAsset(asset)"
                   ccu-icon="trash"
                   icon-size="md"
-                  v-if="asset.id"
                 />
               </div>
               <div
@@ -310,8 +310,8 @@ export default {
         template
           .replaceAll('{{fillColor}}', color)
           .replaceAll('{{strokeColor}}', color)
-          .replaceAll(/(width="[1-99]+")/g, `width="${size}"`)
-          .replaceAll(/(height="[1-99]+")/g, `height="${size}"`),
+          .replaceAll(/(width="[1-9]+")/g, `width="${size}"`)
+          .replaceAll(/(height="[1-9]+")/g, `height="${size}"`),
       );
     };
 
@@ -567,25 +567,23 @@ export default {
 
       await Promise.all(
         assetsToSave.map((asset) => {
-          if (asset.id) {
-            return axios.put(
-              `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets/${
-                asset.id
-              }`,
-              {
-                ...asset,
-                published_at: publish ? moment().toISOString() : null,
-              },
-            );
-          } else {
-            return axios.post(
-              `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets`,
-              {
-                ...asset,
-                published_at: publish ? moment().toISOString() : null,
-              },
-            );
-          }
+          return asset.id
+            ? axios.put(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets/${
+                  asset.id
+                }`,
+                {
+                  ...asset,
+                  published_at: publish ? moment().toISOString() : null,
+                },
+              )
+            : axios.post(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets`,
+                {
+                  ...asset,
+                  published_at: publish ? moment().toISOString() : null,
+                },
+              );
         }),
       );
 
