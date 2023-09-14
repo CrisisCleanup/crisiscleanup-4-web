@@ -7,7 +7,7 @@ import { i18n } from '@/main';
 import { store } from '@/store';
 import Language from '@/models/Language';
 import User from '@/models/User';
-import {useCurrentUser} from "@/hooks/index";
+import { useCurrentUser } from '@/hooks/index';
 
 export default function useSetupLanguage() {
   return {
@@ -44,11 +44,19 @@ export default function useSetupLanguage() {
         );
         const isEnglish = currentLanguage.startsWith('en');
         const isSpanish = currentLanguage.startsWith('es');
+        const isFrench = currentLanguage.startsWith('fr');
+        const isArabic = currentLanguage.startsWith('ar');
         if (isEnglish && !availableLanguages.has(currentLanguage)) {
           currentLanguage = 'en-US';
         }
         if (isSpanish && !availableLanguages.has(currentLanguage)) {
           currentLanguage = 'es';
+        }
+        if (isFrench && !availableLanguages.has(currentLanguage)) {
+          currentLanguage = 'fr';
+        }
+        if (isArabic && !availableLanguages.has(currentLanguage)) {
+          currentLanguage = 'ar';
         }
       } catch (error) {
         console.log(error);
