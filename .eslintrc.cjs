@@ -1,5 +1,3 @@
-const path = require('node:path');
-
 /**
  * @type {import("eslint").Linter.Config}
  */
@@ -13,8 +11,6 @@ const config = {
     'plugin:vue/vue3-recommended', // See: https://eslint.vuejs.org/user-guide/#bundle-configurations
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
-    // show eslint errors/warnings in the editor
-    path.join(__dirname, 'node_modules/xo/config/plugins.cjs'),
     // for unplugin-auto-import
     './.eslintrc-auto-import.json',
   ],
