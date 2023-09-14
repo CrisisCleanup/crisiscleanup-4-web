@@ -52,15 +52,15 @@
 </template>
 
 <script lang="ts">
-import {useToast} from 'vue-toastification';
-import {debounce} from 'lodash';
+import { useToast } from 'vue-toastification';
+import { debounce } from 'lodash';
 import LayerUploadTool from '@/components/locations/LayerUploadTool.vue';
 import LocationTable from '@/components/LocationTable.vue';
 import Location from '@/models/Location';
 import LocationType from '@/models/LocationType';
-import {getQueryString} from '@/utils/urls';
-import {getErrorMessage} from '@/utils/errors';
-import {useCurrentUser} from '@/hooks';
+import { getQueryString } from '@/utils/urls';
+import { getErrorMessage } from '@/utils/errors';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Layers',

@@ -39,8 +39,8 @@
         <div class="flex flex-wrap justify-center items-center max-w-2xl">
           <div
             v-for="work_type in printToken.work_types"
-            :data-testid="`testWorkType${work_type.id}Div`"
             :key="`${work_type.id}`"
+            :data-testid="`testWorkType${work_type.id}Div`"
             class="mx-1"
           >
             <span class="text-sm">

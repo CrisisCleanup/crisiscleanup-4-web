@@ -32,8 +32,8 @@
         :columns="currentRequestsColumns"
         :loading="false"
         :sorter="invitationRequestsSorter"
-        @change="handleInvitationRequestsTableChange"
         :body-style="{ height: '200px' }"
+        @change="handleInvitationRequestsTableChange"
       >
         <template #actions="slotProps">
           <div class="flex mr-2 justify-end w-full">
@@ -174,11 +174,11 @@
         </div>
       </div>
       <AjaxTable
+        ref="persistentInvitationsTable"
         :body-style="{ height: '200px' }"
         :url="persistentInvitationsUrl"
         :columns="persistentInvitationColumns"
         class="border text-xs"
-        ref="persistentInvitationsTable"
       >
         <template #actions="slotProps">
           <div class="flex mr-2 justify-center w-full">

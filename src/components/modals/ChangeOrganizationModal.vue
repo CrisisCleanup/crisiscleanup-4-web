@@ -5,10 +5,7 @@
     @close="$emit('cancel')"
   >
     <template #header>
-      <div
-        data-testid="testChangeOrganizationDiv"
-        class="text-lg border-b p-3"
-      >
+      <div data-testid="testChangeOrganizationDiv" class="text-lg border-b p-3">
         {{ $t('userTransfer.change_organization') }}
       </div>
     </template>
@@ -90,13 +87,12 @@
                 class="pb-2"
                 data-testid="testSelectAllUsersCheckbox"
                 @update:modelValue="setAllUsers"
-              >{{
-                $t('actions.select_all')
-              }}</base-checkbox>
+                >{{ $t('actions.select_all') }}</base-checkbox
+              >
               <tree-menu
                 v-for="user in nestedUsers"
-                data-testid="testNestedUsersMenu"
                 :key="`${user.id}`"
+                data-testid="testNestedUsersMenu"
                 :children="user.children"
                 :label="user.label"
                 :data="user"
@@ -120,14 +116,11 @@
                 <div class="">
                   <div
                     v-for="(cases, incident) in claimedCases"
-                    data-testid="testClaimedCasesDiv"
                     :key="incident"
+                    data-testid="testClaimedCasesDiv"
                     class="py-2 border-b"
                   >
-                    <div
-                      class="text-base py-2"
-                      data-testid="testIncidentDiv"
-                    >
+                    <div class="text-base py-2" data-testid="testIncidentDiv">
                       {{ getIncidentName(incident, incidents) }}
                     </div>
                     <base-checkbox
@@ -144,8 +137,8 @@
                     >
                     <div
                       v-for="work_type in cases"
-                      data-testid="testWorkTypeDiv"
                       :key="`${work_type.id}`"
+                      data-testid="testWorkTypeDiv"
                       class="border-t py-1"
                     >
                       <base-checkbox
@@ -193,10 +186,10 @@
           variant="outline"
           class="px-6 p-3"
           :action="
-          () => {
-            $emit('cancel');
-          }
-        "
+            () => {
+              $emit('cancel');
+            }
+          "
         >
           {{ $t('actions.cancel') }}
         </base-button>
@@ -208,12 +201,12 @@
           variant="outline"
           class="px-6 p-3 mx-2 w-24"
           :action="
-          () => {
-            if (tabs) {
-              tabs.previousTab();
+            () => {
+              if (tabs) {
+                tabs.previousTab();
+              }
             }
-          }
-        "
+          "
         >
           {{ $t('actions.back') }}
         </base-button>
@@ -225,12 +218,12 @@
           variant="solid"
           class="px-6 p-3 mx-2 w-24"
           :action="
-          () => {
-            if (tabs) {
-              tabs.nextTab();
+            () => {
+              if (tabs) {
+                tabs.nextTab();
+              }
             }
-          }
-        "
+          "
         >
           {{ $t('actions.next') }}
         </base-button>
@@ -263,8 +256,8 @@ import OrganizationSearchInput from '@/components/OrganizationSearchInput.vue';
 import type Tabs from '@/components/tabs/Tabs.vue';
 import type Incident from '@/models/Incident';
 import type { WorkType } from '@/models/types';
-import { useI18n } from "vue-i18n";
-import useDialogs from "@/hooks/useDialogs";
+import { useI18n } from 'vue-i18n';
+import useDialogs from '@/hooks/useDialogs';
 
 export default defineComponent({
   name: 'ChangeOrganizationModal',
@@ -317,9 +310,8 @@ export default defineComponent({
       const response = await $http.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/worksite_work_types?claimed_by=${
-          currentUser?.organization.id
-        }&limit=150`,
+        }/worksite_work_types?claimed_by=${currentUser?.organization
+          .id}&limit=150`,
       );
       claimedCases.value = groupBy(response.data.results, 'incident');
     }
@@ -357,13 +349,9 @@ export default defineComponent({
 
     function setCases(value: boolean, cases: any[]) {
       const caseIds = cases.map((c: { id: string }) => c.id);
-      if (value) {
-        selectedCases.value = [...selectedCases.value, ...caseIds];
-      } else {
-        selectedCases.value = selectedCases.value.filter(
-          (id: string) => !caseIds.includes(id),
-        );
-      }
+      selectedCases.value = value
+        ? [...selectedCases.value, ...caseIds]
+        : selectedCases.value.filter((id: string) => !caseIds.includes(id));
     }
 
     function addUser(userId: string) {

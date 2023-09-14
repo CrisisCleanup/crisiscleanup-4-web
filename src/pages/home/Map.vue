@@ -152,8 +152,7 @@ export default defineComponent({
       ) {
         map[obj.key] = obj.name_t;
         return map;
-      },
-      {});
+      }, {});
       state.statusMap = statusResponse.data.results.reduce(function (map, obj) {
         map[obj.status] = obj.status_name_t;
         return map;

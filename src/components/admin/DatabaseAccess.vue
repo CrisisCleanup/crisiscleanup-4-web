@@ -15,8 +15,8 @@
         <div>
           <tag-input
             v-model="addresses"
-            data-testid="testAddIpAddressTextInput"
             v-model:tags="addressesToAdd"
+            data-testid="testAddIpAddressTextInput"
             :placeholder="$t('databaseAccess.add_ip')"
             :add-on-key="[13, 32, ',']"
             :separators="[';', ',', ', ']"

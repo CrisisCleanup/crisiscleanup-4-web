@@ -338,8 +338,8 @@
       </div>
       <form-tree
         v-for="field in fieldTree"
-        :data-testid='`testDynamicForm${field.field_key}TextInput`'
         :key="field.field_key"
+        :data-testid="`testDynamicForm${field.field_key}TextInput`"
         :field="field"
         :worksite="worksite"
         :dynamic-fields="dynamicFields"
@@ -372,8 +372,8 @@
         </SectionHeading>
         <WorksiteImageSection
           :key="worksite.files"
-          data-testid="testWorksiteImageSectionDiv"
           ref="worksiteImageSection"
+          data-testid="testWorksiteImageSectionDiv"
           class="px-3 pb-3"
           :worksite="worksite"
           @updateFiles="updateImage"
@@ -719,8 +719,7 @@ export default defineComponent({
       ) {
         map[object.field_key] = object.field_value;
         return map;
-      },
-      {});
+      }, {});
 
       StorageService.removeItem('currentWorksite');
       ready.value = true;
@@ -865,43 +864,41 @@ export default defineComponent({
       );
       const incidents = response.response.data.results;
       let result;
-      if (incidents.length > 0) {
-        result = await confirm({
-          title: t('caseForm.incorrect_location'),
-          content: t('caseForm.suggested_incident', {
-            incident: incidents[0].name,
-          }),
-          actions: {
-            switchIncident: {
-              text: t('caseForm.yes'),
-              type: 'solid',
+      result = await (incidents.length > 0
+        ? confirm({
+            title: t('caseForm.incorrect_location'),
+            content: t('caseForm.suggested_incident', {
+              incident: incidents[0].name,
+            }),
+            actions: {
+              switchIncident: {
+                text: t('caseForm.yes'),
+                type: 'solid',
+              },
+              keep: {
+                text: t('caseForm.no'),
+                type: 'outline',
+                buttonClass: 'border border-black',
+              },
             },
-            keep: {
-              text: t('caseForm.no'),
-              type: 'outline',
-              buttonClass: 'border border-black',
+          })
+        : confirm({
+            title: t('caseForm.case_outside_incident'),
+            content: t('caseForm.warning_case_outside_incident', {
+              incident: currentIncident.value.name,
+            }),
+            actions: {
+              retry: {
+                text: t('actions.retry'),
+                type: 'outline',
+                buttonClass: 'border border-black',
+              },
+              continue: {
+                text: t('actions.continue_anyway'),
+                type: 'solid',
+              },
             },
-          },
-        });
-      } else {
-        result = await confirm({
-          title: t('caseForm.case_outside_incident'),
-          content: t('caseForm.warning_case_outside_incident', {
-            incident: currentIncident.value.name,
-          }),
-          actions: {
-            retry: {
-              text: t('actions.retry'),
-              type: 'outline',
-              buttonClass: 'border border-black',
-            },
-            continue: {
-              text: t('actions.continue_anyway'),
-              type: 'solid',
-            },
-          },
-        });
-      }
+          }));
 
       potentialIncidents.value = incidents;
 

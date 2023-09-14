@@ -217,14 +217,12 @@ export default defineComponent({
     });
 
     async function toggleFavorite(toggle) {
-      if (toggle) {
-        await Worksite.api().favorite(props.worksite.id);
-      } else {
-        await Worksite.api().unfavorite(
-          props.worksite.id,
-          props.worksite.favorite.id,
-        );
-      }
+      await (toggle
+        ? Worksite.api().favorite(props.worksite.id)
+        : Worksite.api().unfavorite(
+            props.worksite.id,
+            props.worksite.favorite.id,
+          ));
 
       await Worksite.api().fetch(props.worksite.id);
       emit('reloadMap');

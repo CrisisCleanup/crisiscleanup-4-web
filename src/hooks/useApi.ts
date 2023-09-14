@@ -1,7 +1,11 @@
 import path from 'node:path';
 import { inject } from 'vue';
 import type { AxiosRequestConfig, AxiosInstance, AxiosResponse } from 'axios';
-import { useAxios, type UseAxiosOptions, type UseAxiosReturn } from '@vueuse/integrations/useAxios';
+import {
+  useAxios,
+  type UseAxiosOptions,
+  type UseAxiosReturn,
+} from '@vueuse/integrations/useAxios';
 
 export type UseApiOptions<D = any> = Omit<AxiosRequestConfig<D>, 'baseURL'>;
 

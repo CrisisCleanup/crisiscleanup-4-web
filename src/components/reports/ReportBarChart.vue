@@ -174,15 +174,14 @@ export default defineComponent({
 
           let displaytext = '';
           for (const key of Object.keys(d.data)) {
-            if (d.data[key] instanceof Date) {
-              displaytext += `${t(
-                `reports.${props.reportName}.${key}`,
-              )}: ${moment(d.data[key]).format('ddd MMMM Do YYYY')}\n`;
-            } else {
-              displaytext += `${t(`reports.${props.reportName}.${key}`)}: ${
-                d.data[key]
-              }\n`;
-            }
+            displaytext +=
+              d.data[key] instanceof Date
+                ? `${t(`reports.${props.reportName}.${key}`)}: ${moment(
+                    d.data[key],
+                  ).format('ddd MMMM Do YYYY')}\n`
+                : `${t(`reports.${props.reportName}.${key}`)}: ${
+                    d.data[key]
+                  }\n`;
           }
 
           // update the tooltip position and value

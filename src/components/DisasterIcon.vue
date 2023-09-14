@@ -5,8 +5,8 @@
   >
     <object
       v-if="randomEasterEgg"
-      data-testid="testRandomEasterEggIcon"
       ref="icon"
+      data-testid="testRandomEasterEggIcon"
       type="image/svg+xml"
       class="easter-egg"
       :data="randomEasterEgg"
@@ -15,8 +15,8 @@
     ></object>
     <object
       v-else
-      data-testid="testIncidentImageIcon"
       ref="icon"
+      data-testid="testIncidentImageIcon"
       type="image/svg+xml"
       class="standard-icon"
       :data="incidentImage"

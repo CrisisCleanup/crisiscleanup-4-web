@@ -22,7 +22,9 @@
       </template>
     </modal>
     <!-- Report Library -->
-    <h1 data-testid="testReportHeader" class="text-xl font-bold m-2 ml-3 pt-5">Report Library</h1>
+    <h1 data-testid="testReportHeader" class="text-xl font-bold m-2 ml-3 pt-5">
+      Report Library
+    </h1>
     <div v-for="sponsored in reportsKeys" :key="sponsored">
       <div v-if="sponsored === 'true'" class="text-lg font-bold m-2 ml-3 pt-1">
         {{ $t('reportsVue.sponsored_reports') }}
@@ -89,7 +91,7 @@ import Report from '@/models/Report';
 import User from '@/models/User';
 import { groupBy } from '@/utils/array';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import {getErrorMessage} from "@/utils/errors";
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'Reports',
@@ -99,7 +101,7 @@ export default defineComponent({
     const { currentUser } = useCurrentUser();
     const route = useRoute();
     const router = useRouter();
-    const { updateUserStates } = useCurrentUser()
+    const { updateUserStates } = useCurrentUser();
 
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
@@ -153,7 +155,7 @@ export default defineComponent({
       newReportIds.value = new Set(newReports.map((r) => r.id));
       updateUserStates({
         reports_last_accessed: moment().toISOString(),
-     }).catch(getErrorMessage);
+      }).catch(getErrorMessage);
     });
 
     return {

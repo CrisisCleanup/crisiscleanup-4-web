@@ -114,7 +114,7 @@ export default class PhoneService {
       const { updateUserStates } = useCurrentUser();
       await updateUserStates({
         currentAgentId: null,
-      })
+      });
       return import.meta.env.VITE_APP_PHONE_DEFAULT_USERNAME;
     }
   }

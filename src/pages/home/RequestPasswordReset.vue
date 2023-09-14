@@ -1,11 +1,10 @@
 <template>
   <Home>
     <div class="grid--main">
-      <div
-        class="w-2/3"
-        data-testid="testForgotYourPasswordOrResetDiv"
-      >
-        <div class="text-5xl">{{ $t('resetPassword.forgot_your_password_or_reset') }}</div>
+      <div class="w-2/3" data-testid="testForgotYourPasswordOrResetDiv">
+        <div class="text-5xl">
+          {{ $t('resetPassword.forgot_your_password_or_reset') }}
+        </div>
         <div class="text-2xl font-light">
           {{ $t('resetPassword.enter_email_for_reset_instructions') }}
         </div>

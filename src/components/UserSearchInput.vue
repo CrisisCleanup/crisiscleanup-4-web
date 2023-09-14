@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import User from '@/models/User';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'UserSearchInput',

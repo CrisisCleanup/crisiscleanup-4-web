@@ -173,16 +173,17 @@
             />
           </div>
           <div v-if="currentLayerUpload" class="text-center">
-            {{ $t('locationTool.selected_location') }} {{ currentLayerUpload[0].name }}
+            {{ $t('locationTool.selected_location') }}
+            {{ currentLayerUpload[0].name }}
           </div>
           <template #footer>
             <div slot="footer" class="p-3 flex items-center justify-center">
               <base-button
                 :action="
-                () => {
-                  showingUploadModal = false;
-                }
-              "
+                  () => {
+                    showingUploadModal = false;
+                  }
+                "
                 :text="$t('actions.cancel')"
                 :alt="$t('actions.cancel')"
                 data-testid="testCancelButton"
@@ -198,7 +199,6 @@
                 class="ml-2 p-3 px-6 text-xs"
               />
             </div>
-
           </template>
         </modal>
         <div
@@ -231,8 +231,8 @@
     </div>
     <div
       v-show="showingPopup"
-      data-testid="testGrowShrinkModal"
       ref="popup"
+      data-testid="testGrowShrinkModal"
       class="popup-content flex flex-col items-center justify-center w-40"
     >
       <div
@@ -803,10 +803,10 @@ export default defineComponent({
         [],
         [],
         () => {
-          return undefined;
+          return;
         },
         () => {
-          return undefined;
+          return;
         },
       );
       const leafletMap = mapUtils.getMap();
@@ -888,7 +888,7 @@ export default defineComponent({
       if (props.incident) {
         getWorksites({ organization: null, incident: props.incident }).then(
           () => {
-            return undefined;
+            return;
           },
         );
       } else if (props.organization) {
@@ -896,7 +896,7 @@ export default defineComponent({
           organization: props.organization,
           incident: null,
         }).then(() => {
-          return undefined;
+          return;
         });
         Organization.api()
           .get(`/organizations?id__in=${[props.organization].join(',')}`, {
@@ -906,7 +906,7 @@ export default defineComponent({
             const organization = Organization.find(props.organization);
             const incidents = organization?.incident_list;
             getIncidentLocations(incidents || []).then(() => {
-              return undefined;
+              return;
             });
           });
       }

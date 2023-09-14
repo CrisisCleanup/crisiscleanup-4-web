@@ -7,8 +7,8 @@
       <div v-if="incidentList && incidentList.length > 0" class="w-full">
         <div
           v-for="incident in filterNumbers(incidentList)"
-          data-testid="testIncidentPhoneDiv"
           :key="incident.id"
+          data-testid="testIncidentPhoneDiv"
           class="ml-2"
         >
           {{ incident.short_name }}:

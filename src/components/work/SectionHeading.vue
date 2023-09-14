@@ -10,13 +10,13 @@
     </div>
     <ccu-icon
       v-if="tooltip"
-      data-testid="testHelpTooltip"
       v-tooltip="{
         content: tooltip,
         triggers: ['click'],
         popperClass: 'interactive-tooltip w-72',
         html: true,
       }"
+      data-testid="testHelpTooltip"
       :alt="$t('actions.help_alt')"
       type="help"
       size="large"

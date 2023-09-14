@@ -150,8 +150,9 @@ export default defineComponent({
         .attr('width', 18)
         .attr('height', 18)
         .style('fill', function (d) {
-          return props
-            .displayOptions.colors[`reports.${props.reportName}.${d.name}`];
+          return props.displayOptions.colors[
+            `reports.${props.reportName}.${d.name}`
+          ];
         });
 
       legend

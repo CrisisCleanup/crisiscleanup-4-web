@@ -37,8 +37,8 @@
       <template v-for="organization in organizations">
         <div
           v-for="contact in organization.incident_primary_contacts"
-          :data-testid="`testOrganization${organization.name}ContactDiv`"
           :key="contact.email"
+          :data-testid="`testOrganization${organization.name}ContactDiv`"
         >
           {{ contact.first_name }} {{ contact.last_name }} ({{
             organization.name

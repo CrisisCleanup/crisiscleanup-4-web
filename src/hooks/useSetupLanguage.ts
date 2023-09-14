@@ -7,7 +7,7 @@ import { i18n } from '@/main';
 import { store } from '@/store';
 import Language from '@/models/Language';
 import User from '@/models/User';
-import {useCurrentUser} from "@/hooks/index";
+import { useCurrentUser } from '@/hooks/index';
 
 export default function useSetupLanguage() {
   return {

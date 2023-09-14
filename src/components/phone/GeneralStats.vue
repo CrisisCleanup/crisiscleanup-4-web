@@ -100,7 +100,7 @@ export default defineComponent({
   components: {
     PhoneOutboundModal,
   },
-emits: ['onRemainingCallbacks', 'onRemainingCalldowns'],
+  emits: ['onRemainingCallbacks', 'onRemainingCalldowns'],
   setup(props, context) {
     const { emitter } = useEmitter();
 

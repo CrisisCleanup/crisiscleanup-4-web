@@ -100,15 +100,15 @@ export class LRUMap {
     let entry,
       limit = this.limit || Number.MAX_VALUE;
     this._keymap.clear();
-    let it = entries[Symbol.iterator]();
+    const it = entries[Symbol.iterator]();
     for (let itv = it.next(); !itv.done; itv = it.next()) {
-      let e = new Entry(itv.value[0], itv.value[1]);
+      const e = new Entry(itv.value[0], itv.value[1]);
       this._keymap.set(e.key, e);
-      if (!entry) {
-        this.oldest = e;
-      } else {
+      if (entry) {
         entry[NEWER] = e;
         e[OLDER] = entry;
+      } else {
+        this.oldest = e;
       }
       entry = e;
       if (limit-- == 0) {
@@ -121,7 +121,7 @@ export class LRUMap {
 
   get(key) {
     // First, find our cache entry
-    var entry = this._keymap.get(key);
+    const entry = this._keymap.get(key);
     if (!entry) return; // Not cached. Sorry.
     // As <key> was found in the cache, register it as being requested recently
     this._markEntryAsUsed(entry);
@@ -129,7 +129,7 @@ export class LRUMap {
   }
 
   set(key, value) {
-    var entry = this._keymap.get(key);
+    let entry = this._keymap.get(key);
 
     if (entry) {
       // update existing
@@ -162,7 +162,7 @@ export class LRUMap {
   }
 
   shift() {
-    var entry = this.oldest;
+    const entry = this.oldest;
     if (entry) {
       if (this.oldest[NEWER]) {
         // advance the list
@@ -187,7 +187,7 @@ export class LRUMap {
   // breaking the core functionality.
 
   find(key) {
-    let e = this._keymap.get(key);
+    const e = this._keymap.get(key);
     return e ? e.value : undefined;
   }
 
@@ -196,7 +196,7 @@ export class LRUMap {
   }
 
   delete(key) {
-    var entry = this._keymap.get(key);
+    const entry = this._keymap.get(key);
     if (!entry) return;
     this._keymap.delete(entry.key);
     if (entry[NEWER] && entry[OLDER]) {
@@ -258,7 +258,7 @@ export class LRUMap {
 
   /** Returns a JSON (array) representation */
   toJSON() {
-    var s = new Array(this.size),
+    let s = new Array(this.size),
       i = 0,
       entry = this.oldest;
     while (entry) {
@@ -270,7 +270,7 @@ export class LRUMap {
 
   /** Returns a String representation */
   toString() {
-    var s = '',
+    let s = '',
       entry = this.oldest;
     while (entry) {
       s += String(entry.key) + ':' + entry.value;
@@ -297,7 +297,7 @@ EntryIterator.prototype[Symbol.iterator] = function () {
   return this;
 };
 EntryIterator.prototype.next = function () {
-  let ent = this.entry;
+  const ent = this.entry;
   if (ent) {
     this.entry = ent[NEWER];
     return { done: false, value: [ent.key, ent.value] };
@@ -313,7 +313,7 @@ KeyIterator.prototype[Symbol.iterator] = function () {
   return this;
 };
 KeyIterator.prototype.next = function () {
-  let ent = this.entry;
+  const ent = this.entry;
   if (ent) {
     this.entry = ent[NEWER];
     return { done: false, value: ent.key };
@@ -329,7 +329,7 @@ ValueIterator.prototype[Symbol.iterator] = function () {
   return this;
 };
 ValueIterator.prototype.next = function () {
-  let ent = this.entry;
+  const ent = this.entry;
   if (ent) {
     this.entry = ent[NEWER];
     return { done: false, value: ent.value };

@@ -60,11 +60,11 @@
             <td class="text-right border p-1">
               <div v-if="currentTimeEdit.id === entry.id">
                 <input
+                  v-model="editVolunteersToAdd"
                   class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
                   @update:modelValue="
                     currentTimeEdit.volunteers = $event.target.value
                   "
-                  v-model="editVolunteersToAdd"
                 />
               </div>
               <div v-else>
@@ -74,9 +74,8 @@
             <td class="text-right border p-1">
               <div v-if="currentTimeEdit.id === entry.id">
                 <input
-                  class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
                   v-model="editHoursPerVolunteer"
-
+                  class="w-10 border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none text-center"
                 />
               </div>
               <div v-else>
@@ -157,8 +156,8 @@ export default defineComponent({
     const addingTime = ref(false);
     const currentTimeEdit = ref({});
     const timeForm = ref(null);
-    const editHoursPerVolunteer = ref(0)
-    const editVolunteersToAdd = ref(0)
+    const editHoursPerVolunteer = ref(0);
+    const editVolunteersToAdd = ref(0);
     const timeEnteredByMyOrganization = computed(() => {
       if (props.worksite) {
         return props.worksite.time.filter(
@@ -216,15 +215,15 @@ export default defineComponent({
 
     async function saveTimeEntry() {
       try {
-        currentTimeEdit.value.seconds = editHoursPerVolunteer.value * 3600
-        currentTimeEdit.value.volunteers = editVolunteersToAdd.value
+        currentTimeEdit.value.seconds = editHoursPerVolunteer.value * 3600;
+        currentTimeEdit.value.volunteers = editVolunteersToAdd.value;
 
         await Worksite.api().updateTimeEntry(
           currentTimeEdit.value.id,
           currentTimeEdit.value.seconds,
           currentTimeEdit.value.volunteers,
         );
-        console.log(currentTimeEdit.value,'currentTimeEdit')
+        console.log(currentTimeEdit.value, 'currentTimeEdit');
         currentTimeEdit.value = {};
         await Worksite.api().fetch(props.worksite.id);
       } catch (error) {
@@ -233,14 +232,13 @@ export default defineComponent({
     }
 
     function editTimeEntry(entry) {
-      editHoursPerVolunteer.value = entry.seconds / 3600
-      editVolunteersToAdd.value = entry.volunteers
+      editHoursPerVolunteer.value = entry.seconds / 3600;
+      editVolunteersToAdd.value = entry.volunteers;
 
       currentTimeEdit.value.id = entry.id;
       currentTimeEdit.value.seconds = entry.seconds;
       currentTimeEdit.value.volunteers = entry.volunteers;
       currentTimeEdit.value = { ...currentTimeEdit.value };
-
     }
 
     return {

@@ -36,7 +36,7 @@ export default class Organization extends CCUModel {
         this: Request,
         id: string,
         reason: string,
-        note: string | undefined = undefined,
+        note?: string | undefined,
       ) {
         const data: Record<string, any> = { approve_reject_reason_t: reason };
         if (note) {

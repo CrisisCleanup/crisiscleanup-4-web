@@ -84,7 +84,7 @@ export function averageGeolocation(coords: number[][] | undefined) {
   z /= total;
 
   const centralLongitude = Math.atan2(y, x);
-  const centralSquareRoot = Math.sqrt(x * x + y * y);
+  const centralSquareRoot = Math.hypot(x, y);
   const centralLatitude = Math.atan2(z, centralSquareRoot);
 
   return {
@@ -148,12 +148,10 @@ export function getMarkerLayer(
           if (lambda > 1) lambda = 1;
           lambda *= 0.4 + lambda * (2.2 + lambda * -1.6);
           for (const markerSprite of container.children as PixiDisplayObjectWithCachedProps[]) {
-            if (zoom >= INTERACTIVE_ZOOM_LEVEL) {
-              markerSprite.texture =
-                markerSprite.detailedTexture || markerSprite.basicTexture;
-            } else {
-              markerSprite.texture = markerSprite.basicTexture;
-            }
+            markerSprite.texture =
+              zoom >= INTERACTIVE_ZOOM_LEVEL
+                ? markerSprite.detailedTexture || markerSprite.basicTexture
+                : markerSprite.basicTexture;
 
             if (markerSprite.currentScale && markerSprite.targetScale) {
               markerSprite.scale.set(
@@ -312,12 +310,10 @@ export function getLiveLayer() {
                   }, 3000);
                 }
               } else if (markerSprite.type === 'patient') {
-                if (zoom >= INTERACTIVE_ZOOM_LEVEL) {
-                  markerSprite.texture =
-                    markerSprite.detailedTexture || markerSprite.basicTexture;
-                } else {
-                  markerSprite.texture = markerSprite.basicTexture;
-                }
+                markerSprite.texture =
+                  zoom >= INTERACTIVE_ZOOM_LEVEL
+                    ? markerSprite.detailedTexture || markerSprite.basicTexture
+                    : markerSprite.basicTexture;
               }
 
               if (markerSprite.currentScale && markerSprite.targetScale) {
@@ -431,7 +427,7 @@ export function findBezierPoints(b: any[]) {
     // Add the pt if it's not already in the pts[] array
     const dx = pt.x - lastPt.x;
     const dy = pt.y - lastPt.y;
-    const d = Math.sqrt(dx * dx + dy * dy);
+    const d = Math.hypot(dx, dy);
     const dInt = Number.parseInt(String(d));
     if (dInt > 0 || t === tests) {
       lastPt = pt;

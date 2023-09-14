@@ -16,6 +16,7 @@
             :model-value="
               Boolean(dynamicFields[field.field_key]) || hasSelectedChildren
             "
+            :data-testid="`test${field.field_key}Checkbox`"
             @update:modelValue="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
@@ -23,7 +24,6 @@
                 showChildren = !showChildren;
               }
             "
-            :data-testid="`test${field.field_key}Checkbox`"
           >
             <div class="text-base font-semibold">
               {{ field.label_t }}
@@ -89,13 +89,13 @@
             <span>{{ field.label_t }}</span>
             <ccu-icon
               v-if="field.help_t"
-              :data-testid="`test${field.field_key}HelpTooltip`"
               v-tooltip="{
                 content: field.help_t,
                 html: true,
                 triggers: ['click'],
                 popperClass: 'interactive-tooltip w-72',
               }"
+              :data-testid="`test${field.field_key}HelpTooltip`"
               :alt="$t('actions.help_alt')"
               type="help"
               size="large"
@@ -204,13 +204,13 @@
           </base-checkbox>
           <ccu-icon
             v-if="field.help_t"
-            :data-testid="`test${field.field_key}HelpTooltip`"
             v-tooltip="{
               content: field.help_t,
               triggers: ['click'],
               html: true,
               popperClass: 'interactive-tooltip w-72',
             }"
+            :data-testid="`test${field.field_key}HelpTooltip`"
             :alt="$t('actions.help_alt')"
             type="help"
             size="large"

@@ -1054,7 +1054,7 @@ import CaseFlag from '@/components/work/CaseFlag.vue';
 import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
 import { averageGeolocation } from '@/utils/map';
 import type { MapUtils } from '@/hooks/worksite/useLiveMap';
-import {useCurrentUser} from '@/hooks'
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'PhoneSystem',
@@ -1090,7 +1090,7 @@ export default defineComponent({
     const phoneService = reactive(usePhoneService());
     const mq = useMq();
 
-    const {updateUserStates} = useCurrentUser()
+    const { updateUserStates } = useCurrentUser();
 
     const imageUrl = ref('');
     const numberClicks = ref(0);
@@ -1330,15 +1330,13 @@ export default defineComponent({
       try {
         let params;
 
-        if (ids) {
-          params = {
-            id__in: ids.join(','),
-          };
-        } else {
-          params = {
-            ...worksiteQuery.value,
-          };
-        }
+        params = ids
+          ? {
+              id__in: ids.join(','),
+            }
+          : {
+              ...worksiteQuery.value,
+            };
 
         const response = await axios.get(
           `${

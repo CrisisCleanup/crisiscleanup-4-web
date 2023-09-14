@@ -6,11 +6,11 @@ import BaseButton from '@/components/BaseButton.vue';
 
 class MockWebSocket {
   addEventListener() {
-    return undefined;
+    return;
   }
 
   removeEventListener() {
-    return undefined;
+    return;
   }
 
   send() {
@@ -18,7 +18,7 @@ class MockWebSocket {
   }
 
   close() {
-    return undefined;
+    return;
   }
 }
 

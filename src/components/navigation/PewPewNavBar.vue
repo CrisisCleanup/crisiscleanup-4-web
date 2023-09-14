@@ -132,12 +132,8 @@ export default defineComponent({
     });
 
     const navRoutes = computed(() => {
-      const _routeDefs = isLoggedIn.value
-        ? routes.value
-        : publicRoutes.value;
-      const _routeRootKey = isLoggedIn.value
-        ? 'nav'
-        : 'publicNav';
+      const _routeDefs = isLoggedIn.value ? routes.value : publicRoutes.value;
+      const _routeRootKey = isLoggedIn.value ? 'nav' : 'publicNav';
       const map = _.map(_routeDefs, (value, key) => {
         const { icon, disabled, title, route, external } = value as Record<
           string,

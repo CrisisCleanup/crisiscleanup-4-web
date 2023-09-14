@@ -15,9 +15,9 @@
         @onZoomInteractive="goToInteractive"
       />
       <WorksitePhotoMap
-        :case-images="caseImages"
         v-else-if="showingPhotoMap && caseImages.length > 0"
         :key="caseImages.length"
+        :case-images="caseImages"
         class="mb-16"
         @load-case="loadCase"
       />
@@ -344,8 +344,8 @@
                 "
                 ccu-event="user_ui-view-photo-map"
                 type="image"
-                @click="showPhotoMap"
                 :fa="true"
+                @click="showPhotoMap"
               />
               <span v-if="allWorksiteCount" class="font-thin">
                 <span
@@ -471,8 +471,8 @@
               @onZoomInteractive="goToInteractive"
             />
             <WorksitePhotoMap
-              :key="caseImages.length"
               v-else-if="showingPhotoMap && caseImages.length > 0"
+              :key="caseImages.length"
               :case-images="caseImages"
               @load-case="loadCase"
             />
@@ -896,7 +896,7 @@ import Organization from '@/models/Organization';
 import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Work',
@@ -935,8 +935,7 @@ export default defineComponent({
       return name;
     });
 
-
-    const {currentUser, updateUserStates } = useCurrentUser();
+    const { currentUser, updateUserStates } = useCurrentUser();
 
     const showingMap = ref<boolean>(true);
     const showingTable = ref<boolean>(false);
@@ -969,7 +968,7 @@ export default defineComponent({
     const unreadChatCount = ref(0);
     const unreadUrgentChatCount = ref(0);
     const unreadNewsCount = ref(0);
-    const timesUsed = ref(0)
+    const timesUsed = ref(0);
     const { showUnclaimModal } = useWorksiteTableActions(
       selectedTableItems,
       () => {
@@ -1030,7 +1029,9 @@ export default defineComponent({
         dateLevel: dateSliderValue.value,
         ...data,
       };
-      updateUserStates({incident: currentIncidentId.value}, newStates).catch(getErrorMessage);
+      updateUserStates({ incident: currentIncidentId.value }, newStates).catch(
+        getErrorMessage,
+      );
     }
 
     const hasOverdueFilter = computed(() => {
@@ -1255,7 +1256,7 @@ export default defineComponent({
 
     function filterSvi(value: number) {
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
-        dateSliderValue.value = 100
+        dateSliderValue.value = 100;
       }
       sviSliderValue.value = Number(value);
       const layer = mapUtils?.getCurrentMarkerLayer();
@@ -1264,7 +1265,7 @@ export default defineComponent({
       if (sviList && container) {
         const count = Math.floor((sviList.length * Number(value)) / 100);
         const filteredSvi = sviList.slice(0, count);
-        const minSvi = filteredSvi[filteredSvi.length - 1]?.svi || 0.999;
+        const minSvi = filteredSvi.at(-1)?.svi || 0.999;
         for (const markerSprite of container.children) {
           markerSprite.visible = markerSprite.svi > minSvi;
         }
@@ -1317,7 +1318,7 @@ export default defineComponent({
       const list = getDatesList(container?.children?.length);
       if (list) {
         return `${moment({ hours: 0 }).diff(
-          list[list.length - 1].updated_at,
+          list.at(-1).updated_at,
           'days',
         )} days ago`;
       }
@@ -1341,7 +1342,7 @@ export default defineComponent({
       if (dl) {
         const count = Math.floor((dl.length * Number(value)) / 100);
         const filteredDates = dl.slice(0, count);
-        const minDate = filteredDates[filteredDates.length - 1]?.updated_at;
+        const minDate = filteredDates.at(-1)?.updated_at;
         for (const markerSprite of container?.children || []) {
           markerSprite.visible = markerSprite.updated_at_moment > minDate;
         }
@@ -1500,7 +1501,7 @@ export default defineComponent({
         listeners: {
           phoneNumbersUpdated(value: string[]) {
             phoneNumbers = value.map((number) =>
-              String(number).replace(/\D/g, ''),
+              String(number).replaceAll(/\D/g, ''),
             );
           },
           emailsUpdated(value: string[]) {
@@ -1630,15 +1631,13 @@ export default defineComponent({
       try {
         let params;
 
-        if (ids) {
-          params = {
-            id__in: ids.join(','),
-          };
-        } else {
-          params = {
-            ...worksiteQuery.value,
-          };
-        }
+        params = ids
+          ? {
+              id__in: ids.join(','),
+            }
+          : {
+              ...worksiteQuery.value,
+            };
 
         const response = await axios.get(
           `${

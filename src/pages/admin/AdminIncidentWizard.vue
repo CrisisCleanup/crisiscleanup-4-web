@@ -204,25 +204,20 @@ export default defineComponent({
 
     async function saveIncident() {
       let response;
-      if (savedIncident.value?.id) {
-        response = await axios.patch(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${
-            savedIncident.value.id
-          }`,
-          {
+      response = await (savedIncident.value?.id
+        ? axios.patch(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${
+              savedIncident.value.id
+            }`,
+            {
+              ...currentIncident.value,
+              start_at: moment(currentIncident.value.start_at),
+            },
+          )
+        : axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/incidents`, {
             ...currentIncident.value,
             start_at: moment(currentIncident.value.start_at),
-          },
-        );
-      } else {
-        response = await axios.post(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/incidents`,
-          {
-            ...currentIncident.value,
-            start_at: moment(currentIncident.value.start_at),
-          },
-        );
-      }
+          }));
 
       const incidentId = response.data.id;
 

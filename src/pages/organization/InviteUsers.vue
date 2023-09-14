@@ -88,7 +88,7 @@ import Organization from '@/models/Organization';
 import OrganizationSearchInput from '@/components/OrganizationSearchInput.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { EMAIL_REGEX } from '@/utils/form';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'InviteUsers',
@@ -114,15 +114,12 @@ export default defineComponent({
     const validation = ref([
       {
         classes: 'email',
-        rule: /[\w.!#$%&’*+/=?^`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*/,
+        rule: /[\w!#$%&*+./=?^`{|}~’-]+@[\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*/,
         disableAdd: true,
       },
     ]);
 
-    const {
-      currentUser,
-      currentOrganization
-    } = useCurrentUser();
+    const { currentUser, currentOrganization } = useCurrentUser();
 
     async function onOrganizationSearch(value: string) {
       const results = await Organization.api().get(

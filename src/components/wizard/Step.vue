@@ -19,7 +19,7 @@ export default defineComponent({
     const isActive = ref(false);
 
     const href = computed(() => {
-      return `#${props.name.toLowerCase().replace(/ /g, '-')}`;
+      return `#${props.name.toLowerCase().replaceAll(' ', '-')}`;
     });
 
     const steps = inject('StepsProvider');

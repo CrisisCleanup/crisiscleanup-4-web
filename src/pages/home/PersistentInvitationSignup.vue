@@ -173,7 +173,9 @@ export default defineComponent({
         }
 
         response = await axios.post(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/persistent_invitations/accept`,
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/persistent_invitations/accept`,
           {
             first_name: state.firstName,
             last_name: state.lastName,

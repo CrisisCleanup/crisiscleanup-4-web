@@ -42,7 +42,7 @@ import type Incident from '@/models/Incident';
 import Organization from '@/models/Organization';
 import User from '@/models/User';
 import { getErrorMessage } from '@/utils/errors';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'RequestRedeploy',
@@ -56,9 +56,7 @@ export default defineComponent({
     const incidentRequests = ref<
       (Record<string, any> & { incident: string })[]
     >([]);
-    const {
-      currentOrganization,
-    } = useCurrentUser()
+    const { currentOrganization } = useCurrentUser();
     const incidentList = computed(() => {
       if (incidents.value) {
         return incidents.value.filter(

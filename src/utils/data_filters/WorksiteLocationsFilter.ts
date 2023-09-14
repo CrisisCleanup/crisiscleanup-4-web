@@ -2,7 +2,7 @@ import { useI18n } from 'vue-i18n';
 import User from '../../models/User';
 import { store } from '../../store';
 import Filter from './Filter';
-import {useCurrentUser} from "@/hooks";
+import { useCurrentUser } from '@/hooks';
 
 export default class UserLocationsFilter extends Filter {
   packFunction() {

@@ -45,7 +45,7 @@ class MockWorker {
   constructor(stringUrl: string) {
     this.url = stringUrl;
     // eslint-disable-next-line unicorn/prefer-add-event-listener
-    this.onmessage = () => undefined;
+    this.onmessage = () => {};
   }
 
   postMessage(msg: any) {
@@ -59,11 +59,11 @@ class MockWorker {
 
   removeEventListener() {
     // eslint-disable-next-line unicorn/prefer-add-event-listener
-    this.onmessage = () => undefined;
+    this.onmessage = () => {};
   }
 
   terminate() {
-    return undefined;
+    return;
   }
 }
 
