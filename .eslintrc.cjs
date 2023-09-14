@@ -78,6 +78,13 @@ const config = {
         'no-await-in-loop': 'off',
       },
     },
+    {
+      files: ['*.json'],
+      rules: {
+        'unicorn/numeric-separators-style': 'off',
+        'unicorn/no-null': 'off',
+      },
+    },
   ],
 };
 
