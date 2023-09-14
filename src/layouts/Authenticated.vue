@@ -118,9 +118,8 @@
       </template>
       <template
         v-if="
-          false
-          // currentOrganization &&
-          // (!currentOrganization.is_active || !currentOrganization.is_verified)
+          currentOrganization &&
+          (!currentOrganization.is_active || !currentOrganization.is_verified)
         "
       >
         <OrganizationInactiveModal @user-logged-out="logoutApp" />
