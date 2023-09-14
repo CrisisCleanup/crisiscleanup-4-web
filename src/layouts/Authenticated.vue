@@ -269,7 +269,7 @@ export default defineComponent({
     );
 
     const incidents = computed(() =>
-      Incident.query().orderBy('id', 'desc').get(),
+      Incident.query().orderBy('start_at', 'desc').get(),
     );
 
     const logoRoute = computed(() => ({
@@ -485,7 +485,7 @@ export default defineComponent({
       loading.value = true;
 
       await Incident.api().get(
-        '/incidents?fields=id,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
+        '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
         {
           dataKey: 'results',
         },
