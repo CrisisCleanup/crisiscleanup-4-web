@@ -10,11 +10,11 @@ const config = {
     'eslint:recommended',
     'plugin:vue/vue3-recommended', // See: https://eslint.vuejs.org/user-guide/#bundle-configurations
     'plugin:@typescript-eslint/recommended',
-    'plugin:prettier/recommended',
     'plugin:unicorn/recommended',
     'plugin:import/recommended',
     'plugin:promise/recommended',
     './.eslintrc-auto-import.json', // for unplugin-auto-import
+    'plugin:prettier/recommended',
   ],
   // See: https://eslint.vuejs.org/user-guide/#how-to-use-a-custom-parser
   parser: 'vue-eslint-parser',
