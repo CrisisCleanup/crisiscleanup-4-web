@@ -44,11 +44,19 @@ export default function useSetupLanguage() {
         );
         const isEnglish = currentLanguage.startsWith('en');
         const isSpanish = currentLanguage.startsWith('es');
+        const isFrench = currentLanguage.startsWith('fr');
+        const isArabic = currentLanguage.startsWith('ar');
         if (isEnglish && !availableLanguages.has(currentLanguage)) {
           currentLanguage = 'en-US';
         }
         if (isSpanish && !availableLanguages.has(currentLanguage)) {
           currentLanguage = 'es';
+        }
+        if (isFrench && !availableLanguages.has(currentLanguage)) {
+          currentLanguage = 'fr';
+        }
+        if (isArabic && !availableLanguages.has(currentLanguage)) {
+          currentLanguage = 'ar';
         }
       } catch (error) {
         console.log(error);
