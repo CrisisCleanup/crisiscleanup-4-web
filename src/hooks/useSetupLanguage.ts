@@ -52,7 +52,7 @@ export default function useSetupLanguage() {
           currentLanguage = 'en-US';
         }
         if (isSpanish && !availableLanguages.has(currentLanguage)) {
-          currentLanguage = 'e';
+          currentLanguage = 'es';
         }
         if (isFrench && !availableLanguages.has(currentLanguage)) {
           currentLanguage = 'fr';
