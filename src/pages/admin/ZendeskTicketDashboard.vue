@@ -754,7 +754,11 @@ onMounted(() => {
           :class="mq.mdPlus ? 'flex-row items-center' : 'flex-col'"
         >
           <!--          <div class="px-2" v-for="item in IncidentNumbers">{{item.shortName }} <span class="text-[#2c9ffe]" @click="copyToClipboard(item.number)">{{ item.number }}</span></div>-->
-          <div v-for="incident in filterNumbers(incidentList)" class="px-2">
+          <div
+            v-for="incident in filterNumbers(incidentList)"
+            :key="incident.id"
+            class="px-2"
+          >
             {{ incident.short_name }}
             <span
               class="text-[#2c9ffe]"
