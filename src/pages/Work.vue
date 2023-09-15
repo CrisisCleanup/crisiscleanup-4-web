@@ -1794,7 +1794,9 @@ export default defineComponent({
           false,
           bounds,
         );
-      } catch {}
+      } catch (error) {
+        console.error('Error setting mapUtils', error);
+      }
 
       nextTick(() => {
         mapUtils?.getMap().on(

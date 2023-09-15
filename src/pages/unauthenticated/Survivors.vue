@@ -124,7 +124,7 @@
                     v-html="getWorkTypeImage(work_type_help_needed)"
                   ></div>
                   <span class="text-sm">{{
-                    work_type_help_needed.work_type | getWorkTypeName
+                    getWorkTypeName(work_type_help_needed.work_type)
                   }}</span>
                 </div>
               </base-checkbox>
@@ -395,7 +395,7 @@ import GeocoderService from '@/services/geocoder.service';
 import LocationViewer from '@/components/locations/LocationViewer.vue';
 import WorksiteImageSection from '@/components/work/WorksiteImageSection.vue';
 import WorksiteNotes from '@/components/work/WorksiteNotes.vue';
-import { getWorkTypeImage } from '@/filters';
+import { getWorkTypeImage, getWorkTypeName } from '@/filters';
 import { formatCmsItem } from '@/utils/helpers';
 import survivor from '@/pages/home/Survivor.vue';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
@@ -702,6 +702,7 @@ export default defineComponent({
       geocoderSearch,
       onGeocodeSelect,
       getSurvivorToken,
+      getWorkTypeName,
       saveSurvivorToken,
       getFaqs,
     };
