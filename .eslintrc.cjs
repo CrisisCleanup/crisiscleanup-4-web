@@ -87,6 +87,43 @@ const config = {
         'unicorn/no-null': 'off',
       },
     },
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // TODO: ENABLE THESE RULES
+    //
+    // The following rules have been temporarily set to 'warn' instead of 'error'.
+    // This is a temporary measure to allow us to introduce linting into our CI pipeline
+    // without it failing due to a large number of existing linting issues in our codebase.
+    //
+    // The goal is to gradually fix these warnings and eventually switch these rules back to 'error'.
+    // This will help us improve the quality of our codebase incrementally, without disrupting
+    // the current development workflow.
+    //
+    // Note: These rules were not arbitrarily chosen. They represent common issues in our codebase
+    // that we want to address. However, due to the sheer volume of these issues, it's not feasible
+    // to fix them all at once. Hence, we're using 'warn' as a stepping stone towards better code quality.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    {
+      files: ['*'],
+      rules: {
+        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-unused-vars': 'warn',
+        'unicorn/no-null': 'warn',
+        'unicorn/no-new-array': 'warn',
+        'unicorn/consistent-destructuring': 'warn',
+        'unicorn/consistent-function-scoping': 'warn',
+        'unicorn/prefer-spread': 'warn',
+        'unicorn/no-array-for-each': 'warn',
+        'unicorn/prefer-query-selector': 'warn',
+        'unicorn/prefer-logical-operator-over-ternary': 'warn',
+        'import/namespace': 'warn',
+        'promise/param-names': 'warn',
+        'promise/catch-or-return': 'warn',
+        'promise/always-return': 'warn',
+        'vue/no-v-text-v-html-on-component': 'warn',
+        'vue/no-unused-components': 'warn',
+      },
+    },
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   ],
 };
 
