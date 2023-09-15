@@ -4,10 +4,10 @@
       <template v-if="['h4'].includes(field.html_type)">
         <SectionHeading
           :count="getSectionCount(field)"
-          :tooltip="field.help_t"
-          :data-testid="`test${field.label_t}HelpTooltip`"
+          :tooltip="t(field.help_t)"
+          :data-testid="`test${t(field.label_t)}HelpTooltip`"
           class="mb-3"
-          >{{ field.label_t }}
+          >{{ t(field.label_t) }}
         </SectionHeading>
       </template>
       <template v-if="['h5'].includes(field.html_type)">
@@ -26,7 +26,7 @@
             "
           >
             <div class="text-base font-semibold">
-              {{ field.label_t }}
+              {{ t(field.label_t) }}
             </div>
           </base-checkbox>
           <WorksiteStatusDropdown
@@ -51,17 +51,17 @@
       <template v-if="field.html_type === 'select'">
         <div :key="field.field_key" class="form-field">
           <span slot="label" class="flex items-center">
-            <span>{{ field.label_t }}</span>
+            <span>{{ t(field.label_t) }}</span>
             <ccu-icon
-              v-if="field.help_t"
+              v-if="t(field.help_t)"
               v-tooltip="{
-                content: field.help_t,
+                content: t(field.help_t),
                 triggers: ['click'],
                 html: true,
                 popperClass: 'interactive-tooltip w-72',
               }"
-              :alt="$t('actions.help_alt')"
-              :data-testid="`test${field.label_t}HelpTooltip`"
+              :alt="t('actions.help_alt')"
+              :data-testid="`test${t(field.label_t)}HelpTooltip`"
               type="help"
               size="large"
             />
@@ -86,17 +86,17 @@
       <template v-if="field.html_type === 'multiselect'">
         <div :key="field.field_key" class="form-field">
           <span slot="label" class="flex items-center">
-            <span>{{ field.label_t }}</span>
+            <span>{{ t(field.label_t) }}</span>
             <ccu-icon
-              v-if="field.help_t"
+              v-if="t(field.help_t)"
               v-tooltip="{
-                content: field.help_t,
+                content: t(field.help_t),
                 html: true,
                 triggers: ['click'],
                 popperClass: 'interactive-tooltip w-72',
               }"
               :data-testid="`test${field.field_key}HelpTooltip`"
-              :alt="$t('actions.help_alt')"
+              :alt="t('actions.help_alt')"
               type="help"
               size="large"
             />
@@ -129,11 +129,11 @@
         <div :key="field.field_key" class="form-field">
           <base-input
             :model-value="dynamicFields[field.field_key]"
-            :tooltip="field.help_t"
+            :tooltip="t(field.help_t)"
             :data-testid="`test${field.field_key}TextInput`"
             size="large"
             :break-glass="field.read_only_break_glass"
-            :placeholder="field.placeholder_t || field.label_t"
+            :placeholder="t(field.placeholder_t) || t(field.label_t)"
             @update:modelValue="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
@@ -144,7 +144,7 @@
       </template>
       <template v-if="field.html_type === 'cronselect'">
         <div class="form-field">
-          <div class="mb-1">{{ field.label_t }}</div>
+          <div class="mb-1">{{ t(field.label_t) }}</div>
           <RecurringSchedule
             :model-value="dynamicFields[field.field_key] || field.recur_default"
             :is-default="!dynamicFields[field.field_key]"
@@ -160,16 +160,16 @@
       <template v-if="field.html_type === 'textarea'">
         <div :key="field.field_key" class="form-field">
           <span slot="label" class="flex items-center">
-            <span>{{ field.label_t }}</span>
+            <span>{{ t(field.label_t) }}</span>
             <ccu-icon
-              v-if="field.help_t"
+              v-if="t(field.help_t)"
               v-tooltip="{
-                content: field.help_t,
+                content: t(field.help_t),
                 triggers: ['click'],
                 html: true,
                 popperClass: 'interactive-tooltip w-72',
               }"
-              :alt="$t('actions.help_alt')"
+              :alt="t('actions.help_alt')"
               :data-testid="`test${field.field_key}HelpTooltip`"
               type="help"
               size="large"
@@ -180,7 +180,7 @@
             :disabled="false"
             :rows="4"
             :model-value="dynamicFields[field.field_key]"
-            :placeholder="field.placeholder_t || field.label_t"
+            :placeholder="t(field.placeholder_t) || t(field.label_t)"
             :data-testid="`test${field.field_key}TextArea`"
             @update:modelValue="
               (value: string) => {
@@ -200,18 +200,18 @@
                 $emit('updateField', { key: field.field_key, value });
               }
             "
-            >{{ field.label_t }}
+            >{{ t(field.label_t) }}
           </base-checkbox>
           <ccu-icon
-            v-if="field.help_t"
+            v-if="t(field.help_t)"
             v-tooltip="{
-              content: field.help_t,
+              content: t(field.help_t),
               triggers: ['click'],
               html: true,
               popperClass: 'interactive-tooltip w-72',
             }"
             :data-testid="`test${field.field_key}HelpTooltip`"
-            :alt="$t('actions.help_alt')"
+            :alt="t('actions.help_alt')"
             type="help"
             size="large"
           />
@@ -374,6 +374,13 @@ export default defineComponent({
       getSectionCount,
       getSelectValuesList,
       updateChildren,
+      t: (value: string) => {
+        try {
+          return t(value);
+        } catch {
+          return value;
+        }
+      },
     };
   },
 });
