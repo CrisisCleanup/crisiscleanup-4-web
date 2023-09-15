@@ -49,11 +49,6 @@ export default defineConfig(async ({ command }) => {
     inspect(),
     // https://github.com/webfansplz/vite-plugin-vue-inspector
     inspector(),
-    sentryVitePlugin({
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      org: 'crisis-cleanup',
-      project: 'crisiscleanup-4-web',
-    }),
     mkcert(),
     markdownRawPlugin({
       fileRegex: /\.svgr$/,
@@ -61,67 +56,72 @@ export default defineConfig(async ({ command }) => {
   ];
 
   const configs: Array<Partial<UserConfig>> = [];
+  configs.push({
+    optimizeDeps: {
+      include: ['tailwind.config'],
+    },
+    resolve: {
+      alias: {
+        '@': fileURLToPath(new URL('src', import.meta.url)),
+        'tailwind.config': fileURLToPath(
+          new URL('tailwind.config.cjs', import.meta.url),
+        ),
+      },
+    },
+    server: {
+      https: false,
+    },
+    css: {
+      postcss: {
+        ...postcssConfig,
+      },
+    },
+  });
+
+  if (command === 'build') {
+    vitePlugins.push(
+      sentryVitePlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        org: 'crisis-cleanup',
+        project: 'crisiscleanup-4-web',
+      }),
+    );
+    configs.push({
+      build: {
+        sourcemap: true,
+      },
+    });
+  }
+
+  // Vitest config
   configs.push(
     {
-      optimizeDeps: {
-        include: ['tailwind.config'],
-      },
-      resolve: {
-        alias: {
-          '@': fileURLToPath(new URL('src', import.meta.url)),
-          'tailwind.config': fileURLToPath(
-            new URL('tailwind.config.cjs', import.meta.url),
-          ),
+      test: {
+        include: ['test/**/*.test.ts', 'test/**/*.spec.ts'],
+        exclude: ['test/e2e/**/*'],
+        setupFiles: ['./test/setupTests.ts', 'fake-indexeddb/auto'],
+        globals: true,
+        environment: 'happy-dom',
+        deps: {
+          optimizer: {
+            web: {
+              include: ['@vue', '@vueuse'],
+            },
+          },
         },
-      },
-      server: {
-        https: false,
-      },
-      css: {
-        postcss: {
-          ...postcssConfig,
+        coverage: {
+          provider: 'v8',
+          reporter: ['text', 'json', 'html'],
         },
+        silent: true,
+        dangerouslyIgnoreUnhandledErrors: true,
+        globalSetup: './test/globalSetup.ts',
       },
     },
     {
       plugins: vitePlugins,
     },
   );
-
-  if (command === 'build') {
-    configs.push({
-      build: {
-        sourcemap: true,
-      },
-    });
-  } else {
-    // Do something else
-  }
-
-  // Vitest config
-  configs.push({
-    test: {
-      include: ['test/**/*.test.ts', 'test/**/*.spec.ts'],
-      exclude: ['test/e2e/**/*'],
-      setupFiles: ['./test/setupTests.ts', 'fake-indexeddb/auto'],
-      globals: true,
-      environment: 'happy-dom',
-      deps: {
-        optimizer: {
-          web: {
-            include: ['@vue', '@vueuse'],
-          },
-        },
-      },
-      coverage: {
-        provider: 'v8',
-        reporter: ['text', 'json', 'html'],
-      },
-      silent: true,
-      dangerouslyIgnoreUnhandledErrors: true,
-      globalSetup: './test/globalSetup.ts',
-    },
-  });
 
   return _.merge({}, ...configs) as UserConfig;
 });
