@@ -14,6 +14,7 @@ import createDebug from 'debug';
 import moment from 'moment';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
+import { useAxiosRetry } from '@/hooks/useAxiosRetry';
 
 const debug = createDebug('@crisiscleanup:hooks:useAuth');
 
@@ -138,6 +139,23 @@ const authStore = () => {
     },
   );
 
+  // Token expiry retry handler.
+  useAxiosRetry({
+    instance: axios,
+    responsePredicate: (error) =>
+      error.isAxiosError && error.response?.status === 401,
+    retryHandler: () => {
+      authState.status = AuthStatus.REFRESHING;
+      return until(isAuthenticated)
+        .toBe(true)
+        .then(() => ({
+          headers: {
+            Authorization: `Bearer ${authState.accessToken}`,
+          },
+        }));
+    },
+  });
+
   // Code verifier state.
   const verifierStorage = useStorage('code-verifier', '', localStorage, {
     writeDefaults: false,
@@ -242,10 +260,15 @@ const authStore = () => {
       // AUTHENTICATED/INIT -> REFRESHING
       if (
         newStatus === AuthStatus.REFRESHING &&
-        oldStatus !== AuthStatus.AUTHENTICATED
+        oldStatus !== AuthStatus.REFRESHING
       ) {
-        // TODO: refresh.
-        return getMe();
+        authState.accessToken = undefined;
+        authState.accessTokenExpiry = undefined;
+        debug('refreshing token: %O', { ...authState });
+        await doRefreshToken().catch((error) =>
+          debug('failed to refresh token: %O', error),
+        );
+        return;
       }
     },
   );
@@ -374,12 +397,6 @@ const authStore = () => {
       .catch((error) => debug('failed to getMe: %O', error));
   };
 
-  // Refresh token.
-  const refreshMe = () => {
-    console.log('REFRESHING:', authState);
-    authState.status = AuthStatus.REFRESHING;
-  };
-
   // Oauth authorize.
   const authorize = async (from?: string, force?: boolean) => {
     if (usersMeState.isLoading.value && !force) {
@@ -432,7 +449,7 @@ const authStore = () => {
   // Handle logout state.
   const doLogout = async () => {
     try {
-      await authInstance.post('/logout/', null, {
+      await authInstance.post('/logout/', undefined, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -461,6 +478,25 @@ const authStore = () => {
     );
   };
 
+  // Refresh token.
+  const doRefreshToken = () => {
+    if (!authState.refreshToken) {
+      throw new Error('Missing refresh token!');
+    }
+    const params = new URLSearchParams({
+      client_id: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
+      grant_type: 'refresh_token',
+      refresh_token: authState.refreshToken,
+    });
+    return exchangeState.execute('/o/token/', {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: params.toString(),
+    });
+  };
+
   // Move to log out.
   const logout = () => {
     authState.status = AuthStatus.LOGOUT;
@@ -468,7 +504,6 @@ const authStore = () => {
 
   return {
     getMe,
-    refreshMe,
     isLoadingMe: usersMeState.isLoading,
     isAuthenticated,
     isRefreshing,
