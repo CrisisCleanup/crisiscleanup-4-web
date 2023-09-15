@@ -507,7 +507,7 @@ const copyToClipboard = (text) => {
   textarea.select();
   document.execCommand('copy');
   textarea.remove();
-  toast.info(t('helpdesk.phone_copied_clipboard ' + text));
+  toast.info(t('helpdesk.phone_copied_clipboard' + text));
 };
 
 onMounted(() => {
