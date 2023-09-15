@@ -139,6 +139,7 @@ const config = {
         'unicorn/prefer-query-selector': 'warn',
         'unicorn/prefer-logical-operator-over-ternary': 'warn',
         'import/namespace': 'warn',
+        'import/export': 'warn',
         'promise/param-names': 'warn',
         'promise/catch-or-return': 'warn',
         'promise/always-return': 'warn',
