@@ -84,9 +84,9 @@ export default (
             '{{strokeColor}}',
             isVisitedMarker
               ? '#9370db'
-              : (isFilteredMarker
+              : isFilteredMarker
               ? fillColor
-              : 'white'),
+              : 'white',
           );
         let texture = textureMap[fillColor];
         if (!texture) {
@@ -128,9 +128,9 @@ export default (
             '{{strokeColor}}',
             isVisitedMarker
               ? '#9370db'
-              : (isFilteredMarker
+              : isFilteredMarker
               ? fillColor
-              : 'white'),
+              : 'white',
           )
           .replaceAll(
             '{{multiple}}',
