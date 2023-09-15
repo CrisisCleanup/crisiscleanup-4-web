@@ -72,7 +72,11 @@
             v-if="!loading"
             data-testid="testLocationTypeTextInput"
             :model-value="currentLocation.type"
-            :options="locationTypes"
+            :options="
+              locationTypes.map((l) => {
+                return { ...l, name_t: $t(l.name_t) };
+              })
+            "
             item-key="id"
             label="name_t"
             :placeholder="$t('locationVue.location_type')"

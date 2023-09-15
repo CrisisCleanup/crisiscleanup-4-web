@@ -8,7 +8,7 @@
       <template v-if="hasParent(capability)">
         <div class="selected rounded">
           <div class="text-center header my-2 rounded-t">
-            {{ capability.name_t }}
+            {{ $t(capability.name_t) }}
           </div>
           <div
             class="grid text-center p-1"
@@ -18,7 +18,9 @@
             <div
               v-for="phase in phases"
               :key="phase.id"
-              :data-testid="`testCapability${capability.name_t}Phase${phase.id}Item`"
+              :data-testid="`testCapability${$t(capability.name_t)}Phase${
+                phase.id
+              }Item`"
               class="col-span-1 text-crisiscleanup-dark-300 truncate"
               :class="hoverItem === 'normal' + index ? 'light' : ''"
             >

@@ -43,7 +43,10 @@ export default defineComponent({
     const selectedRoleIds = ref<number[]>([]);
 
     const roles = computed(() => {
-      return Role.all();
+      return Role.all().map((role) => ({
+        ...role,
+        name_t: t(role.name_t),
+      }));
     });
 
     onMounted(async () => {
@@ -67,7 +70,7 @@ export default defineComponent({
     }
 
     function getRoleText(option: Role) {
-      let text = option.name_t;
+      let text = t(option.name_t);
       const currentUserRole = userRoles.value.find(
         (ur: UserRole) => ur.user_role === option.id,
       );

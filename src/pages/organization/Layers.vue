@@ -16,7 +16,11 @@
             <base-select
               v-model="locationTypeFilter"
               data-testid="testLocationTypeFilterSelect"
-              :options="locationTypes"
+              :options="
+                locationTypes.map((l) => {
+                  return { ...l, name_t: $t(l.name_t) };
+                })
+              "
               class="w-full sm:w-64 border border-crisiscleanup-dark-100"
               item-key="id"
               label="name_t"

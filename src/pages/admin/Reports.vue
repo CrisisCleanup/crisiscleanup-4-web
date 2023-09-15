@@ -45,7 +45,7 @@
               <div class="m-5">
                 <div class="flex flex-row items-center justify-between">
                   <base-text variant="body" weight="700"
-                    >{{ r.name_t }}
+                    >{{ $t(r.name_t) }}
                   </base-text>
                   <badge
                     v-if="
@@ -66,7 +66,7 @@
                   />
                 </div>
                 <base-text variant="bodysm">
-                  {{ r.description_t }}
+                  {{ $t(r.description_t) }}
                 </base-text>
               </div>
             </div>
