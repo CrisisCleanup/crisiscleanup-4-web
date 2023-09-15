@@ -21,7 +21,6 @@ import BaseInput from './components/BaseInput.vue';
 import BaseText from './components/BaseText.vue';
 import Badge from './components/Badge.vue';
 import Tag from './components/Tag.vue';
-import FormSelect from './components/FormSelect.vue';
 import Modal from './components/Modal.vue';
 import Authenticated from './layouts/Authenticated.vue';
 
@@ -85,7 +84,6 @@ const buildApp = (app: VueApp) =>
     .component('VSelect', vSelect)
     .component('AuthenticatedLayout', Authenticated)
     .component('UnauthenticatedLayout', Unauthenticated)
-    .component('FormSelect', FormSelect)
     .component('BaseSelect', BaseSelect)
     .component('BaseCheckbox', BaseCheckbox)
     .component('Modal', Modal)
