@@ -374,6 +374,7 @@ export default defineComponent({
     };
 
     const onSelectOrganization = async (value: Organization) => {
+      console.info('OnSelectOrg', value);
       selectedOrganization.value = value;
       if (currentLocation.value && !currentLocation.value.name) {
         currentLocation.value.name = `${selectedOrganization.value?.name} ${currentLocation.value.location_type?.name_t}`;
@@ -399,8 +400,13 @@ export default defineComponent({
           },
         });
 
-        if (result === 'edit') {
+        if (result === 'edit' && typeof value.primary_location === 'number') {
           await router.push(`/locations/${value.primary_location}/edit`);
+        } else {
+          console.error(
+            'Error editing location. primary_location is not a number',
+            value,
+          );
         }
       }
     };
