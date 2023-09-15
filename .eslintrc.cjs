@@ -10,8 +10,8 @@ const config = {
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-recommended', // See: https://eslint.vuejs.org/user-guide/#bundle-configurations
-    // Enable type-enriched linting. See: https://typescript-eslint.io/linting/typed-linting/
-    'plugin:@typescript-eslint/recommended-type-checked',
+    "plugin:@typescript-eslint/recommended",
+    'plugin:@typescript-eslint/recommended-type-checked', // Enable type-enriched linting. See: https://typescript-eslint.io/linting/typed-linting/
     'plugin:unicorn/recommended',
     'plugin:import/recommended',
     'plugin:promise/recommended',
