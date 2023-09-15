@@ -5,15 +5,17 @@ import { useRoute, useRouter } from 'vue-router';
 import {
   createEventHook,
   createSharedComposable,
+  until,
   useStorage,
 } from '@vueuse/core';
+import { logicAnd, logicNot, logicOr } from '@vueuse/math';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import createDebug from 'debug';
 import moment from 'moment';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 
-const debug = createDebug('@crisiscleanup:useUser');
+const debug = createDebug('@crisiscleanup:hooks:useAuth');
 
 export enum AuthStatus {
   INIT = 'INIT',
@@ -25,6 +27,7 @@ export enum AuthStatus {
 
 export interface AuthState {
   accessToken?: string;
+  accessTokenExpiry?: moment.Moment;
   refreshToken?: string;
   userId?: number;
   status: AuthStatus;
@@ -48,9 +51,8 @@ interface AuthorizeProps {
 
 interface AuthorizedToken {
   access_token: string;
-  access_token_expiry: string;
+  access_token_expiry: moment.Moment;
   refresh_token: string;
-  revoked: undefined | string;
   updated: string;
   created: string;
   user: number;
@@ -82,6 +84,10 @@ const authStore = () => {
     baseURL: import.meta.env.VITE_APP_API_BASE_URL,
     withCredentials: true,
   });
+  const tokenInstance = axios.create({
+    baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+    withCredentials: true,
+  });
   axios.defaults.withCredentials = true;
 
   // Current user request state
@@ -110,7 +116,7 @@ const authStore = () => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     },
-    authInstance,
+    tokenInstance,
     {
       immediate: false,
       resetOnExecute: false,
@@ -125,16 +131,16 @@ const authStore = () => {
       withCredentials: true,
       baseURL: import.meta.env.VITE_APP_API_BASE_URL,
     },
-    authInstance,
+    tokenInstance,
     {
-      immediate: false,
+      immediate: true,
       resetOnExecute: false,
     },
   );
 
   // Code verifier state.
   const verifierStorage = useStorage('code-verifier', '', localStorage, {
-    writeDefaults: true,
+    writeDefaults: false,
     deep: false,
   });
 
@@ -145,6 +151,8 @@ const authStore = () => {
   // Initialize auth state.
   const authState = reactive<AuthState>({
     userId: undefined,
+    accessToken: undefined,
+    refreshToken: undefined,
     status: AuthStatus.INIT,
   });
 
@@ -157,40 +165,24 @@ const authStore = () => {
   }>();
 
   // React to users/me response.
-  watch(
-    usersMeState.data,
-    async (response) => {
-      debug('user me state data: %O', usersMeState.data.value);
-      if (response?.id) {
-        await onCurrentUserHook.trigger(response);
-        authState.userId = response.id;
-        if (!authState.accessToken) {
-          await tokensState.execute();
-        }
-
-        authState.status = AuthStatus.AUTHENTICATED;
-      } else {
-        authState.userId = undefined;
-        authState.status = AuthStatus.ANONYMOUS;
-      }
-    },
-    { flush: 'sync' },
-  );
+  watch(usersMeState.data, async (response) => {
+    debug('user me state data: %O', usersMeState.data.value);
+    if (response?.id) {
+      await onCurrentUserHook.trigger(response);
+      authState.userId = response.id;
+    } else {
+      authState.userId = undefined;
+    }
+  });
 
   // Failure to fetch current user.
   whenever(usersMeState.error as Ref<AxiosError>, async (err: AxiosError) => {
     debug('error state: (state: %O) %O', authState, err);
 
-    // todo: refresh
-    // if (authState.refreshToken) {
-    //   refreshMe();
-    //   return;
-    // }
-
     await router.isReady();
     const isAuthLayout = route?.meta?.layout === 'authenticated';
     const shouldForce = ['nav.login', 'nav.dashboard_home'].includes(
-      route?.name,
+      route?.name as string,
     );
 
     if (err?.response?.status === 401 && (isAuthLayout || shouldForce)) {
@@ -216,11 +208,7 @@ const authStore = () => {
   watch(
     () => authState.status,
     async (newStatus, oldStatus) => {
-      debug(
-        `Auth changed from %n to %n ${oldStatus} to ${newStatus}.`,
-        oldStatus,
-        newStatus,
-      );
+      debug(`Auth changed from %s to %s.`, oldStatus, newStatus);
 
       const movedToAnon =
         newStatus === AuthStatus.ANONYMOUS &&
@@ -240,7 +228,6 @@ const authStore = () => {
 
       // LOGOUT -> ANONYMOUS
       if (logoutToAnon) {
-        authState.userId = undefined;
         authState.accessToken = undefined;
         authState.refreshToken = undefined;
         authState.userId = undefined;
@@ -265,34 +252,106 @@ const authStore = () => {
 
   // React to token response from exchange.
   watch(exchangeState.data, async (response) => {
-    debug('got token response from exchange: %O', response);
+    debug('got token response from exchange: %O', toValue(response));
     if (response?.access_token) {
       authState.accessToken = response.access_token;
+      authState.accessTokenExpiry = moment().add(
+        response.expires_in - 100,
+        'seconds',
+      );
       authState.refreshToken = response.refresh_token;
+      debug('set auth state from exchange: %O', { ...authState });
     }
   });
 
-  // React to token response from session.
+  // Logout on exchange error.
+  whenever(exchangeState.error, async (exchangeError) => {
+    debug('exchange failed; logging out. Error: %O', exchangeError);
+    authState.status = AuthStatus.LOGOUT;
+  });
+
+  // React to token response via session.
   watch(tokensState.data, async (response) => {
     debug('got token response from session: %O', response);
     const token = response?.results?.[0];
     if (token && moment(token.access_token_expiry).isAfter(moment())) {
-      authState.accessToken = token.access_token;
       authState.refreshToken = token.refresh_token;
-    } else {
-      debug('Existing auth tokens expired. Re-authorizing..');
-      authState.userId = undefined;
-      authState.status = AuthStatus.ANONYMOUS;
-      await authorize(route?.path, true);
+      authState.accessTokenExpiry = moment(token.access_token_expiry);
+      authState.accessToken = token.access_token;
+      debug('set auth state from session: %O', { ...authState });
     }
   });
 
+  // Token states.
+  const hasAccessToken = computed(() => Boolean(authState.accessToken));
+  const isAccessTokenExpired = computed(
+    () => authState.accessTokenExpiry?.isBefore?.(moment()),
+  );
+
+  const hasValidAccessToken = logicAnd(
+    hasAccessToken,
+    logicNot(isAccessTokenExpired),
+  );
+
+  // Current route expects authentication.
+  const isAuthenticatedRoute = computed(
+    () => router.currentRoute.value?.meta?.layout === 'authenticated',
+  );
+
+  // Fetched authorized tokens, but no results found.
+  const hasNoAuthorizedTokens = computed(
+    () =>
+      tokensState.data.value && tokensState.data.value?.results?.length === 0,
+  );
+
+  // Current session is not authenticated.
+  const isMissingSession = computed(
+    () =>
+      tokensState.error.value &&
+      (tokensState.error as Ref<AxiosError>).value.response?.status === 401,
+  );
+
+  // Current state requires authorization.
+  const requiresAuthorization = logicAnd(
+    isAuthenticatedRoute,
+    logicOr(isMissingSession, hasNoAuthorizedTokens),
+    logicNot(hasValidAccessToken),
+    logicNot(exchangeState.isLoading),
+  );
+
+  /**
+   * When:
+   *  1.) Current route is using authenticated layout.
+   *  2.) Session is either not authorized or has no existing/valid authorized tokens
+   *  3.) No current valid access token is known.
+   *  4.) Not currently exchanging token.
+   *
+   *  Then force reauthorize.
+   */
+  whenever(requiresAuthorization, async () => {
+    debug('requires authorization; redirecting to login.');
+    await authorize(route?.path, true);
+  });
+
+  // Transition to authenticated when we have valid tokens.
+  whenever(hasValidAccessToken, () => {
+    debug('has valid access token, transitioning to authenticated...');
+    authState.status = AuthStatus.AUTHENTICATED;
+  });
+
   // Sync access token to axios header.
-  whenever(
+  watch(
     () => authState.accessToken,
     async (newToken) => {
-      debug('updating axios header with new token: %O', authState);
-      axios.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+      if (newToken) {
+        debug('updating axios header with new token: %O', toValue(authState));
+        axios.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+        authInstance.defaults.headers.common.Authorization = `Bearer ${newToken}`;
+      } else {
+        debug('removing axios header token: %O', toValue(authState));
+        delete axios.defaults.headers.common.Authorization;
+        delete authInstance.defaults.headers.common.Authorization;
+      }
     },
   );
 
@@ -305,7 +364,15 @@ const authStore = () => {
   );
 
   // Attempt to fetch current
-  const getMe = async () => usersMeState.execute();
+  const getMe = async () => {
+    if (usersMeState.isLoading.value) {
+      debug('already fetching current user, skipping request...');
+      return;
+    }
+    await usersMeState
+      .execute()
+      .catch((error) => debug('failed to getMe: %O', error));
+  };
 
   // Refresh token.
   const refreshMe = () => {
@@ -368,7 +435,6 @@ const authStore = () => {
       await authInstance.post('/logout/', null, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Bearer ${authState.accessToken}`,
         },
       });
       if (authState.refreshToken) await doRevokeToken(authState.refreshToken);
@@ -403,6 +469,7 @@ const authStore = () => {
   return {
     getMe,
     refreshMe,
+    isLoadingMe: usersMeState.isLoading,
     isAuthenticated,
     isRefreshing,
     authorize,
