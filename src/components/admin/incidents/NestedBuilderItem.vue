@@ -9,7 +9,7 @@
     @change="onListChange"
   >
     <template #item="{ element: field }">
-      <div>
+      <div class="py-2">
         <div
           v-if="!['hidden', 'divend'].includes(field.html_type)"
           class="flex items-center p-1 w-full mb-1 border bg-white"
@@ -283,6 +283,7 @@ export default defineComponent({
       group: 'description',
       disabled: false,
       ghostClass: 'ghost',
+      swapThreshold: 0.1,
     };
 
     function getSelectValuesList(defaultValues: Record<string, string>) {
