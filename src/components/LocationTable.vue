@@ -19,7 +19,7 @@
           size="small"
           type="edit"
           class="mx-2"
-          @click.native="
+          @click="
             () => {
               $router.push(`/locations/${slotProps.item.id}/edit`);
             }
@@ -31,7 +31,7 @@
           size="small"
           type="trash"
           class="mx-2"
-          @click.native="
+          @click="
             () => {
               $emit('deleteLocation', slotProps.item.id);
             }
