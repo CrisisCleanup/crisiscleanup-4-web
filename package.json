@@ -20,6 +20,7 @@
     "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
     "lint": "eslint --cache \"**/*.{vue,ts?(x),js?(x)}\"",
+    "lint:show": "eslint-nibble \"**/*.{vue,ts?(x),js?(x)}\" --cache",
     "lint:fix": "pnpm run lint --fix",
     "lint:errors": "pnpm run lint --quiet",
     "lint:format": "pnpm run lint:fix && pnpm run format",
