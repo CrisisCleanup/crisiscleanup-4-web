@@ -1,14 +1,16 @@
 import { computed } from 'vue';
+import { createSharedComposable } from '@vueuse/core';
 import * as Sentry from '@sentry/vue';
 import createDebug from 'debug';
 import Bowser from 'bowser';
 import type { RouteLocationRaw } from 'vue-router';
+import { logicAnd, logicNot } from '@vueuse/math';
 import User from '../models/User';
 import { getErrorMessage } from '../utils/errors';
 import { useAuthStore } from './useAuth';
 import Organization from '@/models/Organization';
 
-const debug = createDebug('@crisiscleanup:useCurrentUser');
+const debug = createDebug('@crisiscleanup:hooks:useCurrentUser');
 
 /**
  * Merge user states.
@@ -59,7 +61,7 @@ const mergeUserStates = (
 /**
  * Hook to retrieve and manage the current user.
  */
-export default function useCurrentUser() {
+const currentStoreStore = () => {
   const authStore = useAuthStore();
   const router = useRouter();
 
@@ -68,6 +70,18 @@ export default function useCurrentUser() {
       ? User.find(authStore.currentUserId.value)
       : undefined,
   );
+
+  const hasCurrentUser = computedEager(() => Boolean(currentUser.value));
+  const isAuthenticatedWithoutUser = logicAnd(
+    authStore.isAuthenticated,
+    logicNot(hasCurrentUser),
+  );
+
+  // Fetch user as soon as we can.
+  whenever(isAuthenticatedWithoutUser, async () => {
+    debug('authenticated without user, fetching user...');
+    await authStore.getMe();
+  });
 
   const currentOrganization = computed(() =>
     currentUser.value?.organization?.id
@@ -157,6 +171,7 @@ export default function useCurrentUser() {
 
   return {
     currentUser,
+    hasCurrentUser,
     currentOrganization,
     updateUserStates,
     updateCurrentUser,
@@ -168,4 +183,6 @@ export default function useCurrentUser() {
     isOrganizationInactive,
     isOrphan,
   };
-}
+};
+
+export default createSharedComposable(currentStoreStore);
