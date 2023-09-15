@@ -97,7 +97,7 @@
         />
       </div>
       <div v-if="currentIncident.auto_contact" class="form-field">
-        <span slot="label" class="flex items-center">
+        <span class="flex items-center">
           <span>{{ $t('casesVue.auto_contact_frequency') }}</span>
           <ccu-icon
             v-tooltip="{

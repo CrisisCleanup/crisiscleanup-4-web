@@ -255,7 +255,6 @@
       </div>
       <v-popover placement="bottom-start">
         <base-button
-          slot="btn"
           data-testid="testLayersButton"
           variant="text"
           class="text-base font-thin mx-2"

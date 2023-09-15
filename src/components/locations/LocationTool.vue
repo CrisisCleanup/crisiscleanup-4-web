@@ -181,7 +181,7 @@
             {{ currentLayerUpload[0].name }}
           </div>
           <template #footer>
-            <div slot="footer" class="p-3 flex items-center justify-center">
+            <div class="p-3 flex items-center justify-center">
               <base-button
                 :action="
                   () => {
@@ -382,7 +382,7 @@ export default defineComponent({
       currentDraw: null as string | null,
       bufferedLayer: null as any,
       worksiteLayer: null,
-      incidentLayer: new L.LayerGroup() as L.LayerGroup,
+      incidentLayer: new L.LayerGroup(),
       workingLayer: null as L.Layer | null,
       showingPopup: false,
       locationResults: [],
@@ -688,8 +688,7 @@ export default defineComponent({
       });
       stateRefs.showingPopup.value = true;
       p.setLatLng(
-        center ||
-          (stateRefs.bufferedLayer?.value as any).getBounds().getCenter(),
+        center || stateRefs.bufferedLayer?.value?.getBounds()?.getCenter(),
       )
         .setContent(popup.value || '')
         .openOn(stateRefs.map?.value as L.Map);
@@ -714,11 +713,11 @@ export default defineComponent({
         stateRefs.bufferedOptions.value as L.GeoJSONOptions,
       );
       [stateRefs.bufferedLayer.value] = geojsonLayer.getLayers();
-      (stateRefs.bufferedLayer.value as any).name = location?.name;
+      stateRefs.bufferedLayer.value.name = location?.name;
       stateRefs.bufferedLayer.value.addTo(stateRefs.map?.value as L.Map);
       if (fit) {
         stateRefs.map?.value?.fitBounds(
-          (stateRefs.bufferedLayer.value as any).getBounds(),
+          stateRefs.bufferedLayer.value.getBounds(),
         );
       }
 

@@ -55,7 +55,7 @@
             </template>
             <template v-if="field.html_type === 'select'">
               <div :key="field.field_key" class="form-field">
-                <span slot="label" class="flex items-center">
+                <span class="flex items-center">
                   <span>{{ translate(field.label_t) }}</span>
                   <ccu-icon
                     v-if="field.help_t"
@@ -89,7 +89,7 @@
             </template>
             <template v-if="field.html_type === 'multiselect'">
               <div :key="field.field_key" class="form-field">
-                <span slot="label" class="flex items-center">
+                <span class="flex items-center">
                   <span>{{ translate(field.label_t) }}</span>
                   <ccu-icon
                     v-if="field.help_t"
@@ -156,7 +156,7 @@
             </template>
             <template v-if="field.html_type === 'textarea'">
               <div :key="field.field_key" class="form-field">
-                <span slot="label" class="flex items-center">
+                <span class="flex items-center">
                   <span>{{ translate(field.label_t) }}</span>
                   <ccu-icon
                     v-if="field.help_t"

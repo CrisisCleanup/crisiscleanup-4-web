@@ -138,7 +138,9 @@
       <div v-if="showLoginModal">
         <modal modal-classes="bg-white max-w-lg shadow p-5" :closeable="false">
           <LoginForm :redirect="false" />
-          <div slot="footer"></div>
+          <template #footer>
+            <div></div>
+          </template>
         </modal>
       </div>
     </div>
@@ -456,11 +458,11 @@ export default defineComponent({
         // prefill base zendesk fields.
         zendesk.zE(ZendeskTarget.WEB_WIDGET, ZendeskCommand.PREFILL, {
           name: {
-            value: currentUser.value!.full_name,
+            value: currentUser.value.full_name,
             readOnly: false,
           },
           email: {
-            value: currentUser.value!.email,
+            value: currentUser.value.email,
             readOnly: false,
           },
         });
@@ -473,7 +475,7 @@ export default defineComponent({
           {
             id: ccuIdFieldId,
             hidden: true,
-            prefill: { '*': String(currentUser.value!.id) },
+            prefill: { '*': String(currentUser.value.id) },
           },
         ];
       }
