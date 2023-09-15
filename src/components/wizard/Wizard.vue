@@ -87,7 +87,7 @@ import { getErrorMessage } from '@/utils/errors';
 interface StepProps {
   name: string;
   disabled: boolean;
-  onSave: Function;
+  onSave: () => void;
 }
 export default defineComponent({
   name: 'Wizard',
