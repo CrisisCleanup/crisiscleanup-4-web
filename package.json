@@ -165,6 +165,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^39.0.0",
     "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-nibble": "^8.1.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^6.1.1",
