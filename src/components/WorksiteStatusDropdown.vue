@@ -44,7 +44,7 @@
             "
           >
             <badge class="mx-1" :color="getColorForStatus(status.status)" />
-            <div>{{ status.status_name_t }}</div>
+            <div>{{ $t(status.status_name_t) }}</div>
           </div>
         </div>
       </div>

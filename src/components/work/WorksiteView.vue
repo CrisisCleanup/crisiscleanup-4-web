@@ -204,7 +204,7 @@
                   <div class="work-list">
                     {{
                       getFieldsForType(work_type.work_type)
-                        .map((_) => _.label_t)
+                        .map((_) => $t(_.label_t))
                         .join(', ')
                     }}
                   </div>
@@ -268,7 +268,7 @@
                 <div class="work-list">
                   {{
                     getFieldsForType(work_type.work_type)
-                      .map((_) => _.label_t)
+                      .map((_) => $t(_.label_t))
                       .join(', ')
                   }}
                 </div>
@@ -319,7 +319,7 @@
                 <div class="work-list">
                   {{
                     getFieldsForType(work_type.work_type)
-                      .map((_) => _.label_t)
+                      .map((_) => $t(_.label_t))
                       .join(', ')
                   }}
                 </div>
