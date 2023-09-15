@@ -1038,7 +1038,6 @@ import PhoneToolBar from '../../components/phone/PhoneToolBar.vue';
 import PhoneNews from '../../components/phone/PhoneNews.vue';
 import useDialogs from '../../hooks/useDialogs';
 import useConnectFirst from '../../hooks/useConnectFirst';
-import useCurrentUser from '../../hooks/useCurrentUser';
 import User from '../../models/User';
 import WorksiteForm from '../../components/work/WorksiteForm.vue';
 import { loadCasesCached } from '@/utils/worksite';
@@ -1573,13 +1572,6 @@ export default defineComponent({
           markers.map((m) => m.id),
         );
       });
-    }
-
-    async function reloadCase() {
-      return Worksite.api().fetch(
-        worksite?.value?.id,
-        currentIncidentId.value.id,
-      );
     }
 
     async function onSaveCase(worksite) {
