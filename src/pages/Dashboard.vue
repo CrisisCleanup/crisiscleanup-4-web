@@ -229,7 +229,6 @@
                 class=""
                 :data-testid="`testWorksiteCaseNumber${slotProps.item.id}Link`"
                 :to="`/incident/${$route.params.incident_id}/work/${slotProps.item.id}?showOnMap=true`"
-                tag="div"
               >
                 {{ slotProps.item.case_number }}
               </router-link>
@@ -239,7 +238,6 @@
                 class=""
                 :data-testid="`testWorksitePhone${slotProps.item.id}Link`"
                 :to="`/incident/${$route.params.incident_id}/work/${slotProps.item.id}?showOnMap=true`"
-                tag="div"
               >
                 {{ slotProps.item.phone }}
               </router-link>
@@ -249,7 +247,6 @@
                 class=""
                 :data-testid="`testWorksiteFullAddress${slotProps.item.id}Link`"
                 :to="`/incident/${$route.params.incident_id}/work/${slotProps.item.id}?showOnMap=true`"
-                tag="div"
               >
                 {{ slotProps.item.full_address }}
               </router-link>
@@ -259,7 +256,6 @@
                 class=""
                 :data-testid="`testWorksiteName${slotProps.item.id}Link`"
                 :to="`/incident/${$route.params.incident_id}/work/${slotProps.item.id}?showOnMap=true`"
-                tag="div"
               >
                 {{ slotProps.item.name }}
               </router-link>
@@ -270,7 +266,6 @@
                   class=""
                   :data-testid="`testWorksiteActions${slotProps.item.id}Link`"
                   :to="`/incident/${$route.params.incident_id}/work/${slotProps.item.id}?showOnMap=true`"
-                  tag="div"
                 >
                   <ccu-icon
                     :alt="$t('actions.jump_to_case')"
