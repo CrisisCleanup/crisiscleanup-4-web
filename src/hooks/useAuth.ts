@@ -129,8 +129,9 @@ const authStore = () => {
     '/authorized_tokens',
     {
       method: 'GET',
-      withCredentials: true,
-      baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+      params: {
+        client_id: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
+      },
     },
     tokenInstance,
     {
