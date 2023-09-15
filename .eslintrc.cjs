@@ -35,7 +35,7 @@ const config = {
       },
     },
   },
-  ignorePatterns: ['src/external/**/*.ts'],
+  ignorePatterns: ['src/external/**/*.ts', 'src/assets/vendor/**/*'],
   plugins: [
     'vue',
     '@typescript-eslint',
