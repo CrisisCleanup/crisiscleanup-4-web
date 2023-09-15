@@ -560,7 +560,7 @@
             size="small"
             class="p-1 py-2"
             type="trash"
-            @click.native="
+            @click="
               () => {
                 deleteFile(liabilityWaiver.file);
               }

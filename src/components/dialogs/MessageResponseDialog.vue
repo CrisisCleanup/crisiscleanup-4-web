@@ -14,7 +14,7 @@
                 data-testid="testCancelIcon"
                 size="xs"
                 type="cancel"
-                @click.native="
+                @click="
                   () => {
                     closeDialog(false);
                   }
