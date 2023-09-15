@@ -10,7 +10,8 @@ const config = {
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-recommended', // See: https://eslint.vuejs.org/user-guide/#bundle-configurations
-    'plugin:@typescript-eslint/recommended',
+    // Enable type-enriched linting. See: https://typescript-eslint.io/linting/typed-linting/
+    'plugin:@typescript-eslint/recommended-type-checked',
     'plugin:unicorn/recommended',
     'plugin:import/recommended',
     'plugin:promise/recommended',
@@ -23,6 +24,9 @@ const config = {
     parser: '@typescript-eslint/parser',
     ecmaVersion: 'latest',
     sourceType: 'module',
+    project: ['./tsconfig.json', './tsconfig.node.json'],
+    tsconfigRootDir: __dirname,
+    extraFileExtensions: ['.vue'],
   },
   settings: {
     'import/parsers': {
