@@ -11,6 +11,8 @@ export function getErrorMessage(error: any) {
     return t('~~404 Entity/Item not found.');
   }
   if (error.response.status === 500) {
+    // capture 500s
+    Sentry.captureException(error);
     return t('info.error_500');
   }
 
