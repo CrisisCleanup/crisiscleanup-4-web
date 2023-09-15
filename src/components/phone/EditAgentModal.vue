@@ -48,7 +48,6 @@
           label="name_t"
           size="large"
           select-classes="bg-white border text-xs p-1 profile-select"
-          :limit="2"
           @update:modelValue="(value: string[]) => (languages = value)"
         />
       </div>
@@ -82,27 +81,26 @@ export default defineComponent({
     const number = ref('');
     const languages = ref<string[]>([]);
     const phoneNumber = ref('');
-    const { currentUser, updateCurrentUser, saveCurrentUser } =
-      useCurrentUser();
+    const { currentUser, updateCurrentUser } = useCurrentUser();
     const { loadAgent } = useConnectFirst(context);
     const { validatePhoneNumber } = useValidation();
     const $toasted = useToast();
+    const { t } = useI18n();
 
     async function updateUserNeeded() {
       if (phoneNumber.value) {
-        await updateCurrentUser(phoneNumber.value, 'mobile');
+        await updateCurrentUser({ mobile: phoneNumber.value });
       }
 
       if (languages.value.length > 0) {
-        await updateCurrentUser(null, 'primary_language');
-        await updateCurrentUser(null, 'secondary_language');
+        await updateCurrentUser({ primary_language: undefined });
+        await updateCurrentUser({ secondary_language: undefined });
         const [primary_language, secondary_language] = languages.value;
-        await updateCurrentUser(primary_language, 'primary_language');
-        await updateCurrentUser(secondary_language, 'secondary_language');
+        await updateCurrentUser({ primary_language });
+        await updateCurrentUser({ secondary_language });
       }
 
       try {
-        await saveCurrentUser();
         await loadAgent();
         context.emit('cancel');
       } catch (error: any) {
@@ -112,14 +110,19 @@ export default defineComponent({
     }
 
     const supportedLanguages = computed(() => {
-      const languages = Language.all();
+      const languages = Language.all().map((l) => {
+        return {
+          ...l,
+          name_t: t(l.name_t),
+        };
+      });
       const ids = new Set([2, 7, 91, 11]);
       return languages.filter((l) => ids.has(Number(l.id)));
     });
 
     onMounted(() => {
-      phoneNumber.value = currentUser?.mobile || '';
-      languages.value = currentUser?.languages.map((l) => l.id) || [];
+      phoneNumber.value = currentUser?.value?.mobile || '';
+      languages.value = currentUser?.value?.languages.map((l) => l.id) || [];
     });
 
     return {
