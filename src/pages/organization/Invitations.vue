@@ -407,6 +407,8 @@ export default defineComponent({
         classes: 'w-full h-84 overflow-auto p-3',
         modalClasses: 'bg-white max-w-sm shadow',
         props: {
+          // TODO: Add proper typings
+          // eslint-disable-next-line vue/require-prop-type-constructor
           value: window.location.origin + '/i/' + persistentInvitation.token,
         },
       });
@@ -503,7 +505,7 @@ export default defineComponent({
     function handleInvitationsTableChange({
       sorter,
     }: {
-      sorter: SorterObject;
+      sorter: TableSorterObject;
     }) {
       invitationSorter.value = { ...sorter };
     }
@@ -511,7 +513,7 @@ export default defineComponent({
     function handleInvitationRequestsTableChange({
       sorter,
     }: {
-      sorter: SorterObject;
+      sorter: TableSorterObject;
     }) {
       invitationRequestsSorter.value = { ...sorter };
     }
