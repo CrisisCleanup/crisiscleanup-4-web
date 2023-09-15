@@ -61,7 +61,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { component } = useDialogs();
-    const { currentUser, userStates } = useCurrentUser();
+    const { userStates } = useCurrentUser();
 
     const newsInterval = ref(undefined);
     const news = ref([]);
@@ -69,12 +69,12 @@ export default defineComponent({
 
     async function getNews() {
       try {
-        if (userStates[props.stateKey]) {
+        if (userStates.value?.[props.stateKey]) {
           const response = await axios.get(
             `${import.meta.env.VITE_APP_API_BASE_URL}/cms?tags=${
               props.cmsTag
             }&publish_at__gt=${
-              userStates[props.stateKey]
+              userStates.value[props.stateKey]
             }&publish_at__lt=${moment().toISOString()}&limit=1`,
           );
           unreadCount.value = response.data.count;
