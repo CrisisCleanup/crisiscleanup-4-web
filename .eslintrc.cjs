@@ -39,7 +39,11 @@ const config = {
       },
     },
   },
-  ignorePatterns: ['src/external/**/*.ts', 'src/assets/vendor/**/*'],
+  ignorePatterns: [
+    'src/external/**/*.ts',
+    'src/assets/vendor/**/*',
+    '**/*.json',
+  ],
   plugins: [
     'vue',
     '@typescript-eslint',
