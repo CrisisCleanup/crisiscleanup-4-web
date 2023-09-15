@@ -115,6 +115,8 @@ export default defineComponent({
         modalClasses: 'bg-white max-w-3xl shadow',
         props: {
           user: user.id,
+          // TODO: Fix types
+          // eslint-disable-next-line vue/require-prop-type-constructor
           limit: 200,
         },
       });
