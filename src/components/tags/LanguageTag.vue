@@ -10,6 +10,8 @@
 </template>
 
 <script lang="ts">
+// TODO: Fix in eslint config
+// eslint-disable-next-line import/no-unresolved
 import * as config from 'tailwind.config';
 import { computed, onMounted, ref } from 'vue';
 import Language from '../../models/Language';
