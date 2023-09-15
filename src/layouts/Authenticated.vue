@@ -156,6 +156,7 @@ import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { useMq } from 'vue3-mq';
+import * as Sentry from '@sentry/vue';
 import Incident from '../models/Incident';
 import Organization from '../models/Organization';
 import Language from '../models/Language';
@@ -203,6 +204,7 @@ export default defineComponent({
 
     const {
       currentUser,
+      hasCurrentUser,
       updateCurrentUser,
       updateUserStates,
       isOrganizationInactive,
@@ -220,6 +222,7 @@ export default defineComponent({
     const { emitter } = useEmitter();
 
     router.beforeEach(async (to, from, next) => {
+      // todo: maybe NOT block every route with fetching languages...
       const { setupLanguage } = useSetupLanguage();
       await setupLanguage();
       store.commit('events/addEvent', {
@@ -258,7 +261,7 @@ export default defineComponent({
       slideOverVisible.value = !slideOverVisible.value;
     };
 
-    const loading = ref(false);
+    const loading = ref(true);
     const ready = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
@@ -476,91 +479,98 @@ export default defineComponent({
       }
     });
 
-    const onCurrentUserUnSub = whenever(currentUser, async (user) => {
-      console.log('current suer watch');
-      if (!user) {
-        console.log('missing user:', user);
-        return;
-      }
-      loading.value = true;
+    // TODO: refactor this setup
+    const onCurrentUserUnSub = whenever(
+      hasCurrentUser,
+      async () => {
+        console.log('authenticated init:', currentUser.value);
+        await Incident.api().get(
+          '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
+          {
+            dataKey: 'results',
+          },
+        );
 
-      await Incident.api().get(
-        '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
-        {
-          dataKey: 'results',
-        },
-      );
-
-      await Promise.any([
-        Organization.api().get(`/organizations/${user.organization.id}`),
-        Language.api().get('/languages', {
-          dataKey: 'results',
-        }),
-        Report.api().get('/reports', {
-          dataKey: 'results',
-        }),
-      ]);
-      try {
-        Role.api().get('/roles', {
-          dataKey: 'results',
-        });
-        PhoneStatus.api().get('/phone_statuses', {
-          dataKey: 'results',
-        });
-      } catch {
-        // TODO(tobi): Empty for now make this better
-      }
-
-      await getUserTransferRequests();
-      await setupLanguage();
-
-      let incidentId =
-        route.params.incident_id || currentUser?.value?.approved_incidents?.[0];
-
-      if (!incidentId) {
-        const incident = Incident.query().orderBy('id', 'desc').first();
-        if (incident) {
-          incidentId = String(incident.id);
-        }
-      }
-
-      if (currentUser?.value?.states && currentUser.value?.states.incident) {
-        incidentId = currentUser.value?.states.incident;
-      }
-
-      if (incidentId) {
-        store.commit('incident/setCurrentIncidentId', incidentId);
-      }
-
-      if (
-        !currentUser?.value?.accepted_terms_timestamp ||
-        moment(VERSION_3_LAUNCH_DATE).isAfter(
-          moment(currentUser.value?.accepted_terms_timestamp),
-        ) ||
-        (portal.value?.tos_updated_at &&
-          moment(portal.value?.tos_updated_at).isAfter(
-            currentUser.value?.accepted_terms_timestamp,
-          ))
-      ) {
-        showAcceptTermsModal.value = true;
-      }
-
-      try {
-        await Incident.api().fetchById(incidentId);
-      } catch {
-        store.commit('incident/setCurrentIncidentId', null);
-        updateUserStates({ incident: null }).catch(getErrorMessage);
-        const incident = Incident.query().orderBy('id', 'desc').first();
-        if (incident) {
-          store.commit('incident/setCurrentIncidentId', false);
+        await Promise.allSettled([
+          Organization.api().get(
+            `/organizations/${currentUser.value!.organization.id}`,
+          ),
+          Language.api().get('/languages', {
+            dataKey: 'results',
+          }),
+          Report.api().get('/reports', {
+            dataKey: 'results',
+          }),
+        ]);
+        try {
+          Role.api().get('/roles', {
+            dataKey: 'results',
+          });
+          PhoneStatus.api().get('/phone_statuses', {
+            dataKey: 'results',
+          });
+        } catch (error: unknown) {
+          // TODO(tobi): Empty for now make this better
+          Sentry.captureException(error);
+          console.error('init:', error);
         }
 
-        await router.push(`/`).catch(() => {});
-      }
+        await Promise.allSettled([getUserTransferRequests(), setupLanguage()]);
 
+        let incidentId =
+          route.params.incident_id ||
+          currentUser?.value?.approved_incidents?.[0];
+
+        if (!incidentId) {
+          const incident = Incident.query().orderBy('id', 'desc').first();
+          if (incident) {
+            incidentId = String(incident.id);
+          }
+        }
+
+        if (currentUser?.value?.states && currentUser.value?.states.incident) {
+          incidentId = currentUser.value?.states.incident;
+        }
+
+        if (incidentId) {
+          store.commit('incident/setCurrentIncidentId', incidentId);
+        }
+
+        if (
+          !currentUser?.value?.accepted_terms_timestamp ||
+          moment(VERSION_3_LAUNCH_DATE).isAfter(
+            moment(currentUser.value?.accepted_terms_timestamp),
+          ) ||
+          (portal.value?.tos_updated_at &&
+            moment(portal.value?.tos_updated_at).isAfter(
+              currentUser.value?.accepted_terms_timestamp,
+            ))
+        ) {
+          showAcceptTermsModal.value = true;
+        }
+
+        try {
+          await Incident.api().fetchById(incidentId);
+        } catch {
+          store.commit('incident/setCurrentIncidentId', null);
+          updateUserStates({ incident: null }).catch(getErrorMessage);
+          const incident = Incident.query().orderBy('id', 'desc').first();
+          if (incident) {
+            store.commit('incident/setCurrentIncidentId', false);
+          }
+
+          await router.push(`/`).catch(() => {});
+        }
+
+        loading.value = false;
+        ready.value = true;
+        onCurrentUserUnSub();
+      },
+      { immediate: true },
+    );
+
+    whenever(ready, () => {
       loading.value = false;
-      ready.value = true;
-      onCurrentUserUnSub();
     });
 
     return {
