@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts">
+import { onBeforeRouteUpdate, useRouter } from 'vue-router';
 import { useAuthStore } from '@/hooks/useAuth';
 import Spinner from '@/components/Spinner.vue';
 
@@ -16,29 +17,19 @@ export default defineComponent({
     const router = useRouter();
 
     const authStore = useAuthStore();
-    authStore.getMe();
 
-    if (authStore.currentUser.value) {
-      router.push({ name: 'nav.dashboard_no_incident' });
-    }
+    const onAuthStateChange = async () => {
+      if (authStore.isAuthenticated.value) {
+        await router.push({
+          name: 'nav.dashboard_no_incident',
+        });
+      } else if (!authStore.isLoadingMe.value) {
+        await router.replace({ path: '/' });
+      }
+    };
 
-    // authenticated
-    watch(
-      () => authStore.currentUser,
-      async (newUser) => {
-        console.log(authStore.currentUser.value);
-        console.log(newUser);
-        if (newUser) {
-          await router.push({
-            name: 'nav.dashboard_no_incident',
-          });
-        }
-      },
-      {
-        immediate: true,
-        flush: 'sync',
-      },
-    );
+    watchEffect(onAuthStateChange);
+    onBeforeRouteUpdate(onAuthStateChange);
   },
 });
 </script>
