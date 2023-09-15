@@ -45,7 +45,7 @@
             </div>
           </div>
           <template #footer>
-            <div slot="footer" class="p-3 flex">
+            <div class="p-3 flex">
               <base-button
                 :action="
                   () => {

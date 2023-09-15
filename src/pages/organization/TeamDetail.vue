@@ -463,7 +463,7 @@
         </div>
       </div>
       <template #footer>
-        <div slot="footer" class="p-3 flex items-center justify-center">
+        <div class="p-3 flex items-center justify-center">
           <base-button
             :action="
               () => {

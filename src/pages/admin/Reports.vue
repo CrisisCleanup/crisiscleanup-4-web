@@ -13,7 +13,7 @@
         </base-text>
       </div>
       <template #footer>
-        <div slot="footer" class="flex p-1 justify-center">
+        <div class="flex p-1 justify-center">
           <base-button
             variant="outline"
             :action="() => (showRequestAccessModal = false)"
