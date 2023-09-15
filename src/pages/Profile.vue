@@ -1,5 +1,5 @@
 <template>
-  <div
+  <form
     class="h-full flex justify-center mt-10 md:mt-0"
     data-testid="testProfileDiv"
   >
@@ -77,7 +77,9 @@
                         :model-value="currentUser!.first_name"
                         :placeholder="$t('profileUser.first_name_placeholder')"
                         required
-                        @update:modelValue="updateProp('first_name')"
+                        @update:modelValue="
+                          (value) => updateUser(value, 'first_name')
+                        "
                       />
                     </div>
                     <div class="form-field">
@@ -90,9 +92,10 @@
                         size="large"
                         :model-value="currentUser!.mobile"
                         :placeholder="$t('profileUser.mobile_placeholder')"
-                        required
                         :validator="validatePhoneNumber"
-                        @update:modelValue="updateProp('mobile')"
+                        @update:modelValue="
+                          (value) => updateUser(value, 'mobile')
+                        "
                       />
                     </div>
                     <div class="form-field mr-2">
@@ -106,7 +109,9 @@
                         :model-value="currentUser!.last_name"
                         :placeholder="$t('profileUser.last_name_placeholder')"
                         required
-                        @update:modelValue="updateProp('last_name')"
+                        @update:modelValue="
+                          (value) => updateUser(value, 'last_name')
+                        "
                       />
                     </div>
                     <div class="form-field">
@@ -120,7 +125,7 @@
                         size="large"
                         :placeholder="$t('profileUser.email_placeholder ')"
                         required
-                        @update:modelValue="updateProp('email')"
+                        @update:modelValue="(value) => updateUser(value, email)"
                       />
                     </div>
                   </div>
@@ -328,7 +333,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <script lang="ts">
@@ -481,13 +486,10 @@ export default defineComponent({
     async function updateUser(value: unknown, key: string) {
       await updateCurrentUserDebounced({
         [key]: value,
-      }).catch(getErrorMessage);
+      }).catch((error) => {
+        $toasted.error(getErrorMessage(error));
+      });
     }
-
-    const updateProp =
-      <K extends keyof InstanceType<typeof User>>(key: K) =>
-      <Value extends InstanceType<typeof User>[K]>(value: Value) =>
-        updateUser(value, key);
 
     async function updateUserLanguage() {
       const { setupLanguage } = useSetupLanguage();
@@ -556,7 +558,6 @@ export default defineComponent({
       setNotifications,
       handleProfilePictureUpload,
       updateUser,
-      updateProp,
       saveUser,
       resetPreferences,
       resetStates,
