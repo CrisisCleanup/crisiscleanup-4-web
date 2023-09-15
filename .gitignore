@@ -152,4 +152,6 @@ modules.xml
 
 # Sentry Auth Token
 .env.sentry-build-plugin
+
+# Eslint
 .eslintcache
