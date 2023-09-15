@@ -542,7 +542,7 @@ export default {
       await $toasted.success(t('info.delete_assets_successful'));
     };
 
-    const deleteAsset = async (asset: Asset) => {
+    const deleteAsset = async (asset: IncidentAniAsset) => {
       if (!asset.id) {
         $toasted.warning('No saved asset to delete. Please save asset first.');
         return;
