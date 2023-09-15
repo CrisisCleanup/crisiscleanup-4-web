@@ -6,7 +6,6 @@ import { i18nService } from '@/services/i18n.service';
 import { i18n } from '@/main';
 import { store } from '@/store';
 import Language from '@/models/Language';
-import User from '@/models/User';
 import { useCurrentUser } from '@/hooks/index';
 
 export default function useSetupLanguage() {
@@ -15,7 +14,10 @@ export default function useSetupLanguage() {
       const { setLocaleMessage, locale } = i18n.global;
       let currentLanguage: string;
       const { currentUser } = useCurrentUser();
-      if (currentUser?.primary_language || currentUser?.secondary_language) {
+      if (
+        currentUser?.value?.primary_language ||
+        currentUser?.value?.secondary_language
+      ) {
         const userLanguage =
           Language.find(currentUser.value?.primary_language) ||
           Language.find(currentUser.value?.secondary_language);
@@ -50,7 +52,7 @@ export default function useSetupLanguage() {
           currentLanguage = 'en-US';
         }
         if (isSpanish && !availableLanguages.has(currentLanguage)) {
-          currentLanguage = 'es';
+          currentLanguage = 'e';
         }
         if (isFrench && !availableLanguages.has(currentLanguage)) {
           currentLanguage = 'fr';

@@ -147,19 +147,7 @@
                     label="name_t"
                     size="large"
                     class="w-full"
-                    @update:modelValue="
-                      (value) => {
-                        const [primary_language, secondary_language] = value;
-                        updateUser(primary_language, 'primary_language');
-                        updateUser(secondary_language, 'secondary_language');
-                        if (!primary_language) {
-                          updateUser(null, 'primary_language');
-                        }
-                        if (!secondary_language) {
-                          updateUser(null, 'secondary_language');
-                        }
-                      }
-                    "
+                    @update:modelValue="updateUserLanguageIds"
                   />
                 </div>
                 <div class="mt-3">
@@ -368,10 +356,9 @@ export default defineComponent({
     const $toasted = useToast();
     const route = useRoute();
     const router = useRouter();
-    const store = useStore();
     const { validatePhoneNumber } = useValidation();
     const { t } = useI18n();
-    const form = ref(null);
+    const form = ref<HTMLFormElement | undefined>(undefined);
     const state = reactive({
       mode: 'view',
       uploading: false,
@@ -435,7 +422,7 @@ export default defineComponent({
       });
     }
 
-    async function handleProfilePictureUpload(fileList) {
+    async function handleProfilePictureUpload(fileList: File[]) {
       if (fileList.length === 0) {
         state.uploading = false;
         return;
@@ -501,7 +488,7 @@ export default defineComponent({
     }
 
     async function saveUser() {
-      const isValid = form.value.reportValidity();
+      const isValid = form?.value?.reportValidity();
       if (!isValid) {
         return;
       }
@@ -532,6 +519,18 @@ export default defineComponent({
       });
     }
 
+    async function updateUserLanguageIds(value: string[]) {
+      const [primary_language, secondary_language] = value;
+      await updateUser(primary_language, 'primary_language');
+      await updateUser(secondary_language, 'secondary_language');
+      if (!primary_language) {
+        await updateUser(undefined, 'primary_language');
+      }
+      if (!secondary_language) {
+        await updateUser(undefined, 'secondary_language');
+      }
+    }
+
     onMounted(() => {
       if (route.query.move) {
         state.showChangeOrganizationModal = true;
@@ -555,6 +554,7 @@ export default defineComponent({
       resetPreferences,
       resetStates,
       validatePhoneNumber,
+      updateUserLanguageIds,
       form,
       logoutApp: authStore.logout,
     };
