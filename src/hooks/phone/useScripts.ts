@@ -4,6 +4,8 @@
 
 import type { Ref } from 'vue';
 import { computed } from 'vue';
+// TODO: Fix in eslint config
+// eslint-disable-next-line import/no-unresolved
 import * as config from 'tailwind.config';
 import moment from 'moment';
 import { wrap } from '../../utils/wrap';
