@@ -107,7 +107,11 @@
                 <base-select
                   v-if="!loading"
                   :model-value="shapefileInfo[data.filename].shapefileType"
-                  :options="locationTypes"
+                  :options="
+                    locationTypes.map((l) => {
+                      return { ...l, name_t: $t(l.name_t) };
+                    })
+                  "
                   data-testid="testShapefileTypeSelect"
                   item-key="id"
                   label="name_t"

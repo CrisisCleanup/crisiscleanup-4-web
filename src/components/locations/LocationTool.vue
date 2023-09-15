@@ -27,7 +27,11 @@
 
       <base-select
         :model-value="currentLocationType"
-        :options="locationTypes"
+        :options="
+          locationTypes.map((l) => {
+            return { ...l, name_t: $t(l.name_t) };
+          })
+        "
         data-testid="testLocationTypesSelect"
         item-key="id"
         label="name_t"

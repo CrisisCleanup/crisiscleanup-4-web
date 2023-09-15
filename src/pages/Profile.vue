@@ -397,7 +397,14 @@ export default defineComponent({
 
     const roles = computed(() => Role.all());
 
-    const languages = computed(() => Language.all());
+    const languages = computed(() =>
+      Language.all().map((l) => {
+        return {
+          ...l,
+          name_t: t(l.name_t),
+        };
+      }),
+    );
 
     const userRoles = computed(() => {
       if (!currentUser.value) return [];
