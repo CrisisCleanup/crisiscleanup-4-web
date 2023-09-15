@@ -15,9 +15,10 @@ export default defineComponent({
     DialogWrapper,
   },
   setup() {
-    const authStore = useAuthStore();
-    authStore.getMe();
     const route = useRoute();
+
+    const authStore = useAuthStore();
+
     const defaultLayout = 'authenticated';
     const layout = computed(
       () => `${route.meta?.layout || defaultLayout}-layout`,
