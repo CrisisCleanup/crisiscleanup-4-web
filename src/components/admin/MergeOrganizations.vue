@@ -48,7 +48,7 @@
         />
       </div>
       <template #footer>
-        <div slot="footer" class="p-3 flex justify-end">
+        <div class="p-3 flex justify-end">
           <base-button
             :text="$t('actions.cancel')"
             :alt="$t('actions.cancel')"
