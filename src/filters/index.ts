@@ -7,6 +7,7 @@ import { colors as iconColors, templates } from '../icons/icons_templates';
 import Organization from '../models/Organization';
 import type { WorkType } from '@/models/types';
 import { SVG_STROKE_WIDTH } from '@/constants';
+import { i18n } from '@/main';
 
 export function snakeToTitleCase(value: string) {
   if (!value) return '';
@@ -21,12 +22,12 @@ export function snakeToTitleCase(value: string) {
 
 export function getWorkTypeName(workType: string) {
   const wType = enums.state.workTypes.find((type) => type.key === workType);
-  return wType && wType.name_t ? wType.name_t : '';
+  return wType && wType.name_t ? i18n.global.t(wType.name_t) : '';
 }
 
 export function getStatusName(statusKey: string) {
   const status = enums.state.statuses.find((type) => type.status === statusKey);
-  return status ? status.status_name_t : '';
+  return status ? i18n.global.t(status.status_name_t) : '';
 }
 
 export function getRecurrenceString(rule: string) {
