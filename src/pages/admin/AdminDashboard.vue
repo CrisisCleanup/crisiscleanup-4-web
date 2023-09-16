@@ -27,6 +27,16 @@
           size="medium"
           :action="showArcGisUploader"
         />
+        <base-button
+          data-testid="testExportButton"
+          size="medium"
+          variant="solid"
+          :text="$t('dashboard.edit_current_incident')"
+          :alt="$t('dashboard.edit_current_incident')"
+          :action="
+            () => $router.push(`/admin/incident_wizard/${currentIncidentId}`)
+          "
+        />
       </div>
     </div>
     <div class="flex" data-testid="testPendingOrganizationsDiv">

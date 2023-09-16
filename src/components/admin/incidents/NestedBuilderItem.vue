@@ -73,6 +73,7 @@
                 <base-select
                   :options="
                     (field.values &&
+                      Array.isArray(field.values) &&
                       field.values.map((item: Record<string, string>) => {
                         return {
                           value: item.value,
@@ -108,6 +109,7 @@
                   multiple
                   :options="
                     (field.values &&
+                      Array.isArray(field.values) &&
                       field.values.map((item: Record<string, string>) => {
                         return {
                           value: item.value,
