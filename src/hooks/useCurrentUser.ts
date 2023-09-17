@@ -9,6 +9,7 @@ import User from '../models/User';
 import { getErrorMessage } from '../utils/errors';
 import { useAuthStore } from './useAuth';
 import Organization from '@/models/Organization';
+import axios from 'axios';
 
 const debug = createDebug('@crisiscleanup:hooks:useCurrentUser');
 
@@ -148,6 +149,26 @@ const currentStoreStore = () => {
     ]).catch(getErrorMessage);
   };
 
+  const updateCurrentUserStates = async (states: Record<string, unknown>) => {
+    debug('updating current user states');
+    await Promise.any([
+      User.update({
+        where: currentUser.value!.id,
+        data: {
+          states,
+        },
+      }).catch(getErrorMessage),
+      axios
+        .post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/users/${
+            currentUser.value!.id
+          }/states`,
+          { states },
+        )
+        .catch(getErrorMessage),
+    ]).catch(getErrorMessage);
+  };
+
   /**
    * Update user states.
    * @param globalStates Global states.
@@ -162,7 +183,7 @@ const currentStoreStore = () => {
       globalStates,
       incidentStates,
     );
-    await updateCurrentUser({ states: newStates });
+    await updateCurrentUserStates(newStates);
   };
 
   const updateCurrentUserDebounced = useDebounceFn(updateCurrentUser, 300);
