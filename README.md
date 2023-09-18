@@ -187,14 +187,86 @@ $ pnpm dev
 pnpm run build
 ```
 
-#### Test
+#### Testing
+
+In this section, we will guide you through the process of running unit tests and end-to-end (E2E) tests for our application.
+
+##### Running Unit Tests
+
+To ensure the functionality of individual components of our application, we use unit tests. You can run these tests using the following commands:
 
 ```bash
 pnpm run test
+```
 
-# Show coverage
+To view the coverage of these tests, use the following command:
+
+```bash
 pnpm run test:cov
+```
 
+This command will provide you with a detailed report of the test coverage, showing you which parts of the code have been tested and which parts have not.
+
+##### Running E2E Tests
+
+E2E tests are designed to test the flow of the application from start to finish. They ensure that the integrated components of the application work as expected. We use Playwright for our E2E tests. You can find more information about Playwright [here](https://playwright.dev).
+
+1. **Installing Playwright Browsers**
+
+Before running the E2E tests, you need to install the Playwright browsers. You can do this using the following commands:
+
+```sh
+# Install playwright browsers.
+playwright install
+# Alternatively, you can use pnpm pw to install browsers as it's a shorthand to run playwright with pnpm exec
+pnpm pw install
+```
+
+If you are using Ubuntu, you can install the browser dependencies using the following commands:
+
+```sh
+# Install browser dependencies
+playwright install-deps
+# Install with a single command:
+playwright install --with-deps chromium
+```
+
+For more information on installing browsers with Playwright, you can refer to the [official Playwright documentation](https://playwright.dev/docs/browsers#install-browsers). You may also find it helpful to refer to our E2E continuous integration (CI) workflow for additional information. 2. **Running the E2E Tests**
+Once the Playwright browsers are installed, you can run the E2E tests using the following commands:
+
+2. **Executing the E2E Tests**
+
+Once the Playwright browsers are installed, you can proceed to run the E2E tests.
+
+This command will execute all the E2E tests in the all browsers (firefox, chromium, webkit) in headless mode.
+
+```sh
 # Run e2e tests
 pnpm run test:e2e
 ```
+
+This command will run the E2E tests in Firefox, with 4 worker threads, and in headed mode. The headed mode allows you to visually observe the tests as they run in the browser.
+This can be particularly useful for debugging or understanding the flow of the tests.
+
+```sh
+# E2e tests with 4 workers in headed mode only in firefox
+pnpm test:e2e --project=firefox --workers=4 --headed
+```
+
+This command is similar to the previous one, but it only runs the E2E tests that are specifically marked for development.
+This can be useful when you want to run a subset of tests that are relevant to the features or fixes you are currently developing.
+
+```sh
+pnpm test:e2e:development --project=firefox --workers=4 --headed
+```
+
+This command runs the E2E tests that are tagged as 'slow'. These tests typically take longer to run due to their complexity or the need for extensive data processing.
+The command also increases the number of retries to 2, meaning that if a test fails, it will be re-run up to two more times before being marked as a failed test.
+This can help to avoid false negatives caused by temporary issues such as network instability.
+The timeout is also increased to 120000 milliseconds (or 2 minutes), which gives these slower tests more time to complete.
+
+```sh
+pnpm test:e2e --project=firefox --headed --workers=4 --grep '@slow' --retries 2 --timeout 120000
+```
+
+Remember, these commands are flexible and can be adjusted based on your specific testing needs.
