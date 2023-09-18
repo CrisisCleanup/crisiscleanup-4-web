@@ -226,7 +226,7 @@ export default defineComponent({
           const startedConnecting = moment().toISOString();
           connectingTimeout.value = setTimeout(() => {
             const context = {
-              user: currentUser?.$toJson(),
+              user: currentUser?.value?.$toJson(),
               caller: caller.value,
               callState: callState.value,
               isInboundCall: isInboundCall.value,

@@ -146,7 +146,8 @@ export default defineComponent({
       const newReports = Report.query()
         .where('created_at', (created_at: string) => {
           const reportsAccessed =
-            currentUser?.states && currentUser?.states.reports_last_accessed;
+            currentUser?.value?.states &&
+            currentUser?.value?.states.reports_last_accessed;
           return reportsAccessed
             ? moment(created_at).isAfter(moment(reportsAccessed))
             : true;
