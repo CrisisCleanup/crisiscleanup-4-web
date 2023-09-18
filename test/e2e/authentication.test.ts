@@ -17,7 +17,7 @@ test.describe('Authentication', () => {
 
   test(
     testTitleWithTags('should login and logout', [
-      'slow',
+      'fast',
       'primary',
       'development',
       'staging',
