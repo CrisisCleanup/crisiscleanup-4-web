@@ -149,7 +149,7 @@ export default defineComponent({
     const incidentRequests = ref<IncidentRequest[]>([]);
 
     const currentOrganization = computed(() =>
-      Organization.find(currentUser?.organization?.id),
+      Organization.find(currentUser?.value?.organization?.id),
     );
 
     const incident_list = computed(() => {

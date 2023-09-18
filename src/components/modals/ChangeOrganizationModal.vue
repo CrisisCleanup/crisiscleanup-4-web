@@ -285,7 +285,7 @@ export default defineComponent({
     async function loadPageData() {
       const pageData = await hash({
         lineageUsers: User.api().get(
-          `/users?lineage=${currentUser?.id}&limit=1000&fields=id,referring_user,first_name,last_name,files,lineage&organization=${currentUser?.organization?.id}`,
+          `/users?lineage=${currentUser?.value?.id}&limit=1000&fields=id,referring_user,first_name,last_name,files,lineage&organization=${currentUser?.value?.organization?.id}`,
           {
             dataKey: 'results',
           },
@@ -299,18 +299,21 @@ export default defineComponent({
       lineageUsers.value = pageData.lineageUsers.entities.users;
       incidents.value = pageData.incidents.data.results;
       if (lineageUsers.value && lineageUsers.value.length > 0) {
-        nestedUsers.value = nestUsers(lineageUsers.value, currentUser?.id);
+        nestedUsers.value = nestUsers(
+          lineageUsers.value,
+          currentUser?.value?.id,
+        );
 
         const user_ids = lineageUsers.value.map((user: User) => user.id);
-        if (currentUser?.id) {
-          user_ids.push(currentUser?.id);
+        if (currentUser?.value?.id) {
+          user_ids.push(currentUser?.value?.id);
         }
       }
 
       const response = await $http.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/worksite_work_types?claimed_by=${currentUser?.organization
+        }/worksite_work_types?claimed_by=${currentUser?.value?.organization
           .id}&limit=150`,
       );
       claimedCases.value = groupBy(response.data.results, 'incident');
@@ -326,7 +329,7 @@ export default defineComponent({
         {
           transfering_user_ids: [...selectedUsers.value],
           transfering_wwwtsp_ids: selectedCases.value,
-          origin_organization: currentUser?.organization.id,
+          origin_organization: currentUser?.value?.organization.id,
           target_organization: selectedOrganization.value?.id,
           user_notes: '',
         },

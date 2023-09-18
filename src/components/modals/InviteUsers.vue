@@ -130,7 +130,7 @@ export default defineComponent({
     const organizationResults = ref<Organization[]>([]);
     const { currentUser } = useCurrentUser();
     const currentOrganization = computed(() =>
-      Organization.find(currentUser?.organization?.id),
+      Organization.find(currentUser?.value?.organization?.id),
     );
 
     async function onOrganizationSearch(value: string) {

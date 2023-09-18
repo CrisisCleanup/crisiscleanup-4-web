@@ -117,8 +117,8 @@ export default {
           description: bug.value.description,
           type: props.reportType,
           attr: store.state.phone,
-          states: currentUser?.states,
-          preferences: currentUser?.preferences,
+          states: currentUser?.value?.states,
+          preferences: currentUser?.value?.preferences,
         },
       });
 

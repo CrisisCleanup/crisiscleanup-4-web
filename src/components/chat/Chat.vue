@@ -320,7 +320,7 @@ export default defineComponent({
         'chat',
         (data: Message) => {
           messages.value = [data, ...messages.value];
-          if (String(data.created_by) !== String(currentUser?.id)) {
+          if (String(data.created_by) !== String(currentUser?.value?.id)) {
             if (data.is_urgent) {
               emit('onNewUrgentMessage');
             } else {
