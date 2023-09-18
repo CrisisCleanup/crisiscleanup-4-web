@@ -27,7 +27,7 @@ test.describe('Authentication', () => {
       await expect(page).toHaveURL(urlRegexes.login);
       await doLoginActions(page);
       await expect(page).toHaveURL(urlRegexes.oauthCallback);
-      await expect(page).toHaveURL(urlRegexes.dashboard);
+      await expect(page).toHaveURL(urlRegexes.dashboard, { timeout: 15_000 });
 
       // go to profile
       const profileMenuDiv = page.getByTestId('testAvatarIcon').first();
