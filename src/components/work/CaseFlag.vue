@@ -396,6 +396,7 @@ import GeocoderService from '../../services/geocoder.service';
 import { What3wordsService } from '../../services/what3words.service';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import type { CaseFlag } from '@/models/types';
+import type Incident from '@/models/Incident';
 
 export default defineComponent({
   name: 'CaseFlag',
@@ -431,7 +432,7 @@ export default defineComponent({
     });
 
     const worksite = ref({});
-    const incidents = ref([]);
+    const incidents = ref<Incident[]>([]);
     const ready = ref(false);
     const selectedOrganizations = ref(new Set());
     const organizationsWithClaimsInArea = ref([]);
@@ -565,7 +566,7 @@ export default defineComponent({
           save: false,
         },
       );
-      incidents.value = orderBy(response.data.results, ['id'], ['desc']);
+      incidents.value = orderBy(response.data.results, ['start_at'], ['desc']);
     });
 
     return {
