@@ -87,4 +87,21 @@ test.describe('Authentication', () => {
       await navigateAndCheck(page, '/about', 'testAboutDiv');
     },
   );
+
+  test(
+    testTitleWithTags(
+      'should redirect from login related unauthorized pages with existing session',
+      ['slow', 'primary', 'development', 'staging', 'production'],
+    ),
+    async ({ page }) => {
+      const assertIsDashboard = () =>
+        expect(page).toHaveURL(urlRegexes.dashboard, { timeout: 15_000 });
+      await doLogin(page);
+      // should redirect back to dashboard page
+      await page.goto('/login');
+      await assertIsDashboard();
+      await page.goto('/o/callback');
+      await assertIsDashboard();
+    },
+  );
 });
