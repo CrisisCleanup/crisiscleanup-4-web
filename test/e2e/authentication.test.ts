@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { testTitleWithTags, doLoginActions } from './utils';
+import { test, expect, type Page } from '@playwright/test';
+import { testTitleWithTags, doLoginActions, doLogin } from './utils';
 
 const urlRegexes = {
   login: /.*\/login\/.*/,
@@ -55,6 +55,36 @@ test.describe('Authentication', () => {
       // Navigate to the OAuth callback URL with an invalid code
       await page.goto('/o/callback?code=abc123');
       await expect(page).toHaveURL(urlRegexes.login);
+    },
+  );
+
+  test(
+    testTitleWithTags(
+      'should load unauthorized routes as expected with and without authentication',
+      ['slow', 'primary', 'development', 'staging', 'production'],
+    ),
+    async ({ page }) => {
+      const navigateAndCheck = async (
+        page: Page,
+        url: string,
+        testId: string,
+      ) => {
+        await page.goto(url);
+        await page.waitForSelector(`[data-testid="${testId}"]`, {
+          state: 'visible',
+        });
+        await expect(page).toHaveURL(url);
+      };
+      await expect(page).toHaveURL(urlRegexes.login);
+      await navigateAndCheck(page, '/training', 'testTrainingDiv');
+      await navigateAndCheck(page, '/about', 'testAboutDiv');
+      await page.goto('/login');
+      await page.waitForSelector('[data-testid="testLoginTextContent"]', {
+        state: 'visible',
+      });
+      await doLogin(page);
+      await navigateAndCheck(page, '/training', 'testTrainingDiv');
+      await navigateAndCheck(page, '/about', 'testAboutDiv');
     },
   );
 });
