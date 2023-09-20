@@ -43,6 +43,35 @@ test.describe('Authentication', () => {
 
   test(
     testTitleWithTags(
+      'should redirect to 404 page when navigating to an invalid route, regardless of authentication status',
+      ['fast', 'primary', 'development', 'staging', 'production'],
+    ),
+    async ({ page }) => {
+      const invalidRoutes = [
+        '/invalid-route',
+        '/qwerty',
+        '/work-page',
+        '/phone-system',
+      ];
+      const assertIs404 = () =>
+        expect(page.locator('[data-testid="test404Div"]')).toBeVisible();
+      const visitAndAssert = async () => {
+        for (const route of invalidRoutes) {
+          await page.goto(route);
+          await assertIs404();
+        }
+      };
+      // When user is logged out
+      await visitAndAssert();
+      // When user is logged in
+      await page.goto('/login');
+      await doLogin(page);
+      await visitAndAssert();
+    },
+  );
+
+  test(
+    testTitleWithTags(
       'should redirect to authorize on attempt to load authorized page with no token/session',
       ['fast', 'primary', 'development', 'staging', 'production'],
     ),
