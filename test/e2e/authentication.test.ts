@@ -41,6 +41,27 @@ test.describe('Authentication', () => {
     },
   );
 
+  test(
+    testTitleWithTags(
+      'should redirect to authorize on attempt to load authorized page with no token/session',
+      ['fast', 'primary', 'development', 'staging', 'production'],
+    ),
+    async ({ page }) => {
+      const authedRoutesAndTestIds: Array<[string, string]> = [
+        ['/dashboard', 'testDashboarddiv'],
+        ['/other_organizations', 'testOrganizationsDataTable'],
+        ['/admin', 'testAdminDashboardDiv'],
+      ];
+      for (const [route, testId] of authedRoutesAndTestIds) {
+        await page.goto(route);
+        await expect(page.locator(`[data-testid="${testId}"]`)).toBeHidden({
+          timeout: 15_000,
+        });
+        await expect(page).toHaveURL(urlRegexes.login);
+      }
+    },
+  );
+
   // Currently fails when no code is provided on /o/callback url
   test.fixme(
     testTitleWithTags(
