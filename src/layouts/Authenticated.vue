@@ -253,7 +253,7 @@ export default defineComponent({
     });
 
     const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
+      () => store.getters['incident/currentIncidentId'] as number,
     );
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
@@ -374,7 +374,7 @@ export default defineComponent({
       },
     ]);
 
-    const handleChange = async (value: string) => {
+    const handleChange = async (value: number) => {
       if (!value) return;
       await Incident.api().fetchById(value);
       await updateUserStates({
