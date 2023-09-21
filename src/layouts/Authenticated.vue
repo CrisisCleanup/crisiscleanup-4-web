@@ -207,6 +207,7 @@ export default defineComponent({
       isOrphan,
     } = useCurrentUser();
     const authStore = useAuthStore();
+    const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
     const router = useRouter();
     const $http = axios;
@@ -217,9 +218,15 @@ export default defineComponent({
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
 
+    const loading = ref(true);
+    const ready = ref(false);
+    const slideOverVisible = ref(false);
+    const showAcceptTermsModal = ref(false);
+    const showingMoreLinks = ref(false);
+    const transferRequest = ref<Record<string, unknown>>();
+
     router.beforeEach(async (to, from, next) => {
       // todo: maybe NOT block every route with fetching languages...
-      const { setupLanguage } = useSetupLanguage();
       await setupLanguage();
       store.commit('events/addEvent', {
         event_key: 'user_ui-read_page',
@@ -252,16 +259,9 @@ export default defineComponent({
 
     const portal = computed(() => store.getters['enums/portal']);
 
-    const slideOverVisible = ref(false);
     const toggle = () => {
       slideOverVisible.value = !slideOverVisible.value;
     };
-
-    const loading = ref(true);
-    const ready = ref(false);
-    const showAcceptTermsModal = ref(false);
-    const showingMoreLinks = ref(false);
-    const transferRequest = ref<Record<string, unknown>>();
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
@@ -393,8 +393,6 @@ export default defineComponent({
         'only screen and (max-device-width: 1223px) and (orientation: landscape)',
       ).matches;
     };
-
-    const { setupLanguage } = useSetupLanguage();
 
     const acceptTermsAndConditions = async () => {
       await updateCurrentUser({
