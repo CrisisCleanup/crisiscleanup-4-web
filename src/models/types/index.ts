@@ -189,3 +189,9 @@ export interface PhoneDnisResult {
   timezone: string;
   worksites: any[];
 }
+
+export interface LanguagesResponse {
+  subtag: string;
+  name_t: string;
+  translations: Record<string, string>;
+}
