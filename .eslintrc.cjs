@@ -10,7 +10,7 @@ const config = {
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-recommended', // See: https://eslint.vuejs.org/user-guide/#bundle-configurations
-    "plugin:@typescript-eslint/recommended",
+    'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-type-checked', // Enable type-enriched linting. See: https://typescript-eslint.io/linting/typed-linting/
     'plugin:unicorn/recommended',
     'plugin:import/recommended',
@@ -125,7 +125,7 @@ const config = {
         '@typescript-eslint/restrict-template-expressions': 'warn',
         '@typescript-eslint/await-thenable': 'warn',
         '@typescript-eslint/ban-ts-comment': 'warn',
-        '@typescript-eslint/unbound-method': 'warn',
+        '@typescript-eslint/unbound-method': ['warn', { ignoreStatic: true }],
         '@typescript-eslint/no-misused-promises': 'warn',
         '@typescript-eslint/restrict-plus-operands': 'warn',
         '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
