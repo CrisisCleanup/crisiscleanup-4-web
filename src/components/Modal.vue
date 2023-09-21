@@ -191,6 +191,7 @@ export default defineComponent({
   transition: all 0.3s ease;
 
   &--fullscreen {
+    @apply absolute inset-0;
     max-width: 100%;
     width: 100%;
     height: 100%;
