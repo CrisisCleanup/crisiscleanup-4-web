@@ -72,3 +72,15 @@ export function numeral(
 export function generateHash(s: string) {
   return MD5(s).toString();
 }
+
+/**
+ * Utility function to generate url
+ * @param {string} endpoint - The endpoint to be appended to the base URL
+ * @returns {string} - The complete API URL
+ * @example
+ * // returns "http://api.example.com/languages" if VITE_APP_API_BASE_URL is "http://api.example.com"
+ * getApiUrl("/languages")
+ */
+export function getApiUrl(endpoint: string): string {
+  return `${import.meta.env.VITE_APP_API_BASE_URL}${endpoint}`;
+}
