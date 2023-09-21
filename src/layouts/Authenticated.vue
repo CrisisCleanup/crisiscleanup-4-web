@@ -1,7 +1,7 @@
 <template>
   <!-- For mobile screens -->
   <template v-if="mq.mdMinus">
-    <div v-if="!loading && currentIncident" class="flex flex-col">
+    <div v-if="!loading && currentIncidentId" class="flex flex-col">
       <DisasterIcon
         v-if="currentIncident && currentIncident.incidentImage"
         :current-incident="currentIncident"
@@ -58,7 +58,7 @@
   <!-- For desktop screens -->
   <template v-else>
     <div
-      v-if="!loading && currentIncident"
+      v-if="!loading && currentIncidentId"
       class="layout"
       data-testid="testIsAuthenticatedDiv"
     >
