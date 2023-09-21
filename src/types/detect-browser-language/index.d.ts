@@ -1,1 +1,4 @@
-declare module 'detect-browser-language';
+declare module 'detect-browser-language' {
+  const detectBrowserLanguage: () => string;
+  export = detectBrowserLanguage;
+}
