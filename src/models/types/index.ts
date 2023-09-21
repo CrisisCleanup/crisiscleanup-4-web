@@ -195,3 +195,7 @@ export interface LanguagesResponse {
   name_t: string;
   translations: Record<string, string>;
 }
+
+export interface LocalizationsCountResponse {
+  count: number;
+}
