@@ -179,8 +179,9 @@ import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
-import { isLandscape } from '@/utils/helpers';
+import { getApiUrl, isLandscape } from '@/utils/helpers';
 import { store } from '@/store';
+import type { UserTransferResult, UserTransfersResponse } from '@/models/types';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -224,7 +225,7 @@ export default defineComponent({
     const slideOverVisible = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
-    const transferRequest = ref<Record<string, unknown>>();
+    const transferRequest = ref<UserTransferResult>();
 
     router.beforeEach((to, from, next) => {
       store.commit('events/addEvent', {
@@ -396,11 +397,11 @@ export default defineComponent({
     };
 
     const getUserTransferRequests = async () => {
-      const response = await $http.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/transfer_requests`,
+      const response = await $http.get<UserTransfersResponse>(
+        getApiUrl('/transfer_requests'),
       );
-      transferRequest.value = response.data.results.find((request: any) => {
-        return request.user === currentUser?.value?.id;
+      transferRequest.value = response.data.results.find((request) => {
+        return request.user === currentUser.value?.id;
       });
     };
 
