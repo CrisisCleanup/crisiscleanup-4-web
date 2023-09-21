@@ -225,9 +225,7 @@ export default defineComponent({
     const showingMoreLinks = ref(false);
     const transferRequest = ref<Record<string, unknown>>();
 
-    router.beforeEach(async (to, from, next) => {
-      // todo: maybe NOT block every route with fetching languages...
-      await setupLanguage();
+    router.beforeEach((to, from, next) => {
       store.commit('events/addEvent', {
         event_key: 'user_ui-read_page',
         created_at: moment().toISOString(),
