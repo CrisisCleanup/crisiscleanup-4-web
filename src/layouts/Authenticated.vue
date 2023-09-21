@@ -122,13 +122,6 @@
       >
         <OrganizationInactiveModal @user-logged-out="logoutApp" />
       </template>
-      <div v-if="transferRequest">
-        <CompletedTransferModal
-          :transfer-request="transferRequest"
-          data-testid="testCompletedTransferModal"
-          @close="() => (transferRequest = undefined)"
-        />
-      </div>
       <div v-if="showLoginModal">
         <modal modal-classes="bg-white max-w-lg shadow p-5" :closeable="false">
           <LoginForm :redirect="false" />
@@ -162,7 +155,6 @@ import PhoneStatus from '../models/PhoneStatus';
 import NavMenu from '../components/navigation/NavMenu.vue';
 import TermsandConditionsModal from '../components/modals/TermsandConditionsModal.vue';
 import Header from '../components/header/Header.vue';
-import CompletedTransferModal from '../components/modals/CompletedTransferModal.vue';
 import LoginForm from '../components/LoginForm.vue';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
@@ -179,9 +171,7 @@ import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
-import { getApiUrl, isLandscape } from '@/utils/helpers';
-import { store } from '@/store';
-import type { UserTransferResult, UserTransfersResponse } from '@/models/types';
+import { isLandscape } from '@/utils/helpers';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -192,7 +182,6 @@ export default defineComponent({
     AppDownloadLinks,
     DisasterIcon,
     LoginForm,
-    CompletedTransferModal,
     NavMenu,
     TermsandConditionsModal,
     Header,
@@ -225,7 +214,6 @@ export default defineComponent({
     const slideOverVisible = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
-    const transferRequest = ref<UserTransferResult>();
 
     router.beforeEach((to, from, next) => {
       store.commit('events/addEvent', {
@@ -396,15 +384,6 @@ export default defineComponent({
       showAcceptTermsModal.value = false;
     };
 
-    const getUserTransferRequests = async () => {
-      const response = await $http.get<UserTransfersResponse>(
-        getApiUrl('/transfer_requests'),
-      );
-      transferRequest.value = response.data.results.find((request) => {
-        return request.user === currentUser.value?.id;
-      });
-    };
-
     async function showIncidentSelectionModal() {
       const result = await selection({
         title: t('Select Incident'),
@@ -503,7 +482,7 @@ export default defineComponent({
           console.error('init:', error);
         }
 
-        await Promise.allSettled([getUserTransferRequests(), setupLanguage()]);
+        await Promise.allSettled([setupLanguage()]);
 
         let incidentId =
           route.params.incident_id ||
@@ -570,7 +549,6 @@ export default defineComponent({
       loading,
       ready,
       showAcceptTermsModal,
-      transferRequest,
       showingMoreLinks,
       currentUser,
       currentOrganization,
