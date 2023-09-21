@@ -1,4 +1,5 @@
 <template>
+  <!-- For mobile screens -->
   <template v-if="mq.mdMinus">
     <div v-if="!loading && currentIncident" class="flex flex-col">
       <DisasterIcon
@@ -46,14 +47,15 @@
       @close="showingMoreLinks = false"
     >
       <div v-for="r in routes" :key="r.key" class="flex items-center">
-        <base-link :href="r.to" class="text-black text-base p-1">{{
-          r.text || $t(`nav.${r.key}`)
-        }}</base-link>
+        <base-link :href="r.to" class="text-black text-base p-1">
+          {{ r.text || $t(`nav.${r.key}`) }}
+        </base-link>
       </div>
       <AppDownloadLinks />
     </modal>
   </template>
 
+  <!-- For desktop screens -->
   <template v-else>
     <div
       v-if="!loading && currentIncident"
@@ -97,11 +99,7 @@
           :current-incident="currentIncident"
           :incidents="incidents"
           @update:incident="handleChange"
-          @auth:logout="
-            () => {
-              logoutApp();
-            }
-          "
+          @auth:logout="logoutApp"
         />
       </div>
       <div class="main">
@@ -128,11 +126,7 @@
         <CompletedTransferModal
           :transfer-request="transferRequest"
           data-testid="testCompletedTransferModal"
-          @close="
-            () => {
-              transferRequest = null;
-            }
-          "
+          @close="() => (transferRequest = undefined)"
         />
       </div>
       <div v-if="showLoginModal">
@@ -267,7 +261,7 @@ export default defineComponent({
     const ready = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
-    const transferRequest = ref(null);
+    const transferRequest = ref<Record<string, unknown>>();
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
