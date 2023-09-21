@@ -84,3 +84,9 @@ export function generateHash(s: string) {
 export function getApiUrl(endpoint: string): string {
   return `${import.meta.env.VITE_APP_API_BASE_URL}${endpoint}`;
 }
+
+export function isLandscape() {
+  return window.matchMedia(
+    'only screen and (max-device-width: 1223px) and (orientation: landscape)',
+  ).matches;
+}

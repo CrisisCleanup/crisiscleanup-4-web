@@ -179,6 +179,7 @@ import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
+import { isLandscape } from '@/utils/helpers';
 import { store } from '@/store';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
@@ -384,12 +385,6 @@ export default defineComponent({
         params: { ...route.params, incident_id: value },
         query: { ...route.query },
       });
-    };
-
-    const isLandscape = () => {
-      return window.matchMedia(
-        'only screen and (max-device-width: 1223px) and (orientation: landscape)',
-      ).matches;
     };
 
     const acceptTermsAndConditions = async () => {
