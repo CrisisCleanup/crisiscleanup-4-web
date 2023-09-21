@@ -199,3 +199,17 @@ export interface LanguagesResponse {
 export interface LocalizationsCountResponse {
   count: number;
 }
+
+export interface UserTransferResult {
+  id: number;
+  transfering_wwwtsp_ids: number[];
+  origin_organization: number;
+  target_organization: number;
+  requested_by: number;
+  user: number;
+  user_notes: string;
+  child_requests: UserTransferResult[]; // recursive field
+  user_approved_at: string | null;
+}
+
+export type UserTransfersResponse = CCUApiListResponse<UserTransferResult>;
