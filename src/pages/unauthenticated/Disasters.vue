@@ -1,17 +1,13 @@
 <template>
   <Home>
     <div>
-      <div
-        class="text-4xl font-bold"
-        data-testid="testInvitingToTransferConfirmDiv"
-      >
+      <div class="text-4xl font-bold" data-testid="testCurrentDisastersHeader">
         {{ $t('~~Current Disasters') }}
       </div>
       <div v-for="incident in incidents" :key="incident.id" class="mb-10">
         <div
-          :id="incident.short_name"
+          :id="camelCase(incident.short_name)"
           class="text-2xl my-4 block flex items-center justify-between"
-          :href="`#${incident.short_name}`"
         >
           {{ incident.name }} - {{ getIncidentPhoneNumbers(incident) }}
           <span
@@ -144,9 +140,10 @@ import useDialogs from '@/hooks/useDialogs';
 import { forceFileDownload } from '@/utils/downloads';
 import { formatNationalNumber } from '@/filters';
 import { CmsItem } from '@/models/types';
+import camelCase from 'lodash/camelCase';
 
 const { component } = useDialogs();
-
+const route = useRoute();
 const incidents = ref<Incident>([]);
 const cmsItems = ref<Record<string, any[]>>([]);
 const incidentAssets = ref<Record<string, GroupedAssets[]>>([]);
@@ -230,6 +227,15 @@ const downloadAsset = async (asset: IncidentAniAsset) => {
   forceFileDownload(response);
 };
 
+function scrollToHash(hash: string) {
+  if (hash) {
+    const element = document.querySelector(hash);
+    if (element) {
+      element.scrollIntoView();
+    }
+  }
+}
+
 onMounted(async () => {
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
@@ -257,6 +263,10 @@ onMounted(async () => {
   }, {});
 
   showIncidentDetails.value = { ...showIncidentDetails.value };
+
+  nextTick(() => {
+    scrollToHash(route.hash);
+  });
 });
 </script>
 
