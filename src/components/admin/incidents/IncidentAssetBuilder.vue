@@ -186,7 +186,7 @@ import downloads from '@/pages/Downloads.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import CcuIcon from '@/components/BaseIcon.vue';
 import QRCode from 'qrcode-svg';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 import { i18nService } from '@/services/i18n.service';
 import size from 'lodash/size';
 

@@ -1,5 +1,5 @@
 import { useI18n } from 'vue-i18n';
-import { i18n } from '../main';
+import { i18n } from '@/modules/i18n';
 import { MD5 } from 'crypto-js';
 
 /**
