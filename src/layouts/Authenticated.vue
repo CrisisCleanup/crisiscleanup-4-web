@@ -1,7 +1,7 @@
 <template>
   <!-- For mobile screens -->
   <template v-if="mq.mdMinus">
-    <div v-if="!loading && currentIncidentId" class="flex flex-col">
+    <div v-if="isPageReady" class="flex flex-col">
       <DisasterIcon
         v-if="currentIncident && currentIncident.incidentImage"
         :current-incident="currentIncident"
@@ -57,11 +57,7 @@
 
   <!-- For desktop screens -->
   <template v-else>
-    <div
-      v-if="!loading && currentIncidentId"
-      class="layout"
-      data-testid="testIsAuthenticatedDiv"
-    >
+    <div v-if="isPageReady" class="layout" data-testid="testIsAuthenticatedDiv">
       <div
         class="sidebar h-full overflow-auto"
         :class="{ 'slide-over': slideOverVisible }"
@@ -141,17 +137,16 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import moment from 'moment';
 import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router';
-import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { useMq } from 'vue3-mq';
 import * as Sentry from '@sentry/vue';
-import Incident from '../models/Incident';
-import Organization from '../models/Organization';
-import Language from '../models/Language';
-import Report from '../models/Report';
-import Role from '../models/Role';
-import PhoneStatus from '../models/PhoneStatus';
+import Incident from '@/models/Incident';
+import Organization from '@/models/Organization';
+import Language from '@/models/Language';
+import Report from '@/models/Report';
+import Role from '@/models/Role';
+import PhoneStatus from '@/models/PhoneStatus';
 import NavMenu from '../components/navigation/NavMenu.vue';
 import TermsandConditionsModal from '../components/modals/TermsandConditionsModal.vue';
 import Header from '../components/header/Header.vue';
@@ -205,7 +200,6 @@ export default defineComponent({
     const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
     const router = useRouter();
-    const $http = axios;
     const { t } = useI18n();
     const store = useStore();
     const { $can } = useAcl();
@@ -214,7 +208,6 @@ export default defineComponent({
     const { emitter } = useEmitter();
 
     const loading = ref(true);
-    const ready = ref(false);
     const slideOverVisible = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
@@ -244,8 +237,11 @@ export default defineComponent({
       next();
     });
 
+    const isPageReady = computed(
+      () => !loading.value && currentIncidentId.value,
+    );
     const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'] as number,
+      () => store.getters['incident/currentIncidentId'] as number | undefined,
     );
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
@@ -456,11 +452,41 @@ export default defineComponent({
       async () => {
         loadDebug('Loading started...');
         console.log('authenticated init:', currentUser.value);
+        loading.value = true;
+        let incidentId =
+          route.params.incident_id ||
+          currentUser?.value?.approved_incidents?.[0];
+
+        if (!incidentId) {
+          const incident = Incident.query().orderBy('id', 'desc').first();
+          if (incident) {
+            incidentId = String(incident.id);
+          }
+        }
+
+        if (currentUser?.value?.states && currentUser.value?.states.incident) {
+          incidentId = currentUser.value?.states.incident;
+        }
+
+        if (incidentId) {
+          // fetch incident if not in store
+          const incident = Incident.query()
+            .where('id', Number(incidentId))
+            .first();
+          if (!incident) {
+            const fetchedIncident = await Incident.api().get(
+              `/incidents/${incidentId}?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at`,
+            );
+            debug('Fetched incident', fetchedIncident);
+          }
+          store.commit('incident/setCurrentIncidentId', incidentId);
+        }
+        // stop loading as we have all the data needed to show page
+        loading.value = false;
+
         await Incident.api().get(
           '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
-          {
-            dataKey: 'results',
-          },
+          { dataKey: 'results' },
         );
 
         await Promise.allSettled([
@@ -489,25 +515,6 @@ export default defineComponent({
 
         await Promise.allSettled([setupLanguage()]);
 
-        let incidentId =
-          route.params.incident_id ||
-          currentUser?.value?.approved_incidents?.[0];
-
-        if (!incidentId) {
-          const incident = Incident.query().orderBy('id', 'desc').first();
-          if (incident) {
-            incidentId = String(incident.id);
-          }
-        }
-
-        if (currentUser?.value?.states && currentUser.value?.states.incident) {
-          incidentId = currentUser.value?.states.incident;
-        }
-
-        if (incidentId) {
-          store.commit('incident/setCurrentIncidentId', incidentId);
-        }
-
         if (
           !currentUser?.value?.accepted_terms_timestamp ||
           moment(VERSION_3_LAUNCH_DATE).isAfter(
@@ -534,17 +541,11 @@ export default defineComponent({
           await router.push(`/`).catch(() => {});
         }
 
-        loading.value = false;
-        ready.value = true;
         loadDebug('Loading finished...');
         onCurrentUserUnSub();
       },
       { immediate: true },
     );
-
-    whenever(ready, () => {
-      loading.value = false;
-    });
 
     return {
       user: currentUser,
@@ -552,8 +553,8 @@ export default defineComponent({
       currentIncidentId,
       portal,
       // userId,
+      isPageReady,
       loading,
-      ready,
       showAcceptTermsModal,
       showingMoreLinks,
       currentUser,
