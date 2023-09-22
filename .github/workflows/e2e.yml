@@ -2,10 +2,9 @@ name: E2E Tests
 
 on:
   # See: https://crontab.guru/examples.html
-  # Run every 2 hours from 4am - 10pm (CST)
+  # Run at 6 A.M and 6 P.M. (CST)
   schedule:
-    - cron: '0 10-22/2 * * *'
-    - cron: '0 0-4/2 * * *'
+    - cron: '0 12,0 * * *'
   workflow_dispatch:
   workflow_call:
 
