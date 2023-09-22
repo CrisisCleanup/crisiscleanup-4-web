@@ -73,6 +73,7 @@
           </Card>
           <Card
             v-for="(assetGroup, assetType) in incidentAssets[incident.id]"
+            :key="assetType"
             class="border p-3 my-2 min-w-max max-w-6xl"
             :title="$t(assetType)"
           >
@@ -126,7 +127,7 @@ import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { hash } from '@/utils/promise';
-import {
+import type {
   GroupedAssets,
   IncidentAniAsset,
 } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
@@ -139,7 +140,7 @@ import CmsViewer from '@/components/cms/CmsViewer.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { forceFileDownload } from '@/utils/downloads';
 import { formatNationalNumber } from '@/filters';
-import { CmsItem } from '@/models/types';
+import type { CmsItem } from '@/models/types';
 import camelCase from 'lodash/camelCase';
 
 const { component } = useDialogs();
