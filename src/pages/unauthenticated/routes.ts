@@ -8,6 +8,7 @@ import MagicLink from './MagicLink.vue';
 import PewPew from './PewPew.vue';
 import DownForMaintenance from './DownForMaintenance.vue';
 import OauthRedirect from '@/pages/OauthRedirect.vue';
+import Disasters from '@/pages/unauthenticated/Disasters.vue';
 
 const routes = [
   {
@@ -68,6 +69,12 @@ const routes = [
     path: '/live',
     component: PewPew,
     name: 'nav.live',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/disasters',
+    component: Disasters,
+    name: 'nav.disasters',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {
