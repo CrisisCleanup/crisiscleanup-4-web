@@ -18,6 +18,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  readOnly: {
+    type: Boolean,
+    default: false,
+  },
 });
 const { modelValue, printSize, perPage, printContainerStyle } = toRefs(props);
 
@@ -85,7 +89,7 @@ defineExpose({
 <template>
   <div
     ref="editorElement"
-    contenteditable
+    :contenteditable="!readOnly"
     spellcheck="false"
     class="outline-none h-max"
     @keydown.enter="handleEnter"

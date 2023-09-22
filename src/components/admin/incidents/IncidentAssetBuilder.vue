@@ -190,7 +190,7 @@ import { i18n } from '@/main';
 import { i18nService } from '@/services/i18n.service';
 import size from 'lodash/size';
 
-interface IncidentAniAsset {
+export interface IncidentAniAsset {
   id?: number;
   asset_type: string;
   language: number;
@@ -201,17 +201,17 @@ interface IncidentAniAsset {
   published_at: string | null;
 }
 
-interface AssetTypeValue {
+export interface AssetTypeValue {
   key: string;
   value: string;
 }
 
-interface VisibilityValue {
+export interface VisibilityValue {
   key: string;
   value: string;
 }
 
-interface GroupedAssets {
+export interface GroupedAssets {
   [assetType: string]: IncidentAniAsset[];
 }
 

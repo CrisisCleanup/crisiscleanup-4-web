@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import BaseText from '@/components/BaseText.vue';
 const { t } = useI18n();
 </script>
 

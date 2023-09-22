@@ -154,3 +154,10 @@ export interface Ani {
   incident?: number;
   phone_number?: string;
 }
+
+export interface CmsItem {
+  id: string;
+  title: string;
+  content: string;
+  thumbnail_file?: { blog_url: string };
+}
