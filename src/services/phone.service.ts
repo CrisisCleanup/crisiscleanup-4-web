@@ -5,7 +5,7 @@ import User from '../models/User';
 import Incident from '../models/Incident';
 import { i18n } from '@/modules/i18n';
 import useEmitter from '@/hooks/useEmitter';
-import { useCurrentUser } from '@/hooks';
+import useCurrentUser from '@/hooks/useCurrentUser';
 
 const LANGUAGE_ID_MAPPING: Record<any, any> = {
   2: import.meta.env.VITE_APP_ENGLISH_PHONE_GATEWAY,

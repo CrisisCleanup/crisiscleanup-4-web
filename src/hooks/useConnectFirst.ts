@@ -11,8 +11,8 @@ import { getErrorMessage } from '../utils/errors';
 import Worksite from '../models/Worksite';
 import PhoneOutbound from '../models/PhoneOutbound';
 import usePhoneService from './phone/usePhoneService';
-import { useCurrentUser } from '@/hooks';
-import { PhoneDnisResponse, PhoneDnisResult } from '@/models/types';
+import useCurrentUser from './useCurrentUser';
+import type { PhoneDnisResponse, PhoneDnisResult } from '@/models/types';
 
 export default function useConnectFirst(context: {
   emit: (action: string) => void;

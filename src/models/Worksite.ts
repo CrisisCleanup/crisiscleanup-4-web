@@ -5,7 +5,7 @@ import Organization from './Organization';
 import User from './User';
 import type WorkType from './WorkType';
 import CCUModel from '@/models/base';
-import { useAuthStore } from '@/hooks';
+import { useAuthStore } from '@/hooks/useAuth';
 
 export default class Worksite extends CCUModel {
   static entity = 'worksites';
