@@ -3,7 +3,7 @@ import axios from 'axios';
 import { store } from '../store';
 import User from '../models/User';
 import Incident from '../models/Incident';
-import { i18n } from '../main';
+import { i18n } from '@/modules/i18n';
 import useEmitter from '@/hooks/useEmitter';
 import { useCurrentUser } from '@/hooks';
 

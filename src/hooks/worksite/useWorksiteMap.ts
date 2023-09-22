@@ -6,7 +6,7 @@ import type { LatLng, HeatLayer, LeafletMouseEvent } from 'leaflet';
 import { getMarkerLayer, mapTileLayer, mapAttribution } from '../../utils/map';
 import Location from '../../models/Location';
 import useRenderedMarkers from './useRenderedMarkers';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 import type { LayerGroup, PixiLayer } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 import useEmitter from '@/hooks/useEmitter';

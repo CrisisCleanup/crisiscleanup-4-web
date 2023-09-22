@@ -12,7 +12,7 @@ import { wrap } from '../../utils/wrap';
 import type Incident from '../../models/Incident';
 import type Worksite from '../../models/Worksite';
 import useCurrentUser from '../useCurrentUser';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 
 const { theme } = config;
 

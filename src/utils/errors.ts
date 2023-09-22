@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/vue';
-import { i18n } from '../main';
+import { i18n } from '@/modules/i18n';
 
 export function getErrorMessage(error: any) {
   Sentry.captureException(error);

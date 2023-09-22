@@ -2,7 +2,7 @@ import axios from 'axios';
 import moment from 'moment';
 import type { Ref } from 'vue';
 import { getQueryString } from '@/utils/urls';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 import type { SiteStatistic } from '@/hooks/live/types';
 import type Organization from '@/models/Organization';
 

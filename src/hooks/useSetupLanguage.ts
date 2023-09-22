@@ -3,7 +3,7 @@ import size from 'lodash/size';
 import moment from 'moment/moment';
 import detectBrowserLanguage from 'detect-browser-language';
 import { i18nService } from '@/services/i18n.service';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 import { store } from '@/store';
 import Language from '@/models/Language';
 import { useCurrentUser } from '@/hooks/index';

@@ -22,7 +22,7 @@ import {
   randomIntFromInterval,
 } from '../../utils/map';
 import Location from '../../models/Location';
-import { i18n } from '../../main';
+import { i18n } from '@/modules/i18n';
 import { colors, templates } from '@/icons/icons_templates';
 import type {
   LiveGraphics,

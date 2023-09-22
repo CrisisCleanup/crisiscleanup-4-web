@@ -1,7 +1,7 @@
 import type { Ref } from 'vue';
 import useDialogs from '@/hooks/useDialogs';
 import UnclaimCases from '@/components/UnclaimCases.vue';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 import Worksite from '@/models/Worksite';
 
 export default (
