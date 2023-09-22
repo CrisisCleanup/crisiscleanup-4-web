@@ -1,5 +1,3 @@
-import type User from '../User';
-
 /**
  * Base fields for all CCU models
  */
@@ -83,7 +81,7 @@ export interface FormField {
 }
 
 export interface IncidentRequest {
-  requested_by_contact: Partial<User>;
+  requested_by_contact: UserContact;
   id: number;
   incident: string;
 }
