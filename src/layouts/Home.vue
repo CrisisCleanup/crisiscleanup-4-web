@@ -166,7 +166,7 @@ export default defineComponent({
       },
     ];
 
-    const lang = reactive({
+    const lang = computed(() => ({
       home: t('publicNav.home'),
       aboutUs: t('publicNav.about_us'),
       blog: t('publicNav.blog'),
@@ -176,7 +176,7 @@ export default defineComponent({
       contact: t('publicNav.contact'),
       privacy: t('publicNav.privacy'),
       terms: t('publicNav.terms'),
-    });
+    }));
 
     return {
       routes: defaultRoutes,
