@@ -1,0 +1,66 @@
+name: Deploy Site
+
+on:
+  workflow_call:
+    inputs:
+      stage:
+        description: 'App stage to deploy (development|staging|production).'
+        default: 'development'
+        type: string
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'App stage to deploy (development|staging|production).'
+        default: 'development'
+        type: environment
+
+env:
+  # notify defaults
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  SLACK_ICON: ${{ secrets.SLACK_ICON }}
+  SLACK_CHANNEL: 'core'
+  SLACK_USERNAME: 'CrisisCleanup Bot'
+  SLACK_COLOR: '#fece09'
+  SLACK_TITLE: 'New Release'
+  SLACK_MESSAGE: "Heads up, I'm currently releasing to ${{ inputs.stage }}! You can watch my progress at the url above."
+
+jobs:
+  notify:
+    name: Notify Deploy >> ${{ inputs.stage }}
+    runs-on: ubuntu-latest
+    if: inputs.stage == 'staging' || inputs.stage == 'production'
+    steps:
+      - uses: rtCamp/action-slack-notify@v2
+
+  deploy-site:
+    name: Deploy
+    secrets: inherit
+    uses: CrisisCleanup/infrastructure/.github/workflows/deploy-crisiscleanup-site.yml@main
+    with:
+      environment: ${{ inputs.stage }}
+
+  notify-success:
+    name: Notify Failure >> ${{ inputs.stage }}
+    runs-on: ubuntu-latest
+    needs: [deploy-site]
+    if: inputs.stage == 'staging' || inputs.stage == 'production'
+    environment:
+      name: ${{ inputs.stage }}
+      url: ${{ vars.VITE_APP_BASE_URL }}
+    env:
+      SLACK_TITLE: 'Live Release'
+      SLACK_MESSAGE: ':rocket: ${{ inputs.stage }} is live! Check it out at: ${{ vars.VITE_APP_BASE_URL }}'
+    steps:
+      - uses: rtCamp/action-slack-notify@v2
+
+  notify-failure:
+    name: Notify Failure >> ${{ inputs.stage }}
+    needs: [deploy-site]
+    runs-on: ubuntu-latest
+    if: always() && failure()
+    env:
+      SLACK_COLOR: '#D94F37'
+      SLACK_TITLE: 'Deploy Failed!'
+      SLACK_MESSAGE: 'Failed to deploy ${{ inputs.stage }}... someone broke something! :frowning:'
+    steps:
+      - uses: rtCamp/action-slack-notify@v2
