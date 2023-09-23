@@ -206,6 +206,10 @@ async function showCmsDetails(newItem) {
 }
 
 function getIncidentPhoneNumbers(incident) {
+  if (!incident.active_phone_number) {
+    return '';
+  }
+
   if (Array.isArray(incident.active_phone_number)) {
     return incident.active_phone_number
       .map((number) => formatNationalNumber(String(number)))
