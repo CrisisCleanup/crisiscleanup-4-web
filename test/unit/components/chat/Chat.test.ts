@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import Chat from '@/components/chat/Chat.vue';
 import BaseInput from '@/components/BaseInput.vue';
@@ -22,9 +22,21 @@ class MockWebSocket {
   }
 }
 
+vi.mock('vue-router', async () =>
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  (await import('../../fixtures/router')).buildMockRouter(),
+);
+
 describe('Chat.vue', () => {
+  // @ts-expect-error ignore
+  let origWebSocket;
   beforeEach(() => {
+    origWebSocket = global.WebSocket;
     global.WebSocket = MockWebSocket as any;
+  });
+  afterEach(() => {
+    // @ts-expect-error ignore
+    global.WebSocket = origWebSocket;
   });
   it('should render messages', async () => {
     const mockChat = {
