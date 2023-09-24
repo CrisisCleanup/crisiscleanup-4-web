@@ -14,7 +14,7 @@
                 data-testid="testCancelButton"
                 size="xs"
                 type="cancel"
-                @click.native="
+                @click="
                   () => {
                     closeDialog('cancel');
                   }
@@ -25,7 +25,7 @@
 
           <div class="modal-body flex-grow p-3">
             <div>
-              <div v-html="content" data-testid="testContentDiv"></div>
+              <div data-testid="testContentDiv" v-html="content"></div>
             </div>
           </div>
 
@@ -56,8 +56,8 @@
               >
                 <base-button
                   v-for="(value, key) in actions"
-                  data-testid="testActionsButton"
                   :key="key"
+                  data-testid="testActionsButton"
                   :alt="value.text"
                   :variant="value.type"
                   class="px-6 p-3 mx-2"

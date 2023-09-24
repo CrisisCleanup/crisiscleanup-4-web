@@ -292,7 +292,8 @@ import Avatar from '@/components/Avatar.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { getQueryString } from '@/utils/urls';
 import WorksiteStatusDropdown from '@/components/WorksiteStatusDropdown.vue';
-import User from '@/models/User';
+import type User from '@/models/User';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'CreateTeamModal',
@@ -316,9 +317,7 @@ export default defineComponent({
     const $toasted = useToast();
     const ccuApi = useApi();
     const store = useStore();
-    const currentUser = computed(
-      () => User.find(store.getters['auth/userId']) as User,
-    );
+    const { currentUser } = useCurrentUser();
     const usersList = ref<unknown[]>([]);
     const caseList = ref<unknown[]>([]);
     const currentSearch = ref('');

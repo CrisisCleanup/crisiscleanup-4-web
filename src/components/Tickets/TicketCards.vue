@@ -487,7 +487,7 @@ const executeMacro = (macro) => {
 
 const formatKey = (key: string) => {
   return key
-    .replace(/([A-Z])/g, ' $1')
+    .replaceAll(/([A-Z])/g, ' $1')
     .replace(/^./, (str) => str.toUpperCase());
 };
 
@@ -742,11 +742,10 @@ const showInvitationsModal = () => {
 const tableWidthMQ = computed(() => {
   const screenWidth = window.innerWidth;
 
-
-    return {
-      height: '670px',
-      width: '100%',
-    };
+  return {
+    height: '670px',
+    width: '100%',
+  };
 });
 onMounted(async () => {
   isLoading.value = true;
@@ -987,13 +986,12 @@ onMounted(async () => {
       v-if="mobileExtraUserInfo"
       closeable
       :title="t('helpdesk.more_user_details')"
-      @close="showExtraUserInfoModal()"
-
       :fullscreen="true"
       :class="[mq.md ? 'px-10' : '', mq.lgPlus ? 'p-5' : '']"
       modal-header-classes="sticky top-0 bg-white"
       modal-classes="overflow-auto"
       modal-body-classes="p-1"
+      @close="showExtraUserInfoModal()"
     >
       <template #default>
         <div v-if="ccUser" class="cc__user-info2">
@@ -1322,9 +1320,11 @@ onMounted(async () => {
                 :body-style="tableWidthMQ"
                 @row-click="(v) => executeMacro(v)"
               >
-                <template #template="slotProps" >
+                <template #template="slotProps">
                   <div class="flex flex-col">
-                    <span v-if="mq.mdMinus" class="font-bold">{{ $t('helpdesk.template') }}</span>
+                    <span v-if="mq.mdMinus" class="font-bold">{{
+                      $t('helpdesk.template')
+                    }}</span>
                     <div
                       class="overflow-auto px-4 pt-2"
                       :class="h - [slotProps.item.template.length]"
@@ -1332,7 +1332,6 @@ onMounted(async () => {
                       {{ slotProps.item.template }}
                     </div>
                   </div>
-
                 </template>
               </Table>
             </template>
@@ -1522,8 +1521,6 @@ onMounted(async () => {
   width: 100% !important;
   min-width: 100%;
 }
-
-
 
 .new {
   color: #c19700;

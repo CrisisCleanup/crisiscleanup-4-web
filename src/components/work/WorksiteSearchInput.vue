@@ -150,7 +150,7 @@ export default defineComponent({
     },
     useRecents: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
   emits: [
@@ -213,7 +213,9 @@ export default defineComponent({
         return [];
       }
 
-      return _filteredRecentWorksites.value.map((r) => r.item);
+      return _filteredRecentWorksites.value
+        .filter((rw) => rw.item.incident === currentIncidentId.value)
+        .map((r) => r.item);
     });
     const filteredWorksites = computed(() => {
       if (!props.useRecents) {

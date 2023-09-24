@@ -255,7 +255,6 @@
       </div>
       <v-popover placement="bottom-start">
         <base-button
-          slot="btn"
           data-testid="testLayersButton"
           variant="text"
           class="text-base font-thin mx-2"
@@ -542,7 +541,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
 import { useMq } from 'vue3-mq';
@@ -555,9 +554,8 @@ import Organization from '../../models/Organization';
 import WorksiteFilters from './WorksiteFilters.vue';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
-import PdfViewer from "@/components/PdfViewer.vue";
-import useDialogs from "@/hooks/useDialogs";
-import WorksiteSearchInput from "@/components/work/WorksiteSearchInput.vue";
+import useDialogs from '@/hooks/useDialogs';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'WorksiteActions',
@@ -570,16 +568,11 @@ export default defineComponent({
   setup(props, { emit }) {
     const store = useStore();
     const mq = useMq();
-    const userId = computed(() => store.getters['auth/userId']);
+    const { currentUser, currentOrganization } = useCurrentUser();
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
     const { component } = useDialogs();
-
-    const currentUser = computed(() => User.find(userId.value));
-    const currentOrganization = computed(() =>
-      Organization.find(currentUser?.value?.organization?.id),
-    );
 
     const showingFilters = ref<boolean>(false);
     const showingLayers = ref<boolean>(false);
@@ -596,7 +589,6 @@ export default defineComponent({
     const pdas = ref(null);
     const showingHeatMap = ref(false);
     const search = ref('');
-
 
     const teams = computed(() => {
       return Team.all();

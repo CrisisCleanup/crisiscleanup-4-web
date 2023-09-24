@@ -245,7 +245,7 @@ export default defineComponent({
         const { newValue, valid } = props.validator(value);
         isInvalid.value = valid;
         if (newValue) {
-          input.value = newValue;
+          // input.value = newValue;
           return context.emit('update:modelValue', newValue);
         }
       }

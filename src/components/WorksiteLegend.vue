@@ -6,7 +6,10 @@
       style="z-index: 1001"
       class="legend absolute legend-landscape bottom-0 w-72 bg-white border-2 p-2"
     >
-      <div class="flex items-center justify-between">
+      <div
+        class="flex items-center justify-between cursor-pointer"
+        @click="() => toggleLegend(false)"
+      >
         <div class="text-base font-bold my-1">
           {{ $t('worksiteMap.legend') }}
         </div>
@@ -14,9 +17,7 @@
           icon="chevron-down"
           data-testid="testHideLegendIcon"
           size="1x"
-          class="cursor-pointer"
           :title="$t('worksiteMap.hide_legend')"
-          @click="() => toggleLegend(false)"
         ></font-awesome-icon>
       </div>
       <div class="flex flex-wrap justify-between">
@@ -74,7 +75,8 @@
     <div
       v-else
       style="z-index: 1001"
-      class="legend absolute legend-landscape bottom-0 w-22 bg-white border-2 p-2 flex justify-center items-center"
+      class="cursor-pointer legend absolute legend-landscape bottom-0 w-22 bg-white border-2 p-2 flex justify-center items-center"
+      @click="() => toggleLegend(true)"
     >
       <div class="text-base font-bold my-1 mr-2">
         {{ $t('worksiteMap.legend') }}
@@ -83,8 +85,6 @@
         icon="chevron-up"
         size="1x"
         :title="$t('worksiteMap.show_legend')"
-        class="cursor-pointer"
-        @click="() => toggleLegend(true)"
       ></font-awesome-icon>
     </div>
   </div>
@@ -97,6 +97,7 @@ import { colors, templates } from '../icons/icons_templates';
 import User from '../models/User';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { getWorkTypeName } from '../filters/index';
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'WorksiteLegend',
@@ -108,14 +109,15 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18n();
-    const { currentUser } = useCurrentUser();
+    const { currentUser, userStates, updateUserStates } = useCurrentUser();
 
-    const showingLegend = ref(true);
+    const showingLegend = ref(userStates.value?.showingLegend ?? true);
     const displayedWorkTypeSvgs = computed(() => {
       return Object.keys(props.availableWorkTypes).map((workType) => {
         const template = templates[workType] || templates.unknown;
         const svg = template
           .replaceAll('{{fillColor}}', 'black')
+          .replaceAll('{{strokeWidth}}', '0.5')
           .replaceAll('{{strokeColor}}', 'black')
           .replaceAll('{{multiple}}', '');
         return {
@@ -126,11 +128,15 @@ export default defineComponent({
     });
     const defaultWorkTypeSvgs = [
       {
-        svg: templates.important.replaceAll('{{fillColor}}', 'black'),
+        svg: templates.important
+          .replaceAll('{{fillColor}}', 'black')
+          .replaceAll('{{strokeWidth}}', '0.5'),
         name: t(`worksiteMap.high_priority`),
       },
       {
-        svg: templates.favorite.replaceAll('{{fillColor}}', 'black'),
+        svg: templates.favorite
+          .replaceAll('{{fillColor}}', 'black')
+          .replaceAll('{{strokeWidth}}', '0.5'),
         name: t(`worksiteMap.member_of_my_organization`),
       },
     ];
@@ -152,13 +158,11 @@ export default defineComponent({
 
     function toggleLegend(status) {
       showingLegend.value = status;
-      User.api().updateUserState({ showingLegend: status }, {});
+      updateUserStates({ showingLegend: status }, {}).catch(getErrorMessage);
     }
 
-    onMounted(() => {
-      showingLegend.value = currentUser
-        ? currentUser.states.showingLegend
-        : true;
+    watch(showingLegend, async (newValue) => {
+      await updateUserStates({ showingLegend: newValue }, {});
     });
 
     return {

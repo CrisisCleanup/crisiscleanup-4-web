@@ -22,7 +22,7 @@
       </div>
     </div>
     <template #footer>
-      <div slot="footer" class="p-3 flex items-center justify-center">
+      <div class="p-3 flex items-center justify-center">
         <base-button
           variant="outline"
           data-testid="testMoveBackButton"
@@ -46,55 +46,74 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted } from 'vue';
+import type { PropType } from 'vue';
 import moment from 'moment';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { useStore } from 'vuex';
 import User from '../../models/User';
+import { useCurrentUser } from '@/hooks';
+import type { UserTransferResult } from '@/models/types';
+import { getApiUrl } from '@/utils/helpers';
 
 export default defineComponent({
   name: 'CompletedTransferModal',
   props: {
     transferRequest: {
-      type: Object,
+      type: Object as PropType<UserTransferResult>,
       required: true,
     },
   },
-
+  emits: ['close'],
   setup(props, context) {
-    const store = useStore();
-    const currentUser = User.find(store.getters['auth/userId']);
+    const { currentUser } = useCurrentUser();
     const $http = axios;
     const router = useRouter();
+    const transferReq = computed(() => props.transferRequest);
 
     const requestingUser = computed(() =>
-      User.find(props.transferRequest.requested_by),
+      transferReq.value ? User.find(transferReq.value.requested_by) : undefined,
     );
 
     async function getRequestingUser() {
-      await User.api().get(`/users/${props.transferRequest.requested_by}`);
+      if (!transferReq.value) {
+        console.error(
+          'Transfer request not defined. Cannot fetch requesting user',
+        );
+        return;
+      }
+      await User.api().get(`/users/${transferReq.value.requested_by}`);
     }
 
     async function markAsSeen() {
+      if (!transferReq.value) {
+        console.error(
+          'Transfer request is not defined. Unable to set mark as seen.',
+        );
+        return false;
+      }
       await $http.patch(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/transfer_requests/${
-          props.transferRequest.id
-        }`,
+        getApiUrl(`/transfer_requests/${transferReq.value.id}`),
         {
           user_approved_at: moment().toISOString(),
         },
       );
+      return true;
     }
 
     async function stay() {
-      await markAsSeen();
-      context.emit('close');
+      const isSuccess = await markAsSeen();
+      if (isSuccess) {
+        await markAsSeen();
+        context.emit('close');
+      }
     }
 
     async function goBack() {
-      await markAsSeen();
-      await router.push('/profile?move=true');
-      context.emit('close');
+      const isSuccess = await markAsSeen();
+      if (isSuccess) {
+        await router.push('/profile?move=true');
+        context.emit('close');
+      }
     }
 
     onMounted(async () => {

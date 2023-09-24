@@ -560,7 +560,7 @@
             size="small"
             class="p-1 py-2"
             type="trash"
-            @click.native="
+            @click="
               () => {
                 deleteFile(liabilityWaiver.file);
               }
@@ -633,6 +633,7 @@ import Card from '@/components/cards/Card.vue';
 import CapabilityGrid from '@/components/CapabilityGrid.vue';
 import RequestRedeploy from '@/components/RequestRedeploy.vue';
 import useCapabilities from '@/hooks/useCapabilities';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Profile',
@@ -675,19 +676,8 @@ export default defineComponent({
       }),
     );
     const roles = computed(() => Role.all());
-    const currentUser = computed(() => {
-      return User.find(store.getters['auth/userId']) as User;
-    });
-    const currentOrganization = computed(() => {
-      return Organization.find(
-        currentUser.value.organization.id,
-      ) as Organization;
-    });
-    const organization = computed(() => {
-      return Organization.find(
-        currentUser.value.organization.id,
-      ) as Organization;
-    });
+    const { currentUser, currentOrganization } = useCurrentUser();
+    const organization = currentOrganization;
     const canEditLocation = computed(() => {
       return (
         organization.value &&
@@ -967,7 +957,7 @@ export default defineComponent({
       }
 
       const formData = new FormData();
-      formData.append('upload', fileList[fileList.length - 1]);
+      formData.append('upload', fileList.at(-1));
       formData.append('type_t', type);
       uploading.value = true;
       try {

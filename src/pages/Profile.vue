@@ -1,5 +1,5 @@
 <template>
-  <div
+  <form
     class="h-full flex justify-center mt-10 md:mt-0"
     data-testid="testProfileDiv"
   >
@@ -8,7 +8,7 @@
         <div
           class="md:border-b px-4 py-2 font-semibold flex justify-between items-center h-16"
         >
-          {{ currentUser.full_name }}
+          {{ currentUser!.full_name }}
           <div class="flex justify-end gap-2">
             <base-button
               data-testid="testLogoutButton"
@@ -31,8 +31,8 @@
           <div class="flex md:flex-row flex-col">
             <div class="flex flex-col p-8 md:w-64 items-center">
               <Avatar
-                :initials="currentUser.first_name"
-                :url="currentUser.profilePictureUrl"
+                :initials="currentUser!.first_name"
+                :url="currentUser!.profilePictureUrl"
                 data-testid="testFirstNameAvatarIcon"
                 class="p-1"
                 size="large"
@@ -74,13 +74,11 @@
                         name="first_name"
                         data-testid="testFirstNameTextInput"
                         size="large"
-                        :model-value="currentUser.first_name"
+                        :model-value="currentUser!.first_name"
                         :placeholder="$t('profileUser.first_name_placeholder')"
                         required
                         @update:modelValue="
-                          (value) => {
-                            updateUser(value, 'first_name');
-                          }
+                          (value) => updateUser(value, 'first_name')
                         "
                       />
                     </div>
@@ -92,51 +90,42 @@
                         name="mobile"
                         data-testid="testMobileTextInput"
                         size="large"
-                        :model-value="currentUser.mobile"
+                        :model-value="currentUser!.mobile"
                         :placeholder="$t('profileUser.mobile_placeholder')"
-                        required
                         :validator="validatePhoneNumber"
                         @update:modelValue="
-                          (value) => {
-                            updateUser(value, 'mobile');
-                          }
+                          (value) => updateUser(value, 'mobile')
                         "
                       />
                     </div>
                     <div class="form-field mr-2">
                       <label for="last_name">{{
-                          $t('profileUser.last_name_placeholder')
-                        }}</label>
+                        $t('profileUser.last_name_placeholder')
+                      }}</label>
                       <base-input
                         name="last_name"
                         data-testid="testLastNameTextInput"
                         size="large"
-                        :model-value="currentUser.last_name"
+                        :model-value="currentUser!.last_name"
                         :placeholder="$t('profileUser.last_name_placeholder')"
                         required
                         @update:modelValue="
-                          (value) => {
-                            updateUser(value, 'last_name');
-                          }
+                          (value) => updateUser(value, 'last_name')
                         "
                       />
                     </div>
                     <div class="form-field">
                       <label for="email">{{
-                          $t('profileUser.email_placeholder')
-                        }}</label>
+                        $t('profileUser.email_placeholder')
+                      }}</label>
                       <base-input
                         name="email"
                         data-testid="testEmailTextInput"
-                        :model-value="currentUser.email"
+                        :model-value="currentUser!.email"
                         size="large"
                         :placeholder="$t('profileUser.email_placeholder ')"
                         required
-                        @update:modelValue="
-                          (value) => {
-                            updateUser(value, 'email');
-                          }
-                        "
+                        @update:modelValue="(value) => updateUser(value, email)"
                       />
                     </div>
                   </div>
@@ -148,26 +137,14 @@
                     <UserRolesSelect
                       class="w-full flex-grow"
                       data-testid="testUserRolesSelect"
-                      :user="currentUser"
-                    />
-                  </div>
-                  <div>
-                    <p>{{ $t('profileUser.equipment') }}</p>
-                    <base-select
-                      v-model="currentUser.equipment"
-                      data-testid="testEquipmentSelect"
-                      :model-value="currentUser.equipment"
-                      :options="[]"
-                      item-key="value"
-                      label="name_t"
-                      size="large"
+                      :user="currentUser!"
                     />
                   </div>
                 </div>
                 <div>{{ $t('profileUser.languages') }}</div>
                 <div class="flex pb-4">
                   <base-select
-                    :model-value="currentUser.languageIds"
+                    :model-value="currentUser!.languageIds"
                     data-testid="testLanguagesSelect"
                     multiple
                     :options="languages"
@@ -175,19 +152,7 @@
                     label="name_t"
                     size="large"
                     class="w-full"
-                    @update:modelValue="
-                      (value) => {
-                        const [primary_language, secondary_language] = value;
-                        updateUser(primary_language, 'primary_language');
-                        updateUser(secondary_language, 'secondary_language');
-                        if (!primary_language) {
-                          updateUser(null, 'primary_language');
-                        }
-                        if (!secondary_language) {
-                          updateUser(null, 'secondary_language');
-                        }
-                      }
-                    "
+                    @update:modelValue="updateUserLanguageIds"
                   />
                 </div>
                 <div class="mt-3">
@@ -204,14 +169,14 @@
                       }}</label>
                     </div>
                     <base-input
-                      :model-value="currentUser.facebook"
+                      :model-value="currentUser!.facebook"
                       data-testid="testFacebookTextInput"
                       size="small"
                       :placeholder="$t('profileUser.facebook')"
                       @update:modelValue="
                         (value) => {
                           const social = {
-                            ...currentUser.social,
+                            ...currentUser!.social,
                             facebook: value,
                           };
                           updateUser(social, 'social');
@@ -231,14 +196,14 @@
                       }}</label>
                     </div>
                     <base-input
-                      :model-value="currentUser.twitter"
+                      :model-value="currentUser!.twitter"
                       data-testid="testTwitterTextInput"
                       size="small"
                       :placeholder="$t('profileUser.twitter')"
                       @update:modelValue="
                         (value) => {
                           const social = {
-                            ...currentUser.social,
+                            ...currentUser!.social,
                             twitter: value,
                           };
                           updateUser(social, 'social');
@@ -257,7 +222,7 @@
                   :alt="$t('actions.change_password')"
                   :action="
                     () => {
-                      $router.push(`/password/new?email=${currentUser.email}`);
+                      $router.push(`/password/new?email=${currentUser!.email}`);
                     }
                   "
                 >
@@ -270,7 +235,7 @@
                   <div
                     class="w-8 h-8 rounded-full bg-crisiscleanup-grey-300 border border-black"
                   />
-                  <span class="px-4">{{ currentUser.organization.name }}</span>
+                  <span class="px-4">{{ currentUser!.organization.name }}</span>
                 </div>
                 <div class="my-2">
                   <base-button
@@ -301,7 +266,7 @@
                     name="Yes"
                     type="boolean"
                     :model-value="
-                      currentUser.notificationSettings.has_notifications
+                      currentUser!.notificationSettings.has_notifications
                     "
                     @click="() => setNotifications('has_notifications', true)"
                   />
@@ -311,23 +276,23 @@
                     name="No"
                     type="boolean"
                     :model-value="
-                      !currentUser.notificationSettings.has_notifications
+                      !currentUser!.notificationSettings.has_notifications
                     "
                     @click="() => setNotifications('has_notifications', false)"
                   />
                   <div
-                    v-if="currentUser.notificationSettings.has_notifications"
+                    v-if="currentUser!.notificationSettings.has_notifications"
                     class="flex justify-between flex-wrap"
                   >
                     <div
                       v-for="(value, key) in notifications"
-                      :data-testid="`testNotificationSettingsKey${key}Div`"
                       :key="key"
+                      :data-testid="`testNotificationSettingsKey${key}Div`"
                       class="flex w-1/2"
                     >
                       <base-checkbox
                         class="mr-1"
-                        :model-value="currentUser.notificationSettings[key]"
+                        :model-value="currentUser!.notificationSettings[key]"
                         @update:modelValue="
                           (value) => setNotifications(key, value)
                         "
@@ -362,22 +327,13 @@
                 <p class="my-3">
                   {{ $t('profileUser.clear_favorites_user_settings') }}
                 </p>
-
-                <div v-if="false" class="extra-settings">
-                  <base-checkbox
-                    v-model="currentUser.preferences.enable_worksite_caching"
-                    data-testid="testEnableWorksiteCachingCheckbox"
-                  >
-                    {{ $t('profileUser.enable_worksite_caching') }}
-                  </base-checkbox>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <script lang="ts">
@@ -396,6 +352,7 @@ import UserRolesSelect from '@/components/UserRolesSelect.vue';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useValidation from '@/hooks/useValidation';
 import ChangeOrganizationModal from '@/components/modals/ChangeOrganizationModal.vue';
+import { useCurrentUser, useAuthStore } from '@/hooks';
 
 export default defineComponent({
   name: 'Profile',
@@ -404,10 +361,9 @@ export default defineComponent({
     const $toasted = useToast();
     const route = useRoute();
     const router = useRouter();
-    const store = useStore();
     const { validatePhoneNumber } = useValidation();
     const { t } = useI18n();
-    const form = ref(null);
+    const form = ref<HTMLFormElement | undefined>(undefined);
     const state = reactive({
       mode: 'view',
       uploading: false,
@@ -433,58 +389,62 @@ export default defineComponent({
         request_reset_password: '/password/new',
       },
     });
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const {
+      currentUser,
+      userPreferences,
+      updateCurrentUser,
+      updateCurrentUserDebounced,
+    } = useCurrentUser();
 
-    const name = computed(() => {
-      if (currentUser.value) {
-        return `${currentUser.value.first_name} ${currentUser.value.last_name}`;
-      }
+    const authStore = useAuthStore();
 
-      return '';
-    });
+    const name = computed(() => currentUser.value?.full_name ?? '');
 
-    const roles = computed(() => {
-      return Role.all();
-    });
+    const roles = computed(() => Role.all());
 
-    const languages = computed(() => {
-      return Language.all();
-    });
+    const languages = computed(() =>
+      Language.all().map((l) => {
+        return {
+          ...l,
+          name_t: t(l.name_t),
+        };
+      }),
+    );
 
     const userRoles = computed(() => {
-      return Role.query().whereIdIn(currentUser.value.roles).get();
+      if (!currentUser.value) return [];
+      return Role.query()
+        .whereIdIn(currentUser.value?.active_roles ?? [])
+        .get();
     });
 
-    function handleSubmit(e) {
+    function handleSubmit(e: unknown) {
       e.preventDefault();
     }
 
-    function setNotifications(key, value) {
-      if (currentUser.value.preferences) {
-        const preferences = {
-          ...currentUser.value.preferences,
+    async function setNotifications(key: string, value: unknown) {
+      await updateCurrentUser({
+        preferences: {
+          ...userPreferences.value,
           notification_settings: {
-            ...currentUser.value.preferences.notification_settings,
+            ...userPreferences.value?.notification_settings,
             [key]: value,
           },
-        };
-        updateUser(preferences, 'preferences');
-      } else {
-        updateUser(
-          {
-            notification_settings: {
-              [key]: value,
-            },
-          },
-          'preferences',
-        );
-      }
+        },
+      });
     }
 
-    async function handleProfilePictureUpload(fileList) {
+    async function handleProfilePictureUpload(fileList: File[]) {
       if (fileList.length === 0) {
         state.uploading = false;
         return;
+      }
+
+      if (!currentUser.value) {
+        // shouldn't be possible.
+        throw getErrorMessage(
+          new Error('Tried to update photos without current user.'),
+        );
       }
 
       const formData = new FormData();
@@ -509,12 +469,13 @@ export default defineComponent({
         );
 
         const oldImages = profilePictures.map((picture) =>
-          User.api().deleteFile(currentUser.value.id, picture.file),
+          User.api().deleteFile(authStore.currentUserId.value!, picture.file),
         );
-        await Promise.all(oldImages);
-
-        await User.api().addFile(currentUser.value.id, file);
-        await User.api().get('/users/me', {});
+        await Promise.allSettled([
+          ...oldImages,
+          User.api().addFile(authStore.currentUserId.value!, file),
+        ]);
+        await authStore.getMe();
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       } finally {
@@ -522,12 +483,11 @@ export default defineComponent({
       }
     }
 
-    function updateUser(value, key) {
-      User.update({
-        where: currentUser.value.id,
-        data: {
-          [key]: value,
-        },
+    async function updateUser(value: unknown, key: string) {
+      await updateCurrentUserDebounced({
+        [key]: value,
+      }).catch((error) => {
+        $toasted.error(getErrorMessage(error));
       });
     }
 
@@ -537,38 +497,48 @@ export default defineComponent({
     }
 
     async function saveUser() {
-      const isValid = form.value.reportValidity();
+      const isValid = form?.value?.reportValidity();
       if (!isValid) {
         return;
       }
 
       try {
-        await User.api().patch(`/users/${currentUser.value.id}`, {
-          ...User.find(currentUser.value.id).$toJson(),
-          preferences: { ...currentUser.value.preferences },
-          states: { ...currentUser.value.states },
+        await updateCurrentUser({
+          ...currentUser.value!.$toJson(),
+          preferences: userPreferences.value,
+          states: userPreferences.value,
         });
         await $toasted.success(t('profileUser.save_user_success'));
         state.mode = 'view';
         await updateUserLanguage();
-        window.location.reload();
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       }
     }
 
     async function resetStates() {
-      await User.api().clearUserStates();
+      await updateCurrentUser({
+        states: {},
+      });
     }
 
     async function resetPreferences() {
-      await User.api().clearUserPreferences();
+      await updateCurrentUser({
+        preferences: {},
+      });
     }
 
-    const logoutApp = async () => {
-      await store.dispatch('auth/logout');
-      await router.push('/login');
-    };
+    async function updateUserLanguageIds(value: string[]) {
+      const [primary_language, secondary_language] = value;
+      await updateUser(primary_language, 'primary_language');
+      await updateUser(secondary_language, 'secondary_language');
+      if (!primary_language) {
+        await updateUser(undefined, 'primary_language');
+      }
+      if (!secondary_language) {
+        await updateUser(undefined, 'secondary_language');
+      }
+    }
 
     onMounted(() => {
       if (route.query.move) {
@@ -592,8 +562,9 @@ export default defineComponent({
       resetPreferences,
       resetStates,
       validatePhoneNumber,
+      updateUserLanguageIds,
       form,
-      logoutApp,
+      logoutApp: authStore.logout,
     };
   },
 });

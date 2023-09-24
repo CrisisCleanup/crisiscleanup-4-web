@@ -2,7 +2,7 @@
   <div class="navbar overflow-y-auto">
     <router-link :to="logoRoute.to" class="logo--grid">
       <div class="logo flex justify-center p-3">
-        <img 
+        <img
           src="../../assets/crisiscleanup_logo.png"
           style="height: 53px"
           data-testid="testCrisiscleanupLogoIcon"

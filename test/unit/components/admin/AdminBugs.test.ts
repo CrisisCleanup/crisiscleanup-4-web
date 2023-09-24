@@ -11,6 +11,11 @@ import BaseButton from '@/components/BaseButton.vue';
 
 vi.mock('axios');
 
+vi.mock('vue-router', async () =>
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  (await import('../../fixtures/router')).buildMockRouter(),
+);
+
 describe('AdminBugs.vue', () => {
   let wrapper: VueWrapper<any>;
   type AxiosGet = <T = any, R = AxiosResponse<T>>(

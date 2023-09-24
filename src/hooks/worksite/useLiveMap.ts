@@ -22,7 +22,7 @@ import {
   randomIntFromInterval,
 } from '../../utils/map';
 import Location from '../../models/Location';
-import { i18n } from '../../main';
+import { i18n } from '@/modules/i18n';
 import { colors, templates } from '@/icons/icons_templates';
 import type {
   LiveGraphics,
@@ -32,6 +32,7 @@ import type {
 } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 import type Incident from '@/models/Incident';
+import { getErrorMessage } from '@/utils/errors';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -82,6 +83,7 @@ export default (
   const isPaused = ref<boolean | undefined>(false);
   const svg = templates.orb
     .replaceAll('{{fillColor}}', '#61D5F8')
+    .replaceAll('{{strokeWidth}}', '0.5')
     .replaceAll('{{strokeColor}}', 'black');
   const orbTexture = Texture.from(svg);
 
@@ -125,7 +127,12 @@ export default (
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
-        layer.destroy();
+        try {
+          layer.destroy();
+        } catch (error) {
+          console.error('Error destroying map layer', layer, error);
+          getErrorMessage(error);
+        }
       }
     });
   };
@@ -166,7 +173,7 @@ export default (
     const markerSpeed: number =
       Number((100 / liveMarkers.length).toFixed(0)) * cadence;
     generatePoints(liveMarkers, markerSpeed);
-    return undefined;
+    return;
   };
 
   function setLegend(createdWorkTypes: string[]) {
@@ -177,6 +184,7 @@ export default (
       const template = templates[workType] || templates.unknown;
       const svg = template
         .replaceAll('{{fillColor}}', '#61D5F8')
+        .replaceAll('{{strokeWidth}}', '0.5')
         .replaceAll('{{strokeColor}}', 'black')
         .replaceAll('{{multiple}}', '');
       return {
@@ -375,6 +383,7 @@ export default (
           patientMarkerSprite.live = true;
           const svg = markerTemplate
             .replaceAll('{{fillColor}}', color)
+            .replaceAll('{{strokeWidth}}', '0.5')
             .replaceAll('{{strokeColor}}', 'black');
           let texture = textureMap[color];
           if (!texture) {
@@ -392,6 +401,7 @@ export default (
           const detailedTemplate = templates[workTypeKey] || templates.unknown;
           const typeSvg = detailedTemplate
             .replaceAll('{{fillColor}}', color)
+            .replaceAll('{{strokeWidth}}', '0.5')
             .replaceAll('{{strokeColor}}', 'black');
 
           patientMarkerSprite.basicTexture = texture;
@@ -505,6 +515,7 @@ export default (
             patientMarkerSprite.anchor.set(0.5, 0.5);
             const svg = markerTemplate
               .replaceAll('{{fillColor}}', color)
+              .replaceAll('{{strokeWidth}}', '0.5')
               .replaceAll('{{strokeColor}}', 'black');
             let texture = textureMap[color];
             if (!texture) {
@@ -526,6 +537,7 @@ export default (
               templates[workTypeKey] || templates.unknown;
             const typeSvg = detailedTemplate
               .replaceAll('{{fillColor}}', color)
+              .replaceAll('{{strokeWidth}}', '0.5')
               .replaceAll('{{strokeColor}}', 'black');
 
             patientMarkerSprite.basicTexture = texture;
@@ -771,7 +783,7 @@ export default (
         });
         const count = Math.floor((sviList.length * Number(value)) / 100);
         const filteredSvi = sviList.slice(0, count);
-        const minSvi = filteredSvi[filteredSvi.length - 1].svi;
+        const minSvi = filteredSvi.at(-1).svi;
         for (const markerSprite of sprites) {
           markerSprite.visible = markerSprite.svi > minSvi;
         }

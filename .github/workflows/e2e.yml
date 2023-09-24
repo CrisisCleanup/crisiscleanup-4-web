@@ -1,10 +1,10 @@
 name: E2E Tests
 
-# Run every day at 9:00 AM
-# See: https://crontab.guru/examples.html
 on:
+  # See: https://crontab.guru/examples.html
+  # Run at 6 A.M and 6 P.M. (CST)
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '0 12,0 * * *'
   workflow_dispatch:
   workflow_call:
 

@@ -11,6 +11,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  name: 'CCU E2E Tests',
   testDir: './test/e2e',
   snapshotDir: './test/e2e/snapshots',
   /* Run tests in files in parallel */
@@ -24,6 +25,10 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI ? 'blob' : [['html', { open: 'never' }]],
   timeout: 1 * 60 * 1000,
+  reportSlowTests: {
+    max: 10,
+    threshold: 30_000,
+  },
   // expect: {
   //   timeout: 10_000,
   // },

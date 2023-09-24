@@ -12,7 +12,7 @@ export default defineComponent({
   props: {
     data: {
       type: Object,
-      default: () => [],
+      default: () => ({}),
     },
     groupBy: {
       type: String,
@@ -272,8 +272,9 @@ export default defineComponent({
             .attr('stroke-width', 1.5)
             .style('fill', 'none')
             .style('stroke', function (d) {
-              return props
-                .displayOptions.colors[`reports.${props.reportName}.${d.name}`];
+              return props.displayOptions.colors[
+                `reports.${props.reportName}.${d.name}`
+              ];
             });
 
           metrics
@@ -281,7 +282,7 @@ export default defineComponent({
             .datum(function (d) {
               return {
                 name: d.name,
-                value: d.values[d.values.length - 1],
+                value: d.values.at(-1),
               };
             })
             .attr('transform', function (d) {

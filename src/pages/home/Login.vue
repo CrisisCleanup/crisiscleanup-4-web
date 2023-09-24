@@ -5,23 +5,31 @@
 </template>
 
 <script lang="ts">
-import { AuthService } from '@/services/auth.service';
+import { onBeforeRouteUpdate, useRouter } from 'vue-router';
+import { useAuthStore } from '@/hooks/useAuth';
 import Spinner from '@/components/Spinner.vue';
 
 export default defineComponent({
   name: 'Login',
   components: { Spinner },
   setup() {
+    // todo: handle as route guard
     const router = useRouter();
-    const route = useRoute();
-    const store = useStore();
-    if (store.getters['auth/isLoggedIn']) {
-      router.push('/dashboard');
-    } else {
-      AuthService.buildOauthAuthorizationUrl(route.query.from).then((url) => {
-        window.location.href = url;
-      });
-    }
+
+    const authStore = useAuthStore();
+
+    const onAuthStateChange = async () => {
+      if (authStore.isAuthenticated.value) {
+        await router.push({
+          name: 'nav.dashboard_no_incident',
+        });
+      } else if (!authStore.isLoadingMe.value) {
+        await router.replace({ path: '/' });
+      }
+    };
+
+    watchEffect(onAuthStateChange);
+    onBeforeRouteUpdate(onAuthStateChange);
   },
 });
 </script>

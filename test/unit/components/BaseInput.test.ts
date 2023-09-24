@@ -16,17 +16,17 @@ describe('BaseInput', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
-  it('should emit value on input', () => {
+  it('should emit value on input', async () => {
     const wrapper = mount(BaseInput);
     const el = wrapper.find('input');
-    el.setValue('new value');
+    await el.setValue('new value');
     expect(wrapper.emitted().input).toMatchSnapshot();
   });
 
-  it('should emit value on change', () => {
+  it('should emit value on change', async () => {
     const wrapper = mount(BaseInput);
     const el = wrapper.find('input');
-    el.trigger('change');
+    await el.trigger('change');
     expect(wrapper.emitted().change.length).toBe(2);
   });
 

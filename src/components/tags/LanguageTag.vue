@@ -10,6 +10,8 @@
 </template>
 
 <script lang="ts">
+// TODO: Fix in eslint config
+// eslint-disable-next-line import/no-unresolved
 import * as config from 'tailwind.config';
 import { computed, onMounted, ref } from 'vue';
 import Language from '../../models/Language';
@@ -45,6 +47,14 @@ export default defineComponent({
         2: {
           color: theme.extend.colors['crisiscleanup-lightblue']['400'],
           borderColor: theme.extend.colors['crisiscleanup-lightblue']['400'],
+        },
+        91: {
+          color: theme.extend.colors['crisiscleanup-yellow']['600'],
+          borderColor: theme.extend.colors['crisiscleanup-yellow']['600'],
+        },
+        11: {
+          color: theme.extend.colors['crisiscleanup-green']['300'],
+          borderColor: theme.extend.colors['crisiscleanup-green']['300'],
         },
       };
       return colorMap[language.value.id];

@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/vue';
-import { i18n } from '../main';
+import { i18n } from '@/modules/i18n';
 
 export function getErrorMessage(error: any) {
   Sentry.captureException(error);
@@ -11,6 +11,8 @@ export function getErrorMessage(error: any) {
     return t('info.error_404');
   }
   if (error.response.status === 500) {
+    // capture 500s
+    Sentry.captureException(error);
     return t('info.error_500');
   }
 

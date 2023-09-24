@@ -1,23 +1,32 @@
 import { openDB } from 'idb';
 
-const dbPromise = openDB('crisiscleanup', 3, {
+const WORKSITES_DATABASE = 'worksites';
+const WORKSITE_IMAGES_DATABASE = 'worksite_images';
+
+const dbPromise = openDB('crisiscleanup', 4, {
   upgrade(db, oldVersion) {
     if (oldVersion > 0) {
-      db.deleteObjectStore('keyval');
+      try {
+        db.deleteObjectStore(WORKSITES_DATABASE);
+        db.deleteObjectStore(WORKSITE_IMAGES_DATABASE);
+      } catch {
+        // Ignore
+      }
     }
 
-    db.createObjectStore('keyval');
+    db.createObjectStore(WORKSITES_DATABASE);
+    db.createObjectStore(WORKSITE_IMAGES_DATABASE);
   },
 });
 
 const DbService = {
-  async setItem(key: string, value: unknown) {
+  async setItem(key: string, value: unknown, db = WORKSITES_DATABASE) {
     const idbpDatabase = await dbPromise;
-    return idbpDatabase.put('keyval', value, key);
+    return idbpDatabase.put(db, value, key);
   },
-  async getItem(key: string): Promise<unknown> {
+  async getItem(key: string, db = WORKSITES_DATABASE): Promise<unknown> {
     const idbpDatabase = await dbPromise;
-    const entry = (await idbpDatabase.get('keyval', key)) as string;
+    const entry = (await idbpDatabase.get(db, key)) as string;
     if (entry) {
       try {
         return JSON.parse(entry) as Record<string, unknown>;
@@ -28,6 +37,10 @@ const DbService = {
 
     return null;
   },
+  async clearDatabase(db: string) {
+    const idbpDatabase = await dbPromise;
+    return idbpDatabase.clear(db);
+  },
 };
 
-export { DbService };
+export { DbService, WORKSITES_DATABASE, WORKSITE_IMAGES_DATABASE };

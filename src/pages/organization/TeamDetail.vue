@@ -149,12 +149,18 @@
                     type="settings"
                   />
                   <template #popper>
-                    <ul class="overflow-auto w-40" data-testid="testTeamsEmailsDiv">
+                    <ul
+                      class="overflow-auto w-40"
+                      data-testid="testTeamsEmailsDiv"
+                    >
                       <li
                         class="py-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
                         data-testid="testSendUserEmailLink"
                       >
-                        <font-awesome-icon icon="envelope" :alt="$t('actions.email')">
+                        <font-awesome-icon
+                          icon="envelope"
+                          :alt="$t('actions.email')"
+                        >
                         </font-awesome-icon>
                         <a :href="`mailto:${slotProps.item.email}`">{{
                           $t('teams.send_email')
@@ -192,7 +198,10 @@
                           }
                         "
                       >
-                        <font-awesome-icon icon="trash" :alt="$t('actions.delete')">
+                        <font-awesome-icon
+                          icon="trash"
+                          :alt="$t('actions.delete')"
+                        >
                         </font-awesome-icon>
                         {{ $t('teams.remove_from_team') }}
                       </li>
@@ -314,8 +323,8 @@
               <div class="flex flex-wrap w-full">
                 <div
                   v-for="work_type in slotProps.item.work_types"
-                  :data-testid="`testWorksiteDetails${work_type.id}Div`"
                   :key="`${work_type.id}`"
+                  :data-testid="`testWorksiteDetails${work_type.id}Div`"
                   class="mx-1"
                 >
                   <WorksiteStatusDropdown
@@ -423,8 +432,8 @@
             v-for="user in userResults.filter(
               (user) => !team.users.includes(user.id),
             )"
-            :data-testid="`testUserResults${user.id}Div`"
             :key="`${user.id}`"
+            :data-testid="`testUserResults${user.id}Div`"
             class="border-t pt-2"
           >
             <base-checkbox
@@ -454,13 +463,13 @@
         </div>
       </div>
       <template #footer>
-        <div slot="footer" class="p-3 flex items-center justify-center">
+        <div class="p-3 flex items-center justify-center">
           <base-button
             :action="
-            () => {
-              showAddMembersModal = false;
-            }
-          "
+              () => {
+                showAddMembersModal = false;
+              }
+            "
             :text="$t('actions.cancel')"
             :alt="$t('actions.cancel')"
             data-testid="testCancelButton"
@@ -476,7 +485,6 @@
             class="ml-2 p-3 px-6 text-xs"
           />
         </div>
-
       </template>
     </modal>
     <modal
@@ -510,8 +518,8 @@
           <div class="h-64 overflow-auto">
             <div
               v-for="worksite in assignableWorksites"
-              :data-testid="`testAssignableWorksiteDetail${worksite.id}Div`"
               :key="`${worksite.id}`"
+              :data-testid="`testAssignableWorksiteDetail${worksite.id}Div`"
               class="border-t last:border-b py-3 px-3 bg-white"
               style="
                 display: grid;
@@ -541,8 +549,8 @@
               <div class="flex flex-wrap w-full">
                 <div
                   v-for="work_type in worksite.work_types"
-                  :data-testid="`testWorkTypeList${work_type.id}Div`"
                   :key="`${work_type.id}`"
+                  :data-testid="`testWorkTypeList${work_type.id}Div`"
                   class="mx-1"
                 >
                   <WorksiteStatusDropdown
@@ -626,6 +634,7 @@ import { getQueryString } from '@/utils/urls';
 import Table from '@/components/Table.vue';
 import useDialogs from '@/hooks/useDialogs';
 import User from '@/models/User';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'TeamDetail',
@@ -653,10 +662,7 @@ export default defineComponent({
     const { t } = useI18n();
     const { component: dialogComponent, selection, confirm } = useDialogs();
     const $http = axios;
-    const currentUser = computed(
-      () => User.find(store.getters['auth/userId']) as User,
-    );
-    const currentUsers = ref([]);
+    const { currentUser } = useCurrentUser();
     const userResults = ref<User[]>([]);
     const caseResults = ref<Record<string, any>[]>([]);
     const usersToAdd = ref([]);

@@ -1,8 +1,5 @@
-import moment from 'moment';
-import Bowser from 'bowser';
-import * as Sentry from '@sentry/vue';
 import type { Config } from '@vuex-orm/plugin-axios';
-import { AuthService } from '../services/auth.service';
+import createDebug from 'debug';
 import Language from './Language';
 import Role from './Role';
 import CCUModel from '@/models/base';
@@ -32,6 +29,7 @@ export default class User extends CCUModel {
 
   mobile!: string;
 
+  accepted_terms!: boolean;
   accepted_terms_timestamp!: string;
 
   states!: Record<string, any>;
@@ -70,16 +68,6 @@ export default class User extends CCUModel {
       referring_user: this.attr({}),
       lineage: this.attr([]),
     };
-  }
-
-  static afterUpdate(model: User) {
-    if (model.id === User.store().getters['auth/userId']) {
-      AuthService.updateUser(model.$toJson());
-      Sentry.setUser(model.$toJson());
-      Sentry.setContext('user_states', model.states);
-      Sentry.setContext('user_preferences', model.preferences);
-      // User.store().commit("auth/setAcl", useRouter());
-    }
   }
 
   get hasProfilePicture() {
@@ -189,16 +177,6 @@ export default class User extends CCUModel {
 
   static apiConfig: Config = {
     actions: {
-      login(email: string, password: string) {
-        return this.post(
-          `/api-token-auth`,
-          {
-            email,
-            password,
-          },
-          { save: false },
-        );
-      },
       inviteUser(email: string, organization = null) {
         const data: Record<string, any> = {
           invitee_email: email,
@@ -251,120 +229,6 @@ export default class User extends CCUModel {
           },
           { save: false },
         );
-      },
-      async clearUserStates() {
-        const currentUser = User.find(User.store().getters['auth/userId']);
-        await this.patch(
-          `/users/${currentUser?.id}`,
-          {
-            states: {},
-          },
-          { save: false },
-        );
-        await this.get('/users/me');
-      },
-      async clearUserPreferences() {
-        const currentUser = User.find(User.store().getters['auth/userId']);
-        await this.patch(
-          `/users/${currentUser?.id}`,
-          {
-            preferences: {},
-          },
-          { save: false },
-        );
-        await this.get('/users/me');
-      },
-      async updateUserState(
-        globalStates: Record<string, any>,
-        incidentStates: Record<string, any>,
-        reload = false,
-      ) {
-        /* Update user states JSON with new states.
-
-           To be backwards-compatible with clients without per-incident states,
-           update top-level with both globalStates and incidentStates
-           and then update state for current incident with incidentStates.
-        */
-        let currentUser = User.find(User.store().getters['auth/userId']);
-
-        if (!currentUser) {
-          return;
-        }
-
-        const states = (currentUser && currentUser.states) || {};
-        const currentIncident = globalStates.incident || states.incident;
-        let updatedStates = {
-          ...states,
-          ...globalStates,
-          ...incidentStates,
-        };
-        let updatedIncidentStates = states.incidents || {};
-        if (incidentStates) {
-          const currentIncidentStates =
-            updatedIncidentStates[currentIncident] || {};
-          updatedIncidentStates = {
-            ...updatedIncidentStates,
-            [currentIncident]: {
-              ...currentIncidentStates,
-              ...incidentStates,
-            },
-          };
-        }
-
-        updatedStates = {
-          ...updatedStates,
-          incidents: updatedIncidentStates,
-          // eslint-disable-next-line import/no-named-as-default-member
-          userAgent: Bowser.parse(window.navigator.userAgent),
-        };
-        await User.update({
-          where: currentUser.id,
-          data: {
-            states: updatedStates,
-          },
-        });
-        currentUser = User.find(AuthService.getUser()?.id);
-        await this.patch(
-          `/users/${currentUser?.id}`,
-          {
-            states: updatedStates,
-          },
-          { save: false },
-        );
-        if (reload) {
-          await this.get('/users/me');
-        }
-      },
-      async updateUserPreferences(
-        preferences: Record<string, any>,
-        reload = false,
-      ) {
-        const currentUser = User.find(AuthService.getUser()?.id);
-        if (!currentUser) {
-          return;
-        }
-
-        const newPreferences = {
-          ...currentUser.preferences,
-          ...preferences,
-        };
-        await this.patch(
-          `/users/${currentUser.id}`,
-          {
-            preferences: newPreferences,
-          },
-          { save: false },
-        );
-        if (reload) {
-          await this.get('/users/me', {});
-        }
-      },
-      async acceptTerms() {
-        const currentUser = User.find(AuthService.getUser()?.id);
-        await this.patch(`/users/${currentUser?.id}`, {
-          accepted_terms: true,
-          accepted_terms_timestamp: moment().toISOString(),
-        });
       },
     },
   };

@@ -9,7 +9,7 @@
     @change="onListChange"
   >
     <template #item="{ element: field }">
-      <div>
+      <div class="py-2">
         <div
           v-if="!['hidden', 'divend'].includes(field.html_type)"
           class="flex items-center p-1 w-full mb-1 border bg-white"
@@ -55,7 +55,7 @@
             </template>
             <template v-if="field.html_type === 'select'">
               <div :key="field.field_key" class="form-field">
-                <span slot="label" class="flex items-center">
+                <span class="flex items-center">
                   <span>{{ translate(field.label_t) }}</span>
                   <ccu-icon
                     v-if="field.help_t"
@@ -73,6 +73,7 @@
                 <base-select
                   :options="
                     (field.values &&
+                      Array.isArray(field.values) &&
                       field.values.map((item: Record<string, string>) => {
                         return {
                           value: item.value,
@@ -89,7 +90,7 @@
             </template>
             <template v-if="field.html_type === 'multiselect'">
               <div :key="field.field_key" class="form-field">
-                <span slot="label" class="flex items-center">
+                <span class="flex items-center">
                   <span>{{ translate(field.label_t) }}</span>
                   <ccu-icon
                     v-if="field.help_t"
@@ -108,6 +109,7 @@
                   multiple
                   :options="
                     (field.values &&
+                      Array.isArray(field.values) &&
                       field.values.map((item: Record<string, string>) => {
                         return {
                           value: item.value,
@@ -156,7 +158,7 @@
             </template>
             <template v-if="field.html_type === 'textarea'">
               <div :key="field.field_key" class="form-field">
-                <span slot="label" class="flex items-center">
+                <span class="flex items-center">
                   <span>{{ translate(field.label_t) }}</span>
                   <ccu-icon
                     v-if="field.help_t"
@@ -283,6 +285,7 @@ export default defineComponent({
       group: 'description',
       disabled: false,
       ghostClass: 'ghost',
+      swapThreshold: 0.1,
     };
 
     function getSelectValuesList(defaultValues: Record<string, string>) {

@@ -26,10 +26,7 @@
       "
     >
       <div class="text-justify flex flex-col p-3 justify-center">
-        <div
-          class="my-3"
-          data-testid="testInviteTeammatesInstructionsDiv"
-        >
+        <div class="my-3" data-testid="testInviteTeammatesInstructionsDiv">
           {{ $t('inviteTeammates.invite_teammates_instructions') }}
         </div>
         <div class="mb-4">
@@ -103,7 +100,7 @@ import OrganizationSearchInput from '../OrganizationSearchInput.vue';
 import { getErrorMessage } from '../../utils/errors';
 import useCurrentUser from '../../hooks/useCurrentUser';
 
-const EMAIL_REGEX = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/;
+const EMAIL_REGEX = /[^\t\n\r @]+@[^\t\n\r @]+\.[^\t\n\r @]+/;
 
 export default defineComponent({
   name: 'InviteUsers',
@@ -121,7 +118,7 @@ export default defineComponent({
     const validation = [
       {
         classes: 'email',
-        rule: /[\w.!#$%&’*+/=?^`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*/,
+        rule: /[\w!#$%&*+./=?^`{|}~’-]+@[\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*/,
         disableAdd: true,
       },
     ];
@@ -133,7 +130,7 @@ export default defineComponent({
     const organizationResults = ref<Organization[]>([]);
     const { currentUser } = useCurrentUser();
     const currentOrganization = computed(() =>
-      Organization.find(currentUser?.organization?.id),
+      Organization.find(currentUser?.value?.organization?.id),
     );
 
     async function onOrganizationSearch(value: string) {

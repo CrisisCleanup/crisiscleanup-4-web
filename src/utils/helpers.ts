@@ -1,5 +1,6 @@
 import { useI18n } from 'vue-i18n';
-import { i18n } from '../main';
+import { i18n } from '@/modules/i18n';
+import { MD5 } from 'crypto-js';
 
 /**
  * Convert rem to pixels.
@@ -66,4 +67,26 @@ export function numeral(
   }
 
   return formatter.format(value || 0);
+}
+
+export function generateHash(s: string) {
+  return MD5(s).toString();
+}
+
+/**
+ * Utility function to generate url
+ * @param {string} endpoint - The endpoint to be appended to the base URL
+ * @returns {string} - The complete API URL
+ * @example
+ * // returns "http://api.example.com/languages" if VITE_APP_API_BASE_URL is "http://api.example.com"
+ * getApiUrl("/languages")
+ */
+export function getApiUrl(endpoint: string): string {
+  return `${import.meta.env.VITE_APP_API_BASE_URL}${endpoint}`;
+}
+
+export function isLandscape() {
+  return window.matchMedia(
+    'only screen and (max-device-width: 1223px) and (orientation: landscape)',
+  ).matches;
 }

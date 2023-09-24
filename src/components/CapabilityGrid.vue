@@ -21,7 +21,7 @@
             :title="$t('capabilities.show_capabilities')"
             class="cursor-pointer text-crisiscleanup-grid-yellow mr-2"
           ></font-awesome-icon>
-          {{ capability.name_t }}
+          {{ $t(capability.name_t) }}
           <badge
             v-if="getSelectedCount(capability) > 0"
             width="20px"
@@ -32,8 +32,8 @@
         </div>
         <div
           v-for="phase in phases"
-          :data-testid="`testCapability${capability.id}Phase${phase.phase_key}Div`"
           :key="`${capability.id}:${phase.phase_key}`"
+          :data-testid="`testCapability${capability.id}Phase${phase.phase_key}Div`"
           class="text-xs text-center bg-crisiscleanup-grid-grey flex items-center justify-center mb-1 cursor-pointer"
           @click="
             () => {
@@ -52,7 +52,7 @@
             :key="`${capability.id}:${child.id}`"
           >
             <div class="border-b p-2 py-4" :class="$mq === 'sm' ? 'w-60' : ''">
-              {{ child.name_t }}
+              {{ $t(child.name_t) }}
             </div>
             <template
               v-for="phase in phases"

@@ -14,6 +14,13 @@
         @onZoomIncidentCenter="goToIncidentCenter"
         @onZoomInteractive="goToInteractive"
       />
+      <WorksitePhotoMap
+        v-else-if="showingPhotoMap && caseImages.length > 0"
+        :key="caseImages.length"
+        :case-images="caseImages"
+        class="mb-16"
+        @load-case="loadCase"
+      />
       <div v-else-if="showingTable" class="mt-20 p-2 border">
         <div class="text-base p-2 mb-1 text-center w-full">
           Cases for {{ incidentName }}
@@ -73,6 +80,7 @@
           display-property="name"
           :placeholder="$t('actions.search')"
           skip-validation
+          use-recents
           class="mx-4 py-1 inset-1"
           @selectedExisting="handleSelectedExisting"
           @input="
@@ -116,6 +124,16 @@
           icon-size="sm"
           :title="$t('casesVue.map_view')"
           :alt="$t('casesVue.map_view')"
+          :action="showPhotoMap"
+          class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+        />
+        <base-button
+          v-if="showingPhotoMap"
+          icon="image"
+          icon-size="sm"
+          :title="$t('casesVue.photo_map_view')"
+          :alt="$t('casesVue.photo_map_view')"
+          data-testid="testPhotoMapViewIcon"
           :action="showMap"
           class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
@@ -313,6 +331,22 @@
                 ccu-event="user_ui-view-table"
                 @click="showTable"
               />
+              <ccu-icon
+                v-if="caseImages.length > 0"
+                :alt="$t('casesVue.photo_map_view')"
+                data-testid="testPhotoMapViewIcon"
+                size="medium"
+                class="mr-4 cursor-pointer"
+                :class="
+                  showingPhotoMap
+                    ? 'text-primary-light'
+                    : 'text-crisiscleanup-dark-100'
+                "
+                ccu-event="user_ui-view-photo-map"
+                type="image"
+                :fa="true"
+                @click="showPhotoMap"
+              />
               <span v-if="allWorksiteCount" class="font-thin">
                 <span
                   v-if="allWorksiteCount === filteredWorksiteCount"
@@ -335,6 +369,7 @@
                 :placeholder="$t('actions.search')"
                 size="medium"
                 skip-validation
+                use-recents
                 class="mx-4 py-1"
                 @selectedExisting="handleSelectedExisting"
                 @input="
@@ -384,7 +419,7 @@
             >{{ overDueFilterLabel }}</tag
           >
           <div
-            v-if="!collapsedUtilityBar && !showingTable"
+            v-if="!collapsedUtilityBar && !showingTable && !showingPhotoMap"
             class="flex justify-center items-center"
           >
             <Slider
@@ -420,8 +455,12 @@
           </div>
         </div>
         <div class="work-page__main-content">
-          <div v-if="showingMap" class="work-page__main-content--map">
+          <div
+            v-if="showingMap || showingPhotoMap"
+            class="work-page__main-content--map"
+          >
             <SimpleMap
+              v-if="showingMap"
               :map-loading="mapLoading"
               data-testid="testSimpleMapdiv"
               show-zoom-buttons
@@ -430,6 +469,12 @@
               @onZoomOut="zoomOut"
               @onZoomIncidentCenter="goToIncidentCenter"
               @onZoomInteractive="goToInteractive"
+            />
+            <WorksitePhotoMap
+              v-else-if="showingPhotoMap && caseImages.length > 0"
+              :key="caseImages.length"
+              :case-images="caseImages"
+              @load-case="loadCase"
             />
             <div ref="phoneButtons" class="work-page__actions">
               <div
@@ -803,10 +848,10 @@
 import {
   computed,
   defineComponent,
+  nextTick,
   onMounted,
   ref,
   watch,
-  nextTick,
 } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
@@ -826,7 +871,7 @@ import WorksiteTable from '../components/work/WorksiteTable.vue';
 import CaseHeader from '../components/work/CaseHeader.vue';
 import Worksite from '../models/Worksite';
 import CaseHistory from '../components/work/CaseHistory.vue';
-import { loadCasesCached } from '../utils/worksite';
+import { loadCaseImagesCached, loadCasesCached } from '../utils/worksite';
 import { averageGeolocation } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import User from '../models/User';
@@ -848,7 +893,10 @@ import useWorksiteTableActions from '@/hooks/worksite/useWorksiteTableActions';
 import ShareWorksite from '@/components/modals/ShareWorksite.vue';
 import useEmitter from '@/hooks/useEmitter';
 import Organization from '@/models/Organization';
-import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
+import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
+
+const INTERACTIVE_ZOOM_LEVEL = 12;
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Work',
@@ -866,6 +914,7 @@ export default defineComponent({
     SimpleMap,
     PhoneComponentButton,
     WorksiteSearchInput,
+    WorksitePhotoMap,
   },
   setup() {
     const router = useRouter();
@@ -886,18 +935,17 @@ export default defineComponent({
       return name;
     });
 
-    const currentUser = computed(() =>
-      User.find(User.store().getters['auth/userId']),
-    );
+    const { currentUser, updateUserStates } = useCurrentUser();
 
     const showingMap = ref<boolean>(true);
     const showingTable = ref<boolean>(false);
+    const showingPhotoMap = ref<boolean>(false);
     const showHistory = ref<boolean>(false);
     const showFlags = ref<boolean>(false);
     const showMobileMap = ref<boolean>(false);
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
-    const searchingWorksites = ref<boolean>(false);
+    const caseImages = ref<Record<string, any>[]>([]);
     const mapLoading = ref<boolean>(false);
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
@@ -920,7 +968,7 @@ export default defineComponent({
     const unreadChatCount = ref(0);
     const unreadUrgentChatCount = ref(0);
     const unreadNewsCount = ref(0);
-
+    const timesUsed = ref(0);
     const { showUnclaimModal } = useWorksiteTableActions(
       selectedTableItems,
       () => {
@@ -939,11 +987,13 @@ export default defineComponent({
         if (states.showingMap) {
           showingMap.value = true;
           showingTable.value = false;
+          showingPhotoMap.value = false;
         }
 
         if (states.showingTable) {
           showingTable.value = true;
           showingMap.value = false;
+          showingPhotoMap.value = false;
         }
 
         if (states.appliedFilters) {
@@ -979,11 +1029,8 @@ export default defineComponent({
         dateLevel: dateSliderValue.value,
         ...data,
       };
-      User.api().updateUserState(
-        {
-          incident: currentIncidentId.value,
-        },
-        newStates,
+      updateUserStates({ incident: currentIncidentId.value }, newStates).catch(
+        getErrorMessage,
       );
     }
 
@@ -1025,6 +1072,12 @@ export default defineComponent({
       });
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
+
+      loadCaseImagesCached({
+        ...worksiteQuery.value,
+      }).then((response) => {
+        caseImages.value = response.results;
+      });
       return response.results;
     }
 
@@ -1054,12 +1107,14 @@ export default defineComponent({
     const showTable = () => {
       showingTable.value = true;
       showingMap.value = false;
+      showingPhotoMap.value = false;
       updateUserState({});
     };
 
     const showMap = (reload = false) => {
       showingTable.value = false;
       showingMap.value = true;
+      showingPhotoMap.value = true;
       if (reload) {
         reloadMap().then(() => {
           updateUserState({});
@@ -1070,6 +1125,12 @@ export default defineComponent({
         init();
       });
       updateUserState({});
+    };
+
+    const showPhotoMap = () => {
+      showingTable.value = false;
+      showingMap.value = false;
+      showingPhotoMap.value = true;
     };
 
     const showingDetails = computed<boolean>(() => {
@@ -1194,7 +1255,9 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
-      if (value === 100) return;
+      if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
+        dateSliderValue.value = 100;
+      }
       sviSliderValue.value = Number(value);
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
@@ -1202,7 +1265,7 @@ export default defineComponent({
       if (sviList && container) {
         const count = Math.floor((sviList.length * Number(value)) / 100);
         const filteredSvi = sviList.slice(0, count);
-        const minSvi = filteredSvi[filteredSvi.length - 1]?.svi || 0;
+        const minSvi = filteredSvi.at(-1)?.svi || 0.999;
         for (const markerSprite of container.children) {
           markerSprite.visible = markerSprite.svi > minSvi;
         }
@@ -1255,7 +1318,7 @@ export default defineComponent({
       const list = getDatesList(container?.children?.length);
       if (list) {
         return `${moment({ hours: 0 }).diff(
-          list[list.length - 1].updated_at,
+          list.at(-1).updated_at,
           'days',
         )} days ago`;
       }
@@ -1264,7 +1327,7 @@ export default defineComponent({
     });
 
     function filterDates(value: number) {
-      if (sviSliderValue.value !== 100) {
+      if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         filterSvi(100);
       }
 
@@ -1279,7 +1342,7 @@ export default defineComponent({
       if (dl) {
         const count = Math.floor((dl.length * Number(value)) / 100);
         const filteredDates = dl.slice(0, count);
-        const minDate = filteredDates[filteredDates.length - 1]?.updated_at;
+        const minDate = filteredDates.at(-1)?.updated_at;
         for (const markerSprite of container?.children || []) {
           markerSprite.visible = markerSprite.updated_at_moment > minDate;
         }
@@ -1438,7 +1501,7 @@ export default defineComponent({
         listeners: {
           phoneNumbersUpdated(value: string[]) {
             phoneNumbers = value.map((number) =>
-              String(number).replace(/\D/g, ''),
+              String(number).replaceAll(/\D/g, ''),
             );
           },
           emailsUpdated(value: string[]) {
@@ -1568,15 +1631,13 @@ export default defineComponent({
       try {
         let params;
 
-        if (ids) {
-          params = {
-            id__in: ids.join(','),
-          };
-        } else {
-          params = {
-            ...worksiteQuery.value,
-          };
-        }
+        params = ids
+          ? {
+              id__in: ids.join(','),
+            }
+          : {
+              ...worksiteQuery.value,
+            };
 
         const response = await axios.get(
           `${
@@ -1733,7 +1794,9 @@ export default defineComponent({
           false,
           bounds,
         );
-      } catch {}
+      } catch (error) {
+        console.error('Error setting mapUtils', error);
+      }
 
       nextTick(() => {
         mapUtils?.getMap().on(
@@ -1804,6 +1867,7 @@ export default defineComponent({
       if (route.query.showTable) {
         showingTable.value = true;
         showingMap.value = false;
+        showingPhotoMap.value = false;
       }
 
       await init();
@@ -1838,6 +1902,8 @@ export default defineComponent({
       isViewing,
       searchWorksites,
       showingTable,
+      showPhotoMap,
+      showingPhotoMap,
       selectedChat,
       showingMap,
       mapLoading,
@@ -1906,12 +1972,11 @@ export default defineComponent({
       clearQuery,
       mq,
       showingSearchModal,
+      caseImages,
     };
   },
 });
 </script>
-
-<script setup></script>
 
 <style lang="postcss">
 .work-page {

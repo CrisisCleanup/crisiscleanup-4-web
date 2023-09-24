@@ -2,8 +2,8 @@
   <div class="relative">
     <div
       id="map"
-      data-testid="testWorkTypeMapDiv"
       ref="map"
+      data-testid="testWorkTypeMapDiv"
       class="absolute top-0 left-0 right-0 bottom-0"
     ></div>
   </div>
@@ -14,6 +14,7 @@ import * as L from 'leaflet';
 import type { PropType } from 'vue';
 import { colors, templates } from '@/icons/icons_templates';
 import { mapAttribution, mapTileLayer } from '@/utils/map';
+import { SVG_STROKE_WIDTH } from '@/constants';
 
 export default defineComponent({
   name: 'WorkTypeMap',
@@ -75,6 +76,7 @@ export default defineComponent({
         const template = templates[wt.work_type] || templates.unknown;
         const typeSvg = template
           .replaceAll('{{fillColor}}', spriteColors.fillColor)
+          .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
           .replaceAll('{{strokeColor}}', spriteColors.strokeColor)
           .replaceAll('{{multiple}}', '');
 

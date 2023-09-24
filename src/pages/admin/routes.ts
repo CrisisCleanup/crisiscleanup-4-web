@@ -1,14 +1,17 @@
-import AdminEventStream from '../../components/admin/AdminEventStream.vue';
-import AdminOrganization from './AdminOrganization.vue';
-import AdminPage from './Index.vue';
-import AdminCms from './AdminCms.vue';
-import AdminDashboard from './AdminDashboard.vue';
 // import AdminEvents from '@/pages/admin/AdminEvents.vue';
 // import AdminCosts from '@/pages/admin/AdminCosts.vue';
-import AdminIncidentWizard from './AdminIncidentWizard.vue';
-import AdminLocalizations from '@/pages/admin/AdminLocalizations.vue';
-import AdminBugs from '@/pages/admin/AdminBugs.vue';
-import ZendeskTicketDashboard from '@/pages/admin/ZendeskTicketDashboard.vue';
+
+const AdminPage = () => import('./Index.vue');
+const AdminDashboard = () => import('./AdminDashboard.vue');
+const AdminOrganization = () => import('./AdminOrganization.vue');
+const AdminEventStream = () =>
+  import('../../components/admin/AdminEventStream.vue');
+const ZendeskTicketDashboard = () =>
+  import('@/pages/admin/ZendeskTicketDashboard.vue');
+const AdminBugs = () => import('@/pages/admin/AdminBugs.vue');
+const AdminCms = () => import('./AdminCms.vue');
+const AdminLocalizations = () => import('@/pages/admin/AdminLocalizations.vue');
+const AdminIncidentWizard = () => import('./AdminIncidentWizard.vue');
 
 const routes = [
   {

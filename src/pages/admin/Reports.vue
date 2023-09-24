@@ -13,7 +13,7 @@
         </base-text>
       </div>
       <template #footer>
-        <div slot="footer" class="flex p-1 justify-center">
+        <div class="flex p-1 justify-center">
           <base-button
             variant="outline"
             :action="() => (showRequestAccessModal = false)"
@@ -22,7 +22,9 @@
       </template>
     </modal>
     <!-- Report Library -->
-    <h1 data-testid="testReportHeader" class="text-xl font-bold m-2 ml-3 pt-5">Report Library</h1>
+    <h1 data-testid="testReportHeader" class="text-xl font-bold m-2 ml-3 pt-5">
+      Report Library
+    </h1>
     <div v-for="sponsored in reportsKeys" :key="sponsored">
       <div v-if="sponsored === 'true'" class="text-lg font-bold m-2 ml-3 pt-1">
         {{ $t('reportsVue.sponsored_reports') }}
@@ -43,7 +45,7 @@
               <div class="m-5">
                 <div class="flex flex-row items-center justify-between">
                   <base-text variant="body" weight="700"
-                    >{{ r.name_t }}
+                    >{{ $t(r.name_t) }}
                   </base-text>
                   <badge
                     v-if="
@@ -64,7 +66,7 @@
                   />
                 </div>
                 <base-text variant="bodysm">
-                  {{ r.description_t }}
+                  {{ $t(r.description_t) }}
                 </base-text>
               </div>
             </div>
@@ -89,6 +91,7 @@ import Report from '@/models/Report';
 import User from '@/models/User';
 import { groupBy } from '@/utils/array';
 import useCurrentUser from '@/hooks/useCurrentUser';
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'Reports',
@@ -98,6 +101,7 @@ export default defineComponent({
     const { currentUser } = useCurrentUser();
     const route = useRoute();
     const router = useRouter();
+    const { updateUserStates } = useCurrentUser();
 
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
@@ -142,16 +146,17 @@ export default defineComponent({
       const newReports = Report.query()
         .where('created_at', (created_at: string) => {
           const reportsAccessed =
-            currentUser?.states && currentUser?.states.reports_last_accessed;
+            currentUser?.value?.states &&
+            currentUser?.value?.states.reports_last_accessed;
           return reportsAccessed
             ? moment(created_at).isAfter(moment(reportsAccessed))
             : true;
         })
         .get();
       newReportIds.value = new Set(newReports.map((r) => r.id));
-      User.api().updateUserState({
+      updateUserStates({
         reports_last_accessed: moment().toISOString(),
-      });
+      }).catch(getErrorMessage);
     });
 
     return {

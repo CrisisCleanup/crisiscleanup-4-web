@@ -6,7 +6,7 @@
     <slot></slot>
   </template>
   <div v-else class="flex h-screen items-center justify-center">
-    <spinner data-testid="testSpinnerLoadingIcon" size="xl" show-quote/>
+    <spinner data-testid="testSpinnerLoadingIcon" size="xl" show-quote />
   </div>
 </template>
 

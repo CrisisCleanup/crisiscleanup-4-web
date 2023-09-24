@@ -279,8 +279,8 @@
               </div>
               <base-checkbox
                 v-for="flag in flagTypes"
-                :data-testid="`testFlag${flag}Checkbox`"
                 :key="flag"
+                :data-testid="`testFlag${flag}Checkbox`"
                 class="block my-1"
                 :model-value="filters.flags.data[flag]"
                 @update:modelValue="
@@ -343,14 +343,18 @@
                   v-model="filters.fields.data[f.key]"
                   :data-testid="`testWorkType${f.key}Checkbox`"
                 >
-                  {{f.name_t}}
+                  {{ f.name_t }}
                 </base-checkbox>
                 <font-awesome-icon
                   v-if="filters.fields.data[f.key]"
                   :data-testid="`testWorkType${f.key}Icon`"
                   class="cursor-pointer"
                   size="md"
-                  :alt="expanded[f.key] ? $t('actions.hide_options') : $t('actions.show_options')"
+                  :alt="
+                    expanded[f.key]
+                      ? $t('actions.hide_options')
+                      : $t('actions.show_options')
+                  "
                   :icon="expanded[f.key] ? 'caret-up' : 'caret-down'"
                   @click="expandSection(f.key)"
                 />
@@ -424,7 +428,10 @@
               </div>
             </div>
             <div class="status-group mb-2">
-              <div class="my-1 text-base" data-testid="testMissingWorkTypeCheckbox">
+              <div
+                class="my-1 text-base"
+                data-testid="testMissingWorkTypeCheckbox"
+              >
                 {{ $t('worksiteFilters.missing_information') }}
               </div>
               <base-checkbox
@@ -442,8 +449,8 @@
               </div>
               <base-checkbox
                 v-for="team in teams"
-                :data-testid="`testTeam${team.id}Checkbox`"
                 :key="`${team.id}`"
+                :data-testid="`testTeam${team.id}Checkbox`"
                 class="block my-1"
                 :model-value="filters.teams.data[team.id]"
                 @update:modelValue="

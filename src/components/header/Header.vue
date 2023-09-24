@@ -23,7 +23,9 @@
             select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded p-2"
             item-key="id"
             label="name"
-            @update:modelValue="(payload: string) => $emit('update:incident', payload)"
+            @update:modelValue="
+              (payload: string) => $emit('update:incident', payload)
+            "
           >
             <template #list-header>
               <div
@@ -75,8 +77,8 @@
 
         <UserProfileMenu
           class="header-item"
-          @auth:logout="() => $emit('auth:logout')"
           data-testid="testLogoutLink"
+          @auth:logout="() => $emit('auth:logout')"
         />
       </div>
     </div>
@@ -103,8 +105,9 @@ import PhoneIndicator from '../phone/PhoneIndicator.vue';
 import RedeployRequest from '../modals/RedeployRequest.vue';
 import UserProfileMenu from './UserProfileMenu.vue';
 import User from '@/models/User';
-import BaseText from "@/components/BaseText.vue";
-import AppDownloadLinks from "@/components/AppDownloadLinks.vue";
+import BaseText from '@/components/BaseText.vue';
+import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
+import { useCurrentUser } from '@/hooks';
 export default defineComponent({
   name: 'Header',
   components: {
@@ -130,9 +133,8 @@ export default defineComponent({
     const { component } = useDialogs();
     const { $can } = useAcl();
     const { t } = useI18n();
-    const store = useStore();
 
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const { currentUser } = useCurrentUser();
     async function showCurrentUser() {
       await component({
         title: `User: ${currentUser?.value?.id} | ${currentUser?.value?.first_name} ${currentUser?.value?.last_name}`,

@@ -6,12 +6,14 @@ import type { LatLng, HeatLayer, LeafletMouseEvent } from 'leaflet';
 import { getMarkerLayer, mapTileLayer, mapAttribution } from '../../utils/map';
 import Location from '../../models/Location';
 import useRenderedMarkers from './useRenderedMarkers';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 import type { LayerGroup, PixiLayer } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 import useEmitter from '@/hooks/useEmitter';
 import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
+import { store } from '@/store';
+import { getErrorMessage } from '@/utils/errors';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -46,6 +48,8 @@ export default (
   useGoogleMaps = false,
   mapBounds = null,
 ) => {
+  const addToVisited = (wId: number) =>
+    store.commit('worksite/addVisitedWorksite', wId);
   let loadMarker: (marker: Sprite & Worksite, index: number) => void = (
     marker,
     index,
@@ -70,7 +74,12 @@ export default (
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
-        layer.destroy();
+        try {
+          layer.destroy();
+        } catch (error) {
+          console.error('Error destroying map layer', layer, error);
+          getErrorMessage(error);
+        }
       }
     });
   };
@@ -92,6 +101,15 @@ export default (
       const marker = findMarker(e.latlng);
       if (marker) {
         onMarkerClick(marker);
+        addToVisited(marker.id);
+        const markerToRerender =
+          markers.find((m) => m.id === marker.id) ?? marker;
+        try {
+          renderMarkerSprite(markerToRerender, markerToRerender.index);
+        } catch (error) {
+          console.error(error);
+        }
+        map.panBy([1, 0]);
       }
     });
 
@@ -215,6 +233,7 @@ export default (
     if (map && worksite && container) {
       container.visible = false;
       map.setView([worksite.latitude, worksite.longitude], 18);
+      addToVisited(worksite.id as number);
       if (showPopup) {
         const popup = L.popup({ className: 'pixi-popup' });
         popup

@@ -7,12 +7,12 @@ import { ref, watchEffect } from 'vue';
 import QRCode from 'qrcode';
 
 export default {
-  name: "QRCode",
+  name: 'QRCode',
   props: {
     value: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   setup(props) {
     const qrDataURL = ref(null);
@@ -20,12 +20,12 @@ export default {
     watchEffect(async () => {
       try {
         qrDataURL.value = await QRCode.toDataURL(props.value);
-      } catch (err) {
-        console.error(err);
+      } catch (error) {
+        console.error(error);
       }
     });
 
     return { qrDataURL };
-  }
-}
+  },
+};
 </script>

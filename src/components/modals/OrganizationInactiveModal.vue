@@ -33,19 +33,9 @@
 <script lang="ts">
 export default defineComponent({
   name: 'OrganizationInactiveModal',
-  props: {
-    organization: {
-      type: Object,
-      default() {
-        return {};
-      },
-    },
-  },
   emits: ['userLoggedOut'],
-  setup({ emit }) {
+  setup(props, { emit }) {
     function logout() {
-      // Your logout logic here. This could involve emitting an event or
-      // calling some API endpoint or global function to perform the logout.
       emit('userLoggedOut');
     }
 

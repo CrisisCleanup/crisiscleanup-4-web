@@ -39,8 +39,8 @@
                   <div class="h-40 w-full">
                     <SiteActivityGauge
                       v-if="currentSiteStats.length > 0"
-                      data-testid="testCurrentEngagementChart"
                       :key="currentEngagement"
+                      data-testid="testCurrentEngagementChart"
                       class="h-full w-full"
                       :chart-data="currentEngagement"
                       :margin-all="10"
@@ -74,8 +74,8 @@
                   <div class="">
                     <div
                       v-for="(stat, index) in currentSiteStats"
-                      :data-testid="`testSiteStats${stat.id}Div`"
                       :key="stat.id"
+                      :data-testid="`testSiteStats${stat.id}Div`"
                       class="mb-2"
                     >
                       <template v-if="index === 0">
@@ -174,12 +174,15 @@
                   <UserProfileMenu
                     invert
                     data-testid="testLogoutLink"
-                    @auth:logout="() => $store.dispatch('auth/logout')"
+                    @auth:logout="logout"
                   />
                 </template>
               </div>
             </div>
-            <div class="h-12 mt-3 flex text-xs" data-testid="testIncidentSelectedDiv">
+            <div
+              class="h-12 mt-3 flex text-xs"
+              data-testid="testIncidentSelectedDiv"
+            >
               <div
                 class="live-tab px-6"
                 :class="incidentId ? '' : 'live-tab--selected'"
@@ -193,8 +196,8 @@
               </div>
               <router-link
                 v-for="i in incidents"
-                :data-testid="`testIncident${i.id}Div`"
                 :key="i.id"
+                :data-testid="`testIncident${i.id}Div`"
                 :to="{
                   name: 'nav.pew',
                   query: { incident: i.id },
@@ -219,8 +222,8 @@
               <div class="relative h-full select-none col-span-7">
                 <div
                   id="map"
-                  data-testid="testMapDiv"
                   ref="map"
+                  data-testid="testMapDiv"
                   class="absolute top-0 left-0 right-0 bottom-0"
                 ></div>
                 <div
@@ -333,8 +336,8 @@
                     >
                       <div
                         v-for="entry in displayedWorkTypeSvgs"
-                        :data-testid="`testLegendSvgs${entry.key}Div`"
                         :key="entry.key"
+                        :data-testid="`testLegendSvgs${entry.key}Div`"
                         class="flex items-center mb-1 cursor-pointer p-1 hover:border-white border"
                         :class="
                           entry.selected
@@ -374,8 +377,8 @@
                   >
                     <div
                       v-for="item in mapStatistics"
-                      :data-testid="`testMapStatItem${item['title']}Div`"
                       :key="item['title']"
+                      :data-testid="`testMapStatItem${item['title']}Div`"
                       class="p-1 px-3 border mx-1 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md"
                       :style="item['style']"
                     >
@@ -412,8 +415,8 @@
                     </div>
                     <Slider
                       v-if="markersLength > 0"
-                      data-testid="testUpdatedSliderDiv"
                       :key="markersLength"
+                      data-testid="testUpdatedSliderDiv"
                       :value="markersLength - 1"
                       :min="0"
                       :max="markersLength - 1"
@@ -463,8 +466,8 @@
                       <div class="chart-container rounded-tr-xl h-72">
                         <CircularBarplot
                           v-if="circularBarplotData.length > 0"
-                          data-testid="testPpCallTimesChart"
                           :key="circularBarplotData"
+                          data-testid="testPpCallTimesChart"
                           class="h-full h-full"
                           :chart-data="circularBarplotData"
                           :margin="20"
@@ -546,6 +549,7 @@ import LightTab from '@/components/tabs/LightTab.vue';
 import TotalCases from '@/components/live/TotalCases.vue';
 import PewPewNavBar from '@/components/navigation/PewPewNavBar.vue';
 import User from '@/models/User';
+import { useAuthStore } from '@/hooks';
 
 export default defineComponent({
   name: 'PewPew',
@@ -564,6 +568,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const authStore = useAuthStore();
 
     const queryFilter = ref({
       start_date: moment().add(-60, 'days'),
@@ -580,7 +585,7 @@ export default defineComponent({
     const markersLength = ref(0);
     const mapUtils = ref(null);
     const isDarkMode = computed(() => colorMode.value === 'dark');
-    const isLoggedIn = computed(() => store.getters['auth/isLoggedIn']);
+    const { isAuthenticated: isLoggedIn } = useAuthStore();
     const incidentList = computed(() =>
       Incident.query().where('active_phone_number', Boolean).get(),
     );
@@ -889,6 +894,7 @@ export default defineComponent({
       stopChartTabCirculationTimer,
       displayedWorkTypeSvgs,
       getWorkTypeName,
+      logout: () => authStore.logout(),
     };
   },
 });
@@ -944,7 +950,10 @@ export default defineComponent({
 }
 
 .stats:hover {
-  text-shadow: 1px 1px 2px lightblue, 0 0 1em lightblue, 0 0 0.2em lightblue;
+  text-shadow:
+    1px 1px 2px lightblue,
+    0 0 1em lightblue,
+    0 0 0.2em lightblue;
 }
 
 .pewpew {

@@ -91,7 +91,7 @@
           :alt="$t('actions.flag')"
           data-testid="testFlagIcon"
           size="small"
-          class="p-1 py-2"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="flag"
           @click="$emit('onFlagCase')"
         />
@@ -99,7 +99,7 @@
           :alt="$t('actions.jump_to_case')"
           data-testid="testJumpToCaseIcon"
           size="small"
-          class="p-1 py-2"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="go-case"
           @click="$emit('onJumpToCase')"
         />
@@ -107,7 +107,7 @@
           :alt="$t('actions.history')"
           data-testid="testHistoryIcon"
           size="small"
-          class="p-1 py-2"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           :fa="true"
           type="user-group"
           @click="$emit('onShowHistory')"
@@ -115,7 +115,7 @@
         <ccu-icon
           :alt="$t('actions.download')"
           size="small"
-          class="p-1 py-2"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="download"
           data-testid="cases.icons.download"
           @click="$emit('onDownloadWorksite')"
@@ -123,7 +123,7 @@
         <ccu-icon
           :alt="$t('actions.share')"
           size="small"
-          class="p-1 py-2"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="share"
           data-testid="cases.icons.share"
           @click="$emit('onShareWorksite')"
@@ -131,16 +131,17 @@
         <ccu-icon
           :alt="$t('actions.print')"
           size="small"
-          class="p-1 py-2"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="print"
           data-testid="cases.icons.print"
-          @click="$emit('onPrintWorksite')"
+          :class="printIconDisabled ? 'disabled pulse' : ''"
+          @click="handlePrintWorksite"
         />
         <ccu-icon
           v-if="isViewingWorksite && canEdit"
           data-testid="testEditIcon"
           :alt="$t('actions.edit')"
-          class="border p-2 bg-primary-light"
+          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           size="small"
           type="edit"
           @click="$emit('onEditCase')"
@@ -156,9 +157,12 @@ import { useStore } from 'vuex';
 import { templates } from '../../icons/icons_templates';
 import Worksite from '../../models/Worksite';
 import { momentFromNow } from '../../filters';
+import BaseButton from '@/components/BaseButton.vue';
+import { SVG_STROKE_WIDTH } from '@/constants';
 
 export default defineComponent({
   name: 'CaseHeader',
+  components: { BaseButton },
   props: {
     worksite: {
       type: Object,
@@ -182,6 +186,7 @@ export default defineComponent({
       const template = templates.important;
       return template
         .replaceAll('{{fillColor}}', 'grey')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
@@ -189,6 +194,7 @@ export default defineComponent({
       const template = templates.important;
       return template
         .replaceAll('{{fillColor}}', 'red')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
@@ -196,6 +202,7 @@ export default defineComponent({
       const template = templates.favorite;
       return template
         .replaceAll('{{fillColor}}', 'grey')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
@@ -204,19 +211,18 @@ export default defineComponent({
       const template = templates.favorite;
       return template
         .replaceAll('{{fillColor}}', 'red')
+        .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
         .replaceAll('{{strokeColor}}', 'white')
         .replaceAll('{{multiple}}', '');
     });
 
     async function toggleFavorite(toggle) {
-      if (toggle) {
-        await Worksite.api().favorite(props.worksite.id);
-      } else {
-        await Worksite.api().unfavorite(
-          props.worksite.id,
-          props.worksite.favorite.id,
-        );
-      }
+      await (toggle
+        ? Worksite.api().favorite(props.worksite.id)
+        : Worksite.api().unfavorite(
+            props.worksite.id,
+            props.worksite.favorite.id,
+          ));
 
       await Worksite.api().fetch(props.worksite.id);
       emit('reloadMap');
@@ -245,12 +251,29 @@ export default defineComponent({
       emit('reloadMap');
     }
 
+    const printIconDisabled = ref(false);
+    const handlePrintWorksite = () => {
+      // Disable the icon
+      printIconDisabled.value = true;
+
+      // Add a setTimeout for 15 seconds (15000 milliseconds)
+      setTimeout(() => {
+        // Re-enable the icon after 15 seconds
+        printIconDisabled.value = false;
+      }, 15_000);
+
+      emit('onPrintWorksite');
+      // Emit the click event immediately
+    };
+
     return {
       currentIncidentId,
       highPrioritySvgInactive,
       highPrioritySvgActive,
       favoriteSvgInactive,
       favoriteSvgActive,
+      printIconDisabled,
+      handlePrintWorksite,
       toggleFavorite,
       toggleHighPriority,
       momentFromNow,
@@ -263,5 +286,35 @@ export default defineComponent({
 .svg-container svg {
   width: 18px !important;
   height: 18px !important;
+}
+
+.hover-bg-primary-light:hover {
+  background-color: #ffdd3a;
+}
+
+.click-bg-primary-light:active {
+  background-color: #e0b805; /* New background color on click */
+  /* Other styles for clicked state */
+}
+
+.disabled {
+  cursor: not-allowed; /* Change the cursor to "not allowed" */
+  opacity: 0.2; /* Reduce opacity to indicate the element is disabled */
+  pointer-events: none; /* Prevent any interactions with the element */
+}
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+@keyframes pulse-animation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 </style>

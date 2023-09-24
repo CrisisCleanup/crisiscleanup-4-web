@@ -45,7 +45,7 @@ import {
   getStatusName,
 } from '../../filters';
 import AjaxTable from '@/components/AjaxTable.vue';
-import {useMq} from "vue3-mq";
+import { useMq } from 'vue3-mq';
 
 export default defineComponent({
   name: 'WorksiteTable',

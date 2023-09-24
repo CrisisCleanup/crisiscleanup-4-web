@@ -31,9 +31,8 @@ export default class WorksiteTeamsFilter extends Filter {
     for (const [key] of Object.entries(this.data).filter(([, value]) => {
       return Boolean(value);
     })) {
-      labels[key] = `${useI18n().t('worksiteFilters.teams')}: ${
-        Team.find(key)?.name
-      }`;
+      labels[key] = `${useI18n().t('worksiteFilters.teams')}: ${Team.find(key)
+        ?.name}`;
     }
 
     return labels;

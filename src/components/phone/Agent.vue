@@ -93,22 +93,20 @@
 </template>
 
 <script lang="ts">
-import { computed, reactive, ref } from 'vue';
-import { useStore } from 'vuex';
+import { reactive, ref } from 'vue';
 import LanguageTag from '../tags/LanguageTag.vue';
 import useConnectFirst from '../../hooks/useConnectFirst';
 import EditAgentModal from './EditAgentModal.vue';
 import PhoneIndicator from './PhoneIndicator.vue';
 import usePhoneService from '@/hooks/phone/usePhoneService';
-import User from '@/models/User';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'Agent',
   components: { PhoneIndicator, EditAgentModal, LanguageTag },
   setup(props, context) {
     const editingAgent = ref(false);
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
-    const store = useStore();
+    const { currentUser } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
     const {
       languages,

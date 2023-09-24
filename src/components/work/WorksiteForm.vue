@@ -28,7 +28,7 @@
           required
           :placeholder="$t('formLabels.phone1')"
           :fa-icon="
-            currentIncident.auto_contact && worksite.id ? 'comment' : null
+            currentIncident.auto_contact && worksite.id ? 'comment-sms' : null
           "
           :tooltip="
             currentIncident.auto_contact && worksite.id
@@ -47,7 +47,7 @@
           size="large"
           :placeholder="$t('formLabels.phone2')"
           :fa-icon="
-            currentIncident.auto_contact && worksite.id ? 'comment' : null
+            currentIncident.auto_contact && worksite.id ? 'comment-sms' : null
           "
           :tooltip="
             currentIncident.auto_contact && worksite.id
@@ -95,7 +95,7 @@
         />
       </div>
       <div v-if="currentIncident.auto_contact" class="form-field">
-        <span slot="label" class="flex items-center">
+        <span class="flex items-center">
           <span>{{ $t('casesVue.auto_contact_frequency') }}</span>
           <ccu-icon
             v-tooltip="{
@@ -336,8 +336,8 @@
       </div>
       <form-tree
         v-for="field in fieldTree"
-        :data-testid='`testDynamicForm${field.field_key}TextInput`'
         :key="field.field_key"
+        :data-testid="`testDynamicForm${field.field_key}TextInput`"
         :field="field"
         :worksite="worksite"
         :dynamic-fields="dynamicFields"
@@ -370,8 +370,8 @@
         </SectionHeading>
         <WorksiteImageSection
           :key="worksite.files"
-          data-testid="testWorksiteImageSectionDiv"
           ref="worksiteImageSection"
+          data-testid="testWorksiteImageSectionDiv"
           class="px-3 pb-3"
           :worksite="worksite"
           @updateFiles="updateImage"
@@ -442,6 +442,7 @@ import WorksiteSearchInput from './WorksiteSearchInput.vue';
 import SectionHeading from './SectionHeading.vue';
 import WorksiteNotes from './WorksiteNotes.vue';
 import Language from '@/models/Language';
+import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -541,13 +542,15 @@ export default defineComponent({
     const form = ref(null);
     const worksiteImageSection = ref(null);
 
+    const { addRecentWorksite } = useRecentWorksites();
+
     const currentIncident = computed(() => {
       return Incident.find(props.incidentId);
     });
 
     const supportedLanguages = computed(() => {
       const languages = Language.all();
-      const ids = new Set([2, 7]);
+      const ids = new Set([2, 7, 91, 11]);
       return languages.filter((l) => ids.has(Number(l.id)));
     });
 
@@ -714,8 +717,7 @@ export default defineComponent({
       ) {
         map[object.field_key] = object.field_value;
         return map;
-      },
-      {});
+      }, {});
 
       StorageService.removeItem('currentWorksite');
       ready.value = true;
@@ -860,43 +862,41 @@ export default defineComponent({
       );
       const incidents = response.response.data.results;
       let result;
-      if (incidents.length > 0) {
-        result = await confirm({
-          title: t('caseForm.incorrect_location'),
-          content: t('caseForm.suggested_incident', {
-            incident: incidents[0].name,
-          }),
-          actions: {
-            switchIncident: {
-              text: t('caseForm.yes'),
-              type: 'solid',
+      result = await (incidents.length > 0
+        ? confirm({
+            title: t('caseForm.incorrect_location'),
+            content: t('caseForm.suggested_incident', {
+              incident: incidents[0].name,
+            }),
+            actions: {
+              switchIncident: {
+                text: t('caseForm.yes'),
+                type: 'solid',
+              },
+              keep: {
+                text: t('caseForm.no'),
+                type: 'outline',
+                buttonClass: 'border border-black',
+              },
             },
-            keep: {
-              text: t('caseForm.no'),
-              type: 'outline',
-              buttonClass: 'border border-black',
+          })
+        : confirm({
+            title: t('caseForm.case_outside_incident'),
+            content: t('caseForm.warning_case_outside_incident', {
+              incident: currentIncident.value.name,
+            }),
+            actions: {
+              retry: {
+                text: t('actions.retry'),
+                type: 'outline',
+                buttonClass: 'border border-black',
+              },
+              continue: {
+                text: t('actions.continue_anyway'),
+                type: 'solid',
+              },
             },
-          },
-        });
-      } else {
-        result = await confirm({
-          title: t('caseForm.case_outside_incident'),
-          content: t('caseForm.warning_case_outside_incident', {
-            incident: currentIncident.value.name,
-          }),
-          actions: {
-            retry: {
-              text: t('actions.retry'),
-              type: 'outline',
-              buttonClass: 'border border-black',
-            },
-            continue: {
-              text: t('actions.continue_anyway'),
-              type: 'solid',
-            },
-          },
-        });
-      }
+          }));
 
       potentialIncidents.value = incidents;
 
@@ -1105,6 +1105,8 @@ export default defineComponent({
           }
 
           worksite.value = Worksite.find(worksiteId);
+          console.info('Saved worksite!', worksite.value);
+          addRecentWorksite(worksite.value as Worksite);
         }
 
         await $toasted.success(t('caseForm.new_case_success'));

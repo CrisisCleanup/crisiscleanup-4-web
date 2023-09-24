@@ -48,7 +48,7 @@
         data-testid="testRequestPasswordResetLink"
         text-variant="h2"
       >
-        {{lang.forgot}}
+        {{ lang.forgot }}
       </base-link>
     </div>
     <div class="grid--login my-4">

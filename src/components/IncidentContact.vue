@@ -7,8 +7,8 @@
       <div v-if="incidentList && incidentList.length > 0" class="w-full">
         <div
           v-for="incident in filterNumbers(incidentList)"
-          data-testid="testIncidentPhoneDiv"
           :key="incident.id"
+          data-testid="testIncidentPhoneDiv"
           class="ml-2"
         >
           {{ incident.short_name }}:
@@ -66,7 +66,7 @@ function filterNumbers(item) {
 <style lang="postcss" scoped>
 .grid--survivors {
   @apply bg-crisiscleanup-yellow-700 my-4 text-center p-4;
-  //min-width: 205px;
+  /*min-width: 205px;*/
 
   p {
     letter-spacing: 0.35px;

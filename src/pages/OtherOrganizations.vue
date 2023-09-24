@@ -165,6 +165,7 @@ import { cachedGet } from '@/utils/promise';
 import type Role from '@/models/Role';
 import { useApi } from '@/hooks/useApi';
 import type Organization from '@/models/Organization';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'OtherOrganizations',
@@ -193,7 +194,7 @@ export default defineComponent({
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
-    const currentUser = computed(() => store.getters['auth/userId']);
+    const { currentUser } = useCurrentUser();
     const columns = computed(() => [
       {
         title: t('otherOrganizations.name'),

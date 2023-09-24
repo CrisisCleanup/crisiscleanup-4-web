@@ -298,6 +298,7 @@
           display-property="name"
           :placeholder="$t('actions.search')"
           skip-validation
+          use-recents
           class="mx-4 py-1 inset-1"
           @selectedExisting="onSelectExistingWorksite"
           @input="
@@ -502,6 +503,7 @@
               size="medium"
               skip-validation
               class="mx-2 w-full"
+              use-recents
               @selectedExisting="onSelectExistingWorksite"
               @input="
                 (value) => {
@@ -1057,7 +1059,6 @@ import PhoneToolBar from '../../components/phone/PhoneToolBar.vue';
 import PhoneNews from '../../components/phone/PhoneNews.vue';
 import useDialogs from '../../hooks/useDialogs';
 import useConnectFirst from '../../hooks/useConnectFirst';
-import useCurrentUser from '../../hooks/useCurrentUser';
 import User from '../../models/User';
 import WorksiteForm from '../../components/work/WorksiteForm.vue';
 import { loadCasesCached } from '@/utils/worksite';
@@ -1073,6 +1074,7 @@ import CaseFlag from '@/components/work/CaseFlag.vue';
 import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
 import { averageGeolocation } from '@/utils/map';
 import type { MapUtils } from '@/hooks/worksite/useLiveMap';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'PhoneSystem',
@@ -1107,6 +1109,8 @@ export default defineComponent({
     const { currentUser } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
     const mq = useMq();
+
+    const { updateUserStates } = useCurrentUser();
 
     const imageUrl = ref('');
     const numberClicks = ref(0);
@@ -1171,13 +1175,12 @@ export default defineComponent({
       dialManualOutbound,
     } = connectFirst;
 
-    const prefillData = computed(function () {
-      if (caller.value?.dnis) {
+    const prefillData = computed(() => {
+      if (caller.value) {
         return {
-          phone1: caller.value?.dnis,
+          phone1: caller.value?.dnis ?? '',
         };
       }
-
       return {};
     });
     const callsWaiting = computed(function () {
@@ -1346,15 +1349,13 @@ export default defineComponent({
       try {
         let params;
 
-        if (ids) {
-          params = {
-            id__in: ids.join(','),
-          };
-        } else {
-          params = {
-            ...worksiteQuery.value,
-          };
-        }
+        params = ids
+          ? {
+              id__in: ids.join(','),
+            }
+          : {
+              ...worksiteQuery.value,
+            };
 
         const response = await axios.get(
           `${
@@ -1591,13 +1592,6 @@ export default defineComponent({
           markers.map((m) => m.id),
         );
       });
-    }
-
-    async function reloadCase() {
-      return Worksite.api().fetch(
-        worksite?.value?.id,
-        currentIncidentId.value.id,
-      );
     }
 
     async function onSaveCase(worksite) {
@@ -1854,7 +1848,7 @@ export default defineComponent({
       goToInteractive,
       goToIncidentCenter,
       getWorkTypeName,
-      updateUserState: User.api().updateUserState,
+      updateUserState: updateUserStates,
       moment,
       retryFailedCall,
       onSelectionChanged,

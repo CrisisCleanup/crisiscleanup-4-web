@@ -4,13 +4,15 @@
 
 import type { Ref } from 'vue';
 import { computed } from 'vue';
+// TODO: Fix in eslint config
+// eslint-disable-next-line import/no-unresolved
 import * as config from 'tailwind.config';
 import moment from 'moment';
 import { wrap } from '../../utils/wrap';
 import type Incident from '../../models/Incident';
 import type Worksite from '../../models/Worksite';
 import useCurrentUser from '../useCurrentUser';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 
 const { theme } = config;
 
@@ -81,9 +83,9 @@ export default ({ callType, incident, recentWorksite }: UseScriptsProps) => {
 
   const currentScript = computed(
     () =>
-      currentUser &&
+      currentUser.value &&
       i18n.global.t(Scripts[_callType.value ?? CallType.INBOUND], {
-        name: currentUser.first_name,
+        name: currentUser.value.first_name,
         incidentType: _incident.value ? _incident.value.incident_type : '',
         timeAgo: _recentWorksite.value
           ? moment(_recentWorksite.value.updated_at).fromNow()

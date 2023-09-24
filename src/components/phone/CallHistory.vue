@@ -52,8 +52,8 @@
           <div class="flex flex-col">
             <div
               v-for="caseItem in slotProps.item.cases"
-              :data-testid="`testCaseItemId${caseItem.id}Div`"
               :key="`${caseItem.id}`"
+              :data-testid="`testCaseItemId${caseItem.id}Div`"
               class="inline-flex items-center flex-row py-1 justify-start"
             >
               <base-link

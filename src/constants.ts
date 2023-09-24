@@ -80,9 +80,9 @@ import downloadAppStoreBadge from './assets/icons/download-appstore-badge.svg';
 import downloadPlayStoreBadge from './assets/icons/download-playstore-badge.svg';
 import appleAppStore from './assets/icons/appleAppStore.svg';
 import googlePlayStore from './assets/icons/googlePlayStore.svg';
-import zoom from './assets/icons/zoom.svg'
-import iosRound from './assets/icons/ios-round.svg'
-import androidRound from './assets/icons/android-round.svg'
+import zoom from './assets/icons/zoom.svg';
+import iosRound from './assets/icons/ios-round.svg';
+import androidRound from './assets/icons/android-round.svg';
 // DISASTER ICONS
 import contaminatedWater from './assets/disaster_icons/contaminated-water.svg';
 import earthquake from './assets/disaster_icons/earthquake.svg';
@@ -266,9 +266,9 @@ export const ICON_MAP = {
   'google-play-store': googlePlayStore,
   'apple-app-store': appleAppStore,
   'sticky-note-solid': stickyNoteSolid,
-  'zoom': zoom,
-   'ios-round': iosRound,
-    'android-round': androidRound
+  zoom: zoom,
+  'ios-round': iosRound,
+  'android-round': androidRound,
 };
 
 export const ICONS = Object.fromEntries(
@@ -299,4 +299,5 @@ export const BUTTON_VARIANTS = {
   TEXT: 'text',
 };
 
+export const SVG_STROKE_WIDTH = 0.5;
 export const INTERACTIVE_ZOOM_LEVEL = 12;

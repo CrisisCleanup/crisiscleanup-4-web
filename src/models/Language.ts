@@ -4,6 +4,7 @@
 import detectBrowserLanguage from 'detect-browser-language';
 import _ from 'lodash';
 import CCUModel from '@/models/base';
+import { i18n } from '@/modules/i18n';
 
 interface LanguageTranslationResponse {
   text: string;
@@ -95,6 +96,6 @@ export default class Language extends CCUModel {
   }
 
   get shortName() {
-    return this.name_t.split(' ')[0];
+    return i18n.global.t(this.name_t).split(' ')[0];
   }
 }

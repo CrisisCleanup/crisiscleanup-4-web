@@ -19,8 +19,8 @@
       <div class="flex text-primary-dark" style="z-index: 1001">
         <base-button
           v-for="action in actions"
-          :data-testid="`test${action.id}Button`"
           :key="`${action.id}`"
+          :data-testid="`test${action.id}Button`"
           :text="action.text"
           :alt="action.text"
           :action="

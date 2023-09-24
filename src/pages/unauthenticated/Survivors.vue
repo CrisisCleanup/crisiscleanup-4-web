@@ -108,8 +108,8 @@
               </div>
               <base-checkbox
                 v-for="work_type_help_needed in survivorToken.work_types"
-                :data-testid="`testWorkTypeHelpNeeded${work_type_help_needed.id}Checkbox`"
                 :key="work_type_help_needed.id"
+                :data-testid="`testWorkTypeHelpNeeded${work_type_help_needed.id}Checkbox`"
                 class="mb-3"
                 :model-value="workTypeHelpNeeded.has(work_type_help_needed.id)"
                 @update:modelValue="
@@ -124,7 +124,7 @@
                     v-html="getWorkTypeImage(work_type_help_needed)"
                   ></div>
                   <span class="text-sm">{{
-                    work_type_help_needed.work_type | getWorkTypeName
+                    getWorkTypeName(work_type_help_needed.work_type)
                   }}</span>
                 </div>
               </base-checkbox>
@@ -243,9 +243,9 @@
         />
         <base-checkbox
           :model-value="survivorToken.allow_sharing"
-          @update:modelValue="survivorToken.allow_sharing = $event"
           class="w-full mt-2"
           data-testid="survivorContactSharePermissionSwitch"
+          @update:modelValue="survivorToken.allow_sharing = $event"
         >
           {{ $t('survivorContact.share_permission') }}
         </base-checkbox>
@@ -255,8 +255,8 @@
       <div>
         <div
           class="text-lg my-2 font-bold"
-          v-html="$t('survivorContact.how_often_update')"
           data-testid="testAutoContactFrequencyDiv"
+          v-html="$t('survivorContact.how_often_update')"
         ></div>
         <div class="w-full flex text-center text-lg">
           <div
@@ -339,8 +339,8 @@
 
       <base-checkbox
         v-if="!survivorToken.tos_accepted_at"
-        data-testid="testAcceptTermsCheckbox"
         v-model="survivorToken.accept_terms"
+        data-testid="testAcceptTermsCheckbox"
         class="block my-1 text-xl"
       >
         <div class="privacy" v-html="$t('registerOrg.tos_priv_agree')"></div>
@@ -391,18 +391,13 @@ import GeocoderService from '@/services/geocoder.service';
 import LocationViewer from '@/components/locations/LocationViewer.vue';
 import WorksiteImageSection from '@/components/work/WorksiteImageSection.vue';
 import WorksiteNotes from '@/components/work/WorksiteNotes.vue';
-import { getWorkTypeImage } from '@/filters';
+import { getWorkTypeImage, getWorkTypeName } from '@/filters';
 import { formatCmsItem } from '@/utils/helpers';
 import survivor from '@/pages/home/Survivor.vue';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
 
 export default defineComponent({
   name: 'Survivors',
-  computed: {
-    survivor() {
-      return survivor;
-    },
-  },
   components: {
     BaseCheckbox,
     WorksiteNotes,
@@ -495,7 +490,7 @@ export default defineComponent({
     });
 
     function sanitizeToken(token) {
-      return token.replace(/\./g, '');
+      return token.replaceAll('.', '');
     }
 
     function showImage(image, index, fileList) {
@@ -701,9 +696,15 @@ export default defineComponent({
       geocoderSearch,
       onGeocodeSelect,
       getSurvivorToken,
+      getWorkTypeName,
       saveSurvivorToken,
       getFaqs,
     };
+  },
+  computed: {
+    survivor() {
+      return survivor;
+    },
   },
 });
 </script>

@@ -65,9 +65,15 @@
         </div>
         <div class="grid grid-cols-3 gap-x-4">
           <template v-if="true">
-            <div data-testid="testInboundCountDiv">{{ $t('phoneDashboard.inbound') }}</div>
-            <div data-testid="testOutboundCountDiv">{{ $t('phoneDashboard.outbound') }}</div>
-            <div data-testid="testTotalCountdiv">{{ $t('phoneDashboard.total') }}</div>
+            <div data-testid="testInboundCountDiv">
+              {{ $t('phoneDashboard.inbound') }}
+            </div>
+            <div data-testid="testOutboundCountDiv">
+              {{ $t('phoneDashboard.outbound') }}
+            </div>
+            <div data-testid="testTotalCountdiv">
+              {{ $t('phoneDashboard.total') }}
+            </div>
           </template>
           <div
             v-for="m in ['inbound_calls', 'outbound_calls', 'total']"

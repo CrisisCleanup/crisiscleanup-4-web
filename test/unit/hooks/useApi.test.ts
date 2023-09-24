@@ -64,7 +64,9 @@ vi.mock('@vueuse/integrations/useAxios', () => {
 describe('useApi', () => {
   const componentOptions = {
     setup() {
-      const api = useApi('https://jsonplaceholder.typicode.com');
+      const api = useApi({
+        baseUrl: 'https://jsonplaceholder.typicode.com',
+      });
       return { api };
     },
     template: '<div> Hello world! </div>',
@@ -117,7 +119,7 @@ describe('useApi', () => {
     expect(useAxios).toHaveBeenCalledWith(
       '/todos/1',
       {
-        baseURL: 'https://jsonplaceholder.typicode.com',
+        baseURL: 'https://jsonplaceholder.typicode.com/',
         method: 'GET',
         params: { type: 'all' },
         headers: {

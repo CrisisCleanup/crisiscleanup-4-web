@@ -48,17 +48,17 @@
         />
       </div>
       <template #footer>
-        <div slot="footer" class="p-3 flex justify-end">
+        <div class="p-3 flex justify-end">
           <base-button
             :text="$t('actions.cancel')"
             :alt="$t('actions.cancel')"
             data-testid="testCancelButton"
             class="ml-2 p-3 px-6 mr-1 text-xs border border-black"
             :action="
-            () => {
-              showMergeModal = false;
-            }
-          "
+              () => {
+                showMergeModal = false;
+              }
+            "
           />
           <base-button
             variant="solid"
@@ -69,7 +69,6 @@
             class="ml-2 p-3 px-6 text-xs"
           />
         </div>
-
       </template>
     </modal>
   </div>

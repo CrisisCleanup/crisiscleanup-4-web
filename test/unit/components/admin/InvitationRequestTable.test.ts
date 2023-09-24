@@ -4,6 +4,11 @@ import { createI18n } from 'vue-i18n';
 import { commonComponentStubs } from '../../../helpers';
 import InvitationRequestTable from '@/components/admin/InvitationRequestTable.vue';
 
+vi.mock('vue-router', async () =>
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  (await import('../../fixtures/router')).buildMockRouter(),
+);
+
 describe('InvitationRequestTable', () => {
   it('renders correctly', async () => {
     const requests = [

@@ -196,11 +196,14 @@ export default defineComponent({
         );
 
         // normalize data to filter out falsy values
-        const normalizedData = props.chartData.map((item) => ({
-          group: new Date(item.group) ? item.group : '',
-          newCases: item.newCases ?? 0,
-          closedCases: item.closedCases ?? 0,
-        }));
+        const normalizedData = props.chartData.map((item) => {
+          const date = new Date(item.group);
+          return {
+            group: Number.isNaN(date.getTime()) ? '' : item.group,
+            newCases: item.newCases ?? 0,
+            closedCases: item.closedCases ?? 0,
+          };
+        });
 
         // stack per subgroup
         const stackedData = d3.stack().keys(subgroups)(normalizedData);
@@ -346,6 +349,8 @@ export default defineComponent({
         // override default bottom margin to make space for x-axis
         margin.bottom = 40;
         // add header columns to chartData array for d3 stacking
+        // TODO: Refactor + fix so it doesn't mutate props
+        // eslint-disable-next-line vue/no-mutating-props
         props.chartData.columns = _.isEmpty(props.chartData)
           ? []
           : _.keys(props.chartData[0]);

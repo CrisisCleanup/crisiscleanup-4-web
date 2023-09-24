@@ -70,7 +70,7 @@ export const nestUsers = <T extends Record<string, any>, K extends keyof T>(
     });
 };
 
-export const EMAIL_REGEX = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/;
+export const EMAIL_REGEX = /[^\t\n\r @]+@[^\t\n\r @]+\.[^\t\n\r @]+/;
 
 /**
  * Iterates over locale inputs and generates locale keys for each.

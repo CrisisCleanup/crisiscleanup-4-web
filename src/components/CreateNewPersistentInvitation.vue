@@ -53,11 +53,12 @@
 <script lang="ts">
 import axios from 'axios';
 import { useToast } from 'vue-toastification';
+import { computed } from 'vue';
 import Team from '@/models/Team';
 import { getErrorMessage } from '@/utils/errors';
 import User from '@/models/User';
-import { computed } from "vue";
-import useEmitter from "@/hooks/useEmitter";
+import useEmitter from '@/hooks/useEmitter';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'SampleForm',
@@ -67,7 +68,7 @@ export default defineComponent({
     const $toasted = useToast();
     const { emitter } = useEmitter();
     const store = useStore();
-    const currentUser = computed(() => User.find(store.getters['auth/userId']));
+    const { currentUser } = useCurrentUser();
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
@@ -88,9 +89,7 @@ export default defineComponent({
 
     const getTeams = async () => {
       await Team.api().get(
-        `/teams?limit=500&incident=${
-          currentIncidentId.value
-        }`,
+        `/teams?limit=500&incident=${currentIncidentId.value}`,
         {
           dataKey: 'results',
         },
@@ -102,16 +101,20 @@ export default defineComponent({
       }/persistent_invitations`;
       const data = {
         model: persistentInvitationType.value,
-        object_id: persistentInvitationType.value === 'Team'
-          ? selectedTeam.value
-          : currentUser.value.organization.id,
+        object_id:
+          persistentInvitationType.value === 'Team'
+            ? selectedTeam.value
+            : currentUser.value.organization.id,
         requires_approval: requiresApproval.value,
       };
 
       try {
         await axios.post(url, data);
         $toasted.success(t('info.created_qr_invitation_success'));
-        return emitter.emit('modal_component:close', 'persistent_invitation_modal');
+        return emitter.emit(
+          'modal_component:close',
+          'persistent_invitation_modal',
+        );
       } catch (error) {
         return $toasted.error(getErrorMessage(error));
       }

@@ -204,7 +204,7 @@
                   <div class="work-list">
                     {{
                       getFieldsForType(work_type.work_type)
-                        .map((_) => _.label_t)
+                        .map((_) => $t(_.label_t))
                         .join(', ')
                     }}
                   </div>
@@ -268,7 +268,7 @@
                 <div class="work-list">
                   {{
                     getFieldsForType(work_type.work_type)
-                      .map((_) => _.label_t)
+                      .map((_) => $t(_.label_t))
                       .join(', ')
                   }}
                 </div>
@@ -319,7 +319,7 @@
                 <div class="work-list">
                   {{
                     getFieldsForType(work_type.work_type)
-                      .map((_) => _.label_t)
+                      .map((_) => $t(_.label_t))
                       .join(', ')
                   }}
                 </div>
@@ -518,7 +518,7 @@ export default defineComponent({
     const workTypesClaimedByOrganization = computed(() => {
       if (worksite.value) {
         return worksite.value.work_types.filter((type) =>
-          currentUser.organization.affiliates.includes(type.claimed_by),
+          currentUser.value.organization.affiliates.includes(type.claimed_by),
         );
       }
 
@@ -530,7 +530,9 @@ export default defineComponent({
         const list = worksite.value.work_types.filter(
           (type) =>
             type.claimed_by &&
-            !currentUser.organization.affiliates.includes(type.claimed_by),
+            !currentUser.value.organization.affiliates.includes(
+              type.claimed_by,
+            ),
         );
         return groupBy(list, 'claimed_by');
       }
@@ -554,7 +556,7 @@ export default defineComponent({
       return worksite.value.work_types.filter(
         (type) =>
           type.claimed_by &&
-          type.claimed_by !== currentUser.organization.id &&
+          type.claimed_by !== currentUser.value.organization.id &&
           !worksiteRequestWorkTypeIds.value.has(type.id),
       );
     });

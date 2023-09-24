@@ -28,7 +28,7 @@ import { ref, defineComponent } from 'vue';
 import moment from 'moment';
 import { useI18n } from 'vue-i18n';
 import { makeTableColumns } from '@/utils/table';
-import PhoneOutbound from '@/models/PhoneOutbound';
+import type PhoneOutbound from '@/models/PhoneOutbound';
 import Incident from '@/models/Incident';
 import Modal from '@/components/Modal.vue';
 import AjaxTable from '@/components/AjaxTable.vue';

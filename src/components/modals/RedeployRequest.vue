@@ -23,11 +23,8 @@
       "
     >
       <div class="text-justify flex flex-col p-3 justify-center">
-        <div
-          data-testid="testChooseAnIncidentDiv"
-          class="my-3"
-        >
-          {{ $t("requestRedeploy.choose_an_incident") }}
+        <div data-testid="testChooseAnIncidentDiv" class="my-3">
+          {{ $t('requestRedeploy.choose_an_incident') }}
         </div>
         <base-select
           :model-value="selectedIncidentId"
@@ -75,7 +72,7 @@
             class="mx-1 text-green-600 cursor-pointer"
             type="up"
           />
-          {{ $t("requestRedeploy.you_already_have_access_to_incident") }}
+          {{ $t('requestRedeploy.you_already_have_access_to_incident') }}
         </div>
         <div class="flex items-start gap-2">
           <font-awesome-icon
@@ -85,7 +82,7 @@
             class="mx-1 cursor-pointer"
             type="up"
           />
-          {{ $t("requestRedeploy.existing_request_pending") }}
+          {{ $t('requestRedeploy.existing_request_pending') }}
         </div>
       </div>
       <template #footer>
@@ -116,28 +113,28 @@
   </div>
 </template>
 <script lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useToast } from "vue-toastification";
-import { useI18n } from "vue-i18n";
-import axios from "axios";
-import { getErrorMessage } from "../../utils/errors";
-import Organization from "../../models/Organization";
-import useCurrentUser from "../../hooks/useCurrentUser";
-import type Incident from "@/models/Incident";
-import type { IncidentRequest } from "@/models/types";
-import useEmitter from "@/hooks/useEmitter";
+import { computed, onMounted, ref } from 'vue';
+import { useToast } from 'vue-toastification';
+import { useI18n } from 'vue-i18n';
+import axios from 'axios';
+import { getErrorMessage } from '../../utils/errors';
+import Organization from '../../models/Organization';
+import useCurrentUser from '../../hooks/useCurrentUser';
+import type Incident from '@/models/Incident';
+import type { IncidentRequest } from '@/models/types';
+import useEmitter from '@/hooks/useEmitter';
 
 export default defineComponent({
-  name: "RedeployRequest",
+  name: 'RedeployRequest',
   props: {
     openModal: {
       type: Boolean,
-      default: false
+      default: false,
     },
     hideTrigger: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   setup(props, { emit }) {
     const $toasted = useToast();
@@ -152,7 +149,7 @@ export default defineComponent({
     const incidentRequests = ref<IncidentRequest[]>([]);
 
     const currentOrganization = computed(() =>
-      Organization.find(currentUser?.organization?.id)
+      Organization.find(currentUser?.value?.organization?.id),
     );
 
     const incident_list = computed(() => {
@@ -164,9 +161,7 @@ export default defineComponent({
     });
 
     function incidentAlreadyDeployed(incidentId: number) {
-      return currentOrganization.value.approved_incidents.includes(
-        incidentId
-      );
+      return currentOrganization.value.approved_incidents.includes(incidentId);
     }
 
     function incidentAlreadyRequested(incidentId: number) {
@@ -175,10 +170,9 @@ export default defineComponent({
         .includes(incidentId);
     }
 
-
     async function requestIncident() {
       if (incidentAlreadyDeployed(selectedIncidentId.value)) {
-        emitter.emit('update:incident', selectedIncidentId.value)
+        emitter.emit('update:incident', selectedIncidentId.value);
         return;
       }
 
@@ -187,12 +181,12 @@ export default defineComponent({
           `${import.meta.env.VITE_APP_API_BASE_URL}/incident_requests`,
           {
             organization: currentOrganization?.value?.id,
-            incident: selectedIncidentId.value
-          }
+            incident: selectedIncidentId.value,
+          },
         );
         showRedeployModal.value = false;
-        await $toasted.success(t("requestRedeploy.request_redeploy_success"));
-        emit("close");
+        await $toasted.success(t('requestRedeploy.request_redeploy_success'));
+        emit('close');
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       }
@@ -202,10 +196,10 @@ export default defineComponent({
       const response = await axios.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/incidents_list?fields=id,name,short_name,geofence,locations&limit=50&sort=-start_at`
+        }/incidents_list?fields=id,name,short_name,geofence,locations&limit=50&sort=-start_at`,
       );
       const incidentRequestsResponse = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/incident_requests`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/incident_requests`,
       );
       incidents.value = response.data.results;
       incidentRequests.value = incidentRequestsResponse.data.results;
@@ -222,8 +216,8 @@ export default defineComponent({
       currentUser,
       incident_list,
       incidentAlreadyDeployed,
-      incidentAlreadyRequested
+      incidentAlreadyRequested,
     };
-  }
+  },
 });
 </script>

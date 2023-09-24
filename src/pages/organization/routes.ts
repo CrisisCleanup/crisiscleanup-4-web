@@ -1,19 +1,13 @@
-import { h } from 'vue';
-import Affiliates from '@/pages/organization/Affiliates.vue';
-import Organization from '@/pages/organization/Index.vue';
-import Invitations from '@/pages/organization/Invitations.vue';
-import Layers from '@/pages/organization/Layers.vue';
-import OrganizationProfile from '@/pages/organization/Profile.vue';
-import Users from '@/pages/organization/Users.vue';
-import UserView from '@/pages/organization/UserView.vue';
-import Teams from '@/pages/organization/Teams.vue';
-import TeamDetail from '@/pages/organization/TeamDetail.vue';
+const Affiliates = () => import('@/pages/organization/Affiliates.vue');
+const Organization = () => import('@/pages/organization/Index.vue');
+const Invitations = () => import('@/pages/organization/Invitations.vue');
+const Layers = () => import('@/pages/organization/Layers.vue');
+const OrganizationProfile = () => import('@/pages/organization/Profile.vue');
+const Users = () => import('@/pages/organization/Users.vue');
+const UserView = () => import('@/pages/organization/UserView.vue');
+const Teams = () => import('@/pages/organization/Teams.vue');
+const TeamDetail = () => import('@/pages/organization/TeamDetail.vue');
 
-const mockComponent = (title: string, content: string) => ({
-  name: title,
-  render: () =>
-    h('div', { class: 'mock-component' }, [h('h1', title), h('p', content)]),
-});
 export const routes = [
   {
     path: '/organization',

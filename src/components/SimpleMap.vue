@@ -94,9 +94,9 @@
     </div>
     <WorksiteLegend
       v-if="showZoomButtons || showLegend"
+      :key="availableWorkTypes"
       class="hidden md:block"
       data-testid="testShowLegendDiv"
-      :key="availableWorkTypes"
       :available-work-types="availableWorkTypes"
     />
   </div>

@@ -340,7 +340,7 @@ export interface TableChangeEmitItem<T = Record<string, unknown>> {
 }
 
 export interface TableColumnOption<T = Record<string, unknown>> {
-  key: keyof TableDataItem | string;
+  key: keyof TableDataItem;
   subKey: string;
   title: string;
   titleClass: string;

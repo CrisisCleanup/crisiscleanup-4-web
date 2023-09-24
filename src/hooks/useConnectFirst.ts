@@ -11,6 +11,8 @@ import { getErrorMessage } from '../utils/errors';
 import Worksite from '../models/Worksite';
 import PhoneOutbound from '../models/PhoneOutbound';
 import usePhoneService from './phone/usePhoneService';
+import useCurrentUser from './useCurrentUser';
+import type { PhoneDnisResponse, PhoneDnisResult } from '@/models/types';
 
 export default function useConnectFirst(context: {
   emit: (action: string) => void;
@@ -21,9 +23,7 @@ export default function useConnectFirst(context: {
   const currentAgent = ref<any>(null);
   const dialing = ref(false);
 
-  const currentUser = computed(() =>
-    User.find(User.store().getters['auth/userId']),
-  );
+  const { currentUser } = useCurrentUser();
 
   const languages = computed(() => currentUser?.value?.languages);
   const statuses = computed(() => PhoneStatus.all());
@@ -52,7 +52,7 @@ export default function useConnectFirst(context: {
   const potentialFailedCall = computed(
     () => store.getters['phone/potentialFailedCall'],
   );
-  const caller = computed(() => store.getters['phone/caller']);
+  const caller = computed<PhoneDnisResult>(() => store.getters['phone/caller']);
   const incomingCall = computed(() => store.getters['phone/incomingCall']);
   const outgoingCall = computed(() => store.getters['phone/outgoingCall']);
   const stats = computed(() => store.getters['phone/stats']);
@@ -73,7 +73,7 @@ export default function useConnectFirst(context: {
     store.commit('phone/setCallType', callType);
   };
 
-  const setCaller = (caller: any) => {
+  const setCaller = (caller: PhoneDnisResponse) => {
     store.commit('phone/setCaller', caller);
   };
 
@@ -177,7 +177,7 @@ export default function useConnectFirst(context: {
         phoneService.queueIds.map(async (queueId: string) =>
           phoneService
             .apiLoginsByPhone(
-              parsedNumber.formatNational().replace(/[^\d.]/g, ''),
+              parsedNumber.formatNational().replaceAll(/[^\d.]/g, ''),
               Number(queueId),
             )
             .then(async ({ data }: any) => {
@@ -199,7 +199,7 @@ export default function useConnectFirst(context: {
   }
 
   async function createOutboundCall(outbound: any, number: string) {
-    const dnisResponse = await axios.get(
+    const dnisResponse = await axios.get<PhoneDnisResponse>(
       `${import.meta.env.VITE_APP_API_BASE_URL}/phone_dnis/${outbound.dnis1}`,
     );
     const caller = dnisResponse.data;

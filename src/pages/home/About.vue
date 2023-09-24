@@ -87,7 +87,10 @@
         </div>
       </div>
       <!-- Stats -->
-      <div class="flex flex-row justify-around m-5" data-testid="testAboutStatsDiv">
+      <div
+        class="flex flex-row justify-around m-5"
+        data-testid="testAboutStatsDiv"
+      >
         <div class="flex flex-col">
           <h1 class="text-3xl font-bold text-center">2,500+</h1>
           <base-text weight="300" variant="body" class="crisiscleanup-grey-500"
@@ -319,7 +322,10 @@
         Major Contributors
       </h1>
 
-      <div class="images-grid sm:grid-cols-3" data-testid="testAboutMajorContributorsDiv">
+      <div
+        class="images-grid sm:grid-cols-3"
+        data-testid="testAboutMajorContributorsDiv"
+      >
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
           <img src="@/assets/headshots/andygimma.jpg" class="m-5" />
@@ -490,7 +496,10 @@
       </base-text>
 
       <!-- Logos -->
-      <div class="partners-grid sm:grid-cols-6" data-testid="testAboutSupporterLogosDiv">
+      <div
+        class="partners-grid sm:grid-cols-6"
+        data-testid="testAboutSupporterLogosDiv"
+      >
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
           <img src="@/assets/partners/fdem_logo.jpg" class="m-5" />
@@ -782,7 +791,10 @@
       >
         {{ $t('about.helpful_links') }}
       </h1>
-      <div class="flex flex-row pb-20 sm:pb-0" data-testid="testAboutLegalStuffDiv">
+      <div
+        class="flex flex-row pb-20 sm:pb-0"
+        data-testid="testAboutLegalStuffDiv"
+      >
         <div class="flex flex-col m-5">
           <ul class="text-xl text-crisiscleanup-dark-400 font-hairline about">
             <li>

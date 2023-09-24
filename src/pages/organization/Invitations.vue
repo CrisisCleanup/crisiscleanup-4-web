@@ -32,8 +32,8 @@
         :columns="currentRequestsColumns"
         :loading="false"
         :sorter="invitationRequestsSorter"
-        @change="handleInvitationRequestsTableChange"
         :body-style="{ height: '200px' }"
+        @change="handleInvitationRequestsTableChange"
       >
         <template #actions="slotProps">
           <div class="flex mr-2 justify-end w-full">
@@ -174,11 +174,11 @@
         </div>
       </div>
       <AjaxTable
+        ref="persistentInvitationsTable"
         :body-style="{ height: '200px' }"
         :url="persistentInvitationsUrl"
         :columns="persistentInvitationColumns"
         class="border text-xs"
-        ref="persistentInvitationsTable"
       >
         <template #actions="slotProps">
           <div class="flex mr-2 justify-center w-full">
@@ -396,7 +396,6 @@ export default defineComponent({
         );
         await persistentInvitationsTable.value.getData();
       } catch (error) {
-        debugger;
         await $toasted.error(getErrorMessage(error));
       }
     }
@@ -408,6 +407,8 @@ export default defineComponent({
         classes: 'w-full h-84 overflow-auto p-3',
         modalClasses: 'bg-white max-w-sm shadow',
         props: {
+          // TODO: Add proper typings
+          // eslint-disable-next-line vue/require-prop-type-constructor
           value: window.location.origin + '/i/' + persistentInvitation.token,
         },
       });
@@ -504,7 +505,7 @@ export default defineComponent({
     function handleInvitationsTableChange({
       sorter,
     }: {
-      sorter: SorterObject;
+      sorter: TableSorterObject;
     }) {
       invitationSorter.value = { ...sorter };
     }
@@ -512,7 +513,7 @@ export default defineComponent({
     function handleInvitationRequestsTableChange({
       sorter,
     }: {
-      sorter: SorterObject;
+      sorter: TableSorterObject;
     }) {
       invitationRequestsSorter.value = { ...sorter };
     }

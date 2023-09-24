@@ -11,7 +11,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
-import { createI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import vSelect from 'vue-select';
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';
@@ -21,7 +21,6 @@ import BaseInput from './components/BaseInput.vue';
 import BaseText from './components/BaseText.vue';
 import Badge from './components/Badge.vue';
 import Tag from './components/Tag.vue';
-import FormSelect from './components/FormSelect.vue';
 import Modal from './components/Modal.vue';
 import Authenticated from './layouts/Authenticated.vue';
 
@@ -52,27 +51,11 @@ import Tabs from './components/tabs/Tabs.vue';
 import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
-import { AuthService } from './services/auth.service';
 import TreeMenu from '@/components/TreeMenu.vue';
 
 library.add(fas);
-// I18n
-const getI18n = (messages = {}) => {
-  return createI18n({
-    legacy: false,
-    formatFallbackMessages: true,
-    silentFallbackWarn: false,
-    locale: 'en',
-    messages,
-  });
-};
 
-export const i18n = getI18n();
-
-if (AuthService.getUser()) {
-  axios.defaults.withCredentials = true;
-  axios.defaults.headers.common.Authorization = `Bearer ${AuthService.getAccessToken()}`;
-}
+axios.defaults.withCredentials = true;
 
 const buildApp = (app: VueApp) =>
   app
@@ -89,7 +72,6 @@ const buildApp = (app: VueApp) =>
     .component('VSelect', vSelect)
     .component('AuthenticatedLayout', Authenticated)
     .component('UnauthenticatedLayout', Unauthenticated)
-    .component('FormSelect', FormSelect)
     .component('BaseSelect', BaseSelect)
     .component('BaseCheckbox', BaseCheckbox)
     .component('Modal', Modal)
@@ -144,8 +126,4 @@ if (import.meta.env.PROD) {
   initSentry(app);
 }
 
-void router
-  .isReady()
-  .then(() => app.mount('#app'))
-  // eslint-disable-next-line unicorn/prefer-top-level-await
-  .catch(console.error);
+app.mount('#app');

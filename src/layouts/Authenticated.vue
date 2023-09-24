@@ -1,6 +1,7 @@
 <template>
+  <!-- For mobile screens -->
   <template v-if="mq.mdMinus">
-    <div v-if="!loading && currentIncident" class="flex flex-col">
+    <div v-if="!loading && currentIncidentId" class="flex flex-col">
       <DisasterIcon
         v-if="currentIncident && currentIncident.incidentImage"
         :current-incident="currentIncident"
@@ -46,17 +47,18 @@
       @close="showingMoreLinks = false"
     >
       <div v-for="r in routes" :key="r.key" class="flex items-center">
-        <base-link :href="r.to" class="text-black text-base p-1">{{
-          r.text || $t(`nav.${r.key}`)
-        }}</base-link>
+        <base-link :href="r.to" class="text-black text-base p-1">
+          {{ r.text || $t(`nav.${r.key}`) }}
+        </base-link>
       </div>
       <AppDownloadLinks />
     </modal>
   </template>
 
+  <!-- For desktop screens -->
   <template v-else>
     <div
-      v-if="!loading && currentIncident"
+      v-if="!loading && currentIncidentId"
       class="layout"
       data-testid="testIsAuthenticatedDiv"
     >
@@ -97,11 +99,7 @@
           :current-incident="currentIncident"
           :incidents="incidents"
           @update:incident="handleChange"
-          @auth:logout="
-            () => {
-              logoutApp();
-            }
-          "
+          @auth:logout="logoutApp"
         />
       </div>
       <div class="main">
@@ -122,26 +120,14 @@
           (!currentOrganization.is_active || !currentOrganization.is_verified)
         "
       >
-        <OrganizationInactiveModal
-          :organization="currentOrganization"
-          @user-logged-out="logoutApp"
-        />
+        <OrganizationInactiveModal @user-logged-out="logoutApp" />
       </template>
-      <div v-if="transferRequest">
-        <CompletedTransferModal
-          :transfer-request="transferRequest"
-          data-testid="testCompletedTransferModal"
-          @close="
-            () => {
-              transferRequest = null;
-            }
-          "
-        />
-      </div>
       <div v-if="showLoginModal">
         <modal modal-classes="bg-white max-w-lg shadow p-5" :closeable="false">
           <LoginForm :redirect="false" />
-          <div slot="footer"></div>
+          <template #footer>
+            <div></div>
+          </template>
         </modal>
       </div>
     </div>
@@ -154,13 +140,13 @@
 <script lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import moment from 'moment';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { useMq } from 'vue3-mq';
+import * as Sentry from '@sentry/vue';
 import Incident from '../models/Incident';
-import User from '../models/User';
 import Organization from '../models/Organization';
 import Language from '../models/Language';
 import Report from '../models/Report';
@@ -169,17 +155,23 @@ import PhoneStatus from '../models/PhoneStatus';
 import NavMenu from '../components/navigation/NavMenu.vue';
 import TermsandConditionsModal from '../components/modals/TermsandConditionsModal.vue';
 import Header from '../components/header/Header.vue';
-import CompletedTransferModal from '../components/modals/CompletedTransferModal.vue';
-import { AuthService } from '../services/auth.service';
 import LoginForm from '../components/LoginForm.vue';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
 import DisasterIcon from '@/components/DisasterIcon.vue';
 import useDialogs from '@/hooks/useDialogs';
-import { useZendesk, ZendeskCommand, ZendeskTarget } from '@/hooks';
+import {
+  useAuthStore,
+  useCurrentUser,
+  useZendesk,
+  ZendeskCommand,
+  ZendeskTarget,
+} from '@/hooks';
 import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
+import { getErrorMessage } from '@/utils/errors';
+import { isLandscape } from '@/utils/helpers';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -190,7 +182,6 @@ export default defineComponent({
     AppDownloadLinks,
     DisasterIcon,
     LoginForm,
-    CompletedTransferModal,
     NavMenu,
     TermsandConditionsModal,
     Header,
@@ -198,45 +189,74 @@ export default defineComponent({
   setup() {
     const mq = useMq();
 
+    const {
+      currentUser,
+      hasCurrentUser,
+      updateCurrentUser,
+      updateUserStates,
+      isOrganizationInactive,
+      isOrphan,
+    } = useCurrentUser();
+    const authStore = useAuthStore();
+    const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
     const router = useRouter();
     const $http = axios;
-    const { t, setLocaleMessage, locale } = useI18n();
+    const { t } = useI18n();
     const store = useStore();
     const { $can } = useAcl();
     const zendesk = useZendesk()!;
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
 
-    // const { $log } = context.root;
+    const loading = ref(true);
+    const ready = ref(false);
+    const slideOverVisible = ref(false);
+    const showAcceptTermsModal = ref(false);
+    const showingMoreLinks = ref(false);
+
+    router.beforeEach((to, from, next) => {
+      store.commit('events/addEvent', {
+        event_key: 'user_ui-read_page',
+        created_at: moment().toISOString(),
+        attr: {
+          api_endpoint: to.fullPath,
+        },
+      });
+
+      // route guard for inactive organizations.
+      if (isOrganizationInactive.value) {
+        authStore.logout();
+        return next();
+      }
+      // Orphaned Users can't really login this will navigate to a public landing page once it is built
+      if (isOrphan.value) {
+        const requestAccessLocation: RouteLocationRaw = {
+          name: 'nav.request_access',
+          query: { orphan: String(true) },
+        };
+        next(requestAccessLocation);
+      }
+      next();
+    });
+
     const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
+      () => store.getters['incident/currentIncidentId'] as number,
     );
-    const user = computed(() => store.getters['auth/user']);
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
     const portal = computed(() => store.getters['enums/portal']);
-    const userId = computed(() => store.getters['auth/userId']);
 
-    const slideOverVisible = ref(false);
     const toggle = () => {
       slideOverVisible.value = !slideOverVisible.value;
     };
-
-    const loading = ref(false);
-    const ready = ref(false);
-    const showAcceptTermsModal = ref(false);
-    const showingMoreLinks = ref(false);
-    const transferRequest = ref(null);
-
-    const currentUser = computed(() => User.find(userId.value));
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
     );
 
     const incidents = computed(() =>
-      Incident.query().orderBy('id', 'desc').get(),
+      Incident.query().orderBy('start_at', 'desc').get(),
     );
 
     const logoRoute = computed(() => ({
@@ -342,11 +362,10 @@ export default defineComponent({
       },
     ]);
 
-    // store.commit('auth/setShowLoginModal', false);
-
-    const handleChange = async (value: string) => {
+    const handleChange = async (value: number) => {
+      if (!value) return;
       await Incident.api().fetchById(value);
-      await User.api().updateUserState({
+      await updateUserStates({
         incident: value,
       });
       store.commit('incident/setCurrentIncidentId', value);
@@ -357,31 +376,12 @@ export default defineComponent({
       });
     };
 
-    const isLandscape = () => {
-      return window.matchMedia(
-        'only screen and (max-device-width: 1223px) and (orientation: landscape)',
-      ).matches;
-    };
-
-    const { setupLanguage } = useSetupLanguage();
-
     const acceptTermsAndConditions = async () => {
-      await User.api().acceptTerms();
-      showAcceptTermsModal.value = false;
-    };
-
-    const getUserTransferRequests = async () => {
-      const response = await $http.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/transfer_requests`,
-      );
-      transferRequest.value = response.data.results.find((request: any) => {
-        return request.user === currentUser?.value?.id;
+      await updateCurrentUser({
+        accepted_terms: true,
+        accepted_terms_timestamp: moment().toISOString(),
       });
-    };
-
-    const logoutApp = async () => {
-      await store.dispatch('auth/logout');
-      await router.push('/login');
+      showAcceptTermsModal.value = false;
     };
 
     async function showIncidentSelectionModal() {
@@ -406,15 +406,13 @@ export default defineComponent({
           handleChange(value as string);
         }
       },
+      { immediate: true },
     );
 
     onMounted(() => {
       emitter.on('update:incident', (incidentId) => {
         handleChange(incidentId);
       });
-      if (route.params.incident_id) {
-        handleChange(route.params.incident_id as string);
-      }
     });
 
     // update zendesk current user.
@@ -425,11 +423,11 @@ export default defineComponent({
         // prefill base zendesk fields.
         zendesk.zE(ZendeskTarget.WEB_WIDGET, ZendeskCommand.PREFILL, {
           name: {
-            value: currentUser.value!.full_name,
+            value: currentUser.value.full_name,
             readOnly: false,
           },
           email: {
-            value: currentUser.value!.email,
+            value: currentUser.value.email,
             readOnly: false,
           },
         });
@@ -442,126 +440,115 @@ export default defineComponent({
           {
             id: ccuIdFieldId,
             hidden: true,
-            prefill: { '*': String(currentUser.value!.id) },
+            prefill: { '*': String(currentUser.value.id) },
           },
         ];
       }
     });
 
-    onMounted(async () => {
-      loading.value = true;
-      let u;
+    // TODO: refactor this setup
+    const onCurrentUserUnSub = whenever(
+      hasCurrentUser,
+      async () => {
+        console.log('authenticated init:', currentUser.value);
+        await Incident.api().get(
+          '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
+          {
+            dataKey: 'results',
+          },
+        );
 
-      try {
+        await Promise.allSettled([
+          Organization.api().get(
+            `/organizations/${currentUser.value!.organization.id}`,
+          ),
+          Language.api().get('/languages', {
+            dataKey: 'results',
+          }),
+          Report.api().get('/reports', {
+            dataKey: 'results',
+          }),
+        ]);
         try {
-          await User.api().get('/users/me', {});
-          u = User.find(userId.value);
-          if (u) {
-            AuthService.updateUser(u.$toJson());
+          Role.api().get('/roles', {
+            dataKey: 'results',
+          });
+          PhoneStatus.api().get('/phone_statuses', {
+            dataKey: 'results',
+          });
+        } catch (error: unknown) {
+          // TODO(tobi): Empty for now make this better
+          Sentry.captureException(error);
+          console.error('init:', error);
+        }
+
+        await Promise.allSettled([setupLanguage()]);
+
+        let incidentId =
+          route.params.incident_id ||
+          currentUser?.value?.approved_incidents?.[0];
+
+        if (!incidentId) {
+          const incident = Incident.query().orderBy('id', 'desc').first();
+          if (incident) {
+            incidentId = String(incident.id);
           }
+        }
+
+        if (currentUser?.value?.states && currentUser.value?.states.incident) {
+          incidentId = currentUser.value?.states.incident;
+        }
+
+        if (incidentId) {
+          store.commit('incident/setCurrentIncidentId', incidentId);
+        }
+
+        if (
+          !currentUser?.value?.accepted_terms_timestamp ||
+          moment(VERSION_3_LAUNCH_DATE).isAfter(
+            moment(currentUser.value?.accepted_terms_timestamp),
+          ) ||
+          (portal.value?.tos_updated_at &&
+            moment(portal.value?.tos_updated_at).isAfter(
+              currentUser.value?.accepted_terms_timestamp,
+            ))
+        ) {
+          showAcceptTermsModal.value = true;
+        }
+
+        try {
+          await Incident.api().fetchById(incidentId);
         } catch {
-          await AuthService.refreshAccessToken();
-          await User.api().get('/users/me', {});
-          u = User.find(userId.value);
-          if (u) {
-            AuthService.updateUser(u.$toJson());
+          store.commit('incident/setCurrentIncidentId', null);
+          updateUserStates({ incident: null }).catch(getErrorMessage);
+          const incident = Incident.query().orderBy('id', 'desc').first();
+          if (incident) {
+            store.commit('incident/setCurrentIncidentId', false);
           }
-        }
-      } catch {
-        await AuthService.removeUser();
-        await logoutApp();
-      }
 
-      await Incident.api().get(
-        '/incidents?fields=id,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
-        {
-          dataKey: 'results',
-        },
-      );
-
-      await Promise.any([
-        Organization.api().get(`/organizations/${user.value.organization.id}`),
-        Language.api().get('/languages', {
-          dataKey: 'results',
-        }),
-        Report.api().get('/reports', {
-          dataKey: 'results',
-        }),
-      ]);
-      try {
-        Role.api().get('/roles', {
-          dataKey: 'results',
-        });
-        PhoneStatus.api().get('/phone_statuses', {
-          dataKey: 'results',
-        });
-      } catch {
-        // TODO(tobi): Empty for now make this better
-      }
-
-      await getUserTransferRequests();
-      await setupLanguage();
-      store.commit('acl/setUserAcl', user.value.id);
-
-      let incidentId =
-        route.params.incident_id || currentUser?.value?.approved_incidents?.[0];
-      if (!incidentId) {
-        const incident = Incident.query().orderBy('id', 'desc').first();
-        if (incident) {
-          incidentId = String(incident.id);
-        }
-      }
-
-      if (currentUser?.value?.states && currentUser.value?.states.incident) {
-        incidentId = currentUser.value?.states.incident;
-      }
-
-      if (incidentId) {
-        store.commit('incident/setCurrentIncidentId', incidentId);
-      }
-
-      if (
-        !currentUser?.value?.accepted_terms_timestamp ||
-        moment(VERSION_3_LAUNCH_DATE).isAfter(
-          moment(currentUser.value?.accepted_terms_timestamp),
-        ) ||
-        (portal.value?.tos_updated_at &&
-          moment(portal.value?.tos_updated_at).isAfter(
-            currentUser.value?.accepted_terms_timestamp,
-          ))
-      ) {
-        showAcceptTermsModal.value = true;
-      }
-
-      try {
-        await Incident.api().fetchById(incidentId);
-      } catch {
-        store.commit('incident/setCurrentIncidentId', null);
-        User.api().updateUserState({
-          incident: null,
-        });
-        const incident = Incident.query().orderBy('id', 'desc').first();
-        if (incident) {
-          store.commit('incident/setCurrentIncidentId', false);
+          await router.push(`/`).catch(() => {});
         }
 
-        await router.push(`/`).catch(() => {});
-      }
+        loading.value = false;
+        ready.value = true;
+        onCurrentUserUnSub();
+      },
+      { immediate: true },
+    );
 
+    whenever(ready, () => {
       loading.value = false;
-      ready.value = true;
     });
 
     return {
-      user,
+      user: currentUser,
       showLoginModal,
       currentIncidentId,
       portal,
-      userId,
+      // userId,
       loading,
       ready,
       showAcceptTermsModal,
-      transferRequest,
       showingMoreLinks,
       currentUser,
       currentOrganization,
@@ -573,7 +560,7 @@ export default defineComponent({
       logoRoute,
       // login,
       acceptTermsAndConditions,
-      logoutApp,
+      logoutApp: () => authStore.logout(),
       // logoutByPhoneNumber,
       handleChange,
       isLandscape,
