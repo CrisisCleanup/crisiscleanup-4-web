@@ -1,27 +1,13 @@
 import {
   createRouter,
   createWebHistory,
-  type RouteLocationRaw,
   type RouteRecordRaw,
 } from 'vue-router';
-import moment from 'moment';
-import Dashboard from './pages/Dashboard.vue';
-import Work from './pages/Work.vue';
 import HomeRoutes from './pages/home/routes';
 import PhoneRoutes from './pages/phone/routes';
-import { store } from './store';
 import AdminRoutes from './pages/admin/routes';
 import OrganizationRoutes from './pages/organization/routes';
 import UnauthenticatedRoutes from './pages/unauthenticated/routes';
-import AppDownload from './pages/AppDownload.vue';
-import useSetupLanguage from '@/hooks/useSetupLanguage';
-import OtherOrganizations from '@/pages/OtherOrganizations.vue';
-import Reports from '@/pages/admin/Reports.vue';
-import Report from '@/pages/admin/Report.vue';
-import NotFound from '@/pages/NotFound.vue';
-import Location from '@/pages/Location.vue';
-import Profile from '@/pages/Profile.vue';
-import Downloads from '@/pages/Downloads.vue';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -43,6 +29,17 @@ declare module 'vue-router' {
     noscroll?: boolean;
   }
 }
+
+const Dashboard = () => import('./pages/Dashboard.vue');
+const Work = () => import('./pages/Work.vue');
+const AppDownload = () => import('./pages/AppDownload.vue');
+const OtherOrganizations = () => import('@/pages/OtherOrganizations.vue');
+const Reports = () => import('@/pages/admin/Reports.vue');
+const Report = () => import('@/pages/admin/Report.vue');
+const NotFound = () => import('@/pages/NotFound.vue');
+const Location = () => import('@/pages/Location.vue');
+const Profile = () => import('@/pages/Profile.vue');
+const Downloads = () => import('@/pages/Downloads.vue');
 
 const routes = [
   {

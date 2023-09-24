@@ -1,17 +1,20 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { useAuthStore } from '@/hooks';
-import Login from './Login.vue';
-import RequestAccess from '@/pages/home/RequestAccess.vue';
-import About from '@/pages/home/About.vue';
-import Training from '@/pages/home/Training.vue';
-import Survivor from '@/pages/home/Survivor.vue';
-import Map from '@/pages/home/Map.vue';
-import RequestPasswordReset from '@/pages/home/RequestPasswordReset.vue';
-import Contributions from '@/pages/home/Contributions.vue';
-import Privacy from '@/pages/home/Privacy.vue';
-import Terms from '@/pages/home/Terms.vue';
-import RegisterOrganization from '@/pages/home/RegisterOrganization.vue';
-import PersistentInvitationSignup from '@/pages/home/PersistentInvitationSignup.vue';
+
+const Login = () => import('./Login.vue');
+const RequestAccess = () => import('@/pages/home/RequestAccess.vue');
+const About = () => import('@/pages/home/About.vue');
+const Training = () => import('@/pages/home/Training.vue');
+const Survivor = () => import('@/pages/home/Survivor.vue');
+const Map = () => import('@/pages/home/Map.vue');
+const RequestPasswordReset = () =>
+  import('@/pages/home/RequestPasswordReset.vue');
+const Contributions = () => import('@/pages/home/Contributions.vue');
+const Privacy = () => import('@/pages/home/Privacy.vue');
+const Terms = () => import('@/pages/home/Terms.vue');
+const RegisterOrganization = () =>
+  import('@/pages/home/RegisterOrganization.vue');
+const PersistentInvitationSignup = () =>
+  import('@/pages/home/PersistentInvitationSignup.vue');
 
 export default [
   {
@@ -19,12 +22,6 @@ export default [
     component: Login,
     name: 'nav.login',
     meta: { layout: 'unauthenticated', noAuth: true },
-    // redirect: '/dashboard',
-    // redirect: async (to) => {
-    //   const authStore = useAuthStore();
-    // authST
-    // return await authStore.authorize(to.params.from ?? '/dashboard');
-    // },
   },
   {
     path: '/request_access',
