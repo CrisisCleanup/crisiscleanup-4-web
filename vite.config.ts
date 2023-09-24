@@ -76,6 +76,19 @@ export default defineConfig(async ({ command }) => {
         ...postcssConfig,
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // todo: do not statically import downloads into asset builder
+            'group-downloads': [
+              './src/pages/Downloads.vue',
+              './src/components/admin/incidents/IncidentAssetBuilder.vue',
+            ],
+          },
+        },
+      },
+    },
   });
 
   if (command === 'build') {
@@ -87,6 +100,9 @@ export default defineConfig(async ({ command }) => {
       }),
     );
     configs.push({
+      esbuild: {
+        treeShaking: true,
+      },
       build: {
         sourcemap: true,
       },
