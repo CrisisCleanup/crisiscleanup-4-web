@@ -257,7 +257,7 @@ export default defineComponent({
     }
 
     async function onCompletedIncident() {
-      await $toasted.success(t('~~Created incident successfully.'));
+      await $toasted.success(t('info.create_incident_success'));
     }
 
     onMounted(async () => {

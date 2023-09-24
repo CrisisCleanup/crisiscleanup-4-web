@@ -36,10 +36,10 @@
         select-classes="bg-white border"
         multiple
         max="4"
-        :placeholder="$t('~~Relevant Work Types (4 max)')"
+        :placeholder="$t('incidentAssets.relevant_work_types')"
       />
       <base-button :action="generateAsset" class="ml-2 p-2" variant="solid">
-        {{ $t('~~Add Asset') }}
+        {{ $t('incidentAssets.add_asset') }}
       </base-button>
     </div>
     <Card
@@ -146,11 +146,11 @@
                 v-if="asset.published_at"
                 class="text-xs text-crisiscleanup-dark-300"
               >
-                {{ $t('~~Published') }}:
+                {{ $t('incidentAssets.published_at') }}:
                 {{ moment(asset.published_at).format('MM/DD/YYYY') }}
               </div>
               <div v-else class="text-xs text-crisiscleanup-dark-300">
-                {{ $t('~~Not Published') }}
+                {{ $t('incidentAssets.not_published') }}
               </div>
             </div>
           </div>
@@ -330,9 +330,9 @@ export default {
         incident_name: `${incident?.name.toUpperCase()} CLEANUP HOTLINE`,
         phone_number: formatNationalNumber(ani.phone_number?.toString()),
         assistance:
-          'If you need assistance with damage from the straight-line winds in MID TN, call the number above to ask for help. We will connect you with volunteers from local relief organizations, community groups and faith communities who may be able to assist with:',
+          'If you need help cleaning up damage from the {INCIDENT_TYPE} in {INCIDENT_NAME_OR_LOCATION}, call {ANI} to ask for help. We will connect you with volunteers from local relief organizations, community groups and faith communities who may be able to assist with:',
         hotline_text:
-          'All services are free, but service is not guaranteed due to the overwhelming need. This hotline will remain open through May 22, 2020.',
+          'All services are free, but service is not guaranteed due to the overwhelming need. This hotline will remain open through {ANI_CLOSE_DATE}.',
         notes_text:
           'PLEASE NOTE: this hotline CANNOT assist with social services such as food, clothing, shelter, insurance, or questions about FEMA registration. Volunteers work free of charge and provide the tools and equipment necessary to complete the work.',
         work_types: selectedWorkTypes.value
@@ -373,11 +373,11 @@ export default {
         incident_name: `${incident?.name.toUpperCase()} LÍNEA DIRECTA DE LIMPIEZA`,
         phone_number: formatNationalNumber(ani.phone_number?.toString()),
         assistance:
-          'Si necesita ayuda con los daños causados por los vientos en línea recta en MID TN, llame al número de arriba para pedir ayuda. Lo conectaremos con voluntarios de organizaciones de ayuda locales, grupos comunitarios y comunidades religiosas que podrían ayudar con:',
+          'Si necesita ayuda para limpiar los daños causados por {INCIDENT_TYPE} en {INCIDENT_NAME_OR_LOCATION}, llame a {ANI} para pedir ayuda. Lo conectaremos con voluntarios de organizaciones de ayuda locales, grupos comunitarios y comunidades religiosas que puedan ayudarlo con:',
         hotline_text:
-          'Todos los servicios son gratuitos, pero no se garantiza el servicio debido a la abrumadora necesidad. Esta línea directa permanecerá abierta hasta el 22 de mayo de 2020.',
+          'Todos los servicios son gratuitos, pero el servicio no está garantizado debido a la abrumadora necesidad. Esta línea directa permanecerá abierta hasta el {ANI_CLOSE_DATE}.',
         notes_text:
-          'TENGA EN CUENTA: esta línea directa NO puede ayudar con servicios sociales como comida, ropa, refugio, seguro o preguntas sobre la inscripción en FEMA. Los voluntarios trabajan de forma gratuita y proporcionan las herramientas y el equipo necesario para completar el trabajo.',
+          'TENGA EN CUENTA: esta línea directa NO PUEDE ayudar con servicios sociales como alimentos, ropa, refugio, seguros o preguntas sobre el registro de FEMA. Los voluntarios trabajan de forma gratuita y proporcionan las herramientas y equipos necesarios para completar el trabajo.',
         work_types: englishValues.work_types,
         volunteer_help: 'Ayuda de Limpieza por Voluntarios:',
         qr_code: new QRCode({

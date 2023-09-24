@@ -167,20 +167,25 @@
         <PhoneComponentButton
           name="zoom"
           data-testid="testZoomMeetingButton"
-          :alt="$t('~~Join CCU Zoom Meeting Room')"
+          :alt="$t('phoneDashboard.join_zoom')"
           class="phone-system__action"
           component-class="phone-system__action-content phone-system__action-content--zoom"
         >
           <template #button>
             <div class="w-full h-full flex items-center justify-center">
-              <ccu-icon type="zoom" class="p-1" size="medium" />
+              <ccu-icon
+                type="zoom"
+                class="p-1"
+                size="medium"
+                :alt="$t('phoneDashboard.join_zoom')"
+              />
             </div>
           </template>
           <template #component>
             <div class="flex items-center justify-center p-3 gap-2">
               <a href="https://bit.ly/ccuzoom" target="_blank"
                 ><div class="bg-primary-light py-1 px-4">
-                  Join Zoom Chatroom
+                  {{ $t('phoneDashboard.join_zoom') }}
                 </div></a
               >
             </div>
@@ -682,20 +687,25 @@
               <PhoneComponentButton
                 name="zoom"
                 data-testid="testZoomMeetingButton"
-                :alt="$t('~~Join CCU Zoom Meeting Room')"
+                :alt="$t('phoneDashboard.join_zoom')"
                 class="phone-system__action"
                 component-class="phone-system__action-content phone-system__action-content--zoom"
               >
                 <template #button>
                   <div class="w-full h-full flex items-center justify-center">
-                    <ccu-icon type="zoom" class="p-1" size="medium" />
+                    <ccu-icon
+                      type="zoom"
+                      class="p-1"
+                      size="medium"
+                      :alt="$t('phoneDashboard.join_zoom')"
+                    />
                   </div>
                 </template>
                 <template #component>
                   <div class="flex items-center justify-center p-3 gap-2">
                     <a href="https://bit.ly/ccuzoom" target="_blank"
                       ><div class="bg-primary-light py-1 px-4">
-                        Join Zoom Chatroom
+                        {{ $t('phoneDashboard.join_zoom') }}
                       </div></a
                     >
                   </div>
@@ -730,7 +740,12 @@
                         >{{ unreadNewsCount }}</span
                       >
                     </div>
-                    <ccu-icon type="news" class="p-1 ml-1.5" size="large" />
+                    <ccu-icon
+                      type="news"
+                      class="p-1 ml-1.5"
+                      size="large"
+                      :alt="$t('phoneDashboard.news')"
+                    />
                   </div>
                 </template>
                 <template #component>
@@ -817,7 +832,13 @@
               >
                 <template #button>
                   <div class="w-full h-full flex items-center justify-center">
-                    <ccu-icon :fa="true" type="bug" class="p-1" size="medium" />
+                    <ccu-icon
+                      :fa="true"
+                      type="bug"
+                      class="p-1"
+                      size="medium"
+                      :alt="$t('phoneDashboard.report_bug')"
+                    />
                   </div>
                 </template>
                 <template #component>
