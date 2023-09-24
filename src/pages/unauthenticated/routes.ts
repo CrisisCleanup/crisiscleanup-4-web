@@ -1,14 +1,11 @@
-// import EmbedMap from '@/pages/unauthenticated/EmbedMap';
-import InvitationSignup from './InvitationSignup.vue';
-// import PreliminaryAssessment from './PreliminaryAssessment.vue';
-import PrintToken from './PrintToken.vue';
-import Survivors from './Survivors.vue';
-import ResetPassword from './ResetPassword.vue';
-import MagicLink from './MagicLink.vue';
-import PewPew from './PewPew.vue';
-import DownForMaintenance from './DownForMaintenance.vue';
-import OauthRedirect from '@/pages/OauthRedirect.vue';
-import Disasters from '@/pages/unauthenticated/Disasters.vue';
+const InvitationSignup = () => import('./InvitationSignup.vue');
+const PrintToken = () => import('./PrintToken.vue');
+const Survivors = () => import('./Survivors.vue');
+const ResetPassword = () => import('./ResetPassword.vue');
+const MagicLink = () => import('./MagicLink.vue');
+const PewPew = () => import('./PewPew.vue');
+const OauthRedirect = () => import('@/pages/OauthRedirect.vue');
+const Disasters = () => import('@/pages/unauthenticated/Disasters.vue');
 
 const routes = [
   {
@@ -82,16 +79,6 @@ const routes = [
     redirect() {
       window.location.href = 'https://www.paypal.com/paypalme/crisiscleanup';
     },
-    meta: { layout: 'unauthenticated', noAuth: true },
-  },
-  {
-    path: '/maintenance',
-    // component: () =>
-    //   import(
-    //     /* webpackChunkName: "down-for-maintenance" */ './DownForMaintenance.vue'
-    //   ),
-    component: DownForMaintenance,
-    name: 'nav.site_maintenance',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
 ];
