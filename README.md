@@ -270,3 +270,10 @@ pnpm test:e2e --project=firefox --headed --workers=4 --grep '@slow' --retries 2 
 ```
 
 Remember, these commands are flexible and can be adjusted based on your specific testing needs.
+
+#### Useful Commands
+
+Update dependencies with pnpm:
+```
+pnpm update --interactive --latest
+```
