@@ -130,6 +130,7 @@ import robot from './assets/disaster_icons/robot.svg';
 import snake from './assets/disaster_icons/snake.svg';
 import spider from './assets/disaster_icons/spider.svg';
 
+export const VERSION_3_LAUNCH_DATE = '2020-03-25';
 export const EASTER_EGG_DISASTER_ICONS = {
   bigfoot,
   dracula,

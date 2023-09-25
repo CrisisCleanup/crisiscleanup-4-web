@@ -169,8 +169,7 @@ import { getErrorMessage } from '@/utils/errors';
 import { isLandscape } from '@/utils/helpers';
 import createDebug from 'debug';
 import type { Portal } from '@/models/types';
-
-const VERSION_3_LAUNCH_DATE = '2020-03-25';
+import { VERSION_3_LAUNCH_DATE } from '@/constants';
 
 const debug = createDebug('@ccu:layouts:Authed');
 const loadDebug = debug.extend('loading');
