@@ -4,7 +4,6 @@ import {
   convertRemToPixels,
   numeral,
   formatCmsItem,
-  isLandscape,
   getApiUrl,
   generateHash,
 } from '@/utils/helpers';
@@ -78,9 +77,11 @@ describe('utils > helpers', () => {
   });
 
   test('getApiUrl', () => {
-    import.meta.env.VITE_APP_API_BASE_URL = 'https://test.ccu.org';
+    // import.meta.env.VITE_APP_API_BASE_URL = 'https://test.ccu.org';
+    vi.stubEnv('VITE_APP_API_BASE_URL', 'https://test.ccu.org');
     const endpoint = '/test';
     const result = getApiUrl(endpoint);
     expect(result).toMatchInlineSnapshot('"https://test.ccu.org/test"');
+    vi.unstubAllEnvs();
   });
 });
