@@ -24,14 +24,14 @@
             class="font-h1 font-display text-h1 text-crisiscleanup-dark-500"
             target="_blank"
           >
-            {{ lang[item.key] }}
+            {{ item.label }}
           </a>
           <router-link
             v-if="!item.external"
             :to="item.route || '#'"
             class="font-h1 font-display text-h1 text-crisiscleanup-dark-500"
           >
-            {{ lang[item.key] }}
+            {{ item.label }}
           </router-link>
         </span>
       </div>
@@ -63,7 +63,7 @@
       <slot />
     </div>
     <div class="bottom" data-testid="testBottomSectionDiv">
-      <div v-if="route.name === 'nav.login'" class="flex flex-col m-8">
+      <div v-if="$route.name === 'nav.login'" class="flex flex-col m-8">
         <div class="flex items-end md:justify-end gap-5">
           <span v-for="item in footerRoutes" :key="item.key">
             <a
@@ -72,14 +72,14 @@
               class="font-body font-display text-h2 text-crisiscleanup-dark-300"
               target="_blank"
             >
-              {{ lang[item.key] }}
+              {{ item.label }}
             </a>
             <router-link
               v-if="!item.external"
               :to="item.route || '#'"
               class="font-body font-display text-h2 text-crisiscleanup-dark-300"
             >
-              {{ lang[item.key] }}
+              {{ item.label }}
             </router-link>
           </span>
         </div>
@@ -97,7 +97,6 @@
 
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
 import IncidentContact from '@/components/IncidentContact.vue';
 
 export default defineComponent({
@@ -105,74 +104,79 @@ export default defineComponent({
   components: { IncidentContact },
   setup() {
     const { t } = useI18n();
-    const route = useRoute();
-
-    const defaultRoutes = [
+    const allRoutes = computed(() => [
       {
         key: 'home',
         route: '/login',
+        label: t('publicNav.home'),
       },
       {
         key: 'aboutUs',
         route: '/about',
+        label: t('publicNav.about_us'),
       },
       {
         key: 'blog',
         route: 'http://blog.crisiscleanup.org',
         external: true,
+        label: t('publicNav.blog'),
       },
       {
         key: 'map',
         route: '/map',
+        label: t('publicNav.map'),
       },
       {
         key: 'training',
         route: '/training',
+        label: t('publicNav.training'),
       },
       {
         key: 'survivor',
         route: '/survivor',
+        label: t('publicNav.survivor'),
       },
       {
         key: 'contact',
-        route: 'https://crisiscleanup.zendesk.com/hc/en-us/requests/new',
-        external: true,
-      },
-    ];
-
-    const footerRoutes = [
-      {
-        key: 'contact',
+        label: t('publicNav.contact'),
         route: 'https://crisiscleanup.zendesk.com/hc/en-us/requests/new',
         external: true,
       },
       {
         key: 'terms',
         route: '/terms',
+        label: t('publicNav.terms'),
       },
       {
         key: 'privacy',
         route: '/privacy',
+        label: t('publicNav.privacy'),
       },
-    ];
+    ]);
 
-    const lang = computed(() => ({
-      home: t('publicNav.home'),
-      aboutUs: t('publicNav.about_us'),
-      blog: t('publicNav.blog'),
-      map: t('publicNav.map'),
-      training: t('publicNav.training'),
-      survivor: t('publicNav.survivor'),
-      contact: t('publicNav.contact'),
-      privacy: t('publicNav.privacy'),
-      terms: t('publicNav.terms'),
-    }));
+    const defaultRoutes = computed(() => {
+      return allRoutes.value.filter((r) =>
+        [
+          'home',
+          'aboutUs',
+          'blog',
+          'map',
+          'training',
+          'survivor',
+          'contact',
+        ].includes(r.key),
+      );
+    });
+
+    const footerRoutes = computed(() =>
+      allRoutes.value.filter((r) =>
+        ['contact', 'terms', 'privacy'].includes(r.key),
+      ),
+    );
 
     return {
       routes: defaultRoutes,
       footerRoutes,
-      lang,
-      route,
     };
   },
 });
