@@ -8,6 +8,7 @@ import { DialogWrapper } from 'vue3-promise-dialog';
 import axios from 'axios';
 import { hash } from './utils/promise';
 import { useProvideZendesk, useAuthStore } from '@/hooks';
+import useSetupLanguage from '@/hooks/useSetupLanguage';
 
 export default defineComponent({
   name: 'App',
@@ -16,6 +17,7 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
+    const { setupLanguage } = useSetupLanguage();
 
     const authStore = useAuthStore();
 
@@ -107,6 +109,7 @@ export default defineComponent({
         eventsInterval.value = setInterval(pushCurrentEvents, 2000);
       }
 
+      await setupLanguage();
       await getEnums();
     });
 
