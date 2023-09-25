@@ -168,6 +168,7 @@ import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveM
 import { getErrorMessage } from '@/utils/errors';
 import { isLandscape } from '@/utils/helpers';
 import createDebug from 'debug';
+import type { Portal } from '@/models/types';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -245,7 +246,7 @@ export default defineComponent({
     );
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
-    const portal = computed(() => store.getters['enums/portal']);
+    const portal = computed(() => store.getters['enums/portal'] as Portal);
 
     const incidentFieldsStr = computed(() => Incident.basicFields().join(','));
 
@@ -364,6 +365,33 @@ export default defineComponent({
       },
     ]);
 
+    const hasAcceptedTaC = computed(() => {
+      if (!currentUser.value) return false;
+      const acceptedTimestamp = currentUser.value?.accepted_terms_timestamp;
+      if (!acceptedTimestamp) return false;
+      const acceptedDate = moment(acceptedTimestamp);
+      if (moment(VERSION_3_LAUNCH_DATE).isAfter(acceptedDate)) return false;
+      const portalTOSUpdatedAt = portal.value?.tos_updated_at;
+      return !(
+        portalTOSUpdatedAt && moment(portalTOSUpdatedAt).isAfter(acceptedDate)
+      );
+    });
+
+    whenever(
+      () => currentOrganization.value && !hasAcceptedTaC.value,
+      () => {
+        showAcceptTermsModal.value = true;
+      },
+    );
+
+    const acceptTermsAndConditions = async () => {
+      await updateCurrentUser({
+        accepted_terms: true,
+        accepted_terms_timestamp: moment().toISOString(),
+      });
+      showAcceptTermsModal.value = false;
+    };
+
     const handleChange = async (value: number) => {
       if (!value) return;
       await Incident.api().fetchById(value);
@@ -376,14 +404,6 @@ export default defineComponent({
         params: { ...route.params, incident_id: value },
         query: { ...route.query },
       });
-    };
-
-    const acceptTermsAndConditions = async () => {
-      await updateCurrentUser({
-        accepted_terms: true,
-        accepted_terms_timestamp: moment().toISOString(),
-      });
-      showAcceptTermsModal.value = false;
     };
 
     async function showIncidentSelectionModal() {
@@ -538,19 +558,6 @@ export default defineComponent({
         await setupLanguage();
         await loadIncidents();
         await loadOtherPageData();
-
-        if (
-          !currentUser?.value?.accepted_terms_timestamp ||
-          moment(VERSION_3_LAUNCH_DATE).isAfter(
-            moment(currentUser.value?.accepted_terms_timestamp),
-          ) ||
-          (portal.value?.tos_updated_at &&
-            moment(portal.value?.tos_updated_at).isAfter(
-              currentUser.value?.accepted_terms_timestamp,
-            ))
-        ) {
-          showAcceptTermsModal.value = true;
-        }
 
         onCurrentUserUnSub();
       },
