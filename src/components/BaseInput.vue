@@ -1,4 +1,9 @@
 <template>
+  <label
+    v-if="required && isInvalid && !modelValue"
+    class="text-xs text-crisiscleanup-red-100"
+    >Required</label
+  >
   <div class="flex justify-start relative" :class="classes">
     <label v-if="topLabel" class="text-xs px-1 text-crisiscleanup-dark-300">{{
       topLabel
