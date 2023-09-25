@@ -312,14 +312,14 @@ input {
   width: var(--width);
   height: var(--height);
   border-radius: 0;
-  @apply border border-crisiscleanup-dark-100;
+  @apply border;
   -webkit-appearance: none;
   opacity: 1;
 }
 
 textarea {
   outline: none;
-  @apply border border-crisiscleanup-dark-100;
+  @apply border;
   border-radius: 0;
 }
 

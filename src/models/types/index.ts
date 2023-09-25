@@ -76,6 +76,8 @@ export interface FormField {
   children: FormField[];
   if_selected_then_work_type: string;
   read_only_break_glass: boolean;
+  is_recommended?: boolean;
+  is_recommended_default?: boolean;
   recur_default: string;
   phase: number;
 }

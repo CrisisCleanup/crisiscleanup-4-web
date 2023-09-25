@@ -76,6 +76,12 @@
             item-key="value"
             label="name_t"
             select-classes="h-12 border"
+            :class="
+              (field.is_recommended || field.is_recommended_default) &&
+              !dynamicFields[field.field_key]
+                ? 'form-field--recommended'
+                : ''
+            "
             @update:modelValue="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
@@ -114,6 +120,12 @@
             :data-testid="`test${field.field_key}Select`"
             item-key="value"
             label="name_t"
+            :class="
+              (field.is_recommended || field.is_recommended_default) &&
+              !dynamicFields[field.field_key]
+                ? 'form-field--recommended'
+                : ''
+            "
             select-classes="bg-white border text-xs role-select p-1 form-multiselect"
             @update:modelValue="
               (value: string[]) => {
@@ -129,6 +141,12 @@
       <template v-if="field.html_type === 'text'">
         <div :key="field.field_key" class="form-field">
           <base-input
+            :input-classes="
+              (field.is_recommended || field.is_recommended_default) &&
+              !dynamicFields[field.field_key]
+                ? 'form-field--recommended'
+                : ''
+            "
             :model-value="dynamicFields[field.field_key]"
             :tooltip="t(field.help_t)"
             :data-testid="`test${field.field_key}TextInput`"
@@ -147,6 +165,12 @@
         <div class="form-field">
           <div class="mb-1">{{ t(field.label_t) }}</div>
           <RecurringSchedule
+            :class="
+              (field.is_recommended || field.is_recommended_default) &&
+              !dynamicFields[field.field_key]
+                ? 'form-field--recommended'
+                : ''
+            "
             :model-value="dynamicFields[field.field_key] || field.recur_default"
             :is-default="!dynamicFields[field.field_key]"
             :data-testid="`test${field.field_key}CronSelect`"
@@ -177,6 +201,12 @@
             />
           </span>
           <base-input
+            :class="
+              (field.is_recommended || field.is_recommended_default) &&
+              !dynamicFields[field.field_key]
+                ? 'form-field--recommended'
+                : ''
+            "
             text-area
             :disabled="false"
             :rows="4"
@@ -202,6 +232,15 @@
               }
             "
             >{{ t(field.label_t) }}
+            <span
+              v-if="
+                (field.is_recommended || field.is_recommended_default) &&
+                !dynamicFields[field.field_key]
+              "
+              class="text-crisiscleanup-red-100"
+            >
+              *
+            </span>
           </base-checkbox>
           <ccu-icon
             v-if="t(field.help_t)"
@@ -390,6 +429,9 @@ export default defineComponent({
 <style>
 .form-field {
   @apply py-1 mx-3;
+}
+.form-field--recommended {
+  @apply border border-crisiscleanup-red-100;
 }
 .form-multiselect .vs__selected {
   @apply text-xs bg-white !important;
