@@ -247,6 +247,8 @@ export default defineComponent({
 
     const portal = computed(() => store.getters['enums/portal']);
 
+    const incidentFieldsStr = computed(() => Incident.basicFields().join(','));
+
     const toggle = () => {
       slideOverVisible.value = !slideOverVisible.value;
     };
@@ -446,6 +448,81 @@ export default defineComponent({
       }
     });
 
+    /**
+     * Order of priority of incident id (descending):
+     * - Route path parameter (incidents/123/work)
+     * - User states current incident id
+     * - Most recent incident they have access too
+     */
+    async function resolveInitialIncidentId() {
+      const u = currentUser.value;
+      const incidentIdFromRoute = route.params?.incident_id;
+      const recentIncidentIdFromState = u?.states?.incident as number;
+      const approvedIncidentId = u?.approved_incidents?.[0] as number;
+      debug('incidentId sources %o', {
+        incidentIdFromRoute,
+        recentIncidentIdFromState,
+        approvedIncidentId,
+      });
+      let incidentId =
+        incidentIdFromRoute ?? recentIncidentIdFromState ?? approvedIncidentId;
+      if (!incidentId) {
+        debug('Cant resolve incident id from route or user states', incidentId);
+        // get most recent incident
+        const _recentIncidents = await Incident.api().get(
+          `/incidents?fields=${incidentFieldsStr.value}&limit=1&sort=-start_at`,
+          { dataKey: 'results' },
+        );
+        const incident = Incident.query().orderBy('id', 'desc').first();
+        debug('fetched recentIncident', { _recentIncidents, incident });
+        if (incident) {
+          incidentId = Number(incident.id);
+        }
+      }
+
+      // fetch incident if not in store
+      const incidentFromStore = Incident.query()
+        .where('id', Number(incidentId))
+        .first();
+      if (!incidentFromStore) {
+        const _incident = await Incident.api().get(
+          `/incidents/${incidentId}?fields=${incidentFieldsStr.value}`,
+        );
+        debug('fetchedIncidents', {
+          _incident,
+        });
+      }
+      store.commit('incident/setCurrentIncidentId', Number(incidentId));
+      await updateUserStates({ incident: incidentId }).catch(getErrorMessage);
+    }
+
+    async function loadIncidents() {
+      await Incident.api().get(
+        `/incidents?fields=${incidentFieldsStr.value}&limit=250&sort=-start_at`,
+        { dataKey: 'results' },
+      );
+    }
+
+    async function loadOtherPageData() {
+      await Promise.allSettled([
+        Organization.api().get(
+          `/organizations/${currentUser.value!.organization.id}`,
+        ),
+        Language.api().get('/languages', {
+          dataKey: 'results',
+        }),
+        Report.api().get('/reports', {
+          dataKey: 'results',
+        }),
+        Role.api().get('/roles', {
+          dataKey: 'results',
+        }),
+        PhoneStatus.api().get('/phone_statuses', {
+          dataKey: 'results',
+        }),
+      ]);
+    }
+
     // TODO: refactor this setup
     const onCurrentUserUnSub = whenever(
       hasCurrentUser,
@@ -453,67 +530,14 @@ export default defineComponent({
         loadDebug('Loading started...');
         console.log('authenticated init:', currentUser.value);
         loading.value = true;
-        let incidentId =
-          route.params.incident_id ||
-          currentUser?.value?.approved_incidents?.[0];
-
-        if (!incidentId) {
-          const incident = Incident.query().orderBy('id', 'desc').first();
-          if (incident) {
-            incidentId = String(incident.id);
-          }
-        }
-
-        if (currentUser?.value?.states && currentUser.value?.states.incident) {
-          incidentId = currentUser.value?.states.incident;
-        }
-
-        if (incidentId) {
-          // fetch incident if not in store
-          const incident = Incident.query()
-            .where('id', Number(incidentId))
-            .first();
-          if (!incident) {
-            const fetchedIncident = await Incident.api().get(
-              `/incidents/${incidentId}?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at`,
-            );
-            debug('Fetched incident', fetchedIncident);
-          }
-          store.commit('incident/setCurrentIncidentId', incidentId);
-        }
+        await resolveInitialIncidentId();
         // stop loading as we have all the data needed to show page
         loading.value = false;
+        loadDebug('Loading finished...');
 
-        await Incident.api().get(
-          '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
-          { dataKey: 'results' },
-        );
-
-        await Promise.allSettled([
-          Organization.api().get(
-            `/organizations/${currentUser.value!.organization.id}`,
-          ),
-          Language.api().get('/languages', {
-            dataKey: 'results',
-          }),
-          Report.api().get('/reports', {
-            dataKey: 'results',
-          }),
-        ]);
-        try {
-          Role.api().get('/roles', {
-            dataKey: 'results',
-          });
-          PhoneStatus.api().get('/phone_statuses', {
-            dataKey: 'results',
-          });
-        } catch (error: unknown) {
-          // TODO(tobi): Empty for now make this better
-          Sentry.captureException(error);
-          console.error('init:', error);
-        }
-
-        await Promise.allSettled([setupLanguage()]);
+        await setupLanguage();
+        await loadIncidents();
+        await loadOtherPageData();
 
         if (
           !currentUser?.value?.accepted_terms_timestamp ||
@@ -528,20 +552,6 @@ export default defineComponent({
           showAcceptTermsModal.value = true;
         }
 
-        try {
-          await Incident.api().fetchById(incidentId);
-        } catch {
-          store.commit('incident/setCurrentIncidentId', null);
-          updateUserStates({ incident: null }).catch(getErrorMessage);
-          const incident = Incident.query().orderBy('id', 'desc').first();
-          if (incident) {
-            store.commit('incident/setCurrentIncidentId', false);
-          }
-
-          await router.push(`/`).catch(() => {});
-        }
-
-        loadDebug('Loading finished...');
         onCurrentUserUnSub();
       },
       { immediate: true },
@@ -552,7 +562,6 @@ export default defineComponent({
       showLoginModal,
       currentIncidentId,
       portal,
-      // userId,
       isPageReady,
       loading,
       showAcceptTermsModal,
@@ -565,13 +574,10 @@ export default defineComponent({
       routes,
       mobileRoutes,
       logoRoute,
-      // login,
       acceptTermsAndConditions,
       logoutApp: () => authStore.logout(),
-      // logoutByPhoneNumber,
       handleChange,
       isLandscape,
-
       slideOverVisible,
       toggle,
       mq,
