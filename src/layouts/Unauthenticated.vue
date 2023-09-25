@@ -11,7 +11,7 @@ import useSetupLanguage from '@/hooks/useSetupLanguage';
 
 export default defineComponent({
   setup() {
-    const currentLanguage = detectBrowserLanguage() as string;
+    const currentLanguage = detectBrowserLanguage();
     console.log('current lang', currentLanguage);
 
     const { setupLanguage } = useSetupLanguage();
