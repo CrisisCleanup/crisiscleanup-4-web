@@ -99,10 +99,8 @@
 </template>
 
 <script lang="ts">
-import { onBeforeMount, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
-import useSetupLanguage from '@/hooks/useSetupLanguage';
 import IncidentContact from '@/components/IncidentContact.vue';
 
 export default defineComponent({
@@ -110,12 +108,7 @@ export default defineComponent({
   components: { IncidentContact },
   setup() {
     const { t, messages } = useI18n();
-    const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
-
-    onBeforeMount(async () => {
-      await setupLanguage();
-    });
 
     const defaultRoutes = [
       {
