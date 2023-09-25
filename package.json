@@ -19,7 +19,7 @@
     "build:app:maintenance": "cross-env VITE_APP_ENTRY=maintenance vite build",
     "typecheck": "vue-tsc --noEmit",
     "preview": "vite preview",
-    "lint": "eslint \"**/*.{vue,ts?(x),js?(x)}\"",
+    "lint": "cross-env DEBUG=eslint:cli-engine eslint \"**/*.{vue,ts?(x),js?(x)}\"",
     "lint:show": "eslint-nibble \"**/*.{vue,ts?(x),js?(x)}\"",
     "lint:fix": "pnpm run lint --fix",
     "lint:errors": "pnpm run lint --quiet",
