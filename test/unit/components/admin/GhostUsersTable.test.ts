@@ -1,7 +1,12 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { commonComponentStubs } from '../../../helpers';
 import GhostUsersTable from '@/components/admin/GhostUsersTable.vue';
+
+vi.mock('vue-router', async () =>
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  (await import('../../fixtures/router')).buildMockRouter(),
+);
 
 describe('GhostUsersTable', () => {
   it('renders correctly', async () => {

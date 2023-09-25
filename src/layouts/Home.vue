@@ -166,7 +166,7 @@ export default defineComponent({
       },
     ];
 
-    const lang = reactive({
+    const lang = computed(() => ({
       home: t('publicNav.home'),
       aboutUs: t('publicNav.about_us'),
       blog: t('publicNav.blog'),
@@ -176,7 +176,7 @@ export default defineComponent({
       contact: t('publicNav.contact'),
       privacy: t('publicNav.privacy'),
       terms: t('publicNav.terms'),
-    });
+    }));
 
     return {
       routes: defaultRoutes,
@@ -194,6 +194,7 @@ export default defineComponent({
   h1 {
     @apply text-2xl font-bold mt-3;
   }
+
   h2 {
     @apply text-xl font-bold mt-3;
   }
@@ -242,6 +243,7 @@ export default defineComponent({
 
   a {
     @apply text-primary-dark underline;
+
     &:hover {
       text-decoration: none;
     }
@@ -284,14 +286,16 @@ export default defineComponent({
 
 .grid--survivors {
   @apply bg-crisiscleanup-yellow-700 my-4 text-center p-4;
-  //min-width: 205px;
+  /*min-width: 205px;*/
 
   p {
     letter-spacing: 0.35px;
+
     &:first-child {
       font-weight: 700;
       @apply text-2xl;
     }
+
     &:last-child {
       font-weight: 600;
     }
@@ -307,11 +311,12 @@ export default defineComponent({
     display: grid;
     align-items: center;
     grid-auto-flow: row;
-    grid-template-columns: 1fr 1fr; /* do not set template columns and rows */
+    grid-template-columns: 1fr 1fr;
+    /* do not set template columns and rows */
     grid-template-rows: unset;
     overflow-y: auto;
-    //grid-template-columns: 1fr 1fr;
-    //grid-template-rows: repeat(auto-fit, 1fr);
+    /* grid-template-columns: 1fr 1fr;*/
+    /* grid-template-rows: repeat(auto-fit, 1fr);*/
     grid-template-areas:
       'top top'
       'main main'

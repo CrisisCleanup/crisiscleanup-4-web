@@ -100,25 +100,34 @@ export function getLoginCredentials(admin = false): LoginCredential {
 }
 
 /**
- * Do login on given page
+ * Do ONLY login actions on given page.
+ * Doesn't wait for post login button click actions.
+ */
+export async function doLoginActions(
+  page: Page,
+  credentials?: LoginCredential,
+) {
+  const { email, password } = credentials ?? getLoginCredentials();
+  const emailField = page.getByPlaceholder('Email');
+  const passwordField = page.getByPlaceholder('Password');
+  const loginSubmitButton = page.getByTestId('testLoginButton');
+  await emailField.click();
+  await emailField.fill(email);
+  await passwordField.click();
+  await passwordField.fill(password);
+  await loginSubmitButton.click();
+}
+
+/**
+ * Do login on given page and wait for dashboard
  * @param page
  */
 export async function doLogin(
   page: Page,
   credentials?: LoginCredential,
 ): Promise<boolean> {
-  const { email, password } = credentials ?? getLoginCredentials();
-  const emailField = page.getByPlaceholder('Email');
-  const passwordField = page.getByPlaceholder('Password');
-  const loginSubmitButton = page.getByTestId('testLoginButton');
   try {
-    await emailField.click();
-    await emailField.fill(email);
-    await passwordField.click();
-    await passwordField.fill(password);
-
-    await loginSubmitButton.click();
-
+    await doLoginActions(page, credentials);
     await page.waitForLoadState();
     const oauthAuthorizeBtn = page.getByRole('button', { name: 'Authorize' });
     const isAuthorizeBtnVisible = await oauthAuthorizeBtn.isVisible();

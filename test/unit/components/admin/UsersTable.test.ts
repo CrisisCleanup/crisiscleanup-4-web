@@ -1,8 +1,13 @@
 import { mount } from '@vue/test-utils';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createI18n } from 'vue-i18n';
 import { commonComponentStubs } from '../../../helpers';
 import UsersTable from '@/components/admin/UsersTable.vue';
+
+vi.mock('vue-router', async () =>
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  (await import('../../fixtures/router')).buildMockRouter(),
+);
 
 describe('UsersTable', () => {
   it('renders correctly', async () => {

@@ -7,7 +7,7 @@ import { colors as iconColors, templates } from '../icons/icons_templates';
 import Organization from '../models/Organization';
 import type { WorkType } from '@/models/types';
 import { SVG_STROKE_WIDTH } from '@/constants';
-import { i18n } from '@/main';
+import { i18n } from '@/modules/i18n';
 
 export function snakeToTitleCase(value: string) {
   if (!value) return '';

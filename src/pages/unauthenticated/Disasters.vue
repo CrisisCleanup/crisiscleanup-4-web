@@ -2,7 +2,7 @@
   <Home>
     <div>
       <div class="text-4xl font-bold" data-testid="testCurrentDisastersHeader">
-        {{ $t('~~Current Disasters') }}
+        {{ $t('nav.disasters') }}
       </div>
       <div v-for="incident in incidents" :key="incident.id" class="mb-10">
         <div
@@ -21,12 +21,12 @@
             <font-awesome-icon
               v-if="showIncidentDetails[incident.id]"
               icon="minus"
-              :alt="$t('~~Hide Incident Information')"
+              :alt="$t('currentDisasters.hide_disaster_info')"
             />
             <font-awesome-icon
               v-else
               icon="plus"
-              :alt="$t('~~Show Incident Information')"
+              :alt="$t('currentDisasters.show_disaster_info')"
             />
           </span>
         </div>
@@ -34,7 +34,7 @@
           <Card class="border p-3 my-2 min-w-max max-w-6xl">
             <template #header>
               <base-text class="px-2 py-3 text-base font-bold">
-                {{ $t('~~Incident Information') }}
+                {{ $t('currentDisasters.disaster_information') }}
               </base-text>
             </template>
             <ul class="h-80 overflow-auto">

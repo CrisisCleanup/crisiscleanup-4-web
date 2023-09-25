@@ -1,5 +1,5 @@
 import { store } from '../store';
-import { useCurrentUser } from '@/hooks';
+import useCurrentUser from './useCurrentUser';
 
 function $can(rule: string) {
   const { currentUser } = useCurrentUser();

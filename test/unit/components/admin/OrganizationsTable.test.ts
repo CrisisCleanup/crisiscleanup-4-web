@@ -9,6 +9,11 @@ import OrganizationsTable from '@/components/admin/OrganizationsTable.vue';
 
 vi.mock('axios');
 
+vi.mock('vue-router', async () =>
+  // eslint-disable-next-line unicorn/no-await-expression-member
+  (await import('../../fixtures/router')).buildMockRouter(),
+);
+
 describe('OrganizationsTable', () => {
   type AxiosGet = <T = any, R = AxiosResponse<T>>(
     url: string,

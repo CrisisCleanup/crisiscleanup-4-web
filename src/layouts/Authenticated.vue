@@ -1,6 +1,7 @@
 <template>
+  <!-- For mobile screens -->
   <template v-if="mq.mdMinus">
-    <div v-if="!loading && currentIncident" class="flex flex-col">
+    <div v-if="!loading && currentIncidentId" class="flex flex-col">
       <DisasterIcon
         v-if="currentIncident && currentIncident.incidentImage"
         :current-incident="currentIncident"
@@ -46,17 +47,18 @@
       @close="showingMoreLinks = false"
     >
       <div v-for="r in routes" :key="r.key" class="flex items-center">
-        <base-link :href="r.to" class="text-black text-base p-1">{{
-          r.text || $t(`nav.${r.key}`)
-        }}</base-link>
+        <base-link :href="r.to" class="text-black text-base p-1">
+          {{ r.text || $t(`nav.${r.key}`) }}
+        </base-link>
       </div>
       <AppDownloadLinks />
     </modal>
   </template>
 
+  <!-- For desktop screens -->
   <template v-else>
     <div
-      v-if="!loading && currentIncident"
+      v-if="!loading && currentIncidentId"
       class="layout"
       data-testid="testIsAuthenticatedDiv"
     >
@@ -97,11 +99,7 @@
           :current-incident="currentIncident"
           :incidents="incidents"
           @update:incident="handleChange"
-          @auth:logout="
-            () => {
-              logoutApp();
-            }
-          "
+          @auth:logout="logoutApp"
         />
       </div>
       <div class="main">
@@ -124,17 +122,6 @@
       >
         <OrganizationInactiveModal @user-logged-out="logoutApp" />
       </template>
-      <div v-if="transferRequest">
-        <CompletedTransferModal
-          :transfer-request="transferRequest"
-          data-testid="testCompletedTransferModal"
-          @close="
-            () => {
-              transferRequest = null;
-            }
-          "
-        />
-      </div>
       <div v-if="showLoginModal">
         <modal modal-classes="bg-white max-w-lg shadow p-5" :closeable="false">
           <LoginForm :redirect="false" />
@@ -168,7 +155,6 @@ import PhoneStatus from '../models/PhoneStatus';
 import NavMenu from '../components/navigation/NavMenu.vue';
 import TermsandConditionsModal from '../components/modals/TermsandConditionsModal.vue';
 import Header from '../components/header/Header.vue';
-import CompletedTransferModal from '../components/modals/CompletedTransferModal.vue';
 import LoginForm from '../components/LoginForm.vue';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
@@ -185,7 +171,7 @@ import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
-import { store } from '@/store';
+import { isLandscape } from '@/utils/helpers';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
 
@@ -196,7 +182,6 @@ export default defineComponent({
     AppDownloadLinks,
     DisasterIcon,
     LoginForm,
-    CompletedTransferModal,
     NavMenu,
     TermsandConditionsModal,
     Header,
@@ -213,6 +198,7 @@ export default defineComponent({
       isOrphan,
     } = useCurrentUser();
     const authStore = useAuthStore();
+    const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
     const router = useRouter();
     const $http = axios;
@@ -223,10 +209,13 @@ export default defineComponent({
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
 
-    router.beforeEach(async (to, from, next) => {
-      // todo: maybe NOT block every route with fetching languages...
-      const { setupLanguage } = useSetupLanguage();
-      await setupLanguage();
+    const loading = ref(true);
+    const ready = ref(false);
+    const slideOverVisible = ref(false);
+    const showAcceptTermsModal = ref(false);
+    const showingMoreLinks = ref(false);
+
+    router.beforeEach((to, from, next) => {
       store.commit('events/addEvent', {
         event_key: 'user_ui-read_page',
         created_at: moment().toISOString(),
@@ -252,22 +241,15 @@ export default defineComponent({
     });
 
     const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
+      () => store.getters['incident/currentIncidentId'] as number,
     );
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
     const portal = computed(() => store.getters['enums/portal']);
 
-    const slideOverVisible = ref(false);
     const toggle = () => {
       slideOverVisible.value = !slideOverVisible.value;
     };
-
-    const loading = ref(true);
-    const ready = ref(false);
-    const showAcceptTermsModal = ref(false);
-    const showingMoreLinks = ref(false);
-    const transferRequest = ref(null);
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
@@ -380,7 +362,7 @@ export default defineComponent({
       },
     ]);
 
-    const handleChange = async (value: string) => {
+    const handleChange = async (value: number) => {
       if (!value) return;
       await Incident.api().fetchById(value);
       await updateUserStates({
@@ -394,29 +376,12 @@ export default defineComponent({
       });
     };
 
-    const isLandscape = () => {
-      return window.matchMedia(
-        'only screen and (max-device-width: 1223px) and (orientation: landscape)',
-      ).matches;
-    };
-
-    const { setupLanguage } = useSetupLanguage();
-
     const acceptTermsAndConditions = async () => {
       await updateCurrentUser({
         accepted_terms: true,
         accepted_terms_timestamp: moment().toISOString(),
       });
       showAcceptTermsModal.value = false;
-    };
-
-    const getUserTransferRequests = async () => {
-      const response = await $http.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/transfer_requests`,
-      );
-      transferRequest.value = response.data.results.find((request: any) => {
-        return request.user === currentUser?.value?.id;
-      });
     };
 
     async function showIncidentSelectionModal() {
@@ -517,7 +482,7 @@ export default defineComponent({
           console.error('init:', error);
         }
 
-        await Promise.allSettled([getUserTransferRequests(), setupLanguage()]);
+        await Promise.allSettled([setupLanguage()]);
 
         let incidentId =
           route.params.incident_id ||
@@ -584,7 +549,6 @@ export default defineComponent({
       loading,
       ready,
       showAcceptTermsModal,
-      transferRequest,
       showingMoreLinks,
       currentUser,
       currentOrganization,

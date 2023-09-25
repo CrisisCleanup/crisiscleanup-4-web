@@ -1,5 +1,3 @@
-import type User from '../User';
-
 /**
  * Base fields for all CCU models
  */
@@ -10,6 +8,15 @@ export interface CCUBaseFields {
   updated_at: Date;
   created_by: number;
   updated_by: number;
+}
+
+export interface CCUApiListResponse<
+  T extends Record<string, any> = Record<string, any>,
+> {
+  count: number;
+  next: string;
+  previous: string | null;
+  results: T[];
 }
 
 export interface WorkType {
@@ -74,7 +81,7 @@ export interface FormField {
 }
 
 export interface IncidentRequest {
-  requested_by_contact: Partial<User>;
+  requested_by_contact: UserContact;
   id: number;
   incident: string;
 }
@@ -161,3 +168,46 @@ export interface CmsItem {
   content: string;
   thumbnail_file?: { blog_url: string };
 }
+
+export type PhoneDnisResponse = CCUApiListResponse<PhoneDnisResult>;
+
+export interface PhoneDnisResult {
+  id: number;
+  dnis: number;
+  number_of_inbound_calls: number;
+  number_of_outbound_calls: number;
+  area_code: number;
+  last_action: string | null;
+  last_status: string | null;
+  last_call_at: string | null;
+  created_at: string;
+  meta: Record<string, unknown>;
+  location_name: string;
+  state_name: string;
+  timezone: string;
+  worksites: any[];
+}
+
+export interface LanguagesResponse {
+  subtag: string;
+  name_t: string;
+  translations: Record<string, string>;
+}
+
+export interface LocalizationsCountResponse {
+  count: number;
+}
+
+export interface UserTransferResult {
+  id: number;
+  transfering_wwwtsp_ids: number[];
+  origin_organization: number;
+  target_organization: number;
+  requested_by: number;
+  user: number;
+  user_notes: string;
+  child_requests: UserTransferResult[]; // recursive field
+  user_approved_at: string | null;
+}
+
+export type UserTransfersResponse = CCUApiListResponse<UserTransferResult>;

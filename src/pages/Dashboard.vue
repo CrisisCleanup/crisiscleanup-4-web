@@ -445,6 +445,13 @@
             @reload="getUserTransferRequests"
           />
         </div>
+        <div v-if="transferRequest">
+          <CompletedTransferModal
+            :transfer-request="transferRequest"
+            data-testid="testCompletedTransferModal"
+            @close="() => (transferRequest = undefined)"
+          />
+        </div>
       </div>
     </div>
 
@@ -498,13 +505,16 @@ import InviteUsers from '../components/modals/InviteUsers.vue';
 import useDialogs from '../hooks/useDialogs';
 import ReportWidget from '@/components/reports/ReportWidget.vue';
 import { transformWidgetData } from '@/utils/reports';
-import { numeral } from '@/utils/helpers';
+import { getApiUrl, numeral } from '@/utils/helpers';
 import { useCurrentUser } from '@/hooks';
 import BaseText from '@/components/BaseText.vue';
+import CompletedTransferModal from '@/components/modals/CompletedTransferModal.vue';
+import type { UserTransferResult, UserTransfersResponse } from '@/models/types';
 
 export default defineComponent({
   name: 'Dashboard',
   components: {
+    CompletedTransferModal,
     BaseText,
     ReportWidget,
     UserTransferRequestTable,
@@ -528,7 +538,8 @@ export default defineComponent({
     const totalInProgess = ref(0);
     const organizations = ref([]);
     const incident_requests = ref([]);
-    const transferRequests = ref([]);
+    const transferRequests = ref<UserTransferResult[]>([]);
+    const transferRequest = ref<UserTransferResult>();
     const reportWidgets = ref([]);
     const widgetsData = ref({});
     const columnSearch = ref({});
@@ -821,10 +832,14 @@ export default defineComponent({
     }
 
     async function getUserTransferRequests() {
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/transfer_requests`,
+      const response = await axios.get<UserTransfersResponse>(
+        getApiUrl('/transfer_requests'),
       );
-      transferRequests.value = response.data.results;
+      const results = response.data.results;
+      transferRequests.value = results;
+      transferRequest.value = results.find((request) => {
+        return request.user === currentUser.value?.id;
+      });
     }
 
     async function getUserReportWidgets() {
@@ -1046,6 +1061,7 @@ export default defineComponent({
       organizations,
       incident_requests,
       transferRequests,
+      transferRequest,
       reportWidgets,
       widgetsData,
       loading,

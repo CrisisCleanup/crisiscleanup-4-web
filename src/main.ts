@@ -11,7 +11,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons';
 import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
-import { createI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import vSelect from 'vue-select';
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';
@@ -54,18 +54,6 @@ import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
 
 library.add(fas);
-// I18n
-const getI18n = (messages = {}) => {
-  return createI18n({
-    legacy: false,
-    formatFallbackMessages: true,
-    silentFallbackWarn: false,
-    locale: 'en',
-    messages,
-  });
-};
-
-export const i18n = getI18n();
 
 axios.defaults.withCredentials = true;
 

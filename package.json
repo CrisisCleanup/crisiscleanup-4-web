@@ -35,11 +35,16 @@
     "test": "pnpm run test:cov",
     "test:unit": "vitest",
     "test:e2e": "pnpm run pw test",
+    "test:e2e:list": "pnpm run pw test --list",
     "test:e2e:development": "pnpm run test:e2e --grep '@development' --timeout 150000 --retries 4",
     "test:e2e:staging": "pnpm run test:e2e --grep '@staging'",
     "test:e2e:production": "pnpm run test:e2e --grep '@production'",
     "test:e2e:ui": "pnpm run pw test --ui",
-    "test:cov": "pnpm run test:unit --coverage"
+    "test:cov": "pnpm run test:unit --coverage",
+    "depcruise:errors": "depcruise src --include-only '^src' -v --output-type err-long",
+    "depcruise:gen:html": "depcruise src --include-only '^src' -v --output-type dot | dot -T svg | depcruise-wrap-stream-in-html > ./ccu-dependency-graph.html",
+    "depcruise:gen:svg": "depcruise src --include-only '^src' --output-type dot | dot -T svg > ./ccu-dependency-graph.svg",
+    "depcruise:gen:mermaid": "depcruise src --include-only '^src' --output-type mermaid > ./ccu-dependency-graph.mermaid"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
@@ -162,6 +167,7 @@
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.15",
     "cross-env": "^7.0.3",
+    "dependency-cruiser": "^13.1.5",
     "eslint": "8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-config-standard-with-typescript": "^39.0.0",
