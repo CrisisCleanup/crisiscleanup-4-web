@@ -8,9 +8,7 @@
   >
     <div class="overflow-auto">
       <div class="px-3">
-        <div
-          v-html="$t(`orgInactive.sorry_not_active_contact_helpdesk`)"
-        ></div>
+        <div v-html="$t(`orgInactive.sorry_not_active_contact_helpdesk`)"></div>
       </div>
     </div>
     <template #footer>
