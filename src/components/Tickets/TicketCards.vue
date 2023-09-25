@@ -368,7 +368,7 @@ const replyToTicket = (replyStatus: string) => {
           fetchActiveTicket();
           ticketReply.value = '';
         } else {
-          reAssignTicket(currentUserID.value!);
+          reAssignTicket(currentUserID.value);
         }
       })
       .then(() => {
