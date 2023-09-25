@@ -287,7 +287,7 @@ export default defineComponent({
         key: 'phone',
         icon: 'phone',
         text: t('nav.phone'),
-        to: '/phone',
+        to: `/incident/${currentIncidentId.value}/phone`,
         disabled: !$can || !$can('phone_agent'),
       },
       {
@@ -353,7 +353,7 @@ export default defineComponent({
         key: 'phone',
         icon: 'phone',
         text: t('nav.phone'),
-        to: '/phone',
+        to: `/incident/${currentIncidentId.value}/phone`,
         disabled: !$can || !$can('phone_agent'),
       },
       {
