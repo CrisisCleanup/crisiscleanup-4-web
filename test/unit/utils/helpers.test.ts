@@ -1,14 +1,12 @@
 import { describe, expect, test } from 'vitest';
-// import {
-//   nFormatter,
-//   convertRemToPixels,
-//   numeral,
-//   formatCmsItem,
-// } from '@/utils/helpers';
+import {
+  nFormatter,
+  convertRemToPixels,
+  numeral,
+  formatCmsItem,
+} from '@/utils/helpers';
 
-// skipping tests because of i18n cyclic import issues
-// see: https://github.com/CrisisCleanup/crisiscleanup-4-web/issues/26
-describe.skip('utils > helpers', () => {
+describe('utils > helpers', () => {
   test('nFormatter', () => {
     const inputs = [
       [-100, -100],
