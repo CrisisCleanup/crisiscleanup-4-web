@@ -1,4 +1,4 @@
-import PhoneSystem from './PhoneSystem.vue';
+const PhoneSystem = () => import('./PhoneSystem.vue');
 
 const routes = [
   {
