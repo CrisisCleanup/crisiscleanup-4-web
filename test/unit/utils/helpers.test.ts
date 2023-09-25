@@ -58,7 +58,7 @@ describe('utils > helpers', () => {
     expect(r2).toBe('1,000');
   });
 
-  test.skip('formatCmsItem', () => {
+  test('formatCmsItem', () => {
     const r0 = formatCmsItem('hello {world}');
     expect(r0).toBe('hello world');
   });
