@@ -360,7 +360,7 @@
     </section>
     <section v-else class="px-8 py-4">
       <base-text variant="h1">
-        {{ $t('survivorContact.invalid_expired_token')}}
+        {{ $t('survivorContact.invalid_expired_token') }}
       </base-text>
     </section>
     <section class="faqs p-8">

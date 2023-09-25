@@ -3,6 +3,7 @@
     <div :key="field.field_key">
       <template v-if="['h4'].includes(field.html_type)">
         <SectionHeading
+          :id="field.field_key"
           :count="getSectionCount(field)"
           :tooltip="t(field.help_t)"
           :data-testid="`test${t(field.label_t)}HelpTooltip`"

@@ -6,6 +6,7 @@
       }}</SectionHeading>
       <section class="form-field">
         <WorksiteSearchInput
+          id="name"
           :value="worksite.name"
           data-testid="testNameTextInput"
           selector="js-worksite-name"
@@ -21,6 +22,7 @@
       </section>
       <div class="form-field">
         <base-input
+          id="phone1"
           :model-value="worksite.phone1"
           data-testid="testPhone1TextInput"
           selector="js-worksite-phone1"
@@ -41,6 +43,7 @@
       </div>
       <div v-if="worksite.phone2 || addAdditionalPhone" class="form-field">
         <base-input
+          id="phone2"
           :model-value="worksite.phone2"
           data-testid="testPhone2TextInput"
           selector="js-worksite-phone2"
@@ -69,6 +72,7 @@
       />
       <div class="form-field">
         <base-input
+          id="email"
           :model-value="worksite.email"
           data-testid="testEmailTextInput"
           selector="js-worksite-email"
@@ -83,7 +87,12 @@
         </span>
         <base-select
           :model-value="worksite.language"
-          :options="supportedLanguages"
+          :options="
+            supportedLanguages.map((l) => ({
+              id: l.id,
+              name_t: $t(l.name_t),
+            }))
+          "
           data-testid="testPrimaryLanguageTextInput"
           class="bg-white"
           select-classes="h-12 border"
@@ -94,7 +103,10 @@
           @update:modelValue="(v) => updateWorksite(v, 'language')"
         />
       </div>
-      <div v-if="currentIncident.auto_contact" class="form-field">
+      <div
+        v-if="currentIncident && currentIncident.auto_contact"
+        class="form-field"
+      >
         <span class="flex items-center">
           <span>{{ $t('casesVue.auto_contact_frequency') }}</span>
           <ccu-icon
@@ -194,6 +206,7 @@
         />
         <WorksiteSearchInput
           v-else
+          id="address"
           data-testid="testWorksiteSearchInputInput"
           :value="worksite.address"
           selector="js-worksite-address"
@@ -216,6 +229,7 @@
       <template v-if="showAddressDetails">
         <div class="form-field">
           <base-input
+            id="city"
             :model-value="worksite.city"
             data-testid="testCityTextInput"
             selector="js-worksite-city"
@@ -227,6 +241,7 @@
         </div>
         <div class="form-field">
           <base-input
+            id="county"
             :model-value="worksite.county"
             data-testid="testCountyTextInput"
             name="county"
@@ -239,6 +254,7 @@
         </div>
         <div class="form-field">
           <base-input
+            id="state"
             name="state"
             data-testid="testStateTextInput"
             :model-value="worksite.state"
@@ -251,6 +267,7 @@
         </div>
         <div class="form-field">
           <base-input
+            id="zip"
             name="zip"
             data-testid="testPostalCodeTextInput"
             :model-value="worksite.postal_code"
@@ -949,34 +966,48 @@ export default defineComponent({
     }
 
     async function saveWorksite(reload = true) {
-      const validationErrors = Object.entries(fieldToErrorMessageMap).reduce(
-        (errors, [field, errorMessage]) => {
-          if (!worksite.value[field]) {
-            // enable select on map to show hidden advanced fields
-            if (
-              !shouldSelectOnMap.value &&
-              advancedAddressFields.includes(field)
-            ) {
-              shouldSelectOnMap.value = true;
-            }
+      let firstErrorField;
+      let firstErrorMessage = '';
 
-            errors.push(errorMessage);
+      for (const [field, errorMessage] of Object.entries(
+        fieldToErrorMessageMap,
+      )) {
+        if (!worksite.value[field]) {
+          // enable select on map to show hidden advanced fields
+          if (
+            !shouldSelectOnMap.value &&
+            advancedAddressFields.includes(field)
+          ) {
+            shouldSelectOnMap.value = true;
           }
 
-          return errors;
-        },
-        [],
-      );
+          firstErrorField = field;
+          firstErrorMessage = errorMessage;
+          break;
+        }
+      }
+
       const isValid =
         form.value.reportValidity() &&
         isAddressValid.value &&
-        validationErrors.length === 0;
+        !firstErrorMessage;
+
       if (!isValid) {
-        if (!isAddressValid.value) {
-          $toasted.error(t('caseForm.no_lat_lon_error'));
+        if (firstErrorMessage) {
+          if (firstErrorField === 'address' && !isAddressValid.value) {
+            $toasted.error(t('caseForm.no_lat_lon_error'));
+            return;
+          }
+          $toasted.error(firstErrorMessage);
+          const errorFieldElement = document.querySelector(
+            `#${firstErrorField}`,
+          ) as HTMLElement;
+          if (errorFieldElement) {
+            errorFieldElement.focus();
+            errorFieldElement.scrollIntoView({ behavior: 'smooth' });
+          }
         }
 
-        for (const e of validationErrors) $toasted.error(e);
         return;
       }
 
@@ -1027,7 +1058,12 @@ export default defineComponent({
         )
         .some(Boolean);
       if (!anyWorkTypes) {
-        await $toasted.error(t('caseForm.select_work_type_error'));
+        $toasted.error(t('caseForm.select_work_type_error'));
+        const element = document.querySelector('#work_info');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+
         return;
       }
 

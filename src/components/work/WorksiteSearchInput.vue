@@ -282,7 +282,7 @@ export default defineComponent({
       const workType = Worksite.getWorkType(
         workTypes,
         null,
-        currentUser!.organization,
+        currentUser.organization,
       );
 
       if (!workType) {
