@@ -1,9 +1,12 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import {
   nFormatter,
   convertRemToPixels,
   numeral,
   formatCmsItem,
+  isLandscape,
+  getApiUrl,
+  generateHash,
 } from '@/utils/helpers';
 
 describe('utils > helpers', () => {
@@ -61,5 +64,23 @@ describe('utils > helpers', () => {
   test('formatCmsItem', () => {
     const r0 = formatCmsItem('hello {world}');
     expect(r0).toBe('hello world');
+  });
+
+  test('generateHash', () => {
+    const str = 'test';
+    vi.mock('crypto-js', () => ({
+      MD5(s: string) {
+        return `hashed:${s}`;
+      },
+    }));
+    const result = generateHash(str);
+    expect(result).toMatchInlineSnapshot('"hashed:test"');
+  });
+
+  test('getApiUrl', () => {
+    import.meta.env.VITE_APP_API_BASE_URL = 'https://test.ccu.org';
+    const endpoint = '/test';
+    const result = getApiUrl(endpoint);
+    expect(result).toMatchInlineSnapshot('"https://test.ccu.org/test"');
   });
 });
