@@ -14,10 +14,7 @@
       </div>
       <IncidentContact class="w-full md:w-max" />
     </div>
-    <div
-      :key="Object.keys(messages)"
-      class="side m-8 flex flex-col justify-center"
-    >
+    <div class="side m-8 flex flex-col justify-center">
       <div class="grid--nav flex flex-col gap-2">
         <span v-for="item in routes" :key="item.key">
           <a
@@ -107,7 +104,7 @@ export default defineComponent({
   name: 'Home',
   components: { IncidentContact },
   setup() {
-    const { t, messages } = useI18n();
+    const { t } = useI18n();
     const route = useRoute();
 
     const defaultRoutes = [
@@ -175,7 +172,6 @@ export default defineComponent({
       routes: defaultRoutes,
       footerRoutes,
       lang,
-      messages,
       route,
     };
   },
