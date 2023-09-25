@@ -1,7 +1,9 @@
+import PhoneSystem from './PhoneSystem.vue';
+
 const routes = [
   {
     path: '/phone',
-    component: import('./PhoneSystem.vue'),
+    component: PhoneSystem,
     name: 'nav.phone',
     meta: {
       layout: 'authenticated',
