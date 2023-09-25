@@ -65,9 +65,6 @@ dependencies:
   '@turf/turf':
     specifier: ^6.5.0
     version: 6.5.0
-  '@types/geojson':
-    specifier: ^7946.0.11
-    version: 7946.0.11
   '@types/leaflet.gridlayer.googlemutant':
     specifier: ^0.4.7
     version: 0.4.7
@@ -325,6 +322,9 @@ devDependencies:
   '@types/debug':
     specifier: ^4.1.9
     version: 4.1.9
+  '@types/geojson':
+    specifier: ^7946.0.11
+    version: 7946.0.11
   '@types/google.maps':
     specifier: ^3.54.1
     version: 3.54.1
