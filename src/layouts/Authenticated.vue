@@ -210,7 +210,6 @@ export default defineComponent({
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
 
-    const loading = ref(true);
     const slideOverVisible = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
@@ -240,7 +239,7 @@ export default defineComponent({
       next();
     });
     loadDebug('Loading started...');
-    const isPageReady = computed(() => hasCurrentIncident.value);
+    const isPageReady = computedEager(() => hasCurrentIncident.value);
     const onPageReadyUnSub = whenever(isPageReady, () => {
       loadDebug('Loading finished...');
       onPageReadyUnSub();
@@ -250,7 +249,9 @@ export default defineComponent({
 
     const portal = computed(() => store.getters['enums/portal'] as Portal);
 
-    const incidentFieldsStr = computed(() => Incident.basicFields().join(','));
+    const incidentFieldsStr = computedEager(() =>
+      Incident.basicFields().join(','),
+    );
 
     const toggle = () => {
       slideOverVisible.value = !slideOverVisible.value;
@@ -466,16 +467,13 @@ export default defineComponent({
       }
     });
 
-    async function loadIncidents() {
-      await Incident.api().get(
-        `/incidents?fields=${incidentFieldsStr.value}&limit=250&sort=-start_at`,
-        { dataKey: 'results' },
-      );
-    }
-
     // TODO: Move these network calls to where they belong
-    async function loadOtherPageData() {
+    async function loadPageData() {
       await Promise.allSettled([
+        Incident.api().get(
+          `/incidents?fields=${incidentFieldsStr.value}&limit=250&sort=-start_at`,
+          { dataKey: 'results' },
+        ),
         Organization.api().get(
           `/organizations/${currentUser.value!.organization.id}`,
         ),
@@ -499,8 +497,7 @@ export default defineComponent({
       async () => {
         console.log('authenticated init:', currentUser.value);
         await setupLanguage();
-        await loadIncidents();
-        await loadOtherPageData();
+        await loadPageData();
         onCurrentUserUnSub();
       },
       { immediate: true },
@@ -509,10 +506,8 @@ export default defineComponent({
     return {
       user: currentUser,
       showLoginModal,
-      currentIncidentId,
       portal,
       isPageReady,
-      loading,
       showAcceptTermsModal,
       showingMoreLinks,
       currentUser,
