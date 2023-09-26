@@ -100,7 +100,8 @@ function useCurrentIncident() {
     () =>
       hasCurrentUser.value &&
       incidentId.value &&
-      currentUser?.value?.states.incident !== incidentId.value,
+      recentIncidentIdFromState.value &&
+      recentIncidentIdFromState.value !== incidentId.value,
     async () => {
       debug('Saving current incident id in user states %s', incidentId.value);
       await updateUserStates({ incident: incidentId.value }).catch(
