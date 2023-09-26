@@ -5,7 +5,7 @@
       ref="form"
       data-testid="testInvitationTransferFormDiv"
       class="form w-108 flex flex-col"
-      @submit.prevent="transfer"
+      @submit.prevent
     >
       <div
         class="text-2xl font-light"
@@ -52,12 +52,7 @@
         :disabled="!transferOption || transferOption === 'none'"
       />
     </form>
-    <form
-      v-else
-      ref="form"
-      class="form w-108 flex flex-col"
-      @submit.prevent="acceptInvite"
-    >
+    <form v-else ref="form" class="form w-108 flex flex-col" @submit.prevent>
       <div
         v-if="invitation"
         class="text-2xl font-light"
@@ -144,7 +139,7 @@
 import { useToast } from 'vue-toastification';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Invitation from '../../models/Invitation';
 import Home from '../../layouts/Home.vue';
 import { getErrorMessage } from '../../utils/errors';
@@ -174,12 +169,13 @@ export default defineComponent({
     });
     const invitation = ref(null);
     const transferOption = ref(null);
+    const form = ref<HTMLFormElement | undefined>(undefined);
 
     async function acceptInvite() {
       const { first_name, last_name, password, mobile, title } = userInfo;
       if (validatePassword()) {
         try {
-          await User.api().acceptInvite({
+          const result = await User.api().acceptInvite({
             token: route.params.token,
             first_name,
             last_name,
@@ -187,9 +183,19 @@ export default defineComponent({
             mobile,
             title,
           });
-          await $toasted.success(
-            t('invitationSignup.success_accept_invitation'),
-          );
+          if (result.response instanceof AxiosError) {
+            return $toasted.error(getErrorMessage(result.response));
+          }
+          await confirm({
+            title: t('info.success'),
+            content: t(`invitationSignup.success_accept_invitation`),
+            actions: {
+              login: {
+                text: t('actions.login'),
+                type: 'solid',
+              },
+            },
+          });
           await router.push('/login?accepted=true');
         } catch {
           await $toasted.error(t('invitationSignup.invitation_accept_error'));
