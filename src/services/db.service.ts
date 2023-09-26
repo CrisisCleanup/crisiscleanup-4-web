@@ -3,11 +3,15 @@ import { openDB } from 'idb';
 const WORKSITES_DATABASE = 'worksites';
 const WORKSITE_IMAGES_DATABASE = 'worksite_images';
 
-const dbPromise = openDB('crisiscleanup', 4, {
+const dbPromise = openDB('crisiscleanup', 5, {
   upgrade(db, oldVersion) {
     if (oldVersion > 0) {
       try {
         db.deleteObjectStore(WORKSITES_DATABASE);
+      } catch {
+        // Ignore
+      }
+      try {
         db.deleteObjectStore(WORKSITE_IMAGES_DATABASE);
       } catch {
         // Ignore
