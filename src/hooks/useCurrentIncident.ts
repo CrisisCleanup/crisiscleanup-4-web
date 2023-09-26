@@ -91,7 +91,11 @@ function useCurrentIncident() {
   whenever(
     () => hasCurrentUser.value && incidentId.value,
     async () => {
-      store.commit('incident/setCurrentIncidentId', Number(incidentId.value));
+      debug(
+        'Saving current incident id to store & user states %s',
+        incidentId.value,
+      );
+      store.commit('incident/setCurrentIncidentId', incidentId.value);
       await updateUserStates({ incident: incidentId.value }).catch(
         getErrorMessage,
       );
