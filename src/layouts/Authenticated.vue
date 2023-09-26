@@ -172,8 +172,12 @@ import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { isLandscape } from '@/utils/helpers';
+import createDebug from 'debug';
 
 const VERSION_3_LAUNCH_DATE = '2020-03-25';
+
+const debug = createDebug('@ccu:layouts:Authed');
+const loadDebug = debug.extend('loading');
 
 export default defineComponent({
   name: 'Authenticated',
@@ -450,6 +454,7 @@ export default defineComponent({
     const onCurrentUserUnSub = whenever(
       hasCurrentUser,
       async () => {
+        loadDebug('Loading started...');
         console.log('authenticated init:', currentUser.value);
         await Incident.api().get(
           '/incidents?fields=id,start_at,name,short_name,geofence,locations,turn_on_release,active_phone_number&limit=250&ordering=-start_at',
@@ -531,6 +536,7 @@ export default defineComponent({
 
         loading.value = false;
         ready.value = true;
+        loadDebug('Loading finished...');
         onCurrentUserUnSub();
       },
       { immediate: true },
