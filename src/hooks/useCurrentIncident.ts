@@ -1,8 +1,8 @@
 import { ref, computed } from 'vue';
 import createDebug from 'debug';
-import { store } from '@/store';
 import useCurrentUser from './useCurrentUser';
 import Incident from '@/models/Incident';
+import { useStore } from 'vuex';
 import { useRouteParams } from '@vueuse/router';
 import { getErrorMessage } from '@/utils/errors';
 import { createSharedComposable } from '@vueuse/core';
@@ -10,8 +10,8 @@ import { createSharedComposable } from '@vueuse/core';
 const debug = createDebug('@ccu:hooks:useCurrentIncident');
 
 function useCurrentIncident() {
-  // const debug = (...args: any[]) => console.debug(...args);
   const { currentUser, hasCurrentUser, updateUserStates } = useCurrentUser();
+  const store = useStore();
   const incidentFieldsStr = computed(() => Incident.basicFields().join(','));
 
   /**
@@ -32,12 +32,13 @@ function useCurrentIncident() {
         recentIncidentIdFromState.value ??
         recentIncidentId.value,
     );
-    debug('Resolved incident id %s | Sources %o', _id, {
+    const id = Number.isNaN(_id) ? undefined : _id;
+    debug('Resolved incident id %s | Sources %o', id, {
       incidentIdFromRoute: incidentIdFromRoute.value,
       recentIncidentIdFromState: recentIncidentIdFromState.value,
       recentIncidentId: recentIncidentId.value,
     });
-    return Number.isNaN(_id) ? undefined : _id;
+    return id;
   });
   const currentIncident = computedAsync(
     async () => {
@@ -61,6 +62,8 @@ function useCurrentIncident() {
   const hasCurrentIncident = computedEager(
     () => currentIncident.value && !isCurrentIncidentLoading.value,
   );
+  const setIncidentIdInStore = () =>
+    store.commit('incident/setCurrentIncidentId', incidentId.value);
 
   // populate recentIncidentId if not available in route or user state
   whenever(
@@ -88,14 +91,18 @@ function useCurrentIncident() {
     },
   );
 
+  whenever(incidentId, () => {
+    debug('Saving current incident id in store %s', incidentId.value);
+    setIncidentIdInStore();
+  });
+
   whenever(
-    () => hasCurrentUser.value && incidentId.value,
+    () =>
+      hasCurrentUser.value &&
+      incidentId.value &&
+      currentUser?.value?.states.incident !== incidentId.value,
     async () => {
-      debug(
-        'Saving current incident id to store & user states %s',
-        incidentId.value,
-      );
-      store.commit('incident/setCurrentIncidentId', incidentId.value);
+      debug('Saving current incident id in user states %s', incidentId.value);
       await updateUserStates({ incident: incidentId.value }).catch(
         getErrorMessage,
       );
