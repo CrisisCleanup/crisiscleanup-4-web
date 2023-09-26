@@ -157,6 +157,7 @@ import DisasterIcon from '@/components/DisasterIcon.vue';
 import useDialogs from '@/hooks/useDialogs';
 import {
   useAuthStore,
+  useCurrentIncident,
   useCurrentUser,
   useZendesk,
   ZendeskCommand,
@@ -196,6 +197,8 @@ export default defineComponent({
       isOrganizationInactive,
       isOrphan,
     } = useCurrentUser();
+    const { hasCurrentIncident, currentIncident, currentIncidentId } =
+      useCurrentIncident();
     const authStore = useAuthStore();
     const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
@@ -236,13 +239,13 @@ export default defineComponent({
       }
       next();
     });
+    loadDebug('Loading started...');
+    const isPageReady = computed(() => hasCurrentIncident.value);
+    const onPageReadyUnSub = whenever(isPageReady, () => {
+      loadDebug('Loading finished...');
+      onPageReadyUnSub();
+    });
 
-    const isPageReady = computed(
-      () => !loading.value && currentIncidentId.value,
-    );
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'] as number | undefined,
-    );
     const showLoginModal = computed(() => store.getters['auth/showLoginModal']);
 
     const portal = computed(() => store.getters['enums/portal'] as Portal);
@@ -266,10 +269,6 @@ export default defineComponent({
       text: t('nav.pew'),
       to: '/pew-pew',
     }));
-
-    const currentIncident = computed(() =>
-      Incident.find(currentIncidentId.value),
-    );
 
     const routes = computed(() => [
       {
@@ -467,54 +466,6 @@ export default defineComponent({
       }
     });
 
-    /**
-     * Order of priority of incident id (descending):
-     * - Route path parameter (incidents/123/work)
-     * - User states current incident id
-     * - Most recent incident they have access too
-     */
-    async function resolveInitialIncidentId() {
-      const u = currentUser.value;
-      const incidentIdFromRoute = route.params?.incident_id;
-      const recentIncidentIdFromState = u?.states?.incident as number;
-      const approvedIncidentId = u?.approved_incidents?.[0] as number;
-      debug('incidentId sources %o', {
-        incidentIdFromRoute,
-        recentIncidentIdFromState,
-        approvedIncidentId,
-      });
-      let incidentId =
-        incidentIdFromRoute ?? recentIncidentIdFromState ?? approvedIncidentId;
-      if (!incidentId) {
-        debug('Cant resolve incident id from route or user states', incidentId);
-        // get most recent incident
-        const _recentIncidents = await Incident.api().get(
-          `/incidents?fields=${incidentFieldsStr.value}&limit=1&sort=-start_at`,
-          { dataKey: 'results' },
-        );
-        const incident = Incident.query().orderBy('id', 'desc').first();
-        debug('fetched recentIncident', { _recentIncidents, incident });
-        if (incident) {
-          incidentId = Number(incident.id);
-        }
-      }
-
-      // fetch incident if not in store
-      const incidentFromStore = Incident.query()
-        .where('id', Number(incidentId))
-        .first();
-      if (!incidentFromStore) {
-        const _incident = await Incident.api().get(
-          `/incidents/${incidentId}?fields=${incidentFieldsStr.value}`,
-        );
-        debug('fetchedIncidents', {
-          _incident,
-        });
-      }
-      store.commit('incident/setCurrentIncidentId', Number(incidentId));
-      await updateUserStates({ incident: incidentId }).catch(getErrorMessage);
-    }
-
     async function loadIncidents() {
       await Incident.api().get(
         `/incidents?fields=${incidentFieldsStr.value}&limit=250&sort=-start_at`,
@@ -522,6 +473,7 @@ export default defineComponent({
       );
     }
 
+    // TODO: Move these network calls to where they belong
     async function loadOtherPageData() {
       await Promise.allSettled([
         Organization.api().get(
@@ -542,22 +494,13 @@ export default defineComponent({
       ]);
     }
 
-    // TODO: refactor this setup
     const onCurrentUserUnSub = whenever(
       hasCurrentUser,
       async () => {
-        loadDebug('Loading started...');
         console.log('authenticated init:', currentUser.value);
-        loading.value = true;
-        await resolveInitialIncidentId();
-        // stop loading as we have all the data needed to show page
-        loading.value = false;
-        loadDebug('Loading finished...');
-
         await setupLanguage();
         await loadIncidents();
         await loadOtherPageData();
-
         onCurrentUserUnSub();
       },
       { immediate: true },
