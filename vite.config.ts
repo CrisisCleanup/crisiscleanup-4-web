@@ -129,8 +129,6 @@ export default defineConfig(async ({ command }) => {
           provider: 'v8',
           reporter: ['text', 'json', 'html'],
         },
-        silent: true,
-        dangerouslyIgnoreUnhandledErrors: true,
         globalSetup: './test/globalSetup.ts',
       },
     },
