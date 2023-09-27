@@ -5,41 +5,20 @@ import Incident from '@/models/Incident';
 import { useStore } from 'vuex';
 import { useRouteParams } from '@vueuse/router';
 import { getErrorMessage } from '@/utils/errors';
-import { createSharedComposable } from '@vueuse/core';
+import type { MaybeRef } from '@vueuse/core';
+import {
+  createSharedComposable,
+  get,
+  whenever,
+  computedEager,
+  computedAsync,
+} from '@vueuse/core';
 
 const debug = createDebug('@ccu:hooks:useCurrentIncident');
 
-function useCurrentIncident() {
-  const { currentUser, hasCurrentUser, updateUserStates } = useCurrentUser();
-  const store = useStore();
-  const incidentFieldsStr = computed(() => Incident.basicFields().join(','));
-
-  /**
-   * Order of priority of incident id (descending):
-   * - Route path parameter (incidents/123/work)
-   * - User states current incident id
-   * - Most recent incident they have access too
-   */
-  const incidentIdFromRoute = useRouteParams('incident_id');
-  const recentIncidentIdFromState = computed(
-    () => currentUser.value?.states?.incident as number | undefined,
-  );
-  const recentIncidentId = ref<number>();
+function useIncident(id?: MaybeRef<number | undefined>) {
+  const incidentId = computed(() => get(id));
   const isCurrentIncidentLoading = ref(false);
-  const incidentId = computed(() => {
-    const _id = Number(
-      incidentIdFromRoute.value ??
-        recentIncidentIdFromState.value ??
-        recentIncidentId.value,
-    );
-    const id = Number.isNaN(_id) ? undefined : _id;
-    debug('Resolved incident id %s | Sources %o', id, {
-      incidentIdFromRoute: incidentIdFromRoute.value,
-      recentIncidentIdFromState: recentIncidentIdFromState.value,
-      recentIncidentId: recentIncidentId.value,
-    });
-    return id;
-  });
   const currentIncident = computedAsync(
     async () => {
       const iId = incidentId.value;
@@ -62,58 +41,142 @@ function useCurrentIncident() {
   const hasCurrentIncident = computedEager(
     () => currentIncident.value && !isCurrentIncidentLoading.value,
   );
-  const setIncidentIdInStore = () =>
-    store.commit('incident/setCurrentIncidentId', incidentId.value);
+  return {
+    incidentId,
+    currentIncident,
+    hasCurrentIncident,
+    isLoading: isCurrentIncidentLoading,
+  };
+}
 
-  // populate recentIncidentId if not available in route or user state
+function useUserIncident(incidentId?: MaybeRef<number | undefined>) {
+  const { currentUser, updateUserStates } = useCurrentUser();
+  const recentIncidentIdFromState = computed(
+    () => currentUser.value?.states?.incident as number | undefined,
+  );
+  whenever(
+    () => get(incidentId),
+    async (newIncidentId) => {
+      debug('Saving current incident id in user states %s', newIncidentId);
+      await updateUserStates({ incident: newIncidentId }).catch(
+        getErrorMessage,
+      );
+    },
+  );
+  return {
+    userIncidentId: recentIncidentIdFromState,
+    hasUserIncidentId: computed(() => Boolean(recentIncidentIdFromState.value)),
+  };
+}
+
+function useRouteIncident(incidentId?: MaybeRef<number | undefined>) {
+  const incidentIdParam = 'incident_id';
+  const incidentIdFromRoute = useRouteParams(incidentIdParam);
+  const normalizedIncidentId = computed(() => {
+    const _id = Number(incidentIdFromRoute.value);
+    const id = Number.isNaN(_id) ? undefined : _id;
+    debug('Resolved incident id from route %s', id);
+    return id;
+  });
+  whenever(
+    () => get(incidentId),
+    (newIncidentId) => {
+      debug(`Updating ${incidentIdParam} in route %s`, newIncidentId);
+      incidentIdFromRoute.value = String(newIncidentId);
+    },
+  );
+  return {
+    routeIncidentId: computed(() => normalizedIncidentId.value),
+    hasRouteIncidentId: computed(() => Boolean(incidentIdFromRoute.value)),
+  };
+}
+
+/**
+ * Order of priority of incident id (descending):
+ * - Route path parameter (incidents/123/work)
+ * - User states current incident id
+ * - Most recent incident they have access too
+ */
+function useCurrentIncident() {
+  const currentIncidentId = ref<number | undefined>();
+  const { currentUser: user } = useCurrentUser();
+  const store = useStore();
+  const { routeIncidentId, hasRouteIncidentId } =
+    useRouteIncident(currentIncidentId);
+  const { userIncidentId, hasUserIncidentId } =
+    useUserIncident(currentIncidentId);
+  const { currentIncident, hasCurrentIncident, isLoading } =
+    useIncident(currentIncidentId);
+
+  const hasNewIncidentRoute = computedEager(
+    () =>
+      hasRouteIncidentId.value &&
+      routeIncidentId.value !== userIncidentId.value,
+  );
+
+  const setIncidentIdInStore = () => {
+    debug('Setting incident id in store', currentIncidentId.value);
+    store.commit('incident/setCurrentIncidentId', currentIncidentId.value);
+  };
+
+  // Sync currentIncidentId with incidentId in vuex store
+  whenever(currentIncidentId, setIncidentIdInStore);
+
+  // Set incident id from route param
+  whenever(
+    hasNewIncidentRoute,
+    () => {
+      if (routeIncidentId.value !== currentIncidentId.value) {
+        currentIncidentId.value = routeIncidentId.value;
+      }
+    },
+    { immediate: true },
+  );
+
+  // Set incident id from user state if not available in route
+  whenever(
+    () => hasUserIncidentId.value && !hasRouteIncidentId.value,
+    () => {
+      if (userIncidentId.value !== currentIncidentId.value) {
+        currentIncidentId.value = userIncidentId.value;
+      }
+    },
+  );
+
+  // Set incident id by fetching most recent incident as fallback
   whenever(
     () =>
-      hasCurrentUser.value &&
-      !incidentIdFromRoute.value &&
-      !recentIncidentIdFromState.value,
+      user.value &&
+      !hasRouteIncidentId.value &&
+      !hasUserIncidentId.value &&
+      !currentIncidentId.value &&
+      !isLoading.value,
     async () => {
       debug(
-        'Fetching recent incident. fromRoute %o | fromState %o',
-        incidentIdFromRoute.value,
-        recentIncidentIdFromState.value,
+        'Fetching recent incident. fromRoute %s | fromState %s',
+        routeIncidentId.value,
+        userIncidentId.value,
       );
+      const incidentFieldsStr = Incident.basicFields().join(',');
       const _recentIncident = await Incident.api().get(
-        `/incidents?fields=${incidentFieldsStr.value}&limit=1&sort=-start_at`,
+        `/incidents?fields=${incidentFieldsStr}&limit=1&sort=-start_at`,
         { dataKey: 'results' },
       );
       const incident = Incident.query().orderBy('id', 'desc').first();
       debug('fetched recentIncident', { _recentIncident, incident });
       if (incident) {
-        recentIncidentId.value = incident.id as number;
+        currentIncidentId.value = incident.id as number;
       } else {
         console.error('Failed to fetch recentIncident', { _recentIncident });
       }
     },
   );
 
-  whenever(incidentId, () => {
-    debug('Saving current incident id in store %s', incidentId.value);
-    setIncidentIdInStore();
-  });
-
-  whenever(
-    () =>
-      hasCurrentUser.value &&
-      incidentId.value &&
-      recentIncidentIdFromState.value &&
-      recentIncidentIdFromState.value !== incidentId.value,
-    async () => {
-      debug('Saving current incident id in user states %s', incidentId.value);
-      await updateUserStates({ incident: incidentId.value }).catch(
-        getErrorMessage,
-      );
-    },
-  );
-
   return {
-    currentIncidentId: incidentId,
+    currentIncidentId: computed(() => currentIncidentId.value),
     currentIncident,
     hasCurrentIncident,
+    isCurrentIncidentLoading: isLoading,
   };
 }
 
