@@ -317,6 +317,12 @@ const RANDOM_QUOTES = [
   'spinner.more_nights_cot_than_bed',
   'spinner.tsa_food_truck',
   'spinner.alphabet_soup',
+  'spinner.accidentally_blow_up_website',
+  'spinner.spinner_of_death',
+  'spinner.total_eclipse_of_the_heart',
+  'spinner.load_so_fast_cant_read',
+  'spinner.pi',
+  'spinner.marvelous_magnetic_marbles',
 ];
 
 export default defineComponent({
