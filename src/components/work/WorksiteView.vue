@@ -21,12 +21,6 @@
         $t('caseForm.property_information')
       }}</SectionHeading>
       <section class="px-3 pb-3">
-        <WorksiteNotes
-          :worksite="worksite"
-          data-testid="testWorksiteNotesContent"
-          @saveNote="saveNote"
-        />
-
         <div class="flex flex-row">
           <div class="flex-1">
             <label
@@ -36,7 +30,7 @@
             <div data-testid="testNameContent">{{ worksite.name }}</div>
           </div>
           <div class="flex-1">
-            <div class="flex flex-row">
+            <div class="flex flex-row items-center justify-center gap-2">
               <div class="flex-1">
                 <label
                   class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
@@ -60,13 +54,44 @@
             </div>
           </div>
         </div>
-
         <div>
           <label
             class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
             >{{ $t('formLabels.address') }}</label
           >
           <div data-testid="testAddressDiv">{{ worksiteAddress }}</div>
+        </div>
+        <WorksiteNotes
+          :worksite="worksite"
+          data-testid="testWorksiteNotesContent"
+          @saveNote="saveNote"
+        />
+        <div v-if="incident">
+          <template v-for="field in incident.form_fields">
+            <div
+              v-if="
+                field.html_type === 'textarea' &&
+                worksite.form_data.find((element) => {
+                  return element.field_key === field.field_key;
+                })?.field_value
+              "
+              :key="field.field_key"
+              class="mb-2"
+            >
+              <div class="my-1 text-base font-semibold block">
+                {{ $t(field.label_t) }}
+              </div>
+              <div
+                class="font-hairline cursor-pointer bg-opacity-50 rounded bg-crisiscleanup-light-grey"
+              >
+                {{
+                  worksite.form_data.find((element) => {
+                    return element.field_key === field.field_key;
+                  })?.field_value
+                }}
+              </div>
+            </div>
+          </template>
         </div>
       </section>
       <SectionHeading :count="3" class="mb-3"
