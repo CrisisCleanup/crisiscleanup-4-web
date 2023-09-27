@@ -587,7 +587,12 @@ export default defineComponent({
     const isDarkMode = computed(() => colorMode.value === 'dark');
     const { isAuthenticated: isLoggedIn } = useAuthStore();
     const incidentList = computed(() =>
-      Incident.query().where('active_phone_number', Boolean).get(),
+      Incident.query()
+        .where(
+          'active_phone_number',
+          (n) => Boolean(n) && Array.isArray(n) && n.length > 0,
+        )
+        .get(),
     );
     const organizations = ref([]);
 

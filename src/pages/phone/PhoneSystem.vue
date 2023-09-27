@@ -1205,7 +1205,12 @@ export default defineComponent({
       return null;
     });
     const incidentsWithActivePhones = computed(() =>
-      Incident.query().where('active_phone_number', Boolean).get(),
+      Incident.query()
+        .where(
+          'active_phone_number',
+          (n) => Boolean(n) && Array.isArray(n) && n.length > 0,
+        )
+        .get(),
     );
 
     function onSelectionChanged(selectedItems) {
