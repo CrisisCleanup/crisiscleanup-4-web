@@ -86,8 +86,10 @@ function useRouteIncident(incidentId?: MaybeRef<number | undefined>) {
     },
   );
   return {
-    routeIncidentId: computed(() => normalizedIncidentId.value),
-    hasRouteIncidentId: computed(() => Boolean(incidentIdFromRoute.value)),
+    routeIncidentId: normalizedIncidentId,
+    hasRouteIncidentId: computedEager(() =>
+      Boolean(normalizedIncidentId.value),
+    ),
   };
 }
 
