@@ -1206,9 +1206,8 @@ export default defineComponent({
     });
     const incidentsWithActivePhones = computed(() =>
       Incident.query()
-        .where(
-          'active_phone_number',
-          (n) => Boolean(n) && Array.isArray(n) && n.length > 0,
+        .where('active_phone_number', (n) =>
+          Array.isArray(n) ? n.length > 0 : Boolean(n),
         )
         .get(),
     );
