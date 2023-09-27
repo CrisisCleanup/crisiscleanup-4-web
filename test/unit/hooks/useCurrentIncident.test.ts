@@ -19,10 +19,10 @@ vi.mock('@/hooks/useCurrentUser', async () => {
     default() {
       return {
         hasCurrentUser: ref(true),
-        updateUserStates: vi.fn((state: Record<string, any>) => {
+        updateUserStates: (state: Record<string, any>) => {
           userStateIncidentId.value = state.incident as number;
           return Promise.resolve(state);
-        }),
+        },
         currentUser: computed(() => {
           return {
             states: {
