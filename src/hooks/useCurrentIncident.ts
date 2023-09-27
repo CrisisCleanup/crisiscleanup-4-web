@@ -39,7 +39,7 @@ function useIncident(id?: MaybeRef<number | undefined>) {
     isCurrentIncidentLoading,
   );
   const hasCurrentIncident = computedEager(
-    () => currentIncident.value && !isCurrentIncidentLoading.value,
+    () => Boolean(currentIncident.value) && !isCurrentIncidentLoading.value,
   );
   return {
     incidentId,
