@@ -11,7 +11,7 @@ const useCurrentUserMock = {
   hasCurrentUser: ref(true),
   updateUserStates: (state: Record<string, any>) => {
     userStateIncidentId.value = state.incident as number;
-    return Promise.resolve(state);
+    return new Promise((resolve) => setTimeout(resolve, 0));
   },
   currentUser: computed(() => {
     return {
@@ -97,6 +97,19 @@ describe('useCurrentIncident', () => {
     vi.resetAllMocks();
   });
 
+  it('should initialize', async () => {
+    const {
+      currentIncident,
+      currentIncidentId,
+      hasCurrentIncident,
+      isCurrentIncidentLoading,
+    } = useCurrentIncident();
+    expect(currentIncident.value).toBe(undefined);
+    expect(currentIncidentId.value).toBe(undefined);
+    expect(hasCurrentIncident.value).toBe(false);
+    expect(isCurrentIncidentLoading.value).toBe(false);
+  });
+
   it('should initialize current incident id from route', async () => {
     const { currentIncidentId } = useCurrentIncident();
     expect(currentIncidentId.value).toBe(undefined);
@@ -116,6 +129,14 @@ describe('useCurrentIncident', () => {
     routeIncidentId.value = '123';
     await nextTick();
     expect(hasCurrentIncident.value).toBe(true);
+  });
+
+  it('should return currentIncidentId', async () => {
+    const { currentIncidentId } = useCurrentIncident();
+    expect(currentIncidentId.value).toBe(undefined);
+    routeIncidentId.value = '123';
+    await nextTick();
+    expect(currentIncidentId.value).toBe(123);
   });
 
   it('should resolve current incident from route', async () => {
@@ -205,4 +226,16 @@ describe('useCurrentIncident', () => {
       incident: 123,
     });
   });
+
+  it.todo(
+    'should fetch recent incident if no incident id is available',
+    async () => {
+      const { currentIncident } = useCurrentIncident();
+      expect(currentIncident.value).toBe(undefined);
+      await nextTick();
+      routeIncidentId.value = undefined;
+      userStateIncidentId.value = undefined;
+      expect(currentIncident.value).toMatchInlineSnapshot('undefined');
+    },
+  );
 });
