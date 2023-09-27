@@ -127,6 +127,7 @@ function useCurrentIncident() {
     hasNewIncidentRoute,
     () => {
       if (routeIncidentId.value !== currentIncidentId.value) {
+        debug('Setting incident id from route %s', routeIncidentId.value);
         currentIncidentId.value = routeIncidentId.value;
       }
     },
@@ -138,6 +139,7 @@ function useCurrentIncident() {
     () => hasUserIncidentId.value && !hasRouteIncidentId.value,
     () => {
       if (userIncidentId.value !== currentIncidentId.value) {
+        debug('Setting incident id from user state %s', userIncidentId.value);
         currentIncidentId.value = userIncidentId.value;
       }
     },
@@ -152,11 +154,10 @@ function useCurrentIncident() {
       !currentIncidentId.value &&
       !isLoading.value,
     async () => {
-      debug(
-        'Fetching recent incident. fromRoute %s | fromState %s',
-        routeIncidentId.value,
-        userIncidentId.value,
-      );
+      debug('Falling back to fetching recent incident to set incident id %o', {
+        routeIncidentId: routeIncidentId.value,
+        userIncidentId: userIncidentId.value,
+      });
       const incidentFieldsStr = Incident.basicFields().join(',');
       const _recentIncident = await Incident.api().get(
         `/incidents?fields=${incidentFieldsStr}&limit=1&sort=-start_at`,
