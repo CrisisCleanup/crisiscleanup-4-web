@@ -57,14 +57,17 @@ export const useModelInstance = <ModelT extends typeof Model>(
     () =>
       itemId.value !== undefined &&
       Boolean(shallowItem) &&
-      // ensure not empty reactive ({} === {} is false in js, dont ask.)
-      Object.keys(shallowItem).length > 0,
+      item.id === itemId.value,
   );
 
   // if eager, ensure incident data exists in store.
   if (!lazy) {
     whenever(
-      logicAnd(logicNot(hasItem), logicNot(itemState.isLoading)),
+      logicAnd(
+        logicNot(hasItem),
+        logicNot(itemState.isLoading),
+        logicAnd(itemId),
+      ),
       async () => await itemState.execute(),
       { immediate: true },
     );
