@@ -8,7 +8,7 @@ import defu from 'defu';
 import createDebug from 'debug';
 import { getErrorMessage } from '@/utils/errors';
 
-const debug = createDebug('@crisiscleanup:hooks:useAxiosRetry');
+const debug = createDebug('@ccu:hooks:useAxiosRetry');
 
 /**
  * Axios retry hook props.

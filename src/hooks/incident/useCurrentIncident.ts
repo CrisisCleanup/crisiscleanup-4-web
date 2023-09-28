@@ -38,7 +38,7 @@ export const useCurrentIncident = () => {
   // TODO: remove redundant incident store.
   const store = useStore();
   const setIncidentIdInStore = (value: number) => {
-    debug('Setting incident id in store', value);
+    debug('Setting incident id in store %s', value);
     store.commit('incident/setCurrentIncidentId', value);
   };
 
