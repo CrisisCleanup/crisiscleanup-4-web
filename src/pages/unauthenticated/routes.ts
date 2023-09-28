@@ -7,6 +7,9 @@ const PewPew = () => import('./PewPew.vue');
 const OauthRedirect = () => import('@/pages/OauthRedirect.vue');
 const Disasters = () => import('@/pages/unauthenticated/Disasters.vue');
 
+const MagicLinkLogin = () =>
+  import('@/pages/unauthenticated/MagicLinkLogin.vue');
+
 const routes = [
   {
     path: '/invitation_token/:token',
@@ -24,6 +27,12 @@ const routes = [
     path: '/s/:token',
     component: Survivors,
     name: 'nav.survivors',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/l/:token',
+    component: MagicLinkLogin,
+    name: 'nav.magic_link_login',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {

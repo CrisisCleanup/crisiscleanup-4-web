@@ -395,6 +395,7 @@ import User from '../../models/User';
 import useAcl from '../../hooks/useAcl';
 import useDialogs from '../../hooks/useDialogs';
 import ArcGisUploader from '@/components/admin/ArcGisUploader.vue';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'AdminDashboard',
