@@ -713,7 +713,7 @@ export default defineComponent({
       Incident.find(currentIncidentId.value),
     );
     const worksiteRequests = computed(() => {
-      const preferences = currentUser.value.preferences || {};
+      const preferences = currentUser.value?.preferences || {};
       const archivedRequests = preferences.archived_worksite_requests || [];
       const query = WorksiteRequest.query();
       if (pendingSorter.value.key) {
