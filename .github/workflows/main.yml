@@ -112,14 +112,11 @@ jobs:
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     needs: [versions]
-    # TODO: testing on PRs doesnt make sense like this.
-    # Could setup feature branch deployments though.
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        project: [chromium, firefox, webkit]
+        project: [chromium, firefox]
         shardIndex: [1, 2, 3, 4]
         shardTotal: [4]
         include:
@@ -129,9 +126,6 @@ jobs:
           - project: firefox
             os: ubuntu-latest
             cache_dir: ~/.cache/ms-playwright
-          - project: webkit
-            os: macos-12
-            cache_dir: ~/Library/Caches/ms-playwright
     steps:
       - uses: actions/checkout@v3
 
@@ -186,7 +180,7 @@ jobs:
         run: pnpm run build:app
 
       - name: 🎭 Playwright tests
-        run: pnpm run test:e2e:development --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        run: pnpm run test:e2e:primary --project=${{ matrix.project }} --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         # env:
         #   DEBUG: pw:api,pw:browser*
 
