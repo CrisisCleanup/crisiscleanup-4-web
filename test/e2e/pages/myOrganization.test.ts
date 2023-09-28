@@ -262,7 +262,7 @@ test.describe('MyOrganization', () => {
   test(
     testTitleWithTags(
       `${myOrgTabs.AFFILIATED_ORGANIZATIONS}: should display all required elements`,
-      ['primary', 'slow', 'read', 'development', 'staging', 'production'],
+      ['secondary', 'slow', 'read', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       test.slow();
@@ -305,7 +305,7 @@ test.describe('MyOrganization', () => {
   test(
     testTitleWithTags(
       `${myOrgTabs.LAYER_LIBRARY}: should display all required elements`,
-      ['primary', 'slow', 'read', 'development', 'staging', 'production'],
+      ['secondary', 'slow', 'read', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       test.slow();

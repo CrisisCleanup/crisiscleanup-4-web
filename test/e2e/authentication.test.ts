@@ -18,7 +18,7 @@ test.describe('Authentication', () => {
   test(
     testTitleWithTags('should login and logout', [
       'fast',
-      'primary',
+      'secondary',
       'development',
       'staging',
       'production',
@@ -44,7 +44,7 @@ test.describe('Authentication', () => {
   test(
     testTitleWithTags(
       'should redirect to 404 page when navigating to an invalid route, regardless of authentication status',
-      ['fast', 'primary', 'development', 'staging', 'production'],
+      ['fast', 'secondary', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       const invalidRoutes = [
@@ -73,7 +73,7 @@ test.describe('Authentication', () => {
   test(
     testTitleWithTags(
       'should redirect to authorize on attempt to load authorized page with no token/session',
-      ['fast', 'primary', 'development', 'staging', 'production'],
+      ['fast', 'secondary', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       const authedRoutesAndTestIds: Array<[string, string]> = [
@@ -95,7 +95,7 @@ test.describe('Authentication', () => {
   test.fixme(
     testTitleWithTags(
       'should terminate the current exchange flow and bring user back to login if authorization code during callback is invalid or missing',
-      ['slow', 'primary', 'development', 'staging', 'production'],
+      ['slow', 'secondary', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       await expect(page).toHaveURL(urlRegexes.login);

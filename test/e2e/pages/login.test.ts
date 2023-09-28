@@ -69,7 +69,7 @@ test.describe('LoginPage', () => {
   test(
     testTitleWithTags('should show & hide password on eye icon click', [
       'fast',
-      'primary',
+      'secondary',
       'read',
       'development',
       'staging',
@@ -129,7 +129,7 @@ test.describe('LoginPage', () => {
   test(
     testTitleWithTags(`should return ok status code for all links`, [
       'slow',
-      'primary',
+      'secondary',
       'read',
       'development',
       'staging',
