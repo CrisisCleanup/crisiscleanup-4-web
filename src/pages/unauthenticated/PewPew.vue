@@ -538,7 +538,11 @@ import CardStack from '@/components/live/CardStack.vue';
 import Slider from '@/components/Slider.vue';
 import DisasterIcon from '@/components/DisasterIcon.vue';
 import UserProfileMenu from '@/components/header/UserProfileMenu.vue';
-import { formatNationalNumber, getWorkTypeName } from '@/filters';
+import {
+  getIncidentPhoneNumbers,
+  getWorkTypeName,
+  isValidActiveHotline,
+} from '@/filters';
 import Incident from '@/models/Incident';
 import LiveOrganizationTable from '@/components/live/LiveOrganizationTable.vue';
 import useSiteStatistics from '@/hooks/live/useSiteStatistics';
@@ -588,9 +592,7 @@ export default defineComponent({
     const { isAuthenticated: isLoggedIn } = useAuthStore();
     const incidentList = computed(() =>
       Incident.query()
-        .where('active_phone_number', (n) =>
-          Array.isArray(n) ? n.length > 0 : Boolean(n),
-        )
+        .where('active_phone_number', (p: unknown) => isValidActiveHotline(p))
         .get(),
     );
     const organizations = ref([]);
@@ -743,16 +745,6 @@ export default defineComponent({
       return results;
     }
 
-    function getIncidentPhoneNumbers(incident) {
-      if (Array.isArray(incident.active_phone_number)) {
-        return incident.active_phone_number
-          .map((number) => formatNationalNumber(String(number)))
-          .join(', ');
-      }
-
-      return formatNationalNumber(String(incident.active_phone_number));
-    }
-
     async function getOrganizations() {
       const { incident } = queryFilter.value;
       const params = {
@@ -856,7 +848,6 @@ export default defineComponent({
         mapUtils?.value?.restartLiveEvents();
       },
     );
-
     return {
       isLegendHidden,
       colorMode,

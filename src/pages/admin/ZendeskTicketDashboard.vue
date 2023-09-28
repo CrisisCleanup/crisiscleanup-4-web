@@ -14,13 +14,20 @@ import Modal from '@/components/Modal.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import UserRolesSelect from '@/components/UserRolesSelect.vue';
 import BaseText from '@/components/BaseText.vue';
-import { momentFromNow, capitalize } from '@/filters';
+import {
+  momentFromNow,
+  capitalize,
+  isValidActiveHotline,
+  getIncidentPhoneNumbers,
+} from '@/filters';
 import type User from '@/models/User';
 import useEmitter from '@/hooks/useEmitter';
 import webIcon from '@/assets/icons/web.svg';
 import iosIcon from '@/assets/icons/ios.svg';
 import androidIcon from '@/assets/icons/android.svg';
 import { useToast } from 'vue-toastification';
+import type { CCUApiListResponse } from '@/models/types';
+import type Incident from '@/models/Incident';
 
 const mq = useMq();
 const { emitter } = useEmitter();
@@ -31,8 +38,6 @@ const axiosInstance = axios.create({
 const toast = useToast();
 
 // Starting logic for hotline numbers
-import { formatNationalNumber } from '@/filters';
-
 const ccuApi = useApi();
 const fieldsToFetch = [
   'id',
@@ -41,7 +46,7 @@ const fieldsToFetch = [
   'active_phone_number',
   'start_at',
 ];
-const { isDataLoading, data } = ccuApi(
+const { data } = ccuApi<CCUApiListResponse<Incident>>(
   '/incidents?fields=id,name,short_name,active_phone_number&limit=200&sort=-start_at',
   {
     method: 'GET',
@@ -52,20 +57,11 @@ const { isDataLoading, data } = ccuApi(
     },
   },
 );
-const incidentList = computed(() => data.value?.results);
-function getIncidentPhoneNumbers(incident) {
-  if (Array.isArray(incident.active_phone_number)) {
-    return incident.active_phone_number
-      .map((number) => formatNationalNumber(String(number)))
-      .join(', ');
-  }
-
-  return formatNationalNumber(String(incident.active_phone_number));
-}
-
-function filterNumbers(item) {
-  return item.filter((filterItem) => filterItem.active_phone_number);
-}
+const incidentsWithActiveHotline = computed(() =>
+  (data.value?.results ?? []).filter((i) =>
+    isValidActiveHotline(i.active_phone_number),
+  ),
+);
 
 // Ending logic for hotline numbers
 
@@ -749,13 +745,13 @@ onMounted(() => {
           />
         </div>
         <div
-          v-if="incidentList"
+          v-if="incidentsWithActiveHotline"
           class="title flex p-3 justify-between"
           :class="mq.mdPlus ? 'flex-row items-center' : 'flex-col'"
         >
           <!--          <div class="px-2" v-for="item in IncidentNumbers">{{item.shortName }} <span class="text-[#2c9ffe]" @click="copyToClipboard(item.number)">{{ item.number }}</span></div>-->
           <div
-            v-for="incident in filterNumbers(incidentList)"
+            v-for="incident in incidentsWithActiveHotline"
             :key="incident.id"
             class="px-2"
           >

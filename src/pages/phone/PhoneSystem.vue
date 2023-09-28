@@ -1037,7 +1037,9 @@ import AjaxTable from '../../components/AjaxTable.vue';
 import {
   formatNationalNumber,
   getColorForStatus,
+  getIncidentPhoneNumbers,
   getWorkTypeName,
+  isValidActiveHotline,
 } from '../../filters';
 import CaseHeader from '../../components/work/CaseHeader.vue';
 import Worksite from '../../models/Worksite';
@@ -1206,9 +1208,7 @@ export default defineComponent({
     });
     const incidentsWithActivePhones = computed(() =>
       Incident.query()
-        .where('active_phone_number', (n) =>
-          Array.isArray(n) ? n.length > 0 : Boolean(n),
-        )
+        .where('active_phone_number', (p: unknown) => isValidActiveHotline(p))
         .get(),
     );
 
@@ -1218,16 +1218,6 @@ export default defineComponent({
 
     function reloadTable() {
       worksiteQuery.value = { ...worksiteQuery.value };
-    }
-
-    function getIncidentPhoneNumbers(incident) {
-      if (Array.isArray(incident.active_phone_number)) {
-        return incident.active_phone_number
-          .map((number) => formatNationalNumber(String(number)))
-          .join(', ');
-      }
-
-      return formatNationalNumber(String(incident.active_phone_number));
     }
 
     async function completeCall({ status, notes }) {
