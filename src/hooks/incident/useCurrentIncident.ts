@@ -31,7 +31,7 @@ export const useCurrentIncident = () => {
   const {
     itemId: currentIncidentId,
     item: currentIncident,
-    isLoading,
+    isLoading: isCurrentIncidentLoading,
     hasItem: hasCurrentIncident,
   } = useModelInstance(Incident, userIncidentId);
 
@@ -55,32 +55,39 @@ export const useCurrentIncident = () => {
 
   // when incident cannot be provided from states or route, fetch most recent incident id
   // and set it as the current incident id in user states.
-  whenever(logicAnd(logicNot(hasCurrentIncident), user), async () => {
-    const { response } = await Incident.api().get(
-      `/incidents?fields=id&limit=1&sort=-start_at`,
-      { dataKey: 'results', save: false },
-    );
-    const incidentId = response?.data?.results?.[0]?.id;
-    debug('Falling back to fetching recent incident to set incident id %o', {
-      routeIncidentId: routeIncidentId.value,
-      userIncidentId: userIncidentId.value,
-      fetchedId: incidentId,
-      fetched: response,
-    });
-    if (incidentId) {
-      await updateUserIncident(incidentId as number);
-    } else {
-      const err = new Error('Failed to fetch recent incident:', response);
-      debug('failed to fetch recent incident: %O', response);
-      getErrorMessage(err);
-      throw err;
-    }
-  });
+  whenever(
+    logicAnd(
+      logicNot(hasCurrentIncident),
+      logicNot(isCurrentIncidentLoading),
+      user,
+    ),
+    async () => {
+      const { response } = await Incident.api().get(
+        `/incidents?fields=id&limit=1&sort=-start_at`,
+        { dataKey: 'results', save: false },
+      );
+      const incidentId = response?.data?.results?.[0]?.id as number | undefined;
+      debug('Falling back to fetching recent incident to set incident id %o', {
+        routeIncidentId: routeIncidentId.value,
+        userIncidentId: userIncidentId.value,
+        fetchedId: incidentId,
+        fetched: response,
+      });
+      if (incidentId) {
+        await updateUserIncident(incidentId);
+      } else {
+        const err = new Error('Failed to fetch recent incident:', response);
+        debug('failed to fetch recent incident: %O', response);
+        getErrorMessage(err);
+        throw err;
+      }
+    },
+  );
 
   return {
     currentIncidentId: computed(() => currentIncidentId.value),
     currentIncident,
     hasCurrentIncident,
-    isCurrentIncidentLoading: isLoading,
+    isCurrentIncidentLoading,
   };
 };
