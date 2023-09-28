@@ -14,14 +14,13 @@ test.describe('LoginPage', () => {
 
   test(
     testTitleWithTags('should login', [
-      'slow',
+      'fast',
       'primary',
       'development',
       'staging',
       'production',
     ]),
     async ({ page }) => {
-      test.slow();
       await doLogin(page);
 
       await expect(page).toHaveURL(/.*\/incident\/.*\/dashboard/);
