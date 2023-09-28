@@ -102,26 +102,35 @@
             variant="body"
             data-testid="testApprovedRolesContent"
           >
-            <span :class="`tooltip-target cursor-pointer text-primary-dark`">{{
-              getHighestRole(slotProps.item.approved_roles).name_t
-            }}</span>
+            <span :class="`tooltip-target cursor-pointer text-primary-dark`">
+              {{ $t(getHighestRole(slotProps.item.approved_roles).name_t) }}
+            </span>
           </base-text>
           <template #popper>
             <div class="bg-black p-2">
               <div class="bg-white rounded p-1">
                 <div class="text-base">
                   {{
-                    getHighestRole(slotProps.item.approved_roles).data_access_t
+                    $t(
+                      getHighestRole(slotProps.item.approved_roles)
+                        .data_access_t,
+                    )
                   }}
                 </div>
                 <div class="text-xs mb-2">
                   {{
-                    getHighestRole(slotProps.item.approved_roles).description_t
+                    $t(
+                      getHighestRole(slotProps.item.approved_roles)
+                        .description_t,
+                    )
                   }}
                 </div>
                 <div class="text-xs">
                   {{
-                    getHighestRole(slotProps.item.approved_roles).limitations_t
+                    $t(
+                      getHighestRole(slotProps.item.approved_roles)
+                        .limitations_t,
+                    )
                   }}
                 </div>
               </div>
