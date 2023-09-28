@@ -7,7 +7,7 @@ export const TestTags = {
   DEVELOPMENT: 'development', // Only runs on development stage
   STAGING: 'staging', // Only runs on staging stage
   PRODUCTION: 'production', // Only runs on production stage
-  PRIMARY: 'primary', // Runs everytime in CI
+  PRIMARY: 'primary', // Runs everytime in CI (Smoke tests)
   SECONDARY: 'secondary', // Runs outside of CI
   FAST: 'fast', // Fast tests
   SLOW: 'slow', // Slow tests

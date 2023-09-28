@@ -98,7 +98,7 @@ test.describe('WorkPage', () => {
   test(
     testTitleWithTags(
       'should have working collapsable utility bar & worksite form',
-      ['primary', 'slow', 'read', 'development', 'staging', 'production'],
+      ['secondary', 'slow', 'read', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       // by default, utility bar and worksite form should be visible
@@ -138,7 +138,7 @@ test.describe('WorkPage', () => {
 
   test(
     testTitleWithTags('should create new worksite', [
-      'primary',
+      'secondary',
       'slow',
       'write',
       // 'development',
