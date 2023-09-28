@@ -20,7 +20,7 @@ const debug = createDebug('@ccu:hooks:useCurrentIncident');
  * - User states current incident id
  * - Most recent incident they have access too
  */
-const useCurrentIncident = () => {
+export const useCurrentIncident = () => {
   const { currentUser: user } = useCurrentUser();
   const { routeIncidentId } = useRouteIncident();
   // synchronize route incident to states if found, but always use user states as source.
@@ -84,5 +84,3 @@ const useCurrentIncident = () => {
     isCurrentIncidentLoading: isLoading,
   };
 };
-
-export default useCurrentIncident;
