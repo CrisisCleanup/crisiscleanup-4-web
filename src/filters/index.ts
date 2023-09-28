@@ -8,6 +8,7 @@ import Organization from '../models/Organization';
 import type { WorkType } from '@/models/types';
 import { SVG_STROKE_WIDTH } from '@/constants';
 import { i18n } from '@/modules/i18n';
+import type Incident from '@/models/Incident';
 
 export function snakeToTitleCase(value: string) {
   if (!value) return '';
@@ -159,3 +160,25 @@ export const formatNationalNumber = (mobile: string) => {
 
   return mobile;
 };
+
+/**
+ * Filter function for incidents with active phone numbers.
+ * @param phone
+ */
+export function isValidActiveHotline(phone: unknown) {
+  return Array.isArray(phone) ? phone.length > 0 : Boolean(phone);
+}
+
+/**
+ * Get phone number from incident object
+ * @param incident
+ */
+export function getIncidentPhoneNumbers(incident: Incident) {
+  if (Array.isArray(incident.active_phone_number)) {
+    return incident.active_phone_number
+      .map((number) => formatNationalNumber(String(number)))
+      .join(', ');
+  }
+
+  return formatNationalNumber(String(incident.active_phone_number));
+}

@@ -139,7 +139,7 @@ import { formatCmsItem } from '@/utils/helpers';
 import CmsViewer from '@/components/cms/CmsViewer.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { forceFileDownload } from '@/utils/downloads';
-import { formatNationalNumber } from '@/filters';
+import { getIncidentPhoneNumbers } from '@/filters';
 import type { CmsItem } from '@/models/types';
 import camelCase from 'lodash/camelCase';
 
@@ -203,20 +203,6 @@ async function showCmsDetails(newItem) {
       image: newItem.thumbnail_file?.blog_url,
     },
   });
-}
-
-function getIncidentPhoneNumbers(incident) {
-  if (!incident.active_phone_number) {
-    return '';
-  }
-
-  if (Array.isArray(incident.active_phone_number)) {
-    return incident.active_phone_number
-      .map((number) => formatNationalNumber(String(number)))
-      .join(', ');
-  }
-
-  return formatNationalNumber(String(incident.active_phone_number));
 }
 
 const downloadAsset = async (asset: IncidentAniAsset) => {

@@ -4,9 +4,14 @@
       {{ $t('homeVue.survivors_call') }}
     </base-text>
     <base-text font="display" variant="h2" class="help-contact">
-      <div v-if="incidentList && incidentList.length > 0" class="w-full">
+      <div
+        v-if="
+          incidentsWithActiveHotline && incidentsWithActiveHotline.length > 0
+        "
+        class="w-full"
+      >
         <div
-          v-for="incident in filterNumbers(incidentList)"
+          v-for="incident in incidentsWithActiveHotline"
           :key="incident.id"
           data-testid="testIncidentPhoneDiv"
           class="ml-2"
@@ -26,9 +31,12 @@
 </template>
 
 <script lang="ts" setup>
-import { formatNationalNumber } from '@/filters';
+import { getIncidentPhoneNumbers, isValidActiveHotline } from '@/filters';
+import type Incident from '@/models/Incident';
+import type { CCUApiListResponse } from '@/models/types';
 
 const ccuApi = useApi();
+// TODO: Convert this logic into hook (useActiveHotlines)
 const fieldsToFetch = [
   'id',
   'name',
@@ -36,7 +44,7 @@ const fieldsToFetch = [
   'active_phone_number',
   'start_at',
 ];
-const { isLoading, data } = ccuApi(
+const { isLoading, data } = ccuApi<CCUApiListResponse<Incident>>(
   '/incidents?fields=id,name,short_name,active_phone_number&limit=200&sort=-start_at',
   {
     method: 'GET',
@@ -47,20 +55,11 @@ const { isLoading, data } = ccuApi(
     },
   },
 );
-const incidentList = computed(() => data.value?.results);
-function getIncidentPhoneNumbers(incident) {
-  if (Array.isArray(incident.active_phone_number)) {
-    return incident.active_phone_number
-      .map((number) => formatNationalNumber(String(number)))
-      .join(', ');
-  }
-
-  return formatNationalNumber(String(incident.active_phone_number));
-}
-
-function filterNumbers(item) {
-  return item.filter((filterItem) => filterItem.active_phone_number);
-}
+const incidentsWithActiveHotline = computed(() =>
+  (data.value?.results ?? []).filter((i) =>
+    isValidActiveHotline(i.active_phone_number),
+  ),
+);
 </script>
 
 <style lang="postcss" scoped>
