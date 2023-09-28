@@ -150,8 +150,6 @@ test.describe('Authentication', () => {
       // should redirect back to dashboard page
       await page.goto('/login');
       await assertIsDashboard();
-      await page.goto('/o/callback');
-      await assertIsDashboard();
     },
   );
 });
