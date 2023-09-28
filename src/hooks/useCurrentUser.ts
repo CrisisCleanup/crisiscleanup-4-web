@@ -11,7 +11,7 @@ import { useAuthStore } from './useAuth';
 import Organization from '@/models/Organization';
 import axios from 'axios';
 
-const debug = createDebug('@crisiscleanup:hooks:useCurrentUser');
+const debug = createDebug('@ccu:hooks:useCurrentUser');
 
 /**
  * Merge user states.

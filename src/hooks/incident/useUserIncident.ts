@@ -3,6 +3,9 @@ import { computedEager, whenever } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { getErrorMessage } from '@/utils/errors';
+import createDebug from 'debug';
+
+const debug = createDebug('@ccu:hooks:incident:useUserIncident');
 
 /**
  * Use current user incident state.
@@ -15,9 +18,11 @@ export const useUserIncident = (
   const { updateUserStatesDebounced, userStates } = useCurrentUser();
 
   // user incident from states.
-  const incidentFromStates = computed<number | undefined>(
-    () => userStates.value?.incident as number | undefined,
-  );
+  const incidentFromStates = computed<number | undefined>(() => {
+    const _id = userStates.value?.incident as number | undefined;
+    debug('Resolved incident id from user state %s', _id);
+    return _id;
+  });
 
   // Current incident is defined and does not match incident id from states.
   const newCurrentIncident = computed(() =>
@@ -33,7 +38,10 @@ export const useUserIncident = (
   // update user states whenever current incident id changes.
   whenever(
     newCurrentIncident,
-    (newValue) => updateUserIncident(newValue).catch(getErrorMessage),
+    async (newValue) => {
+      debug('Updating incident id in user state %s', newValue);
+      await updateUserIncident(newValue).catch(getErrorMessage);
+    },
     { immediate: true },
   );
 

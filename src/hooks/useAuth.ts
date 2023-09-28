@@ -16,7 +16,7 @@ import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 import { useAxiosRetry } from '@/hooks/useAxiosRetry';
 
-const debug = createDebug('@crisiscleanup:hooks:useAuth');
+const debug = createDebug('@ccu:hooks:useAuth');
 
 export enum AuthStatus {
   INIT = 'INIT',
