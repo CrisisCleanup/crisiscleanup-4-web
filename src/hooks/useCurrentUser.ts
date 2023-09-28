@@ -138,22 +138,30 @@ const currentStoreStore = () => {
    */
   const updateCurrentUser = async (userData: Partial<User>) => {
     debug('updating current user: %O', userData);
+    if (!currentUser.value) {
+      debug('cannot update current user without a current user.');
+      return;
+    }
     await Promise.any([
       User.update({
-        where: currentUser.value!.id,
+        where: currentUser.value.id,
         data: userData,
       }).catch(getErrorMessage),
       User.api()
-        .patch(`/users/${currentUser.value!.id}`, userData, { save: false })
+        .patch(`/users/${currentUser.value.id}`, userData, { save: false })
         .catch(getErrorMessage),
     ]).catch(getErrorMessage);
   };
 
   const updateCurrentUserStates = async (states: Record<string, unknown>) => {
     debug('updating current user states');
+    if (!currentUser.value) {
+      debug('cannot update current user without a current user.');
+      return;
+    }
     await Promise.any([
       User.update({
-        where: currentUser.value!.id,
+        where: currentUser.value.id,
         data: {
           states,
         },
@@ -161,7 +169,7 @@ const currentStoreStore = () => {
       axios
         .post(
           `${import.meta.env.VITE_APP_API_BASE_URL}/users/${
-            currentUser.value!.id
+            currentUser.value.id
           }/states`,
           { states },
         )
