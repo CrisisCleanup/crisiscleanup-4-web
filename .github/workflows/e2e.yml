@@ -188,11 +188,14 @@ jobs:
           name: all-blob-reports-${{ matrix.stage }}
           path: all-blob-reports
 
-      - name: 🔄 Merge all blob reports into HTML Report
-        run: pnpm exec playwright merge-reports --reporter html ./all-blob-reports
+      - name: 🔄 Merge all blob reports
+        run: pnpm exec playwright merge-reports --reporter html,github,markdown ./all-blob-reports
 
-      - name: 🔄 Merge all blob reports into Github Report
-        run: pnpm exec playwright merge-reports --reporter github ./all-blob-reports
+      - name: 🛠️ Generate Job Summary
+        run: |
+          echo "# 🧪 E2E Summary 🧪" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat report.md >> $GITHUB_STEP_SUMMARY # report.md is generated from markdown reporter
 
       - name: 📤 Upload HTML report (${{ matrix.stage }})
         uses: actions/upload-artifact@v3
