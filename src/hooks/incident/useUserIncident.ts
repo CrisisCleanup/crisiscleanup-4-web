@@ -15,7 +15,7 @@ export const useUserIncident = (
   currentIncidentId?: MaybeRef<number | undefined>,
 ) => {
   const incidentId = ref(currentIncidentId);
-  const { updateUserStatesDebounced, userStates } = useCurrentUser();
+  const { updateUserStates, userStates } = useCurrentUser();
 
   // user incident from states.
   const incidentFromStates = computed<number | undefined>(() => {
@@ -33,7 +33,7 @@ export const useUserIncident = (
   );
 
   const updateUserIncident = (newIncidentId: number) =>
-    updateUserStatesDebounced({ incident: newIncidentId });
+    updateUserStates({ incident: newIncidentId });
 
   // update user states whenever current incident id changes.
   whenever(
