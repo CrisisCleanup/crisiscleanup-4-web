@@ -2,7 +2,7 @@ export * from './phone';
 export * from './useAcl';
 export * from './useConnectFirst';
 export { default as useCurrentUser } from './useCurrentUser';
-export { default as useCurrentIncident } from './useCurrentIncident';
+export * from './incident';
 export * from './useDialogs';
 export * from './useEmitter';
 export * from './useTabs';

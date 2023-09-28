@@ -1,76 +1,16 @@
-import { computed, ref, watch } from 'vue';
+import { computed, watch } from 'vue';
 import createDebug from 'debug';
-import useCurrentUser from './useCurrentUser';
+import useCurrentUser from '@/hooks/useCurrentUser';
 import Incident from '@/models/Incident';
 import { useStore } from 'vuex';
-import { useRouteParams } from '@vueuse/router';
 import { getErrorMessage } from '@/utils/errors';
-import type { MaybeRef } from '@vueuse/core';
-import { computedEager, whenever } from '@vueuse/core';
+import { whenever } from '@vueuse/core';
 import { logicAnd, logicNot } from '@vueuse/math';
-import { useModelInstance } from './useModel';
+import { useModelInstance } from '@/hooks/useModel';
+import { useUserIncident } from '@/hooks/incident/useUserIncident';
+import { useRouteIncident } from '@/hooks/incident/useRouteIncident';
 
 const debug = createDebug('@ccu:hooks:useCurrentIncident');
-
-/**
- * Use current user incident state.
- * @param currentIncidentId Optional current incident id to synchronize to user states.
- */
-export const useUserIncident = (
-  currentIncidentId?: MaybeRef<number | undefined>,
-) => {
-  const incidentId = ref<number | undefined>(currentIncidentId);
-  const { updateUserStatesDebounced, userStates } = useCurrentUser();
-
-  // user incident from states.
-  const incidentFromStates = computed<number | undefined>(
-    () => userStates.value?.incident as number | undefined,
-  );
-
-  // Current incident is defined and does not match incident id from states.
-  const newCurrentIncident = computed(() =>
-    incidentId.value !== undefined &&
-    incidentId.value !== incidentFromStates.value
-      ? incidentId.value
-      : undefined,
-  );
-
-  const updateUserIncident = (newIncidentId: number) =>
-    updateUserStatesDebounced({ incident: newIncidentId });
-
-  // update user states whenever current incident id changes.
-  whenever(
-    newCurrentIncident,
-    (newValue) => updateUserIncident(newValue).catch(getErrorMessage),
-    { immediate: true },
-  );
-
-  return {
-    userIncidentId: incidentFromStates,
-    hasUserIncidentId: computedEager(() => Boolean(incidentFromStates.value)),
-    updateUserIncident,
-  };
-};
-
-/**
- * Use current incident from route.
- */
-const useRouteIncident = () => {
-  const incidentIdParam = 'incident_id';
-  const incidentIdFromRoute = useRouteParams(incidentIdParam);
-  const normalizedIncidentId = computed(() => {
-    const _id = Number(incidentIdFromRoute.value);
-    const id = Number.isNaN(_id) ? undefined : _id;
-    debug('Resolved incident id from route %s', id);
-    return id;
-  });
-  return {
-    routeIncidentId: normalizedIncidentId,
-    hasRouteIncidentId: computedEager(() =>
-      Boolean(normalizedIncidentId.value),
-    ),
-  };
-};
 
 /**
  * Use current user incident.
