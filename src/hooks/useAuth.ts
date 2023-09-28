@@ -15,6 +15,7 @@ import moment from 'moment';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 import { useAxiosRetry } from '@/hooks/useAxiosRetry';
+import { useToast } from 'vue-toastification';
 
 const debug = createDebug('@crisiscleanup:hooks:useAuth');
 
@@ -23,6 +24,7 @@ export enum AuthStatus {
   ANONYMOUS = 'ANONYMOUS',
   AUTHENTICATED = 'AUTHENTICATED',
   REFRESHING = 'REFRESHING',
+  INVALID_MAGIC_LINK = 'INVALID_MAGIC_LINK',
   LOGOUT = 'LOGOUT',
 }
 
@@ -140,6 +142,23 @@ const authStore = () => {
     },
   );
 
+  const magicLinkState = useAxios<TokenResponse>(
+    '/magic_link/login',
+    {
+      method: 'POST',
+      withCredentials: true,
+      baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    },
+    tokenInstance,
+    {
+      immediate: false,
+      resetOnExecute: false,
+    },
+  );
+
   // Token expiry retry handler.
   useAxiosRetry({
     instance: axios,
@@ -229,6 +248,8 @@ const authStore = () => {
     async (newStatus, oldStatus) => {
       debug(`Auth changed from %s to %s.`, oldStatus, newStatus);
 
+      const invalidMagicLink = newStatus === AuthStatus.INVALID_MAGIC_LINK;
+
       const movedToAnon =
         newStatus === AuthStatus.ANONYMOUS &&
         oldStatus !== AuthStatus.ANONYMOUS;
@@ -243,6 +264,14 @@ const authStore = () => {
       if (movedToLogout) {
         await doLogout().finally(async () => authorize(route?.path));
         return;
+      }
+
+      if (invalidMagicLink) {
+        const $toasted = useToast();
+        $toasted.error(
+          '~~Invalid or expired magic link. Please request another',
+        );
+        return router.push('/magic-link');
       }
 
       // LOGOUT -> ANONYMOUS
@@ -288,10 +317,29 @@ const authStore = () => {
     }
   });
 
+  // React to token response from magic link.
+  watch(magicLinkState.data, async (response) => {
+    debug('got token response from magic link: %O', toValue(response));
+    if (response?.access_token) {
+      authState.accessToken = response.access_token;
+      authState.accessTokenExpiry = moment().add(
+        response.expires_in - 100,
+        'seconds',
+      );
+      authState.refreshToken = response.refresh_token;
+      debug('set auth state from magic link: %O', { ...authState });
+    }
+  });
+
   // Logout on exchange error.
   whenever(exchangeState.error, async (exchangeError) => {
     debug('exchange failed; logging out. Error: %O', exchangeError);
     authState.status = AuthStatus.LOGOUT;
+  });
+
+  whenever(magicLinkState.error, async (exchangeError) => {
+    debug('magic link failed;. Error: %O', exchangeError);
+    authState.status = AuthStatus.INVALID_MAGIC_LINK;
   });
 
   // React to token response via session.
@@ -341,6 +389,7 @@ const authStore = () => {
     logicOr(isMissingSession, hasNoAuthorizedTokens),
     logicNot(hasValidAccessToken),
     logicNot(exchangeState.isLoading),
+    logicNot(magicLinkState.isLoading),
   );
 
   /**
@@ -503,6 +552,22 @@ const authStore = () => {
     authState.status = AuthStatus.LOGOUT;
   };
 
+  const loginWithMagicLinkToken = async (token: string, logout = false) => {
+    if (logout) {
+      await authInstance.post('/logout/', undefined, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+    }
+    return magicLinkState.execute(`/magic_link/${token}/login`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  };
+
   return {
     getMe,
     isLoadingMe: usersMeState.isLoading,
@@ -514,6 +579,7 @@ const authStore = () => {
     onCurrentUserHook,
     currentUserId,
     currentAccessToken,
+    loginWithMagicLinkToken,
   };
 };
 

@@ -60,7 +60,7 @@
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { ref } from 'vue';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Home from '@/layouts/Home.vue';
 
 export default defineComponent({
@@ -88,11 +88,11 @@ export default defineComponent({
           },
         );
 
-        if (response.status === 200) {
+        if (response instanceof AxiosError) {
+          await $toasted.error(t('magicLink.something_went_wrong'));
+        } else {
           showSuccessModal.value = true;
           email.value = '';
-        } else {
-          await $toasted.error(t('magicLink.something_went_wrong'));
         }
       } catch {
         await $toasted.error(t('magicLink.something_went_wrong'));

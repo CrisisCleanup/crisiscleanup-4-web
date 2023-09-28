@@ -22,6 +22,7 @@ import useEmitter from '@/hooks/useEmitter';
 import { getErrorMessage } from '@/utils/errors';
 import InvitationTable from '@/components/admin/InvitationTable.vue';
 import InvitationRequestTable from '@/components/admin/InvitationRequestTable.vue';
+import { useAuthStore } from '@/hooks';
 
 const mq = useMq();
 const ccuApi = useApi();
@@ -97,6 +98,7 @@ const ticketTestData = toRef(props, 'ticketData');
 const axiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_APP_API_BASE_URL}/zendesk`,
 });
+const { loginWithMagicLinkToken } = useAuthStore();
 const languages = Language.all();
 const extraInfo = ref<boolean>(false);
 const expanded = ref<boolean>(false);
@@ -493,12 +495,13 @@ const formatKey = (key: string) => {
 
 async function loginAs(userId: string) {
   const response = await axios.post(
-    `${import.meta.env.VITE_APP_API_BASE_URL}/admins/users/login_as`,
+    `${import.meta.env.VITE_APP_API_BASE_URL}/magic_link`,
     {
       user: userId,
     },
   );
-  window.location = response.data.link;
+  await loginWithMagicLinkToken(response.data.token, true);
+  window.location.reload();
 }
 
 async function getCcuStats() {

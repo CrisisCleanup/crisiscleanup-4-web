@@ -54,7 +54,6 @@
 
 <script lang="ts">
 import axios from 'axios';
-import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import Table from '../Table.vue';
 import Role from '../../models/Role';
@@ -62,6 +61,7 @@ import useCurrentUser from '../../hooks/useCurrentUser';
 import useDialogs from '../../hooks/useDialogs';
 import AdminEventStream from './AdminEventStream.vue';
 import type User from '@/models/User';
+import { useAuthStore } from '@/hooks';
 
 export default defineComponent({
   name: 'UsersTable',
@@ -83,7 +83,7 @@ export default defineComponent({
     const { t } = useI18n();
     const { currentUser } = useCurrentUser();
     const { component } = useDialogs();
-    const store = useStore();
+    const { loginWithMagicLinkToken } = useAuthStore();
 
     function getHighestRole(roles: number[]) {
       const query = Role.query()
@@ -99,12 +99,13 @@ export default defineComponent({
 
     async function loginAs(userId: string) {
       const response = await axios.post(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/admins/users/login_as`,
+        `${import.meta.env.VITE_APP_API_BASE_URL}/magic_link`,
         {
           user: userId,
         },
       );
-      window.location = response.data.link;
+      await loginWithMagicLinkToken(response.data.token, true);
+      window.location.reload();
     }
 
     async function showUserEvents(user: User) {

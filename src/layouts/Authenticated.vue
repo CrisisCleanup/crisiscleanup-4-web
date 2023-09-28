@@ -229,6 +229,9 @@ export default defineComponent({
         authStore.logout();
         return next();
       }
+      if (to.meta.admin && currentUser.value && !currentUser.value.isAdmin) {
+        return next({ name: 'nav.dashboard' });
+      }
       // Orphaned Users can't really login this will navigate to a public landing page once it is built
       if (isOrphan.value) {
         const requestAccessLocation: RouteLocationRaw = {
