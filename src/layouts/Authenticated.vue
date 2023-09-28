@@ -1,136 +1,142 @@
 <template>
-  <!-- For mobile screens -->
-  <template v-if="mq.mdMinus">
-    <div v-if="isPageReady" class="flex flex-col">
-      <DisasterIcon
-        v-if="currentIncident && currentIncident.incidentImage"
-        :current-incident="currentIncident"
-        data-testid="testDisasterIcon"
-        class="fixed left-4 top-4"
-        style="z-index: 1003"
-        @click="showIncidentSelectionModal"
-      />
-      <main>
-        <slot />
-      </main>
-      <footer
-        style="width: 100svw"
-        class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center"
-      >
-        <div
-          v-for="r in mobileRoutes"
-          :key="r.key"
-          class="flex flex-col items-center"
+  <template v-if="isPageReady">
+    <!-- For mobile screens -->
+    <template v-if="mq.mdMinus">
+      <div class="flex flex-col">
+        <DisasterIcon
+          v-if="currentIncident && currentIncident.incidentImage"
+          :current-incident="currentIncident"
+          data-testid="testDisasterIcon"
+          class="fixed left-4 top-4"
+          style="z-index: 1003"
+          @click="showIncidentSelectionModal"
+        />
+        <main>
+          <slot />
+        </main>
+        <footer
+          style="width: 100svw"
+          class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center"
         >
-          <a :href="r.to" class="text-white flex flex-col">
-            <font-awesome-icon :icon="r.icon" class="mb-1" size="small" />
-            {{ r.text }}
-          </a>
-        </div>
-        <div class="flex flex-col items-center">
-          <a class="text-white flex flex-col" @click="showingMoreLinks = true">
-            <font-awesome-icon icon="bars" class="mb-1" />
-            {{ $t('nav.more') }}</a
+          <div
+            v-for="r in mobileRoutes"
+            :key="r.key"
+            class="flex flex-col items-center"
           >
-        </div>
-      </footer>
-    </div>
-    <div v-else class="flex h-screen items-center justify-center">
-      <spinner show-quote />
-    </div>
-    <modal
-      v-if="showingMoreLinks"
-      data-testid="testShowingMoreLinksModal"
-      modal-classes="bg-white h-120 shadow p-3"
-      closeable
-      :title="$t('nav.all_links')"
-      @close="showingMoreLinks = false"
-    >
-      <div v-for="r in routes" :key="r.key" class="flex items-center">
-        <base-link :href="r.to" class="text-black text-base p-1">
-          {{ r.text || $t(`nav.${r.key}`) }}
-        </base-link>
+            <a :href="r.to" class="text-white flex flex-col">
+              <font-awesome-icon :icon="r.icon" class="mb-1" size="small" />
+              {{ r.text }}
+            </a>
+          </div>
+          <div class="flex flex-col items-center">
+            <a
+              class="text-white flex flex-col"
+              @click="showingMoreLinks = true"
+            >
+              <font-awesome-icon icon="bars" class="mb-1" />
+              {{ $t('nav.more') }}</a
+            >
+          </div>
+        </footer>
       </div>
-      <AppDownloadLinks />
-    </modal>
-  </template>
-
-  <!-- For desktop screens -->
-  <template v-else>
-    <div v-if="isPageReady" class="layout" data-testid="testIsAuthenticatedDiv">
-      <div
-        class="sidebar h-full overflow-auto"
-        :class="{ 'slide-over': slideOverVisible }"
+      <modal
+        v-if="showingMoreLinks"
+        data-testid="testShowingMoreLinksModal"
+        modal-classes="bg-white h-120 shadow p-3"
+        closeable
+        :title="$t('nav.all_links')"
+        @close="showingMoreLinks = false"
       >
+        <div v-for="r in routes" :key="r.key" class="flex items-center">
+          <base-link :href="r.to" class="text-black text-base p-1">
+            {{ r.text || $t(`nav.${r.key}`) }}
+          </base-link>
+        </div>
+        <AppDownloadLinks />
+      </modal>
+    </template>
+
+    <!-- For desktop screens -->
+    <template v-else>
+      <div class="layout" data-testid="testIsAuthenticatedDiv">
         <div
-          v-if="slideOverVisible"
-          class="flex items-center justify-end p-1.5"
+          class="sidebar h-full overflow-auto"
+          :class="{ 'slide-over': slideOverVisible }"
         >
+          <div
+            v-if="slideOverVisible"
+            class="flex items-center justify-end p-1.5"
+          >
+            <font-awesome-icon
+              icon="times"
+              :alt="$t('nav.hide_navigation')"
+              data-testid="testAuthenticatedToggleIcon"
+              class="menu-button mx-2 cursor-pointer text-white self-end"
+              size="2xl"
+              @click="toggle"
+            />
+          </div>
+          <NavMenu
+            :key="route"
+            :routes="routes"
+            :logo-route="logoRoute"
+            class="flex flex-col text-sm"
+          />
+        </div>
+        <div class="header p-1 flex items-center">
           <font-awesome-icon
-            icon="times"
-            :alt="$t('nav.hide_navigation')"
-            data-testid="testAuthenticatedToggleIcon"
-            class="menu-button mx-2 cursor-pointer text-white self-end"
+            icon="bars"
+            :alt="$t('nav.show_navigation')"
+            data-testid="testHamburgerIcon"
+            class="menu-button mx-3 cursor-pointer"
             size="2xl"
             @click="toggle"
           />
+          <Header
+            :current-incident="currentIncident"
+            :incidents="incidents"
+            @update:incident="handleChange"
+            @auth:logout="logoutApp"
+          />
         </div>
-        <NavMenu
-          :key="route"
-          :routes="routes"
-          :logo-route="logoRoute"
-          class="flex flex-col text-sm"
-        />
-      </div>
-      <div class="header p-1 flex items-center">
-        <font-awesome-icon
-          icon="bars"
-          :alt="$t('nav.show_navigation')"
-          data-testid="testHamburgerIcon"
-          class="menu-button mx-3 cursor-pointer"
-          size="2xl"
-          @click="toggle"
-        />
-        <Header
-          :current-incident="currentIncident"
-          :incidents="incidents"
-          @update:incident="handleChange"
-          @auth:logout="logoutApp"
-        />
-      </div>
-      <div class="main">
-        <div class="h-full overflow-auto w-screen md:w-auto">
-          <slot />
+        <div class="main">
+          <div class="h-full overflow-auto w-screen md:w-auto">
+            <slot />
+          </div>
+        </div>
+        <template v-if="showAcceptTermsModal">
+          <TermsandConditionsModal
+            :organization="currentOrganization"
+            data-testid="testShowAcceptTermsModal"
+            @acceptedTerms="acceptTermsAndConditions"
+          />
+        </template>
+        <template
+          v-if="
+            currentOrganization &&
+            (!currentOrganization.is_active || !currentOrganization.is_verified)
+          "
+        >
+          <OrganizationInactiveModal @user-logged-out="logoutApp" />
+        </template>
+        <div v-if="showLoginModal">
+          <modal
+            modal-classes="bg-white max-w-lg shadow p-5"
+            :closeable="false"
+          >
+            <LoginForm :redirect="false" />
+            <template #footer>
+              <div></div>
+            </template>
+          </modal>
         </div>
       </div>
-      <template v-if="showAcceptTermsModal">
-        <TermsandConditionsModal
-          :organization="currentOrganization"
-          data-testid="testShowAcceptTermsModal"
-          @acceptedTerms="acceptTermsAndConditions"
-        />
-      </template>
-      <template
-        v-if="
-          currentOrganization &&
-          (!currentOrganization.is_active || !currentOrganization.is_verified)
-        "
-      >
-        <OrganizationInactiveModal @user-logged-out="logoutApp" />
-      </template>
-      <div v-if="showLoginModal">
-        <modal modal-classes="bg-white max-w-lg shadow p-5" :closeable="false">
-          <LoginForm :redirect="false" />
-          <template #footer>
-            <div></div>
-          </template>
-        </modal>
-      </div>
-    </div>
-    <div v-else class="flex h-screen items-center justify-center">
-      <spinner show-quote />
-    </div>
+    </template>
   </template>
+  <!--   Page spinner -->
+  <div v-else class="flex h-screen items-center justify-center">
+    <spinner show-quote />
+  </div>
 </template>
 
 <script lang="ts">
