@@ -245,8 +245,7 @@ export default defineComponent({
       next();
     });
     loadDebug('Loading started...');
-    const isPageReady = computedEager(() => hasCurrentIncident.value);
-    const onPageReadyUnSub = whenever(isPageReady, () => {
+    const onPageReadyUnSub = whenever(hasCurrentIncident, () => {
       loadDebug('Loading finished...');
       onPageReadyUnSub();
     });
@@ -513,7 +512,7 @@ export default defineComponent({
       user: currentUser,
       showLoginModal,
       portal,
-      isPageReady,
+      isPageReady: hasCurrentIncident,
       showAcceptTermsModal,
       showingMoreLinks,
       currentUser,
