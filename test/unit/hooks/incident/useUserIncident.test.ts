@@ -10,41 +10,40 @@ vi.mock('@/hooks/useCurrentUser', () => ({
 describe('hooks>>incident>>useUserIncident', () => {
   const updateUserStatesMock = vi.fn();
 
-  it('should return userIncidentId from userStates', async () => {
+  const mockCurrentUser = (
+    incidentId?: number | undefined,
+    hasCurrentUser: boolean = true,
+  ) => {
     (useCurrentUser as Mock).mockReturnValue({
       updateUserStates: updateUserStatesMock,
-      userStates: { value: { incident: 123 } },
+      userStates: ref(incidentId ? { incident: incidentId } : {}),
+      hasCurrentUser: ref(hasCurrentUser),
     });
+  };
+
+  it('should return userIncidentId from userStates', async () => {
+    mockCurrentUser(123);
     const { userIncidentId } = useUserIncident();
     await nextTick();
     expect(userIncidentId.value).toBe(123);
   });
 
   it('should return hasUserIncidentId as true when userIncidentId is present', async () => {
-    (useCurrentUser as Mock).mockReturnValue({
-      updateUserStates: updateUserStatesMock,
-      userStates: { value: { incident: 123 } },
-    });
+    mockCurrentUser(123);
     const { hasUserIncidentId } = useUserIncident();
     await nextTick();
     expect(hasUserIncidentId.value).toBe(true);
   });
 
   it('should return hasUserIncidentId as false when userIncidentId is not present', async () => {
-    (useCurrentUser as Mock).mockReturnValue({
-      updateUserStates: updateUserStatesMock,
-      userStates: { value: {} },
-    });
+    mockCurrentUser();
     const { hasUserIncidentId } = useUserIncident();
     await nextTick();
     expect(hasUserIncidentId.value).toBe(false);
   });
 
-  it('should call updateUserStatesDebounced with new incident id', async () => {
-    (useCurrentUser as Mock).mockReturnValue({
-      updateUserStates: updateUserStatesMock,
-      userStates: { value: { incident: 123 } },
-    });
+  it('should call updateUserStates with new incident id', async () => {
+    mockCurrentUser(123);
     const { updateUserIncident } = useUserIncident();
     await updateUserIncident(456);
     expect(updateUserStatesMock).toHaveBeenCalledWith({
@@ -52,7 +51,8 @@ describe('hooks>>incident>>useUserIncident', () => {
     });
   });
 
-  it('should call updateUserStatesDebounced when incidentId changes', async () => {
+  it('should call updateUserStates when incidentId changes', async () => {
+    mockCurrentUser();
     const incidentId = ref(123);
     updateUserStatesMock.mockResolvedValue({});
     useUserIncident(incidentId);
