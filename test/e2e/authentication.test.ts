@@ -5,7 +5,7 @@ const urlRegexes = {
   login: /.*\/login\/.*/,
   oauthCallback: /.*\/o\/callback\?.*code=.*/,
   oauthAuthorize: /.*\/o\/authorize\?.*code=.*/,
-  dashboard: /.*\/incident\/.*\/dashboard/,
+  dashboard: /.*\/dashboard/,
   profile: /.*\/profile/,
 };
 
