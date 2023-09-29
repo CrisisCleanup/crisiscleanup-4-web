@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { nextTick, Ref, ref } from 'vue';
 import { useModelInstance } from '@/hooks';
 import { vi, describe, test } from 'vitest';
 import { Model } from '@vuex-orm/core';
@@ -28,7 +28,7 @@ const makeMockModel = () => {
   };
 };
 
-describe('useModelInstance', () => {
+describe('hooks>>useModelInstance', () => {
   test('should fetch instance immediately when not lazy and not in store', async () => {
     const { MockModel, findFn, apiGetFn } = makeMockModel();
     findFn.mockReturnValueOnce().mockReturnValueOnce({
@@ -39,14 +39,28 @@ describe('useModelInstance', () => {
       entities: [{ id: 1, name: 'MyModel' }],
     });
 
-    const hook = useModelInstance(MockModel, ref(1), { lazy: false });
+    const hook = useModelInstance(
+      MockModel as unknown as typeof Model,
+      ref(1),
+      { lazy: false },
+    );
+    await nextTick();
     await until(() => hook.isLoading.value).toBe(false);
+
+    console.log({
+      findCalls: findFn.mock.results,
+      apiGetCalls: apiGetFn.mock.calls,
+    });
 
     expect(hook.itemId.value).toBe(1);
     expect(hook.hasItem.value).toBe(true);
     expect(hook.isLoading.value).toBe(false);
 
     expect(apiGetFn.mock.calls.length).toBe(1);
+    expect(hook.item).toStrictEqual({
+      id: 1,
+      name: 'MyModel',
+    });
   });
 
   test('should not fetch instance immediately when lazy', async () => {
