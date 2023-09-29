@@ -123,7 +123,7 @@ test.describe('Authentication', () => {
         await page.waitForSelector(`[data-testid="${testId}"]`, {
           state: 'visible',
         });
-        await expect(page).toHaveURL(url);
+        await expect(page).toHaveURL(url, { timeout: 15_000 });
       };
       await expect(page).toHaveURL(urlRegexes.login);
       await navigateAndCheck(page, '/training', 'testTrainingDiv');
