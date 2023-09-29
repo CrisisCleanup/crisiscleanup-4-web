@@ -1,14 +1,18 @@
 import '@vuex-orm/plugin-axios/dist/src/types/vuex-orm.d.ts';
 import type { MaybeRef } from '@vueuse/core';
 import {
-  computedEager,
   reactiveComputed,
   useAsyncState,
   whenever,
+  computedEager,
 } from '@vueuse/core';
 import { type Model } from '@vuex-orm/core';
-import { readonly, ref, type Ref, shallowReactive, shallowRef } from 'vue';
-import { logicAnd, logicNot } from '@vueuse/math/index';
+import { readonly, ref, type Ref, shallowRef } from 'vue';
+import { logicAnd } from '@vueuse/math/index';
+import createDebug from 'debug';
+import { getErrorMessage } from '@/utils/errors';
+
+const debug = createDebug('@ccu:hooks:useModel');
 
 export interface UseModelOptions {
   /**
@@ -39,36 +43,44 @@ export const useModelInstance = <ModelT extends typeof Model>(
     undefined,
     {
       immediate: false,
-      resetOnExecute: false,
+      resetOnExecute: true,
     },
   );
 
   // ensure its ref if it isnt already.
   const itemId = ref(targetId);
-  const item = reactiveComputed<ModelT>(() =>
+  const item = reactiveComputed<ModelT | { id: number | undefined }>(() =>
     itemId.value && !itemState.isLoading.value
-      ? model.value.find(itemId.value) ?? {}
-      : {},
+      ? <ModelT>model.value.find(itemId.value) ?? { id: undefined }
+      : { id: undefined },
   );
 
   // only track surface-level changes.
-  const shallowItem = shallowReactive(item);
   const hasItem = computedEager(
-    () =>
-      itemId.value !== undefined &&
-      Boolean(shallowItem) &&
-      item.id === itemId.value,
+    () => itemId.value !== undefined && 'id' in item && item.id !== undefined,
   );
 
   // if eager, ensure incident data exists in store.
   if (!lazy) {
     whenever(
       logicAnd(
-        logicNot(hasItem),
-        logicNot(itemState.isLoading),
-        logicAnd(itemId),
+        !hasItem.value,
+        !itemState.isLoading.value,
+        itemId.value !== undefined,
       ),
-      async () => await itemState.execute(),
+      async () => {
+        debug(
+          'retrieving data for (model=%s, itemId=%s)',
+          model.value.entity,
+          itemId.value,
+        );
+        try {
+          await itemState.execute();
+        } catch (error: unknown) {
+          getErrorMessage(error);
+          throw error;
+        }
+      },
       { immediate: true },
     );
   }
