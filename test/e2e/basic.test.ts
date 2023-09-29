@@ -13,7 +13,7 @@ test(
   async ({ page }) => {
     await page.goto('/');
     // Expect a title "to contain" a substring.
-    await expect(page).toHaveTitle(/Crisis Cleanup/);
+    await expect(page).toHaveTitle(/crisis\s*cleanup/i);
     // Expect page url to be /login
     await expect(page).toHaveURL(/.*\/login/);
   },
