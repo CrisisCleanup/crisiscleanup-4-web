@@ -401,11 +401,7 @@ export default defineComponent({
 
     const handleChange = async (value: number) => {
       if (!value) return;
-      await Incident.api().fetchById(value);
-      await updateUserStates({
-        incident: value,
-      });
-      store.commit('incident/setCurrentIncidentId', value);
+      // incident id param watcher for under `useCurrentIncident`
       await router.push({
         name: route.name as string,
         params: { ...route.params, incident_id: value },
@@ -424,24 +420,16 @@ export default defineComponent({
       });
 
       if (result) {
-        await handleChange(result);
+        await handleChange(result as number);
       }
     }
 
-    watch(
-      () => route.params.incident_id,
-      (value) => {
-        if (value && Number(currentIncidentId.value) !== Number(value)) {
-          handleChange(value as string);
-        }
-      },
-      { immediate: true },
-    );
-
-    onMounted(() => {
-      emitter.on('update:incident', (incidentId) => {
-        handleChange(incidentId);
-      });
+    // TODO: why is this needed?
+    emitter.on('update:incident', (incidentId) => {
+      debug('trigger update:incident (%s)', incidentId);
+      handleChange(incidentId as number).catch((error) =>
+        getErrorMessage(error),
+      );
     });
 
     // update zendesk current user.
