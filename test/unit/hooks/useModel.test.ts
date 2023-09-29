@@ -2,6 +2,9 @@ import { nextTick, Ref, ref } from 'vue';
 import { useModelInstance } from '@/hooks';
 import { vi, describe, test } from 'vitest';
 import { Model } from '@vuex-orm/core';
+import { getErrorMessage } from '@/utils/errors';
+
+vi.mock('@/utils/errors');
 
 const makeMockModel = () => {
   const findFn = vi.fn();
@@ -90,5 +93,23 @@ describe('hooks>>useModelInstance', () => {
     expect(apiGetFn.mock.calls.length).toBe(1);
 
     expect(hook.item).toEqual({ id: 1, name: 'MyModel' });
+  });
+
+  test('should call getErrorMessage when there is an error', async () => {
+    const { MockModel, findFn, apiGetFn } = makeMockModel();
+    const error = new Error('Test error');
+    apiGetFn.mockRejectedValue(error);
+
+    const hook = useModelInstance(
+      MockModel as unknown as typeof Model,
+      ref(1),
+      { lazy: false },
+    );
+
+    await nextTick();
+    await until(() => hook.isLoading.value).toBe(false);
+
+    expect((getErrorMessage as Mock).mock.calls.length).toBe(1);
+    expect((getErrorMessage as Mock).mock.calls[0][0]).toBe(error);
   });
 });
