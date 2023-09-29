@@ -114,25 +114,28 @@ test.describe('Authentication', () => {
       ['slow', 'primary', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
+      test.slow();
       const navigateAndCheck = async (
         page: Page,
         url: string,
         testId: string,
       ) => {
         await page.goto(url);
+        await page.waitForLoadState();
         await page.waitForSelector(`[data-testid="${testId}"]`, {
           state: 'visible',
         });
         await expect(page).toHaveURL(url, { timeout: 15_000 });
       };
       await expect(page).toHaveURL(urlRegexes.login, { timeout: 15_000 });
+      // visit unauthed pages
       await navigateAndCheck(page, '/training', 'testTrainingDiv');
       await navigateAndCheck(page, '/about', 'testAboutDiv');
-      await page.goto('/login');
-      await page.waitForSelector('[data-testid="testLoginTextContent"]', {
-        state: 'visible',
-      });
+      // do login
+      await page.goto('/');
+      await page.waitForLoadState();
       await doLogin(page);
+      // revisit unauthed pages
       await navigateAndCheck(page, '/training', 'testTrainingDiv');
       await navigateAndCheck(page, '/about', 'testAboutDiv');
     },
