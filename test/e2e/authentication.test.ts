@@ -125,7 +125,7 @@ test.describe('Authentication', () => {
         });
         await expect(page).toHaveURL(url, { timeout: 15_000 });
       };
-      await expect(page).toHaveURL(urlRegexes.login);
+      await expect(page).toHaveURL(urlRegexes.login, { timeout: 15_000 });
       await navigateAndCheck(page, '/training', 'testTrainingDiv');
       await navigateAndCheck(page, '/about', 'testAboutDiv');
       await page.goto('/login');
