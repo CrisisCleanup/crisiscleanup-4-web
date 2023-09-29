@@ -22,15 +22,13 @@ vi.mock('@/models/Incident', () => ({
 test('hooks>>incident>>useCurrentIncident', async () => {
   // Mocking return values
   (useCurrentUser as Mock).mockReturnValue({ currentUser: { id: 1 } });
-  (useRouteIncident as Mock).mockReturnValue({ routeIncidentId: { value: 4 } });
+  (useRouteIncident as Mock).mockReturnValue({ routeIncidentId: ref(4) });
   (useUserIncident as Mock).mockReturnValue({
-    userIncidentId: {
-      value: 4,
-    },
+    userIncidentId: ref(4),
     updateUserIncident: vi.fn(),
   });
   (useModelInstance as Mock).mockReturnValue({
-    itemId: { value: 4 },
+    itemId: ref(4),
     item: {},
     isLoading: false,
     hasItem: true,
@@ -59,4 +57,8 @@ test('hooks>>incident>>useCurrentIncident', async () => {
   });
 
   expect(currentIncidentId.value).toBe(4);
+  expect(store.commit.mock.calls[0]).toStrictEqual([
+    'incident/setCurrentIncidentId',
+    4,
+  ]);
 });
