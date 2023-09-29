@@ -140,13 +140,13 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import moment from 'moment';
-import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router';
+import { useAsyncState } from '@vueuse/core';
+import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { useMq } from 'vue3-mq';
-import * as Sentry from '@sentry/vue';
 import Incident from '@/models/Incident';
 import Organization from '@/models/Organization';
 import Language from '@/models/Language';
@@ -485,12 +485,20 @@ export default defineComponent({
       ]);
     }
 
+    const loadState = useAsyncState(
+      () => Promise.all([setupLanguage(), loadPageData()]),
+      undefined,
+      {
+        immediate: false,
+        resetOnExecute: false,
+      },
+    );
+
     const onCurrentUserUnSub = whenever(
       hasCurrentUser,
-      async () => {
-        console.log('authenticated init:', currentUser.value);
-        await setupLanguage();
-        await loadPageData();
+      () => {
+        debug('authenticated init:', currentUser.value);
+        loadState.execute().catch(getErrorMessage);
         onCurrentUserUnSub();
       },
       { immediate: true },
