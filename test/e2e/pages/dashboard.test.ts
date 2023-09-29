@@ -4,6 +4,7 @@ import {
   testTitleWithTags,
   normalUserStatePath,
   selectorMaskColor,
+  adminUserStatePath,
 } from '../utils';
 
 test.describe('DashboardPage', () => {
@@ -91,6 +92,7 @@ test.describe('DashboardPage', () => {
       'production',
     ]),
     async ({ page, context }) => {
+      test.use({ storageState: adminUserStatePath });
       const navLinks = [
         'testdashboardLink',
         'testworkLink',
