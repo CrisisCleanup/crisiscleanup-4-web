@@ -72,7 +72,7 @@ test.describe('PhonePage', () => {
     await page.waitForLoadState();
   });
 
-  test.only(
+  test(
     testTitleWithTags('should have visible data-testids', [
       'primary',
       'slow',
