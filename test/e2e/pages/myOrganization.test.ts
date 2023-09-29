@@ -151,7 +151,7 @@ test.describe('MyOrganization', () => {
   test(
     testTitleWithTags(
       `${myOrgTabs.TEAM_MANAGEMENT}: should display all required elements`,
-      ['primary', 'slow', 'read', 'development', 'staging', 'production'],
+      ['secondary', 'slow', 'read', 'development', 'staging', 'production'],
     ),
     async ({ page }) => {
       test.slow();
