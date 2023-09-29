@@ -117,6 +117,9 @@ export const useCurrentIncident = () => {
     hasCurrentIncident,
     isCurrentIncidentLoading,
     updateUserIncident,
-    fetchIncidentDetails: () => fetchInstance().catch(getErrorMessage),
+    fetchIncidentDetails: async () => {
+      debug('Fetching incident details...');
+      await fetchInstance().catch(getErrorMessage);
+    },
   };
 };
