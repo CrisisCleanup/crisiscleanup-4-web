@@ -15,7 +15,7 @@ export const useUserIncident = (
   currentIncidentId?: MaybeRef<number | undefined>,
 ) => {
   const incidentId = ref(currentIncidentId);
-  const { updateUserStates, userStates } = useCurrentUser();
+  const { updateUserStates, userStates, hasCurrentUser } = useCurrentUser();
 
   // user incident from states.
   const incidentFromStates = computed<number | undefined>(() => {
@@ -26,6 +26,7 @@ export const useUserIncident = (
 
   // Current incident is defined and does not match incident id from states.
   const newCurrentIncident = computed(() =>
+    hasCurrentUser.value &&
     incidentId.value !== undefined &&
     incidentId.value !== incidentFromStates.value
       ? incidentId.value
@@ -39,7 +40,22 @@ export const useUserIncident = (
   whenever(
     newCurrentIncident,
     async (newValue) => {
-      debug('Updating incident id in user state %s', newValue);
+      if (newValue === incidentFromStates.value) {
+        debug(
+          'skipping new current incident b/c user states were resolved: %O',
+          {
+            newValue,
+            incidentStates: incidentFromStates.value,
+            incidentId: incidentId.value,
+          },
+        );
+        return;
+      }
+      debug('Updating incident id in user state %o', {
+        newValue,
+        incidentStates: incidentFromStates.value,
+        incidentId: incidentId.value,
+      });
       await updateUserIncident(newValue).catch(getErrorMessage);
     },
     { immediate: true },
