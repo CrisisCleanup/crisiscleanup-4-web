@@ -1,10 +1,10 @@
-import { computed, watch } from 'vue';
+import { readonly, watch } from 'vue';
 import createDebug from 'debug';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import Incident from '@/models/Incident';
 import { useStore } from 'vuex';
 import { getErrorMessage } from '@/utils/errors';
-import { whenever } from '@vueuse/core';
+import { useAsyncState, whenever } from '@vueuse/core';
 import { logicAnd, logicNot } from '@vueuse/math';
 import { useModelInstance } from '@/hooks/useModel';
 import { useUserIncident } from '@/hooks/incident/useUserIncident';
@@ -21,7 +21,7 @@ const debug = createDebug('@ccu:hooks:useCurrentIncident');
  * - Most recent incident they have access too
  */
 export const useCurrentIncident = () => {
-  const { currentUser: user } = useCurrentUser();
+  const { hasCurrentUser } = useCurrentUser();
   const { routeIncidentId } = useRouteIncident();
   // synchronize route incident to states if found, but always use user states as source.
   const { userIncidentId, updateUserIncident } =
@@ -53,41 +53,68 @@ export const useCurrentIncident = () => {
     { immediate: true },
   );
 
+  // lazy state for fetching most recent incident id from api.
+  const recentIncidentState = useAsyncState(
+    () =>
+      Incident.api()
+        .get(`/incidents?fields=id&limit=1&sort=-start_at`, {
+          dataKey: 'results',
+          save: false,
+        })
+        .then(
+          ({ response }) =>
+            response?.data?.results?.[0]?.id as number | undefined,
+        ),
+    undefined,
+    {
+      immediate: false,
+      resetOnExecute: false,
+    },
+  );
+
+  // if incident id cannot be sourced through states or route, no incident is known.
+  const noKnownIncident = computed(
+    () =>
+      currentIncidentId.value === undefined || currentIncidentId.value === null,
+  );
+
   // when incident cannot be provided from states or route, fetch most recent incident id
   // and set it as the current incident id in user states.
   whenever(
     logicAnd(
-      logicNot(hasCurrentIncident),
+      noKnownIncident,
       logicNot(isCurrentIncidentLoading),
-      user,
+      hasCurrentUser,
     ),
-    async () => {
-      const { response } = await Incident.api().get(
-        `/incidents?fields=id&limit=1&sort=-start_at`,
-        { dataKey: 'results', save: false },
-      );
-      const incidentId = response?.data?.results?.[0]?.id as number | undefined;
-      debug('Falling back to fetching recent incident to set incident id %o', {
-        routeIncidentId: routeIncidentId.value,
-        userIncidentId: userIncidentId.value,
-        fetchedId: incidentId,
-        fetched: response,
+    () => {
+      debug('invoking recent incident state: %O', {
+        noKnownIncident: noKnownIncident.value,
+        hasCurrentUser: hasCurrentUser.value,
       });
-      if (incidentId) {
-        await updateUserIncident(incidentId);
-      } else {
-        const err = new Error('Failed to fetch recent incident:', response);
-        debug('failed to fetch recent incident: %O', response);
-        getErrorMessage(err);
-        throw err;
-      }
+      recentIncidentState.execute().catch(getErrorMessage);
     },
+    // this watcher is dependent on the incident route param, which is sourced through dom.
+    // therefore, it must be flushed only after the dom is updated.
+    { flush: 'post' },
   );
 
+  // feed fetched recent incident into state update.
+  watch(recentIncidentState.state, async (newValue) => {
+    debug('fell back to fetching recent incident to set incident id %o', {
+      routeIncidentId: routeIncidentId.value,
+      userIncidentId: userIncidentId.value,
+      fetched: newValue,
+    });
+    if (newValue && newValue !== currentIncidentId.value) {
+      await updateUserIncident(newValue);
+    }
+  });
+
   return {
-    currentIncidentId: computed(() => currentIncidentId.value),
+    currentIncidentId: readonly(currentIncidentId),
     currentIncident,
     hasCurrentIncident,
     isCurrentIncidentLoading,
+    updateUserIncident,
   };
 };
