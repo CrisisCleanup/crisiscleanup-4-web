@@ -470,9 +470,6 @@ export default defineComponent({
           `/incidents?fields=${incidentFieldsStr.value}&limit=250&sort=-start_at`,
           { dataKey: 'results' },
         ),
-        Organization.api().get(
-          `/organizations/${currentUser.value!.organization.id}`,
-        ),
         Language.api().get('/languages', {
           dataKey: 'results',
         }),
