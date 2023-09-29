@@ -3,6 +3,10 @@ import { nextTick } from 'vue';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 
 describe('useRecentWorksites', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   it('should add a recent worksite', async () => {
     const { recentWorksites, addRecentWorksite } = useRecentWorksites();
     const worksite = { id: 1, name: 'Test Worksite' };
@@ -17,6 +21,7 @@ describe('useRecentWorksites', () => {
     const worksite1 = { id: 1, name: 'Test Worksite 1' };
     const worksite2 = { id: 2, name: 'Test Worksite 2' };
     addRecentWorksite(worksite1);
+    await nextTick();
     addRecentWorksite(worksite2);
     await nextTick();
     const w1 = getRecentWorksite(worksite1.id);
