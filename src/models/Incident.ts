@@ -112,7 +112,7 @@ export default class Incident extends CCUModel {
   locations!: LocationJoin[];
   turn_on_release!: boolean;
   auto_contact!: boolean;
-  active_phone_number!: string | undefined;
+  active_phone_number!: string | string[] | undefined;
   created_work_types!: any[];
   is_archived!: boolean;
 
