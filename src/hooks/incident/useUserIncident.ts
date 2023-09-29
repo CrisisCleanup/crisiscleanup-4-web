@@ -40,17 +40,6 @@ export const useUserIncident = (
   whenever(
     newCurrentIncident,
     async (newValue) => {
-      if (newValue === incidentFromStates.value) {
-        debug(
-          'skipping new current incident b/c user states were resolved: %O',
-          {
-            newValue,
-            incidentStates: incidentFromStates.value,
-            incidentId: incidentId.value,
-          },
-        );
-        return;
-      }
       debug('Updating incident id in user state %o', {
         newValue,
         incidentStates: incidentFromStates.value,
