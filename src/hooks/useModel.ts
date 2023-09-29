@@ -74,16 +74,15 @@ export const useModelInstance = <ModelT extends typeof Model>(
           model.value.entity,
           itemId.value,
         );
-        try {
-          await itemState.execute();
-        } catch (error: unknown) {
-          getErrorMessage(error);
-          throw error;
-        }
+        // error is not thrown, but exposed via `error` ref.
+        await itemState.execute();
       },
       { immediate: true },
     );
   }
+
+  // handle errors when fetching item.
+  whenever(itemState.error, (newValue) => getErrorMessage(newValue));
 
   return {
     hasItem,
