@@ -173,7 +173,9 @@ export function isValidActiveHotline(phone: unknown) {
  * Get phone number from incident object
  * @param incident
  */
-export function getIncidentPhoneNumbers(incident: Incident) {
+export function getIncidentPhoneNumbers<
+  T extends { active_phone_number: Incident['active_phone_number'] },
+>(incident: T) {
   if (Array.isArray(incident.active_phone_number)) {
     return incident.active_phone_number
       .map((number) => formatNationalNumber(String(number)))
