@@ -203,8 +203,12 @@ export default defineComponent({
       isOrganizationInactive,
       isOrphan,
     } = useCurrentUser();
-    const { hasCurrentIncident, currentIncident, currentIncidentId } =
-      useCurrentIncident();
+    const {
+      hasCurrentIncident,
+      currentIncident,
+      currentIncidentId,
+      fetchIncidentDetails,
+    } = useCurrentIncident();
     const authStore = useAuthStore();
     const { setupLanguage } = useSetupLanguage();
     const route = useRoute();
@@ -501,6 +505,17 @@ export default defineComponent({
         loadState.execute().catch(getErrorMessage);
         onCurrentUserUnSub();
       },
+      { immediate: true },
+    );
+
+    // fetch current incident details.
+    // todo: this probably belongs down where these details are required (maybe work).
+    whenever(
+      () =>
+        hasCurrentIncident.value &&
+        (currentIncident.form_fields === undefined ||
+          currentIncident.form_fields === null),
+      () => fetchIncidentDetails().catch(getErrorMessage),
       { immediate: true },
     );
 
