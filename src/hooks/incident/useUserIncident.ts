@@ -19,9 +19,14 @@ export const useUserIncident = (
 
   // user incident from states.
   const incidentFromStates = computed<number | undefined>(() => {
-    const _id = userStates.value?.incident as number | undefined;
+    const _userIncidentId = userStates.value?.incident as
+      | number
+      | string
+      | undefined;
+    const _id = Number(_userIncidentId);
+    const id = Number.isNaN(_id) ? undefined : _id;
     debug('Resolved incident id from user state %s', _id);
-    return _id;
+    return id;
   });
 
   // Current incident is defined and does not match incident id from states.
