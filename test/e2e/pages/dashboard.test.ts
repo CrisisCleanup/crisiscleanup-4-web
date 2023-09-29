@@ -2,13 +2,12 @@ import type { Locator } from '@playwright/test';
 import { test, expect } from '@playwright/test';
 import {
   testTitleWithTags,
-  normalUserStatePath,
   selectorMaskColor,
   adminUserStatePath,
 } from '../utils';
 
 test.describe('DashboardPage', () => {
-  test.use({ storageState: normalUserStatePath });
+  test.use({ storageState: adminUserStatePath });
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard');
@@ -92,7 +91,6 @@ test.describe('DashboardPage', () => {
       'production',
     ]),
     async ({ page, context }) => {
-      test.use({ storageState: adminUserStatePath });
       const navLinks = [
         'testdashboardLink',
         'testworkLink',
