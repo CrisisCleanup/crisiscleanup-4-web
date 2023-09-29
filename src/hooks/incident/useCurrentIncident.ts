@@ -33,6 +33,7 @@ export const useCurrentIncident = () => {
     item: currentIncident,
     isLoading: isCurrentIncidentLoading,
     hasItem: hasCurrentIncident,
+    fetchInstance,
   } = useModelInstance(Incident, userIncidentId);
 
   // TODO: remove redundant incident store.
@@ -116,5 +117,6 @@ export const useCurrentIncident = () => {
     hasCurrentIncident,
     isCurrentIncidentLoading,
     updateUserIncident,
+    fetchIncidentDetails: () => fetchInstance().catch(getErrorMessage),
   };
 };
