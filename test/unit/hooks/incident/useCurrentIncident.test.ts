@@ -19,7 +19,7 @@ vi.mock('@/models/Incident', () => ({
   },
 }));
 
-test('hooks>>incident>>useCurrentIncident', async () => {
+test('hooks>>incident>>useCurrentIncident', () => {
   // Mocking return values
   (useCurrentUser as Mock).mockReturnValue({ currentUser: { id: 1 } });
   (useRouteIncident as Mock).mockReturnValue({ routeIncidentId: ref(4) });
@@ -33,7 +33,7 @@ test('hooks>>incident>>useCurrentIncident', async () => {
     isLoading: false,
     hasItem: true,
   });
-  Incident.api.mockReturnValue({
+  (Incident.api as Mock).mockReturnValue({
     get: vi
       .fn()
       .mockResolvedValue({ response: { data: { results: [{ id: 4 }] } } }),
