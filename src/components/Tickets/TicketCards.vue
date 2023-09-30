@@ -17,7 +17,7 @@ import UserRolesSelect from '@/components/UserRolesSelect.vue';
 import AdminEventStream from '@/components/admin/AdminEventStream.vue';
 import JsonWrapper from '@/components/JsonWrapper.vue';
 import Language from '@/models/Language';
-import { momentFromNow, capitalize } from '@/filters';
+import { momentFromNow, capitalize, formatDateString } from '@/filters';
 import useEmitter from '@/hooks/useEmitter';
 import { getErrorMessage } from '@/utils/errors';
 import InvitationTable from '@/components/admin/InvitationTable.vue';
@@ -1261,8 +1261,11 @@ onMounted(async () => {
           class="comments__items"
           :class="getCommentHighlights(comment)"
         >
-          <BaseText class="text-3xl font-bold">
+          <BaseText class="font-bold">
             {{ getAgentById(comment.author_id) ?? zendeskUser.name }}
+          </BaseText>
+          <BaseText class="mb-2" style="color: #848f99">
+            {{ formatDateString(comment.created_at, 'MM/DD/YYYY, h:mm:ss A') }}
           </BaseText>
           <BaseText>{{ removeSubmittedFromFooter(comment.body) }}</BaseText>
 
