@@ -556,6 +556,7 @@ import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { useCurrentUser } from '@/hooks';
+import Location from '@/models/Location';
 
 export default defineComponent({
   name: 'WorksiteActions',
@@ -632,6 +633,17 @@ export default defineComponent({
       } else {
         appliedLocations.value.delete(locationId);
         appliedLocations.value = new Set(appliedLocations.value);
+      }
+    }
+
+    async function getIncidentLocations() {
+      if (currentIncident.value.locations.length > 0) {
+        const locationIds = currentIncident.value.locations.map(
+          (location) => location.location,
+        );
+        await Location.api().get(`/locations?id__in=${locationIds.join(',')}`, {
+          dataKey: 'results',
+        });
       }
     }
 
@@ -714,6 +726,7 @@ export default defineComponent({
       }
 
       await Promise.any([
+        getIncidentLocations(),
         getLocations(),
         getOrganizationLocations(),
         LocationType.api().get('/location_types', {

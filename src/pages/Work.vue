@@ -3,6 +3,7 @@
     <div v-if="!isViewing && !isEditing">
       <SimpleMap
         v-if="showingMap"
+        :key="currentIncidentId"
         :map-loading="mapLoading"
         data-testid="testSimpleMapdiv"
         show-zoom-buttons
