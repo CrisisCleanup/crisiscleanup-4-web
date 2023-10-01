@@ -1265,7 +1265,8 @@ onMounted(async () => {
             {{ getAgentById(comment.author_id) ?? zendeskUser.name }}
           </BaseText>
           <BaseText class="mb-2" style="color: #848f99">
-            {{ formatDateString(comment.created_at, 'MM/DD/YYYY, h:mm:ss A') }}
+            <!--            {{ formatDateString(comment.created_at, 'MM/DD/YYYY, h:mm:ss A') }}-->
+            {{ momentFromNow(comment.created_at) }}
           </BaseText>
           <BaseText>{{ removeSubmittedFromFooter(comment.body) }}</BaseText>
 
