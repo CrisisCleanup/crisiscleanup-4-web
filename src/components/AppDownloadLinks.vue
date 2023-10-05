@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import BaseText from '@/components/BaseText.vue';
+import appStoreLinks from '@/utils/app_store_links';
 
 const { t } = useI18n();
 </script>
@@ -8,10 +9,7 @@ const { t } = useI18n();
 <template>
   <div class="flex items-center p-1 space-x-2">
     <BaseText> {{ t('nav.download_app') }}</BaseText>
-    <a
-      href="https://apps.apple.com/us/app/crisis-cleanup/id6463570192"
-      target="_blank"
-    >
+    <a :href="appStoreLinks.apple" target="_blank">
       <ccu-icon
         data-testid="testDownloadIosLink"
         :alt="t('nav.ccu_ios')"
@@ -20,10 +18,7 @@ const { t } = useI18n();
         linked
       />
     </a>
-    <a
-      href="https://play.google.com/store/apps/details?id=com.crisiscleanup.prod"
-      target="_blank"
-    >
+    <a :href="appStoreLinks.android" target="_blank">
       <ccu-icon
         data-testid="testDownloadAndroidLink"
         :alt="t('nav.ccu_android')"
