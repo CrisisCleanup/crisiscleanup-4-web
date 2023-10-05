@@ -1,4 +1,5 @@
 const InvitationSignup = () => import('./InvitationSignup.vue');
+const MobileAppUserInvite = () => import('./MobileAppUserInvite.vue');
 const PrintToken = () => import('./PrintToken.vue');
 const Survivors = () => import('./Survivors.vue');
 const ResetPassword = () => import('./ResetPassword.vue');
@@ -15,6 +16,12 @@ const routes = [
     path: '/invitation_token/:token',
     component: InvitationSignup,
     name: 'nav.invitation_token',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/mobile_app_user_invite',
+    component: MobileAppUserInvite,
+    name: 'nav.mobile_app_user_invite',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {

@@ -4,6 +4,7 @@
             {
                 "appIDs": [
                     "AYLY2UUH8J.com.crisiscleanup",
+                    "ZM286L3HTV.com.crisiscleanup.dev",
                     "ZM286L3HTV.com.crisiscleanup.stg",
                     "ZM286L3HTV.com.crisiscleanup.prod"
                 ],
@@ -20,6 +21,18 @@
                         "/": "/password/reset/*",
                         "comment": "Reset password."
                     },
+                    {
+                        "/": "/invitation_link/*",
+                        "comment": "Invite link."
+                    }
+                    {
+                        "/": "/mobile_app_user_invite",
+                        "comment": "Invite from user."
+                    }
+                    {
+                        "/": "/mobile_app_user_invite/*",
+                        "comment": "Invite from user."
+                    }
                     {
                         "/": "/register",
                         "exclude": true,

@@ -3,5 +3,5 @@ import AppDownloadBadges from '@/components/AppDownloadBadges.vue';
 </script>
 
 <template>
-  <AppDownloadBadges />
+  <AppDownloadBadges redirect-to-store hide-buttons />
 </template>
