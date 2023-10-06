@@ -80,7 +80,14 @@
       {{ $t('adminCMS.is_active') }}
     </base-checkbox>
 
-    <div class="flex items-center">
+    <div class="flex items-center gap-2">
+      <base-button
+        :action="addItemFromLibrary"
+        variant="solid"
+        class="cursor-pointer px-3 py-1"
+      >
+        {{ $t('~~Add Image From Library') }}
+      </base-button>
       <DragDrop
         class="cursor-pointer py-2"
         data-testid="testUploadThumbnailFile"
@@ -219,9 +226,12 @@ import { formatCmsItem } from '../../utils/helpers';
 import DragDrop from '../../components/DragDrop.vue';
 import useDialogs from '../../hooks/useDialogs';
 import CmsViewer from '../../components/cms/CmsViewer.vue';
+import BaseButton from '@/components/BaseButton.vue';
+import CmsLibrary from '@/components/cms/CmsLibrary.vue';
 
 export default defineComponent({
   components: {
+    BaseButton,
     DragDrop,
     Editor,
     AjaxTable,
@@ -249,6 +259,7 @@ export default defineComponent({
     const showHtml = ref(false);
     const query = ref({});
     const tableUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/cms`;
+    const selectedLibraryItems = ref([]);
     const columns = makeTableColumns([
       ['title', '30%', 'adminCMS.title', { sortKey: 'title', sortable: true }],
       [
@@ -349,6 +360,33 @@ export default defineComponent({
       tagsToAdd.value = [];
     }
 
+    async function addItemFromLibrary() {
+      const response = await component({
+        title: t(`adminCMS.add_from_library`),
+        component: CmsLibrary,
+        classes: 'w-full h-96 overflow-auto p-3',
+        modalClasses: 'bg-white max-w-3xl shadow',
+        listeners: {
+          'update:selectedItems'(value) {
+            selectedLibraryItems.value = value;
+          },
+        },
+      });
+      if (response === 'ok' && selectedLibraryItems.value.length > 0) {
+        console.log(selectedLibraryItems.value);
+
+        if (showHtml.value) {
+          for (const file of selectedLibraryItems.value) {
+            document.querySelectorAll(
+              '.ql-editor',
+            )[0].innerHTML += `<img src="${file.blog_url}" alt="${file.filename}"/>`;
+          }
+        }
+      } else {
+        selectedLibraryItems.value = [];
+      }
+    }
+
     async function handleFileUpload(fileList) {
       if (fileList.length === 0) {
         return;
@@ -402,6 +440,7 @@ export default defineComponent({
       handleFileUpload,
       uploading,
       moment,
+      addItemFromLibrary,
       $t(text) {
         return text ? t(text) : null;
       },
