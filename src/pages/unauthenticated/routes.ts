@@ -1,3 +1,5 @@
+import BlogList from '@/components/blog/BlogList.vue';
+
 const InvitationSignup = () => import('./InvitationSignup.vue');
 const MobileAppUserInvite = () => import('./MobileAppUserInvite.vue');
 const PrintToken = () => import('./PrintToken.vue');
@@ -88,6 +90,12 @@ const routes = [
     path: '/disasters',
     component: Disasters,
     name: 'nav.disasters',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/blog',
+    component: BlogList,
+    name: 'nav.blog',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {
