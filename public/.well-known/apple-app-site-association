@@ -24,15 +24,15 @@
                     {
                         "/": "/invitation_link/*",
                         "comment": "Invite link."
-                    }
+                    },
                     {
                         "/": "/mobile_app_user_invite",
                         "comment": "Invite from user."
-                    }
+                    },
                     {
                         "/": "/mobile_app_user_invite/*",
                         "comment": "Invite from user."
-                    }
+                    },
                     {
                         "/": "/register",
                         "exclude": true,
