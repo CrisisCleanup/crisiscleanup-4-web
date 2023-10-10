@@ -98,7 +98,8 @@ export default defineComponent({
       },
     ]);
     const getLocationType = (type: string) => {
-      return LocationType.find(type)?.name_t;
+      const name = LocationType.find(type)?.name_t;
+      return t(name ?? '');
     };
 
     return {
