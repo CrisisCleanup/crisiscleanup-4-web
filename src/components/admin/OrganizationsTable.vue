@@ -122,7 +122,7 @@ export default defineComponent({
         const orgRole = organizationRoles.value.find((role: OrganizationRole) =>
           roles.includes(role.id),
         );
-        return orgRole ? orgRole.name_t : '';
+        return orgRole ? t(orgRole.name_t) : '';
       }
 
       return '';
