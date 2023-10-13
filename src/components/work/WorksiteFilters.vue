@@ -343,7 +343,7 @@
                   v-model="filters.fields.data[f.key]"
                   :data-testid="`testWorkType${f.key}Checkbox`"
                 >
-                  {{ f.name_t }}
+                  {{ $t(f.name_t) }}
                 </base-checkbox>
                 <font-awesome-icon
                   v-if="filters.fields.data[f.key]"

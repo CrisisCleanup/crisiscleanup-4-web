@@ -91,7 +91,7 @@ export default defineComponent({
         .orderBy('level', 'desc')
         .get();
       if (query.length > 0) {
-        return query[0].name_t;
+        return t(query[0].name_t);
       }
 
       return '';
