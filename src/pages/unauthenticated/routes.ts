@@ -1,5 +1,3 @@
-import BlogList from '@/components/blog/BlogList.vue';
-
 const InvitationSignup = () => import('./InvitationSignup.vue');
 const MobileAppUserInvite = () => import('./MobileAppUserInvite.vue');
 const PrintToken = () => import('./PrintToken.vue');
@@ -9,6 +7,9 @@ const MagicLink = () => import('./MagicLink.vue');
 const PewPew = () => import('./PewPew.vue');
 const OauthRedirect = () => import('@/pages/OauthRedirect.vue');
 const Disasters = () => import('@/pages/unauthenticated/Disasters.vue');
+
+const Blog = () => import('@/pages/unauthenticated/Blog.vue');
+const BlogPost = () => import('@/pages/unauthenticated/BlogPost.vue');
 
 const MagicLinkLogin = () =>
   import('@/pages/unauthenticated/MagicLinkLogin.vue');
@@ -94,8 +95,14 @@ const routes = [
   },
   {
     path: '/blog',
-    component: BlogList,
+    component: Blog,
     name: 'nav.blog',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/blog/post/:id',
+    component: BlogPost,
+    name: 'nav.blog_post',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {

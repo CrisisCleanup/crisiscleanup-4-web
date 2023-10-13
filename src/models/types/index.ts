@@ -168,6 +168,8 @@ export interface CmsItem {
   id: string;
   title: string;
   content: string;
+  publish_at: string;
+  created_by: number;
   thumbnail_file?: { blog_url: string };
 }
 
