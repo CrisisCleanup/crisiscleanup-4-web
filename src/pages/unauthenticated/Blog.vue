@@ -93,10 +93,9 @@ export default {
     }
 
     async function getUsers() {
-      const userIds = posts.value.map((post) => post.created_by);
-      await User.api().get(`/users?id__in=${userIds.join(',')}`, {
-        dataKey: 'results',
-      });
+      await User.api().get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/cms/blog_authors`,
+      );
     }
 
     async function fetchPosts(page = 1) {
