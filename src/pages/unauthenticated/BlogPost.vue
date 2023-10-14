@@ -20,7 +20,9 @@ export default defineComponent({
     }
 
     async function getUser() {
-      await User.api().get(`/users/${post.value.created_by}`);
+      await User.api().get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/cms/blog_authors`,
+      );
     }
 
     onMounted(async () => {
