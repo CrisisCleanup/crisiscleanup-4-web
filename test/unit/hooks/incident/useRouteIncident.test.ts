@@ -2,7 +2,9 @@ import { ref } from 'vue';
 import { describe, it, type Mock, vi } from 'vitest';
 import { useRouteParams } from '@vueuse/router';
 import { useRouteIncident } from '@/hooks/incident/useRouteIncident';
+import { useRoute, useRouter } from 'vue-router';
 
+vi.mock('vue-router');
 vi.mock('@vueuse/router');
 vi.mock('@vueuse/core');
 describe('hooks>>incident>>useRouteIncident', () => {
@@ -31,5 +33,25 @@ describe('hooks>>incident>>useRouteIncident', () => {
 
     expect(routeIncidentId.value).toBeUndefined();
     expect(hasRouteIncidentId.value).toBeFalsy();
+  });
+
+  it('should push new incident id into route parameter', async () => {
+    (useRouteParams as Mock).mockReturnValue(ref('123'));
+    (useRoute as Mock).mockReturnValue({
+      name: 'a-route',
+      params: { incident_id: '123' },
+      query: {},
+    });
+    const pushMock = vi.fn();
+    (useRouter as Mock).mockReturnValue({
+      push: pushMock,
+    });
+    const { updateRouteIncidentId } = useRouteIncident();
+    await updateRouteIncidentId(123);
+    expect(pushMock).toHaveBeenCalledWith({
+      name: 'a-route',
+      params: { incident_id: 123 },
+      query: {},
+    });
   });
 });
