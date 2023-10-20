@@ -98,19 +98,19 @@ const routes = [
     ],
   },
   {
-    path: '/reports',
+    path: '/incident/:incident_id/reports',
     component: Reports,
     name: 'nav.reports',
     meta: { layout: 'authenticated' },
   },
   {
-    path: '/report/:id',
+    path: '/incident/:incident_id/report/:id',
     component: Report,
     name: 'nav.report',
     meta: { layout: 'authenticated' },
   },
   {
-    path: '/other_organizations',
+    path: '/incident/:incident_id/other_organizations',
     component: OtherOrganizations,
     name: 'nav.other_organizations',
     meta: { layout: 'authenticated' },

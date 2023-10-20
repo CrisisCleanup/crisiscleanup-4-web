@@ -174,7 +174,7 @@ import { cachedGet } from '@/utils/promise';
 import type Role from '@/models/Role';
 import { useApi } from '@/hooks/useApi';
 import type Organization from '@/models/Organization';
-import { useCurrentUser } from '@/hooks';
+import { useCurrentIncident, useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'OtherOrganizations',
@@ -200,9 +200,8 @@ export default defineComponent({
     const otherOrgSorter = ref<TableSorterObject<Organization>>({});
     const organizationRoles = ref<Role[]>([]);
 
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
-    );
+    const { currentIncidentId } = useCurrentIncident();
+
     const { currentUser } = useCurrentUser();
     const columns = computed(() => [
       {
@@ -326,7 +325,10 @@ export default defineComponent({
       );
       organizations.data = sortedOrgs;
       // only refetch organizations if page changes
-      if (organizations.meta.pagination.current !== pagination.current) {
+      if (
+        organizations.meta.pagination.current !== pagination.current ||
+        organizations.meta.pagination.pageSize !== pagination.pageSize
+      ) {
         organizations.meta.pagination = {
           ...organizations.meta.pagination,
           ...pagination,
