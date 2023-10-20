@@ -46,13 +46,17 @@ export default defineComponent({
   },
   emits: ['loadCase'],
   setup(props, { emit }) {
+    const map = ref();
+    const jumpToLocation = (lat: number, lng: number) => {
+      map.value.setView([lat, lng], MAX_ZOOM);
+    };
     onMounted(() => {
-      const map = L.map('photoMap', {
+      map.value = L.map('photoMap', {
         zoomControl: true,
       }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 3);
       L.tileLayer(mapTileLayer, {
         maxZoom: MAX_ZOOM,
-      }).addTo(map);
+      }).addTo(map.value);
 
       // Create a marker cluster group
       const markers = L.markerClusterGroup({
@@ -128,7 +132,7 @@ export default defineComponent({
       }
 
       // Add the marker cluster group to the map
-      map.addLayer(markers);
+      map.value.addLayer(markers);
 
       function loadImagesAndCase(markersInCluster) {
         const images = markersInCluster.map((marker) => {
@@ -151,7 +155,7 @@ export default defineComponent({
       }
 
       markers.on('clusterclick', function (event) {
-        if (map.getZoom() === MAX_ZOOM) {
+        if (map.value.getZoom() === MAX_ZOOM) {
           const markersInCluster = event.layer.getAllChildMarkers();
           loadImagesAndCase(markersInCluster);
         }
@@ -162,6 +166,10 @@ export default defineComponent({
         loadImagesAndCase(markersInCluster);
       });
     });
+
+    return {
+      jumpToLocation,
+    };
   },
 });
 </script>

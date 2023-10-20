@@ -313,13 +313,13 @@ export default defineComponent({
         key: 'other_organizations',
         icon: 'otherorg',
         iconSize: 'xl',
-        to: '/other_organizations',
+        to: `/incident/${currentIncidentId.value}/other_organizations`,
       },
       {
         key: 'reports',
         icon: 'reports',
         text: t('nav.reports'),
-        to: '/reports',
+        to: `/incident/${currentIncidentId.value}/reports`,
         // newBadge: Report.query()
         //     .where('created_at', (created_at: string) => {
         //       const reportsAccessed =
