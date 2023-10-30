@@ -1,6 +1,6 @@
 <template>
   <div class="blog-list p-3">
-    <div class="text-4xl text-center">{{ '~~Crisiscleanup Blog' }}</div>
+    <div class="text-4xl text-center">{{ $t('blog.title') }}</div>
 
     <div class="mb-4 flex gap-2 mt-6 items-center justify-center">
       <button
@@ -12,7 +12,7 @@
           }
         "
       >
-        {{ '~~All' }}
+        {{ $t('blog.all') }}
       </button>
       <button
         v-for="year in availableYears"
@@ -33,7 +33,7 @@
     <div class="search-bar mb-4 mx-auto max-w-3xl">
       <base-input
         :model-value="searchTerm"
-        :placeholder="$t('~~Search Posts')"
+        :placeholder="$t('blog.search_posts')"
         @update:model-value="updateSearchDebounced"
       />
     </div>

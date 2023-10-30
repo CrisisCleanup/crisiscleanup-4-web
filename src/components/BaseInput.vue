@@ -74,14 +74,14 @@
       :class="iconClasses"
     >
       <ccu-icon
-        :alt="$t('actions.help_alt')"
+        :alt="$t('~~actions.help_alt')"
         :type="tooltip ? 'info' : icon"
         :size="iconSize"
       />
     </div>
     <font-awesome-icon
       v-if="type === 'password'"
-      :alt="$t('actions.help_alt')"
+      :alt="$t('info.password')"
       size="lg"
       class="cursor-pointer absolute right-0 mr-4"
       :icon="passwordView === 'text' ? 'eye-slash' : 'eye'"

@@ -86,7 +86,7 @@
         variant="solid"
         class="cursor-pointer px-3 py-1"
       >
-        {{ $t('~~Add Image From Library') }}
+        {{ $t('adminCMS.add_from_library') }}
       </base-button>
       <DragDrop
         class="cursor-pointer py-2"
