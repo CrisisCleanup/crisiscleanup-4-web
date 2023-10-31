@@ -65,6 +65,9 @@
         </base-select>
 
         <div class="flex items-center gap-2 mt-5">
+          {{ $t('requestRedeploy.legend') }}
+        </div>
+        <div class="flex items-start gap-2">
           <font-awesome-icon
             data-testid="testIncidentAlreadyDeployedIconLegend"
             icon="check"
