@@ -74,7 +74,7 @@
       :class="iconClasses"
     >
       <ccu-icon
-        :alt="$t('~~actions.help_alt')"
+        :alt="$t('actions.help_alt')"
         :type="tooltip ? 'info' : icon"
         :size="iconSize"
       />

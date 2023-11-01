@@ -17,7 +17,7 @@
         html: true,
       }"
       data-testid="testHelpTooltip"
-      :alt="$t('~~actions.help_alt')"
+      :alt="$t('actions.help_alt')"
       type="help"
       size="large"
     />

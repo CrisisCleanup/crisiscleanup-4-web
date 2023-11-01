@@ -15,7 +15,7 @@
             popperClass: 'interactive-tooltip w-auto',
             html: true,
           }"
-          :alt="$t('~~actions.help_alt')"
+          :alt="$t('actions.help_alt')"
           type="help"
           size="medium"
         />
