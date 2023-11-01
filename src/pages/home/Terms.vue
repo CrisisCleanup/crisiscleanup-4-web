@@ -5,6 +5,8 @@
       <div class="row mb-6">
         <h3>1. {{ $t('terms.preamble') }}</h3>
         <p v-html="terms.preamble_intro"></p>
+        <p v-html="terms.preamble_intro2"></p>
+        <p v-html="terms.preamble_intro3"></p>
 
         <h3>2. {{ $t('terms.code_of_conduct') }}</h3>
         <p v-html="terms.code_of_conduct_intro"></p>
@@ -15,6 +17,7 @@
           <li v-html="terms.reputable_nonprofit"></li>
           <li v-html="terms.safeguard_password"></li>
           <li v-html="terms.client_consent"></li>
+          <li v-html="terms.user_data"></li>
           <li v-html="terms.responsible_for_exported_data"></li>
           <li v-html="terms.minimize_sharing"></li>
           <li v-html="terms.non_emergency_use"></li>
@@ -24,6 +27,15 @@
           <li v-html="terms.accept_sms"></li>
           <li v-html="terms.abide_by_tc"></li>
         </ul>
+        <p v-html="terms.code_of_conduct_survivors"></p>
+        <ul>
+          <li v-html="terms.affected_by_disaster"></li>
+          <li v-html="terms.authorized_to_share_info"></li>
+          <li v-html="terms.provide_accurate_info"></li>
+          <li v-html="terms.info_available_to_orgs"></li>
+          <li v-html="terms.supervise_volunteers"></li>
+          <li v-html="terms.accept_messages"></li>
+        </ul>
 
         <h3>3. {{ $t('terms.definitions') }}</h3>
         <p v-html="terms.definitions_intro"></p>
@@ -32,23 +44,26 @@
           <li v-html="terms.def_website"></li>
           <li v-html="terms.def_service"></li>
           <li v-html="terms.def_third_party_service"></li>
-          <li v-html="terms.def_you"></li>
+          <li v-html="terms.def_user"></li>
           <li v-html="terms.def_client"></li>
+          <li v-html="terms.def_visitor"></li>
+          <li v-html="terms.def_organization"></li>
+          <li v-html="terms.def_you"></li>
           <li v-html="terms.def_incident"></li>
           <li v-html="terms.def_your_materials"></li>
           <li v-html="terms.def_trademarks"></li>
           <ul>
             <li class="indent">
-              <strong>3.9.1</strong> {{ $t('terms.tm_ccu_name') }}
+              <strong>3.12.1</strong> {{ $t('terms.tm_ccu_name') }}
             </li>
             <li class="indent">
-              <strong>3.9.2</strong> {{ $t('terms.tm_ccu_logo') }}
+              <strong>3.12.2</strong> {{ $t('terms.tm_ccu_logo') }}
             </li>
             <li class="indent">
-              <strong>3.9.3</strong> {{ $t('terms.tm_ccu_other_marks') }}
+              <strong>3.12.3</strong> {{ $t('terms.tm_ccu_other_marks') }}
             </li>
             <li class="indent">
-              <strong>3.9.4</strong> {{ $t('terms.tm_no_other_company') }}
+              <strong>3.12.4</strong> {{ $t('terms.tm_no_other_company') }}
             </li>
           </ul>
         </ol>
@@ -60,8 +75,12 @@
             <li class="indent">
               <strong>4.1.1</strong> {{ $t('terms.bound_by_tc') }}
             </li>
-            <li class="indent" v-html="terms.comply_privacy_policy"></li>
-            <li class="indent" v-html="terms.comply_other_policies"></li>
+            <li class="indent">
+              <strong>4.1.2</strong> {{ $t('terms.comply_privacy_policy') }}
+            </li>
+            <li class="indent">
+              <strong>4.1.3</strong> {{ $t('terms.comply_other_policies') }}
+            </li>
             <li class="indent">
               <strong>4.1.4 </strong> {{ $t('terms.accept_tc_updates') }}
             </li>
@@ -86,59 +105,80 @@
           <li v-html="terms.dmca_intro"></li>
           <ul>
             <li class="indent">
-              <strong>7.3.1</strong> {{ $t('terms.dmca_signature') }}
+              <strong>7.4.1</strong> {{ $t('terms.dmca_signature') }}
             </li>
             <li class="indent">
-              <strong>7.3.2</strong> {{ $t('terms.dmca_description') }}
+              <strong>7.4.2</strong> {{ $t('terms.dmca_description') }}
             </li>
             <li class="indent">
-              <strong>7.3.3</strong> {{ $t('terms.dmca_location') }}
+              <strong>7.4.3</strong> {{ $t('terms.dmca_location') }}
             </li>
             <li class="indent">
-              <strong>7.3.4</strong> {{ $t('terms.dmca_your_contact_info') }}
+              <strong>7.4.4</strong> {{ $t('terms.dmca_your_contact_info') }}
             </li>
             <li class="indent">
-              <strong>7.3.5</strong>
+              <strong>7.4.5</strong>
               {{ $t('terms.dmca_not_authorized_statement') }}
             </li>
             <li class="indent">
-              <strong>7.3.6</strong> {{ $t('terms.dmca_statement_perjury') }}
+              <strong>7.4.6</strong> {{ $t('terms.dmca_statement_perjury') }}
             </li>
             <li class="indent">
-              <strong>7.3.7</strong> {{ $t('terms.dmca_contact_us') }}
+              <strong>7.4.7</strong> {{ $t('terms.dmca_contact_us') }}
             </li>
           </ul>
           <li v-html="terms.no_trademark_authorization"></li>
           <li v-html="terms.apache_license"></li>
         </ol>
 
-        <h3>8. {{ $t('terms.representations_warranties') }}</h3>
+        <h3>8. {{ $t('terms.payments') }}</h3>
         <ol class="outline eight">
+          <li v-html="terms.payment_opportunities"></li>
+          <li v-html="terms.third_party_processor"></li>
+          <li v-html="terms.pricing"></li>
+          <li v-html="terms.recurring_payment"></li>
+          <li v-html="terms.donation_to_company"></li>
+          <li v-html="terms.matching_donations"></li>
+          <li v-html="terms.fees"></li>
+          <li v-html="terms.at_will_use"></li>
+          <li v-html="terms.inquiries"></li>
+          <li v-html="terms.our_right_to_cancel"></li>
+          <li v-html="terms.payment_limitations"></li>
+          <li v-html="terms.sharing_financial_information"></li>
+          <li v-html="terms.duty_to_notify"></li>
+          <li v-html="terms.intervention"></li>
+          <li v-html="terms.complaints"></li>
+          <li v-html="terms.no_payment_warranties"></li>
+        </ol>
+
+        <h3>9. {{ $t('terms.representations_warranties') }}</h3>
+        <ol class="outline nine">
           <li v-html="terms.no_warranties"></li>
           <li v-html="terms.no_representations"></li>
         </ol>
 
-        <h3>9. {{ $t('terms.indemnification') }}</h3>
-        <ol class="outline nine">
+        <h3>10. {{ $t('terms.indemnification') }}</h3>
+        <ol class="outline ten">
           <li v-html="terms.by_you"></li>
           <li v-html="terms.procedures"></li>
         </ol>
 
-        <h3>10. {{ $t('terms.limitations_on_liability') }}</h3>
-        <ol class="outline ten">
+        <h3>11. {{ $t('terms.limitations_on_liability') }}</h3>
+        <ol class="outline eleven">
           <li v-html="terms.liability_limits"></li>
+          <li v-html="terms.liability_limits2"></li>
           <li v-html="terms.liability_disclaimer"></li>
           <li v-html="terms.statute_of_limitations"></li>
         </ol>
 
-        <h3>11. {{ $t('terms.jurisdiction_consent') }}</h3>
-        <ol class="outline eleven">
+        <h3>12. {{ $t('terms.jurisdiction_consent') }}</h3>
+        <ol class="outline twelve">
           <li v-html="terms.venue"></li>
           <li v-html="terms.jurisdiction"></li>
         </ol>
 
-        <h3>12. {{ $t('terms.miscellaneous_provisions') }}</h3>
-        <ol class="outline twelve">
+        <h3>13. {{ $t('terms.miscellaneous_provisions') }}</h3>
+        <ol class="outline thirteen">
           <li v-html="terms.severability"></li>
           <li v-html="terms.not_partners"></li>
           <li v-html="terms.third_party_beneficiaries"></li>
