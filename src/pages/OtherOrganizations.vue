@@ -14,17 +14,31 @@
       </div>
     </div>
 
-    <base-input
-      v-model="organizations.search"
-      data-testid="testOrganizationsSearchTextInput"
-      icon="search"
-      class="sm:w-84 my-2"
-      :placeholder="$t('actions.search')"
-      @update:modelValue="onSearchInput"
-    ></base-input>
+    <div class="flex">
+      <base-input
+        v-model="organizations.search"
+        data-testid="testOrganizationsSearchTextInput"
+        icon="search"
+        class="sm:w-84 my-2"
+        :placeholder="$t('actions.search')"
+        @update:modelValue="onSearchInput"
+      ></base-input>
+
+      <base-button
+        v-if="table"
+        :action="table.exportTableCSV"
+        type="primary"
+        :text="$t('actions.download')"
+        :alt="$t('actions.download')"
+        class="table-action-button my-2 ml-2 p-2"
+        ccu-icon="download"
+        icon-size="small"
+      />
+    </div>
 
     <Table
       :columns="columns"
+      ref="table"
       :data="organizations.data"
       :body-style="{ height: '300px' }"
       data-testid="testOrganizationsDataTable"
@@ -94,6 +108,67 @@
             </div>
           </div>
         </div>
+      </template>
+      <template #url="slotProps">
+        <base-button
+          class="text-primary-dark underline sm:ml-0 ml-1"
+          :icon-classes="$mq === 'sm' ? 'fa-2x' : 'fa-lg'"
+          icon="globe"
+          :style="slotProps.item.url === '' ? 'opacity: .5' : ''"
+          :action="
+            () => {
+              if (slotProps.item.url != '') {
+                open(slotProps.item.url, `_blank`);
+              }
+            }
+          "
+        />
+        <a
+          v-if="$mq === 'sm'"
+          class="text-primary-dark underline ml-2"
+          :href="slotProps.item.url"
+          >{{ slotProps.item.url }}</a
+        >
+      </template>
+      <template #facebook="slotProps">
+        <img
+          src="@/assets/facebook.svg"
+          class="sm:ml-1 sm:w-16 w-12"
+          :style="slotProps.item.facebook === '' ? 'opacity: .5' : ''"
+          alt="facebook"
+          @click="
+            () => {
+              if (slotProps.item.facebook != '')
+                open(slotProps.item.facebook, `_blank`);
+            }
+          "
+        />
+        <a
+          v-if="$mq === 'sm'"
+          class="text-primary-dark underline ml-1"
+          :href="slotProps.item.facebook"
+          >{{ slotProps.item.facebook }}</a
+        >
+      </template>
+      <template #twitter="slotProps">
+        <img
+          src="@/assets/twitter.svg"
+          class="sm:w-6 w-10 sm:ml-0 ml-1"
+          :style="slotProps.item.twitter === '' ? 'opacity: .5' : ''"
+          alt="twitter"
+          @click="
+            () => {
+              if (slotProps.item.twitter != '')
+                open(slotProps.item.twitter, `_blank`);
+            }
+          "
+        />
+        <a
+          v-if="$mq === 'sm'"
+          class="text-primary-dark underline ml-2"
+          :href="slotProps.item.twitter"
+          >{{ slotProps.item.twitter }}</a
+        >
       </template>
       <template #approved_roles="slotProps">
         <v-popover popper-class="w-80">
@@ -185,6 +260,7 @@ export default defineComponent({
     const { t, locale } = useI18n();
 
     const loading = ref(false);
+    const table = ref(null);
     const organizations = reactive({
       data: [] as Organization[],
       meta: {
@@ -210,6 +286,27 @@ export default defineComponent({
         key: 'name',
         sortable: true,
         width: isLandscape() ? '2fr' : '350px',
+      },
+      {
+        // TODO: change title to show url within the $t()
+        title: t('Links'),
+        dataIndex: 'url',
+        key: 'url',
+        width: '30px',
+      },
+      {
+        // TODO: change title to show url within the $t()
+        title: '',
+        dataIndex: 'facebook',
+        key: 'facebook',
+        width: '50px',
+      },
+      {
+        // TODO: change title to show url within the $t()
+        title: '',
+        dataIndex: 'twitter',
+        key: 'twitter',
+        width: '50px',
       },
       {
         title: t('otherOrganizations.access_level'),
@@ -412,6 +509,10 @@ export default defineComponent({
       getHighestRole,
       onSearchInput,
       handleOtherOrgTableChange,
+      table,
+      open: (location, target) => {
+        window.open(location, target);
+      },
     };
   },
 });

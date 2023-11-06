@@ -28,6 +28,7 @@ export default defineComponent({
     onMounted(async () => {
       await fetchPost();
       await getUser();
+      document.title = post.value?.title || document.title;
     });
 
     return {
