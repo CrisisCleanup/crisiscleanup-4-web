@@ -3,7 +3,7 @@
     <div class="flex gap-2 items-center justify-between">
       <base-select
         class="flex-1"
-        :placeholder="$t('~~Select Library')"
+        :placeholder="$t('adminCMS.select_library')"
         data-testid=""
         searchable
         item-key="id"
@@ -23,8 +23,8 @@
         @files="handleFileUpload"
       >
         <base-button
-          :title="$t('~~Upload Item~')"
-          :text="$t('~~Upload Item')"
+          :title="$t('actions.upload')"
+          :text="$t('actions.upload')"
           variant="solid"
           class="h-12 flex-1 p-1"
           :disabled="!selectedLibrary"
