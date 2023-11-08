@@ -156,8 +156,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-@import '../../assets/css/_terms-privacy.scss';
-
 .homegrid {
   &.grid-container {
     grid-template-areas:
