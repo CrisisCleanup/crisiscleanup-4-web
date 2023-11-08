@@ -212,16 +212,6 @@ export default defineComponent({
     @apply my-2;
   }
 
-  ul {
-    @apply mt-3 list-disc;
-    list-style-position: inside;
-  }
-
-  ol {
-    @apply mt-3 list-decimal;
-    list-style-position: inside;
-  }
-
   strong {
     @apply font-bold;
   }
