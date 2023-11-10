@@ -969,7 +969,7 @@ export default defineComponent({
       }
 
       const formData = new FormData();
-      formData.append('upload', fileList.at(-1));
+      formData.append('upload', fileList[0]);
       formData.append('type_t', type);
       stateRefs.uploading.value = true;
       try {
