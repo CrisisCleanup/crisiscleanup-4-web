@@ -1,10 +1,8 @@
 <template>
-  <div class="home-grid">
-    <div
-      class="top p-4 flex items-center justify-center flex-col md:flex-row md:justify-between w-[calc(100vw-0px)] min-w-0"
-    >
-      <div class="grid--logo logo w-24 md:w-52">
-        <a href="/">
+  <div class="main-grid md:h-screen">
+    <div class="logo m-8 flex items-center justify-center md:block">
+      <div class="w-40 md:w-52">
+        <a href="/live">
           <img
             src="../assets/ccu-logo-black-500w.png"
             data-testid="testLogoIcon"
@@ -12,64 +10,52 @@
           />
         </a>
       </div>
-      <IncidentContact class="w-full md:w-max" />
     </div>
-    <div class="side m-8 flex flex-col justify-center">
-      <div class="grid--nav flex flex-col gap-2">
-        <span v-for="item in routes" :key="item.key">
-          <a
-            v-if="item.external"
-            :data-testid="`testNavRoute${item.key}Link`"
-            :href="item.route"
-            class="font-h1 font-display text-h1 text-crisiscleanup-dark-500"
-            target="_blank"
-          >
-            {{ item.label }}
-          </a>
-          <router-link
-            v-if="!item.external"
-            :to="item.route || '#'"
-            class="font-h1 font-display text-h1 text-crisiscleanup-dark-500"
-          >
-            {{ item.label }}
-          </router-link>
-        </span>
-      </div>
-    </div>
-    <div class="register flex items-center justify-center m-8 w-max">
-      <slot name="register">
-        <div class="grid--actions mb-4 flex flex-col w-full">
-          <base-text
-            font="display"
-            variant="h2"
-            :weight="300"
-            class="text-crisiscleanup-dark-500 w-full"
-            >{{ $t('publicNav.relief_orgs_only') }}</base-text
-          >
-          <base-button
-            variant="solid"
-            data-testid="testRegisterButton"
-            size="large"
-            class="w-full"
-            :alt="$t('actions.register')"
-            :action="() => $router.push('/register')"
-          >
-            {{ $t('actions.register') }}
-          </base-button>
-        </div>
-      </slot>
-    </div>
-    <div class="main w-screen md:w-auto sm:m-10 z-50">
+    <IncidentContact class="w-full md:w-max hotline m-8" />
+    <div class="main m-8 overflow-scroll">
       <slot />
     </div>
-    <div class="bottom" data-testid="testBottomSectionDiv">
-      <div v-if="$route.name === 'nav.login'" class="flex flex-col m-8">
-        <div class="flex items-end md:justify-end gap-5">
+    <div class="register m-8">
+      <div class="flex flex-col w-full">
+        <div class="text-crisiscleanup-dark-500 w-full text-center self-end">
+          {{ $t('publicNav.relief_orgs_only') }}
+        </div>
+        <a
+          href="/register"
+          class="cursor-pointer bg-yellow-400 p-4 mt-3 flex items-center justify-center"
+          type="submit"
+          >{{ $t('actions.register') }}</a
+        >
+      </div>
+    </div>
+    <div class="nav flex flex-col gap-3 m-8 md:text-left text-center">
+      <span v-for="item in routes" :key="item.key">
+        <a
+          v-if="item.external"
+          :data-testid="`testNavRoute${item.key}Link`"
+          :href="item.route"
+          class="text-2xl text-crisiscleanup-dark-500"
+          target="_blank"
+        >
+          {{ item.label }}
+        </a>
+        <router-link
+          v-if="!item.external"
+          :to="item.route || '#'"
+          class="text-2xl text-crisiscleanup-dark-500"
+        >
+          {{ item.label }}
+        </router-link>
+      </span>
+    </div>
+    <div class="footer grid">
+      <div class="flex flex-col m-8 self-end items-center md:items-end">
+        <div class="flex items-center justify-center md:justify-end gap-5">
           <span v-for="item in footerRoutes" :key="item.key">
             <a
               v-if="item.external"
               :href="item.route"
-              class="font-body font-display text-h2 text-crisiscleanup-dark-300"
+              class="font-body text-h2 text-crisiscleanup-dark-300"
               target="_blank"
             >
               {{ item.label }}
@@ -77,7 +63,7 @@
             <router-link
               v-if="!item.external"
               :to="item.route || '#'"
-              class="font-body font-display text-h2 text-crisiscleanup-dark-300"
+              class="font-body text-h2 text-crisiscleanup-dark-300"
             >
               {{ item.label }}
             </router-link>
@@ -88,8 +74,12 @@
           data-testid="testAwsLink"
           target="_blank"
           href="https://aws.amazon.com/government-education/nonprofits/disaster-response/"
-          ><img src="@/assets/powered_by_aws.png" data-testid="testAwsImgIcon"
-        /></a>
+        >
+          <img
+            src="data:image/png;base64,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"
+            data-testid="testAwsImgIcon"
+          />
+        </a>
       </div>
     </div>
   </div>
@@ -117,8 +107,7 @@ export default defineComponent({
       },
       {
         key: 'blog',
-        route: 'http://blog.crisiscleanup.org',
-        external: true,
+        route: '/blog',
         label: t('publicNav.blog'),
       },
       {
@@ -302,81 +291,47 @@ ol.fifteen > li:before {
 </style>
 
 <style scoped>
-.side {
-  grid-area: side;
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-areas:
+    'logo . . . hotline'
+    'nav main main main main'
+    'register main main main main'
+    '. . . footer footer';
 }
-
-.top {
-  grid-area: top;
+.logo {
+  grid-area: logo;
 }
-
+.hotline {
+  grid-area: hotline;
+}
 .main {
   grid-area: main;
 }
-
-.bottom {
-  grid-area: bottom;
+.register {
+  grid-area: register;
 }
-
-.home-grid {
-  width: 100vw;
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 200px 1fr 1fr 150px;
-  grid-auto-columns: 350px 1fr 1fr;
-  /*grid-auto-rows: 1fr;*/
-  /*grid-auto-flow: row;*/
-  grid-template-areas:
-    'top top top'
-    'side main main'
-    'side main main'
-    'register . bottom';
-  padding-bottom: env(safe-area-inset-bottom);
+.nav {
+  grid-area: nav;
 }
-
-.grid--survivors {
-  @apply bg-crisiscleanup-yellow-700 my-4 text-center p-4;
-  /*min-width: 205px;*/
-
-  p {
-    letter-spacing: 0.35px;
-
-    &:first-child {
-      font-weight: 700;
-      @apply text-2xl;
-    }
-
-    &:last-child {
-      font-weight: 600;
-    }
-  }
-
-  a {
-    @apply underline;
-  }
+.footer {
+  grid-area: footer;
 }
-
-@media only screen and (max-width: 768px) {
-  .home-grid {
+.globe {
+  grid-area: globe;
+}
+@media screen and (max-width: 768px) {
+  .main-grid {
     display: grid;
-    align-items: center;
-    grid-auto-flow: row;
-    grid-template-columns: 1fr 1fr;
-    /* do not set template columns and rows */
-    grid-template-rows: unset;
-    overflow-y: auto;
-    /* grid-template-columns: 1fr 1fr;*/
-    /* grid-template-rows: repeat(auto-fit, 1fr);*/
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas:
-      'top top'
-      'main main'
-      'main main'
-      'main main'
-      'main main'
-      'register register'
-      'side side'
-      'bottom bottom';
-    padding-bottom: env(safe-area-inset-bottom);
+      'logo logo logo logo logo'
+      'hotline hotline hotline hotline hotline'
+      'main main main main main'
+      'register register register register register'
+      'nav nav nav nav nav'
+      'footer footer footer footer footer';
   }
 }
 </style>
