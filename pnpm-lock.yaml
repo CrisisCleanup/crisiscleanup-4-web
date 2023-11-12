@@ -251,6 +251,9 @@ dependencies:
   quill:
     specifier: ^1.3.7
     version: 1.3.7
+  quill-image-resize-vue:
+    specifier: ^1.0.4
+    version: 1.0.4
   raw-loader:
     specifier: ^4.0.2
     version: 4.0.2(webpack@5.88.2)
@@ -299,6 +302,9 @@ dependencies:
   vue-toastification:
     specifier: 2.0.0-rc.5
     version: 2.0.0-rc.5(vue@3.3.9)
+  vue3-carousel:
+    specifier: ^0.3.1
+    version: 0.3.1(vue@3.3.4)
   vue3-mq:
     specifier: ^3.1.3
     version: 3.1.3(vue@3.3.9)
@@ -9181,6 +9187,14 @@ packages:
       fast-diff: 1.1.2
     dev: false
 
+  /quill-image-resize-vue@1.0.4:
+    resolution: {integrity: sha512-/Nakepctw5PWzY7ebQ0GQgZh6uA0RtW8wLUrkiLRTl0ql7DJ0OhRCEHThsjJO+8HgsfTu3ohLUbOthnsImStJg==}
+    dependencies:
+      lodash: 4.17.21
+      quill: 1.3.7
+      raw-loader: 0.5.1
+    dev: false
+
   /quill@1.3.7:
     resolution: {integrity: sha512-hG/DVzh/TiknWtE6QmWAF/pxoZKYxfe3J/d/+ShUWkDvvkZQVTPeVmUJVu1uE6DDooC4fWTiCLh84ul89oNz5g==}
     dependencies:
@@ -9204,6 +9218,10 @@ packages:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
     dependencies:
       safe-buffer: 5.2.1
+    dev: false
+
+  /raw-loader@0.5.1:
+    resolution: {integrity: sha512-sf7oGoLuaYAScB4VGr0tzetsYlS8EJH6qnTCfQ/WVEa89hALQ4RQfCKt5xCyPQKPDUbVUAIP1QsxAwfAjlDp7Q==}
     dev: false
 
   /raw-loader@4.0.2(webpack@5.88.2):

@@ -130,6 +130,7 @@
     "qrcode": "^1.5.3",
     "qrcode-svg": "^1.1.0",
     "quill": "^1.3.7",
+    "quill-image-resize-vue": "^1.0.4",
     "raw-loader": "^4.0.2",
     "rrule": "^2.8.1",
     "sass": "^1.69.5",
