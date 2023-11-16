@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=18 <20",
+    "node": ">=18 <21",
     "pnpm": "^8"
   },
   "repository": {
