@@ -80,6 +80,7 @@ const config = {
       rules: {
         'vue/multi-word-component-names': 'warn',
         'vue/no-reserved-component-names': 'warn',
+        'vue/require-toggle-inside-transition': 'warn',
       },
     },
     {
