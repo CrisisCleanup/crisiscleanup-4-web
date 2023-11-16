@@ -61,9 +61,8 @@ export default defineComponent({
           },
         );
         await $toasted.success(t('info.upload_file_successful'));
-        document.querySelectorAll(
-          '.ql-editor',
-        )[0].innerHTML += `<img src="${result.data.blog_url}" alt="${result.data.filename}"/>`;
+        document.querySelectorAll('.ql-editor')[0].innerHTML +=
+          `<img src="${result.data.blog_url}" alt="${result.data.filename}"/>`;
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       } finally {
