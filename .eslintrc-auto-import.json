@@ -314,6 +314,10 @@
     "toValue": true,
     "injectLocal": true,
     "provideLocal": true,
-    "useClipboardItems": true
+    "useClipboardItems": true,
+    "ExtractDefaultPropTypes": true,
+    "ExtractPropTypes": true,
+    "ExtractPublicPropTypes": true,
+    "WritableComputedRef": true
   }
 }
