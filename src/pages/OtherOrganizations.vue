@@ -1,7 +1,7 @@
 <template>
   <div class="p-10">
     <div
-      class="sm:w-3/5 border-primary-dark md:h-20 border-2 my-4 flex items-center p-2"
+      class="sm:w-3/5 border-primary-dark border-2 my-4 flex items-center p-2"
     >
       <span class="text-5xl text-primary-dark mr-4">&#9888;</span>
       <div data-testid="testDoNotSharePublicDiv">
@@ -292,7 +292,7 @@ export default defineComponent({
         title: t('Links'),
         dataIndex: 'url',
         key: 'url',
-        width: '30px',
+        width: '50px',
       },
       {
         // TODO: change title to show url within the $t()
@@ -325,6 +325,7 @@ export default defineComponent({
         },
         class: 'justify-center',
         headerClass: 'justify-center',
+        width: '80px',
       },
       {
         title: t('otherOrganizations.cases_reported'),
@@ -336,6 +337,7 @@ export default defineComponent({
         },
         class: 'justify-center',
         headerClass: 'justify-center',
+        width: '80px',
       },
       {
         title: t('otherOrganizations.cases_claimed'),
@@ -347,6 +349,7 @@ export default defineComponent({
         },
         class: 'justify-center',
         headerClass: 'justify-center',
+        width: '80px',
       },
       {
         title: t('otherOrganizations.cases_closed'),
@@ -358,6 +361,7 @@ export default defineComponent({
         },
         class: 'justify-center',
         headerClass: 'justify-center',
+        width: '80px',
       },
       {
         title: t('otherOrganizations.cases_overdue'),
