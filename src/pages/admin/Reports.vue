@@ -34,11 +34,11 @@
       </div>
       <div
         data-testid="testReportsContainerDiv"
-        class="grid grid-cols-1 sm:grid-cols-3"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
       >
         <div v-for="r in reportsGrouped[sponsored]" :key="`${r.id}`">
           <div
-            class="my-4 mx-2 bg-white shadow h-auto content-center flex-wrap cursor-pointer"
+            class="my-4 mx-2 bg-white sm:h-5/6 shadow content-center flex-wrap cursor-pointer"
             @click="() => requestReport(r, null, sponsored === 'true')"
           >
             <div class="flex flex-col justify-around">
