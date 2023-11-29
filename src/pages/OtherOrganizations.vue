@@ -40,7 +40,7 @@
       ref="table"
       :columns="columns"
       :data="organizations.data"
-      :body-style="{ height: 'calc(100vh - 30rem)' }"
+      :body-style="{ height: 'calc(100vh - 30rem)', width: 'fit-content' }"
       data-testid="testOrganizationsDataTable"
       enable-pagination
       :pagination="organizations.meta.pagination"
@@ -370,6 +370,7 @@ export default defineComponent({
         sortable: true,
         class: 'justify-center',
         headerClass: 'justify-center',
+        width: '80px',
       },
       {
         title: t('otherOrganizations.last_login'),
