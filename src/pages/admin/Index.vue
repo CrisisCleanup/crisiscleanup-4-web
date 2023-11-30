@@ -12,30 +12,33 @@ export default defineComponent({
   components: { PageTabBar },
   setup() {
     const tabs = reactive([
-      reactive({
+      {
         key: 'nav.admin_dashboard',
-      }),
+      },
       // reactive({
       //   key: 'nav.admin_events',
       // }),
-      reactive({
+      {
         key: 'nav.admin_event_stream',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.admin_tickets',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.bugs',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.cms',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.incident_wizard',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.localizations',
-      }),
+      },
+      {
+        key: 'nav.rag',
+      },
     ]);
 
     const ccuApi = useApi();
