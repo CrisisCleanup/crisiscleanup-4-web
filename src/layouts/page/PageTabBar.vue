@@ -16,7 +16,7 @@
         </router-link>
       </template>
     </div>
-    <div class="flex-grow overflow-auto p-3 mb-16">
+    <div class="flex-grow overflow-auto p-3 sm:mb-0 mb-16">
       <router-view></router-view>
     </div>
   </div>
