@@ -11,3 +11,4 @@ export * from './useZendesk';
 export * from './useAuth';
 export * from './useAxiosRetry';
 export * from './useModel';
+export * from './useRAG';
