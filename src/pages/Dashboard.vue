@@ -765,10 +765,12 @@ export default defineComponent({
           worksite.work_types &&
           currentIncidentId.value === worksite.incident
         ) {
-          const claimed = worksite.work_types.find(
-            (workType) =>
-              workType.claimed_by === currentUser.value.organization.id,
-          );
+          const claimed = worksite.work_types.find((workType) => {
+            return (
+              workType.claimed_by === currentUser.value.organization.id &&
+              workType.status.includes('open')
+            );
+          });
           return Boolean(claimed);
         }
 

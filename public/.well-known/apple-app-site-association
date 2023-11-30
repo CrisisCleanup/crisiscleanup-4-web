@@ -10,11 +10,11 @@
                 ],
                 "components": [
                     {
-                        "/": "/o/callback",
+                        "/": "/l",
                         "comment": "Email login link."
                     },
                     {
-                        "/": "/o/callback/*",
+                        "/": "/l/*",
                         "comment": "Email login link."
                     },
                     {

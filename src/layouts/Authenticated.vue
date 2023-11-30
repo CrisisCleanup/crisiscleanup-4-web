@@ -208,6 +208,7 @@ export default defineComponent({
       currentIncident,
       currentIncidentId,
       fetchIncidentDetails,
+      updateCurrentIncidentId,
     } = useCurrentIncident();
     const authStore = useAuthStore();
     const { setupLanguage } = useSetupLanguage();
@@ -312,13 +313,13 @@ export default defineComponent({
         key: 'other_organizations',
         icon: 'otherorg',
         iconSize: 'xl',
-        to: '/other_organizations',
+        to: `/incident/${currentIncidentId.value}/other_organizations`,
       },
       {
         key: 'reports',
         icon: 'reports',
         text: t('nav.reports'),
-        to: '/reports',
+        to: `/incident/${currentIncidentId.value}/reports`,
         // newBadge: Report.query()
         //     .where('created_at', (created_at: string) => {
         //       const reportsAccessed =
@@ -405,12 +406,7 @@ export default defineComponent({
 
     const handleChange = async (value: number) => {
       if (!value) return;
-      // incident id param watcher for under `useCurrentIncident`
-      await router.push({
-        name: route.name as string,
-        params: { ...route.params, incident_id: value },
-        query: { ...route.query },
-      });
+      await updateCurrentIncidentId(value).catch(getErrorMessage);
     };
 
     async function showIncidentSelectionModal() {

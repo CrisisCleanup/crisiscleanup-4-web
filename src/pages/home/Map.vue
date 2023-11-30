@@ -28,7 +28,7 @@
         "
       />
 
-      <div class="h-120 border bg-crisiscleanup-light-grey relative">
+      <div class="h-108 border bg-crisiscleanup-light-grey relative">
         <SimpleMap
           :map-loading="false"
           :available-work-types="availableWorkTypes"

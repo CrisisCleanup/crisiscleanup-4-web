@@ -65,7 +65,7 @@
                       popperClass: 'interactive-tooltip w-72',
                       html: true,
                     }"
-                    :alt="translate('actions.help_alt')"
+                    :alt="translate(field.help_t)"
                     type="help"
                     size="large"
                   />
@@ -100,7 +100,7 @@
                       popperClass: 'interactive-tooltip w-72',
                       html: true,
                     }"
-                    :alt="translate('actions.help_alt')"
+                    :alt="translate(field.help_t)"
                     type="help"
                     size="large"
                   />
@@ -168,7 +168,7 @@
                       html: true,
                       popperClass: 'interactive-tooltip w-72',
                     }"
-                    :alt="translate('actions.help_alt')"
+                    :alt="translate(field.help_t)"
                     type="help"
                     size="large"
                   />
@@ -194,7 +194,7 @@
                     html: true,
                     popperClass: 'interactive-tooltip w-72',
                   }"
-                  :alt="translate('actions.help_alt')"
+                  :alt="translate(field.help_t)"
                   type="help"
                   size="large"
                 />

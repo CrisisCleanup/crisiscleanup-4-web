@@ -75,7 +75,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import '../../assets/css/_terms-privacy.scss';
 .doc-link {
   @apply text-base;
 }

@@ -268,9 +268,7 @@ const authStore = () => {
 
       if (invalidMagicLink) {
         const $toasted = useToast();
-        $toasted.error(
-          '~~Invalid or expired magic link. Please request another',
-        );
+        $toasted.error(t('magicLink.invalid_expired_magic_link'));
         return router.push('/magic-link');
       }
 

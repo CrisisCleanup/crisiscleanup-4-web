@@ -86,7 +86,7 @@
         variant="solid"
         class="cursor-pointer px-3 py-1"
       >
-        {{ $t('~~Add Image From Library') }}
+        {{ $t('adminCMS.add_from_library') }}
       </base-button>
       <DragDrop
         class="cursor-pointer py-2"
@@ -393,7 +393,7 @@ export default defineComponent({
       }
 
       const formData = new FormData();
-      formData.append('upload', fileList.at(-1));
+      formData.append('upload', fileList[0]);
       formData.append('type_t', 'fileTypes.other_file');
       uploading.value = true;
       try {

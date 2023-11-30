@@ -28,6 +28,7 @@ export default defineComponent({
     onMounted(async () => {
       await fetchPost();
       await getUser();
+      document.title = post.value?.title || document.title;
     });
 
     return {
@@ -39,6 +40,7 @@ export default defineComponent({
 
 <template>
   <BlogPostDetail :post="post" />
+  <div id="commento"></div>
 </template>
 
 <style scoped></style>

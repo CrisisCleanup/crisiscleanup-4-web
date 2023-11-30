@@ -18,6 +18,7 @@
       <WorksitePhotoMap
         v-else-if="showingPhotoMap && caseImages.length > 0"
         :key="caseImages.length"
+        ref="photoMap"
         :case-images="caseImages"
         class="mb-16"
         @load-case="loadCase"
@@ -474,6 +475,7 @@
             <WorksitePhotoMap
               v-else-if="showingPhotoMap && caseImages.length > 0"
               :key="caseImages.length"
+              ref="photoMap"
               :case-images="caseImages"
               @load-case="loadCase"
             />
@@ -969,7 +971,7 @@ export default defineComponent({
     const unreadChatCount = ref(0);
     const unreadUrgentChatCount = ref(0);
     const unreadNewsCount = ref(0);
-    const timesUsed = ref(0);
+    const photoMap = ref(null);
     const { showUnclaimModal } = useWorksiteTableActions(
       selectedTableItems,
       () => {
@@ -1160,8 +1162,15 @@ export default defineComponent({
     });
 
     const jumpToCase = async (showPopup = true) => {
-      showMap();
-      mapUtils?.jumpToCase(worksite.value, showPopup);
+      if (showingPhotoMap.value) {
+        photoMap?.value?.jumpToLocation(
+          worksite.value.latitude,
+          worksite.value.longitude,
+        );
+      } else {
+        showMap();
+        mapUtils?.jumpToCase(worksite.value, showPopup);
+      }
     };
 
     function reloadTable() {
@@ -1974,6 +1983,7 @@ export default defineComponent({
       mq,
       showingSearchModal,
       caseImages,
+      photoMap,
     };
   },
 });

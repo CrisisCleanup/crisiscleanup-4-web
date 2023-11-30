@@ -55,6 +55,7 @@
                 popperClass: 'interactive-tooltip w-108',
                 autoHide: true,
               }"
+              :alt="$t('pewPew.type_description')"
               v-bind="helpTooltipAttrs"
             />
           </div>
@@ -82,6 +83,7 @@
                 popperClass: 'interactive-tooltip w-108',
                 autoHide: true,
               }"
+              :alt="$t('pewPew.role_description')"
               v-bind="helpTooltipAttrs"
             />
           </div>
@@ -111,6 +113,7 @@
                 popperClass: 'interactive-tooltip w-108',
                 autoHide: true,
               }"
+              :alt="$t('pewPew.incidents_description')"
               v-bind="helpTooltipAttrs"
             />
           </div>
@@ -132,6 +135,7 @@
                 popperClass: 'interactive-tooltip w-108',
                 autoHide: true,
               }"
+              :alt="$t('pewPew.cases_description')"
               v-bind="helpTooltipAttrs"
             />
           </div>
@@ -153,6 +157,7 @@
                 popperClass: 'interactive-tooltip w-108',
                 autoHide: true,
               }"
+              :alt="$t('pewPew.call_description')"
               v-bind="helpTooltipAttrs"
             />
           </div>
@@ -174,6 +179,7 @@
                 popperClass: 'interactive-tooltip w-108',
                 autoHide: true,
               }"
+              :alt="$t('pewPew.value_description')"
               v-bind="helpTooltipAttrs"
             />
           </div>
@@ -356,7 +362,6 @@ export default defineComponent({
 
     const helpTooltipAttrs = {
       invertColor: true,
-      alt: t('actions.help_alt'),
       type: 'help',
       size: 'medium',
     };

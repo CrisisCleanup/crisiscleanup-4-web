@@ -22,7 +22,8 @@ const debug = createDebug('@ccu:hooks:useCurrentIncident');
  */
 export const useCurrentIncident = () => {
   const { hasCurrentUser } = useCurrentUser();
-  const { routeIncidentId } = useRouteIncident();
+  const { routeIncidentId, hasRouteIncidentId, updateRouteIncidentId } =
+    useRouteIncident();
   // synchronize route incident to states if found, but always use user states as source.
   const { userIncidentId, updateUserIncident } =
     useUserIncident(routeIncidentId);
@@ -111,12 +112,27 @@ export const useCurrentIncident = () => {
     }
   });
 
+  /**
+   * Update the current incident id for the user.
+   *
+   * @remarks
+   * This will update the route if an incident id is currently in use, which will then propagate to user states.
+   * Otherwise, just updates the user states.
+   *
+   * @param newIncidentId New incident id.
+   */
+  const updateCurrentIncidentId = async (newIncidentId: number) => {
+    await (hasRouteIncidentId.value
+      ? updateRouteIncidentId(newIncidentId)
+      : updateUserIncident(newIncidentId));
+  };
+
   return {
     currentIncidentId: readonly(currentIncidentId),
     currentIncident,
     hasCurrentIncident,
     isCurrentIncidentLoading,
-    updateUserIncident,
+    updateCurrentIncidentId,
     fetchIncidentDetails: async () => {
       debug('Fetching incident details...');
       await fetchInstance().catch(getErrorMessage);

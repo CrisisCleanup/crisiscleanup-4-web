@@ -167,6 +167,7 @@ export interface Ani {
 export interface CmsItem {
   id: string;
   title: string;
+  slug: string;
   content: string;
   publish_at: string;
   created_by: number;

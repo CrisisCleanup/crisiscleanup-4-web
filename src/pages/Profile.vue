@@ -125,7 +125,9 @@
                         size="large"
                         :placeholder="$t('profileUser.email_placeholder ')"
                         required
-                        @update:modelValue="(value) => updateUser(value, email)"
+                        @update:modelValue="
+                          (value) => updateUser(value, 'email')
+                        "
                       />
                     </div>
                   </div>

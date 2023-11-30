@@ -92,6 +92,7 @@ import User from '@/models/User';
 import { groupBy } from '@/utils/array';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { getErrorMessage } from '@/utils/errors';
+import { useCurrentIncident } from '@/hooks';
 
 export default defineComponent({
   name: 'Reports',
@@ -103,9 +104,8 @@ export default defineComponent({
     const router = useRouter();
     const { updateUserStates } = useCurrentUser();
 
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
-    );
+    const { currentIncidentId } = useCurrentIncident();
+
     const loading = ref(false);
     const newReportIds = ref(new Set());
     const showRequestAccessModal = ref(false);
@@ -123,7 +123,9 @@ export default defineComponent({
       sponsored = false,
     ) {
       if (sponsored === true) {
-        return router.push(`/report/${report?.id}`);
+        return router.push(
+          `/incident/${currentIncidentId.value}/report/${report?.id}`,
+        );
       }
 
       if (!downloadType) {

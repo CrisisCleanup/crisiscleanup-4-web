@@ -78,7 +78,6 @@ test.describe('Authentication', () => {
     async ({ page }) => {
       const authedRoutesAndTestIds: Array<[string, string]> = [
         ['/dashboard', 'testDashboarddiv'],
-        ['/other_organizations', 'testOrganizationsDataTable'],
         ['/admin', 'testAdminDashboardDiv'],
       ];
       for (const [route, testId] of authedRoutesAndTestIds) {

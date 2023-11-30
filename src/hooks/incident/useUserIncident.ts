@@ -38,8 +38,14 @@ export const useUserIncident = (
       : undefined,
   );
 
-  const updateUserIncident = (newIncidentId: number) =>
-    updateUserStates({ incident: newIncidentId });
+  /**
+   * Set user states incident id
+   * @param newIncidentId new incident id to set in user states.
+   */
+  const updateUserIncident = (newIncidentId: number) => {
+    debug('Updating incident id in user state -> %s', newIncidentId);
+    return updateUserStates({ incident: newIncidentId });
+  };
 
   // update user states whenever current incident id changes.
   whenever(

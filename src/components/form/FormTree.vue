@@ -61,7 +61,7 @@
                 html: true,
                 popperClass: 'interactive-tooltip w-72',
               }"
-              :alt="t('actions.help_alt')"
+              :alt="t(field.help_t)"
               :data-testid="`test${t(field.label_t)}HelpTooltip`"
               type="help"
               size="large"
@@ -103,7 +103,7 @@
                 popperClass: 'interactive-tooltip w-72',
               }"
               :data-testid="`test${field.field_key}HelpTooltip`"
-              :alt="t('actions.help_alt')"
+              :alt="t(field.help_t)"
               type="help"
               size="large"
             />
@@ -194,7 +194,7 @@
                 html: true,
                 popperClass: 'interactive-tooltip w-72',
               }"
-              :alt="t('actions.help_alt')"
+              :alt="t(field.help_t)"
               :data-testid="`test${field.field_key}HelpTooltip`"
               type="help"
               size="large"
@@ -251,7 +251,7 @@
               popperClass: 'interactive-tooltip w-72',
             }"
             :data-testid="`test${field.field_key}HelpTooltip`"
-            :alt="t('actions.help_alt')"
+            :alt="t(field.help_t)"
             type="help"
             size="large"
           />
