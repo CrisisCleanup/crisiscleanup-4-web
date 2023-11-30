@@ -12,6 +12,7 @@ const AdminBugs = () => import('@/pages/admin/AdminBugs.vue');
 const AdminCms = () => import('./AdminCms.vue');
 const AdminLocalizations = () => import('@/pages/admin/AdminLocalizations.vue');
 const AdminIncidentWizard = () => import('./AdminIncidentWizard.vue');
+const AdminRAG = () => import('./AdminRAG.vue');
 
 const routes = [
   {
@@ -78,6 +79,11 @@ const routes = [
         path: 'incident_wizard/:incident_id',
         name: 'nav.incident_wizard_detail',
         component: AdminIncidentWizard,
+      },
+      {
+        path: 'rag',
+        name: 'nav.rag',
+        component: AdminRAG,
       },
     ],
   },
