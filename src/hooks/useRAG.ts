@@ -48,7 +48,6 @@ export const useRAG = () => {
   return {
     submitQuestion,
     history: readonly(history),
-    ragState,
     loading: ragState.isLoading,
   };
 };
