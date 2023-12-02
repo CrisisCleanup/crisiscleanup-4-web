@@ -350,8 +350,8 @@ devDependencies:
     specifier: ^1.9.8
     version: 1.9.8
   '@types/lodash':
-    specifier: ^4.14.201
-    version: 4.14.202
+    specifier: ^4.14.199
+    version: 4.14.199
   '@types/markdown-it':
     specifier: ^13.0.7
     version: 13.0.7
