@@ -28,7 +28,7 @@ jobs:
   notify:
     name: Notify Deploy >> ${{ inputs.stage }}
     runs-on: ubuntu-latest
-    if: inputs.stage == 'staging' || inputs.stage == 'production'
+    if: inputs.stage == 'staging' || inputs.stage == 'production' || inputs.stage == 'production-au'
     steps:
       - uses: rtCamp/action-slack-notify@v2
 
@@ -43,7 +43,7 @@ jobs:
     name: Notify Success >> ${{ inputs.stage }}
     runs-on: ubuntu-latest
     needs: [deploy-site]
-    if: inputs.stage == 'staging' || inputs.stage == 'production'
+    if: inputs.stage == 'staging' || inputs.stage == 'production' || inputs.stage == 'production-au'
     environment:
       name: ${{ inputs.stage }}
       url: ${{ vars.VITE_APP_BASE_URL }}
