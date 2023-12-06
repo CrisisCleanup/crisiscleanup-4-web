@@ -1044,16 +1044,6 @@ export default defineComponent({
       },
     );
 
-    onMounted(async () => {
-      if (currentIncidentId.value && !route.params.incident_id) {
-        await router.replace(`/incident/${currentIncidentId.value}/dashboard`);
-      }
-
-      loading.value = true;
-      await reloadDashBoard();
-      loading.value = false;
-    });
-
     return {
       usersToInvite,
       totalWorksites,
