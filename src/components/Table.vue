@@ -515,6 +515,7 @@ export default defineComponent({
     const gridStyleBody = computed(() => {
       return {
         overflow: 'auto',
+        width: 'fit-content',
         ...props.bodyStyle,
       };
     });
