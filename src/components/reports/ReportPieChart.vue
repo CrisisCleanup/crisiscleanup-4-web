@@ -6,6 +6,7 @@
 import { onMounted } from 'vue';
 import * as d3 from 'd3';
 import { sumBy } from 'lodash';
+import type { Portal } from '@/models/types';
 
 export default defineComponent({
   name: 'ReportPieChart',
@@ -29,10 +30,13 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18n();
-    let formatter = new Intl.NumberFormat('en-US');
+    const store = useStore();
+    const portal = computed(() => store.getters['enums/portal'] as Portal);
+
+    let formatter = new Intl.NumberFormat(portal.value.default_language);
     const chart = ref(null);
     if (props.displayOptions.number_format === 'currency') {
-      formatter = new Intl.NumberFormat('en-US', {
+      formatter = new Intl.NumberFormat(portal.value.default_language, {
         style: 'currency',
         currency: 'USD',
         maximumFractionDigits: 0,
@@ -41,7 +45,7 @@ export default defineComponent({
     }
 
     if (props.displayOptions.number_format === 'percentage') {
-      formatter = new Intl.NumberFormat('en-US', {
+      formatter = new Intl.NumberFormat(portal.value.default_language, {
         style: 'percent',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,

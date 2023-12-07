@@ -101,8 +101,9 @@ export type Portal = {
   name: string;
   portal_key: string;
   tos_updated_at: Date;
-  default_currency: number;
-  default_language: number;
+  default_currency: string;
+  default_language: string;
+  logo_url: string;
 } & CCUBaseFields;
 
 export interface OrganizationRole {

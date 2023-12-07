@@ -466,7 +466,7 @@ export default {
 
     const supportedLanguages = computed(() => {
       const languages = Language.all();
-      const ids = new Set([2, 7, 91, 11]);
+      const ids = new Set([2, 3, 7, 91, 11]);
       return languages.filter((l) => ids.has(Number(l.id)));
     });
 

@@ -3,7 +3,7 @@
     <router-link :to="logoRoute.to" class="logo--grid">
       <div class="logo flex justify-center p-3">
         <img
-          src="../../assets/crisiscleanup_logo.png"
+          :src="portal.logo_url || logo"
           style="height: 53px"
           data-testid="testCrisiscleanupLogoIcon"
         />
@@ -25,6 +25,8 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import NavButton from './NavButton.vue';
+import type { Portal } from '@/models/types';
+import logo from '@/assets/crisiscleanup_logo.png';
 
 export default defineComponent({
   name: 'NavMenu',
@@ -38,6 +40,14 @@ export default defineComponent({
       type: Object,
       default: () => ({}),
     },
+  },
+  setup() {
+    const store = useStore();
+    const portal = computed(() => store.getters['enums/portal'] as Portal);
+    return {
+      portal,
+      logo,
+    };
   },
 });
 </script>
