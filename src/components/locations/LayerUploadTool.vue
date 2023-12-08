@@ -79,7 +79,7 @@
                 data-testid="testSelectKeyShapefileSelect"
                 select-classes="bg-white border w-full"
                 class="form-field"
-                @update:modelValue="
+                @update:model-value="
                   (value: string) => {
                     shapefileInfo[data.filename].shapefileKey = value;
                     shapefileInfo = { ...shapefileInfo };
@@ -118,7 +118,7 @@
                   select-classes="bg-white border w-full"
                   :placeholder="$t('layersVue.location_type')"
                   class="form-field"
-                  @update:modelValue="
+                  @update:model-value="
                     (value: string) => {
                       shapefileInfo[data.filename].shapefileType = value;
                       shapefileInfo = { ...shapefileInfo };
@@ -137,7 +137,7 @@
                   select-classes="bg-white border w-full"
                   :placeholder="$t('layersVue.degree_of_sharing')"
                   class="form-field"
-                  @update:modelValue="
+                  @update:model-value="
                     (value: string) => {
                       shapefileInfo[data.filename].shapefileAccess = value;
                       shapefileInfo = { ...shapefileInfo };
@@ -164,7 +164,7 @@
               :alt="$t('actions.upload')"
               :action="
                 () => {
-                  uploadShapefile(data.filename);
+                  return uploadShapefile(data.filename);
                 }
               "
               data-testid="testUploadButton"
@@ -180,7 +180,7 @@
 
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import Layer from '../../models/Layer';
@@ -299,7 +299,7 @@ export default defineComponent({
       }
 
       try {
-        const results = await axios.post(
+        const result = await axios.post(
           `${import.meta.env.VITE_APP_API_BASE_URL}/upload_shapefile`,
           formData,
           {
@@ -309,10 +309,13 @@ export default defineComponent({
             },
           },
         );
-        emit('addedLayer', results.data);
-        await $toasted.success(t('layersVue.successful_upload'));
+        if (result instanceof AxiosError) {
+          return $toasted.error(getErrorMessage(result));
+        }
+        emit('addedLayer', result.data);
+        $toasted.success(t('layersVue.successful_upload'));
       } catch (error) {
-        await $toasted.error(getErrorMessage(error));
+        $toasted.error(getErrorMessage(error));
       }
     }
 
