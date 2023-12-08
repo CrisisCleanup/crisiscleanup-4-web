@@ -36,8 +36,22 @@ const content = computed(() => markdown.render(props.source));
   h4 {
     @apply text-h4 font-h4 text-crisiscleanup-dark-400;
   }
+  h5 {
+    @apply text-body font-body font-bold text-crisiscleanup-dark-400;
+  }
+  h6 {
+    @apply text-body font-body font-bold text-crisiscleanup-dark-500;
+  }
   p {
-    @apply text-body font-body text-crisiscleanup-dark-500;
+    @apply text-bodysm font-bodysm text-crisiscleanup-dark-500;
+  }
+  a {
+    @apply text-body font-body text-primary-dark;
+    text-decoration: underline;
+    transition: text-decoration 0.2s ease-in-out;
+    &:hover {
+      text-decoration: none;
+    }
   }
 }
 </style>
