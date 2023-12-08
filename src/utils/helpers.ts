@@ -1,6 +1,7 @@
-import { useI18n } from 'vue-i18n';
 import { i18n } from '@/modules/i18n';
 import { MD5 } from 'crypto-js';
+import { store } from '@/store';
+import type { Portal } from '@/models/types';
 
 /**
  * Convert rem to pixels.
@@ -45,21 +46,23 @@ export function numeral(
   value: number,
   type: string | undefined = undefined,
 ): string {
-  let formatter = new Intl.NumberFormat('en-US', {
+  const portal = store.getters['enums/portal'] as Portal;
+  const locale = portal?.default_language || 'en-US';
+  let formatter = new Intl.NumberFormat(locale, {
     maximumFractionDigits: 1,
     minimumFractionDigits: 0,
   });
   if (type === 'currency') {
-    formatter = new Intl.NumberFormat('en-US', {
+    formatter = new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: 'USD',
+      currency: portal?.default_currency || 'USD',
       maximumFractionDigits: 0,
       minimumFractionDigits: 0,
     });
   }
 
   if (type === 'percentage') {
-    formatter = new Intl.NumberFormat('en-US', {
+    formatter = new Intl.NumberFormat(locale, {
       style: 'percent',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,

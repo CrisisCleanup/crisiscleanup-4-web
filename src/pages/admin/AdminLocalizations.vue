@@ -236,6 +236,7 @@ import useDialogs from '@/hooks/useDialogs';
 import Editor from '@/components/Editor.vue';
 import useTranslation from '@/hooks/useTranslation';
 import BaseSelect from '@/components/BaseSelect.vue';
+import type { Portal } from '@/models/types';
 
 interface Localization {
   id?: string;
@@ -259,6 +260,8 @@ export default defineComponent({
     const languages = Language.all();
     const { t } = useI18n();
     const { component } = useDialogs();
+    const store = useStore();
+    const portal = computed(() => store.getters['enums/portal'] as Portal);
 
     const $toasted = useToast();
 
@@ -295,20 +298,22 @@ export default defineComponent({
     ]);
 
     async function autoTranslate() {
-      const englishLanguage = Language.query().where('subtag', 'en-US').first();
+      const portalLanguage = Language.query()
+        .where('subtag', portal.value.default_language)
+        .first();
       const englishLocalization = localizationTexts.value.find(
-        (i) => i.language === englishLanguage?.id,
+        (i) => i.language === portalLanguage?.id,
       );
 
       if (englishLocalization) {
         for (const lang of Language.all()) {
-          if (lang.id === englishLanguage?.id) {
+          if (lang.id === portalLanguage?.id) {
             continue;
           }
 
           const translation = await translate(
             englishLocalization.text,
-            'en-US',
+            portal.value.default_language,
             lang.subtag,
           );
           const existingLang = localizationTexts.value.find(
