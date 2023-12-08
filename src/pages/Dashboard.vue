@@ -1044,6 +1044,10 @@ export default defineComponent({
       },
     );
 
+    onMounted(async () => {
+      await reloadDashBoard();
+    });
+
     return {
       usersToInvite,
       totalWorksites,
