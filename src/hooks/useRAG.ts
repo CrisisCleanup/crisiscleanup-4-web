@@ -1,6 +1,10 @@
 import createDebug from 'debug';
 import { useWebSockets } from '@/hooks/useWebSockets';
-import { generateUUID } from '@/utils/helpers';
+import { generateUUID, toCamelCase } from '@/utils/helpers';
+import { useAxios } from '@vueuse/integrations/useAxios';
+import type { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import _ from 'lodash';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -9,6 +13,73 @@ interface RAGEntry {
   actor: 'user' | 'aarongpt';
   content: string;
 }
+
+interface DocumentMetadata {
+  [key: string]: string | number;
+  source: string;
+}
+
+interface Document {
+  pageContent: string;
+  type: string;
+  metadata: DocumentMetadata;
+}
+
+interface RAGUploadResponse {
+  documents: Document[];
+  documentIds: string[];
+}
+
+export const useRAGUpload = () => {
+  const uploadedDocuments = ref<RAGUploadResponse[]>([]);
+
+  const uploadState = useAxios<RAGUploadResponse>(
+    '/rag_file_upload',
+    {
+      ...(<AxiosRequestConfig>axios.defaults),
+      headers: {
+        ...(<AxiosRequestConfig['headers']>axios.defaults.headers),
+        'Content-Type': 'multipart/form-data',
+      },
+      baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+      transformResponse: [
+        ..._.castArray(axios.defaults.transformResponse ?? []),
+        (data: string | RAGUploadResponse) =>
+          toCamelCase<string | RAGUploadResponse>(
+            typeof data === 'string' ? JSON.parse(data) : <object>data,
+          ),
+      ],
+    },
+    {
+      immediate: false,
+      resetOnExecute: true,
+    },
+  );
+
+  const uploadFile = (fileData: Blob) => {
+    const formData = new FormData();
+    formData.append('file', fileData);
+    return uploadState.execute(undefined, {
+      method: 'POST',
+      data: formData,
+    });
+  };
+
+  whenever(
+    () => uploadState.data.value,
+    (data) => {
+      if (!data) return;
+      debug('pushing new uploaded document: %o', data);
+      uploadedDocuments.value.push(data);
+    },
+  );
+
+  return {
+    uploadFile,
+    isLoading: uploadState.isLoading,
+    uploadedDocuments: readonly(uploadedDocuments),
+  };
+};
 
 export const useRAG = () => {
   const history = ref<RAGEntry[]>([]);
