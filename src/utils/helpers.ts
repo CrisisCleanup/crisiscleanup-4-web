@@ -2,6 +2,8 @@ import { i18n } from '@/modules/i18n';
 import { MD5 } from 'crypto-js';
 import { store } from '@/store';
 import type { Portal } from '@/models/types';
+import _ from 'lodash';
+import type { CamelCasedPropertiesDeep } from 'type-fest';
 
 /**
  * Convert rem to pixels.
@@ -103,3 +105,18 @@ export const generateUUID = (): string =>
       (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
     ).toString(16),
   );
+
+/**
+ * Recursively convert object|array|string to camel case.
+ * @param object
+ */
+export const toCamelCase = <T>(object: T): CamelCasedPropertiesDeep<T> => {
+  if (_.isArray(object)) {
+    return object.map((item) => toCamelCase(item));
+  } else if (_.isObject(object)) {
+    return _.transform(object, (result, value, key) => {
+      result[_.camelCase(<string>key)] = toCamelCase(value);
+    });
+  }
+  return object;
+};
