@@ -68,7 +68,7 @@
       <div class="my-2 max-h-84 overflow-auto">
         <Accordion>
           <AccordionItem
-            :name="$t('locationTypes.boundary_political_us_state')"
+            :name="$t('locationTypes.boundary_political_home_primary_division')"
           >
             <div v-for="state in usStates" :key="`${state.id}`">
               <base-checkbox
@@ -89,7 +89,7 @@
             </div>
           </AccordionItem>
           <AccordionItem
-            :name="$t('locationTypes.boundary_political_us_congress')"
+            :name="$t('locationTypes.boundary_political_home_electoral_district')"
           >
             <div v-for="district in districts" :key="`${district.id}`">
               <base-checkbox
@@ -110,7 +110,7 @@
             </div>
           </AccordionItem>
           <AccordionItem
-            :name="$t('locationTypes.boundary_political_us_county')"
+            :name="$t('locationTypes.boundary_political_home_local_division')"
           >
             <div v-for="county in counties" :key="`${county.id}`">
               <base-checkbox
@@ -275,7 +275,7 @@
               class="menu-item"
               data-testid="testBoundaryPoliticalUsStateDiv"
             >
-              {{ $t('locationTypes.boundary_political_us_state') }}
+              {{ $t('locationTypes.boundary_political_home_primary_division') }}
             </div>
 
             <template #popper>
@@ -307,7 +307,7 @@
               class="menu-item"
               data-testid="testBoundaryPoliticalUsCongressDiv"
             >
-              {{ $t('locationTypes.boundary_political_us_congress') }}
+              {{ $t('locationTypes.boundary_political_home_electoral_district') }}
             </div>
 
             <template #popper>
@@ -339,7 +339,7 @@
               class="menu-item"
               data-testid="testBoundaryPoliticalUsCountyDiv"
             >
-              {{ $t('locationTypes.boundary_political_us_county') }}
+              {{ $t('locationTypes.boundary_political_home_local_division') }}
             </div>
 
             <template #popper>
@@ -656,9 +656,9 @@ export default defineComponent({
       const promiseArray: any = [];
 
       const locationTypesMap = {
-        boundary_political_us_congress: districts,
-        boundary_political_us_state: usStates,
-        boundary_political_us_county: counties,
+        boundary_political_home_electoral_district: districts,
+        boundary_political_home_primary_division: usStates,
+        boundary_political_home_local_division: counties,
       };
 
       for (const type of Object.keys(locationTypesMap)) {
