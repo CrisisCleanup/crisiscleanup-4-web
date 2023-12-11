@@ -53,9 +53,9 @@
       :current-filters="initalFilters"
       :incident="currentIncident"
       :locations="organizationLocations"
-      @closedFilters="showingFilters = false"
-      @updatedFilters="handleFilters"
-      @updateFiltersCount="filtersCount = $event"
+      @closed-filters="showingFilters = false"
+      @updated-filters="handleFilters"
+      @update-filters-count="filtersCount = $event"
     />
     <modal
       v-if="showingLayers"
@@ -79,7 +79,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testBoundaryPoliticalUsStateCheckbox"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(state.id, value);
                   }
@@ -89,7 +89,9 @@
             </div>
           </AccordionItem>
           <AccordionItem
-            :name="$t('locationTypes.boundary_political_home_electoral_district')"
+            :name="
+              $t('locationTypes.boundary_political_home_electoral_district')
+            "
           >
             <div v-for="district in districts" :key="`${district.id}`">
               <base-checkbox
@@ -100,7 +102,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testBoundaryPoliticalUsCongressCheckbox"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(district.id, value);
                   }
@@ -121,7 +123,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testBoundaryPoliticalUsCountyCheckbox"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(county.id, value);
                   }
@@ -143,7 +145,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testIncidentCheckbox"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(location.id, value);
                   }
@@ -164,7 +166,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testPrimaryResponseAreaCheckbox"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(currentOrganization.primary_location, value);
                   }
@@ -187,7 +189,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testSecondaryResponseAreaCheckbox"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(
                       currentOrganization.secondary_location,
@@ -212,7 +214,7 @@
                     : 'user_ui-turn-on_layer'
                 "
                 data-testid="testFiltersButton"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     applyLocation(location.id, value);
                   }
@@ -232,7 +234,7 @@
           class="pb-2"
           data-testid="testPdaHeatmapCheckbox"
           :model-value="showingHeatMap"
-          @update:modelValue="
+          @update:model-value="
             showingHeatMap = $event;
             $emit('toggleHeatMap', $event ? pdas : null);
           "
@@ -290,7 +292,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testBoundaryPoliticalUsStateCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(state.id, value);
                         }
@@ -307,7 +309,9 @@
               class="menu-item"
               data-testid="testBoundaryPoliticalUsCongressDiv"
             >
-              {{ $t('locationTypes.boundary_political_home_electoral_district') }}
+              {{
+                $t('locationTypes.boundary_political_home_electoral_district')
+              }}
             </div>
 
             <template #popper>
@@ -322,7 +326,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testBoundaryPoliticalUsCongressCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(district.id, value);
                         }
@@ -354,7 +358,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testBoundaryPoliticalUsCountyCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(county.id, value);
                         }
@@ -386,7 +390,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testIncidentCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(location.id, value);
                         }
@@ -414,7 +418,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testPrimaryResponseAreaCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(
                             currentOrganization.primary_location,
@@ -445,7 +449,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testSecondaryResponseAreaCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(
                             currentOrganization.secondary_location,
@@ -482,7 +486,7 @@
                           : 'user_ui-turn-on_layer'
                       "
                       data-testid="testFiltersButton"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           applyLocation(location.id, value);
                         }
@@ -522,9 +526,9 @@
         :current-filters="initalFilters"
         :incident="currentIncident"
         :locations="organizationLocations"
-        @closedFilters="showingFilters = false"
-        @updatedFilters="handleFilters"
-        @updateFiltersCount="filtersCount = $event"
+        @closed-filters="showingFilters = false"
+        @updated-filters="handleFilters"
+        @update-filters-count="filtersCount = $event"
       />
       <base-button
         class="text-base font-thin mx-2"
