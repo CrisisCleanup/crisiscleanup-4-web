@@ -10,10 +10,10 @@
         :available-work-types="availableWorkTypes"
         class="mb-16"
         zoom-buttons-class="mt-20"
-        @onZoomIn="zoomIn"
-        @onZoomOut="zoomOut"
-        @onZoomIncidentCenter="goToIncidentCenter"
-        @onZoomInteractive="goToInteractive"
+        @on-zoom-in="zoomIn"
+        @on-zoom-out="zoomOut"
+        @on-zoom-incident-center="goToIncidentCenter"
+        @on-zoom-interactive="goToInteractive"
       />
       <WorksitePhotoMap
         v-else-if="showingPhotoMap && caseImages.length > 0"
@@ -29,8 +29,8 @@
         </div>
         <WorksiteTable
           :worksite-query="worksiteQuery"
-          @rowClick="loadCase"
-          @selectionChanged="onSelectionChanged"
+          @row-click="loadCase"
+          @selection-changed="onSelectionChanged"
         />
       </div>
       <span
@@ -63,14 +63,14 @@
           class="py-1"
           :current-incident-id="String(currentIncidentId)"
           :inital-filters="filters"
-          @updatedQuery="onUpdateQuery"
-          @updatedFilters="onUpdateFilters"
-          @applyLocation="applyLocation"
-          @applyTeamGeoJson="applyTeamGeoJson"
-          @downloadCsv="downloadWorksites"
-          @toggleHeatMap="toggleHeatMap"
-          @selectedExisting="handleSelectedExisting"
-          @toggleSearch="showingSearchModal = !showingSearchModal"
+          @updated-query="onUpdateQuery"
+          @updated-filters="onUpdateFilters"
+          @apply-location="applyLocation"
+          @apply-team-geo-json="applyTeamGeoJson"
+          @download-csv="downloadWorksites"
+          @toggle-heat-map="toggleHeatMap"
+          @selected-existing="handleSelectedExisting"
+          @toggle-search="showingSearchModal = !showingSearchModal"
         />
       </div>
       <div style="z-index: 1002" class="absolute top-20 left-12 mt-2">
@@ -84,7 +84,7 @@
           skip-validation
           use-recents
           class="mx-4 py-1 inset-1"
-          @selectedExisting="handleSelectedExisting"
+          @selected-existing="handleSelectedExisting"
           @input="
             (value: string) => {
               mobileSearch = value;
@@ -155,23 +155,23 @@
         can-edit
         show-case-tabs
         :is-viewing-worksite="isViewing"
-        @closeWorksite="clearCase"
-        @onJumpToCase="jumpToCase"
-        @reloadMap="reloadMap"
-        @onShareWorksite="() => shareWorksite(worksite?.id)"
-        @onDownloadWorksite="
+        @close-worksite="clearCase"
+        @on-jump-to-case="jumpToCase"
+        @reload-map="reloadMap"
+        @on-share-worksite="() => shareWorksite(worksite?.id)"
+        @on-download-worksite="
           () => {
             downloadWorksites([worksite?.id]);
           }
         "
-        @onPrintWorksite="() => printWorksite(worksite?.id)"
-        @onFlagCase="
+        @on-print-worksite="() => printWorksite(worksite?.id)"
+        @on-flag-case="
           () => {
             showFlags = true;
             showHistory = false;
           }
         "
-        @onEditCase="
+        @on-edit-case="
           () => {
             isViewing = false;
             isEditing = true;
@@ -180,7 +180,7 @@
             );
           }
         "
-        @onShowHistory="
+        @on-show-history="
           () => {
             showFlags = false;
             showHistory = true;
@@ -254,19 +254,19 @@
           data-testid="testShowFlagsDiv"
           :incident-id="String(currentIncidentId)"
           :worksite-id="worksiteId"
-          @reloadCase="
+          @reload-case="
             () => {
               reloadCase();
               showFlags = false;
             }
           "
-          @reloadMap="
+          @reload-map="
             () => {
               reloadMap();
               showFlags = false;
             }
           "
-          @clearCase="clearCase"
+          @clear-case="clearCase"
         ></CaseFlag>
         <WorksiteView
           v-else-if="isViewing"
@@ -275,10 +275,10 @@
           :worksite-id="worksiteId"
           :incident-id="String(currentIncidentId)"
           :top-height="300"
-          @reloadCase="reloadMap"
-          @closeWorksite="clearCase"
-          @onResetForm="clearCase"
-          @caseLoaded="
+          @reload-case="reloadMap"
+          @close-worksite="clearCase"
+          @on-reset-form="clearCase"
+          @case-loaded="
             () => {
               if (route && route.query.showOnMap) {
                 jumpToCase();
@@ -294,10 +294,10 @@
           :worksite-id="worksiteId"
           :is-editing="isEditing"
           class="border shadow"
-          @jumpToCase="jumpToCase"
-          @savedWorksite="handleWorksiteSave"
-          @closeWorksite="clearCase"
-          @navigateToWorksite="handleWorksiteNavigation"
+          @jump-to-case="jumpToCase"
+          @saved-worksite="handleWorksiteSave"
+          @close-worksite="clearCase"
+          @navigate-to-worksite="handleWorksiteNavigation"
           @geocoded="addMarkerToMap"
         />
       </div>
@@ -373,7 +373,7 @@
                 skip-validation
                 use-recents
                 class="mx-4 py-1"
-                @selectedExisting="handleSelectedExisting"
+                @selected-existing="handleSelectedExisting"
                 @input="
                   (value: string) => {
                     currentSearch = value;
@@ -386,12 +386,12 @@
                 class="py-1"
                 :current-incident-id="String(currentIncidentId)"
                 :inital-filters="filters"
-                @updatedQuery="onUpdateQuery"
-                @updatedFilters="onUpdateFilters"
-                @applyLocation="applyLocation"
-                @applyTeamGeoJson="applyTeamGeoJson"
-                @downloadCsv="downloadWorksites"
-                @toggleHeatMap="toggleHeatMap"
+                @updated-query="onUpdateQuery"
+                @updated-filters="onUpdateFilters"
+                @apply-location="applyLocation"
+                @apply-team-geo-json="applyTeamGeoJson"
+                @download-csv="downloadWorksites"
+                @toggle-heat-map="toggleHeatMap"
               />
             </div>
             <div
@@ -427,6 +427,7 @@
             <Slider
               primary-color="#dadada"
               data-testid="testSviSliderInput"
+              v-if="allWorksiteCount >= 100"
               secondary-color="white"
               :value="sviSliderValue"
               :from="$t('svi.most_vulnerable')"
@@ -443,6 +444,7 @@
               data-testid="testUpdatedSliderInput"
               handle-size="12px"
               primary-color="#dadada"
+              v-if="allWorksiteCount >= 100"
               secondary-color="white"
               class="pt-1 ml-4"
               slider-class="w-84"
@@ -467,10 +469,10 @@
               data-testid="testSimpleMapdiv"
               show-zoom-buttons
               :available-work-types="availableWorkTypes"
-              @onZoomIn="zoomIn"
-              @onZoomOut="zoomOut"
-              @onZoomIncidentCenter="goToIncidentCenter"
-              @onZoomInteractive="goToInteractive"
+              @on-zoom-in="zoomIn"
+              @on-zoom-out="zoomOut"
+              @on-zoom-incident-center="goToIncidentCenter"
+              @on-zoom-interactive="goToInteractive"
             />
             <WorksitePhotoMap
               v-else-if="showingPhotoMap && caseImages.length > 0"
@@ -549,11 +551,11 @@
                     data-testid="testChatDiv"
                     :chat="selectedChat"
                     :state-key="`chat_${selectedChat.id}_last_seen`"
-                    @unreadCount="unreadChatCount = $event"
-                    @unreadUrgentCount="unreadUrgentChatCount = $event"
-                    @onNewMessage="unreadChatCount += 1"
-                    @onNewUrgentMessage="unreadUrgentChatCount += 1"
-                    @focusNewsTab="focusNewsTab"
+                    @unread-count="unreadChatCount = $event"
+                    @unread-urgent-count="unreadUrgentChatCount = $event"
+                    @on-new-message="unreadChatCount += 1"
+                    @on-new-urgent-message="unreadUrgentChatCount += 1"
+                    @focus-news-tab="focusNewsTab"
                   />
                 </template>
               </PhoneComponentButton>
@@ -597,7 +599,7 @@
                   <PhoneNews
                     :cms-tag="'work-news'"
                     state-key="work_news_last_seen"
-                    @unreadCount="unreadNewsCount = $event"
+                    @unread-count="unreadNewsCount = $event"
                   />
                 </template>
               </PhoneComponentButton>
@@ -666,8 +668,8 @@
             </div>
             <WorksiteTable
               :worksite-query="worksiteQuery"
-              @rowClick="loadCase"
-              @selectionChanged="onSelectionChanged"
+              @row-click="loadCase"
+              @selection-changed="onSelectionChanged"
             />
           </div>
         </div>
@@ -680,23 +682,23 @@
           can-edit
           show-case-tabs
           :is-viewing-worksite="isViewing"
-          @closeWorksite="clearCase"
-          @onJumpToCase="jumpToCase"
-          @reloadMap="reloadMap"
-          @onShareWorksite="() => shareWorksite(worksite?.id)"
-          @onDownloadWorksite="
+          @close-worksite="clearCase"
+          @on-jump-to-case="jumpToCase"
+          @reload-map="reloadMap"
+          @on-share-worksite="() => shareWorksite(worksite?.id)"
+          @on-download-worksite="
             () => {
               downloadWorksites([worksite?.id]);
             }
           "
-          @onPrintWorksite="() => printWorksite(worksite?.id)"
-          @onFlagCase="
+          @on-print-worksite="() => printWorksite(worksite?.id)"
+          @on-flag-case="
             () => {
               showFlags = true;
               showHistory = false;
             }
           "
-          @onEditCase="
+          @on-edit-case="
             () => {
               isViewing = false;
               isEditing = true;
@@ -705,7 +707,7 @@
               );
             }
           "
-          @onShowHistory="
+          @on-show-history="
             () => {
               showFlags = false;
               showHistory = true;
@@ -795,19 +797,19 @@
             data-testid="testShowFlagsDiv"
             :incident-id="String(currentIncidentId)"
             :worksite-id="worksiteId"
-            @reloadCase="
+            @reload-case="
               () => {
                 reloadCase();
                 showFlags = false;
               }
             "
-            @reloadMap="
+            @reload-map="
               () => {
                 reloadMap();
                 showFlags = false;
               }
             "
-            @clearCase="clearCase"
+            @clear-case="clearCase"
           ></CaseFlag>
           <WorksiteView
             v-else-if="isViewing"
@@ -816,10 +818,10 @@
             :worksite-id="worksiteId"
             :incident-id="String(currentIncidentId)"
             :top-height="300"
-            @reloadCase="reloadMap"
-            @closeWorksite="clearCase"
-            @onResetForm="clearCase"
-            @caseLoaded="
+            @reload-case="reloadMap"
+            @close-worksite="clearCase"
+            @on-reset-form="clearCase"
+            @case-loaded="
               () => {
                 if (route && route.query.showOnMap) {
                   jumpToCase();
@@ -835,10 +837,10 @@
             :worksite-id="worksiteId"
             :is-editing="isEditing"
             class="border shadow"
-            @jumpToCase="jumpToCase"
-            @savedWorksite="handleWorksiteSave"
-            @closeWorksite="clearCase"
-            @navigateToWorksite="handleWorksiteNavigation"
+            @jump-to-case="jumpToCase"
+            @saved-worksite="handleWorksiteSave"
+            @close-worksite="clearCase"
+            @navigate-to-worksite="handleWorksiteNavigation"
             @geocoded="addMarkerToMap"
           />
         </div>
@@ -1265,12 +1267,14 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
+      const layer = mapUtils?.getCurrentMarkerLayer();
+      const container = layer?._pixiContainer;
+      if (container?.children?.length < 100) return;
+
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         dateSliderValue.value = 100;
       }
       sviSliderValue.value = Number(value);
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
       const sviList = getSviList(container?.children?.length);
       if (sviList && container) {
         const count = Math.floor((sviList.length * Number(value)) / 100);
@@ -1337,12 +1341,12 @@ export default defineComponent({
     });
 
     function filterDates(value: number) {
+      const layer = mapUtils?.getCurrentMarkerLayer();
+      const container = layer?._pixiContainer;
+      if (container?.children?.length < 100) return;
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         filterSvi(100);
       }
-
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
       const dl = getDatesList(container?.children?.length);
       dateSliderFrom.value = getDateSliderFrom(container?.children?.length);
       dateSliderTo.value = getDateSliderTo(container?.children?.length);
