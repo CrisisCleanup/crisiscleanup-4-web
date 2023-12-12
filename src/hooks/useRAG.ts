@@ -1,10 +1,9 @@
 import createDebug from 'debug';
 import { useWebSockets } from '@/hooks/useWebSockets';
-import { generateUUID, toCamelCase } from '@/utils/helpers';
+import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
-import type { AxiosRequestConfig } from 'axios';
-import axios from 'axios';
-import _ from 'lodash';
+import type { Ref } from 'vue';
+import { ref } from 'vue';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -30,26 +29,35 @@ interface RAGUploadResponse {
   documentIds: string[];
 }
 
-export const useRAGUpload = () => {
+interface PaginatedResponse<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Array<T>;
+}
+
+interface Collection {
+  cmetadata: null | Record<string, unknown>;
+  name: string;
+  uuid: string;
+  files: Array<Record<string, string | null>>;
+}
+
+interface CollectionResponse extends PaginatedResponse<Collection> {}
+
+export const useRAGUpload = (
+  uploadCollectionId?: string | Ref<string | undefined>,
+) => {
+  const collectionId = ref<string>(uploadCollectionId ?? '');
   const uploadedDocuments = ref<RAGUploadResponse[]>([]);
 
   const uploadState = useAxios<RAGUploadResponse>(
-    '/rag_file_upload',
-    {
-      ...(<AxiosRequestConfig>axios.defaults),
+    `/rag_collections/${collectionId.value}/upload`,
+    createAxiosCasingTransform({
       headers: {
-        ...(<AxiosRequestConfig['headers']>axios.defaults.headers),
         'Content-Type': 'multipart/form-data',
       },
-      baseURL: import.meta.env.VITE_APP_API_BASE_URL,
-      transformResponse: [
-        ..._.castArray(axios.defaults.transformResponse ?? []),
-        (data: string | RAGUploadResponse) =>
-          toCamelCase<string | RAGUploadResponse>(
-            typeof data === 'string' ? JSON.parse(data) : <object>data,
-          ),
-      ],
-    },
+    }),
     {
       immediate: false,
       resetOnExecute: true,
@@ -78,6 +86,23 @@ export const useRAGUpload = () => {
     uploadFile,
     isLoading: uploadState.isLoading,
     uploadedDocuments: readonly(uploadedDocuments),
+  };
+};
+
+export const useRAGCollections = () => {
+  const collectionsState = useAxios<CollectionResponse>(
+    '/rag_collections',
+    createAxiosCasingTransform(),
+    { immediate: true, resetOnExecute: false },
+  );
+
+  const collections = computed(
+    () => collectionsState.data.value?.results ?? [],
+  );
+
+  return {
+    collectionsState,
+    collections,
   };
 };
 
