@@ -174,7 +174,7 @@ module.exports = {
         180: '45rem',
       },
       boxShadow: {
-        'crisiscleanup-card': '0 0 14px 0 rgba(164, 177, 184, 0.18)',
+        'crisiscleanup-card': '0 4px 8px 0px rgba(164, 177, 184, 0.6)',
       },
       gridRow: {
         'span-7': 'span 7 / span 7',
