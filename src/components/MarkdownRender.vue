@@ -18,7 +18,7 @@ const content = computed(() => markdown.render(props.source));
 
 <template>
   <slot :content="content">
-    <div class="markdown" v-html="content" />
+    <div v-bind="$attrs" class="markdown" v-html="content" />
   </slot>
 </template>
 
