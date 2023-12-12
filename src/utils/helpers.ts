@@ -4,6 +4,9 @@ import { store } from '@/store';
 import type { Portal } from '@/models/types';
 import _ from 'lodash';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
+import defu from 'defu';
+import type { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestTransformer } from 'axios';
 
 /**
  * Convert rem to pixels.
@@ -119,4 +122,24 @@ export const toCamelCase = <T>(object: T): CamelCasedPropertiesDeep<T> => {
     });
   }
   return object;
+};
+
+export const createAxiosCasingTransform = (
+  options?: Partial<AxiosInstance | AxiosRequestConfig>,
+  instance?: AxiosInstance,
+): AxiosRequestConfig => {
+  const axiosInstance = instance ?? axios;
+  const baseOptions = Object.assign({}, axiosInstance.defaults);
+  const transformOptions: AxiosRequestConfig = {
+    baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+    transformRequest: [
+      (data) =>
+        toCamelCase<string | object>(
+          typeof data === 'string' ? JSON.parse(data) : <object>data,
+        ),
+    ],
+  };
+  const axiosOptions = defu(baseOptions, transformOptions, options);
+  console.log(axiosOptions);
+  return axiosOptions as AxiosRequestConfig;
 };
