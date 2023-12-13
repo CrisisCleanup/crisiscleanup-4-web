@@ -4,6 +4,7 @@ import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { Ref } from 'vue';
 import { ref } from 'vue';
+import { getErrorMessage } from '@/utils/errors';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -45,10 +46,9 @@ interface Collection {
 
 interface CollectionResponse extends PaginatedResponse<Collection> {}
 
-export const useRAGUpload = (
-  uploadCollectionId?: string | Ref<string | undefined>,
-) => {
-  const collectionId = ref<string>(uploadCollectionId ?? '');
+export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
+  const collectionId =
+    uploadCollectionId ?? ref<string>(uploadCollectionId ?? '');
   const uploadedDocuments = ref<RAGUploadResponse[]>([]);
 
   const uploadState = useAxios<RAGUploadResponse>(
@@ -65,12 +65,17 @@ export const useRAGUpload = (
   );
 
   const uploadFile = (fileData: Blob) => {
+    if (!collectionId.value)
+      return getErrorMessage(new Error('No collection ID provided'));
     const formData = new FormData();
     formData.append('file', fileData);
-    return uploadState.execute(undefined, {
-      method: 'POST',
-      data: formData,
-    });
+    return uploadState.execute(
+      `/rag_collections/${collectionId.value}/upload`,
+      {
+        method: 'POST',
+        data: formData,
+      },
+    );
   };
 
   whenever(
