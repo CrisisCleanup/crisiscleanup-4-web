@@ -12,6 +12,8 @@ interface RAGEntry {
   messageId: string;
   actor: 'user' | 'aarongpt';
   content: string;
+  collectionId: string;
+  conversationId: string;
 }
 
 interface DocumentMetadata {
@@ -45,6 +47,8 @@ interface Collection {
 }
 
 interface CollectionResponse extends PaginatedResponse<Collection> {}
+
+export type { Collection as RAGCollection, Document as RAGDocument };
 
 export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const collectionId =
@@ -111,33 +115,40 @@ export const useRAGCollections = () => {
   };
 };
 
-export const useRAG = () => {
+export const useRAG = (
+  collectionId: Ref<string>,
+  conversationIdIn?: Ref<string>,
+) => {
   const history = ref<RAGEntry[]>([]);
   const latestMessage = computed(() => history.value.at(-1));
   const latestMessageId = computed(() => latestMessage.value?.messageId);
+  const conversationId = conversationIdIn ?? ref(generateUUID());
 
-  const socket = useWebSockets<{ answer: string; message_id: string }>(
-    '/ws/rag',
-    'rag',
-    (data) => {
-      debug('Received data from websocket %o', data);
-      const { answer, message_id } = data;
-      if (latestMessageId.value === message_id) {
-        debug('appending latest message chunk: %s (%s)', message_id, answer);
-        const newHistory = history.value.slice(0, -1);
-        const newLatest = latestMessage.value!;
-        newLatest.content += answer;
-        history.value = [...newHistory, newLatest];
-      } else {
-        debug('pushing new message chunk: %s (%s)', message_id, answer);
-        history.value.push({
-          messageId: message_id,
-          actor: 'aarongpt',
-          content: answer,
-        });
-      }
-    },
-  );
+  const socket = useWebSockets<{
+    answer: string;
+    message_id: string;
+    collection_id: string;
+    conversation_id: string;
+  }>('/ws/rag', 'rag', (data) => {
+    debug('Received data from websocket %o', data);
+    const { answer, message_id, collection_id, conversation_id } = data;
+    if (latestMessageId.value === message_id) {
+      debug('appending latest message chunk: %s (%s)', message_id, answer);
+      const newHistory = history.value.slice(0, -1);
+      const newLatest = latestMessage.value!;
+      newLatest.content += answer;
+      history.value = [...newHistory, newLatest];
+    } else {
+      debug('pushing new message chunk: %s (%s)', message_id, answer);
+      history.value.push({
+        messageId: message_id,
+        actor: 'aarongpt',
+        content: answer,
+        collectionId: collection_id,
+        conversationId: conversation_id,
+      });
+    }
+  });
 
   const submitQuestion = (value: string) => {
     if (!value) return;
@@ -145,9 +156,13 @@ export const useRAG = () => {
       messageId: generateUUID(),
       actor: 'user',
       content: value,
+      collectionId: collectionId.value,
+      conversationId: conversationId.value,
     });
     socket.send({
       question: value,
+      collection_id: collectionId.value,
+      conversation_id: conversationId.value,
     });
   };
 
