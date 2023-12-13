@@ -53,5 +53,17 @@ const content = computed(() => markdown.render(props.source));
       text-decoration: none;
     }
   }
+  ol {
+    @apply list-decimal list-inside;
+  }
+  ul {
+    @apply list-disc list-inside text-left;
+  }
+  li {
+    @apply text-bodysm font-bodysm text-crisiscleanup-dark-500;
+    > p {
+      display: inline;
+    }
+  }
 }
 </style>
