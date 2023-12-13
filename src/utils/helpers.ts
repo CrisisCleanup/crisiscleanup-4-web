@@ -132,7 +132,7 @@ export const createAxiosCasingTransform = (
   const baseOptions = Object.assign({}, axiosInstance.defaults);
   const transformOptions: AxiosRequestConfig = {
     baseURL: import.meta.env.VITE_APP_API_BASE_URL,
-    transformRequest: [
+    transformResponse: [
       (data) =>
         toCamelCase<string | object>(
           typeof data === 'string' ? JSON.parse(data) : <object>data,
