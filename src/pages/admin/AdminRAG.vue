@@ -16,10 +16,9 @@ const { collections } = useRAGCollections();
 const collection = computed(
   () => collections.value?.find?.((c) => c.name === 'crisiscleanup'),
 );
+const collectionId = computed(() => collection.value?.uuid);
 const collectionDocs = computed(() => collection.value?.files);
-const { uploadFile, uploadedDocuments, isLoading } = useRAGUpload(
-  collection?.value?.uuid,
-);
+const { uploadFile, uploadedDocuments, isLoading } = useRAGUpload(collectionId);
 
 const uploadsQueue = ref<Blob[]>([]);
 whenever(uploadsQueue, async (newValue) => {
@@ -74,7 +73,7 @@ const uploadFiles = async (fileList: Blob[]) =>
           </template>
         </DragDrop>
         <template v-for="doc in collectionDocs" :key="doc.filename">
-          <BaseText variant="body">{{ doc.filename_original }}</BaseText>
+          <BaseText variant="body">{{ doc.filenameOriginal }}</BaseText>
         </template>
         <template v-for="doc in uploadedDocuments">
           <BaseText v-for="docId in doc.documentIds" :key="docId">{{
