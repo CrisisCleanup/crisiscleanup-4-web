@@ -116,16 +116,30 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     );
   };
 
+  const deleteFile = (fileId: number) => {
+    return uploadState
+      .execute(`/rag_collections/${collectionId.value}/upload`, {
+        method: 'DELETE',
+        params: {
+          file_id: fileId,
+        },
+      })
+      .then(() =>
+        collectionState.execute(`/rag_collections/${collectionId.value}`),
+      );
+  };
+
   whenever(
     () => uploadState.data.value,
     (data) => {
-      if (!data) return;
+      if (!data || data.documents) return;
       debug('pushing new uploaded document: %o', data);
       uploadedDocuments.value.push(data);
     },
   );
 
   return {
+    deleteFile,
     uploadFile,
     isLoading: readonly(uploadState.isLoading),
     uploadedDocuments: readonly(uploadedDocuments),
