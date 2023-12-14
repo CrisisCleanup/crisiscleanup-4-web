@@ -6,12 +6,13 @@
 import { reactive, ref, watch, onMounted } from 'vue';
 import PageTabBar from '../../layouts/page/PageTabBar.vue';
 import useAcl from '@/hooks/useAcl';
+import type { Tab } from '@/hooks/useTabs';
 
 export default defineComponent({
   name: 'AdminPage',
   components: { PageTabBar },
   setup() {
-    const tabs = reactive([
+    const tabs = reactive<Tab[]>([
       {
         key: 'nav.admin_dashboard',
       },
