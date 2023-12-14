@@ -66,6 +66,7 @@ const {
   uploadFile,
   uploadedDocuments,
   collectionDocuments,
+  deleteFile,
   isDocumentsLoading,
 } = useRAGUpload(collectionId);
 
@@ -183,12 +184,18 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
             </template>
           </DragDrop>
           <template v-for="doc in collectionDocuments" :key="doc.filename">
-            <BaseText variant="body">{{ doc.filenameOriginal }}</BaseText>
-          </template>
-          <template v-for="doc in uploadedDocuments">
-            <BaseText v-for="docId in doc.documentIds" :key="docId">{{
-              docId
-            }}</BaseText>
+            <div class="border-1 p-3">
+              <ccu-icon
+                type="trash"
+                size="sm"
+                class="transition-all hover:scale-[1.05] hover:translate-y-[-2px]"
+                @click="() => deleteFile(doc.id)"
+              >
+                <BaseText variant="body" class="pl-1">{{
+                  doc.filenameOriginal
+                }}</BaseText>
+              </ccu-icon>
+            </div>
           </template>
         </template>
       </TabbedCard>
