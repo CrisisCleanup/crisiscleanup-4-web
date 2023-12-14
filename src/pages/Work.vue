@@ -425,9 +425,9 @@
             class="flex justify-center items-center"
           >
             <Slider
+              v-if="allWorksiteCount >= 100 && !portal.attr.hide_svi_slider"
               primary-color="#dadada"
               data-testid="testSviSliderInput"
-              v-if="allWorksiteCount >= 100"
               secondary-color="white"
               :value="sviSliderValue"
               :from="$t('svi.most_vulnerable')"
@@ -440,11 +440,11 @@
               @input="filterSvi"
             />
             <Slider
+              v-if="allWorksiteCount >= 100"
               track-size="8px"
               data-testid="testUpdatedSliderInput"
               handle-size="12px"
               primary-color="#dadada"
-              v-if="allWorksiteCount >= 100"
               secondary-color="white"
               class="pt-1 ml-4"
               slider-class="w-84"
@@ -902,6 +902,8 @@ import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
 import { useCurrentUser } from '@/hooks';
+import { store } from '@/store';
+import type { Portal } from '@/models/types';
 
 export default defineComponent({
   name: 'Work',
@@ -934,6 +936,7 @@ export default defineComponent({
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
     );
+    const portal = store.getters['enums/portal'] as Portal;
 
     const incidentName = computed(() => {
       const { name } = Incident.find(currentIncidentId.value) as Incident;
@@ -1988,6 +1991,7 @@ export default defineComponent({
       showingSearchModal,
       caseImages,
       photoMap,
+      portal,
     };
   },
 });

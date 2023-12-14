@@ -14,6 +14,7 @@ import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
 import { store } from '@/store';
 import { getErrorMessage } from '@/utils/errors';
+import type { Portal } from '@/models/types';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -50,6 +51,7 @@ export default (
 ) => {
   const addToVisited = (wId: number) =>
     store.commit('worksite/addVisitedWorksite', wId);
+  const portal = store.getters['enums/portal'] as Portal;
   let loadMarker: (marker: Sprite & Worksite, index: number) => void = (
     marker,
     index,
@@ -58,7 +60,9 @@ export default (
 
   const map = L.map('map', {
     zoomControl: false,
-  }).fitBounds(mapBounds || DEFAULT_MAP_BOUNDS);
+  }).fitBounds(
+    mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
+  );
   if (useGoogleMaps) {
     L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
   } else {

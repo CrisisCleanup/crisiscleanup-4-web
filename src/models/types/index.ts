@@ -104,6 +104,7 @@ export type Portal = {
   default_currency: string;
   default_language: string;
   logo_url: string;
+  attr: Record<string, any>;
 } & CCUBaseFields;
 
 export interface OrganizationRole {
