@@ -32,6 +32,24 @@ interface RAGUploadResponse {
   documentIds: string[];
 }
 
+interface Conversation {
+  collectionId: string;
+  conversationId: string;
+  messages: Message[];
+  title: string;
+}
+
+interface Message {
+  additionalKwargs: Record<string, unknown>;
+  content: string;
+  example: boolean;
+  type: 'human' | 'ai';
+}
+
+interface ConversationsResponse {
+  conversations: Conversation[];
+}
+
 interface PaginatedResponse<T> {
   count: number;
   next: string | null;
@@ -43,7 +61,7 @@ interface Collection {
   cmetadata: null | Record<string, unknown>;
   name: string;
   uuid: string;
-  files: Array<Record<string, string | null>>;
+  files?: Array<Record<string, string | null>>;
 }
 
 interface CollectionResponse extends PaginatedResponse<Collection> {}
@@ -54,6 +72,22 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const collectionId =
     uploadCollectionId ?? ref<string>(uploadCollectionId ?? '');
   const uploadedDocuments = ref<RAGUploadResponse[]>([]);
+
+  const collectionState = useAxios<Collection>(
+    `/rag_collections/${collectionId.value}`,
+    createAxiosCasingTransform(),
+    {
+      immediate: Boolean(collectionId.value),
+      resetOnExecute: false,
+    },
+  );
+  whenever(
+    () => collectionId.value,
+    (newValue) =>
+      collectionState
+        .execute(`/rag_collections/${newValue}`)
+        .catch(getErrorMessage),
+  );
 
   const uploadState = useAxios<RAGUploadResponse>(
     `/rag_collections/${collectionId.value}/upload`,
@@ -93,8 +127,71 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
 
   return {
     uploadFile,
-    isLoading: uploadState.isLoading,
+    isLoading: readonly(uploadState.isLoading),
     uploadedDocuments: readonly(uploadedDocuments),
+    collectionDocuments: computed(() => collectionState.data.value?.files),
+    isDocumentsLoading: readonly(collectionState.isLoading),
+  };
+};
+
+export const useRAGConversations = (
+  collectionId: Ref<string | undefined>,
+  currentConversationId: Ref<string | undefined>,
+) => {
+  const conversationsState = useAxios<ConversationsResponse>(
+    `/rag_collections/${collectionId.value}/conversations`,
+    createAxiosCasingTransform(),
+    { immediate: Boolean(collectionId.value), resetOnExecute: false },
+  );
+
+  whenever(collectionId, async (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      await conversationsState
+        .execute(`/rag_collections/${newValue}/conversations`)
+        .catch(getErrorMessage);
+    }
+  });
+
+  whenever(currentConversationId, async (newValue) => {
+    const hasConvo = Boolean(
+      conversationsState.data.value?.conversations?.find?.(
+        (convo) => convo.conversationId === newValue,
+      ),
+    );
+    if (!hasConvo) {
+      await conversationsState
+        .execute(`/rag_collections/${collectionId.value}/conversations`)
+        .catch(getErrorMessage);
+    }
+  });
+
+  const currentConversation = computed(
+    () =>
+      currentConversationId.value &&
+      conversationsState.data.value?.conversations?.find?.(
+        (convo) => convo.conversationId === currentConversationId.value,
+      ),
+  );
+
+  const currentConversationEntries = computed<RAGEntry[]>(() => {
+    if (!currentConversation.value) return [];
+    const { conversationId, collectionId, title, messages } =
+      currentConversation.value;
+    const msgId = generateUUID();
+    return messages.map((message) => ({
+      conversationId,
+      collectionId,
+      content: message.content,
+      actor: message.type === 'human' ? 'user' : 'aarongpt',
+      messageId: msgId,
+    }));
+  });
+
+  return {
+    currentConversationEntries,
+    currentConversation,
+    conversations: readonly(conversationsState.data),
+    isLoading: readonly(conversationsState.isLoading),
   };
 };
 
@@ -117,12 +214,17 @@ export const useRAGCollections = () => {
 
 export const useRAG = (
   collectionId: Ref<string>,
-  conversationIdIn?: Ref<string>,
+  conversationId: Ref<string>,
+  conversationHistory?: Ref<RAGEntry[]>,
 ) => {
-  const history = ref<RAGEntry[]>([]);
+  const history = ref<RAGEntry[]>(conversationHistory?.value ?? []);
   const latestMessage = computed(() => history.value.at(-1));
   const latestMessageId = computed(() => latestMessage.value?.messageId);
-  const conversationId = conversationIdIn ?? ref(generateUUID());
+  if (conversationHistory) {
+    whenever(conversationHistory, (newValue) => {
+      history.value = newValue ?? [];
+    });
+  }
 
   const socket = useWebSockets<{
     answer: string;
@@ -152,17 +254,18 @@ export const useRAG = (
 
   const submitQuestion = (value: string) => {
     if (!value) return;
+    const convoId = conversationId.value ?? generateUUID();
     history.value.push({
       messageId: generateUUID(),
       actor: 'user',
       content: value,
       collectionId: collectionId.value,
-      conversationId: conversationId.value,
+      conversationId: convoId,
     });
     socket.send({
       question: value,
       collection_id: collectionId.value,
-      conversation_id: conversationId.value,
+      conversation_id: convoId,
     });
   };
 
