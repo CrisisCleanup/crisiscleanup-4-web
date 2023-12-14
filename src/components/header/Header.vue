@@ -23,7 +23,7 @@
             select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded p-2"
             item-key="id"
             label="name"
-            @update:modelValue="
+            @update:model-value="
               (payload: string) => $emit('update:incident', payload)
             "
           >
@@ -43,7 +43,7 @@
             </template>
           </BaseSelect>
           <div class="flex ml-2 font-bold mt-2">
-            <span>{{ $t($route.name as string) }}</span>
+            <span>{{ $t(($route.name ?? '') as string) }}</span>
           </div>
         </div>
       </div>
