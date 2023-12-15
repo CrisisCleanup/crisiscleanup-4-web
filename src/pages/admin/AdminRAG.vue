@@ -62,13 +62,8 @@ const collection = computed(
   () => collections.value?.find((c) => c.uuid === collectionId.value),
 );
 const hasCollection = computed(() => !!collection.value);
-const {
-  uploadFile,
-  uploadedDocuments,
-  collectionDocuments,
-  deleteFile,
-  isDocumentsLoading,
-} = useRAGUpload(collectionId);
+const { uploadFile, collectionDocuments, deleteFile, isDocumentsLoading } =
+  useRAGUpload(collectionId);
 
 const uploadsQueue = ref<Blob[]>([]);
 whenever(uploadsQueue, async (newValue) => {
@@ -173,30 +168,32 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
           </div>
         </template>
         <template #files>
-          <DragDrop
-            class="border bg-white"
-            :choose-title="$t('dragDrop.choose_files')"
-            :drag-title="$t('fileUpload.select_file_upload')"
-            @files="(files) => (uploadsQueue = files)"
-          >
-            <template v-if="isDocumentsLoading || uploadsQueue.length > 0">
-              <spinner />
+          <div class="overflow-y-auto transition-all">
+            <DragDrop
+              class="border bg-white"
+              :choose-title="$t('dragDrop.choose_files')"
+              :drag-title="$t('fileUpload.select_file_upload')"
+              @files="(files) => (uploadsQueue = files)"
+            >
+              <template v-if="isDocumentsLoading || uploadsQueue.length > 0">
+                <spinner />
+              </template>
+            </DragDrop>
+            <template v-for="doc in collectionDocuments" :key="doc.filename">
+              <div class="border-1 p-3">
+                <ccu-icon
+                  type="trash"
+                  size="sm"
+                  class="transition-all hover:scale-[1.05] hover:translate-y-[-2px]"
+                  @click="() => deleteFile(doc.id)"
+                >
+                  <BaseText variant="h4" class="pl-1 text-left">{{
+                    doc.filenameOriginal
+                  }}</BaseText>
+                </ccu-icon>
+              </div>
             </template>
-          </DragDrop>
-          <template v-for="doc in collectionDocuments" :key="doc.filename">
-            <div class="border-1 p-3">
-              <ccu-icon
-                type="trash"
-                size="sm"
-                class="transition-all hover:scale-[1.05] hover:translate-y-[-2px]"
-                @click="() => deleteFile(doc.id)"
-              >
-                <BaseText variant="body" class="pl-1">{{
-                  doc.filenameOriginal
-                }}</BaseText>
-              </ccu-icon>
-            </div>
-          </template>
+          </div>
         </template>
       </TabbedCard>
     </div>
@@ -207,6 +204,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 .rag {
   grid-template-columns: 1fr 0.25fr;
   grid-template-rows: auto 1fr;
+  transition: all 300ms ease-in-out;
 }
 
 :deep(.card) {
