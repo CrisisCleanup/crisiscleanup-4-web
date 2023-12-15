@@ -107,13 +107,14 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
       return getErrorMessage(new Error('No collection ID provided'));
     const formData = new FormData();
     formData.append('file', fileData);
-    return uploadState.execute(
-      `/rag_collections/${collectionId.value}/upload`,
-      {
+    return uploadState
+      .execute(`/rag_collections/${collectionId.value}/upload`, {
         method: 'POST',
         data: formData,
-      },
-    );
+      })
+      .then(() =>
+        collectionState.execute(`/rag_collections/${collectionId.value}`),
+      );
   };
 
   const deleteFile = (fileId: number) => {
