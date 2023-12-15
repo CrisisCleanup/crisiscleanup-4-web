@@ -25,7 +25,7 @@
       :no-options-text="placeholder"
       :classes="multiSelectClasses"
       v-bind="$attrs"
-      @update:modelValue="
+      @update:model-value="
         (v) => {
           onInput(v);
         }
@@ -36,8 +36,29 @@
         <slot name="selected-option" :option="value" />
       </template>
 
+      <template #tag="{ option, handleTagRemove, disabled: dis }">
+        <slot name="tag" :option="option">
+          <template v-if="label === 'name_t'">
+            <span :class="multiSelectClasses.tag" tabindex="-1"
+              ><span class="multiselect-tag-wrapper">{{
+                $t(option[label])
+              }}</span
+              ><span
+                v-if="!dis"
+                class="multiselect-tag-remove"
+                @click="handleTagRemove(option, $event)"
+                ><span class="multiselect-tag-remove-icon"></span></span
+            ></span>
+          </template>
+        </slot>
+      </template>
+
       <template #option="{ option }">
-        <slot name="option" :option="option" />
+        <slot name="option" :option="option">
+          <template v-if="label === 'name_t'">
+            <span>{{ $t(option[label]) }}</span>
+          </template>
+        </slot>
       </template>
 
       <template #beforelist>
