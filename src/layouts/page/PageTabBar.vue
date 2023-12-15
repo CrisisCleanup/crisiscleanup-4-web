@@ -1,76 +1,70 @@
-<template>
-  <div class="flex flex-col h-full" data-testid="testAdminDashboardDiv">
-    <div
-      class="h-max bg-white mx-5 border-t md:flex grid grid-cols-2 justify-around"
-    >
-      <template v-for="r in state.tabs" :key="r.key">
-        <router-link
-          :to="r.route"
-          class="flex justify-center mx-2 cursor-pointer"
-          :data-testid="`testAdminNav${r.title}Link`"
-          :class="{ 'router-link-active': route.name === r.route.name }"
-        >
-          <span class="p-2">
-            {{ $t(r.title) }}
-          </span>
-        </router-link>
-      </template>
-    </div>
-    <div class="flex-grow overflow-auto p-3 mb-16">
-      <router-view></router-view>
-    </div>
-  </div>
-</template>
+<script setup lang="ts">
+import { useTabs, type Tab } from '@/hooks';
+import type { RouteRecordNormalized } from 'vue-router';
 
-<script lang="ts">
-import { ref } from 'vue';
-import { useRoute } from 'vue-router';
-import useTabs from '../../hooks/useTabs';
+const props = defineProps<{
+  tabs: Tab[];
+}>();
 
-/**
- * PageTabBar
- * This component is utilized by the Page component.
- * This component should NOT be used directly.
- */
-export default defineComponent({
-  name: 'PageTabBar',
-  props: {
-    tabs: {
-      type: Array,
-    },
-  },
-  setup(props) {
-    const tabBar = ref(null);
-    const tabSelector = ref(null);
-    const route = useRoute();
-
-    return {
-      tabBar,
-      tabSelector,
-      route,
-      ...useTabs({
-        tabContainer: tabBar,
-        tabSelector,
-        useRoutes: true,
-        tabs: props.tabs,
-      }),
-    };
+const tabContainer = ref(null);
+const tabSelector = ref(null);
+const { selectorStyle, setTab, activeIndex, state } = useTabs({
+  tabs: props.tabs,
+  useRoutes: true,
+  tabContainer,
+  tabSelector,
+  rootRoute: '/admin',
+  onNavigate: (route) => {
+    console.log('route', route);
+    return route;
   },
 });
 </script>
 
+<template>
+  <div class="page flex flex-col h-full" data-testid="testAdminDashboardDiv">
+    <div
+      ref="tabContainer"
+      class="h-max bg-white mx-5 border-t md:flex grid grid-cols-2 justify-around page__container relative transition-all"
+    >
+      <template v-for="(r, idx) in state.tabs" :key="r.key">
+        <div
+          class="flex justify-center mx-2 cursor-pointer"
+          :data-testid="`testAdminNav${r.title}Link`"
+          :class="{ 'router-link-active': idx === activeIndex }"
+          @click="() => setTab(idx, r.route as RouteRecordNormalized)"
+        >
+          <base-text
+            variant="h3"
+            class="p-2 hover:translate-y-[-1px] transition-all"
+          >
+            {{ $t(r.title) }}
+          </base-text>
+        </div>
+      </template>
+      <div ref="tabSelector" class="page__selector" :style="selectorStyle" />
+    </div>
+    <div class="flex-grow overflow-auto p-3 mb-16">
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
+    </div>
+  </div>
+</template>
+
 <style scoped lang="postcss">
-.router-link:hover {
-  text-decoration: none !important;
-}
-
-.router-link:active {
-  text-decoration: none !important;
-}
-
-.router-link-active {
-  background-color: transparent;
-  border-bottom: solid 3px theme('colors.primary.light');
-  @apply text-black;
+.page {
+  &__selector {
+    height: 4px;
+    @apply bg-primary-light;
+    position: absolute;
+    z-index: 99;
+    bottom: 0;
+    width: 100%;
+    display: inline-block;
+    transition: transform 300ms ease-in-out;
+  }
 }
 </style>

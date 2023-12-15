@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { reactive, nextTick } from 'vue';
+import { reactive, nextTick, ref } from 'vue';
 import { useRAG } from '@/hooks/useRAG';
 import { generateUUID } from '@/utils/helpers';
 
@@ -63,7 +63,7 @@ describe('useRAG', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const rag = useRAG();
+    const rag = useRAG(ref(), ref());
     history = rag.history;
     submitQuestion = rag.submitQuestion;
   });
@@ -80,9 +80,13 @@ describe('useRAG', () => {
       messageId: 'mocked-uuid',
       actor: 'user',
       content: 'Test question',
+      collectionId: undefined,
+      conversationId: 'mocked-uuid',
     });
     expect(mockWebSocket.send).toHaveBeenCalledWith({
       question: 'Test question',
+      collection_id: undefined,
+      conversation_id: 'mocked-uuid',
     });
   });
 

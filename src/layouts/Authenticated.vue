@@ -108,7 +108,7 @@
           <TermsandConditionsModal
             :organization="currentOrganization"
             data-testid="testShowAcceptTermsModal"
-            @acceptedTerms="acceptTermsAndConditions"
+            @accepted-terms="acceptTermsAndConditions"
           />
         </template>
         <template
@@ -497,12 +497,13 @@ export default defineComponent({
       },
     );
 
-    const onCurrentUserUnSub = whenever(
+    let onCurrentUserUnSub: (() => void) | undefined;
+    onCurrentUserUnSub = whenever(
       hasCurrentUser,
       () => {
         debug('authenticated init:', currentUser.value);
         loadState.execute().catch(getErrorMessage);
-        onCurrentUserUnSub();
+        if (onCurrentUserUnSub) onCurrentUserUnSub();
       },
       { immediate: true },
     );

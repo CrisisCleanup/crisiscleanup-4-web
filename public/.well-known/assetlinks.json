@@ -46,5 +46,17 @@
         "F5:C8:56:F1:82:A5:5B:A3:03:BB:70:A1:65:26:4A:96:5F:C1:00:F7:4C:8A:4F:A2:9A:E9:6D:8D:BD:95:51:33"
       ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.crisiscleanup.aussie",
+      "sha256_cert_fingerprints": [
+        "95:8C:81:72:B3:5F:10:AD:C4:D5:78:91:49:84:AB:D3:5F:64:FB:3E:F5:F2:06:17:74:EC:CE:74:4C:38:3C:B7"
+      ]
+    }
   }
 ]

@@ -2,6 +2,7 @@
  * Various Constants
  */
 import { snakeCase } from 'lodash';
+import type { SnakeCasedProperties } from 'type-fest';
 
 // ICONS
 import attentionRed from './assets/icons/attention-red.svg';
@@ -189,7 +190,7 @@ export const TEXT_VARIANTS = [
   'body',
   'bodysm',
   'bodyxsm',
-];
+] as const;
 export const ICON_MAP = {
   'attention-red': attentionRed,
   about,
@@ -274,7 +275,7 @@ export const ICON_MAP = {
 
 export const ICONS = Object.fromEntries(
   Object.entries(ICON_MAP).map(([key]) => [snakeCase(key), key]),
-);
+) as SnakeCasedProperties<typeof ICON_MAP>;
 export const ICON_SIZES = [
   'xxs',
   'xs',
@@ -286,19 +287,25 @@ export const ICON_SIZES = [
   'lg',
   'large',
   'xl',
-];
-export const BUTTON_STYLES = ['primary', 'danger', 'warning', 'link', 'bare'];
+] as const;
+export const BUTTON_STYLES = [
+  'primary',
+  'danger',
+  'warning',
+  'link',
+  'bare',
+] as const;
 export const BUTTON_SIZES = {
   SM: 'small',
   MD: 'medium',
   LG: 'large',
-};
+} as const;
 export const BUTTON_VARIANTS = {
   SOLID: 'solid',
   OUTLINE: 'outline',
   OUTLINE_DARK: 'outline-dark',
   TEXT: 'text',
-};
+} as const;
 
 export const SVG_STROKE_WIDTH = 0.5;
 export const INTERACTIVE_ZOOM_LEVEL = 12;
