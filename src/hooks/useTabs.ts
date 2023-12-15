@@ -118,7 +118,9 @@ export const useTabs = ({
     });
     // // TODO: verify first index has a valid route.
     const stop = watchEffect(async () => {
-      await router?.replace(onNavigate(state.tabs[0].route as RouteRecordRaw));
+      activeIndex.value =
+        state.tabs.findIndex((tab) => tab.key === route?.name) ?? 0;
+      updateSelector();
     });
     stop(); // only want to do it once.
   }
