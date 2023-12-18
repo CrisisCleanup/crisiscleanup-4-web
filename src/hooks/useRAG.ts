@@ -240,6 +240,7 @@ export const useRAG = (
   const history = ref<RAGEntry[]>(conversationHistory?.value ?? []);
   const latestMessage = computed(() => history.value.at(-1));
   const latestMessageId = computed(() => latestMessage.value?.messageId);
+  const streamingMessage = ref<boolean>(false);
   if (conversationHistory) {
     whenever(conversationHistory, (newValue) => {
       history.value = newValue ?? [];
@@ -255,12 +256,21 @@ export const useRAG = (
     debug('Received data from websocket %o', data);
     const { answer, message_id, collection_id, conversation_id } = data;
     if (latestMessageId.value === message_id) {
+      streamingMessage.value = true;
       debug('appending latest message chunk: %s (%s)', message_id, answer);
       const newHistory = history.value.slice(0, -1);
       const newLatest = latestMessage.value!;
-      newLatest.content += answer;
-      history.value = [...newHistory, newLatest];
+      // newLatest.content += answer;
+      if (newLatest.content === answer) {
+        // this is the completed answer.
+        streamingMessage.value = false;
+      } else {
+        // add the new chunk to the end of the message.
+        newLatest.content = answer;
+        history.value = [...newHistory, newLatest];
+      }
     } else {
+      streamingMessage.value = true;
       debug('pushing new message chunk: %s (%s)', message_id, answer);
       history.value.push({
         messageId: message_id,
@@ -292,5 +302,7 @@ export const useRAG = (
   return {
     submitQuestion,
     history: readonly(history),
+    latestMessage: latestMessage,
+    isStreamingMessage: readonly(streamingMessage),
   };
 };
