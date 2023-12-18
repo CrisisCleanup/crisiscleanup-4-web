@@ -23,6 +23,12 @@
         class="mb-16"
         @load-case="loadCase"
       />
+      <WorksiteFeed
+        v-else-if="showingFeed"
+        class="h-[calc(100vh-8rem)] mt-16"
+        :current-user-location="currentUserLocation"
+        @load-case="loadCase"
+      />
       <div v-else-if="showingTable" class="mt-20 p-2 border">
         <div class="text-base p-2 mb-1 text-center w-full">
           Cases for {{ incidentName }}
@@ -34,7 +40,7 @@
         />
       </div>
       <span
-        v-if="allWorksiteCount"
+        v-if="allWorksiteCount && !showingFeed"
         class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6"
         style="z-index: 1002"
       >
@@ -94,7 +100,7 @@
       </div>
       <div
         style="z-index: 1002"
-        class="absolute bottom-20 gap-2 right-4 flex flex-col"
+        class="fixed bottom-20 gap-2 right-4 flex flex-col"
       >
         <base-button
           data-testid="testAddCaseButton"
@@ -122,20 +128,38 @@
         <base-button
           v-if="showingTable"
           data-testid="testShowMapButton"
-          ccu-icon="map"
+          icon="image"
           icon-size="sm"
-          :title="$t('casesVue.map_view')"
-          :alt="$t('casesVue.map_view')"
+          :title="$t('casesVue.photo_map_view')"
+          :alt="$t('casesVue.photo_map_view')"
           :action="showPhotoMap"
           class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
         <base-button
           v-if="showingPhotoMap"
-          icon="image"
+          :icon="can('beta_feature.enable_feed') ? 'list' : 'map'"
           icon-size="sm"
-          :title="$t('casesVue.photo_map_view')"
-          :alt="$t('casesVue.photo_map_view')"
+          :title="
+            can('beta_feature.enable_feed')
+              ? $t('casesVue.feed_view')
+              : $t('casesVue.map_view')
+          "
+          :alt="
+            can('beta_feature.enable_feed')
+              ? $t('casesVue.feed_view')
+              : $t('casesVue.map_view')
+          "
           data-testid="testPhotoMapViewIcon"
+          :action="can('beta_feature.enable_feed') ? showFeed : showMap"
+          class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+        />
+        <base-button
+          v-if="showingFeed"
+          icon="map"
+          icon-size="sm"
+          :title="$t('casesVue.map_view')"
+          :alt="$t('casesVue.map_view')"
+          data-testid="testMapViewIcon"
           :action="showMap"
           class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
@@ -349,6 +373,22 @@
                 :fa="true"
                 @click="showPhotoMap"
               />
+              <ccu-icon
+                v-if="can('beta_feature.enable_feed')"
+                :alt="$t('casesVue.photo_map_view')"
+                data-testid="testPhotoMapViewIcon"
+                size="medium"
+                class="mr-4 cursor-pointer"
+                :class="
+                  showingFeed
+                    ? 'text-primary-light'
+                    : 'text-crisiscleanup-dark-100'
+                "
+                ccu-event="user_ui-view-photo-map"
+                type="list"
+                :fa="true"
+                @click="showFeed"
+              />
               <span v-if="allWorksiteCount" class="font-thin">
                 <span
                   v-if="allWorksiteCount === filteredWorksiteCount"
@@ -421,7 +461,12 @@
             >{{ overDueFilterLabel }}</tag
           >
           <div
-            v-if="!collapsedUtilityBar && !showingTable && !showingPhotoMap"
+            v-if="
+              !collapsedUtilityBar &&
+              !showingTable &&
+              !showingPhotoMap &&
+              !showingFeed
+            "
             class="flex justify-center items-center"
           >
             <Slider
@@ -605,6 +650,17 @@
               </PhoneComponentButton>
             </div>
           </div>
+          <div
+            v-else-if="showingFeed"
+            class="work-page__main-content--feed relative"
+          >
+            <WorksiteFeed
+              :key="currentIncidentId"
+              class="h-[calc(100vh-11rem)]"
+              :current-user-location="currentUserLocation"
+              @load-case="loadCase"
+            />
+          </div>
           <div v-if="showingTable" class="work-page__main-content--table">
             <div class="items-center justify-end hidden md:flex">
               <base-button
@@ -668,6 +724,7 @@
             </div>
             <WorksiteTable
               :worksite-query="worksiteQuery"
+              class="h-156"
               @row-click="loadCase"
               @selection-changed="onSelectionChanged"
             />
@@ -879,7 +936,6 @@ import CaseHistory from '../components/work/CaseHistory.vue';
 import { loadCaseImagesCached, loadCasesCached } from '../utils/worksite';
 import { averageGeolocation } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
-import User from '../models/User';
 import { forceFileDownload } from '../utils/downloads';
 import { getErrorMessage } from '../utils/errors';
 import Incident from '../models/Incident';
@@ -902,12 +958,15 @@ import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
 import { useCurrentUser } from '@/hooks';
-import { store } from '@/store';
 import type { Portal } from '@/models/types';
+import WorksiteFeed from '@/components/WorksiteFeed.vue';
+import { useRecentWorksites } from '@/hooks/useRecentWorksites';
+import useAcl from '@/hooks/useAcl';
 
 export default defineComponent({
   name: 'Work',
   components: {
+    WorksiteFeed,
     WorksiteView,
     WorksiteForm,
     Slider,
@@ -932,6 +991,7 @@ export default defineComponent({
     const store = useStore();
     const { emitter } = useEmitter();
     const mq = useMq();
+    const { $can } = useAcl();
 
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
@@ -944,10 +1004,40 @@ export default defineComponent({
     });
 
     const { currentUser, updateUserStates } = useCurrentUser();
+    const { recentWorksites } = useRecentWorksites();
+
+    const currentUserLocation = computed(() => {
+      if (currentUser.value?.states?.mapViewPort) {
+        const { _northEast, _southWest } = currentUser.value.states.mapViewPort;
+
+        const centerLat = (_northEast.lat + _southWest.lat) / 2;
+        const centerLng = (_northEast.lng + _southWest.lng) / 2;
+
+        return L.latLng(centerLat, centerLng);
+      }
+
+      if (recentWorksites.value.length > 0) {
+        const worksite = recentWorksites.value[0];
+        return L.latLng(
+          worksite.location.coordinates[1],
+          worksite.location.coordinates[0],
+        );
+      }
+
+      if (mostRecentlySavedWorksite.value) {
+        return L.latLng(
+          mostRecentlySavedWorksite.value.location.coordinates[1],
+          mostRecentlySavedWorksite.value.location.coordinates[0],
+        );
+      }
+
+      return getIncidentCenter();
+    });
 
     const showingMap = ref<boolean>(true);
     const showingTable = ref<boolean>(false);
     const showingPhotoMap = ref<boolean>(false);
+    const showingFeed = ref<boolean>(false);
     const showHistory = ref<boolean>(false);
     const showFlags = ref<boolean>(false);
     const showMobileMap = ref<boolean>(false);
@@ -993,15 +1083,19 @@ export default defineComponent({
       );
       if (states) {
         if (states.showingMap) {
-          showingMap.value = true;
-          showingTable.value = false;
-          showingPhotoMap.value = false;
+          showMap();
         }
 
         if (states.showingTable) {
-          showingTable.value = true;
-          showingMap.value = false;
-          showingPhotoMap.value = false;
+          showTable();
+        }
+
+        if (states.showingFeed) {
+          showFeed();
+        }
+
+        if (states.showingPhotoMap) {
+          showPhotoMap();
         }
 
         if (states.appliedFilters) {
@@ -1033,6 +1127,8 @@ export default defineComponent({
       const newStates = {
         showingMap: showingMap.value,
         showingTable: showingTable.value,
+        showingFeed: showingFeed.value,
+        showingPhotoMap: showingPhotoMap.value,
         sviLevel: sviSliderValue.value,
         dateLevel: dateSliderValue.value,
         ...data,
@@ -1116,13 +1212,15 @@ export default defineComponent({
       showingTable.value = true;
       showingMap.value = false;
       showingPhotoMap.value = false;
+      showingFeed.value = false;
       updateUserState({});
     };
 
     const showMap = (reload = false) => {
       showingTable.value = false;
       showingMap.value = true;
-      showingPhotoMap.value = true;
+      showingPhotoMap.value = false;
+      showingFeed.value = false;
       if (reload) {
         reloadMap().then(() => {
           updateUserState({});
@@ -1139,6 +1237,16 @@ export default defineComponent({
       showingTable.value = false;
       showingMap.value = false;
       showingPhotoMap.value = true;
+      showingFeed.value = false;
+      updateUserState({});
+    };
+
+    const showFeed = () => {
+      showingTable.value = false;
+      showingMap.value = false;
+      showingPhotoMap.value = false;
+      showingFeed.value = true;
+      updateUserState({});
     };
 
     const showingDetails = computed<boolean>(() => {
@@ -1418,6 +1526,24 @@ export default defineComponent({
         );
         if (center.latitude && center.longitude) {
           mapUtils?.getMap().setView([center.latitude, center.longitude], 6);
+        }
+      }
+    }
+
+    function getIncidentCenter() {
+      const { locationModels } = Incident.find(
+        currentIncidentId.value,
+      ) as Incident;
+      if (locationModels.length > 0) {
+        return mapUtils?.getLocationCenter(locationModels[0]);
+      } else {
+        const center = averageGeolocation(
+          mapUtils
+            ?.getPixiContainer()
+            ?.children.map((marker) => [marker.x, marker.y]),
+        );
+        if (center.latitude && center.longitude) {
+          return [center.latitude, center.longitude];
         }
       }
     }
@@ -1885,6 +2011,7 @@ export default defineComponent({
         showingTable.value = true;
         showingMap.value = false;
         showingPhotoMap.value = false;
+        showingFeed.value = false;
       }
 
       await init();
@@ -1921,6 +2048,8 @@ export default defineComponent({
       showingTable,
       showPhotoMap,
       showingPhotoMap,
+      showFeed,
+      showingFeed,
       selectedChat,
       showingMap,
       mapLoading,
@@ -1992,6 +2121,8 @@ export default defineComponent({
       caseImages,
       photoMap,
       portal,
+      currentUserLocation,
+      can: $can,
     };
   },
 });

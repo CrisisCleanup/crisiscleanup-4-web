@@ -27,6 +27,7 @@ export interface MapUtils {
   ) => void;
   addMarkerToMap: (location: LatLng) => void;
   fitLocation: (location: Location) => void;
+  getLocationCenter: (location: Location) => LatLng | null;
   jumpToCase: (worksite: Worksite | undefined, showPopup: boolean) => void;
   applyLocation: (locationId: string, value: boolean) => void;
   applyTeamGeoJson: (teamId: string, value: boolean, geom: any) => void;
@@ -229,6 +230,27 @@ export default (
     }
   }
 
+  function getLocationCenter(location) {
+    if (!location) {
+      return null;
+    }
+
+    // Create a geojson feature from the location
+    const geojsonFeature = {
+      type: 'Feature',
+      properties: location.attr,
+      geometry: location.poly || location.geom || location.point,
+    } as any;
+
+    // Convert the geojson feature to a Leaflet layer
+    const layer = L.geoJSON(geojsonFeature);
+
+    // Get the center of the layer's bounds
+    const center = layer.getBounds().getCenter();
+
+    return center;
+  }
+
   const jumpToCase = async (
     worksite: Worksite | undefined,
     showPopup = true,
@@ -348,6 +370,7 @@ export default (
     reloadMap,
     addMarkerToMap,
     fitLocation,
+    getLocationCenter,
     jumpToCase,
     applyLocation,
     applyTeamGeoJson,
