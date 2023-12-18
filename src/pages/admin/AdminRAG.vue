@@ -44,15 +44,31 @@ const setConversation = (newConversationId: string) => {
   conversationId.value = newConversationId;
 };
 
-const { currentConversationEntries, conversations } = useRAGConversations(
-  collectionId as Ref<string>,
-  conversationId,
-);
-const { history, submitQuestion } = useRAG(
+const { currentConversationEntries, conversations, fetchConversations } =
+  useRAGConversations(collectionId as Ref<string>, conversationId);
+const { history, submitQuestion, latestMessage, isStreamingMessage } = useRAG(
   collectionId as Ref<string>,
   conversationId as Ref<string>,
   currentConversationEntries,
 );
+
+// force refetch of conversations when a new conversation is receives first completed message.
+const messageOnNewConversation = computed(
+  () =>
+    latestMessage.value &&
+    conversations.value?.conversations?.findIndex?.(
+      (c) => c.conversationId === conversationId.value,
+    ),
+);
+watch(isStreamingMessage, async (newValue, oldValue) => {
+  if (
+    newValue === false &&
+    oldValue === true &&
+    messageOnNewConversation.value
+  ) {
+    await fetchConversations();
+  }
+});
 
 const collectionOptions = computed(() =>
   collections.value.map((c) => ({ ...c, label: c.name.toUpperCase() })),
