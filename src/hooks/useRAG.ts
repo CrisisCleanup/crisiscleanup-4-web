@@ -167,6 +167,12 @@ export const useRAGConversations = (
     }
   });
 
+  const fetchConversations = async () => {
+    return await conversationsState
+      .execute(`/rag_collections/${collectionId.value}/conversations`)
+      .catch(getErrorMessage);
+  };
+
   whenever(currentConversationId, async (newValue) => {
     const hasConvo = Boolean(
       conversationsState.data.value?.conversations?.find?.(
@@ -174,9 +180,7 @@ export const useRAGConversations = (
       ),
     );
     if (!hasConvo) {
-      await conversationsState
-        .execute(`/rag_collections/${collectionId.value}/conversations`)
-        .catch(getErrorMessage);
+      await fetchConversations();
     }
   });
 
@@ -207,6 +211,7 @@ export const useRAGConversations = (
     currentConversation,
     conversations: readonly(conversationsState.data),
     isLoading: readonly(conversationsState.isLoading),
+    fetchConversations,
   };
 };
 
