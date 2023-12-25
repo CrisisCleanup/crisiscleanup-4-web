@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSlots } from 'vue';
 import { useTabs, type Tab } from '@/hooks';
 import Card from '@/components/cards/Card.vue';
 
@@ -21,6 +22,17 @@ const { activeIndex, selectorStyle, setTab, state } = useTabs({
   tabSelector,
   tabContainer,
 });
+
+const slots = useSlots();
+const activeTab = computed(() =>
+  state.tabs.find((t, idx) => idx === activeIndex.value),
+);
+const footerSlot = computed(
+  () =>
+    Object.entries(slots).find(
+      ([k]) => k === activeTab.value?.key + '-footer',
+    )?.[1],
+);
 </script>
 
 <template>
@@ -50,6 +62,9 @@ const { activeIndex, selectorStyle, setTab, state } = useTabs({
     >
       <slot :name="t.key" />
     </div>
+    <template v-if="footerSlot" #footer>
+      <component :is="footerSlot" />
+    </template>
   </Card>
 </template>
 
