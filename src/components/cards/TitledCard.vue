@@ -23,7 +23,7 @@
                 :clearable="false"
                 v-bind="dropdown"
                 @resize="calcDropdownWidth"
-                @update:modelValue="
+                @update:model-value="
                   (payload) => $emit('update:dropdown', payload)
                 "
               >
@@ -43,6 +43,9 @@
       </slot>
     </template>
     <slot />
+    <template #footer>
+      <slot name="footer" />
+    </template>
   </Card>
 </template>
 
