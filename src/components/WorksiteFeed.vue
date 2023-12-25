@@ -78,12 +78,11 @@
                   @click="showImages(currentFeedItem, idx)"
                 />
               </div>
-              <transition
+              <div
                 v-if="getMostRecentWorksiteNote(currentFeedItem, idx)?.note"
-                name="slide-fade"
-                mode="out-in"
+                class="p-4"
               >
-                <div class="p-4 flex items-center justify-start">
+                <div class="flex items-center justify-start">
                   <div>
                     <span class="text-5xl text-gray-600">&ldquo;</span>
                     <p class="text-xl text-gray-800 font-semibold -mt-4">
@@ -94,7 +93,39 @@
                     <span class="text-5xl text-gray-600">&rdquo;</span>
                   </div>
                 </div>
-              </transition>
+                <div class="flex w-full">
+                  <div class="flex gap-2 items-center">
+                    <div class="text-sm text-gray-600">
+                      <span class="text-crisiscleanup-dark-400">
+                        <template
+                          v-if="
+                            getMostRecentWorksiteNote(currentFeedItem, idx)
+                              ?.is_survivor
+                          "
+                        >
+                          {{ currentFeedItem.name }}
+                        </template>
+                        <template v-else>
+                          <UserDetailsTooltip
+                            :user="
+                              getMostRecentWorksiteNote(currentFeedItem, idx)
+                                ?.created_by
+                            "
+                          />
+                        </template>
+                      </span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                      {{
+                        moment(
+                          getMostRecentWorksiteNote(currentFeedItem, idx)
+                            ?.created_at,
+                        ).fromNow()
+                      }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </template>
           </div>
         </div>
@@ -155,6 +186,8 @@ import { formatNationalNumber } from '@/filters';
 import useWorktypeImages from '@/hooks/worksite/useWorktypeImages';
 import { api as viewerApi } from 'v-viewer';
 import type { Portal } from '@/models/types';
+import User from '@/models/User';
+import UserDetailsTooltip from '@/components/user/DetailsTooltip.vue';
 
 const WORKSITES_LIMIT = 10;
 
@@ -264,6 +297,7 @@ const loadMoreWorksites = async () => {
       },
     );
 
+    const userIds = [];
     if (response.data.results && Array.isArray(response.data.results)) {
       if (response.data.results.length < WORKSITES_LIMIT) {
         hasMore.value = false;
@@ -273,10 +307,22 @@ const loadMoreWorksites = async () => {
       offset.value += response.data.results.length;
 
       for (const worksite of worksites.value) {
+        if (worksite.notes) {
+          for (const note of worksite.notes) {
+            userIds.push(note.created_by);
+          }
+        }
+      }
+      for (const worksite of worksites.value) {
         for (const file of worksite.files) {
           preloadImage(file.large_thumbnail_url);
         }
       }
+    }
+    if (userIds.length > 0) {
+      await User.api().get(`/users?id__in=${userIds.join(',')}`, {
+        dataKey: 'results',
+      });
     }
   } catch (error) {
     console.error('Error fetching worksites:', error);
@@ -284,6 +330,10 @@ const loadMoreWorksites = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const getUser = (id: number) => {
+  return User.find(id);
 };
 
 const nextFeedItem = () => {
@@ -304,10 +354,15 @@ const prevFeedItem = () => {
 const getMostRecentWorksiteNote = (worksite, idx) => {
   if (!worksite.notes || worksite.notes.length === 0) return null;
 
-  // Filter notes where 'is_survivor' is true and then sort them by creation date
-  const sortedNotes = worksite.notes
-    .filter((note) => note.is_survivor)
-    .sort((a, b) => moment(b.created_at).diff(moment(a.created_at)));
+  const sortedNotes = worksite.notes.sort((a, b) => {
+    if (a.is_survivor && !b.is_survivor) {
+      return -1;
+    } else if (!a.is_survivor && b.is_survivor) {
+      return 1;
+    } else {
+      return moment(b.created_at).diff(moment(a.created_at));
+    }
+  });
 
   // Return the note at the specified index, if it exists
   return sortedNotes[idx] || null;

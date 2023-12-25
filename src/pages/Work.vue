@@ -137,7 +137,7 @@
         />
         <base-button
           v-if="showingPhotoMap"
-          :icon="can('beta_feature.enable_feed') ? 'list' : 'map'"
+          :icon="can('beta_feature.enable_feed') ? 'scroll' : 'map'"
           icon-size="sm"
           :title="
             can('beta_feature.enable_feed')
@@ -385,7 +385,7 @@
                     : 'text-crisiscleanup-dark-100'
                 "
                 ccu-event="user_ui-view-photo-map"
-                type="list"
+                type="scroll"
                 :fa="true"
                 @click="showFeed"
               />
