@@ -44,7 +44,7 @@ const { selectorStyle, setTab, activeIndex, state } = useTabs({
       </template>
       <div ref="tabSelector" class="page__selector" :style="selectorStyle" />
     </div>
-    <div class="flex-grow overflow-auto p-3 mb-16">
+    <div class="flex-grow p-3 mb-16">
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />
