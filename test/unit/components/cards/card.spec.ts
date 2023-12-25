@@ -40,6 +40,7 @@ describe('Card', () => {
             <div>Hello world</div>
           </div>
         </div>
+        <div data-v-cc50f56d=\\"\\" class=\\"footer\\"></div>
       </div>"
     `);
   });
