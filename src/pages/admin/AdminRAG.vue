@@ -7,7 +7,7 @@ import {
   useRAGConversations,
   useRAGUpload,
 } from '@/hooks';
-import { useElementSize, whenever, useStorage } from '@vueuse/core';
+import { useStorage, whenever } from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import { getErrorMessage } from '@/utils/errors';
@@ -94,21 +94,6 @@ whenever(uploadsQueue, async (newValue) => {
 const uploadFiles = async (fileList: Blob[]) =>
   await Promise.all(fileList.map(uploadFile));
 
-const chatDomRef = ref<HTMLElement>();
-const chatDomSize = useElementSize(chatDomRef);
-const chatDomHeight = ref(0);
-whenever(chatDomHeight, (newValue) => {
-  if (chatDomRef.value) {
-    chatDomRef.value.style.maxHeight = `${newValue}px`;
-  }
-});
-onMounted(() => {
-  chatDomHeight.value = chatDomSize.height.value;
-});
-whenever(chatDomSize.height, (newValue) => {
-  chatDomHeight.value = newValue;
-});
-
 const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 </script>
 
@@ -126,27 +111,26 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
       />
     </div>
     <TitledCard :title="$t('Chat')">
-      <div ref="chatDomRef" class="rag--chat overflow-y-auto">
+      <div ref="chatDomRef" class="rag--chat">
         <template v-for="h in history" :key="`${h.actor}:${h.content}`">
           <BaseText variant="h3" class="pl-1"
             >{{ h.actor.toUpperCase() }}:</BaseText
           >
-          <MarkdownRenderer
-            class="pl-3 py-1 overflow-y-auto"
-            :source="h.content"
-          />
+          <MarkdownRenderer class="pl-3 py-1" :source="h.content" />
           <br />
         </template>
       </div>
 
-      <div class="flex items-end col-span-2 self-end">
-        <BaseInput
-          v-model="question"
-          placeholder="Ask a question"
-          class="w-full"
-          @keyup.enter="() => submitQuestion(question)"
-        />
-      </div>
+      <template #footer>
+        <div class="flex">
+          <BaseInput
+            v-model="question"
+            placeholder="Ask a question"
+            class="w-full"
+            @keyup.enter="() => submitQuestion(question)"
+          />
+        </div>
+      </template>
     </TitledCard>
 
     <div class="flex flex-col">
@@ -172,19 +156,22 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
               >
             </div>
           </template>
-          <div class="mx-auto py-2 transition-all cursor-pointer">
+        </template>
+        <template #conversation-footer>
+          <div
+            class="flex justify-center py-2 transition-all cursor-pointer conversation__new"
+          >
             <ccu-icon
               :alt="$t('~~New Conversation')"
               type="active"
               with-text
               size="lg"
-              class="conversation__new"
               @click="() => setConversation(generateUUID())"
             />
           </div>
         </template>
         <template #files>
-          <div class="overflow-y-auto transition-all">
+          <div class="transition-all">
             <DragDrop
               class="border bg-white"
               :choose-title="$t('dragDrop.choose_files')"
@@ -219,8 +206,10 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 <style scoped lang="postcss">
 .rag {
   grid-template-columns: 1fr 0.25fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
   transition: all 300ms ease-in-out;
+  min-height: 90vh;
+  max-height: 90vh;
 }
 
 :deep(.card) {
@@ -229,15 +218,20 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 
 :deep(.card .body) {
   flex-grow: 1;
+  overflow-y: scroll;
 }
 
 :deep(.card .body--inner) {
   @apply inline-grid grid-rows-2 w-full;
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-columns: 1fr;
 }
 .conversation__new:hover {
+  @apply bg-crisiscleanup-light-smoke;
   transition: filter 150ms ease-in-out;
-  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+  > button {
+    transition: filter 150ms ease-in-out;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+  }
 }
 </style>
