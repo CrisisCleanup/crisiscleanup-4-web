@@ -1,13 +1,10 @@
 import { test, expect, type Page } from '@playwright/test';
-import { testTitleWithTags, doLoginActions, doLogin } from './utils';
-
-const urlRegexes = {
-  login: /.*\/login\/.*/,
-  oauthCallback: /.*\/o\/callback\?.*code=.*/,
-  oauthAuthorize: /.*\/o\/authorize\?.*code=.*/,
-  dashboard: /.*\/dashboard/,
-  profile: /.*\/profile/,
-};
+import {
+  testTitleWithTags,
+  doLoginActions,
+  doLogin,
+  urlRegexes,
+} from './utils';
 
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
