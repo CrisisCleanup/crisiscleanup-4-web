@@ -29,18 +29,18 @@ describe('Card', () => {
       },
     });
     expect(wrapper.html()).toMatchInlineSnapshot(`
-      "<div data-v-cc50f56d=\\"\\" class=\\"shadow-crisiscleanup-card card h-full\\">
-        <div data-v-cc50f56d=\\"\\" class=\\"header\\">
-          <div data-v-cc50f56d=\\"\\" class=\\"header--inner\\">
+      "<div data-v-cc50f56d="" class="shadow-crisiscleanup-card card h-full">
+        <div data-v-cc50f56d="" class="header">
+          <div data-v-cc50f56d="" class="header--inner">
             <div>Header</div>
           </div>
         </div>
-        <div data-v-cc50f56d=\\"\\" class=\\"body\\">
-          <div data-v-cc50f56d=\\"\\" class=\\"body--inner h-full\\" style=\\"\\">
+        <div data-v-cc50f56d="" class="body">
+          <div data-v-cc50f56d="" class="body--inner h-full" style="">
             <div>Hello world</div>
           </div>
         </div>
-        <div data-v-cc50f56d=\\"\\" class=\\"footer\\"></div>
+        <div data-v-cc50f56d="" class="footer"></div>
       </div>"
     `);
   });
