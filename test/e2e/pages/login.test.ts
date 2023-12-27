@@ -27,11 +27,14 @@ test.describe('LoginPage', () => {
       await expect(page).toHaveURL(urlRegexes.dashboard);
       // await expect(page).toHaveTitle(/.*Dashboard.*/);
 
-      // Expect dashboard span to be visible
-      const dashboardSpan = page
-        .locator('span')
-        .filter({ hasText: 'Dashboard' });
-      await expect(dashboardSpan).toBeVisible();
+      const dashboardDiv = page.getByTestId('testDashboarddiv');
+      await expect(dashboardDiv).toBeVisible();
+
+      // Expect incident selector to be visible
+      const incidentSelector = page
+        .getByTestId('testIncidentSelectorSelect')
+        .first();
+      await expect(incidentSelector).toBeVisible();
 
       // attach info screenshot to test reports
       await test.info().attach('dashboard-page-screenshot', {
