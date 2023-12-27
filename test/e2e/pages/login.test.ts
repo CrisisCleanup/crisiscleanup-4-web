@@ -4,6 +4,7 @@ import {
   getAllTestIds,
   doLogin,
   visitAllLinksAndGetResponseInfo,
+  urlRegexes,
 } from '../utils';
 
 test.describe('LoginPage', () => {
@@ -23,7 +24,7 @@ test.describe('LoginPage', () => {
     async ({ page }) => {
       await doLogin(page);
 
-      await expect(page).toHaveURL(/.*\/incident\/.*\/dashboard/);
+      await expect(page).toHaveURL(urlRegexes.dashboard);
       await expect(page).toHaveTitle(/.*Dashboard.*/);
 
       // Expect dashboard span to be visible

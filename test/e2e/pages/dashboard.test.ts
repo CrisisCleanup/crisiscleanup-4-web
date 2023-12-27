@@ -4,6 +4,7 @@ import {
   testTitleWithTags,
   selectorMaskColor,
   adminUserStatePath,
+  urlRegexes,
 } from '../utils';
 
 test.describe('DashboardPage', () => {
@@ -11,7 +12,7 @@ test.describe('DashboardPage', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/dashboard');
-    await page.waitForURL(/.*\/incident\/.*\/dashboard.*/);
+    await page.waitForURL(urlRegexes.dashboard);
     await page.waitForLoadState();
   });
 
