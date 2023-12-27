@@ -36,6 +36,15 @@ export const adminUserStatePath = 'playwright/.auth/admin.json';
 
 export const selectorMaskColor = '#ff00ff11';
 
+export const urlRegexes = {
+  login: /.*\/login\/.*/,
+  oauthCallback: /.*\/o\/callback\?.*code=.*/,
+  oauthAuthorize: /.*\/o\/authorize\?.*code=.*/,
+  dashboard: /.*\/dashboard/,
+  dashboardWithIncidentId: /.*\/incident\/.*\/dashboard.*/,
+  profile: /.*\/profile/,
+};
+
 /**
  * Generate test title with given tags
  * @param title
