@@ -146,7 +146,8 @@ test.describe('WorkPage', () => {
     ]),
     async ({ page }) => {
       test.slow();
-      const d = worksiteData[12];
+      const randomIndex = Math.floor(Math.random() * worksiteData.length);
+      const d = worksiteData[randomIndex];
       const currentTimestamp = Date.now();
       const residentName = `${d.residentName} - ${currentTimestamp}`;
       const nameField = page.getByTestId('testNameTextInput').locator('input');
