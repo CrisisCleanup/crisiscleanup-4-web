@@ -191,7 +191,7 @@ test.describe('WorkPage', () => {
         await outOfRangeWorksiteButton.click();
       }
 
-      await muckOutCheckbox.click();
+      // await muckOutCheckbox.click();
       await treeWorkCheckbox.click();
       await saveWorksiteButton.click();
       // make sure error toast shows
