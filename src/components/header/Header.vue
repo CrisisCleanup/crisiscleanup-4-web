@@ -43,7 +43,9 @@
             </template>
           </BaseSelect>
           <div class="flex ml-2 font-bold mt-2">
-            <span>{{ $t(($route.name ?? '') as string) }}</span>
+            <span data-testid="testHeaderRouteName">
+              {{ $t(($route.name ?? '') as string) }}
+            </span>
           </div>
         </div>
       </div>
