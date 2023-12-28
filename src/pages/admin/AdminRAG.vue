@@ -7,10 +7,9 @@ import {
   useRAGConversations,
   useRAGUpload,
 } from '@/hooks';
-import { useStorage, whenever } from '@vueuse/core';
+import { useStorage, whenever, useAsyncQueue } from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
-import { getErrorMessage } from '@/utils/errors';
 import DragDrop from '@/components/DragDrop.vue';
 import TitledCard from '@/components/cards/TitledCard.vue';
 import TabbedCard from '@/components/cards/TabbedCard.vue';
@@ -82,17 +81,21 @@ const { uploadFile, collectionDocuments, deleteFile, isDocumentsLoading } =
   useRAGUpload(collectionId);
 
 const uploadsQueue = ref<Blob[]>([]);
-whenever(uploadsQueue, async (newValue) => {
-  if (!newValue || newValue.length === 0) return;
-  await uploadFiles(newValue)
-    .catch(getErrorMessage)
-    .finally(() => {
-      uploadsQueue.value = [];
+const uploadTasks = computed(
+  () => uploadsQueue.value?.map((file) => () => uploadFile(file)),
+);
+whenever(
+  uploadTasks,
+  (tasks) => {
+    useAsyncQueue(tasks, {
+      interrupt: false,
+      onFinished: () => {
+        uploadsQueue.value = [];
+      },
     });
-});
-
-const uploadFiles = async (fileList: Blob[]) =>
-  await Promise.all(fileList.map(uploadFile));
+  },
+  { flush: 'post' },
+);
 
 const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 </script>
@@ -176,7 +179,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
               class="border bg-white"
               :choose-title="$t('dragDrop.choose_files')"
               :drag-title="$t('fileUpload.select_file_upload')"
-              @files="(files) => (uploadsQueue = files)"
+              @files="(files) => uploadsQueue.push(...files)"
             >
               <template v-if="isDocumentsLoading || uploadsQueue.length > 0">
                 <spinner />
