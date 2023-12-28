@@ -18,10 +18,6 @@ jobs:
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     needs: [versions]
-    outputs:
-      TEST_STAGE: ${{ steps.results.outputs.TEST_STAGE }}
-      TEST_PROJECT: ${{ steps.results.outputs.TEST_PROJECT }}
-      TEST_STATUS: ${{ steps.results.outputs.TEST_STATUS }}
     strategy:
       fail-fast: false
       matrix:
@@ -124,15 +120,6 @@ jobs:
         with:
           name: test-result-${{ matrix.stage }}-${{ matrix.project }}
           path: test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
-
-      - id: results
-        shell: bash
-        if: always()
-        run: |
-          echo "TEST_STAGE=${{ matrix.stage }}" >> $GITHUB_OUTPUT
-          echo "TEST_PROJECT=${{ matrix.project }}" >> $GITHUB_OUTPUT
-          # The current status of the job. Possible values are success, failure, or cancelled.
-          echo "TEST_STATUS=${{ job.status }}" >> $GITHUB_OUTPUT
 
   aggregate-results:
     name: Aggregate Test Results
