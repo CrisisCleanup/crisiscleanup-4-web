@@ -222,12 +222,14 @@ jobs:
           path: all-blob-reports
 
       - name: 🔄 Merge all blob reports
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: e2e-results.json
         run: pnpm exec playwright merge-reports --reporter html,json,github,markdown ./all-blob-reports
 
       - name: 🛠️ Generate PR Comment
         uses: daun/playwright-report-summary@v3
         with:
-          report-file: 'result.json'
+          report-file: 'e2e-results.json'
 
       - name: 🛠️ Generate Job Summary
         run: |
