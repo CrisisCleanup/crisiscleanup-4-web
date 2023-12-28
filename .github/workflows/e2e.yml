@@ -262,7 +262,7 @@ jobs:
             "disableUnfurl": true
           }
           EOF
-          pnpm exec playwright-slack-report --config=cli_config.json -json-results=e2e-results.json
+          pnpm exec playwright-slack-report --config=cli_config.json --json-results=e2e-results.json
 
       - name: 🛠️ Generate Job Summary
         run: |
