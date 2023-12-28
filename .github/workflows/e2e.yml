@@ -236,10 +236,6 @@ jobs:
           COMMIT_ID: ${{ github.sha }}
           # Todo: replace with html report url when we upload html reports somewhere
           RESULT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REPOSITORY: ${{ github.repository }}
-          ACTOR: ${{ github.actor }}
-          EVENT_NAME: ${{ github.event_name }}
-          WORKFLOW: ${{ github.workflow }}
         run: |
           cat > cli_config.json <<EOF
           {
@@ -255,10 +251,6 @@ jobs:
               { "key": "branch", "value" : "__ENV_BRANCH_NAME"},
               { "key": "commit", "value" : "__ENV_COMMIT_ID"},
               { "key": "results", "value" : "__ENV_RESULT_URL"},
-              { "key": "repository", "value": "__ENV_REPOSITORY"},
-              { "key": "actor", "value": "__ENV_ACTOR"},
-              { "key": "event", "value": "__ENV_EVENT_NAME"},
-              { "key": "workflow", "value": "__ENV_WORKFLOW"}
             ],
             "maxNumberOfFailures": 4,
             "disableUnfurl": true
