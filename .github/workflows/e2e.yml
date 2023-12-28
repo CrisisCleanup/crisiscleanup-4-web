@@ -157,7 +157,7 @@ jobs:
 
   notify-failed:
     name: 🔴 Notify Failure 🔴
-    needs: [aggregate-results]
+    needs: [e2e, aggregate-results]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -175,7 +175,7 @@ jobs:
 
   notify-success:
     name: 🟢 Notify Success 🟢
-    needs: [aggregate-results]
+    needs: [e2e, aggregate-results]
     runs-on: ubuntu-latest
     if: always()
     steps:
