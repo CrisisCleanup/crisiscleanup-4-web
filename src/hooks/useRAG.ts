@@ -2,9 +2,10 @@ import createDebug from 'debug';
 import { useWebSockets } from '@/hooks/useWebSockets';
 import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
-import type { Ref } from 'vue';
+import type { Ref, InjectionKey } from 'vue';
 import { ref } from 'vue';
 import { getErrorMessage } from '@/utils/errors';
+import { provideLocal, injectLocal } from '@vueuse/core';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -230,6 +231,34 @@ export const useRAGCollections = () => {
     collectionsState,
     collections,
   };
+};
+
+export const RAGWebSocketInjectKey: InjectionKey<{
+  socket: ReturnType<typeof useWebSockets>;
+  message: Readonly<Ref<AnyRAGSocketMessage | undefined>>;
+}> = Symbol('RAGWebSocket');
+
+/**
+ * Provide new or inject existing rag websocket state.
+ * @returns {Object} The WebSocket state object.
+ */
+export const useRAGWebSocket = () => {
+  let state = injectLocal(RAGWebSocketInjectKey);
+  if (!state) {
+    const message = ref<AnyRAGSocketMessage | undefined>(undefined);
+    const socket = useWebSockets<
+      RAGSocketConversationMessage | RAGSocketDocumentMessage
+    >('/ws/rag', 'rag', (data) => {
+      debug('Received data from websocket %o', data);
+      message.value = data;
+    });
+    state = {
+      socket,
+      message: readonly(message),
+    };
+    provideLocal(RAGWebSocketInjectKey, state);
+  }
+  return state;
 };
 
 export const useRAG = (
