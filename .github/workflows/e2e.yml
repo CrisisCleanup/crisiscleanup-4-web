@@ -134,15 +134,49 @@ jobs:
           # The current status of the job. Possible values are success, failure, or cancelled.
           echo "TEST_STATUS=${{ job.status }}" >> $GITHUB_OUTPUT
 
+  aggregate-results:
+    name: Aggregate Test Results
+    needs: [e2e]
+    runs-on: ubuntu-latest
+    outputs:
+      overall_status: ${{ steps.aggregate.outputs.overall_status }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-results
+      - name: Aggregate Test Results
+        id: aggregate
+        run: |
+          #!/bin/bash
+          overall_status="success"
+
+          # Loop through each test result file
+          for file in test-results/*.txt; do
+            if [[ -f "$file" ]]; then
+              status=$(cat "$file")
+              echo "Test result in $file: $status"
+              if [[ "$status" == "failure" ]]; then
+                overall_status="failure"
+                break
+              fi
+            fi
+          done
+
+          # Output the overall status
+          echo "Overall status: $overall_status"
+          echo "overall_status=$overall_status" >> $GITHUB_OUTPUT
+
   notify-failed:
     name: 🔴 Notify Failure 🔴
-    needs: [e2e]
+    needs: [aggregate-results]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Notify Slack
         uses: rtCamp/action-slack-notify@v2
-        if: needs.e2e.outputs.TEST_STATUS == 'failure'
+        if: ${{ needs.aggregate-results.outputs.overall_status == 'failure' }}
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
@@ -154,13 +188,13 @@ jobs:
 
   notify-success:
     name: 🟢 Notify Success 🟢
-    needs: [e2e]
+    needs: [aggregate-results]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Notify Slack
         uses: rtCamp/action-slack-notify@v2
-        if: needs.e2e.outputs.TEST_STATUS == 'success'
+        if: ${{ needs.aggregate-results.outputs.overall_status == 'success' }}
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
