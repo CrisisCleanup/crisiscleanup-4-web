@@ -8,6 +8,8 @@ import { getErrorMessage } from '@/utils/errors';
 import { useToast } from 'vue-toastification';
 import { provideLocal, injectLocal } from '@vueuse/core';
 import type { ToastID } from 'vue-toastification/dist/types/types';
+import type { CCUFileItem } from '@/models/types';
+import type { CamelCasedProperties } from 'type-fest';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -99,7 +101,7 @@ interface Collection {
   cmetadata: null | Record<string, unknown>;
   name: string;
   uuid: string;
-  files?: Array<Record<string, string | null>>;
+  files?: Array<CamelCasedProperties<CCUFileItem>>;
 }
 
 interface CollectionResponse extends PaginatedResponse<Collection> {}
@@ -399,7 +401,7 @@ export const useRAG = (
     handleConversationMessage(newValue),
   );
 
-  const submitQuestion = (value: string) => {
+  const submitQuestion = (value: string, fileIds?: number[]) => {
     if (!value) return;
     const convoId = conversationId.value ?? generateUUID();
     history.value.push({
@@ -409,11 +411,20 @@ export const useRAG = (
       collectionId: collectionId.value,
       conversationId: convoId,
     });
-    socket.send({
+    const payload: {
+      question: string;
+      collection_id: string;
+      conversation_id: string;
+      file_ids?: number[];
+    } = {
       question: value,
       collection_id: collectionId.value,
       conversation_id: convoId,
-    });
+    };
+    if (fileIds) {
+      payload.file_ids = fileIds;
+    }
+    socket.send(payload);
   };
 
   return {
