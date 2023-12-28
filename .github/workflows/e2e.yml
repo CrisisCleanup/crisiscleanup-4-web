@@ -223,7 +223,9 @@ jobs:
           path: all-blob-reports
 
       - name: 🔄 Merge all blob reports
-        run: pnpm exec playwright merge-reports --reporter html,github,markdown ./all-blob-reports
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: e2e-results.json
+        run: pnpm exec playwright merge-reports --reporter html,json,github,markdown ./all-blob-reports
 
       - name: 🛠️ Generate Job Summary
         run: |
