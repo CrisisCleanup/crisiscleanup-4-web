@@ -7,7 +7,12 @@ import {
   useRAGConversations,
   useRAGUpload,
 } from '@/hooks';
-import { useStorage, whenever, useAsyncQueue } from '@vueuse/core';
+import {
+  useStorage,
+  whenever,
+  useAsyncQueue,
+  reactiveComputed,
+} from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import DragDrop from '@/components/DragDrop.vue';
@@ -15,6 +20,7 @@ import TitledCard from '@/components/cards/TitledCard.vue';
 import TabbedCard from '@/components/cards/TabbedCard.vue';
 import BaseText from '@/components/BaseText.vue';
 import { generateUUID } from '@/utils/helpers';
+import BaseCheckbox from '@/components/BaseCheckbox.vue';
 
 const question = ref<string>('');
 const { collections } = useRAGCollections();
@@ -80,6 +86,19 @@ const hasCollection = computed(() => !!collection.value);
 const { uploadFile, collectionDocuments, deleteFile, isDocumentsLoading } =
   useRAGUpload(collectionId);
 
+const activeCollectionFileIds = ref<Record<number, boolean>>({});
+whenever(collectionDocuments, (newValue) => {
+  activeCollectionFileIds.value = {};
+  for (const file of newValue) {
+    activeCollectionFileIds.value[file.id] = true;
+  }
+});
+const activeFileIds = computed<number[]>(() =>
+  Object.entries(activeCollectionFileIds.value)
+    .filter(([, v]) => v)
+    .map<number>(([k]) => k as unknown as number),
+);
+
 const uploadsQueue = ref<Blob[]>([]);
 const uploadTasks = computed(
   () => uploadsQueue.value?.map((file) => () => uploadFile(file)),
@@ -130,7 +149,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
             v-model="question"
             placeholder="Ask a question"
             class="w-full"
-            @keyup.enter="() => submitQuestion(question)"
+            @keyup.enter="() => submitQuestion(question, activeFileIds)"
           />
         </div>
       </template>
@@ -174,7 +193,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
           </div>
         </template>
         <template #files>
-          <div class="transition-all">
+          <div class="transition-all flex flex-col">
             <DragDrop
               class="border bg-white"
               :choose-title="$t('dragDrop.choose_files')"
@@ -186,17 +205,23 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
               </template>
             </DragDrop>
             <template v-for="doc in collectionDocuments" :key="doc.filename">
-              <div class="border-1 p-3">
-                <ccu-icon
-                  type="trash"
-                  size="sm"
-                  class="transition-all hover:scale-[1.05] hover:translate-y-[-2px]"
-                  @click="() => deleteFile(doc.id)"
+              <div class="border-1 inline-flex p-1 flex-grow justify-between">
+                <base-checkbox
+                  :model-value="activeCollectionFileIds[doc.id]"
+                  @update:model-value="
+                    (v) => (activeCollectionFileIds[doc.id] = v)
+                  "
                 >
                   <BaseText variant="h4" class="pl-1 text-left">{{
                     doc.filenameOriginal
                   }}</BaseText>
-                </ccu-icon>
+                </base-checkbox>
+                <ccu-icon
+                  type="trash"
+                  size="sm"
+                  class="transition-all hover:scale-[1.05] hover:translate-y-[-2px] self-end"
+                  @click="() => deleteFile(doc.id)"
+                />
               </div>
             </template>
           </div>
