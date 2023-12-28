@@ -169,7 +169,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
           SLACK_USERNAME: 'CrisisCleanup Bot'
-          SLACK_CHANNEL: 'core'
+          SLACK_CHANNEL: 'qa'
           SLACK_COLOR: '#D94F37'
           SLACK_TITLE: 'E2e Tests Failed!'
           SLACK_MESSAGE: '🧪 E2e Tests Failed... Someone broke something! 😦'
@@ -187,7 +187,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
           SLACK_USERNAME: 'CrisisCleanup Bot'
-          SLACK_CHANNEL: 'core'
+          SLACK_CHANNEL: 'qa'
           SLACK_COLOR: '#13E768'
           SLACK_TITLE: 'E2e Tests Passed!'
           SLACK_MESSAGE: '🧪 E2e Tests Passed!!'
@@ -242,7 +242,7 @@ jobs:
             "sendResults": "always",
             "slackLogLevel": "error",
             "sendUsingBot": {
-              "channels": ["bots"]
+              "channels": ["qa"]
             },
             "showInThread": true,
             "meta": [
