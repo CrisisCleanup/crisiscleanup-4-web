@@ -2,6 +2,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { reactive, nextTick, ref } from 'vue';
 import { useRAG } from '@/hooks/useRAG';
 import { generateUUID } from '@/utils/helpers';
+import { injectLocal } from '@vueuse/core';
+
+vi.mock('@vueuse/core', async (orig) => {
+  return {
+    ...(await orig()),
+    provideLocal: vi.fn((key, value) => value),
+    injectLocal: vi.fn((key, value) => value),
+  };
+});
 
 // Mock dependencies
 vi.mock('@/utils/helpers', () => ({
@@ -66,6 +75,11 @@ describe('useRAG', () => {
     const rag = useRAG(ref(), ref());
     history = rag.history;
     submitQuestion = rag.submitQuestion;
+
+    injectLocal.mockReturnValue({
+      socket: mockWebSocket,
+      message: ref(),
+    });
   });
 
   it('initializes history as an empty array', () => {
