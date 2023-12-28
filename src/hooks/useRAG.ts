@@ -5,7 +5,9 @@ import { useAxios } from '@vueuse/integrations/useAxios';
 import type { Ref, InjectionKey } from 'vue';
 import { ref } from 'vue';
 import { getErrorMessage } from '@/utils/errors';
+import { useToast } from 'vue-toastification';
 import { provideLocal, injectLocal } from '@vueuse/core';
+import type { ToastID } from 'vue-toastification/dist/types/types';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -108,6 +110,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const collectionId =
     uploadCollectionId ?? ref<string>(uploadCollectionId ?? '');
   const uploadedDocuments = ref<RAGUploadResponse[]>([]);
+  const toast = useToast();
 
   const collectionState = useAxios<Collection>(
     `/rag_collections/${collectionId.value}`,
@@ -143,6 +146,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
       return getErrorMessage(new Error('No collection ID provided'));
     const formData = new FormData();
     formData.append('file', fileData);
+    debug('uploading file');
     return uploadState
       .execute(`/rag_collections/${collectionId.value}/upload`, {
         method: 'POST',
@@ -174,6 +178,51 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
       uploadedDocuments.value.push(data);
     },
   );
+
+  function handleDocumentMessage(message: RAGSocketDocumentMessageBody) {
+    debug('Received document message: %o', message);
+    const toastId: ToastID = String(message.file_id);
+    switch (message.message_type) {
+      case 'start': {
+        toast.info(`Starting document processing: ${message.file_name}`, {
+          id: toastId,
+          timeout: false,
+        });
+        break;
+      }
+      case 'update': {
+        toast.info(`${message.file_name}: ${message.message}`, {
+          id: toastId,
+          timeout: false,
+        });
+        break;
+      }
+      case 'error': {
+        toast.error(`${message.file_name}: ${message.message}`, {
+          id: toastId,
+          timeout: 10_000,
+        });
+        break;
+      }
+      case 'end': {
+        toast.success(`Document processing complete: ${message.file_name}`, {
+          id: toastId,
+          timeout: 10_000,
+        });
+        collectionState
+          .execute(`/rag_collections/${collectionId.value}`)
+          .then(() => debug('refetched collections'))
+          .catch(getErrorMessage);
+        break;
+      }
+    }
+  }
+
+  const { message } = useRAGWebSocket();
+  const documentMessage = computed(() =>
+    message.value?.type === 'rag.document' ? message.value.message : undefined,
+  );
+  whenever(documentMessage, (newValue) => handleDocumentMessage(newValue));
 
   return {
     deleteFile,
