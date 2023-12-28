@@ -502,6 +502,15 @@ export default defineComponent({
       hasCurrentUser,
       () => {
         debug('authenticated init:', currentUser.value);
+        // Prioritize fetching the current user's incident details to optimize page load times.
+        // We only need to fetch current user incident details to load page immediately before loading other page data.
+        // Example:
+        // Load /incidents/104
+        // Load other page data (/incidents, /organizations, /languages, etc.)
+        // It's because loading /incidents before loading current user incident is slow
+        // Note: The sequence of operations here is crucial for achieving the desired performance.
+        fetchIncidentDetails().catch(getErrorMessage);
+        // Load all other page data after loading user incident
         loadState.execute().catch(getErrorMessage);
         if (onCurrentUserUnSub) onCurrentUserUnSub();
       },
