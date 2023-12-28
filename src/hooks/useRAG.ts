@@ -134,7 +134,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     }),
     {
       immediate: false,
-      resetOnExecute: true,
+      resetOnExecute: false,
     },
   );
 
