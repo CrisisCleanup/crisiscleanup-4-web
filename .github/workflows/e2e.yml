@@ -113,6 +113,18 @@ jobs:
           path: blob-report
           retention-days: 1
 
+      - name: Save Test Result
+        if: always()
+        run: |
+          echo ${{ job.status }} > test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
+
+      - name: Upload Test Result
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-result-${{ matrix.stage }}-${{ matrix.project }}
+          path: test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
+
       - id: results
         shell: bash
         if: always()
