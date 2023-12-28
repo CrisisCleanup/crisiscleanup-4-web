@@ -222,7 +222,12 @@ jobs:
           path: all-blob-reports
 
       - name: 🔄 Merge all blob reports
-        run: pnpm exec playwright merge-reports --reporter html,github,markdown ./all-blob-reports
+        run: pnpm exec playwright merge-reports --reporter html,json,github,markdown ./all-blob-reports
+
+      - name: 🛠️ Generate PR Comment
+        uses: daun/playwright-report-summary@v3
+        with:
+          report-file: 'result.json'
 
       - name: 🛠️ Generate Job Summary
         run: |
