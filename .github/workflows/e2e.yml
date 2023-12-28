@@ -125,6 +125,7 @@ jobs:
     name: Aggregate Test Results
     needs: [e2e]
     runs-on: ubuntu-latest
+    if: always()
     outputs:
       overall_status: ${{ steps.aggregate.outputs.overall_status }}
     steps:
