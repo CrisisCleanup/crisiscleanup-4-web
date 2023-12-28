@@ -9,6 +9,41 @@ import { provideLocal, injectLocal } from '@vueuse/core';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
+type RAGSocketMessageType = 'rag.conversation' | 'rag.document';
+
+interface RAGSocketMessage<T> {
+  type: RAGSocketMessageType;
+  message: T;
+}
+
+interface RAGSocketConversationMessageBody {
+  answer: string;
+  message_id: string;
+  collection_id: string;
+  conversation_id: string;
+}
+
+interface RAGSocketDocumentMessageBody {
+  file_id: string;
+  file_name: string;
+  message_type: 'start' | 'update' | 'error' | 'end';
+  message: string;
+}
+
+interface RAGSocketConversationMessage
+  extends RAGSocketMessage<RAGSocketConversationMessageBody> {
+  type: 'rag.conversation';
+}
+
+interface RAGSocketDocumentMessage
+  extends RAGSocketMessage<RAGSocketDocumentMessageBody> {
+  type: 'rag.document';
+}
+
+type AnyRAGSocketMessage =
+  | RAGSocketDocumentMessage
+  | RAGSocketConversationMessage;
+
 interface RAGEntry {
   messageId: string;
   actor: 'user' | 'aarongpt';
