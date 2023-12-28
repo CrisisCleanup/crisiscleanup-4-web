@@ -311,20 +311,13 @@ export const useRAG = (
     });
   }
 
-  const socket = useWebSockets<{
-    answer: string;
-    message_id: string;
-    collection_id: string;
-    conversation_id: string;
-  }>('/ws/rag', 'rag', (data) => {
-    debug('Received data from websocket %o', data);
+  function handleConversationMessage(data: RAGSocketConversationMessageBody) {
     const { answer, message_id, collection_id, conversation_id } = data;
     if (latestMessageId.value === message_id) {
       streamingMessage.value = true;
       debug('appending latest message chunk: %s (%s)', message_id, answer);
       const newHistory = history.value.slice(0, -1);
       const newLatest = latestMessage.value!;
-      // newLatest.content += answer;
       if (newLatest.content === answer) {
         // this is the completed answer.
         streamingMessage.value = false;
@@ -344,7 +337,18 @@ export const useRAG = (
         conversationId: conversation_id,
       });
     }
-  });
+  }
+
+  const { message, socket } = useRAGWebSocket();
+
+  const conversationMessage = computed(() =>
+    message.value?.type === 'rag.conversation'
+      ? message.value.message
+      : undefined,
+  );
+  whenever(conversationMessage, (newValue) =>
+    handleConversationMessage(newValue),
+  );
 
   const submitQuestion = (value: string) => {
     if (!value) return;
