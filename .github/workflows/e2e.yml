@@ -241,11 +241,11 @@ jobs:
           cat > cli_config.json <<EOF
           {
             "sendResults": "always",
-            "slackLogLevel": "error",
+            "slackLogLevel": "debug",
             "sendUsingBot": {
               "channels": ["qa"]
             },
-            "showInThread": true,
+            "showInThread": false,
             "meta": [
               { "key": "name", "value" : "__ENV_REPORT_NAME"},
               { "key": "build", "value" : "__ENV_BUILD_ID"},
