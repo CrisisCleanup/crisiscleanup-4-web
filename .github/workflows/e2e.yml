@@ -245,6 +245,7 @@ jobs:
             "sendUsingBot": {
               "channels": ["qa"]
             },
+            "showInThread": true,
             "meta": [
               { "key": "name", "value" : "__ENV_REPORT_NAME"},
               { "key": "build", "value" : "__ENV_BUILD_ID"},
@@ -252,7 +253,7 @@ jobs:
               { "key": "commit", "value" : "__ENV_COMMIT_ID"},
               { "key": "results", "value" : "__ENV_RESULT_URL"}
             ],
-            "maxNumberOfFailures": 6,
+            "maxNumberOfFailures": 10,
             "disableUnfurl": true
           }
           EOF
