@@ -250,7 +250,7 @@ jobs:
               { "key": "build", "value" : "__ENV_BUILD_ID"},
               { "key": "branch", "value" : "__ENV_BRANCH_NAME"},
               { "key": "commit", "value" : "__ENV_COMMIT_ID"},
-              { "key": "results", "value" : "__ENV_RESULT_URL"},
+              { "key": "results", "value" : "__ENV_RESULT_URL"}
             ],
             "maxNumberOfFailures": 4,
             "disableUnfurl": true
