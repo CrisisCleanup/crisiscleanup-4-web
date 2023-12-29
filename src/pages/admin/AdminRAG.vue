@@ -93,10 +93,16 @@ whenever(collectionDocuments, (newValue) => {
     activeCollectionFileIds.value[file.id] = true;
   }
 });
-const activeFileIds = computed<number[]>(() =>
-  Object.entries(activeCollectionFileIds.value)
-    .filter(([, v]) => v)
-    .map<number>(([k]) => k as unknown as number),
+const allFileIds = computed(() => collectionDocuments.value?.map((f) => f.id));
+const isAllFileIdsActive = computed(
+  () => allFileIds.value?.every((id) => activeCollectionFileIds.value[id]),
+);
+const activeFileIds = computed<number[] | undefined>(() =>
+  isAllFileIdsActive.value
+    ? undefined
+    : Object.entries(activeCollectionFileIds.value)
+        .filter(([, v]) => v)
+        .map<number>(([k]) => k as unknown as number),
 );
 
 const uploadsQueue = ref<Blob[]>([]);
