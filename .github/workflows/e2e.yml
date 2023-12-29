@@ -260,6 +260,9 @@ jobs:
           echo "Created cli_config.json for playwright-slack-report..."
           cat cli_config.json
 
+          echo "Playwright JSON report:"
+          cat e2e-results.json
+
           echo "Sending report to slack..."
           pnpm exec playwright-slack-report --config=cli_config.json --json-results=e2e-results.json
 
