@@ -21,8 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        stage: [development, staging, production]
-        project: [chromium, firefox, webkit]
+        stage: [staging, production]
+        project: [chromium, firefox]
         include:
           - project: chromium
             os: ubuntu-latest
@@ -30,9 +30,6 @@ jobs:
           - project: firefox
             os: ubuntu-latest
             cache_dir: ~/.cache/ms-playwright
-          - project: webkit
-            os: macos-12
-            cache_dir: ~/Library/Caches/ms-playwright
     steps:
       - uses: actions/checkout@v3
 
@@ -201,7 +198,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        stage: [development, staging, production]
+        stage: [staging, production]
     steps:
       - uses: actions/checkout@v3
 
