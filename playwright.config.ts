@@ -24,20 +24,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
-    ? [
-        ['blob', { outputDir: 'blob-report' }],
-        ['github'],
-        [
-          './node_modules/playwright-slack-report/dist/src/SlackReporter.js',
-          {
-            channels: ['qa'],
-            sendResults: 'always',
-            slackLogLevel: 'debug',
-            disableUnfurl: true,
-            showInThread: true,
-          },
-        ],
-      ]
+    ? [['blob', { outputDir: 'blob-report' }], ['github']]
     : [['html', { open: 'never' }]],
   timeout: 1 * 60 * 1000,
   reportSlowTests: {
