@@ -49,7 +49,6 @@ jobs:
       - name: 🔧 Setup Common Env
         run: |
           echo 'PW_SKIP_WEBSERVER=1' >> $GITHUB_ENV
-          echo 'SLACK_BOT_USER_OAUTH_TOKEN=${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}' >> $GITHUB_ENV # used by playwright-slack-report
 
       - name: 🔧 Setup Development Test Env
         if: matrix.stage == 'development'
@@ -229,36 +228,36 @@ jobs:
           PLAYWRIGHT_JSON_OUTPUT_NAME: e2e-results.json
         run: pnpm exec playwright merge-reports --reporter html,json,github,markdown ./all-blob-reports
 
-      # - name: 📨 Send report to slack
-      #   env:
-      #     SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
-      #     REPORT_NAME: Playwright Report | ${{ matrix.stage }}
-      #     BUILD_ID: ${{ github.run_id }}
-      #     BRANCH_NAME: ${{ github.ref_name }}
-      #     COMMIT_ID: ${{ github.sha }}
-      #     # Todo: replace with html report url when we upload html reports somewhere
-      #     RESULT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      #   run: |
-      #     cat > cli_config.json <<EOF
-      #     {
-      #       "sendResults": "always",
-      #       "slackLogLevel": "debug",
-      #       "sendUsingBot": {
-      #         "channels": ["qa"]
-      #       },
-      #       "showInThread": false,
-      #       "meta": [
-      #         { "key": "name", "value" : "__ENV_REPORT_NAME"},
-      #         { "key": "build", "value" : "__ENV_BUILD_ID"},
-      #         { "key": "branch", "value" : "__ENV_BRANCH_NAME"},
-      #         { "key": "commit", "value" : "__ENV_COMMIT_ID"},
-      #         { "key": "results", "value" : "__ENV_RESULT_URL"}
-      #       ],
-      #       "maxNumberOfFailures": 4,
-      #       "disableUnfurl": true
-      #     }
-      #     EOF
-      #     pnpm exec playwright-slack-report --config=cli_config.json --json-results=e2e-results.json
+      - name: 📨 Send report to slack
+        env:
+          SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
+          REPORT_NAME: Playwright Report | ${{ matrix.stage }}
+          BUILD_ID: ${{ github.run_id }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          COMMIT_ID: ${{ github.sha }}
+          # Todo: replace with html report url when we upload html reports somewhere
+          RESULT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          cat > cli_config.json <<EOF
+          {
+            "sendResults": "always",
+            "slackLogLevel": "debug",
+            "sendUsingBot": {
+              "channels": ["qa"]
+            },
+            "showInThread": false,
+            "meta": [
+              { "key": "name", "value" : "__ENV_REPORT_NAME"},
+              { "key": "build", "value" : "__ENV_BUILD_ID"},
+              { "key": "branch", "value" : "__ENV_BRANCH_NAME"},
+              { "key": "commit", "value" : "__ENV_COMMIT_ID"},
+              { "key": "results", "value" : "__ENV_RESULT_URL"}
+            ],
+            "maxNumberOfFailures": 4,
+            "disableUnfurl": true
+          }
+          EOF
+          pnpm exec playwright-slack-report --config=cli_config.json --json-results=e2e-results.json
 
       - name: 🛠️ Generate Job Summary
         run: |
