@@ -245,7 +245,6 @@ jobs:
             "sendUsingBot": {
               "channels": ["qa"]
             },
-            "showInThread": false,
             "meta": [
               { "key": "name", "value" : "__ENV_REPORT_NAME"},
               { "key": "build", "value" : "__ENV_BUILD_ID"},
@@ -253,10 +252,15 @@ jobs:
               { "key": "commit", "value" : "__ENV_COMMIT_ID"},
               { "key": "results", "value" : "__ENV_RESULT_URL"}
             ],
-            "maxNumberOfFailures": 4,
+            "maxNumberOfFailures": 6,
             "disableUnfurl": true
           }
           EOF
+
+          echo "Created cli_config.json for playwright-slack-report..."
+          cat cli_config.json
+
+          echo "Sending report to slack..."
           pnpm exec playwright-slack-report --config=cli_config.json --json-results=e2e-results.json
 
       - name: 🛠️ Generate Job Summary
