@@ -118,7 +118,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: test-result-${{ matrix.stage }}-${{ matrix.project }}
+          name: matrix-outputs
           path: test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
 
   aggregate-results:
@@ -133,6 +133,7 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:
+          name: matrix-outputs
           path: test-results
       - name: Aggregate Test Results
         id: aggregate
