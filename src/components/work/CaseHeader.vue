@@ -87,11 +87,27 @@
         </div>
       </div>
       <div v-if="worksite && worksite.id" class="flex items-center">
+        <v-popover popper-class="add-list-popover">
+          <ccu-icon
+            :alt="$t('actions.add_to_list')"
+            data-testid="testAddToListIcon"
+            size="small"
+            class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+            type="sticky-note-solid"
+          />
+          <template #popper>
+            <AddToList
+              class="p-1.5"
+              model-type="worksite_worksites"
+              :object-id="worksite.id"
+            />
+          </template>
+        </v-popover>
         <ccu-icon
           :alt="$t('actions.flag')"
           data-testid="testFlagIcon"
           size="small"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="flag"
           @click="$emit('onFlagCase')"
         />
@@ -99,7 +115,7 @@
           :alt="$t('actions.jump_to_case')"
           data-testid="testJumpToCaseIcon"
           size="small"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="go-case"
           @click="$emit('onJumpToCase')"
         />
@@ -107,7 +123,7 @@
           :alt="$t('actions.history')"
           data-testid="testHistoryIcon"
           size="small"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           :fa="true"
           type="user-group"
           @click="$emit('onShowHistory')"
@@ -115,7 +131,7 @@
         <ccu-icon
           :alt="$t('actions.download')"
           size="small"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="download"
           data-testid="cases.icons.download"
           @click="$emit('onDownloadWorksite')"
@@ -123,7 +139,7 @@
         <ccu-icon
           :alt="$t('actions.share')"
           size="small"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="share"
           data-testid="cases.icons.share"
           @click="$emit('onShareWorksite')"
@@ -131,7 +147,7 @@
         <ccu-icon
           :alt="$t('actions.print')"
           size="small"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           type="print"
           data-testid="cases.icons.print"
           :class="printIconDisabled ? 'disabled pulse' : ''"
@@ -141,7 +157,7 @@
           v-if="isViewingWorksite && canEdit"
           data-testid="testEditIcon"
           :alt="$t('actions.edit')"
-          class="border p-2 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           size="small"
           type="edit"
           @click="$emit('onEditCase')"
@@ -159,10 +175,11 @@ import Worksite from '../../models/Worksite';
 import { momentFromNow } from '../../filters';
 import BaseButton from '@/components/BaseButton.vue';
 import { SVG_STROKE_WIDTH } from '@/constants';
+import AddToList from '@/pages/lists/AddToList.vue';
 
 export default defineComponent({
   name: 'CaseHeader',
-  components: { BaseButton },
+  components: { AddToList, BaseButton },
   props: {
     worksite: {
       type: Object,
@@ -316,5 +333,14 @@ export default defineComponent({
   100% {
     opacity: 1;
   }
+}
+
+.add-list-popover {
+  @apply p-3 outline-none;
+  width: 300px;
+  left: 0.75rem !important;
+  z-index: 99999999;
+  height: 500px;
+  overflow: auto;
 }
 </style>
