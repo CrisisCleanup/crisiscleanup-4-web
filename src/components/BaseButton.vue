@@ -72,7 +72,7 @@ export default defineComponent({
       default: '',
     },
     ccuIcon: {
-      type: String as PropType<(typeof ICONS)[keyof typeof ICONS]>,
+      type: String as PropType<keyof typeof ICONS>,
       default: '',
     },
     iconSize: {
@@ -80,7 +80,7 @@ export default defineComponent({
       default: '',
     },
     suffixIcon: {
-      type: String as PropType<(typeof ICONS)[keyof typeof ICONS]>,
+      type: String as PropType<keyof typeof ICONS>,
       default: '',
     },
     selector: {
