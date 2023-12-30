@@ -99,6 +99,7 @@
     "floating-vue": "2.0.0-beta.24",
     "geojson": "^0.5.0",
     "hex-to-rgba": "^2.0.1",
+    "highlight.js": "^11.9.0",
     "html2canvas": "^1.4.1",
     "idb": "^7.1.1",
     "jspdf": "^2.5.1",
