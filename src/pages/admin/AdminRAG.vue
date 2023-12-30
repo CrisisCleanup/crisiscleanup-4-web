@@ -81,25 +81,79 @@ const hasCollection = computed(() => !!collection.value);
 const { uploadFile, collectionDocuments, deleteFile, isDocumentsLoading } =
   useRAGUpload(collectionId);
 
-const activeCollectionFileIds = ref<Record<number, boolean>>({});
-whenever(collectionDocuments, (newValue) => {
-  activeCollectionFileIds.value = {};
-  for (const file of newValue) {
-    activeCollectionFileIds.value[file.id] = true;
-  }
-});
-const allFileIds = computed(() => collectionDocuments.value?.map((f) => f.id));
-const isAllFileIdsActive = computed(
-  () => allFileIds.value?.every((id) => activeCollectionFileIds.value[id]),
+const allCollectionFileIds = useStorage<Record<string, number[]>>(
+  'rag:active:fileIds',
+  {},
+  localStorage,
+  {
+    writeDefaults: false,
+    listenToStorageChanges: false,
+    onError: console.error,
+  },
 );
+
+const currentCollectionActiveFileIds = computed<Set<number>>(
+  () =>
+    new Set(allCollectionFileIds.value?.[collectionId.value as string] ?? []),
+);
+
+// shallowly validate active file ids (or default them to all if none)
+whenever(
+  collectionDocuments,
+  (newValue) => {
+    const validFileIds = new Set(newValue?.map((doc) => doc.id) ?? []);
+    const hasCurrentFileIds =
+      currentCollectionActiveFileIds.value &&
+      currentCollectionActiveFileIds.value.size > 0;
+    // ternary is less readable here
+    // eslint-disable-next-line unicorn/prefer-ternary
+    if (hasCurrentFileIds) {
+      allCollectionFileIds.value = {
+        ...allCollectionFileIds.value,
+        // remove any invalid (possibly deleted) active file ids
+        [collectionId.value!]: [...currentCollectionActiveFileIds.value].filter(
+          (id) => validFileIds.has(id),
+        ),
+      };
+    } else {
+      // use all as active as default
+      allCollectionFileIds.value = {
+        ...allCollectionFileIds.value,
+        [collectionId.value!]: [...validFileIds],
+      };
+    }
+  },
+  // we dont want to react to changes within collectionDocuments, only collectionDocuments itself changing
+  { deep: false },
+);
+
+const toggleFile = (fileId: number) => {
+  const isActive = currentCollectionActiveFileIds.value?.has(fileId);
+  let newValue: number[];
+  if (isActive) {
+    const values = new Set(currentCollectionActiveFileIds.value);
+    values.delete(fileId);
+    newValue = [...values];
+  } else {
+    newValue = [...currentCollectionActiveFileIds.value, fileId];
+  }
+  allCollectionFileIds.value[collectionId.value as string] = newValue;
+};
+
+const isAllFileIdsActive = computed(
+  () =>
+    currentCollectionActiveFileIds.value?.size ===
+    collectionDocuments.value?.length,
+);
+
+// currently selected file ids (undefined if all selected to skip filter)
 const activeFileIds = computed<number[] | undefined>(() =>
   isAllFileIdsActive.value
     ? undefined
-    : Object.entries(activeCollectionFileIds.value)
-        .filter(([, v]) => v)
-        .map<number>(([k]) => k as unknown as number),
+    : [...currentCollectionActiveFileIds.value],
 );
 
+// file uploads queue
 const uploadsQueue = ref<Blob[]>([]);
 const uploadTasks = computed(
   () => uploadsQueue.value?.map((file) => () => uploadFile(file)),
