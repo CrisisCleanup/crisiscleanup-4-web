@@ -7,12 +7,7 @@ import {
   useRAGConversations,
   useRAGUpload,
 } from '@/hooks';
-import {
-  useStorage,
-  whenever,
-  useAsyncQueue,
-  reactiveComputed,
-} from '@vueuse/core';
+import { useStorage, whenever, useAsyncQueue } from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import DragDrop from '@/components/DragDrop.vue';
