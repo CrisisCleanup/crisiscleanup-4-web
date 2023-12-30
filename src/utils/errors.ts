@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/vue';
 import { i18n } from '@/modules/i18n';
+import { useToast } from 'vue-toastification';
 
 export function getErrorMessage(error: any) {
   Sentry.captureException(error);
@@ -33,5 +34,12 @@ export function getErrorMessage(error: any) {
     return response;
   }
 
+  return message;
+}
+
+export function getAndToastErrorMessage(error: any) {
+  const toast = useToast();
+  const message = getErrorMessage(error);
+  toast.error(message);
   return message;
 }
