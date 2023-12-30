@@ -85,7 +85,7 @@ const footerSlot = computed(
     bottom: 0;
     width: 100%;
     display: inline-block;
-    transition: transform 300ms ease-in-out;
+    transition: transform 300ms cubic-bezier(0.76, 0, 0.24, 1);
   }
 
   &__tab {
