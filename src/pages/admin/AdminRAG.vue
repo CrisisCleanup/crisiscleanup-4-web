@@ -7,6 +7,7 @@ import {
   useRAGConversations,
   useRAGUpload,
 } from '@/hooks';
+import useDialogs from '@/hooks/useDialogs';
 import { useStorage, whenever, useAsyncQueue } from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
@@ -16,6 +17,10 @@ import TabbedCard from '@/components/cards/TabbedCard.vue';
 import BaseText from '@/components/BaseText.vue';
 import { generateUUID } from '@/utils/helpers';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
+import { truncate } from 'lodash';
+import { useI18n } from 'vue-i18n';
+import { useToast } from 'vue-toastification';
+import { getAndToastErrorMessage } from '@/utils/errors';
 
 const question = ref<string>('');
 const { collections } = useRAGCollections();
@@ -38,6 +43,9 @@ watchOnce(collections, () => {
     )?.uuid;
   }
 });
+const { confirm } = useDialogs();
+const toast = useToast();
+const { t } = useI18n();
 
 const setConversation = (newConversationId: string) => {
   console.log('set convo:', newConversationId, 'from:', conversationId.value);
@@ -140,6 +148,35 @@ const toggleFile = (fileId: number) => {
   allCollectionFileIds.value[collectionId.value as string] = newValue;
 };
 
+const deleteActiveFiles = async () => {
+  const didConfirm = await confirm({
+    title: t('actions.confirm'),
+    content: t(
+      `Are you sure you want to delete ${currentCollectionActiveFileIds.value.size} files?`,
+    ),
+    actions: {
+      no: {
+        text: t('actions.cancel'),
+        type: 'outline',
+        size: 'medium',
+      },
+      yes: {
+        text: t(`Delete ${currentCollectionActiveFileIds.value.size} files`),
+        variant: 'solid',
+        size: 'medium',
+      },
+    },
+  });
+  if (didConfirm === 'yes') {
+    await deleteFile(...currentCollectionActiveFileIds.value)
+      .then(() => toast.success('Files deleted'))
+      .catch(getAndToastErrorMessage);
+    allCollectionFileIds.value[collectionId.value as string] = [];
+  } else {
+    toast.warning(t('actions.cancelled'));
+  }
+};
+
 const isAllFileIdsActive = computed(
   () =>
     currentCollectionActiveFileIds.value?.size ===
@@ -176,7 +213,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 
 <template>
   <div class="rag grid grid-cols-2 gap-2 h-full overflow-x-visible">
-    <div class="col-span-2">
+    <div class="col-span-1 md:col-span-2">
       <BaseSelect
         v-model="collectionId"
         :placeholder="$t('Select Collection')"
@@ -228,8 +265,10 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
               <BaseText
                 variant="h4"
                 :bold="conv.conversationId === conversationId"
-                class="p-2 text-ellipsis ws-nowrap"
-                >{{ conv.title.split('user: ')[1] }}</BaseText
+                class="p-2 ws-nowrap truncate text-wrap"
+                >{{
+                  truncate(conv.title.split('user: ')[1], { length: 250 })
+                }}</BaseText
               >
             </div>
           </template>
@@ -248,7 +287,59 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
           </div>
         </template>
         <template #files>
-          <div class="transition-all flex flex-col">
+          <div
+            class="border-2 border-transparent border-b-crisiscleanup-light-smoke py-1 pl-1"
+          >
+            <base-checkbox
+              :model-value="isAllFileIdsActive"
+              @update:model-value="
+                (v) =>
+                  (allCollectionFileIds[collectionId!] = v
+                    ? collectionDocuments!.map((doc) => doc.id)
+                    : [])
+              "
+            >
+              <BaseText
+                variant="h4"
+                class="pl-1 text-left truncate text-ellipsis"
+                >Select All</BaseText
+              >
+            </base-checkbox>
+          </div>
+          <template v-for="doc in collectionDocuments" :key="doc.filename">
+            <div
+              class="border-b-2 py-1 pl-1 hover:bg-crisiscleanup-light-grey transition-all cursor-pointer ws-nowrap text-ellipsis"
+              :title="doc.filenameOriginal"
+              @click="() => toggleFile(doc.id)"
+            >
+              <base-checkbox
+                :model-value="currentCollectionActiveFileIds.has(doc.id)"
+                @update:model-value="() => toggleFile(doc.id)"
+              >
+                <BaseText
+                  variant="h4"
+                  class="pl-1 text-left truncate text-ellipsis"
+                  >{{ doc.filenameOriginal }}</BaseText
+                >
+              </base-checkbox>
+            </div>
+          </template>
+        </template>
+        <template #files-footer>
+          <div class="flex flex-col">
+            <BaseButton
+              class="flex-1"
+              variant="solid"
+              size="md"
+              :text="
+                $t(`Delete Files (${currentCollectionActiveFileIds.size})`)
+              "
+              ccu-icon="trash"
+              icon-size="sm"
+              :disabled="currentCollectionActiveFileIds.size === 0"
+              :action="deleteActiveFiles"
+            >
+            </BaseButton>
             <DragDrop
               class="border bg-white"
               :choose-title="$t('dragDrop.choose_files')"
@@ -259,26 +350,6 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
                 <spinner />
               </template>
             </DragDrop>
-            <template v-for="doc in collectionDocuments" :key="doc.filename">
-              <div class="border-1 inline-flex p-1 flex-grow justify-between">
-                <base-checkbox
-                  :model-value="activeCollectionFileIds[doc.id]"
-                  @update:model-value="
-                    (v) => (activeCollectionFileIds[doc.id] = v)
-                  "
-                >
-                  <BaseText variant="h4" class="pl-1 text-left">{{
-                    doc.filenameOriginal
-                  }}</BaseText>
-                </base-checkbox>
-                <ccu-icon
-                  type="trash"
-                  size="sm"
-                  class="transition-all hover:scale-[1.05] hover:translate-y-[-2px] self-end"
-                  @click="() => deleteFile(doc.id)"
-                />
-              </div>
-            </template>
           </div>
         </template>
       </TabbedCard>
