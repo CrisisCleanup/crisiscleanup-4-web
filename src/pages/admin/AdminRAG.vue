@@ -258,7 +258,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 
 :deep(.card .body) {
   flex-grow: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 :deep(.card .body--inner) {
