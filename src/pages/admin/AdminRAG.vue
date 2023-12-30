@@ -60,6 +60,11 @@ const { history, submitQuestion, latestMessage, isStreamingMessage } = useRAG(
   currentConversationEntries,
 );
 
+const doSubmitQuestion = () => {
+  submitQuestion(question.value, activeFileIds.value);
+  question.value = '';
+};
+
 // force refetch of conversations when a new conversation is receives first completed message.
 const messageOnNewConversation = computed(
   () =>
@@ -241,7 +246,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
             v-model="question"
             placeholder="Ask a question"
             class="w-full"
-            @keyup.enter="() => submitQuestion(question, activeFileIds)"
+            @keyup.enter="() => doSubmitQuestion()"
           />
         </div>
       </template>
