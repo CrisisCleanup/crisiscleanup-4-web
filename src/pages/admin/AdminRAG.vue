@@ -234,11 +234,22 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 
 <style scoped lang="postcss">
 .rag {
-  grid-template-columns: 1fr 0.25fr;
-  grid-template-rows: auto minmax(0, 1fr);
+  /** 3 (1x3) column stack on small displays */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.25fr);
   transition: all 300ms ease-in-out;
   min-height: 90vh;
-  max-height: 90vh;
+  max-height: 200vh;
+}
+
+@media screen(md) {
+  .rag {
+    /** 2x2 grid stack on small displays */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.3fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    min-height: 90vh;
+    max-height: 90vh;
+  }
 }
 
 :deep(.card) {
@@ -253,7 +264,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 :deep(.card .body--inner) {
   @apply inline-grid grid-rows-2 w-full;
   grid-template-rows: minmax(0, 1fr) auto;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
 }
 .conversation__new:hover {
   @apply bg-crisiscleanup-light-smoke;
