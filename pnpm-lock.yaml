@@ -158,6 +158,9 @@ dependencies:
   hex-to-rgba:
     specifier: ^2.0.1
     version: 2.0.1
+  highlight.js:
+    specifier: ^11.9.0
+    version: 11.9.0
   html2canvas:
     specifier: ^1.4.1
     version: 1.4.1
@@ -7573,6 +7576,11 @@ packages:
 
   /highlight-words-core@1.2.2:
     resolution: {integrity: sha512-BXUKIkUuh6cmmxzi5OIbUJxrG8OAk2MqoL1DtO3Wo9D2faJg2ph5ntyuQeLqaHJmzER6H5tllCDA9ZnNe9BVGg==}
+    dev: false
+
+  /highlight.js@11.9.0:
+    resolution: {integrity: sha512-fJ7cW7fQGCYAkgv4CPfwFHrfd/cLS4Hau96JuJ+ZTOWhjnhoeN1ub1tFmALm/+lW5z4WCAuAV9bm05AP0mS6Gw==}
+    engines: {node: '>=12.0.0'}
     dev: false
 
   /hosted-git-info@2.8.9:
