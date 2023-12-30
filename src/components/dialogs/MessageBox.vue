@@ -67,6 +67,7 @@
                       closeDialog(key);
                     }
                   "
+                  v-bind="value"
                 >
                   {{ value.text }}
                 </base-button>
