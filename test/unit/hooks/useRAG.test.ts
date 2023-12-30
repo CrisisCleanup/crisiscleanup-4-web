@@ -98,9 +98,12 @@ describe('useRAG', () => {
       conversationId: 'mocked-uuid',
     });
     expect(mockWebSocket.send).toHaveBeenCalledWith({
-      question: 'Test question',
-      collection_id: undefined,
-      conversation_id: 'mocked-uuid',
+      type: 'rag.conversation',
+      message: {
+        question: 'Test question',
+        collectionId: undefined,
+        conversationId: 'mocked-uuid',
+      },
     });
   });
 
