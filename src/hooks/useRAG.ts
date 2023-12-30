@@ -13,24 +13,39 @@ import type { CamelCasedProperties } from 'type-fest';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
-type RAGSocketMessageType = 'rag.conversation' | 'rag.document';
+type RAGSocketMessageType = 'rag.conversation' | 'rag.document' | 'rag.error';
 
 interface RAGSocketMessage<T> {
   type: RAGSocketMessageType;
   message: T;
 }
 
-interface RAGSocketConversationMessageBody {
-  answer: string;
-  message_id: string;
-  collection_id: string;
-  conversation_id: string;
+interface BaseRAGSocketConversationMessageBody {
+  collectionId: string;
+  conversationId: string;
 }
 
+interface RAGSocketQuestionMessageBody
+  extends BaseRAGSocketConversationMessageBody {
+  question: string;
+  fileIds?: number[];
+}
+
+interface RAGSocketAnswerMessageBody
+  extends BaseRAGSocketConversationMessageBody {
+  messageId: string;
+  answer: string;
+  status: 'pending' | 'in_progress' | 'error' | 'finish';
+}
+
+type RAGSocketConversationMessageBody =
+  | RAGSocketQuestionMessageBody
+  | RAGSocketAnswerMessageBody;
+
 interface RAGSocketDocumentMessageBody {
-  file_id: string;
-  file_name: string;
-  message_type: 'start' | 'update' | 'error' | 'end';
+  fileId: string;
+  fileName: string;
+  messageType: 'start' | 'update' | 'error' | 'end';
   message: string;
 }
 
@@ -44,9 +59,15 @@ interface RAGSocketDocumentMessage
   type: 'rag.document';
 }
 
+interface RAGSocketErrorMessage extends RAGSocketMessage<string> {
+  type: 'rag.error';
+}
+
 type AnyRAGSocketMessage =
   | RAGSocketDocumentMessage
-  | RAGSocketConversationMessage;
+  | RAGSocketConversationMessage
+
+type AnyRAGSocketMessageOrError = AnyRAGSocketMessage | RAGSocketErrorMessage;
 
 interface RAGEntry {
   messageId: string;
