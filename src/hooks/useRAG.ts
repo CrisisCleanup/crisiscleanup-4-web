@@ -65,7 +65,7 @@ interface RAGSocketErrorMessage extends RAGSocketMessage<string> {
 
 type AnyRAGSocketMessage =
   | RAGSocketDocumentMessage
-  | RAGSocketConversationMessage
+  | RAGSocketConversationMessage;
 
 type AnyRAGSocketMessageOrError = AnyRAGSocketMessage | RAGSocketErrorMessage;
 
@@ -204,31 +204,31 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
 
   function handleDocumentMessage(message: RAGSocketDocumentMessageBody) {
     debug('Received document message: %o', message);
-    const toastId: ToastID = String(message.file_id);
-    switch (message.message_type) {
+    const toastId: ToastID = String(message.fileId);
+    switch (message.messageType) {
       case 'start': {
-        toast.info(`Starting document processing: ${message.file_name}`, {
+        toast.info(`Starting document processing: ${message.fileName}`, {
           id: toastId,
           timeout: false,
         });
         break;
       }
       case 'update': {
-        toast.info(`${message.file_name}: ${message.message}`, {
+        toast.info(`${message.fileName}: ${message.message}`, {
           id: toastId,
           timeout: false,
         });
         break;
       }
       case 'error': {
-        toast.error(`${message.file_name}: ${message.message}`, {
+        toast.error(`${message.fileName}: ${message.message}`, {
           id: toastId,
           timeout: 10_000,
         });
         break;
       }
       case 'end': {
-        toast.success(`Document processing complete: ${message.file_name}`, {
+        toast.success(`Document processing complete: ${message.fileName}`, {
           id: toastId,
           timeout: 10_000,
         });
@@ -347,21 +347,31 @@ export const RAGWebSocketInjectKey: InjectionKey<{
 
 /**
  * Provide new or inject existing rag websocket state.
- * @returns {Object} The WebSocket state object.
  */
 export const useRAGWebSocket = () => {
   let state = injectLocal(RAGWebSocketInjectKey);
+  // probably should accept an error callback or something really
+  const toast = useToast();
   if (!state) {
     const message = ref<AnyRAGSocketMessage | undefined>(undefined);
-    const socket = useWebSockets<
-      RAGSocketConversationMessage | RAGSocketDocumentMessage
-    >('/ws/rag', 'rag', (data) => {
-      debug('Received data from websocket %o', data);
-      message.value = data;
-    });
+    const socket = useWebSockets<AnyRAGSocketMessageOrError>(
+      '/ws/rag',
+      'rag',
+      (data) => {
+        debug('Received data from websocket %o', data);
+        if (data.type === 'rag.error') {
+          const err = new Error(data.message);
+          toast.error(getErrorMessage(err));
+        } else {
+          message.value = data;
+        }
+      },
+    );
     state = {
       socket,
-      message: readonly(message),
+      message: readonly(message) as Readonly<
+        Ref<AnyRAGSocketMessage | undefined>
+      >,
     };
     provideLocal(RAGWebSocketInjectKey, state);
   }
@@ -384,29 +394,42 @@ export const useRAG = (
   }
 
   function handleConversationMessage(data: RAGSocketConversationMessageBody) {
-    const { answer, message_id, collection_id, conversation_id } = data;
-    if (latestMessageId.value === message_id) {
+    if ('question' in data) {
+      throw new Error('Unexpected question message received');
+    }
+    const {
+      answer: content,
+      messageId,
+      collectionId,
+      conversationId,
+      status,
+    } = data;
+    let answer = content;
+    if (latestMessageId.value === messageId) {
       streamingMessage.value = true;
-      debug('appending latest message chunk: %s (%s)', message_id, answer);
+      debug('appending latest message chunk: %s (%s)', messageId, answer);
       const newHistory = history.value.slice(0, -1);
       const newLatest = latestMessage.value!;
-      if (newLatest.content === answer) {
-        // this is the completed answer.
-        streamingMessage.value = false;
+
+      if (status === 'finish') {
+        streamingMessage.value = true;
       } else {
-        // add the new chunk to the end of the message.
+        if (status === 'error') {
+          answer = `**Error:** _${answer}_`;
+        }
+        // update latest answer with new content.
         newLatest.content = answer;
         history.value = [...newHistory, newLatest];
       }
     } else {
       streamingMessage.value = true;
-      debug('pushing new message chunk: %s (%s)', message_id, answer);
+      debug('pushing new message chunk: %s (%s)', messageId, answer);
       history.value.push({
-        messageId: message_id,
+        messageId,
+        collectionId,
+        conversationId,
         actor: 'aarongpt',
         content: answer,
-        collectionId: collection_id,
-        conversationId: conversation_id,
       });
     }
   }
@@ -432,19 +455,15 @@ export const useRAG = (
       collectionId: collectionId.value,
       conversationId: convoId,
     });
-    const payload: {
-      question: string;
-      collection_id: string;
-      conversation_id: string;
-      file_ids?: number[];
-    } = {
-      question: value,
-      collection_id: collectionId.value,
-      conversation_id: convoId,
+    const payload: RAGSocketConversationMessage = {
+      type: 'rag.conversation',
+      message: {
+        question: value,
+        collectionId: collectionId.value,
+        conversationId: convoId,
+        ...(fileIds && { fileIds }),
+      },
     };
-    if (fileIds) {
-      payload.file_ids = fileIds;
-    }
     socket.send(payload);
   };
 
