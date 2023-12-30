@@ -180,17 +180,21 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
       );
   };
 
-  const deleteFile = (fileId: number) => {
-    return uploadState
-      .execute(`/rag_collections/${collectionId.value}/upload`, {
-        method: 'DELETE',
-        params: {
-          file_id: fileId,
-        },
-      })
-      .then(() =>
-        collectionState.execute(`/rag_collections/${collectionId.value}`),
-      );
+  const deleteFile = (...fileId: number[]) => {
+    return Promise.all(
+      fileId.map((id) =>
+        uploadState.execute(`/rag_collections/${collectionId.value}/upload`, {
+          method: 'DELETE',
+          params: {
+            file_id: id,
+          },
+        }),
+      ),
+    ).finally(() =>
+      collectionState
+        .execute(`/rag_collections/${collectionId.value}`)
+        .catch(getErrorMessage),
+    );
   };
 
   whenever(
