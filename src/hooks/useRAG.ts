@@ -242,7 +242,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
       case 'error': {
         toast.error(`${message.fileName}: ${message.message}`, {
           id: toastId,
-          timeout: 10_000,
+          timeout: false,
         });
         break;
       }
