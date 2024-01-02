@@ -91,6 +91,9 @@ const content = computed(() => markdown.render(props.source));
 
   ul {
     @apply list-disc list-inside text-left;
+    > li {
+      @apply pl-2 list-item;
+    }
   }
 
   li {
