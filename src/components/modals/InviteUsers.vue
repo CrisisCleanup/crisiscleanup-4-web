@@ -29,7 +29,31 @@
         <div class="my-3" data-testid="testInviteTeammatesInstructionsDiv">
           {{ $t('inviteTeammates.invite_teammates_instructions') }}
         </div>
-        <div class="mb-4">
+        <base-radio
+          class="m-1 mb-3"
+          data-testid="testCurrentLocationSharedRadio"
+          label="Member"
+          :name="
+            $t('~~Member of {organizationName}', {
+              organizationName: currentUser?.organization?.name || '',
+            })
+          "
+          :model-value="memberOfMyOrg"
+          @update:model-value="memberOfMyOrg = $event"
+        />
+        <base-radio
+          class="m-1 mb-3"
+          :name="
+            $t('~~Not Member of {organizationName}', {
+              organizationName: currentUser?.organization?.name || '',
+            })
+          "
+          label="Not Member"
+          data-testid="testCurrentLocationPrivateRadio"
+          :model-value="memberOfMyOrg"
+          @update:model-value="memberOfMyOrg = $event"
+        />
+        <div class="mb-1">
           <tag-input
             v-model="emails"
             v-model:tags="usersToInvite"
@@ -44,20 +68,29 @@
         <div
           v-if="
             isAdmin ||
-            (currentOrganization && currentOrganization.affiliates.length > 1)
+            (currentOrganization &&
+              currentOrganization.affiliates.length > 1) ||
+            memberOfMyOrg === 'Not Member'
           "
         >
           <OrganizationSearchInput
             class="w-108"
             data-testid="testOrganizationSearchTextInput"
-            :allowed-organization-ids="
-              currentOrganization ? currentOrganization.affiliates : []
-            "
             :is-admin="isAdmin"
-            @selectedOrganization="
+            @selected-organization="
               (organization) => (selectedOrganization = organization.id)
             "
           />
+          <base-checkbox
+            v-if="memberOfMyOrg === 'Not Member'"
+            class="m-1 mt-3"
+            data-testid="testOrganizationDoesNotExistCheckbox"
+            label="Organization is not listed"
+            :model-value="organizationDoesNotExist"
+            @update:model-value="organizationDoesNotExist = $event"
+          >
+            {{ $t('~~Organization is not listed') }}
+          </base-checkbox>
         </div>
       </div>
       <template #footer>
@@ -99,12 +132,13 @@ import Organization from '../../models/Organization';
 import OrganizationSearchInput from '../OrganizationSearchInput.vue';
 import { getErrorMessage } from '../../utils/errors';
 import useCurrentUser from '../../hooks/useCurrentUser';
+import BaseCheckbox from '@/components/BaseCheckbox.vue';
 
 const EMAIL_REGEX = /[^\t\n\r @]+@[^\t\n\r @]+\.[^\t\n\r @]+/;
 
 export default defineComponent({
   name: 'InviteUsers',
-  components: { OrganizationSearchInput },
+  components: { BaseCheckbox, OrganizationSearchInput },
   props: {
     isAdmin: {
       type: Boolean,
@@ -129,6 +163,8 @@ export default defineComponent({
     const selectedOrganization = ref(null);
     const organizationResults = ref<Organization[]>([]);
     const { currentUser } = useCurrentUser();
+    const memberOfMyOrg = ref('Member');
+    const organizationDoesNotExist = ref(false);
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
     );
@@ -165,7 +201,11 @@ export default defineComponent({
         const emailsGroup = tags.map((value) => value.text);
         await Promise.all(
           emailsGroup.map((email) =>
-            User.api().inviteUser(email, selectedOrganization.value),
+            User.api().inviteUser(
+              email,
+              selectedOrganization.value,
+              organizationDoesNotExist,
+            ),
           ),
         );
         await $toasted.success(t('inviteTeammates.invites_sent_success'));
@@ -188,6 +228,8 @@ export default defineComponent({
       inviteUsers,
       multiselect,
       usersToInvite,
+      memberOfMyOrg,
+      organizationDoesNotExist,
     };
   },
 });
