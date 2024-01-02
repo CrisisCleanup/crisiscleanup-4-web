@@ -432,7 +432,7 @@ export const useRAG = (
       const newLatest = latestMessage.value!;
 
       if (status === 'finish') {
-        streamingMessage.value = true;
+        streamingMessage.value = false;
       } else {
         if (status === 'error') {
           answer = `**Error:** _${answer}_`;
