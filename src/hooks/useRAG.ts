@@ -75,11 +75,13 @@ interface RAGEntry {
   content: string;
   collectionId: string;
   conversationId: string;
+  tools?: Record<string, ToolMessage[]>;
 }
 
 interface DocumentMetadata {
   [key: string]: string | number;
   source: string;
+  filename: string;
 }
 
 interface Document {
@@ -100,11 +102,19 @@ interface Conversation {
   title: string;
 }
 
+interface ToolMessage {
+  request: Record<string, unknown>;
+  response: Message & { toolCallId: string };
+  content: string;
+  documents: Document[];
+}
+
 interface Message {
   additionalKwargs: Record<string, unknown>;
   content: string;
   example: boolean;
-  type: 'human' | 'ai';
+  type: 'human' | 'ai' | 'tool';
+  tools?: Record<string, ToolMessage[]>;
 }
 
 interface ConversationsResponse {
@@ -127,7 +137,12 @@ interface Collection {
 
 interface CollectionResponse extends PaginatedResponse<Collection> {}
 
-export type { Collection as RAGCollection, Document as RAGDocument };
+export type {
+  Collection as RAGCollection,
+  Document as RAGDocument,
+  RAGEntry,
+  ToolMessage as RAGToolMessage,
+};
 
 export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const collectionId =
@@ -315,6 +330,7 @@ export const useRAGConversations = (
       content: message.content,
       actor: message.type === 'human' ? 'user' : 'aarongpt',
       messageId: msgId,
+      ...(message.tools ? { tools: message.tools } : {}),
     }));
   });
 
