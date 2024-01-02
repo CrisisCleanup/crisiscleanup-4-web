@@ -501,7 +501,7 @@ import Table from '../components/Table.vue';
 import WorksiteStatusDropdown from '../components/WorksiteStatusDropdown.vue';
 import UserTransferRequestTable from '../components/UserTransferRequestTable.vue';
 import RedeployRequest from '../components/modals/RedeployRequest.vue';
-import InviteUsers from '../components/modals/InviteUsers.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
 import useDialogs from '../hooks/useDialogs';
 import ReportWidget from '@/components/reports/ReportWidget.vue';
 import { transformWidgetData } from '@/utils/reports';

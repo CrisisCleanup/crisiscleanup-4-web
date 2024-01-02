@@ -13,7 +13,11 @@
     value-prop="id"
     :options="onOrganizationSearch"
     :clear-on-blur="false"
-    class="outline-none"
+    class="outline-none form-select text-base"
+    :classes="{
+      container:
+        'border relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-base leading-snug outline-none',
+    }"
     native-support
     :class="[isInvalid ? 'invalid' : '']"
     @close="
@@ -29,7 +33,7 @@
         });
       }
     "
-    @update:modelValue="
+    @update:model-value="
       (value) => {
         if (value) {
           isInvalid = false;
@@ -146,6 +150,8 @@ export default defineComponent({
   },
 });
 </script>
+
+<style src="@vueform/multiselect/themes/tailwind.css"></style>
 
 <style lang="postcss" scoped>
 .form-field.invalid {

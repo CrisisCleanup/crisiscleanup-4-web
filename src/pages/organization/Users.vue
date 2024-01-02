@@ -8,7 +8,7 @@
         icon="search"
         class="w-full"
         :placeholder="$t('actions.search')"
-        @update:modelValue="onSearch"
+        @update:model-value="onSearch"
       ></base-input>
       <div
         class="flex items-center bg-white border p-1 px-4 cursor-pointer h-10"
@@ -108,7 +108,7 @@
                 :placeholder="$t('usersVue.search_users')"
                 data-testid="testUserInvitedBySearch"
                 class="my-1"
-                @selectedUser="onSelectedUser"
+                @selected-user="onSelectedUser"
               />
 
               <div
@@ -129,7 +129,7 @@
         :columns="columns"
         :loading="usersLoading"
         hide-header
-        @rowClick="
+        @row-click="
           (user) => {
             selectedUser = user;
           }
@@ -202,7 +202,7 @@
               icon="search"
               class="w-84 mr-4"
               :placeholder="$t('actions.search')"
-              @update:modelValue="onSearch"
+              @update:model-value="onSearch"
             ></base-input>
             <v-popover
               :auto-hide="false"
@@ -309,7 +309,7 @@
                           :placeholder="$t('usersVue.search_users')"
                           data-testid="testUserInvitedBySearch"
                           class="my-1"
-                          @selectedUser="onSelectedUser"
+                          @selected-user="onSelectedUser"
                         />
 
                         <div
@@ -337,7 +337,7 @@
               :columns="columns"
               :loading="usersLoading"
               hide-header
-              @rowClick="
+              @row-click="
                 (user) => {
                   $router.push(`/organization/users/${user.id}`);
                 }
@@ -405,7 +405,7 @@ import { throttle } from 'lodash';
 import { useMq } from 'vue3-mq';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import InviteUsers from './InviteUsers.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
 import User from '@/models/User';
 import Role from '@/models/Role';
 import Table from '@/components/Table.vue';

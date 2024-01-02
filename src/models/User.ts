@@ -177,12 +177,20 @@ export default class User extends CCUModel {
 
   static apiConfig: Config = {
     actions: {
-      inviteUser(email: string, organization = null) {
+      inviteUser(
+        email: string,
+        organization = null,
+        organizationDoesNotExist = false,
+      ) {
         const data: Record<string, any> = {
           invitee_email: email,
         };
         if (organization) {
           data.organization = organization;
+        }
+
+        if (organizationDoesNotExist) {
+          data.organization_does_not_exist = true;
         }
 
         return this.post(`/invitations`, data, { save: false });
