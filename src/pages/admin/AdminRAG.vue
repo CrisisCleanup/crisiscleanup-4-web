@@ -1,19 +1,14 @@
 <script lang="ts" setup>
 import { ref, type Ref } from 'vue';
+import type { RAGEntry, Tab } from '@/hooks';
 import {
   useRAG,
   useRAGCollections,
   useRAGConversations,
   useRAGUpload,
 } from '@/hooks';
-import type {
-  Tab,
-  type RAGEntry,
-  type RAGDocument,
-  type RAGToolMessage,
-} from '@/hooks';
 import useDialogs from '@/hooks/useDialogs';
-import { useStorage, whenever, useAsyncQueue } from '@vueuse/core';
+import { useAsyncQueue, useStorage, whenever } from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import DragDrop from '@/components/DragDrop.vue';
