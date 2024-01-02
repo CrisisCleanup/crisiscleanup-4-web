@@ -1,11 +1,16 @@
 <script lang="ts" setup>
 import { ref, type Ref } from 'vue';
-import type { Tab } from '@/hooks';
 import {
   useRAG,
   useRAGCollections,
   useRAGConversations,
   useRAGUpload,
+} from '@/hooks';
+import type {
+  Tab,
+  type RAGEntry,
+  type RAGDocument,
+  type RAGToolMessage,
 } from '@/hooks';
 import useDialogs from '@/hooks/useDialogs';
 import { useStorage, whenever, useAsyncQueue } from '@vueuse/core';
@@ -21,6 +26,7 @@ import { truncate } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { getAndToastErrorMessage } from '@/utils/errors';
+import MessageTools from '@/components/admin/rag/MessageTools.vue';
 
 const question = ref<string>('');
 const { collections } = useRAGCollections();
@@ -43,7 +49,7 @@ watchOnce(collections, () => {
     )?.uuid;
   }
 });
-const { confirm } = useDialogs();
+const { confirm, component } = useDialogs();
 const toast = useToast();
 const { t } = useI18n();
 
@@ -213,6 +219,20 @@ whenever(
   { flush: 'post' },
 );
 
+// display message tools
+const currentDocumentDisplay = ref<string | undefined>(undefined);
+const displayMessageTools = async (entry: RAGEntry) => {
+  await component({
+    title: 'Documents',
+    component: MessageTools,
+    classes: 'w-full h-144 p-3',
+    modalClasses: 'bg-white max-w-4xl shadow',
+    props: {
+      entry,
+    },
+  });
+};
+
 const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 </script>
 
@@ -230,12 +250,23 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
       />
     </div>
     <TitledCard :title="$t('Chat')">
-      <div ref="chatDomRef" class="rag--chat">
+      <div ref="chatDomRef" class="rag--chat p-2">
         <template v-for="h in history" :key="`${h.actor}:${h.content}`">
-          <BaseText variant="h3" class="pl-1"
+          <BaseText variant="h4" class="pl-1 font-display"
             >{{ h.actor.toUpperCase() }}:</BaseText
           >
-          <MarkdownRenderer class="pl-3 py-1" :source="h.content" />
+          <div>
+            <MarkdownRenderer class="pl-3 py-1" :source="h.content" />
+            <div v-if="h.tools" class="float-right">
+              <ccu-icon
+                type="info"
+                size="md"
+                title="Info"
+                class="hover:bg-crisiscleanup-light-grey transition-all cursor-pointer hover:scale-105"
+                @click="() => displayMessageTools(h)"
+              />
+            </div>
+          </div>
           <br />
         </template>
       </div>
