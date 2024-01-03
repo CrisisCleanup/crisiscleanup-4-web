@@ -34,7 +34,7 @@
           data-testid="testCurrentLocationSharedRadio"
           label="Member"
           :name="
-            $t('~~Member of {organizationName}', {
+            $t('inviteTeammates.member_of_organization', {
               organizationName: currentUser?.organization?.name || '',
             })
           "
@@ -44,7 +44,7 @@
         <base-radio
           class="m-1 mb-3"
           :name="
-            $t('~~Not Member of {organizationName}', {
+            $t('inviteTeammates.not_member_of_organization', {
               organizationName: currentUser?.organization?.name || '',
             })
           "
@@ -204,7 +204,7 @@ export default defineComponent({
             User.api().inviteUser(
               email,
               selectedOrganization.value,
-              organizationDoesNotExist,
+              organizationDoesNotExist.value,
             ),
           ),
         );
