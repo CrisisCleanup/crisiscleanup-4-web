@@ -98,7 +98,7 @@
                   :data-testid="`testUserRole${role.id}Checkbox`"
                   class="block my-1"
                   @update:model-value="onFilter"
-                  >{{ role.name_t }}
+                  >{{ $t(role.name_t) }}
                 </base-checkbox>
               </div>
             </div>
@@ -148,7 +148,7 @@
               <div class="text-crisiscleanup-grey-700">
                 {{
                   slotProps.item.currentRole &&
-                  slotProps.item.currentRole.name_t
+                  $t(slotProps.item.currentRole.name_t)
                 }}
               </div>
             </div>
@@ -299,7 +299,7 @@
                             :data-testid="`testUserRole${role.id}Checkbox`"
                             class="block my-1"
                             @update:model-value="onFilter"
-                            >{{ role.name_t }}
+                            >{{ $t(role.name_t) }}
                           </base-checkbox>
                         </div>
                       </div>
@@ -356,7 +356,7 @@
                     <div class="text-crisiscleanup-grey-700">
                       {{
                         slotProps.item.currentRole &&
-                        slotProps.item.currentRole.name_t
+                        $t(slotProps.item.currentRole.name_t)
                       }}
                     </div>
                   </div>
