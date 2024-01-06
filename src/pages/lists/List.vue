@@ -2,14 +2,12 @@
   <div class="max-w-4xl mx-auto p-6 rounded-lg">
     <h2 class="text-xl font-bold mb-4">Edit List Details</h2>
     <form class="space-y-6" @submit.prevent="updateList">
-      <!-- Name Input -->
       <BaseInput
         v-model="currentList.name"
         label="Name"
         placeholder="Enter list name"
         class="focus:border-blue-500"
       />
-      <!-- Description Input -->
       <BaseInput
         v-model="currentList.description"
         label="Description"
@@ -18,7 +16,6 @@
         text-area
         :rows="4"
       />
-      <!-- List Type (not editable) -->
       <BaseInput
         v-model="currentList.model"
         label="List Type"
@@ -26,13 +23,28 @@
         class="focus:border-blue-500"
         disabled
       />
+      <!-- Incident Select (optional) -->
+      <base-select
+        v-model="currentList.incident"
+        data-testid="testIncidentSelect"
+        class="my-2"
+        :options="incidents"
+        searchable
+        item-key="id"
+        label="name"
+        :placeholder="$t('~~Select Incident')"
+      />
+
       <!-- Save Changes Button -->
-      <BaseButton type="submit" variant="solid" class="w-full p-3"
-        >Save Changes</BaseButton
+      <BaseButton
+        type="submit"
+        variant="solid"
+        class="w-full p-3"
+        :action="updateList"
+        >{{ $t('~~Save Changes') }}</BaseButton
       >
     </form>
 
-    <!-- Add Item to List Section -->
     <div class="mt-10">
       <h3 class="text-xl font-bold mb-4">Add Item to List</h3>
       <BaseSelect
@@ -151,9 +163,10 @@ import BaseSelect from '@/components/BaseSelect.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { computedAsync } from '@vueuse/core';
+import Incident from '@/models/Incident';
 
 interface List {
   id: number;
@@ -163,6 +176,7 @@ interface List {
   shared: string;
   permissions: string;
   object_ids: number[];
+  incident: number | null;
 }
 
 interface ModelOption {
@@ -184,7 +198,11 @@ const currentList = ref<List>({
   shared: '',
   permissions: '',
   object_ids: [],
+  incident: null,
 });
+const incidents = computed(() =>
+  Incident.query().orderBy('start_at', 'desc').get(),
+);
 
 const MODEL_TO_OPTIONS: Record<string, ModelOption> = {
   worksite_worksites: {

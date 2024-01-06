@@ -31,6 +31,7 @@ interface List {
 
 const props = defineProps({
   modelType: String,
+  incident: Number,
   objectId: {
     type: Number,
     required: true,
@@ -39,11 +40,15 @@ const props = defineProps({
 
 const userLists = ref<List[]>([]);
 
+const baseUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/lists`;
 onMounted(async () => {
   try {
-    const response = await axios.get<{ results: List[] }>(
-      `${import.meta.env.VITE_APP_API_BASE_URL}/lists?model=${props.modelType}`,
-    );
+    const response = await axios.get<{ results: List[] }>(baseUrl, {
+      params: {
+        incident: props.incident,
+        model: props.modelType,
+      },
+    });
     userLists.value = response.data.results;
   } catch (error) {
     console.error('Error fetching user lists:', error);
@@ -54,13 +59,15 @@ const search = ref('');
 
 watch(
   search,
-  debounce(async (value) => {
+  debounce(async (value: string) => {
     try {
-      const response = await axios.get<{ results: List[] }>(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/lists?model=${
-          props.modelType
-        }&search=${value}`,
-      );
+      const response = await axios.get<{ results: List[] }>(baseUrl, {
+        params: {
+          incident: props.incident,
+          model: props.modelType,
+          search: value,
+        },
+      });
       userLists.value = response.data.results;
     } catch (error) {
       console.error('Error fetching user lists:', error);

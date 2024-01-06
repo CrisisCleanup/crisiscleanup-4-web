@@ -4,9 +4,10 @@ import AjaxTable from '@/components/AjaxTable.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import axios from 'axios';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { makeTableColumns } from '@/utils/table';
 import BaseText from '@/components/BaseText.vue';
+import Incident from '@/models/Incident';
 
 // Table columns setup
 const columns = makeTableColumns([
@@ -24,6 +25,7 @@ const newList = ref({
   model: '',
   shared: '',
   permissions: '',
+  incident: undefined,
 });
 
 // Constants for select options
@@ -56,6 +58,10 @@ const permissionsOptions = [
 // API base URL
 const baseUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/lists`;
 
+const incidents = computed(() =>
+  Incident.query().orderBy('start_at', 'desc').get(),
+);
+
 // Submit function
 const submit = async () => {
   await axios.post(baseUrl, newList.value);
@@ -65,6 +71,7 @@ const submit = async () => {
     model: '',
     shared: '',
     permissions: '',
+    incident: undefined,
   };
 };
 </script>
@@ -110,6 +117,16 @@ const submit = async () => {
         placeholder="Select permissions"
         class=""
       />
+      <base-select
+        v-model="newList.incident"
+        data-testid="testIncidentSelect"
+        class="my-2"
+        :options="incidents"
+        searchable
+        item-key="id"
+        label="name"
+        :placeholder="$t('~~Select Incident')"
+      />
       <BaseButton :action="submit" variant="solid" class="w-full p-3">
         Submit
       </BaseButton>
@@ -118,7 +135,9 @@ const submit = async () => {
       :columns="columns"
       :url="baseUrl"
       class="mt-10"
-      @row-click="(payload) => $router.push(`/lists/${payload.id}`)"
+      @row-click="
+        (payload: Record<string, any>) => $router.push(`/lists/${payload.id}`)
+      "
     />
   </div>
 </template>
