@@ -100,6 +100,7 @@
               class="p-1.5"
               model-type="worksite_worksites"
               :object-id="worksite.id"
+              :incident="currentIncidentId"
             />
           </template>
         </v-popover>
