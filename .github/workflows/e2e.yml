@@ -40,7 +40,7 @@ jobs:
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -209,7 +209,7 @@ jobs:
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
