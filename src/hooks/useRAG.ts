@@ -255,9 +255,10 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   return {
     deleteFile,
     uploadFile,
-    isLoading: readonly(uploadState.isLoading),
     uploadedDocuments: readonly(uploadedDocuments),
-    collectionDocuments: computed(() => collectionState.data.value?.files),
+    collectionDocuments: computed(
+      () => collectionState.data.value?.files?.sort?.((a, b) => b.id - a.id),
+    ),
     isDocumentsLoading: readonly(collectionState.isLoading),
   };
 };
