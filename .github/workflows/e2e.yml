@@ -34,7 +34,7 @@ jobs:
             os: macos-12
             cache_dir: ~/Library/Caches/ms-playwright
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
@@ -129,7 +129,7 @@ jobs:
     outputs:
       overall_status: ${{ steps.aggregate.outputs.overall_status }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:
@@ -203,7 +203,7 @@ jobs:
       matrix:
         stage: [development, staging, production]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
