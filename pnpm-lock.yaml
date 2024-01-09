@@ -129,8 +129,8 @@ dependencies:
     specifier: ^2.12.1
     version: 2.12.1
   d3-color:
-    specifier: ^1.4.1
-    version: 1.4.1
+    specifier: ^3.0.0
+    version: 3.1.0
   d3-interpolate:
     specifier: ^3.0.1
     version: 3.0.1
@@ -6385,7 +6385,7 @@ packages:
     resolution: {integrity: sha512-3bYs1rOD33uo8aqJfKP3JWPAibgw8Zm2+L9vBKEHJ2Rg+viTR7o5Mmv5mZcieN+FRYaAOWX5SJATX6k1PWz72g==}
     engines: {node: '>=12'}
     dependencies:
-      d3-color: 1.4.1
+      d3-color: 3.1.0
     dev: false
 
   /d3-path@3.1.0:
@@ -6412,7 +6412,7 @@ packages:
     resolution: {integrity: sha512-Lx9thtxAKrO2Pq6OO2Ua474opeziKr279P/TKZsMAhYyNDD3EnCffdbgeSYN5O7m2ByQsxtuP2CSDczNUIZ22g==}
     engines: {node: '>=12'}
     dependencies:
-      d3-color: 1.4.1
+      d3-color: 3.1.0
       d3-interpolate: 3.0.1
     dev: false
 
@@ -6486,7 +6486,7 @@ packages:
     peerDependencies:
       d3-selection: 2 - 3
     dependencies:
-      d3-color: 1.4.1
+      d3-color: 3.1.0
       d3-dispatch: 3.0.1
       d3-ease: 3.0.1
       d3-interpolate: 3.0.1
