@@ -125,7 +125,7 @@
     "parse-address": "^1.1.2",
     "pixi-filters": "^5.2.1",
     "pixi.js": "^6.5.9",
-    "postcss-import": "^15.1.0",
+    "postcss-import": "^16.0.0",
     "pretty-format": "^29.7.0",
     "puppeteer": "^21.6.1",
     "qrcode": "^1.5.3",
