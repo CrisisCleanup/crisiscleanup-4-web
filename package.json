@@ -187,7 +187,7 @@
     "eslint-plugin-unicorn": "^50.0.1",
     "eslint-plugin-vue": "^9.18.1",
     "fake-indexeddb": "^4.0.2",
-    "fuse.js": "^6.6.2",
+    "fuse.js": "^7.0.0",
     "happy-dom": "^12.10.3",
     "husky": "^8.0.3",
     "is-ci": "^3.0.1",

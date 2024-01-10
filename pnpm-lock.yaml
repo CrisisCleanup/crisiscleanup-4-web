@@ -88,7 +88,7 @@ dependencies:
     version: 10.7.1(vue@3.3.13)
   '@vueuse/integrations':
     specifier: ^10.7.1
-    version: 10.7.1(axios@1.6.3)(fuse.js@6.6.2)(jwt-decode@3.1.2)(qrcode@1.5.3)(vue@3.3.13)
+    version: 10.7.1(axios@1.6.3)(fuse.js@7.0.0)(jwt-decode@3.1.2)(qrcode@1.5.3)(vue@3.3.13)
   '@vueuse/math':
     specifier: ^10.7.1
     version: 10.7.1(vue@3.3.13)
@@ -419,8 +419,8 @@ devDependencies:
     specifier: ^4.0.2
     version: 4.0.2
   fuse.js:
-    specifier: ^6.6.2
-    version: 6.6.2
+    specifier: ^7.0.0
+    version: 7.0.0
   happy-dom:
     specifier: ^12.10.3
     version: 12.10.3
@@ -5136,7 +5136,7 @@ packages:
       - '@vue/composition-api'
       - vue
 
-  /@vueuse/integrations@10.7.1(axios@1.6.3)(fuse.js@6.6.2)(jwt-decode@3.1.2)(qrcode@1.5.3)(vue@3.3.13):
+  /@vueuse/integrations@10.7.1(axios@1.6.3)(fuse.js@7.0.0)(jwt-decode@3.1.2)(qrcode@1.5.3)(vue@3.3.13):
     resolution: {integrity: sha512-cKo5LEeKVHdBRBtMTOrDPdR0YNtrmN9IBfdcnY2P3m5LHVrsD0xiHUtAH1WKjHQRIErZG6rJUa6GA4tWZt89Og==}
     peerDependencies:
       async-validator: '*'
@@ -5180,7 +5180,7 @@ packages:
       '@vueuse/core': 10.7.1(vue@3.3.13)
       '@vueuse/shared': 10.7.1(vue@3.3.13)
       axios: 1.6.3(debug@4.3.4)
-      fuse.js: 6.6.2
+      fuse.js: 7.0.0
       jwt-decode: 3.1.2
       qrcode: 1.5.3
       vue-demi: 0.14.6(vue@3.3.13)
@@ -7695,8 +7695,8 @@ packages:
   /functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  /fuse.js@6.6.2:
-    resolution: {integrity: sha512-cJaJkxCCxC8qIIcPBF9yGxY0W/tVZS3uEISDxhYIdtk8OL93pe+6Zj7LjCqVV4dzbqcriOZ+kQ/NE4RXZHsIGA==}
+  /fuse.js@7.0.0:
+    resolution: {integrity: sha512-14F4hBIxqKvD4Zz/XjDc3y94mNZN6pRv3U13Udo0lNLCWRBUsrMv2xwcF/y/Z5sV6+FQW+/ow68cHpm4sunt8Q==}
     engines: {node: '>=10'}
 
   /gensync@1.0.0-beta.2:
