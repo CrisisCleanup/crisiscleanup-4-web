@@ -103,7 +103,7 @@ jobs:
 
       - name: 📤 Upload blob report to GitHub Actions Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: all-blob-reports-${{ matrix.stage }}
           path: blob-report
@@ -116,7 +116,7 @@ jobs:
 
       - name: Upload Test Result
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: matrix-outputs
           path: test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
@@ -274,7 +274,7 @@ jobs:
           cat report.md >> $GITHUB_STEP_SUMMARY # report.md is generated from markdown reporter
 
       - name: 📤 Upload HTML report (${{ matrix.stage }})
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-report-${{ matrix.stage }}-${{ github.run_id }}-attempt_${{ github.run_attempt }}
           path: playwright-report
