@@ -109,8 +109,8 @@
         variant="solid"
         class="mt-2 w-full p-3"
         :disabled="!selectedItemId"
-        @click="addItem(selectedItemId)"
-        >Add Item</BaseButton
+        :action="() => addItem(selectedItemId)"
+        >{{ $t('~~Add Item') }}</BaseButton
       >
     </div>
 

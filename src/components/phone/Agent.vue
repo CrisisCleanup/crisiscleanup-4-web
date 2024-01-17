@@ -70,14 +70,25 @@
         :alt="$t('phoneDashboard.stop_taking_calls')"
       ></base-button>
       <base-checkbox
-        v-if="currentUser && currentUser.isAdmin"
-        data-testid="testServeOutboundCallsCheckbox"
+        v-if="!notPlayingNice"
+        v-model="notPlayingNice"
+        data-testid="notPlayingNiceCheckbox"
         class="p-0.5 ml-3 text-[["
-        @update:modelValue="$emit('onToggleOutbounds', $event)"
         ><span class="whitespace-nowrap">{{
-          $t('phoneDashboard.serve_outbound_calls')
+          $t('~~Not Playing Nice?')
         }}</span></base-checkbox
       >
+      <base-select
+        v-if="notPlayingNice"
+        data-testid="notPlayingNiceSelect"
+        class="w-56 mx-3 h-9"
+        :options="[
+          AllowedCallType.INBOUND_ONLY,
+          AllowedCallType.OUTBOUND_ONLY,
+          AllowedCallType.BOTH,
+        ]"
+        @update:model-value="$emit('setAllowedCallType', $event)"
+      ></base-select>
       <ccu-icon
         v-if="(isOnCall || caller) && isOutboundCall"
         :alt="$t('actions.hangup')"
@@ -100,14 +111,17 @@ import EditAgentModal from './EditAgentModal.vue';
 import PhoneIndicator from './PhoneIndicator.vue';
 import usePhoneService from '@/hooks/phone/usePhoneService';
 import { useCurrentUser } from '@/hooks';
+import BaseSelect from '@/components/BaseSelect.vue';
+import { AllowedCallType } from '@/pages/phone/PhoneSystem.vue';
 
 export default defineComponent({
   name: 'Agent',
-  components: { PhoneIndicator, EditAgentModal, LanguageTag },
+  components: { BaseSelect, PhoneIndicator, EditAgentModal, LanguageTag },
   setup(props, context) {
     const editingAgent = ref(false);
     const { currentUser } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
+    const notPlayingNice = ref(false);
     const {
       languages,
       isOnCall,
@@ -128,6 +142,8 @@ export default defineComponent({
       loginPhone,
       isOutboundCall,
       hangup: phoneService.hangup,
+      notPlayingNice,
+      AllowedCallType,
     };
   },
 });
