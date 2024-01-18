@@ -3,8 +3,8 @@
     <div class="flex-grow" data-testid="testPhoneToolBarDiv">
       <Agent
         class="border-b shadow"
-        @onLoggedIn="onLoggedIn"
-        @onToggleOutbounds="onToggleOutbounds"
+        @on-logged-in="onLoggedIn"
+        @set-allowed-call-type="setAllowedCallType"
       />
     </div>
   </div>
@@ -25,7 +25,7 @@ export default defineComponent({
       type: Function,
       default() {},
     },
-    onToggleOutbounds: {
+    setAllowedCallType: {
       type: Function,
       default() {},
     },
