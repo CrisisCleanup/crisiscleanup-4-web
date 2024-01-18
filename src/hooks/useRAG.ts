@@ -2,14 +2,15 @@ import createDebug from 'debug';
 import { useWebSockets } from '@/hooks/useWebSockets';
 import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
-import type { Ref, InjectionKey } from 'vue';
+import type { InjectionKey, Ref } from 'vue';
 import { ref } from 'vue';
-import { getErrorMessage } from '@/utils/errors';
+import { getAndToastErrorMessage, getErrorMessage } from '@/utils/errors';
 import { useToast } from 'vue-toastification';
-import { provideLocal, injectLocal } from '@vueuse/core';
+import { injectLocal, provideLocal } from '@vueuse/core';
 import type { ToastID } from 'vue-toastification/dist/types/types';
 import type { CCUFileItem } from '@/models/types';
 import type { CamelCasedProperties } from 'type-fest';
+import axios from 'axios';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -166,40 +167,34 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
         .catch(getErrorMessage),
   );
 
-  const uploadState = useAxios<RAGUploadResponse>(
-    `/rag_collections/${collectionId.value}/upload`,
+  const uploader = axios.create(
     createAxiosCasingTransform({
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     }),
-    {
-      immediate: false,
-      resetOnExecute: false,
-    },
   );
 
   const uploadFile = (fileData: Blob) => {
-    if (!collectionId.value)
-      return getErrorMessage(new Error('No collection ID provided'));
+    if (!collectionId.value) {
+      const err = new Error('No collection ID provided');
+      getAndToastErrorMessage(err);
+      throw err;
+    }
     const formData = new FormData();
     formData.append('file', fileData);
     debug('uploading file');
-    return uploadState
-      .execute(`/rag_collections/${collectionId.value}/upload`, {
-        method: 'POST',
-        data: formData,
-      })
+    return uploader
+      .post(`/rag_collections/${collectionId.value}/upload`, formData)
       .then(() =>
         collectionState.execute(`/rag_collections/${collectionId.value}`),
       );
   };
 
   const deleteFile = (...fileId: number[]) => {
-    return Promise.all(
+    return Promise.allSettled(
       fileId.map((id) =>
-        uploadState.execute(`/rag_collections/${collectionId.value}/upload`, {
-          method: 'DELETE',
+        uploader.delete(`/rag_collections/${collectionId.value}/upload`, {
           params: {
             file_id: id,
           },
@@ -211,15 +206,6 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
         .catch(getErrorMessage),
     );
   };
-
-  whenever(
-    () => uploadState.data.value,
-    (data) => {
-      if (!data || data.documents) return;
-      debug('pushing new uploaded document: %o', data);
-      uploadedDocuments.value.push(data);
-    },
-  );
 
   function handleDocumentMessage(message: RAGSocketDocumentMessageBody) {
     debug('Received document message: %o', message);
@@ -269,9 +255,10 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   return {
     deleteFile,
     uploadFile,
-    isLoading: readonly(uploadState.isLoading),
     uploadedDocuments: readonly(uploadedDocuments),
-    collectionDocuments: computed(() => collectionState.data.value?.files),
+    collectionDocuments: computed(
+      () => collectionState.data.value?.files?.sort?.((a, b) => b.id - a.id),
+    ),
     isDocumentsLoading: readonly(collectionState.isLoading),
   };
 };

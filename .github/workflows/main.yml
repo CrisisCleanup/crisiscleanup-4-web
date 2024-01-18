@@ -22,11 +22,11 @@ jobs:
     timeout-minutes: 30
     needs: [versions]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -45,11 +45,11 @@ jobs:
     if: false
     needs: [versions]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -66,11 +66,11 @@ jobs:
     timeout-minutes: 30
     needs: [versions]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -89,11 +89,11 @@ jobs:
     timeout-minutes: 30
     needs: [versions]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -130,13 +130,13 @@ jobs:
             os: ubuntu-latest
             cache_dir: ~/.cache/ms-playwright
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -169,7 +169,7 @@ jobs:
         run: pnpm exec playwright --version > .github/.playwright-version
 
       - name: ⚡️ Cache playwright binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ${{ matrix.cache_dir }}
@@ -201,13 +201,13 @@ jobs:
     needs: [versions, test-e2e]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm

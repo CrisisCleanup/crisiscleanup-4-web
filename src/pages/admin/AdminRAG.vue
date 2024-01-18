@@ -8,7 +8,12 @@ import {
   useRAGUpload,
 } from '@/hooks';
 import useDialogs from '@/hooks/useDialogs';
-import { useAsyncQueue, useStorage, whenever } from '@vueuse/core';
+import {
+  useAsyncQueue,
+  type UseAsyncQueueTask,
+  useStorage,
+  whenever,
+} from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import DragDrop from '@/components/DragDrop.vue';
@@ -198,21 +203,16 @@ const activeFileIds = computed<number[] | undefined>(() =>
 
 // file uploads queue
 const uploadsQueue = ref<Blob[]>([]);
-const uploadTasks = computed(
-  () => uploadsQueue.value?.map((file) => () => uploadFile(file)),
-);
-whenever(
-  uploadTasks,
-  (tasks) => {
-    useAsyncQueue(tasks, {
-      interrupt: false,
-      onFinished: () => {
-        uploadsQueue.value = [];
-      },
-    });
-  },
-  { flush: 'post' },
-);
+const hasUploadsQueue = computed(() => uploadsQueue.value.length > 0);
+whenever(hasUploadsQueue, async () => {
+  await Promise.allSettled(
+    uploadsQueue.value.map((file) =>
+      uploadFile(file).catch((error) => getAndToastErrorMessage(error)),
+    ),
+  ).finally(() => {
+    uploadsQueue.value = [];
+  });
+});
 
 // display message tools
 const currentDocumentDisplay = ref<string | undefined>(undefined);

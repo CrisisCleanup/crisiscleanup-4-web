@@ -31,7 +31,7 @@
             data-testid="testCurrentLocationSharedRadio"
             :name="$t('locationVue.shared')"
             :model-value="currentLocation.shared"
-            @update:modelValue="currentLocation.shared = $event"
+            @update:model-value="currentLocation.shared = $event"
           />
           <base-radio
             class="m-4"
@@ -39,7 +39,7 @@
             data-testid="testCurrentLocationPrivateRadio"
             :name="$t('locationVue.private')"
             :model-value="currentLocation.shared"
-            @update:modelValue="currentLocation.shared = $event"
+            @update:model-value="currentLocation.shared = $event"
           />
           <base-radio
             class="m-4"
@@ -47,7 +47,7 @@
             data-testid="testCurrentLocationPublicRadio"
             :name="$t('locationVue.public')"
             :model-value="currentLocation.shared"
-            @update:modelValue="currentLocation.shared = $event"
+            @update:model-value="currentLocation.shared = $event"
           />
         </div>
       </div>
@@ -93,6 +93,15 @@ export default defineComponent({
       notes: '',
     });
     const locationLayer = ref<L.LayerGroup<any>>(L.layerGroup());
+
+    watch(
+      () => props.currentIncident,
+      (value) => {
+        currentLocation.value.name = value?.name
+          ? `${value.name}: Maximum Damaged Area`
+          : '';
+      },
+    );
 
     async function saveLocation(polygon: L.GeoJSON) {
       let { geometry } = polygon.toGeoJSON() as any;
