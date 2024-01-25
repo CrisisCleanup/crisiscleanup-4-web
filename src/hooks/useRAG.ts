@@ -6,11 +6,17 @@ import type { InjectionKey, Ref } from 'vue';
 import { ref } from 'vue';
 import { getAndToastErrorMessage, getErrorMessage } from '@/utils/errors';
 import { useToast } from 'vue-toastification';
-import { injectLocal, provideLocal } from '@vueuse/core';
+import {
+  injectLocal,
+  provideLocal,
+  tryOnScopeDispose,
+  useTimeoutFn,
+} from '@vueuse/core';
 import type { ToastID } from 'vue-toastification/dist/types/types';
 import type { CCUFileItem } from '@/models/types';
 import type { CamelCasedProperties } from 'type-fest';
 import axios from 'axios';
+import moment from 'moment';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -48,6 +54,7 @@ interface RAGSocketDocumentMessageBody {
   fileName: string;
   messageType: 'start' | 'update' | 'error' | 'end';
   message: string;
+  timestamp: string;
 }
 
 interface RAGSocketConversationMessage
@@ -207,19 +214,40 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     );
   };
 
+  const activeToastIds = reactive<
+    Record<ToastID, RAGSocketDocumentMessageBody>
+  >({});
+
+  const updateActivateToasts = (
+    value?: Record<ToastID, RAGSocketDocumentMessageBody>,
+  ) => {
+    value ??= activeToastIds;
+    console.log('updating activat toasts:', value);
+    for (const [toastId, message] of Object.entries(value)) {
+      handleDocumentMessage(message);
+    }
+  };
+
+  watch(activeToastIds, (newValue) => updateActivateToasts(newValue));
+  useTimeoutFn(updateActivateToasts, 500);
+
   function handleDocumentMessage(message: RAGSocketDocumentMessageBody) {
     debug('Received document message: %o', message);
     const toastId: ToastID = String(message.fileId);
+    const timeAgo = moment(message.timestamp).fromNow();
     switch (message.messageType) {
       case 'start': {
-        toast.info(`Starting document processing: ${message.fileName}`, {
-          id: toastId,
-          timeout: false,
-        });
+        toast.info(
+          `Starting document processing: ${message.fileName} (${timeAgo})`,
+          {
+            id: toastId,
+            timeout: false,
+          },
+        );
         break;
       }
       case 'update': {
-        toast.info(`${message.fileName}: ${message.message}`, {
+        toast.info(`${message.fileName}: ${message.message} (${timeAgo})`, {
           id: toastId,
           timeout: false,
         });
@@ -230,6 +258,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
           id: toastId,
           timeout: false,
         });
+        delete activeToastIds[toastId];
         break;
       }
       case 'end': {
@@ -241,6 +270,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
           .execute(`/rag_collections/${collectionId.value}`)
           .then(() => debug('refetched collections'))
           .catch(getErrorMessage);
+        delete activeToastIds[toastId];
         break;
       }
     }
@@ -250,7 +280,10 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const documentMessage = computed(() =>
     message.value?.type === 'rag.document' ? message.value.message : undefined,
   );
-  whenever(documentMessage, (newValue) => handleDocumentMessage(newValue));
+  whenever(documentMessage, (newValue) => {
+    const toastId = String(newValue.fileId);
+    activeToastIds[toastId] = newValue;
+  });
 
   return {
     deleteFile,
