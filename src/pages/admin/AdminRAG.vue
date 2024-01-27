@@ -309,7 +309,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
             class="flex justify-center py-2 transition-all cursor-pointer conversation__new"
           >
             <ccu-icon
-              :alt="$t('~~New Conversation')"
+              :alt="$t('adminRAG.new_conversation')"
               type="active"
               with-text
               size="lg"

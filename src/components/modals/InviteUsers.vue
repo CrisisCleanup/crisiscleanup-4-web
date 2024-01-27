@@ -89,7 +89,7 @@
             :model-value="organizationDoesNotExist"
             @update:model-value="organizationDoesNotExist = $event"
           >
-            {{ $t('~~Organization is not listed') }}
+            {{ $t('inviteTeammates.org_not_listed') }}
           </base-checkbox>
         </div>
       </div>

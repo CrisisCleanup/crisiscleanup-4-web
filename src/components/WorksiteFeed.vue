@@ -27,23 +27,23 @@
                   />
                 </div>
                 <div class="text-crisiscleanup-dark-500">
-                  {{ completionPercentage }}% {{ $t('~~Complete') }}
+                  {{ completionPercentage }}% {{ $t('worksiteFeed.complete') }}
                 </div>
               </div>
             </div>
             <div v-if="claimedByOrg" class="mb-5">
               <div class="bg-primary-light w-fit py-1 px-4 rounded-full">
-                {{ $t('~~Claimed By Your Org') }}
+                {{ $t('caseView.claimed_by_my_org') }}
               </div>
             </div>
             <div class="text-crisiscleanup-dark-400 mb-3">
-              <div class="font-bold">{{ $t('~~Contact') }}</div>
+              <div class="font-bold">{{ $t('worksiteFeed.contact') }}</div>
               <div>
-                <font-awesome-icon icon="user" :alt="$t('~~User')" />
+                <font-awesome-icon icon="user" :alt="$t('worksiteFeed.user')" />
                 {{ currentFeedItem.name }}
               </div>
               <div>
-                <font-awesome-icon icon="phone" :alt="$t('~~Phone Number')" />
+                <font-awesome-icon icon="phone" :alt="$t('formLabels.phone1')" />
                 <a
                   :href="`tel:${currentFeedItem.phone1}`"
                   class="ml-1 underline text-crisiscleanup-dark-blue"
@@ -53,7 +53,7 @@
               </div>
             </div>
             <div class="mb-3">
-              <div class="font-bold">{{ $t('~~Work Types') }}</div>
+              <div class="font-bold">{{ $t('formLabels.work_types') }}</div>
               <div class="flex flex-wrap">
                 <template
                   v-for="workType in currentFeedItem.work_types"
@@ -140,14 +140,14 @@
             class="h-10 text-white bg-crisiscleanup-dark-400 hover:bg-gray-400 px-3 py-2 rounded-l-md border border-r-0 border-gray-400 transition duration-300 ease-in-out focus:outline-none"
           >
             <font-awesome-icon :icon="['fas', 'arrow-left']" class="mr-1" />
-            {{ $t('~~PREV') }}
+            {{ $t('worksiteFeed.prev') }}
           </base-button>
 
           <base-button
             class="bg-primary-light px-5 py-2 border border-black transition duration-300 ease-in-out focus:outline-none rounded h-12"
             :action="() => $emit('loadCase', currentFeedItem)"
           >
-            {{ $t('~~VIEW') }}
+            {{ $t('worksiteFeed.view') }}
           </base-button>
 
           <base-button
@@ -155,7 +155,7 @@
             :disabled="currentFeedItemIndex === worksites.length - 1"
             class="h-10 text-white bg-crisiscleanup-dark-400 hover:bg-gray-400 px-3 py-2 rounded-r-md border border-l-0 border-gray-400 transition duration-300 ease-in-out focus:outline-none"
           >
-            {{ $t('~~NEXT') }}
+            {{ $t('worksiteFeed.next') }}
             <font-awesome-icon :icon="['fas', 'arrow-right']" class="ml-1" />
           </base-button>
         </div>

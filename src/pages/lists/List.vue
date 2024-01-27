@@ -32,7 +32,7 @@
         searchable
         item-key="id"
         label="name"
-        :placeholder="$t('~~Select Incident')"
+        :placeholder="$t('actions.select_incident')"
       />
 
       <!-- Save Changes Button -->
@@ -41,7 +41,7 @@
         variant="solid"
         class="w-full p-3"
         :action="updateList"
-        >{{ $t('~~Save Changes') }}</BaseButton
+        >{{ $t('actions.save') }}</BaseButton
       >
     </form>
 
@@ -110,7 +110,7 @@
         class="mt-2 w-full p-3"
         :disabled="!selectedItemId"
         :action="() => addItem(selectedItemId)"
-        >{{ $t('~~Add Item') }}</BaseButton
+        >{{ $t('actions.add') }}</BaseButton
       >
     </div>
 
