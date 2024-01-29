@@ -3,7 +3,7 @@
     :is="linkComponent"
     :to="to"
     :href="href"
-    class="link"
+    :class="linkVariant === 'light' ? 'link' : 'link-dark'"
     :target="target"
   >
     <base-text :variant="textVariant">
