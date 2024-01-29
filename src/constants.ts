@@ -305,6 +305,7 @@ export const BUTTON_VARIANTS = {
   OUTLINE: 'outline',
   OUTLINE_DARK: 'outline-dark',
   TEXT: 'text',
+  TEXT_DARK: 'text-dark',
 } as const;
 
 export const SVG_STROKE_WIDTH = 0.5;
