@@ -663,6 +663,11 @@
           </div>
           <div v-if="showingTable" class="work-page__main-content--table">
             <div class="items-center justify-end hidden md:flex">
+              <ListDropdown
+                :selected-table-items="selectedTableItems"
+                model-type="worksite_worksites"
+                :title="$t('~~Work Lists')"
+              />
               <base-button
                 class="ml-3 my-3 border p-1 px-4 bg-white"
                 data-testid="testPrintClaimedButton"
@@ -962,10 +967,12 @@ import type { Portal } from '@/models/types';
 import WorksiteFeed from '@/components/WorksiteFeed.vue';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import useAcl from '@/hooks/useAcl';
+import ListDropdown from '@/pages/lists/ListDropdown.vue';
 
 export default defineComponent({
   name: 'Work',
   components: {
+    ListDropdown,
     WorksiteFeed,
     WorksiteView,
     WorksiteForm,
