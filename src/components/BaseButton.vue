@@ -99,6 +99,10 @@ export default defineComponent({
       type: Number,
       default: 5000,
     },
+    buttonClasses: {
+      type: Object,
+      default: () => ({}),
+    },
   },
 
   setup(props) {
@@ -131,6 +135,7 @@ export default defineComponent({
         'items-center': true,
         'justify-center': true,
         'base-button': true,
+        ...props.buttonClasses,
       } as Record<string, string | boolean>;
       if (props.variant) {
         styleObject[props.variant] = true;
