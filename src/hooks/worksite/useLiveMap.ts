@@ -272,7 +272,7 @@ export default (
           return;
         }
 
-        if (!marker) {
+        if (!marker && layer) {
           (layer as L.Layer & PixiLayer)._renderer.render(
             (layer as L.Layer & PixiLayer)._pixiContainer,
           );
@@ -324,7 +324,7 @@ export default (
         }
 
         if (
-          marker.recipient_blurred_location ||
+          layer & marker.recipient_blurred_location ||
           marker.patient_blurred_location
         ) {
           const location = marker[`${marker.map_destination}_blurred_location`];

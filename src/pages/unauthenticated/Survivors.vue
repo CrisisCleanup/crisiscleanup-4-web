@@ -47,7 +47,7 @@
             label="survivorContact.help_needed"
             :name="$t('survivorContact.help_needed')"
             :model-value="survivorToken.status_t"
-            @update:modelValue="survivorToken.status_t = $event"
+            @update:model-value="survivorToken.status_t = $event"
           />
           <base-radio
             class="mb-3 border pt-2 pb-4 px-2"
@@ -61,7 +61,7 @@
             label="survivorContact.help_not_needed"
             :name="$t('survivorContact.help_not_needed')"
             :model-value="survivorToken.status_t"
-            @update:modelValue="survivorToken.status_t = $event"
+            @update:model-value="survivorToken.status_t = $event"
           />
           <base-radio
             class="mb-3 border pt-2 pb-4 px-2"
@@ -75,7 +75,7 @@
             label="survivorContact.already_helped"
             :name="$t('survivorContact.already_helped')"
             :model-value="survivorToken.status_t"
-            @update:modelValue="survivorToken.status_t = $event"
+            @update:model-value="survivorToken.status_t = $event"
           />
           <base-radio
             class="mb-3 border pt-2 pb-4 px-2"
@@ -90,7 +90,7 @@
             label="survivorContact.already_helped_help_needed"
             :name="$t('survivorContact.already_helped_help_needed')"
             :model-value="survivorToken.status_t"
-            @update:modelValue="survivorToken.status_t = $event"
+            @update:model-value="survivorToken.status_t = $event"
           />
           <div
             v-if="
@@ -112,7 +112,7 @@
                 :data-testid="`testWorkTypeHelpNeeded${work_type_help_needed.id}Checkbox`"
                 class="mb-3"
                 :model-value="workTypeHelpNeeded.has(work_type_help_needed.id)"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     updateWorkTypesHelpNeeded(value, work_type_help_needed);
                   }
@@ -189,7 +189,7 @@
             skip-validation
             class="w-full"
             @input="() => {}"
-            @selectedGeocode="onGeocodeSelect"
+            @selected-geocode="onGeocodeSelect"
           />
         </div>
         <base-button
@@ -207,7 +207,9 @@
           data-testid="testLocationViewerDiv"
           class="h-84 mt-4 w-full"
           use-google-maps
-          @updatedLocation="(latLng) => geocodeWorksite(latLng.lat, latLng.lng)"
+          @updated-location="
+            (latLng) => geocodeWorksite(latLng.lat, latLng.lng)
+          "
         />
       </div>
 
@@ -238,14 +240,14 @@
           :worksite="survivorToken"
           :is-survivor-token="true"
           data-testid="testUploadPhotosFile"
-          @photosChanged="() => getSurvivorToken(true)"
+          @photos-changed="() => getSurvivorToken(true)"
           @image-click="showImage"
         />
         <base-checkbox
           :model-value="survivorToken.allow_sharing"
           class="w-full mt-2"
           data-testid="survivorContactSharePermissionSwitch"
-          @update:modelValue="survivorToken.allow_sharing = $event"
+          @update:model-value="survivorToken.allow_sharing = $event"
         >
           {{ $t('survivorContact.share_permission') }}
         </base-checkbox>
@@ -674,7 +676,7 @@ export default defineComponent({
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/cms?tags=faq`,
       );
-      state.faqs = response.data.results;
+      if (response && response.data) state.faqs = response.data.results;
     }
 
     onMounted(async () => {
