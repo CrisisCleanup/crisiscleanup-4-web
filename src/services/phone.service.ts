@@ -193,7 +193,9 @@ export default class PhoneService {
       'application/x-www-form-urlencoded;charset=UTF-8',
     );
 
-    const raw = `username=${this.username}&password=${this.password}&platformId=aws80&redirectToApp=true`;
+    const raw = `username=${this.username}&password=${
+      this.password || 'volunteer'
+    }&platformId=aws80&redirectToApp=true`;
 
     const requestOptions = {
       method: 'POST',
