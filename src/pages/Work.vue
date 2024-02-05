@@ -403,22 +403,14 @@
                   {{ numeral(allWorksiteCount) }}
                 </span>
               </span>
-              <WorksiteSearchInput
-                :value="currentSearch"
-                data-testid="testWorksiteSearch"
-                icon="search"
-                display-property="name"
-                :placeholder="$t('actions.search')"
-                size="medium"
-                skip-validation
-                use-recents
-                class="mx-4 py-1"
+              <WorksiteSearchAndFilters
+                :key="currentIncidentId"
+                :current-incident="String(currentIncidentId)"
+                :initial-filters="filters"
                 @selected-existing="handleSelectedExisting"
-                @input="
-                  (value: string) => {
-                    currentSearch = value;
-                  }
-                "
+                @updated-query="onUpdateQuery"
+                @updated-filters="onUpdateFilters"
+                @updated-filter-labels="updateFilterLabels"
               />
               <WorksiteActions
                 v-if="currentIncidentId"
@@ -452,6 +444,37 @@
               />
             </div>
           </div>
+          <div v-if="filterLabels.length > 0" class="mx-4">
+            <div class="flex gap-3">
+              <span class="font-bold">{{ $t('~~Current Filters') }}</span>
+              <base-button
+                class="underline"
+                type="link"
+                :action="() => (filters = {})"
+              >
+                {{ $t('~~Clear All') }}
+              </base-button>
+            </div>
+            <div class="applied-filters flex flex-wrap justify-start gap-2">
+              <template v-for="(filter, key) in filterLabels">
+                <template
+                  v-for="(label, identifier) in filter.labels"
+                  :key="key + identifier"
+                >
+                  <tag
+                    :data-testid="`testFilters${label}Label`"
+                    class="p-1.5 my-1"
+                    :style="{
+                      fontSize: '0.85rem',
+                    }"
+                  >
+                    {{ label }}
+                  </tag>
+                </template>
+              </template>
+            </div>
+          </div>
+
           <tag
             v-if="overDueFilterLabel"
             data-testid="testOverDueFilterLabelDiv"
@@ -968,10 +991,14 @@ import WorksiteFeed from '@/components/WorksiteFeed.vue';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import useAcl from '@/hooks/useAcl';
 import ListDropdown from '@/pages/lists/ListDropdown.vue';
+import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters.vue';
+import BaseButton from '@/components/BaseButton.vue';
 
 export default defineComponent({
   name: 'Work',
   components: {
+    BaseButton,
+    WorksiteSearchAndFilters,
     ListDropdown,
     WorksiteFeed,
     WorksiteView,
@@ -1064,6 +1091,7 @@ export default defineComponent({
     const selectedChat = ref<any>({ id: 2 });
     const filterQuery = ref<any>({});
     const filters = ref<any>({});
+    const filterLabels = ref<any>([]);
     const mostRecentlySavedWorksite = ref<any>(null);
     const selectedTableItems = ref<Set<number>>(new Set());
     const availableWorkTypes = ref({});
@@ -1864,6 +1892,10 @@ export default defineComponent({
       });
     }
 
+    function updateFilterLabels(labels: any) {
+      filterLabels.value = labels;
+    }
+
     watch(
       () => worksiteQuery.value,
       (value, previousValue) => {
@@ -2130,6 +2162,8 @@ export default defineComponent({
       portal,
       currentUserLocation,
       can: $can,
+      updateFilterLabels,
+      filterLabels,
     };
   },
 });

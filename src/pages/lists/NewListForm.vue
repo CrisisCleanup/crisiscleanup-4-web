@@ -66,7 +66,7 @@ const props = defineProps({
 const newList = ref<NewList>({
   name: '',
   description: '',
-  model: '',
+  model: props.model,
   shared: '',
   permissions: '',
   incident: undefined,

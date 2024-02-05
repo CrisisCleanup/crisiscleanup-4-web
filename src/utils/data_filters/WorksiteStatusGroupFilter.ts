@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import { snakeToTitleCase } from '../../filters';
 import enums from '../../store/modules/enums';
 import User from '../../models/User';
@@ -61,7 +61,7 @@ export default class WorksiteStatusGroupFilter extends Filter {
     for (const [key] of Object.entries(this.data).filter(([, value]) => {
       return Boolean(value);
     })) {
-      labels[key] = `${useI18n().t(
+      labels[key] = `${i18n.global.t(
         'worksiteFilters.status',
       )}: ${snakeToTitleCase(key)}`;
     }
