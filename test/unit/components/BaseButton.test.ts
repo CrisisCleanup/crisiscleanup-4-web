@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { flushPromises, mount } from '@vue/test-utils';
 import BaseButton from '@/components/BaseButton.vue';
+import { BUTTON_VARIANTS } from '@/constants';
 
 const mountWithOptions = (extraProps = {}) =>
   mount(BaseButton, {
@@ -45,5 +46,9 @@ describe('BaseButton', () => {
   it('should render correctly and match snapshot', () => {
     const wrapper = mountWithOptions({ action: () => true });
     expect(wrapper.element).toMatchSnapshot();
+  });
+  it('should render with alt variant', () => {
+    const wrapper = mountWithOptions({ variant: BUTTON_VARIANTS.TEXT_DARK });
+    expect(wrapper.element).toBeDefined();
   });
 });
