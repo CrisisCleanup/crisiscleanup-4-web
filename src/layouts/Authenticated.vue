@@ -208,6 +208,7 @@ export default defineComponent({
       currentIncident,
       currentIncidentId,
       fetchIncidentDetails,
+      loadRecentIncident,
       updateCurrentIncidentId,
     } = useCurrentIncident();
     const authStore = useAuthStore();
@@ -509,6 +510,9 @@ export default defineComponent({
         // Load other page data (/incidents, /organizations, /languages, etc.)
         // It's because loading /incidents before loading current user incident is slow
         // Note: The sequence of operations here is crucial for achieving the desired performance.
+        if (!currentIncidentId.value) {
+          loadRecentIncident().catch(getErrorMessage);
+        }
         fetchIncidentDetails().catch(getErrorMessage);
         // Load all other page data after loading user incident
         loadState.execute().catch(getErrorMessage);
