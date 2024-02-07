@@ -141,7 +141,9 @@ onMounted(async () => {
         >{{ $t('~~Add New List') }}
       </base-button>
     </div>
-    <base-text variant="h1" class="my-3">{{ $t('~~My Lists') }}</base-text>
+    <base-text variant="h1" class="my-3">{{
+      $t('~~My Lists')
+    }}</base-text>
     <div v-for="model in Object.keys(groupedLists)" :key="model">
       <div class="text-xl font-bold mt-6">{{ getListCategory(model) }}</div>
       <div

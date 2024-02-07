@@ -43,7 +43,10 @@
                 {{ currentFeedItem.name }}
               </div>
               <div>
-                <font-awesome-icon icon="phone" :alt="$t('formLabels.phone1')" />
+                <font-awesome-icon
+                  icon="phone"
+                  :alt="$t('formLabels.phone1')"
+                />
                 <a
                   :href="`tel:${currentFeedItem.phone1}`"
                   class="ml-1 underline text-crisiscleanup-dark-blue"
