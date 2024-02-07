@@ -1,6 +1,7 @@
 <template>
-  <Home>
-    <TermsContent></TermsContent>
+  <TermsContent v-if="$route.query.view === 'plain'" class="pb-10" />
+  <Home v-else>
+    <TermsContent />
   </Home>
 </template>
 
