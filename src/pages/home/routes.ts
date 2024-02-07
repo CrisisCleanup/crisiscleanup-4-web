@@ -11,6 +11,7 @@ const RequestPasswordReset = () =>
 const Contributions = () => import('@/pages/home/Contributions.vue');
 const Privacy = () => import('@/pages/home/Privacy.vue');
 const Terms = () => import('@/pages/home/Terms.vue');
+const TermsUndecorated = () => import('@/pages/home/TermsUndecorated.vue');
 const RegisterOrganization = () =>
   import('@/pages/home/RegisterOrganization.vue');
 const PersistentInvitationSignup = () =>
@@ -81,6 +82,12 @@ export default [
     path: '/terms',
     component: Terms,
     name: 'nav.terms',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/terms-undecorated',
+    component: TermsUndecorated,
+    name: 'nav.terms_undecorated',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {
