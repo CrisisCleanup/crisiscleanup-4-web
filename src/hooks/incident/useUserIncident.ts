@@ -56,7 +56,10 @@ export const useUserIncident = (
         incidentStates: incidentFromStates.value,
         incidentId: incidentId.value,
       });
-      await updateUserIncident(newValue).catch(getErrorMessage);
+      // update user states if new incident id is defined and does not match incident id from states.
+      if (newValue) {
+        await updateUserIncident(newValue).catch(getErrorMessage);
+      }
     },
     { immediate: true },
   );

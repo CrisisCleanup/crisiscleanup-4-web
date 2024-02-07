@@ -127,12 +127,17 @@ export const useCurrentIncident = () => {
       : updateUserIncident(newIncidentId));
   };
 
+  const loadRecentIncident = async () => {
+    await recentIncidentState.execute().catch(getErrorMessage);
+  };
+
   return {
     currentIncidentId: readonly(currentIncidentId),
     currentIncident,
     hasCurrentIncident,
     isCurrentIncidentLoading,
     updateCurrentIncidentId,
+    loadRecentIncident,
     fetchIncidentDetails: async () => {
       debug('Fetching incident details...');
       await fetchInstance().catch(getErrorMessage);
