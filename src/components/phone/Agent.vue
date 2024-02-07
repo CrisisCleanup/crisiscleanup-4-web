@@ -75,7 +75,7 @@
         data-testid="notPlayingNiceCheckbox"
         class="p-0.5 ml-3 text-[["
         ><span class="whitespace-nowrap">{{
-          $t('~~Not Playing Nice?')
+          $t('phoneDashboard.not_playing_nice')
         }}</span></base-checkbox
       >
       <base-select

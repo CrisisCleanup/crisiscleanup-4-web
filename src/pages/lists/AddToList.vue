@@ -13,7 +13,7 @@
       v-if="userLists.length === 0"
       class="italic text-crisiscleanup-dark-100"
     >
-      {{ $t('~~No lists found.') }}
+      {{ $t('list.no_lists_found') }}
     </div>
   </div>
 </template>
