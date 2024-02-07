@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import User from '../../models/User';
 import Filter from './Filter';
 
@@ -21,7 +21,7 @@ export default class UserInvitedByFilter extends Filter {
     const labels: Record<any, any> = {};
     [...this.data].forEach((user: any) => {
       const { id, full_name } = user;
-      labels[id] = useI18n().t('userInvitedBy.invited_by', {
+      labels[id] = i18n.global.t('userInvitedBy.invited_by', {
         full_name,
       });
     });

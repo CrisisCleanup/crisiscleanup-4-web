@@ -157,6 +157,21 @@
               >{{ datesCount }}</span
             >
           </div>
+          <div
+            class="p-3 px-4 border-b cursor-pointer"
+            data-testid="testDateSectionDiv"
+            :class="{
+              'border-l-4 border-l-black': currentSection === 'lists',
+            }"
+            @click="currentSection = 'lists'"
+          >
+            {{ $t('~~Lists') }}
+            <span
+              v-if="listsCount > 0"
+              class="rounded-full px-1 bg-black text-white text-xs"
+              >{{ listsCount }}</span
+            >
+          </div>
         </div>
         <div class="w-3/4 ml-4 mt-2 flex-grow modal-item">
           <div v-if="currentSection === 'general'" class="flex flex-col">
@@ -226,7 +241,7 @@
                 class="block my-1"
                 data-testid="testOpenCheckbox"
                 :model-value="filters.statusGroups.data['open']"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     setOpenClosed(value, 'open');
                   }
@@ -237,7 +252,7 @@
                 class="block my-1"
                 data-testid="testClosedCheckbox"
                 :model-value="filters.statusGroups.data['closed']"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     setOpenClosed(value, 'closed');
                   }
@@ -259,7 +274,7 @@
                   class="block my-1"
                   :data-testid="`testStatus${status.status}Checkbox`"
                   :model-value="filters.statuses.data[status.status]"
-                  @update:modelValue="
+                  @update:model-value="
                     (value) => {
                       filters.statuses.data[status.status] = value;
                       filters.statuses.data = {
@@ -283,7 +298,7 @@
                 :data-testid="`testFlag${flag}Checkbox`"
                 class="block my-1"
                 :model-value="filters.flags.data[flag]"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     filters.flags.data[flag] = value;
                     filters.flags.data = { ...filters.flags.data };
@@ -321,7 +336,7 @@
                 :data-testid="`testPersonal${data}Checkbox`"
                 class="block my-1"
                 :model-value="filters.form_data.data[data]"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     filters.form_data.data[data] = value;
                     filters.form_data.data = { ...filters.form_data.data };
@@ -453,7 +468,7 @@
                 :data-testid="`testTeam${team.id}Checkbox`"
                 class="block my-1"
                 :model-value="filters.teams.data[team.id]"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     filters.teams.data[team.id] = value;
                     filters.teams.data = { ...filters.teams.data };
@@ -497,7 +512,7 @@
                     class="block my-1"
                     :data-testid="`testMyLocations${location.id}Checkbox`"
                     :model-value="filters.locations.data[location.id]"
-                    @update:modelValue="
+                    @update:model-value="
                       (value) => {
                         filters.locations.data[location.id] = value;
                         filters.locations.data = {
@@ -520,12 +535,9 @@
                 <datepicker
                   v-model="filters.dates.data.created"
                   data-testid="testCreatedDatePickerInput"
-                  input-class="h-10 p-1 outline-none w-56 border border-crisiscleanup-dark-100 text-sm mb-2"
-                  wrapper-class="flex-grow"
-                  :formatter="{
-                    date: 'YYYY-MM-DD',
-                    month: 'MMM',
-                  }"
+                  class="h-12 mr-2"
+                  range
+                  v-bind="datePickerDefaultProps"
                   :placeholder="$t('worksiteFilters.start_date')"
                 ></datepicker>
                 <div class="my-1 text-base">
@@ -534,14 +546,85 @@
                 <datepicker
                   v-model="filters.dates.data.updated"
                   data-testid="testUpdatedDatePickerInput"
-                  input-class="h-10 p-1 outline-none w-56 border border-crisiscleanup-dark-100 text-sm mb-2"
-                  wrapper-class="flex-grow"
-                  :formatter="{
-                    date: 'YYYY-MM-DD',
-                    month: 'MMM',
-                  }"
+                  class="h-12 mr-2"
+                  range
+                  v-bind="datePickerDefaultProps"
                   :placeholder="$t('worksiteFilters.start_date')"
                 ></datepicker>
+              </div>
+            </div>
+          </div>
+          <div v-if="currentSection === 'lists'" class="flex flex-col">
+            <div class="status-group mb-2">
+              <div class="my-1 text-base">
+                {{ $t('~~Lists') }}
+              </div>
+              <div class="grid grid-cols-3 grid-col-flow gap-3 p-3">
+                <template v-for="list in lists" :key="list.id">
+                  {{ list.name }}
+                  <base-button
+                    :class="[
+                      !filters.lists.data.exclude_lists.some(
+                        (excludedItem) => excludedItem.id === list.id,
+                      )
+                        ? 'bg-crisiscleanup-dark-100'
+                        : 'bg-crisiscleanup-red-100 bg-opacity-100',
+                    ]"
+                    :action="
+                      () => {
+                        const isExcluded =
+                          filters.lists.data.exclude_lists.some(
+                            (excludedItem) => excludedItem.id === list.id,
+                          );
+                        if (isExcluded) {
+                          filters.lists.data.exclude_lists =
+                            filters.lists.data.exclude_lists.filter(
+                              (item) => item.id !== list.id,
+                            );
+                        } else {
+                          filters.lists.data.exclude_lists.push(list);
+                          // Remove from include list if it exists
+                          filters.lists.data.include_lists =
+                            filters.lists.data.include_lists.filter(
+                              (item) => item.id !== list.id,
+                            );
+                        }
+                      }
+                    "
+                    :text="$t('~~Subtract')"
+                  />
+                  <base-button
+                    :class="[
+                      !filters.lists.data.include_lists.some(
+                        (includedItem) => includedItem.id === list.id,
+                      )
+                        ? 'bg-crisiscleanup-dark-100'
+                        : 'bg-crisiscleanup-green-100 bg-opacity-100',
+                    ]"
+                    :action="
+                      () => {
+                        const isIncluded =
+                          filters.lists.data.include_lists.some(
+                            (includedItem) => includedItem.id === list.id,
+                          );
+                        if (isIncluded) {
+                          filters.lists.data.include_lists =
+                            filters.lists.data.include_lists.filter(
+                              (item) => item.id !== list.id,
+                            );
+                        } else {
+                          filters.lists.data.include_lists.push(list);
+                          // Remove from exclude list if it exists
+                          filters.lists.data.exclude_lists =
+                            filters.lists.data.exclude_lists.filter(
+                              (item) => item.id !== list.id,
+                            );
+                        }
+                      }
+                    "
+                    :text="$t('~~Add')"
+                  />
+                </template>
               </div>
             </div>
           </div>
@@ -580,24 +663,26 @@
 <script lang="ts">
 import { useStore } from 'vuex';
 import { computed, onMounted, ref, watch } from 'vue';
-import LitepieDatepicker from 'litepie-datepicker';
-import Team from '../../models/Team';
-import WorksiteFieldsFilter from '../../utils/data_filters/WorksiteFieldsFilter';
-import WorksiteFlagsFilter from '../../utils/data_filters/WorksiteFlagsFilter';
-import FormDataFilter from '../../utils/data_filters/FormDataFilter';
-import WorksiteStatusGroupFilter from '../../utils/data_filters/WorksiteStatusGroupFilter';
-import WorksiteStatusFilter from '../../utils/data_filters/WorksiteStatusFilter';
-import WorksiteLocationsFilter from '../../utils/data_filters/WorksiteLocationsFilter';
-import WorksiteMissingWorkTypeFilter from '../../utils/data_filters/WorksiteMissingWorkTypeFilter';
-import WorksiteMyTeamFilter from '../../utils/data_filters/WorksiteMyTeamFilter';
-import SurvivorFilter from '../../utils/data_filters/SurvivorFilter';
-import WorksiteTeamsFilter from '../../utils/data_filters/WorksiteTeamsFilter';
-import WorksiteDatesFilter from '../../utils/data_filters/WorksiteDatesFilter';
-import { getStatusName } from '../../filters/index';
+import Team from '@/models/Team';
+import WorksiteFieldsFilter from '@/utils/data_filters/WorksiteFieldsFilter';
+import WorksiteFlagsFilter from '@/utils/data_filters/WorksiteFlagsFilter';
+import FormDataFilter from '@/utils/data_filters/FormDataFilter';
+import WorksiteStatusGroupFilter from '@/utils/data_filters/WorksiteStatusGroupFilter';
+import WorksiteStatusFilter from '@/utils/data_filters/WorksiteStatusFilter';
+import WorksiteLocationsFilter from '@/utils/data_filters/WorksiteLocationsFilter';
+import WorksiteMissingWorkTypeFilter from '@/utils/data_filters/WorksiteMissingWorkTypeFilter';
+import WorksiteMyTeamFilter from '@/utils/data_filters/WorksiteMyTeamFilter';
+import SurvivorFilter from '@/utils/data_filters/SurvivorFilter';
+import WorksiteTeamsFilter from '@/utils/data_filters/WorksiteTeamsFilter';
+import WorksiteListsFilter from '@/utils/data_filters/WorksiteListsFilter';
+import WorksiteDatesFilter from '@/utils/data_filters/WorksiteDatesFilter';
+import { getStatusName } from '@/filters/index';
+import axios from 'axios';
+import BaseButton from '@/components/BaseButton.vue';
 
 export default defineComponent({
   name: 'WorksiteFilters',
-  components: { datepicker: LitepieDatepicker },
+  components: { BaseButton },
   props: {
     incident: {
       type: Object,
@@ -621,6 +706,7 @@ export default defineComponent({
       type: Boolean,
     },
   },
+  emits: ['updatedFilterLabels', 'updateFiltersCount', 'updatedFilters'],
 
   setup(props, { emit }) {
     const store = useStore();
@@ -632,10 +718,18 @@ export default defineComponent({
       statuses: new WorksiteStatusFilter('statuses', {}),
       locations: new WorksiteLocationsFilter('locations', {}),
       teams: new WorksiteTeamsFilter('teams', {}),
+      lists: new WorksiteListsFilter('lists', {
+        include_lists: [],
+        exclude_lists: [],
+      }),
       my_team: new WorksiteMyTeamFilter('my_team', {}),
       dates: new WorksiteDatesFilter('dates', {}),
       survivors: new SurvivorFilter('survivors', {}),
       missingWorkType: new WorksiteMissingWorkTypeFilter('missingWorkType', {}),
+    });
+    const datePickerDefaultProps = reactive({
+      format: 'yyyy-MM-dd',
+      autoApply: true,
     });
     const currentSection = ref('general');
     const expanded = ref({});
@@ -648,6 +742,8 @@ export default defineComponent({
       'flag.worksite_wrong_location',
       'flag.worksite_wrong_incident',
     ];
+
+    const lists = ref([]);
 
     const incidentTypes = computed(() => {
       if (props.incident && props.incident.form_fields) {
@@ -698,12 +794,16 @@ export default defineComponent({
     const datesCount = computed(() => {
       return filters.value.dates.getCount() || 0;
     });
+    const listsCount = computed(() => {
+      return filters.value.lists.getCount() || 0;
+    });
     const survivorCount = computed(() => {
       return filters.value.survivors.getCount() || 0;
     });
     const teams = computed(() => {
       return Team.all();
     });
+
     const filtersCount = computed(() => {
       return (
         fieldsCount.value +
@@ -716,7 +816,8 @@ export default defineComponent({
         teamsCount.value +
         survivorCount.value +
         datesCount.value +
-        myTeamCount.value
+        myTeamCount.value +
+        listsCount.value
       );
     });
     const allStatuses = computed(() => {
@@ -727,6 +828,8 @@ export default defineComponent({
         };
       });
     });
+
+    const filterLabels = ref([]);
 
     watch(
       () => props.currentFilters,
@@ -788,6 +891,13 @@ export default defineComponent({
             (props.currentFilters.teams && props.currentFilters.teams.data) ||
               {},
           ),
+          lists: new WorksiteListsFilter(
+            'lists',
+            (props.currentFilters.lists && props.currentFilters.lists.data) || {
+              include_lists: [],
+              exclude_lists: [],
+            },
+          ),
           missingWorkType: new WorksiteMissingWorkTypeFilter(
             'missingWorkType',
             (props.currentFilters.missingWorkType &&
@@ -795,7 +905,22 @@ export default defineComponent({
               {},
           ),
         };
+        filterLabels.value = Object.values(filters.value)
+          .map((filter) => {
+            return {
+              labels: filter.getFilterLabels(),
+              removeField: filter.removeField,
+            };
+          })
+          .filter((filter) => Object.keys(filter.labels).length > 0);
         emit('updateFiltersCount', filtersCount.value);
+        emit('updatedFilterLabels', filterLabels.value);
+        if (
+          props.currentFilters &&
+          Object.keys(props.currentFilters).length === 0
+        ) {
+          updateFilters();
+        }
       },
     );
 
@@ -859,6 +984,10 @@ export default defineComponent({
         statuses: new WorksiteStatusFilter('statuses', {}),
         locations: new WorksiteLocationsFilter('locations', {}),
         teams: new WorksiteTeamsFilter('teams', {}),
+        lists: new WorksiteListsFilter('lists', {
+          include_lists: [],
+          exclude_lists: [],
+        }),
         my_team: new WorksiteMyTeamFilter('my_team', {}),
         dates: new WorksiteDatesFilter('dates', {}),
         survivors: new SurvivorFilter('survivors', {}),
@@ -873,7 +1002,25 @@ export default defineComponent({
       if (Object.keys(props.currentFilters).length === 0) {
         clearAllFilters();
       }
+      getLists().then(() => {});
     });
+
+    async function getLists() {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/lists`,
+        {
+          params: {
+            model: 'worksite_worksites',
+          },
+        },
+      );
+      lists.value = response.data.results.map((list) => {
+        return {
+          id: list.id,
+          name: list.name,
+        };
+      });
+    }
 
     return {
       filters,
@@ -891,6 +1038,7 @@ export default defineComponent({
       teamsCount,
       myTeamCount,
       datesCount,
+      listsCount,
       survivorCount,
       teams,
       filtersCount,
@@ -901,6 +1049,9 @@ export default defineComponent({
       getFieldsForType,
       clearAllFilters,
       getStatusName,
+      filterLabels,
+      datePickerDefaultProps,
+      lists,
     };
   },
 });

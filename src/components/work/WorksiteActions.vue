@@ -502,36 +502,6 @@
       </v-popover>
       <base-button
         class="text-base font-thin mx-2"
-        data-testid="testWorksiteFiltersButton"
-        ccu-icon="filters"
-        icon-size="medium"
-        icon-classes="w-4"
-        :alt="$t('casesVue.filters')"
-        :action="
-          () => {
-            showingFilters = true;
-          }
-        "
-      >
-        {{ $t('casesVue.filters') }}
-        <span
-          v-if="filtersCount > 0"
-          class="rounded-full mx-2 px-1 bg-yellow-500 text-xs"
-          >{{ filtersCount }}</span
-        >
-      </base-button>
-      <WorksiteFilters
-        ref="worksiteFilter"
-        :show="showingFilters"
-        :current-filters="initalFilters"
-        :incident="currentIncident"
-        :locations="organizationLocations"
-        @closed-filters="showingFilters = false"
-        @updated-filters="handleFilters"
-        @update-filters-count="filtersCount = $event"
-      />
-      <base-button
-        class="text-base font-thin mx-2"
         data-testid="testDownloadCsvButton"
         ccu-icon="download"
         icon-size="medium"
