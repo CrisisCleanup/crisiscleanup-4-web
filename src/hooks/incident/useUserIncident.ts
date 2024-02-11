@@ -40,7 +40,7 @@ export const useUserIncident = (
 
   /**
    * Set user states incident id
-   * @param newIncidentId new incident id to set in user states.
+   * @param newIncidentId new incident id to s pet in user states.
    */
   const updateUserIncident = (newIncidentId: number) => {
     debug('Updating incident id in user state -> %s', newIncidentId);
