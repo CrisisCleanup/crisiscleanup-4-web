@@ -1,41 +1,37 @@
 <template>
   <div class="flex flex-col gap-3">
-    <BaseInput v-model="newList.name" label="Name" placeholder="Enter name" />
+    <BaseInput
+      v-model="newList.name"
+      label="Name"
+      :placeholder="$t('~~Enter name')"
+    />
     <BaseInput
       v-model="newList.description"
       label="Description"
-      placeholder="Enter description"
+      :placeholder="$t('~~Enter description')"
       text-area
       :rows="4"
     />
     <BaseSelect
+      v-if="!props.model"
       v-model="newList.model"
       :options="modelOptions"
       label="Model"
-      placeholder="Select model"
+      :placeholder="$t('~~Select List Type')"
       :model-value="model"
       :disabled="model"
     />
-    <BaseSelect
-      v-model="newList.shared"
-      :options="sharedOptions"
-      label="Shared"
-      placeholder="Select sharing option"
+
+    {{ $t('~~Share With') }}
+    <base-radio
+      v-for="(value, key) in sharedOptions"
+      :key="key"
+      :label="key"
+      data-testid="testListSharedRadio"
+      :name="value"
+      :model-value="newList.shared"
+      @update:model-value="newList.shared = $event"
     />
-    <BaseSelect
-      v-model="newList.permissions"
-      :options="permissionsOptions"
-      label="Permissions"
-      placeholder="Select permissions"
-    />
-    <base-checkbox
-      :model-value="newList.incident === currentIncidentId"
-      @update:model-value="
-        newList.incident = $event ? currentIncidentId : undefined
-      "
-    >
-      {{ $t('~~Use Current Incident') }}
-    </base-checkbox>
   </div>
 </template>
 
@@ -63,42 +59,33 @@ const props = defineProps({
   model: String,
 });
 
+const { t } = useI18n();
+
 const newList = ref<NewList>({
   name: '',
   description: '',
   model: props.model,
   shared: '',
-  permissions: '',
-  incident: undefined,
+  permissions: 'read_write_delete_copy',
+  incident: currentIncidentId.value,
 });
 
-const modelOptions = [
-  'worksite_worksites',
-  'user_users',
-  'organization_organizations',
-  'incident_incidents',
-  'file_files',
-  'list_lists',
-  'organization_organizations_incidents_teams',
-];
+const modelOptions = {
+  worksite_worksites: t('~~Work List'),
+  user_users: t('~~User List'),
+  organization_organizations: t('~~Organization List'),
+  incident_incidents: t('~~Incident List'),
+  file_files: t('~~Files List'),
+  organization_organizations_incidents_teams: t('~~Teams List'),
+  list_lists: t('~~List Lists'),
+};
 
-const sharedOptions = [
-  'private',
-  'team',
-  'organization',
-  'groups_affiliates',
-  'all',
-  'public',
-];
-
-const permissionsOptions = [
-  'read_write_delete_copy',
-  'read_write_copy',
-  'read_copy',
-  'read_only',
-];
-
-const incidents = Incident.query().orderBy('start_at', 'desc').get();
+const sharedOptions = {
+  private: t('~~Only Me'),
+  public: t('~~Everyone'),
+  groups_affiliates: t('~~My Organization'),
+  team: t('~~My Team'),
+};
 
 // Emit new onNewList when any item in the list changes deep
 watch(

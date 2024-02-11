@@ -56,6 +56,17 @@
             "
           />
           <base-button
+            data-testid="testUserprofilelistsLink"
+            class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
+            :text="$t('~~Lists')"
+            :alt="$t('~~Lists')"
+            :action="
+              () => {
+                $router.push(`/lists`);
+              }
+            "
+          />
+          <base-button
             data-testid="testUserprofileLogoutLink"
             class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
             :text="$t('actions.logout')"
@@ -101,3 +112,9 @@ export default defineComponent({
 </script>
 
 <style scoped lang="postcss"></style>
+
+<style>
+.menu-popover {
+  @apply bg-white w-48;
+}
+</style>
