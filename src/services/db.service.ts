@@ -3,7 +3,7 @@ import { openDB } from 'idb';
 const WORKSITES_DATABASE = 'worksites';
 const WORKSITE_IMAGES_DATABASE = 'worksite_images';
 
-const dbPromise = openDB('crisiscleanup', 5, {
+const dbPromise = openDB('crisiscleanup', 6, {
   upgrade(db, oldVersion) {
     if (oldVersion > 0) {
       try {

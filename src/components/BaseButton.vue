@@ -72,7 +72,7 @@ export default defineComponent({
       default: '',
     },
     ccuIcon: {
-      type: String as PropType<(typeof ICONS)[keyof typeof ICONS]>,
+      type: String as PropType<keyof typeof ICONS>,
       default: '',
     },
     iconSize: {
@@ -80,7 +80,7 @@ export default defineComponent({
       default: '',
     },
     suffixIcon: {
-      type: String as PropType<(typeof ICONS)[keyof typeof ICONS]>,
+      type: String as PropType<keyof typeof ICONS>,
       default: '',
     },
     selector: {
@@ -98,6 +98,10 @@ export default defineComponent({
     timeout: {
       type: Number,
       default: 5000,
+    },
+    buttonClasses: {
+      type: Object,
+      default: () => ({}),
     },
   },
 
@@ -131,6 +135,7 @@ export default defineComponent({
         'items-center': true,
         'justify-center': true,
         'base-button': true,
+        ...props.buttonClasses,
       } as Record<string, string | boolean>;
       if (props.variant) {
         styleObject[props.variant] = true;

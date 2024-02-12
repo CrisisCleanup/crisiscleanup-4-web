@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { omitBy, isNull } from 'lodash';
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import Filter from './Filter';
 
 interface WorksiteDatesFilterPacked {
@@ -44,25 +44,25 @@ export default class WorksiteDatesFilter extends Filter {
       {
         created_start:
           this.data.created && moment(this.data.created[0]).isValid()
-            ? `${useI18n().t('worksiteFilters.from')}: ${moment(
+            ? `${i18n.global.t('worksiteFilters.from')}: ${moment(
                 this.data.created[0],
               ).format('YYYY-MM-DD')}`
             : null,
         created_end:
           this.data.created && moment(this.data.created[1]).isValid()
-            ? `${useI18n().t('worksiteFilters.to')}: ${moment(
+            ? `${i18n.global.t('worksiteFilters.to')}: ${moment(
                 this.data.created[1],
               ).format('YYYY-MM-DD')}`
             : null,
         updated_start:
           this.data.updated && moment(this.data.updated[0]).isValid()
-            ? `${useI18n().t('worksiteFilters.from')}: ${moment(
+            ? `${i18n.global.t('worksiteFilters.from')}: ${moment(
                 this.data.updated[0],
               ).format('YYYY-MM-DD')}`
             : null,
         updated_end:
           this.data.updated && moment(this.data.updated[1]).isValid()
-            ? `${useI18n().t('worksiteFilters.to')}: ${moment(
+            ? `${i18n.global.t('worksiteFilters.to')}: ${moment(
                 this.data.updated[1],
               ).format('YYYY-MM-DD')}`
             : null,

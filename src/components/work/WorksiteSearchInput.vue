@@ -8,6 +8,9 @@
         :required="required"
         :tooltip="tooltip"
         data-testid="testWorksiteSearchInputSearch"
+        :input-style="{
+          'border-right': icon || tooltip ? '0' : '1px solid #dadada',
+        }"
         @update:model-value="debouncedSearch"
         @input.stop=""
         @focus="onFocus"
@@ -69,14 +72,21 @@
     </div>
     <div
       v-if="icon || tooltip"
-      class="icon-container flex items-center justify-center"
-      :class="iconClasses"
+      class="icon-container flex items-center justify-center relative"
     >
       <ccu-icon
         :alt="$t('worksiteSearchInput.search_help')"
         :type="tooltip ? 'info' : icon"
         size="small"
+        :action="() => $emit('iconClicked')"
       />
+      <badge
+        v-if="iconBadge > 0"
+        width="12px"
+        height="12px"
+        class="ml-2 text-black bg-primary-light absolute top-1 right-1 text-xs"
+        >{{ iconBadge }}</badge
+      >
     </div>
   </div>
 </template>
@@ -94,6 +104,7 @@ import Worksite from '@/models/Worksite';
 import { getWorkTypeImage } from '@/filters/index';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import type WorkType from '@/models/WorkType';
+import Badge from '@/components/Badge.vue';
 
 type GeocoderResult = Awaited<
   ReturnType<typeof GeocoderService.getMatchingAddresses>
@@ -106,7 +117,7 @@ interface WorksiteSearchResult {
 
 export default defineComponent({
   name: 'WorksiteSearchInput',
-  components: { BaseInput },
+  components: { Badge, BaseInput },
   props: {
     value: {
       type: String,
@@ -152,6 +163,10 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    iconBadge: {
+      type: Number,
+      default: 0,
+    },
   },
   emits: [
     'input',
@@ -160,6 +175,7 @@ export default defineComponent({
     'selectedGeocode',
     'selectedExisting',
     'clearSuggestions',
+    'iconClicked',
   ],
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();

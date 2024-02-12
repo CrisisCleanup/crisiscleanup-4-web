@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import Filter from './Filter';
 
 export default class SurvivorFilter extends Filter {
@@ -25,7 +25,7 @@ export default class SurvivorFilter extends Filter {
     }
 
     return {
-      my_team: useI18n().t('actions.member_of_my_org'),
+      my_team: i18n.global.t('actions.member_of_my_org'),
     };
   }
 

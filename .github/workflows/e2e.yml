@@ -18,10 +18,6 @@ jobs:
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     needs: [versions]
-    outputs:
-      TEST_STAGE: ${{ steps.results.outputs.TEST_STAGE }}
-      TEST_PROJECT: ${{ steps.results.outputs.TEST_PROJECT }}
-      TEST_STATUS: ${{ steps.results.outputs.TEST_STATUS }}
     strategy:
       fail-fast: false
       matrix:
@@ -38,13 +34,13 @@ jobs:
             os: macos-12
             cache_dir: ~/Library/Caches/ms-playwright
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -92,7 +88,7 @@ jobs:
         run: pnpm exec playwright --version > .github/.playwright-version
 
       - name: ⚡️ Cache playwright binaries
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ${{ matrix.cache_dir }}
@@ -113,47 +109,86 @@ jobs:
           path: blob-report
           retention-days: 1
 
-      - id: results
-        shell: bash
+      - name: Save Test Result
         if: always()
         run: |
-          echo "TEST_STAGE=${{ matrix.stage }}" >> $GITHUB_OUTPUT
-          echo "TEST_PROJECT=${{ matrix.project }}" >> $GITHUB_OUTPUT
-          # The current status of the job. Possible values are success, failure, or cancelled.
-          echo "TEST_STATUS=${{ job.status }}" >> $GITHUB_OUTPUT
+          echo ${{ job.status }} > test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
+
+      - name: Upload Test Result
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: matrix-outputs
+          path: test-result-${{ matrix.stage }}-${{ matrix.project }}.txt
+
+  aggregate-results:
+    name: Aggregate Test Results
+    needs: [e2e]
+    runs-on: ubuntu-latest
+    if: always()
+    outputs:
+      overall_status: ${{ steps.aggregate.outputs.overall_status }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: matrix-outputs
+          path: test-results
+      - name: Aggregate Test Results
+        id: aggregate
+        run: |
+          #!/bin/bash
+          overall_status="success"
+
+          # Loop through each test result file
+          for file in test-results/*.txt; do
+            if [[ -f "$file" ]]; then
+              status=$(cat "$file")
+              echo "Test result in $file: $status"
+              if [[ "$status" == "failure" ]]; then
+                overall_status="failure"
+                break
+              fi
+            fi
+          done
+
+          # Output the overall status
+          echo "Overall status: $overall_status"
+          echo "overall_status=$overall_status" >> $GITHUB_OUTPUT
 
   notify-failed:
     name: 🔴 Notify Failure 🔴
-    needs: [e2e]
+    needs: [e2e, aggregate-results]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Notify Slack
         uses: rtCamp/action-slack-notify@v2
-        if: needs.e2e.outputs.TEST_STATUS == 'failure'
+        if: ${{ needs.aggregate-results.outputs.overall_status == 'failure' }}
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
           SLACK_USERNAME: 'CrisisCleanup Bot'
-          SLACK_CHANNEL: 'core'
+          SLACK_CHANNEL: 'qa'
           SLACK_COLOR: '#D94F37'
           SLACK_TITLE: 'E2e Tests Failed!'
           SLACK_MESSAGE: '🧪 E2e Tests Failed... Someone broke something! 😦'
 
   notify-success:
     name: 🟢 Notify Success 🟢
-    needs: [e2e]
+    needs: [e2e, aggregate-results]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Notify Slack
         uses: rtCamp/action-slack-notify@v2
-        if: needs.e2e.outputs.TEST_STATUS == 'success'
+        if: ${{ needs.aggregate-results.outputs.overall_status == 'success' }}
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_ICON: ${{ secrets.SLACK_ICON }}
           SLACK_USERNAME: 'CrisisCleanup Bot'
-          SLACK_CHANNEL: 'core'
+          SLACK_CHANNEL: 'qa'
           SLACK_COLOR: '#13E768'
           SLACK_TITLE: 'E2e Tests Passed!'
           SLACK_MESSAGE: '🧪 E2e Tests Passed!!'
@@ -168,13 +203,13 @@ jobs:
       matrix:
         stage: [development, staging, production]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ needs.versions.outputs.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ needs.versions.outputs.NODE_VERSION }}
           cache: pnpm
@@ -189,7 +224,48 @@ jobs:
           path: all-blob-reports
 
       - name: 🔄 Merge all blob reports
-        run: pnpm exec playwright merge-reports --reporter html,github,markdown ./all-blob-reports
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: e2e-results.json
+        run: pnpm exec playwright merge-reports --reporter html,json,github,markdown ./all-blob-reports
+
+      - name: 📨 Send report to slack
+        env:
+          SLACK_BOT_USER_OAUTH_TOKEN: ${{ secrets.SLACK_BOT_USER_OAUTH_TOKEN }}
+          REPORT_NAME: Playwright Report | ${{ matrix.stage }}
+          BUILD_ID: ${{ github.run_id }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          COMMIT_ID: ${{ github.sha }}
+          # Todo: replace with html report url when we upload html reports somewhere
+          RESULT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          cat > cli_config.json <<EOF
+          {
+            "sendResults": "always",
+            "slackLogLevel": "debug",
+            "sendUsingBot": {
+              "channels": ["qa"]
+            },
+            "showInThread": true,
+            "meta": [
+              { "key": "name", "value" : "__ENV_REPORT_NAME"},
+              { "key": "build", "value" : "__ENV_BUILD_ID"},
+              { "key": "branch", "value" : "__ENV_BRANCH_NAME"},
+              { "key": "commit", "value" : "__ENV_COMMIT_ID"},
+              { "key": "results", "value" : "__ENV_RESULT_URL"}
+            ],
+            "maxNumberOfFailures": 10,
+            "disableUnfurl": true
+          }
+          EOF
+
+          echo "Created cli_config.json for playwright-slack-report..."
+          cat cli_config.json
+
+          echo "Playwright JSON report:"
+          cat e2e-results.json
+
+          echo "Sending report to slack..."
+          pnpm exec playwright-slack-report --config=cli_config.json --json-results=e2e-results.json
 
       - name: 🛠️ Generate Job Summary
         run: |

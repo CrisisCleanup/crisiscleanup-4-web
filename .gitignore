@@ -10,6 +10,7 @@ node_modules
 !.env.test
 
 # Direnv
+.direnv
 !.envrc
 .envrc.local
 

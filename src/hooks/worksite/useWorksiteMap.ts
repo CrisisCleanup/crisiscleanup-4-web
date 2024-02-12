@@ -14,6 +14,7 @@ import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
 import { store } from '@/store';
 import { getErrorMessage } from '@/utils/errors';
+import type { Portal } from '@/models/types';
 
 export interface MapUtils {
   getMap: () => L.Map;
@@ -26,6 +27,7 @@ export interface MapUtils {
   ) => void;
   addMarkerToMap: (location: LatLng) => void;
   fitLocation: (location: Location) => void;
+  getLocationCenter: (location: Location) => LatLng | null;
   jumpToCase: (worksite: Worksite | undefined, showPopup: boolean) => void;
   applyLocation: (locationId: string, value: boolean) => void;
   applyTeamGeoJson: (teamId: string, value: boolean, geom: any) => void;
@@ -50,6 +52,7 @@ export default (
 ) => {
   const addToVisited = (wId: number) =>
     store.commit('worksite/addVisitedWorksite', wId);
+  const portal = store.getters['enums/portal'] as Portal;
   let loadMarker: (marker: Sprite & Worksite, index: number) => void = (
     marker,
     index,
@@ -58,7 +61,9 @@ export default (
 
   const map = L.map('map', {
     zoomControl: false,
-  }).fitBounds(mapBounds || DEFAULT_MAP_BOUNDS);
+  }).fitBounds(
+    mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
+  );
   if (useGoogleMaps) {
     L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
   } else {
@@ -225,6 +230,27 @@ export default (
     }
   }
 
+  function getLocationCenter(location) {
+    if (!location) {
+      return null;
+    }
+
+    // Create a geojson feature from the location
+    const geojsonFeature = {
+      type: 'Feature',
+      properties: location.attr,
+      geometry: location.poly || location.geom || location.point,
+    } as any;
+
+    // Convert the geojson feature to a Leaflet layer
+    const layer = L.geoJSON(geojsonFeature);
+
+    // Get the center of the layer's bounds
+    const center = layer.getBounds().getCenter();
+
+    return center;
+  }
+
   const jumpToCase = async (
     worksite: Worksite | undefined,
     showPopup = true,
@@ -344,6 +370,7 @@ export default (
     reloadMap,
     addMarkerToMap,
     fitLocation,
+    getLocationCenter,
     jumpToCase,
     applyLocation,
     applyTeamGeoJson,

@@ -20,6 +20,9 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import { getErrorMessage } from '../utils/errors';
+import ImageResize from 'quill-image-resize-vue';
+
+Quill.register('modules/imageResize', ImageResize);
 
 export default defineComponent({
   name: 'Editor',
@@ -61,9 +64,8 @@ export default defineComponent({
           },
         );
         await $toasted.success(t('info.upload_file_successful'));
-        document.querySelectorAll(
-          '.ql-editor',
-        )[0].innerHTML += `<img src="${result.data.blog_url}" alt="${result.data.filename}"/>`;
+        document.querySelectorAll('.ql-editor')[0].innerHTML +=
+          `<img src="${result.data.blog_url}" alt="${result.data.filename}"/>`;
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       } finally {
@@ -83,6 +85,7 @@ export default defineComponent({
     onMounted(() => {
       quillEditor.value = new Quill(editor.value, {
         modules: {
+          imageResize: {},
           toolbar: {
             container: [
               ['bold', 'italic', 'underline', 'strike'],

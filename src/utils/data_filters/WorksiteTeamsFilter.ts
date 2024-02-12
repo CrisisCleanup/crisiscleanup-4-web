@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import Team from '../../models/Team';
 import Filter from './Filter';
 
@@ -31,7 +31,7 @@ export default class WorksiteTeamsFilter extends Filter {
     for (const [key] of Object.entries(this.data).filter(([, value]) => {
       return Boolean(value);
     })) {
-      labels[key] = `${useI18n().t('worksiteFilters.teams')}: ${Team.find(key)
+      labels[key] = `${i18n.global.t('worksiteFilters.teams')}: ${Team.find(key)
         ?.name}`;
     }
 

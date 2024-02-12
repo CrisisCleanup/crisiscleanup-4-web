@@ -19,7 +19,7 @@ jobs:
       PNPM_VERSION: ${{ steps.tools.outputs.PNPM_VERSION }}
       NODE_VERSION: ${{ steps.tools.outputs.NODEJS_VERSION }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: tools
         shell: bash
         run: |

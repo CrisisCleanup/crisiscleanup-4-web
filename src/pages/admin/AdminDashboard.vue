@@ -7,7 +7,7 @@
         icon="search"
         class="w-full mx-4"
         :placeholder="$t('actions.search_everywhere')"
-        @update:modelValue="
+        @update:model-value="
           (value) => {
             globalSearch = value;
             debounce(reloadDashBoard, 1000)();
@@ -189,7 +189,7 @@
             icon="search"
             class="w-48 md:w-72 mx-4"
             :placeholder="$t('actions.search')"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 organizations.search = value;
                 debounce(getOrganizations, 1000)();
@@ -229,7 +229,7 @@
             icon="search"
             class="w-48 md:w-72 mx-4"
             :placeholder="$t('actions.search')"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 users.search = value;
                 debounce(getUsers, 1000)();
@@ -269,7 +269,7 @@
             icon="search"
             class="w-48 md:w-72 mx-4"
             :placeholder="$t('actions.search')"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 ghostUsers.search = value;
                 debounce(getGhostUsers, 1000)();
@@ -309,7 +309,7 @@
             icon="search"
             class="w-48 md:w-72 mx-4"
             :placeholder="$t('actions.search')"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 invitationRequests.search = value;
                 debounce(getInvitationRequests, 1000)();
@@ -349,7 +349,7 @@
             icon="search"
             class="w-48 md:w-72 mx-4"
             :placeholder="$t('actions.search')"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 invitations.search = value;
                 debounce(getInvitations, 1000)();
@@ -379,7 +379,7 @@ import axios from 'axios';
 import { useToast } from 'vue-toastification';
 import IncidentApprovalTable from '../../components/admin/IncidentApprovalTable.vue';
 import OrganizationApprovalTable from '../../components/admin/OrganizationApprovalTable.vue';
-import InviteUsers from '../../components/modals/InviteUsers.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
 import { getQueryString } from '../../utils/urls';
 import { getErrorMessage } from '../../utils/errors';
 import WorksiteImport from '../../components/admin/WorksiteImport.vue';

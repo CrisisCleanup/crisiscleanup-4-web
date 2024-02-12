@@ -8,7 +8,7 @@
         icon="search"
         class="w-full"
         :placeholder="$t('actions.search')"
-        @update:modelValue="onSearch"
+        @update:model-value="onSearch"
       ></base-input>
       <div
         class="flex items-center bg-white border p-1 px-4 cursor-pointer h-10"
@@ -98,7 +98,7 @@
                   :data-testid="`testUserRole${role.id}Checkbox`"
                   class="block my-1"
                   @update:model-value="onFilter"
-                  >{{ role.name_t }}
+                  >{{ $t(role.name_t) }}
                 </base-checkbox>
               </div>
             </div>
@@ -108,7 +108,7 @@
                 :placeholder="$t('usersVue.search_users')"
                 data-testid="testUserInvitedBySearch"
                 class="my-1"
-                @selectedUser="onSelectedUser"
+                @selected-user="onSelectedUser"
               />
 
               <div
@@ -129,7 +129,7 @@
         :columns="columns"
         :loading="usersLoading"
         hide-header
-        @rowClick="
+        @row-click="
           (user) => {
             selectedUser = user;
           }
@@ -148,7 +148,7 @@
               <div class="text-crisiscleanup-grey-700">
                 {{
                   slotProps.item.currentRole &&
-                  slotProps.item.currentRole.name_t
+                  $t(slotProps.item.currentRole.name_t)
                 }}
               </div>
             </div>
@@ -202,7 +202,7 @@
               icon="search"
               class="w-84 mr-4"
               :placeholder="$t('actions.search')"
-              @update:modelValue="onSearch"
+              @update:model-value="onSearch"
             ></base-input>
             <v-popover
               :auto-hide="false"
@@ -299,7 +299,7 @@
                             :data-testid="`testUserRole${role.id}Checkbox`"
                             class="block my-1"
                             @update:model-value="onFilter"
-                            >{{ role.name_t }}
+                            >{{ $t(role.name_t) }}
                           </base-checkbox>
                         </div>
                       </div>
@@ -309,7 +309,7 @@
                           :placeholder="$t('usersVue.search_users')"
                           data-testid="testUserInvitedBySearch"
                           class="my-1"
-                          @selectedUser="onSelectedUser"
+                          @selected-user="onSelectedUser"
                         />
 
                         <div
@@ -337,7 +337,7 @@
               :columns="columns"
               :loading="usersLoading"
               hide-header
-              @rowClick="
+              @row-click="
                 (user) => {
                   $router.push(`/organization/users/${user.id}`);
                 }
@@ -356,7 +356,7 @@
                     <div class="text-crisiscleanup-grey-700">
                       {{
                         slotProps.item.currentRole &&
-                        slotProps.item.currentRole.name_t
+                        $t(slotProps.item.currentRole.name_t)
                       }}
                     </div>
                   </div>
@@ -405,7 +405,7 @@ import { throttle } from 'lodash';
 import { useMq } from 'vue3-mq';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import InviteUsers from './InviteUsers.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
 import User from '@/models/User';
 import Role from '@/models/Role';
 import Table from '@/components/Table.vue';

@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import Filter from './Filter';
 
 export default class FormDataFilter extends Filter {
@@ -30,7 +30,7 @@ export default class FormDataFilter extends Filter {
     for (const [key] of Object.entries(this.data).filter(([, value]) => {
       return Boolean(value);
     })) {
-      const localeMessages = useI18n().t(`formLabels.${key}`);
+      const localeMessages = i18n.global.t(`formLabels.${key}`);
       labels[key] = `${localeMessages}`;
     }
 

@@ -6,6 +6,7 @@
 import { onMounted } from 'vue';
 import * as d3 from 'd3';
 import moment from 'moment';
+import type { Portal } from '@/models/types';
 
 export default defineComponent({
   name: 'ReportLineChart',
@@ -33,12 +34,15 @@ export default defineComponent({
   },
   setup(props) {
     const { t } = useI18n();
-    let formatter = new Intl.NumberFormat('en-US', {
+    const store = useStore();
+    const portal = computed(() => store.getters['enums/portal'] as Portal);
+
+    let formatter = new Intl.NumberFormat(portal.value.default_language, {
       maximumFractionDigits: 1,
       minimumFractionDigits: 0,
     });
     if (props.displayOptions.number_format === 'currency') {
-      formatter = new Intl.NumberFormat('en-US', {
+      formatter = new Intl.NumberFormat(portal.value.default_language, {
         style: 'currency',
         currency: 'USD',
         maximumFractionDigits: 0,
@@ -47,7 +51,7 @@ export default defineComponent({
     }
 
     if (props.displayOptions.number_format === 'percentage') {
-      formatter = new Intl.NumberFormat('en-US', {
+      formatter = new Intl.NumberFormat(portal.value.default_language, {
         style: 'percent',
         minimumFractionDigits: 1,
         maximumFractionDigits: 1,

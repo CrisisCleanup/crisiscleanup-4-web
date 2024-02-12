@@ -5,7 +5,7 @@
         <PhoneToolBar
           :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
-          :on-toggle-outbounds="onToggleOutbounds"
+          :set-allowed-call-type="setAllowedCallType"
           :select-case="selectCase"
           :worksite-id="worksiteId"
         />
@@ -20,8 +20,8 @@
         v-if="showingTable"
         class="mt-28"
         :worksite-query="worksiteQuery"
-        @selectionChanged="onSelectionChanged"
-        @rowClick="
+        @selection-changed="onSelectionChanged"
+        @row-click="
           (worksite) => {
             worksiteId = worksite.id;
             isEditing = true;
@@ -70,14 +70,14 @@
                 <ActiveCall
                   :case-id="worksiteId"
                   data-testid="testActiveCallDiv"
-                  @setCase="selectCase"
+                  @set-case="selectCase"
                 />
               </tab>
               <tab ref="statusTab" :name="$t('phoneDashboard.call_status')">
                 <UpdateStatus
                   class="p-2"
                   data-testid="testUpdateStatusCompleteCallDiv"
-                  @onCompleteCall="completeCall"
+                  @on-complete-call="completeCall"
                 />
               </tab>
             </tabs>
@@ -99,7 +99,7 @@
               data-testid="testManualDialerDiv"
               style="z-index: 1002"
               :dialing="dialing"
-              @onDial="dialManualOutbound"
+              @on-dial="dialManualOutbound"
             ></ManualDialer>
           </template>
         </PhoneComponentButton>
@@ -156,11 +156,11 @@
             <Chat
               v-if="selectedChat"
               :chat="selectedChat"
-              @unreadCount="unreadChatCount = $event"
-              @unreadUrgentCount="unreadUrgentChatCount = $event"
-              @onNewMessage="unreadChatCount += 1"
-              @onNewUrgentMessage="unreadUrgentChatCount += 1"
-              @focusNewsTab="focusNewsTab"
+              @unread-count="unreadChatCount = $event"
+              @unread-urgent-count="unreadUrgentChatCount = $event"
+              @on-new-message="unreadChatCount += 1"
+              @on-new-urgent-message="unreadUrgentChatCount += 1"
+              @focus-news-tab="focusNewsTab"
             />
           </template>
         </PhoneComponentButton>
@@ -206,7 +206,7 @@
             <CallHistory
               :calls="callHistory"
               data-testid="testCallHistoryDiv"
-              @rowClick="
+              @row-click="
                 ({ mobile }) => {
                   setManualOutbound(mobile);
                 }
@@ -230,8 +230,8 @@
           </template>
           <template #component>
             <GeneralStats
-              @onRemainingCallbacks="remainingCallbacks = $event"
-              @onRemainingCalldowns="remainingCalldowns = $event"
+              @on-remaining-callbacks="remainingCallbacks = $event"
+              @on-remaining-calldowns="remainingCalldowns = $event"
             />
           </template>
         </PhoneComponentButton>
@@ -300,7 +300,7 @@
           skip-validation
           use-recents
           class="mx-4 py-1 inset-1"
-          @selectedExisting="onSelectExistingWorksite"
+          @selected-existing="onSelectExistingWorksite"
           @input="
             (value: string) => {
               mobileSearch = value;
@@ -360,17 +360,17 @@
         class="p-2 border-l border-r"
         can-edit
         :is-viewing-worksite="false"
-        @onJumpToCase="jumpToCase"
-        @onDownloadWorksite="() => downloadWorksites([worksite?.id])"
-        @onPrintWorksite="() => printWorksite(worksite?.id)"
-        @onFlagCase="
+        @on-jump-to-case="jumpToCase"
+        @on-download-worksite="() => downloadWorksites([worksite?.id])"
+        @on-print-worksite="() => printWorksite(worksite?.id)"
+        @on-flag-case="
           () => {
             showFlags = true;
             showHistory = false;
           }
         "
-        @onShareWorksite="() => shareWorksite(worksite?.id)"
-        @onShowHistory="
+        @on-share-worksite="() => shareWorksite(worksite?.id)"
+        @on-show-history="
           () => {
             showFlags = false;
             showHistory = true;
@@ -440,14 +440,14 @@
           :data-prefill="prefillData"
           :is-editing="isEditing"
           class="border shadow"
-          @jumpToCase="jumpToCase"
-          @savedWorksite="
+          @jump-to-case="jumpToCase"
+          @saved-worksite="
             (worksite) => {
               onSaveCase(worksite);
               init();
             }
           "
-          @closeWorksite="
+          @close-worksite="
             () => {
               clearCase();
               isNew = false;
@@ -455,7 +455,7 @@
               init();
             }
           "
-          @navigateToWorksite="onSelectExistingWorksite"
+          @navigate-to-worksite="onSelectExistingWorksite"
           @geocoded="addMarkerToMap"
         />
       </div>
@@ -504,7 +504,7 @@
               skip-validation
               class="mx-2 w-full"
               use-recents
-              @selectedExisting="onSelectExistingWorksite"
+              @selected-existing="onSelectExistingWorksite"
               @input="
                 (value) => {
                   search = value;
@@ -531,7 +531,7 @@
         <PhoneToolBar
           :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
-          :on-toggle-outbounds="onToggleOutbounds"
+          :set-allowed-call-type="setAllowedCallType"
           :select-case="selectCase"
           :worksite-id="worksiteId"
         />
@@ -541,10 +541,10 @@
               :key="showingMap"
               :map-loading="mapLoading"
               show-zoom-buttons
-              @onZoomIn="zoomIn"
-              @onZoomOut="zoomOut"
-              @onZoomIncidentCenter="goToIncidentCenter"
-              @onZoomInteractive="goToInteractive"
+              @on-zoom-in="zoomIn"
+              @on-zoom-out="zoomOut"
+              @on-zoom-incident-center="goToIncidentCenter"
+              @on-zoom-interactive="goToInteractive"
             />
             <div
               ref="phoneButtons"
@@ -588,7 +588,7 @@
                       <ActiveCall
                         :case-id="worksiteId"
                         data-testid="testActiveCallDiv"
-                        @setCase="selectCase"
+                        @set-case="selectCase"
                       />
                     </tab>
                     <tab
@@ -598,7 +598,7 @@
                       <UpdateStatus
                         class="p-2"
                         data-testid="testUpdateStatusCompleteCallDiv"
-                        @onCompleteCall="completeCall"
+                        @on-complete-call="completeCall"
                       />
                     </tab>
                   </tabs>
@@ -620,7 +620,7 @@
                     data-testid="testManualDialerDiv"
                     style="z-index: 1002"
                     :dialing="dialing"
-                    @onDial="dialManualOutbound"
+                    @on-dial="dialManualOutbound"
                   ></ManualDialer>
                 </template>
               </PhoneComponentButton>
@@ -676,11 +676,11 @@
                   <Chat
                     v-if="selectedChat"
                     :chat="selectedChat"
-                    @unreadCount="unreadChatCount = $event"
-                    @unreadUrgentCount="unreadUrgentChatCount = $event"
-                    @onNewMessage="unreadChatCount += 1"
-                    @onNewUrgentMessage="unreadUrgentChatCount += 1"
-                    @focusNewsTab="focusNewsTab"
+                    @unread-count="unreadChatCount = $event"
+                    @unread-urgent-count="unreadUrgentChatCount = $event"
+                    @on-new-message="unreadChatCount += 1"
+                    @on-new-urgent-message="unreadUrgentChatCount += 1"
+                    @focus-news-tab="focusNewsTab"
                   />
                 </template>
               </PhoneComponentButton>
@@ -749,7 +749,7 @@
                   </div>
                 </template>
                 <template #component>
-                  <PhoneNews @unreadCount="unreadNewsCount = $event" />
+                  <PhoneNews @unread-count="unreadNewsCount = $event" />
                 </template>
               </PhoneComponentButton>
 
@@ -768,7 +768,7 @@
                   <CallHistory
                     :calls="callHistory"
                     data-testid="testCallHistoryDiv"
-                    @rowClick="
+                    @row-click="
                       ({ mobile }) => {
                         setManualOutbound(mobile);
                       }
@@ -792,8 +792,8 @@
                 </template>
                 <template #component>
                   <GeneralStats
-                    @onRemainingCallbacks="remainingCallbacks = $event"
-                    @onRemainingCalldowns="remainingCalldowns = $event"
+                    @on-remaining-callbacks="remainingCallbacks = $event"
+                    @on-remaining-calldowns="remainingCalldowns = $event"
                   />
                 </template>
               </PhoneComponentButton>
@@ -883,8 +883,8 @@
             </div>
             <WorksiteTable
               :worksite-query="worksiteQuery"
-              @selectionChanged="onSelectionChanged"
-              @rowClick="
+              @selection-changed="onSelectionChanged"
+              @row-click="
                 (worksite) => {
                   worksiteId = worksite.id;
                   isEditing = true;
@@ -902,17 +902,17 @@
           class="p-2 border-l border-r"
           can-edit
           :is-viewing-worksite="false"
-          @onJumpToCase="jumpToCase"
-          @onDownloadWorksite="() => downloadWorksites([worksite?.id])"
-          @onPrintWorksite="() => printWorksite(worksite?.id)"
-          @onShowHistory="
+          @on-jump-to-case="jumpToCase"
+          @on-download-worksite="() => downloadWorksites([worksite?.id])"
+          @on-print-worksite="() => printWorksite(worksite?.id)"
+          @on-show-history="
             () => {
               showFlags = false;
               showHistory = true;
             }
           "
-          @onShareWorksite="() => shareWorksite(worksite?.id)"
-          @onFlagCase="
+          @on-share-worksite="() => shareWorksite(worksite?.id)"
+          @on-flag-case="
             () => {
               showFlags = true;
               showHistory = false;
@@ -981,19 +981,19 @@
             data-testid="testShowFlagsDiv"
             :incident-id="String(currentIncidentId)"
             :worksite-id="worksiteId"
-            @reloadCase="
+            @reload-case="
               () => {
                 reloadCase();
                 showFlags = false;
               }
             "
-            @reloadMap="
+            @reload-map="
               () => {
                 reloadMap();
                 showFlags = false;
               }
             "
-            @clearCase="clearCase"
+            @clear-case="clearCase"
           ></CaseFlag>
           <WorksiteForm
             v-else
@@ -1006,14 +1006,14 @@
             :data-prefill="prefillData"
             :is-editing="isEditing"
             class="border shadow"
-            @jumpToCase="jumpToCase"
-            @savedWorksite="
+            @jump-to-case="jumpToCase"
+            @saved-worksite="
               (worksite) => {
                 onSaveCase(worksite);
               }
             "
-            @closeWorksite="clearCase"
-            @navigateToWorksite="onSelectExistingWorksite"
+            @close-worksite="clearCase"
+            @navigate-to-worksite="onSelectExistingWorksite"
             @geocoded="addMarkerToMap"
           />
         </div>
@@ -1073,10 +1073,19 @@ import BugReport from '@/components/BugReport.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import ShareWorksite from '@/components/modals/ShareWorksite.vue';
 import CaseFlag from '@/components/work/CaseFlag.vue';
-import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
+import {
+  BUTTON_VARIANTS as VARIANTS,
+  INTERACTIVE_ZOOM_LEVEL,
+} from '@/constants';
 import { averageGeolocation } from '@/utils/map';
 import type { MapUtils } from '@/hooks/worksite/useLiveMap';
 import { useCurrentUser } from '@/hooks';
+
+export enum AllowedCallType {
+  INBOUND_ONLY = 'INBOUND_ONLY',
+  OUTBOUND_ONLY = 'OUTBOUND_ONLY',
+  BOTH = 'BOTH',
+}
 
 export default defineComponent({
   name: 'PhoneSystem',
@@ -1135,7 +1144,6 @@ export default defineComponent({
     const selectedChat = ref(null);
     const searchingWorksites = ref(false);
     const dialing = ref(false);
-    const serveOutbounds = ref(true);
     const tabs = ref(null);
     const showMobileMap = ref(false);
     const remainingCallbacks = ref(0);
@@ -1152,7 +1160,7 @@ export default defineComponent({
     const connectFirst = useConnectFirst(context);
     const showingSearchModal = ref(false);
     const mobileSearch = ref('');
-
+    const allowCallType = ref<AllowedCallType>(AllowedCallType.BOTH);
     const { showUnclaimModal } = useWorksiteTableActions(
       selectedTableItems,
       () => {},
@@ -1170,6 +1178,7 @@ export default defineComponent({
       setPotentialFailedCall,
       loadAgent,
       setWorking,
+      setAway,
       dialNextOutbound,
       setAvailable,
       setGeneralStats,
@@ -1553,21 +1562,34 @@ export default defineComponent({
 
     async function onLoggedIn() {
       if (
-        serveOutbounds.value &&
+        allowCallType.value === AllowedCallType.BOTH &&
         Number(stats.value.inQueue || stats.value.routing || 0) === 0
       ) {
         if (remainingCallbacks.value + remainingCalldowns.value > 0) {
           await setWorking();
         }
 
-        await dialNextOutbound();
+        try {
+          await dialNextOutbound();
+        } catch {
+          await setAvailable();
+        }
+      } else if (allowCallType.value === AllowedCallType.INBOUND_ONLY) {
+        await setAvailable();
+      } else if (allowCallType.value === AllowedCallType.OUTBOUND_ONLY) {
+        await setWorking();
+        try {
+          await dialNextOutbound();
+        } catch {
+          await setAway();
+        }
       } else {
         await setAvailable();
       }
     }
 
-    function onToggleOutbounds(value) {
-      serveOutbounds.value = value;
+    function setAllowedCallType(value: AllowedCallType) {
+      allowCallType.value = value;
     }
 
     function selectCase(worksite) {
@@ -1766,8 +1788,8 @@ export default defineComponent({
     );
 
     onMounted(async () => {
-      if (currentUser.isAdmin) {
-        serveOutbounds.value = false;
+      if (currentUser.value.isAdmin) {
+        allowCallType.value = AllowedCallType.INBOUND_ONLY;
       }
 
       await init();
@@ -1795,7 +1817,6 @@ export default defineComponent({
       selectedChat,
       searchingWorksites,
       dialing,
-      serveOutbounds,
       tabs,
       showMobileMap,
       remainingCallbacks,
@@ -1833,7 +1854,7 @@ export default defineComponent({
       onSelectMarker,
       getWorksites,
       onLoggedIn,
-      onToggleOutbounds,
+      setAllowedCallType,
       selectCase,
       getChatGroups,
       focusNewsTab,

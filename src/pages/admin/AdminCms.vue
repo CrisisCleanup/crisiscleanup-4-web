@@ -377,9 +377,8 @@ export default defineComponent({
 
         if (showHtml.value) {
           for (const file of selectedLibraryItems.value) {
-            document.querySelectorAll(
-              '.ql-editor',
-            )[0].innerHTML += `<img src="${file.blog_url}" alt="${file.filename}"/>`;
+            document.querySelectorAll('.ql-editor')[0].innerHTML +=
+              `<img src="${file.blog_url}" alt="${file.filename}"/>`;
           }
         }
       } else {

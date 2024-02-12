@@ -25,7 +25,7 @@
       :no-options-text="placeholder"
       :classes="multiSelectClasses"
       v-bind="$attrs"
-      @update:modelValue="
+      @update:model-value="
         (v) => {
           onInput(v);
         }
@@ -33,11 +33,38 @@
       @open="handleOpen"
     >
       <template #singlelabel="{ value }">
-        <slot name="selected-option" :option="value" />
+        <slot name="selected-option" :option="value">
+          <template v-if="label === 'name_t'">
+            <span :class="multiSelectClasses.singleLabel">{{
+              $t(value[label])
+            }}</span>
+          </template>
+        </slot>
+      </template>
+
+      <template #tag="{ option, handleTagRemove, disabled: dis }">
+        <slot name="tag" :option="option">
+          <template v-if="label === 'name_t'">
+            <span :class="multiSelectClasses.tag" tabindex="-1"
+              ><span class="multiselect-tag-wrapper">{{
+                $t(option[label])
+              }}</span
+              ><span
+                v-if="!dis"
+                class="multiselect-tag-remove"
+                @click="handleTagRemove(option, $event)"
+                ><span class="multiselect-tag-remove-icon"></span></span
+            ></span>
+          </template>
+        </slot>
       </template>
 
       <template #option="{ option }">
-        <slot name="option" :option="option" />
+        <slot name="option" :option="option">
+          <template v-if="label === 'name_t'">
+            <span>{{ $t(option[label]) }}</span>
+          </template>
+        </slot>
       </template>
 
       <template #beforelist>
@@ -213,6 +240,8 @@ export default defineComponent({
         optionPointed: 'text-gray-800 bg-crisiscleanup-dark-100',
         optionSelectedPointed:
           'text-white bg-crisiscleanup-dark-200 opacity-90',
+        singleLabel:
+          'flex items-center h-full max-w-full absolute left-0 top-0 pointer-events-none bg-transparent leading-snug pl-3.5 pr-16 box-border rtl:left-auto rtl:right-0 rtl:pl-0 rtl:pr-3.5',
         tag: 'text-xs bg-white py-0.5 pl-2 rounded mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1 border border-crisiscleanup-dark-100',
       };
     });

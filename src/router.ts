@@ -41,6 +41,9 @@ const Location = () => import('@/pages/Location.vue');
 const Profile = () => import('@/pages/Profile.vue');
 const Downloads = () => import('@/pages/Downloads.vue');
 
+const Lists = () => import('@/pages/lists/Lists.vue');
+const List = () => import('@/pages/lists/List.vue');
+
 const routes = [
   {
     path: '/',
@@ -64,6 +67,18 @@ const routes = [
     path: '/profile',
     component: Profile,
     name: 'nav.profile',
+    meta: { layout: 'authenticated' },
+  },
+  {
+    path: '/lists',
+    component: Lists,
+    name: 'nav.lists',
+    meta: { layout: 'authenticated' },
+  },
+  {
+    path: '/lists/:id',
+    component: List,
+    name: 'nav.list',
     meta: { layout: 'authenticated' },
   },
   {

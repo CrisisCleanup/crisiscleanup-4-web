@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import Filter from './Filter';
 
 export default class WorksiteMyTeamFilter extends Filter {
@@ -25,7 +25,7 @@ export default class WorksiteMyTeamFilter extends Filter {
     }
 
     return {
-      my_team: useI18n().t('worksiteFilters.my_team'),
+      my_team: i18n.global.t('worksiteFilters.my_team'),
     };
   }
 

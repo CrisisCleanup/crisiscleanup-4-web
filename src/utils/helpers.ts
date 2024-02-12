@@ -1,6 +1,12 @@
-import { useI18n } from 'vue-i18n';
 import { i18n } from '@/modules/i18n';
 import { MD5 } from 'crypto-js';
+import { store } from '@/store';
+import type { Portal } from '@/models/types';
+import _ from 'lodash';
+import type { CamelCasedPropertiesDeep } from 'type-fest';
+import defu from 'defu';
+import type { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestTransformer } from 'axios';
 
 /**
  * Convert rem to pixels.
@@ -45,21 +51,23 @@ export function numeral(
   value: number,
   type: string | undefined = undefined,
 ): string {
-  let formatter = new Intl.NumberFormat('en-US', {
+  const portal = store.getters['enums/portal'] as Portal;
+  const locale = portal?.default_language || 'en-US';
+  let formatter = new Intl.NumberFormat(locale, {
     maximumFractionDigits: 1,
     minimumFractionDigits: 0,
   });
   if (type === 'currency') {
-    formatter = new Intl.NumberFormat('en-US', {
+    formatter = new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: 'USD',
+      currency: portal?.default_currency || 'USD',
       maximumFractionDigits: 0,
       minimumFractionDigits: 0,
     });
   }
 
   if (type === 'percentage') {
-    formatter = new Intl.NumberFormat('en-US', {
+    formatter = new Intl.NumberFormat(locale, {
       style: 'percent',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
@@ -90,3 +98,48 @@ export function isLandscape() {
     'only screen and (max-device-width: 1223px) and (orientation: landscape)',
   ).matches;
 }
+
+// source: https://github.com/Chalarangelo/30-seconds-of-code
+export const generateUUID = (): string =>
+  // eslint-disable-next-line unicorn/prefer-string-replace-all, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/restrict-plus-operands
+  ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+    (
+      c ^
+      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+    ).toString(16),
+  );
+
+/**
+ * Recursively convert object|array|string to camel case.
+ * @param object
+ */
+export const toCamelCase = <T>(object: T): CamelCasedPropertiesDeep<T> => {
+  if (_.isArray(object)) {
+    return object.map((item) => toCamelCase(item));
+  } else if (_.isObject(object)) {
+    return _.transform(object, (result, value, key) => {
+      result[_.camelCase(<string>key)] = toCamelCase(value);
+    });
+  }
+  return object;
+};
+
+export const createAxiosCasingTransform = (
+  options?: Partial<AxiosInstance | AxiosRequestConfig>,
+  instance?: AxiosInstance,
+): AxiosRequestConfig => {
+  const axiosInstance = instance ?? axios;
+  const baseOptions = Object.assign({}, axiosInstance.defaults);
+  const transformOptions: AxiosRequestConfig = {
+    baseURL: import.meta.env.VITE_APP_API_BASE_URL,
+    transformResponse: [
+      (data) =>
+        toCamelCase<string | object>(
+          typeof data === 'string' ? JSON.parse(data) : <object>data,
+        ),
+    ],
+  };
+  const axiosOptions = defu(baseOptions, transformOptions, options);
+  console.log(axiosOptions);
+  return axiosOptions as AxiosRequestConfig;
+};

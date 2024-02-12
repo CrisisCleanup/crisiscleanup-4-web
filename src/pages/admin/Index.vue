@@ -6,36 +6,40 @@
 import { reactive, ref, watch, onMounted } from 'vue';
 import PageTabBar from '../../layouts/page/PageTabBar.vue';
 import useAcl from '@/hooks/useAcl';
+import type { Tab } from '@/hooks/useTabs';
 
 export default defineComponent({
   name: 'AdminPage',
   components: { PageTabBar },
   setup() {
-    const tabs = reactive([
-      reactive({
+    const tabs = reactive<Tab[]>([
+      {
         key: 'nav.admin_dashboard',
-      }),
+      },
       // reactive({
       //   key: 'nav.admin_events',
       // }),
-      reactive({
+      {
         key: 'nav.admin_event_stream',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.admin_tickets',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.bugs',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.cms',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.incident_wizard',
-      }),
-      reactive({
+      },
+      {
         key: 'nav.localizations',
-      }),
+      },
+      {
+        key: 'nav.rag',
+      },
     ]);
 
     const ccuApi = useApi();

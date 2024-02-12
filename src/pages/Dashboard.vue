@@ -501,7 +501,7 @@ import Table from '../components/Table.vue';
 import WorksiteStatusDropdown from '../components/WorksiteStatusDropdown.vue';
 import UserTransferRequestTable from '../components/UserTransferRequestTable.vue';
 import RedeployRequest from '../components/modals/RedeployRequest.vue';
-import InviteUsers from '../components/modals/InviteUsers.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
 import useDialogs from '../hooks/useDialogs';
 import ReportWidget from '@/components/reports/ReportWidget.vue';
 import { transformWidgetData } from '@/utils/reports';
@@ -1045,13 +1045,7 @@ export default defineComponent({
     );
 
     onMounted(async () => {
-      if (currentIncidentId.value && !route.params.incident_id) {
-        await router.replace(`/incident/${currentIncidentId.value}/dashboard`);
-      }
-
-      loading.value = true;
       await reloadDashBoard();
-      loading.value = false;
     });
 
     return {

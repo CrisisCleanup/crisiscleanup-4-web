@@ -1,9 +1,9 @@
-import { useAuthStore } from '@/hooks';
+import { useAuthStore } from '@/hooks/useAuth';
 
-export function useWebSockets(
+export function useWebSockets<MessageT extends Record<string, any>>(
   url: string,
   name: string,
-  cb: (data: Record<string, any>) => object,
+  cb: (data: MessageT) => object | void,
 ) {
   const endpoint = import.meta.env.VITE_APP_API_BASE_URL.replace('http', 'ws');
   let socket: WebSocket | undefined;

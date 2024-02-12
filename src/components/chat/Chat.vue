@@ -315,7 +315,7 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      const { socket: s, send } = useWebSockets(
+      const { socket: s, send } = useWebSockets<Message>(
         `/ws/chat/${props.chat.id}`,
         'chat',
         (data: Message) => {

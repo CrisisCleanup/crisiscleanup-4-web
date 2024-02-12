@@ -5,14 +5,18 @@
     :url="tableUrl"
     :body-style="{ height: mq.mdMinus ? '40vh' : '24rem' }"
     class="shadow-lg"
-    :query="worksiteQuery"
+    :query="{
+      ...worksiteQuery,
+      fields:
+        'id,case_number,name,address,city,state,postal_code,county,work_types',
+    }"
     enable-selection
-    @rowClick="
+    @row-click="
       (worksite) => {
         $emit('rowClick', worksite);
       }
     "
-    @selectionChanged="(payload) => $emit('selectionChanged', payload)"
+    @selection-changed="(payload) => $emit('selectionChanged', payload)"
   >
     <template #work_types="slotProps">
       <div class="flex flex-col" data-testid="testWorksiteTableDiv">

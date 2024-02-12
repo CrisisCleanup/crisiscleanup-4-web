@@ -218,7 +218,7 @@ import moment from 'moment';
 import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import InviteUsers from './InviteUsers.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
 import Table from '@/components/Table.vue';
 import type { TableSorterObject } from '@/components/Table.vue';
 import InvitationRequest from '@/models/InvitationRequest';

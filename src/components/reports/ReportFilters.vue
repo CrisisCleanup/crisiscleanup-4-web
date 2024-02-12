@@ -193,7 +193,7 @@ export default defineComponent({
     const onLocationSearch = async (value: string) => {
       const params = {
         type__key__in:
-          'boundary_political_us_county,boundary_political_us_state,boundary_political_us_city,boundary_political_us_zip_code,boundary_political_us_fema_region',
+          'boundary_political_home_local_division,boundary_political_home_primary_division,boundary_political_home_city,boundary_political_home_postal_code,boundary_political_home_disaster_region',
         incident_area: currentIncidentId.value,
         limit: 10,
         sort: 'name',

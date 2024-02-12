@@ -1,4 +1,4 @@
-import { useI18n } from 'vue-i18n';
+import { i18n } from '@/modules/i18n';
 import User from '../../models/User';
 import { store } from '../../store';
 import Filter from './Filter';
@@ -47,11 +47,13 @@ export default class UserLocationsFilter extends Filter {
     })) {
       labels[key] = `Location: ${key}`;
       if (key === 'organization_primary_location') {
-        labels[key] = useI18n().t('worksiteFilters.in_primary_response_area');
+        labels[key] = i18n.global.t('worksiteFilters.in_primary_response_area');
       }
 
       if (key === 'organization_secondary_location') {
-        labels[key] = useI18n().t('worksiteFilters.in_secondary_response_area');
+        labels[key] = i18n.global.t(
+          'worksiteFilters.in_secondary_response_area',
+        );
       }
     }
 

@@ -37,8 +37,8 @@
     </div>
 
     <Table
-      :columns="columns"
       ref="table"
+      :columns="columns"
       :data="organizations.data"
       :body-style="{ height: '300px' }"
       data-testid="testOrganizationsDataTable"

@@ -27,15 +27,16 @@
               :key="savedIncident"
               :incident="savedIncident"
               :ani-incidents="savedAniIncidents"
-              @onIncidentChange="currentIncident = $event"
-              @onAniChange="currentAni = $event"
-              @onDeleteAniIncident="deleteAniIncident"
+              @on-incident-change="currentIncident = $event"
+              @on-ani-change="currentAni = $event"
+              @on-delete-ani-incident="deleteAniIncident"
             />
           </Card>
           <IncidentLocationEditor
             :key="currentIncidentLocation"
             :location="currentIncidentLocation"
-            @onLocationChange="currentLocation = $event"
+            :current-incident="currentIncident"
+            @on-location-change="currentLocation = $event"
           />
         </div>
       </Step>
@@ -46,7 +47,7 @@
         <IncidentFormBuilder
           :key="savedIncident"
           :incident="savedIncident"
-          @onUpdateForm="formFieldTree = $event"
+          @on-update-form="formFieldTree = $event"
         />
       </Step>
       <Step :name="$t('incidentBuilder.assets')">

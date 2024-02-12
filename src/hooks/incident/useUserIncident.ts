@@ -40,7 +40,7 @@ export const useUserIncident = (
 
   /**
    * Set user states incident id
-   * @param newIncidentId new incident id to set in user states.
+   * @param newIncidentId new incident id to s pet in user states.
    */
   const updateUserIncident = (newIncidentId: number) => {
     debug('Updating incident id in user state -> %s', newIncidentId);
@@ -56,7 +56,10 @@ export const useUserIncident = (
         incidentStates: incidentFromStates.value,
         incidentId: incidentId.value,
       });
-      await updateUserIncident(newValue).catch(getErrorMessage);
+      // update user states if new incident id is defined and does not match incident id from states.
+      if (newValue) {
+        await updateUserIncident(newValue).catch(getErrorMessage);
+      }
     },
     { immediate: true },
   );
