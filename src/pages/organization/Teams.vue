@@ -7,25 +7,33 @@
         icon="search"
         class="w-84 mr-4 mb-6"
         :placeholder="$t('actions.search')"
-        @update:modelValue="onSearch"
+        @update:model-value="onSearch"
       ></base-input>
     </div>
     <div style="display: grid; grid-template-columns: 0.75fr 2fr" class="h-120">
       <div class="border bg-white">
-        <div class="flex items-center justify-between px-2 py-3">
-          <span>{{ $t('teams.team_management') }}</span>
-          <base-button
-            :text="$t('teams.create_new_team')"
-            :alt="$t('teams.create_new_team')"
-            data-testid="testTeamCreateBtn"
-            variant="solid"
-            size="small"
-            :action="
-              () => {
-                creatingTeam = true;
-              }
-            "
-          />
+        <div class="px-2 py-3">
+          <div>{{ $t('teams.team_management') }}</div>
+          <div class="flex items-center">
+            <base-button
+              :text="$t('teams.create_new_team')"
+              :alt="$t('teams.create_new_team')"
+              data-testid="testTeamCreateBtn"
+              variant="solid"
+              :action="
+                () => {
+                  creatingTeam = true;
+                }
+              "
+              class="p-1"
+            />
+            <ListDropdown
+              :selected-table-items="selectedTeams"
+              :incident="currentIncidentId"
+              model-type="organization_organizations_incidents_teams"
+              :title="$t('~~Team Lists')"
+            />
+          </div>
         </div>
         <div
           style="
@@ -39,7 +47,7 @@
           <div
             v-for="team in teams"
             :key="`${team.id}`"
-            class="h-full px-4 pt-2 pb-6 hover:bg-crisiscleanup-light-grey cursor-pointer"
+            class="h-full p-4 hover:bg-crisiscleanup-light-grey cursor-pointer"
             :class="
               String(team.id) === String($route.params.team_id)
                 ? 'bg-crisiscleanup-light-grey'
@@ -51,27 +59,44 @@
               }
             "
           >
-            <div class="flex justify-between items-center">
-              <base-text>{{ team.name }}</base-text>
-              <base-text
-                >{{ getAssignedWorkTypes(team)?.length }}
-                {{ $t('teams.cases_assigned') }}
-              </base-text>
-            </div>
-            <div>
-              {{ getCaseCompletion(team) }} {{ $t('teams.cases_completed') }}
-            </div>
-            <div class="mt-2 grid users-avatars-list">
-              <template v-for="user in team.users.map((u) => getUser(u))">
-                <Avatar
-                  v-if="user"
-                  :key="`${user.id}`"
-                  :initials="user.first_name"
-                  :url="user.profilePictureUrl"
-                  class="mr-2"
-                  size="xsmall"
-                />
-              </template>
+            <div class="flex items-center">
+              <base-checkbox
+                :model-value="selectedTeams.includes(team.id)"
+                @update:model-value="toggleTeamSelection(team.id)"
+              >
+              </base-checkbox>
+
+              <div class="w-full">
+                <div class="flex justify-between items-center w-full">
+                  <base-text>{{ team.name }}</base-text>
+                  <base-text
+                    >{{ getAssignedWorkTypes(team)?.length }}
+                    {{ $t('teams.cases_assigned') }}
+                  </base-text>
+                </div>
+                <div>
+                  {{ getCaseCompletion(team) }}
+                  {{ $t('teams.cases_completed') }}
+                </div>
+                <div
+                  v-if="team.users.length > 0"
+                  class="mt-2 grid users-avatars-list"
+                >
+                  <template v-for="user in team.users.map((u) => getUser(u))">
+                    <Avatar
+                      v-if="user"
+                      :key="`${user.id}`"
+                      :initials="user.first_name"
+                      :url="user.profilePictureUrl"
+                      class="mr-2"
+                      size="xsmall"
+                    />
+                  </template>
+                </div>
+                <div v-else class="py-2">
+                  {{ $t('~~No Team Members') }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -79,7 +104,7 @@
       <div class="h-full">
         <div class="h-full flex flex-col bg-white shadow">
           <router-view
-            v-show="teams && teams.length > 0"
+            v-if="teams && teams.length > 0"
             :key="$route.params.team_id"
             :work-types="claimedWorktypes"
             :users="usersWithoutTeams"
@@ -109,10 +134,12 @@ import Avatar from '@/components/Avatar.vue';
 import { getQueryString } from '@/utils/urls';
 import enums from '@/store/modules/enums';
 import { useCurrentUser } from '@/hooks';
+import BaseCheckbox from '@/components/BaseCheckbox.vue';
+import ListDropdown from '@/pages/lists/ListDropdown.vue';
 
 export default defineComponent({
   name: 'Teams',
-  components: { CreateTeamModal, Avatar },
+  components: { ListDropdown, BaseCheckbox, CreateTeamModal, Avatar },
   setup() {
     const store = useStore();
     const currentSearch = ref('');
@@ -120,6 +147,7 @@ export default defineComponent({
     const users = ref<User[]>([]);
     const usersWithoutTeams = ref<User[]>([]);
     const teams = ref<Team[]>([]);
+    const selectedTeams = ref([]);
 
     const { currentUser } = useCurrentUser();
     const currentIncidentId = computed(
@@ -218,13 +246,13 @@ export default defineComponent({
 
     const getData = async () => {
       const results = await User.api().get(
-        `/users?organization=${currentUser.value.organization.id}&limit=500`,
+        `/users?organization=${currentUser.value.organization.id}&limit=500&fields=id,first_name,last_name,files,email,mobile`,
         {
           dataKey: 'results',
         },
       );
       const usersWithoutTeamsResults = await User.api().get(
-        `/users?organization=${currentUser.value.organization.id}&no_team_incident=${currentIncidentId.value}&limit=500`,
+        `/users?organization=${currentUser.value.organization.id}&no_team_incident=${currentIncidentId.value}&limit=500&fields=id,first_name,last_name,files,email,mobile`,
         {
           dataKey: 'results',
         },
@@ -238,6 +266,11 @@ export default defineComponent({
 
     const onSearch = async () => {
       await getTeams();
+    };
+    const toggleTeamSelection = (id: number) => {
+      selectedTeams.value = selectedTeams.value.includes(id)
+        ? selectedTeams.value.filter((t) => t !== id)
+        : [...selectedTeams.value, id];
     };
 
     watch(currentIncidentId, (newState, oldState) => {
@@ -264,6 +297,9 @@ export default defineComponent({
       teams,
       currentUser,
       claimedWorktypes,
+      selectedTeams,
+      toggleTeamSelection,
+      currentIncidentId,
     };
   },
 });

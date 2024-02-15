@@ -90,8 +90,7 @@ export default class User extends CCUModel {
         return profilePictures[0].large_thumbnail_url;
       }
     }
-
-    return `https://avatars.dicebear.com/api/bottts/${this.full_name}.svg`;
+    return `https://api.dicebear.com/7.x/bottts/svg?seed=${this.first_name}`;
   }
 
   get currentRole() {

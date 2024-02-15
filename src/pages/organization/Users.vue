@@ -326,7 +326,15 @@
               </template>
             </v-popover>
           </div>
-          <InviteUsers />
+
+          <div class="flex items-center text-sm gap-2">
+            <ListDropdown
+              :selected-table-items="selectedUsers"
+              model-type="user_users"
+              :title="$t('~~User Lists')"
+            />
+            <InviteUsers />
+          </div>
         </div>
         <div class="user-grid">
           <div class="sm:w-96 w-full flex flex-col h-full">
@@ -337,6 +345,13 @@
               :columns="columns"
               :loading="usersLoading"
               hide-header
+              enable-selection
+              :body-style="{ height: '70vh' }"
+              @selection-changed="
+                (selectedItems) => {
+                  selectedUsers = Array.from(selectedItems);
+                }
+              "
               @row-click="
                 (user) => {
                   $router.push(`/organization/users/${user.id}`);
@@ -417,10 +432,20 @@ import Modal from '@/components/Modal.vue';
 import UserEditModal from '@/pages/organization/UserEditModal.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { useCurrentUser } from '@/hooks';
+import AjaxTable from '@/components/AjaxTable.vue';
+import ListDropdown from '@/pages/lists/ListDropdown.vue';
 
 export default defineComponent({
   name: 'Users',
-  components: { UserEditModal, Modal, InviteUsers, Table, UserSearchInput },
+  components: {
+    ListDropdown,
+    AjaxTable,
+    UserEditModal,
+    Modal,
+    InviteUsers,
+    Table,
+    UserSearchInput,
+  },
   setup(props) {
     const store = useStore();
     const mq = useMq();
@@ -436,6 +461,7 @@ export default defineComponent({
     });
     const usersLoading = ref(false);
     const users = ref<unknown[]>([]);
+    const selectedUsers = ref<number[]>([]);
     const columns = ref([
       {
         title: '',
@@ -552,6 +578,7 @@ export default defineComponent({
       showUserFilterModal,
       selectedUser,
       saveUser,
+      selectedUsers,
     };
   },
 });

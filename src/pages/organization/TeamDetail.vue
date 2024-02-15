@@ -1,10 +1,7 @@
 <template>
   <div class="bg-white h-full h-84">
     <div class="flex justify-between">
-      <div
-        v-if="team"
-        class="font-semibold flex justify-between items-center h-12 px-3"
-      >
+      <div class="font-semibold flex justify-between items-center h-12 px-3">
         {{ team.name }}
       </div>
       <div class="flex flex-wrap items-center justify-end">
@@ -37,9 +34,13 @@
         />
       </div>
     </div>
-    <tabs ref="tabs" class="w-full">
+    <tabs
+      v-if="team && allTeamUsers && assignedWorksites"
+      ref="tabs"
+      class="w-full"
+    >
       <tab :name="`${$t('teams.manage_users')} (${allTeamUsers?.length})`">
-        <div class="flex items-center justify-between py-2">
+        <div class="flex items-center justify-between p-2">
           <base-button
             class="my-1 text-primary-dark"
             data-testid="testAddMembersButton"
@@ -101,7 +102,7 @@
             data-testid="testAllTeamUsersTable"
             enable-selection
             :body-style="{ height: '300px' }"
-            @selectionChanged="
+            @selection-changed="
               (selectedItems) => {
                 selectedUsers = Array.from(selectedItems);
               }
@@ -140,8 +141,12 @@
               </span>
             </template>
             <template #actions="slotProps">
-              <div style="margin-top: 2px" class="flex justify-end">
-                <v-popover placement="bottom-end" :triggers="['click']">
+              <div style="margin-top: 2px" class="flex justify-end p-1">
+                <v-popover
+                  placement="bottom-end"
+                  :triggers="['click']"
+                  popper-class="user-details-team-popover"
+                >
                   <ccu-icon
                     :alt="$t('teams.settings')"
                     data-testid="testTeamsSettingsIcon"
@@ -150,16 +155,17 @@
                   />
                   <template #popper>
                     <ul
-                      class="overflow-auto w-40"
+                      class="overflow-auto w-56"
                       data-testid="testTeamsEmailsDiv"
                     >
                       <li
-                        class="py-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
+                        class="p-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
                         data-testid="testSendUserEmailLink"
                       >
                         <font-awesome-icon
                           icon="envelope"
                           :alt="$t('actions.email')"
+                          class="mr-1"
                         >
                         </font-awesome-icon>
                         <a :href="`mailto:${slotProps.item.email}`">{{
@@ -167,17 +173,21 @@
                         }}</a>
                       </li>
                       <li
-                        class="py-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
+                        class="p-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
                         data-testid="testEditUserProfileLink"
                       >
-                        <font-awesome-icon icon="user" :alt="$t('nav.profile')">
+                        <font-awesome-icon
+                          icon="user"
+                          :alt="$t('nav.profile')"
+                          class="mr-1"
+                        >
                         </font-awesome-icon>
                         <a :href="`/organization/users/${slotProps.item.id}`">
                           {{ $t('teams.view_full_profile') }}
                         </a>
                       </li>
                       <li
-                        class="py-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
+                        class="p-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
                         data-testid="testMoveToAnotherTeamLink"
                         @click="
                           () => {
@@ -185,12 +195,16 @@
                           }
                         "
                       >
-                        <font-awesome-icon icon="pen" :alt="$t('actions.edit')">
+                        <font-awesome-icon
+                          icon="pen"
+                          :alt="$t('actions.edit')"
+                          class="mr-1"
+                        >
                         </font-awesome-icon>
                         {{ $t('teams.move_to_another_team') }}
                       </li>
                       <li
-                        class="py-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
+                        class="p-2 cursor-pointer hover:bg-crisiscleanup-light-grey"
                         data-testid="testRemoveFromTeamLink"
                         @click="
                           () => {
@@ -201,6 +215,7 @@
                         <font-awesome-icon
                           icon="trash"
                           :alt="$t('actions.delete')"
+                          class="mr-1"
                         >
                         </font-awesome-icon>
                         {{ $t('teams.remove_from_team') }}
@@ -214,7 +229,7 @@
         </div>
       </tab>
       <tab :name="`${$t('teams.manage_cases')} (${assignedWorksites?.length})`">
-        <div class="flex items-center justify-between py-2">
+        <div class="flex items-center justify-between p-2">
           <base-button
             class="my-1 text-primary-dark"
             data-testid="testAssignedClaimedCasesPlusButton"
@@ -308,7 +323,7 @@
             :body-style="{ height: '300px' }"
             :data="assignedWorksites"
             enable-selection
-            @selectionChanged="
+            @selection-changed="
               (selectedItems) => {
                 selectedWorksites = Array.from(selectedItems);
               }
@@ -418,14 +433,23 @@
         <div class="py-2">
           {{ $t('teams.choose_members') }}
         </div>
-        <base-input
-          v-model="currentUserSearch"
-          data-testid="testChooseMembersSearch"
-          icon="search"
-          class="w-64 mr-4 mb-6"
-          :placeholder="$t('actions.search')"
-          @update:modelValue="onUserSearch"
-        ></base-input>
+        <div class="flex items-center justify-between mb-6">
+          <base-input
+            v-model="currentUserSearch"
+            data-testid="testChooseMembersSearch"
+            icon="search"
+            class="w-64"
+            :placeholder="$t('actions.search')"
+            @update:model-value="onUserSearch"
+          ></base-input>
+
+          <AddFromList
+            model-type="user_users"
+            :title="$t('~~Add From User List')"
+            :incident="currentIncidentId"
+            @add-from-list="addUsersFromList"
+          />
+        </div>
 
         <div class="h-64 overflow-auto">
           <div
@@ -439,7 +463,7 @@
             <base-checkbox
               :model-value="usersToAdd.includes(user.id)"
               :data-testid="`testSelectUser${user.id}Checkbox`"
-              @update:modelValue="
+              @update:model-value="
                 (value) => {
                   if (value) {
                     usersToAdd.push(user.id);
@@ -529,7 +553,7 @@
             >
               <base-checkbox
                 :data-testid="`testAssignableWorksite${worksite.id}Checkbox`"
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     const ids = worksite.work_types
                       .filter(
@@ -620,10 +644,9 @@
 
 <script lang="ts">
 import * as L from 'leaflet';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useToast } from 'vue-toastification';
 import type { PropType } from 'vue';
-import { GeoJSONObject } from '@turf/turf';
 import { getErrorMessage } from '@/utils/errors';
 import Team from '@/models/Team';
 import Worksite from '@/models/Worksite';
@@ -635,10 +658,19 @@ import Table from '@/components/Table.vue';
 import useDialogs from '@/hooks/useDialogs';
 import User from '@/models/User';
 import { useCurrentUser } from '@/hooks';
+import AddFromList from '@/pages/lists/AddFromList.vue';
+import ListDropdown from '@/pages/lists/ListDropdown.vue';
 
 export default defineComponent({
   name: 'TeamDetail',
-  components: { Table, WorksiteStatusDropdown, Avatar, WorkTypeMap },
+  components: {
+    ListDropdown,
+    AddFromList,
+    Table,
+    WorksiteStatusDropdown,
+    Avatar,
+    WorkTypeMap,
+  },
   props: {
     workTypes: {
       type: Array as PropType<Record<string, any>[]>,
@@ -802,6 +834,7 @@ export default defineComponent({
       await updateCurrentTeam();
       usersToAdd.value = [];
       showAddMembersModal.value = false;
+      ctx.emit('reload');
     };
 
     const updateNotes = (value: string) => {
@@ -814,7 +847,14 @@ export default defineComponent({
     };
 
     const updateCurrentTeam = async () => {
-      await Team.api().patch(`/teams/${team.value?.id}`, team.value?.$toJson());
+      const result = await Team.api().patch(
+        `/teams/${team.value?.id}`,
+        team.value?.$toJson(),
+      );
+      if (result.response instanceof AxiosError) {
+        return $toasted.error(getErrorMessage(result.response));
+      }
+      return $toasted.success(t('~~Team Updated'));
     };
 
     const updateTeam = async (
@@ -830,6 +870,11 @@ export default defineComponent({
         response: { data },
       } = await Worksite.api().get(`/worksites/${id}`);
       return data;
+    };
+
+    const addUsersFromList = async (userIds) => {
+      usersToAdd.value = [...new Set([...usersToAdd.value, ...userIds])];
+      await addUsers();
     };
 
     const addCases = async () => {
@@ -1071,6 +1116,7 @@ export default defineComponent({
       showOnMap,
       statusValueChange,
       showAllOnMap,
+      addUsersFromList,
     };
   },
 });
