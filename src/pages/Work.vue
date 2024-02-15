@@ -690,6 +690,7 @@
                 :selected-table-items="selectedTableItems"
                 model-type="worksite_worksites"
                 :title="$t('~~Work Lists')"
+                :incident="currentIncidentId"
               />
               <base-button
                 class="ml-3 my-3 border p-1 px-4 bg-white"

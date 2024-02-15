@@ -69,7 +69,7 @@
       <img
         :src="
           message.profile_picture_file ||
-          `https://avatars.dicebear.com/api/bottts/${message.full_name}.svg`
+          `https://api.dicebear.com/7.x/bottts/svg?seed=${message.full_name}`
         "
         :alt="message.full_name"
         :title="message.full_name"

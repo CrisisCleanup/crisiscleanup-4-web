@@ -3,7 +3,7 @@
     <base-checkbox
       :model-value="selectedUsers.includes(data.id)"
       :data-testid="`testAddRemoveUser${data.id}Checkbox`"
-      @update:modelValue="
+      @update:model-value="
         (value) => {
           if (value) {
             $emit('addUser', data.id);
@@ -32,7 +32,7 @@
         :model-value="
           children.every((child) => selectedUsers.includes(child.id))
         "
-        @update:modelValue="
+        @update:model-value="
           (value) => {
             if (value) {
               $emit('addUserTree', data.id);
@@ -52,10 +52,10 @@
         :indent="indent + 1"
         :data="child"
         :selected-users="selectedUsers"
-        @addUser="$emit('addUser', $event)"
-        @addUserTree="$emit('addUserTree', $event)"
-        @removeUser="$emit('removeUser', $event)"
-        @removeUserTree="$emit('removeUserTree', $event)"
+        @add-user="$emit('addUser', $event)"
+        @add-user-tree="$emit('addUserTree', $event)"
+        @remove-user="$emit('removeUser', $event)"
+        @remove-user-tree="$emit('removeUserTree', $event)"
       >
       </tree-menu>
     </li>
@@ -80,7 +80,7 @@ export default defineComponent({
         }
       }
 
-      return `https://avatars.dicebear.com/api/bottts/${props.data.first_name}.svg`;
+      return `https://api.dicebear.com/7.x/bottts/svg?seed=${props.data.first_name}`;
     });
   },
 });

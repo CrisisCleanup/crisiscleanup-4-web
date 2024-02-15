@@ -195,7 +195,7 @@ const profilePictureUrl = computed(() => {
     }
   }
 
-  return `https://avatars.dicebear.com/api/bottts/${ccUser.value.first_name}.svg`;
+  return `https://api.dicebear.com/7.x/bottts/svg?seed=${ccUser.value.first_name}`;
 });
 const submittedFrom = computed(() => {
   const _separator = 'Submitted from:';
