@@ -165,7 +165,7 @@
             }"
             @click="currentSection = 'lists'"
           >
-            {{ $t('~~Lists') }}
+            {{ $t('list.lists') }}
             <span
               v-if="listsCount > 0"
               class="rounded-full px-1 bg-black text-white text-xs"
@@ -557,7 +557,7 @@
           <div v-if="currentSection === 'lists'" class="flex flex-col">
             <div class="status-group mb-2">
               <div class="my-1 text-base">
-                {{ $t('~~Lists') }}
+                {{ $t('list.lists') }}
               </div>
               <div class="grid grid-cols-3 grid-col-flow gap-3 p-3">
                 <template v-for="list in lists" :key="list.id">
@@ -591,7 +591,7 @@
                         }
                       }
                     "
-                    :text="$t('~~Subtract')"
+                    :text="$t('actions.subtract')"
                   />
                   <base-button
                     :class="[
@@ -622,7 +622,7 @@
                         }
                       }
                     "
-                    :text="$t('~~Add')"
+                    :text="$t('actions.add')"
                   />
                 </template>
               </div>

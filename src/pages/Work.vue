@@ -446,13 +446,13 @@
           </div>
           <div v-if="filterLabels.length > 0" class="mx-4">
             <div class="flex gap-3">
-              <span class="font-bold">{{ $t('~~Current Filters') }}</span>
+              <span class="font-bold">{{ $t('casesVue.current_filters') }}</span>
               <base-button
                 class="underline"
                 type="link"
                 :action="() => (filters = {})"
               >
-                {{ $t('~~Clear All') }}
+                {{ $t('actions.clear_all') }}
               </base-button>
             </div>
             <div class="applied-filters flex flex-wrap justify-start gap-2">
@@ -689,7 +689,7 @@
               <ListDropdown
                 :selected-table-items="selectedTableItems"
                 model-type="worksite_worksites"
-                :title="$t('~~Work Lists')"
+                :title="$t('list.worksite_lists')"
                 :incident="currentIncidentId"
               />
               <base-button
