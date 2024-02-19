@@ -7,6 +7,7 @@ import { reactive, ref, watch, onMounted } from 'vue';
 import PageTabBar from '../../layouts/page/PageTabBar.vue';
 import useAcl from '@/hooks/useAcl';
 import type { Tab } from '@/hooks/useTabs';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'AdminPage',
@@ -47,8 +48,13 @@ export default defineComponent({
 
     const bugReportsData = ref({ count: 0 });
     const ticketCountData = ref({ count: 0 });
+    const { currentUser } = useCurrentUser();
+    const router = useRouter();
 
     onMounted(async () => {
+      if (!currentUser.value?.isAdmin) {
+        return router.push('/dashboard');
+      }
       if (!$can('development_mode')) {
         const bugsData = await ccuApi('/bug_reports', {
           method: 'GET',
