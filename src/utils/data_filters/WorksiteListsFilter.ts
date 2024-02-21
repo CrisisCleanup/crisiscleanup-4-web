@@ -27,11 +27,11 @@ export default class WorksiteListsFilter extends Filter {
   getFilterLabels() {
     const labels = {} as Record<string, string>;
     for (const list of this.data.include_lists) {
-      labels[list.id] = `${i18n.global.t('~~List')}: ${list.name}`;
+      labels[list.id] = `${i18n.global.t('list.list')}: ${list.name}`;
     }
 
     for (const list of this.data.exclude_lists) {
-      labels[list.id] = `${i18n.global.t('~~-List')}: ${list.name}`;
+      labels[list.id] = `${i18n.global.t('list.minus_list')}: ${list.name}`;
     }
 
     return labels;

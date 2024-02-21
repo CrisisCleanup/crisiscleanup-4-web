@@ -13,14 +13,14 @@
         class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
         :action="() => createList(getLists)"
       >
-        {{ $t('~~Create New List') }}
+        {{ $t('actions.create_new') }}
       </base-button>
       <base-button
         :button-classes="{ 'justify-start': true, 'justify-center': false }"
         class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
         :action="() => updateLists(userLists, selectedTableItems, null, false)"
       >
-        {{ $t('~~Remove from all Lists') }}
+        {{ $t('actions.remove_from_all_lists') }}
       </base-button>
       <v-menu
         placement="right-start"
@@ -30,7 +30,7 @@
         <div
           class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light flex gap-1 items-center justify-between"
         >
-          {{ $t('~~Remove from List') }}
+          {{ $t('actions.remove_from_list') }}
           <ccu-icon size="xs" type="arrow-right" class="inline-block" />
         </div>
 
@@ -67,7 +67,7 @@
         <div
           class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light flex gap-1 items-center justify-between"
         >
-          {{ $t('~~Add to Existing List') }}
+          {{ $t('actions.add_to_list') }}
           <ccu-icon size="xs" type="arrow-right" class="inline-block" />
         </div>
 
@@ -105,7 +105,7 @@
         <div
           class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light flex gap-1 items-center justify-between"
         >
-          {{ $t('~~View List') }}
+          {{ $t('actions.view') }}
           <ccu-icon size="xs" type="arrow-right" class="inline-block" />
         </div>
 
@@ -130,7 +130,7 @@
                     {{ getUser(list.created_by).first_name }}
                   </span>
                   <span class="">
-                    {{ length(list.object_ids) }} {{ $t('~~items') }}
+                    {{ length(list.object_ids) }} {{ $t('list.items') }}
                   </span>
                 </div>
               </base-button>

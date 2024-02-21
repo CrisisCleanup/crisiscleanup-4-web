@@ -58,8 +58,8 @@
           <base-button
             data-testid="testUserprofilelistsLink"
             class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
-            :text="$t('~~Lists')"
-            :alt="$t('~~Lists')"
+            :text="$t('list.lists')"
+            :alt="$t('list.lists')"
             :action="
               () => {
                 $router.push(`/lists`);

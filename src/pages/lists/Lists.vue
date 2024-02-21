@@ -45,25 +45,25 @@ const addNewList = async () => {
 const getListCategory = (model) => {
   switch (model) {
     case 'worksite_worksites': {
-      return t('~~Worksite Lists');
+      return t('list.worksite_lists');
     }
     case 'user_users': {
-      return t('~~User Lists');
+      return t('list.user_lists');
     }
     case 'organization_organizations': {
-      return t('~~Organization Lists');
+      return t('list.organization_lists');
     }
     case 'incident_incidents': {
-      return t('~~Incident Lists');
+      return t('list.incident_lists');
     }
     case 'file_files': {
-      return t('~~File Lists');
+      return t('list.file_lists');
     }
     case 'list_lists': {
-      return t('~~List Lists');
+      return t('list.list_lists');
     }
     case 'organization_organizations_incidents_teams': {
-      return t('~~Teams Lists');
+      return t('list.team_lists');
     }
     default: {
       return 'Unknown';
@@ -74,25 +74,25 @@ const getListCategory = (model) => {
 const getListItemName = (model) => {
   switch (model) {
     case 'worksite_worksites': {
-      return t('~~Worksite');
+      return t('list.worksite');
     }
     case 'user_users': {
-      return t('~~User');
+      return t('list.user');
     }
     case 'organization_organizations': {
-      return t('~~Organization');
+      return t('list.organization');
     }
     case 'incident_incidents': {
-      return t('~~Incident');
+      return t('list.incident');
     }
     case 'file_files': {
-      return t('~~File');
+      return t('list.file');
     }
     case 'list_lists': {
-      return t('~~List');
+      return t('list.list');
     }
     case 'organization_organizations_incidents_teams': {
-      return t('~~Team');
+      return t('list.team');
     }
     default: {
       return 'Unknown';
@@ -138,10 +138,10 @@ onMounted(async () => {
   <div class="mx-auto p-3 rounded-lg">
     <div class="flex justify-end">
       <base-button variant="solid" class="p-1" :action="addNewList" icon="plus"
-        >{{ $t('~~Add New List') }}
+        >{{ $t('actions.new') }}
       </base-button>
     </div>
-    <base-text variant="h1" class="my-3">{{ $t('~~My Lists') }}</base-text>
+    <base-text variant="h1" class="my-3">{{ $t('list.my_lists') }}</base-text>
     <div v-for="model in Object.keys(groupedLists)" :key="model">
       <div class="text-xl font-bold mt-6">{{ getListCategory(model) }}</div>
       <div
@@ -157,25 +157,25 @@ onMounted(async () => {
           :action="() => printList(list.id)"
           class="w-20 bg-crisiscleanup-dark-100"
         >
-          {{ $t('~~Print') }}
+          {{ $t('actions.print') }}
         </base-button>
         <base-button
           :action="() => shareList(list.id)"
           class="w-20 bg-crisiscleanup-dark-100"
         >
-          {{ $t('~~Share') }}
+          {{ $t('actions.print') }}
         </base-button>
         <base-button
           :action="() => editList(list.id)"
           class="w-20 bg-crisiscleanup-dark-100"
         >
-          {{ $t('~~Edit') }}
+          {{ $t('actions.edit') }}
         </base-button>
         <base-button
           class="w-20 bg-crisiscleanup-dark-100"
           :action="() => deleteList(list.id)"
         >
-          {{ $t('~~Delete') }}
+          {{ $t('actions.delete') }}
         </base-button>
       </div>
     </div>

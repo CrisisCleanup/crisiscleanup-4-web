@@ -3,12 +3,12 @@
     <BaseInput
       v-model="newList.name"
       label="Name"
-      :placeholder="$t('~~Enter name')"
+      :placeholder="$t('list.name')"
     />
     <BaseInput
       v-model="newList.description"
       label="Description"
-      :placeholder="$t('~~Enter description')"
+      :placeholder="$t('list.description')"
       text-area
       :rows="4"
     />
@@ -17,12 +17,12 @@
       v-model="newList.model"
       :options="modelOptions"
       label="Model"
-      :placeholder="$t('~~Select List Type')"
+      :placeholder="$t('list.select_list_type')"
       :model-value="model"
       :disabled="model"
     />
 
-    {{ $t('~~Share With') }}
+    {{ $t('list.share_with') }}
     <base-radio
       v-for="(value, key) in sharedOptions"
       :key="key"
@@ -71,20 +71,20 @@ const newList = ref<NewList>({
 });
 
 const modelOptions = {
-  worksite_worksites: t('~~Work List'),
-  user_users: t('~~User List'),
-  organization_organizations: t('~~Organization List'),
-  incident_incidents: t('~~Incident List'),
-  file_files: t('~~Files List'),
-  organization_organizations_incidents_teams: t('~~Teams List'),
-  list_lists: t('~~List Lists'),
+  worksite_worksites: t('list.worksite_lists'),
+  user_users: t('list.user_lists'),
+  organization_organizations: t('list.organization_lists'),
+  incident_incidents: t('list.incident_lists'),
+  file_files: t('list.incident_list'),
+  organization_organizations_incidents_teams: t('list.team_lists'),
+  list_lists: t('list.list_lists'),
 };
 
 const sharedOptions = {
-  private: t('~~Only Me'),
-  public: t('~~Everyone'),
-  groups_affiliates: t('~~My Organization'),
-  team: t('~~My Team'),
+  private: t('list.private'),
+  public: t('list.public'),
+  groups_affiliates: t('list.groups_affiliates'),
+  team: t('list.my_team'),
 };
 
 // Emit new onNewList when any item in the list changes deep
