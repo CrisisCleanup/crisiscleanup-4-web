@@ -12,7 +12,8 @@ export default function useCreateList(onComplete: () => void, model: string) {
     organization_organizations: i18n.global.t('list.organization_lists'),
     incident_incidents: i18n.global.t('list.incident_lists'),
     file_files: i18n.global.t('list.file_lists'),
-    organization_organizations_incidents_teams: i18n.global.t('list.team_lists'),
+    organization_organizations_incidents_teams:
+      i18n.global.t('list.team_lists'),
     list_lists: i18n.global.t('list.list_lists'),
   };
 

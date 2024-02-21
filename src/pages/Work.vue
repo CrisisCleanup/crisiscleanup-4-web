@@ -446,7 +446,9 @@
           </div>
           <div v-if="filterLabels.length > 0" class="mx-4">
             <div class="flex gap-3">
-              <span class="font-bold">{{ $t('casesVue.current_filters') }}</span>
+              <span class="font-bold">{{
+                $t('casesVue.current_filters')
+              }}</span>
               <base-button
                 class="underline"
                 type="link"
