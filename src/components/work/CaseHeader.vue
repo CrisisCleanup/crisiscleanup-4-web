@@ -300,12 +300,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
-.svg-container svg {
-  width: 18px !important;
-  height: 18px !important;
-}
-
+<style lang="postcss" scoped>
 .hover-bg-primary-light:hover {
   background-color: #ffdd3a;
 }
@@ -319,21 +314,6 @@ export default defineComponent({
   cursor: not-allowed; /* Change the cursor to "not allowed" */
   opacity: 0.2; /* Reduce opacity to indicate the element is disabled */
   pointer-events: none; /* Prevent any interactions with the element */
-}
-
-.pulse {
-  animation: pulse-animation 2s infinite;
-}
-@keyframes pulse-animation {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-  100% {
-    opacity: 1;
-  }
 }
 
 .add-list-popover {
