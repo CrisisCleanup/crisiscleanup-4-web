@@ -168,4 +168,25 @@ $dp__input_padding: 11px 12px !default;
   width: 40px;
   height: 40px;
 }
+
+.svg-container svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.pulse {
+  animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 </style>
