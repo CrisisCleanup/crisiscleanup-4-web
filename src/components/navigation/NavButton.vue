@@ -60,10 +60,6 @@ export default defineComponent({
     const isActive = computed(() => {
       const routeName = route.name as string;
       const propRouteName = (props.route?.name ?? '') as string;
-      console.info('Route info', {
-        routeName,
-        propRouteName,
-      });
       return routeName?.toLowerCase().includes(propRouteName.toLowerCase());
     });
 
