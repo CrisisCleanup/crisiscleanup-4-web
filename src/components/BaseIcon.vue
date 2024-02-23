@@ -1,7 +1,7 @@
 <template>
   <component
     :is="linked ? 'div' : 'base-button'"
-    :class="`flex items-center base-icon ${iconSelector} ${
+    :class="`flex items-center justify-center base-icon ${iconSelector} ${
       withText ? 'with-text' : ''
     } `"
     :title="alt || title"
