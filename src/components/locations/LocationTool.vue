@@ -9,7 +9,7 @@
         item-key="id"
         label="name"
         :options="onLocationSearch"
-        @update:modelValue="
+        @update:model-value="
           (value: string) => {
             onLocationSelected(value);
           }
@@ -19,7 +19,7 @@
           <div class="flex justify-between text-sm p-2 cursor-pointer w-full">
             <span class="mr-1">{{ option.name }}</span>
             <span class="text-crisiscleanup-grey-700">{{
-              option.location_type && option.location_type.name_t
+              option.location_type && $t(option.location_type.name_t)
             }}</span>
           </div>
         </template>
@@ -38,7 +38,7 @@
         class="ml-3 flex-1"
         searchable
         :placeholder="$t('locationVue.location_type')"
-        @update:modelValue="
+        @update:model-value="
           (type: string) => {
             currentLocationType = type;
           }
@@ -169,7 +169,7 @@
               :key="currentLayerUpload"
               data-testid="testLayerUploadToolDiv"
               class="flex w-full justify-center items-center"
-              @addedLayer="
+              @added-layer="
                 (layer) => {
                   currentLayerUpload = layer;
                 }
@@ -213,7 +213,7 @@
           <base-checkbox
             :disabled="worksitesLoading"
             data-testid="testShowCasesCheckbox"
-            @update:modelValue="toggleWorksites"
+            @update:model-value="toggleWorksites"
           >
             {{ $t('locationTool.show_cases') }}
           </base-checkbox>
@@ -225,7 +225,7 @@
         >
           <base-checkbox
             data-testid="testShowIncidentsCheckbox"
-            @update:modelValue="toggleIncidents"
+            @update:model-value="toggleIncidents"
           >
             {{ $t('locationTool.show_incidents') }}
           </base-checkbox>
