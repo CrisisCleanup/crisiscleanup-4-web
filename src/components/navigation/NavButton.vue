@@ -3,6 +3,7 @@
     v-if="!route.disabled"
     :to="route.to"
     class="menu-item router-link p-2 border-b border-t border-gray-800"
+    :class="isActive ? 'menu-item--active' : ''"
     :data-testid="`test${route.key}Link`"
   >
     <div :key="route.key" class="flex flex-col items-center relative">
@@ -18,6 +19,7 @@
       <ccu-icon
         :alt="$t(`nav.${route.key}`)"
         :data-testid="$t(`test${route.key}Icon`)"
+        :class="isActive ? 'filter-primary' : ''"
         v-bind="iconProps"
         :linked="true"
       />
@@ -54,17 +56,20 @@ export default defineComponent({
           };
     });
 
-    const routeName = useRoute().name;
-    const isActive = computed(() =>
-      routeName
-        ? t(routeName as string).includes(props.route.key.toLowerCase())
-        : false,
-    );
+    const route = useRoute();
+    const isActive = computed(() => {
+      const routeName = route.name as string;
+      const propRouteName = (props.route?.name ?? '') as string;
+      console.info('Route info', {
+        routeName,
+        propRouteName,
+      });
+      return routeName?.toLowerCase().includes(propRouteName.toLowerCase());
+    });
 
     return {
       isActive,
       iconProps,
-      routeName,
     };
   },
 });
@@ -81,7 +86,7 @@ a:focus {
   position: relative;
 }
 
-.router-link-active.menu-item::before {
+.router-link-active.menu-item--active::before {
   content: '';
   width: 5px;
   height: 100%;
