@@ -2,17 +2,24 @@ import createDebug from 'debug';
 import { useWebSockets } from '@/hooks/useWebSockets';
 import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
-import type { InjectionKey, Ref } from 'vue';
-import { ref } from 'vue';
+import type { FunctionalComponent, InjectionKey, Ref } from 'vue';
+import { ref, computed } from 'vue';
 import { getAndToastErrorMessage, getErrorMessage } from '@/utils/errors';
-import { useToast } from 'vue-toastification';
+import {
+  useToast,
+  TYPE as ToastType,
+  ToastInterface,
+} from 'vue-toastification';
 import {
   injectLocal,
   provideLocal,
   tryOnScopeDispose,
-  useTimeoutFn,
+  useIntervalFn,
 } from '@vueuse/core';
-import type { ToastID } from 'vue-toastification/dist/types/types';
+import type {
+  ToastContent,
+  ToastID,
+} from 'vue-toastification/dist/types/types';
 import type { CCUFileItem } from '@/models/types';
 import type { CamelCasedProperties } from 'type-fest';
 import axios from 'axios';
@@ -55,6 +62,7 @@ interface RAGSocketDocumentMessageBody {
   messageType: 'start' | 'update' | 'error' | 'end';
   message: string;
   timestamp: string;
+  startTimestamp: string;
 }
 
 interface RAGSocketConversationMessage
@@ -152,6 +160,69 @@ export type {
   ToolMessage as RAGToolMessage,
 };
 
+const RAGToastMessage: FunctionalComponent<{
+  title: string;
+  content: string;
+  timestamp: string;
+  startTimestamp: string;
+}> = (props) => {
+  const timestamp = computed(() => moment(props.timestamp));
+  const startTimestamp = computed(() => moment(props.startTimestamp));
+
+  const getElapsedMinutes = () =>
+    moment().diff(startTimestamp.value, 'minutes');
+  const getElapsedSeconds = () =>
+    moment().diff(startTimestamp.value, 'seconds') % 60;
+  const getLastUpdate = () => timestamp.value.fromNow();
+
+  const elapsed = reactive({
+    minutes: getElapsedMinutes(),
+    seconds: getElapsedSeconds(),
+    lastUpdate: getLastUpdate(),
+  });
+
+  useIntervalFn(
+    () => {
+      elapsed.minutes = getElapsedMinutes();
+      elapsed.seconds = getElapsedSeconds();
+      elapsed.lastUpdate = getLastUpdate();
+    },
+    1000,
+    { immediate: true, immediateCallback: true },
+  );
+
+  return (
+    <div class={'flex flex-col'}>
+      <div>
+        <base-text class={'text-white'} variant={'h1'} bold>
+          {props.title}
+        </base-text>
+        <base-text variant={'h3'} className={'text-white pb-1'} semiBold>
+          {props.content}
+        </base-text>
+      </div>
+      <div class={'pt-1'}>
+        <base-text class={'text-crisiscleanup-smoke'} variant={'bodysm'}>
+          <span class={'font-bold'}>Updated: </span>
+          {timestamp.value.format('h:mm:ssa')}
+          <i>{` (${elapsed.lastUpdate})`}</i>
+        </base-text>
+        <base-text class={'text-crisiscleanup-smoke'} variant={'bodysm'}>
+          <span class={'font-bold'}>Elapsed: </span>
+          {elapsed.minutes}m {elapsed.seconds}s
+        </base-text>
+      </div>
+    </div>
+  );
+};
+
+RAGToastMessage.props = {
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  timestamp: { type: String, required: true },
+  startTimestamp: { type: String, required: true },
+};
+
 export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const collectionId =
     uploadCollectionId ?? ref<string>(uploadCollectionId ?? '');
@@ -224,56 +295,70 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     value ??= activeToastIds;
     console.log('updating activat toasts:', value);
     for (const [toastId, message] of Object.entries(value)) {
-      handleDocumentMessage(message);
+      handleDocumentMessage(message, toastId);
     }
   };
 
-  watch(activeToastIds, (newValue) => updateActivateToasts(newValue));
-  useTimeoutFn(updateActivateToasts, 500);
-
-  function handleDocumentMessage(message: RAGSocketDocumentMessageBody) {
+  function handleDocumentMessage(
+    message: RAGSocketDocumentMessageBody,
+    toastId: ToastID,
+  ) {
     debug('Received document message: %o', message);
-    const toastId: ToastID = String(message.fileId);
-    const timeAgo = moment(message.timestamp).fromNow();
+    let content: string = message.message;
+    const timeout: boolean | number = false;
+    let toastType = ToastType.INFO;
     switch (message.messageType) {
       case 'start': {
-        toast.info(
-          `Starting document processing: ${message.fileName} (${timeAgo})`,
-          {
-            id: toastId,
-            timeout: false,
-          },
-        );
+        content = `Starting document processing`;
         break;
       }
       case 'update': {
-        toast.info(`${message.fileName}: ${message.message} (${timeAgo})`, {
-          id: toastId,
-          timeout: false,
-        });
         break;
       }
       case 'error': {
-        toast.error(`${message.fileName}: ${message.message}`, {
-          id: toastId,
-          timeout: false,
-        });
+        toastType = ToastType.ERROR;
         delete activeToastIds[toastId];
         break;
       }
       case 'end': {
-        toast.success(`Document processing complete: ${message.fileName}`, {
-          id: toastId,
-          timeout: 10_000,
-        });
+        toastType = ToastType.SUCCESS;
+        content = `Document processing complete`;
         collectionState
           .execute(`/rag_collections/${collectionId.value}`)
           .then(() => debug('refetched collections'))
-          .catch(getErrorMessage);
-        delete activeToastIds[toastId];
+          .catch(getErrorMessage)
+          .finally(() => {
+            delete activeToastIds[toastId];
+          });
         break;
       }
     }
+
+    const toastContent: ToastContent = {
+      id: toastId,
+      component: RAGToastMessage,
+      type: toastType,
+      timeout: timeout,
+      props: {
+        title: message.fileName,
+        content,
+        timestamp: message.timestamp,
+        startTimestamp: message.startTimestamp,
+      },
+    };
+
+    debug('toast content: %o', toastContent);
+
+    if (toastId in activeToastIds) {
+      toast.update(toastId, {
+        content: toastContent,
+        options: { timeout, type: toastType, id: toastId },
+      });
+    } else {
+      toast(toastContent, { timeout, type: toastType, id: toastId });
+    }
+
+    activeToastIds[toastId] = message;
   }
 
   const { message } = useRAGWebSocket();
@@ -281,8 +366,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     message.value?.type === 'rag.document' ? message.value.message : undefined,
   );
   whenever(documentMessage, (newValue) => {
-    const toastId = String(newValue.fileId);
-    activeToastIds[toastId] = newValue;
+    handleDocumentMessage(newValue, newValue.fileId);
   });
 
   return {
