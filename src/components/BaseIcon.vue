@@ -190,6 +190,18 @@ export default defineComponent({
     brightness(98%) contrast(106%);
 }
 
+/*
+ * Converts white icon to ccu primary color
+ * ccu primary color match with 0.1 loss
+ *
+ * @see https://codepen.io/sosuke/pen/Pjoqqp
+ * @see https://angel-rs.github.io/css-color-filter-generator/
+ */
+.filter-primary {
+  filter: brightness(0) saturate(100%) invert(77%) sepia(87%) saturate(2034%)
+    hue-rotate(354deg) brightness(106%) contrast(99%);
+}
+
 img {
   max-width: fit-content;
 }
