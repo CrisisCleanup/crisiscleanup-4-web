@@ -687,7 +687,7 @@
             />
           </div>
           <div v-if="showingTable" class="work-page__main-content--table">
-            <div class="items-center justify-end hidden md:flex">
+            <div class="items-center justify-start hidden md:flex">
               <ListDropdown
                 :selected-table-items="selectedTableItems"
                 model-type="worksite_worksites"
