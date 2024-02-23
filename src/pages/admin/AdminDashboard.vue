@@ -169,7 +169,7 @@
     </div>
     <div class="flex" data-testid="testOrganizationsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="p2-4 px-2 border-b flex items-center">
+        <div class="py-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
@@ -209,7 +209,7 @@
     </div>
     <div class="flex" data-testid="testUsersDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="p2-4 px-2 border-b flex items-center">
+        <div class="py-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
@@ -249,7 +249,7 @@
     </div>
     <div class="flex" data-testid="testGhostUsersDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="p2-4 px-2 border-b flex items-center">
+        <div class="py-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
@@ -289,7 +289,7 @@
     </div>
     <div class="flex" data-testid="testInvitationRequestsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="p2-4 px-2 border-b flex items-center">
+        <div class="py-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
@@ -329,7 +329,7 @@
     </div>
     <div class="flex" data-testid="testInvitationsDiv">
       <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="p2-4 px-2 border-b flex items-center">
+        <div class="py-4 px-2 border-b flex items-center">
           <span class="flex items-center">
             <base-button
               class="text-4xl mx-3"
@@ -367,6 +367,35 @@
         </div>
       </div>
     </div>
+    <div class="flex" data-testid="testMessagesDiv">
+      <div class="m-4 pt-2 shadow bg-white w-full">
+        <div class="py-4 px-2 border-b flex items-center">
+          <span class="flex items-center">
+            <base-button
+              class="text-4xl mx-3"
+              data-testid="testInvitationsSearch"
+              :alt="$t('adminDashboard.messages')"
+              :action="
+                () => {
+                  messages.visible = !messages.visible;
+                }
+              "
+              >-</base-button
+            >
+            {{ $t('adminDashboard.messages') }}
+          </span>
+          <base-input
+            v-model="messages.search"
+            icon="search"
+            class="w-48 md:w-72 mx-4"
+            :placeholder="$t('~~Search Title')"
+          ></base-input>
+        </div>
+        <div v-if="messages.visible" class="p-4">
+          <MessagesTable :search="messages.search" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -395,11 +424,12 @@ import User from '../../models/User';
 import useAcl from '../../hooks/useAcl';
 import useDialogs from '../../hooks/useDialogs';
 import ArcGisUploader from '@/components/admin/ArcGisUploader.vue';
-import { useCurrentUser } from '@/hooks';
+import MessagesTable from '@/components/admin/MessagesTable.vue';
 
 export default defineComponent({
   name: 'AdminDashboard',
   components: {
+    MessagesTable,
     DatabaseAccess,
     MergeOrganizations,
     InvitationTable,
@@ -479,6 +509,10 @@ export default defineComponent({
           current: 1,
         },
       },
+      search: '',
+      visible: true,
+    });
+    const messages = ref({
       search: '',
       visible: true,
     });
@@ -784,6 +818,7 @@ export default defineComponent({
       invitations,
       organizationsForApproval,
       incident_requests,
+      messages,
       loading,
       defaultPagination,
       currentIncidentId,
