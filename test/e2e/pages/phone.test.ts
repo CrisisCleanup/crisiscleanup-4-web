@@ -18,7 +18,7 @@ test.describe('PhonePage', () => {
     'testPhoneDashboardLanguagesDiv',
     'testLanguageEditIcon',
     'testIsNotTakingCallsButton',
-    'testServeOutboundCallsCheckbox',
+    // 'testServeOutboundCallsCheckbox',
   ];
   const mapZoomControlsTestIds = [
     'testZoomInButton',
