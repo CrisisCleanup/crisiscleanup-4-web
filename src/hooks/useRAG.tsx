@@ -3,19 +3,10 @@ import { useWebSockets } from '@/hooks/useWebSockets';
 import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { FunctionalComponent, InjectionKey, Ref } from 'vue';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { getAndToastErrorMessage, getErrorMessage } from '@/utils/errors';
-import {
-  useToast,
-  TYPE as ToastType,
-  ToastInterface,
-} from 'vue-toastification';
-import {
-  injectLocal,
-  provideLocal,
-  tryOnScopeDispose,
-  useIntervalFn,
-} from '@vueuse/core';
+import { TYPE as ToastType, useToast } from 'vue-toastification';
+import { injectLocal, provideLocal, useIntervalFn } from '@vueuse/core';
 import type {
   ToastContent,
   ToastID,
@@ -288,16 +279,6 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   const activeToastIds = reactive<
     Record<ToastID, RAGSocketDocumentMessageBody>
   >({});
-
-  const updateActivateToasts = (
-    value?: Record<ToastID, RAGSocketDocumentMessageBody>,
-  ) => {
-    value ??= activeToastIds;
-    console.log('updating activat toasts:', value);
-    for (const [toastId, message] of Object.entries(value)) {
-      handleDocumentMessage(message, toastId);
-    }
-  };
 
   function handleDocumentMessage(
     message: RAGSocketDocumentMessageBody,
