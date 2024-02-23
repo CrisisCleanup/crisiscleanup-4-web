@@ -577,7 +577,6 @@ export default defineComponent({
 
 .sidebar {
   grid-area: sidebar;
-  border: 1px solid #dfdfdf;
   display: none;
   z-index: 5000;
   background-color: #2d2d2d;
