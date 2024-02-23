@@ -83,9 +83,9 @@ a:focus {
 
 .router-link-active.menu-item::before {
   content: '';
-  width: 3px;
+  width: 5px;
   height: 100%;
-  left: 0;
+  right: 0;
   top: 0;
   display: block;
   position: absolute;
