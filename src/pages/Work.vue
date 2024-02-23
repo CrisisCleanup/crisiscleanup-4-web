@@ -739,7 +739,6 @@
               >
               </base-button>
               <base-button
-                icon="sync"
                 data-testid="testUpdateStatusButton"
                 class="ml-3 my-3 border p-1 px-4 bg-white"
                 :class="
