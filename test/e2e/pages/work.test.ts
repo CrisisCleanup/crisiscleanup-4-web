@@ -14,7 +14,7 @@ test.describe('WorkPage', () => {
     'testTableViewIcon',
     'testWorksiteSearch',
     'testLayersButton',
-    'testWorksiteFiltersButton',
+    // 'testWorksiteFiltersButton', // only shows up on mobile screens
     'testDownloadCsvButton',
   ];
   const worksiteFormTestIds = [
