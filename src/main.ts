@@ -92,6 +92,7 @@ const buildApp = (app: VueApp) =>
     .use(i18n)
     .use(Toast, {
       timeout: 10_000,
+      shareAppContext: true,
     } as VueToastificationPluginOptions)
     .use(JsonViewer);
 
