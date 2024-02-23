@@ -280,6 +280,7 @@ export default defineComponent({
     );
 
     const logoRoute = computed(() => ({
+      name: 'nav.pew',
       key: 'pew',
       text: t('nav.pew'),
       to: '/pew-pew',
@@ -287,17 +288,20 @@ export default defineComponent({
 
     const routes = computed(() => [
       {
+        name: 'nav.dashboard',
         key: 'dashboard',
         text: t('nav.dashboard'),
         to: `/incident/${currentIncidentId.value}/dashboard`,
       },
       {
+        name: 'nav.work',
         key: 'work',
         to: `/incident/${currentIncidentId.value}/work`,
         icon: 'cases',
         text: t('nav.work'),
       },
       {
+        name: 'nav.phone',
         key: 'phone',
         icon: 'phone',
         text: t('nav.phone'),
@@ -305,18 +309,21 @@ export default defineComponent({
         disabled: !$can || !$can('phone_agent'),
       },
       {
+        name: 'nav.organization',
         key: 'my_organization',
         icon: 'organization',
         iconSize: 'large',
         to: '/organization/invitations',
       },
       {
+        name: 'nav.other_organizations',
         key: 'other_organizations',
         icon: 'otherorg',
         iconSize: 'xl',
         to: `/incident/${currentIncidentId.value}/other_organizations`,
       },
       {
+        name: 'nav.reports',
         key: 'reports',
         icon: 'reports',
         text: t('nav.reports'),
@@ -333,6 +340,7 @@ export default defineComponent({
         //     .exists(),
       },
       {
+        name: 'nav.training',
         key: 'training',
         text: t('nav.training'),
         icon: {
@@ -342,6 +350,7 @@ export default defineComponent({
         to: '/training',
       },
       {
+        name: 'nav.admin',
         key: 'admin',
         icon: 'admin',
         text: t('nav.admin'),
@@ -352,18 +361,21 @@ export default defineComponent({
 
     const mobileRoutes = computed(() => [
       {
+        name: 'nav.dashboard',
         key: 'dashboard',
         text: t('nav.dashboard'),
         to: `/incident/${currentIncidentId.value}/dashboard`,
         icon: 'dashboard',
       },
       {
+        name: 'nav.work',
         key: 'work',
         to: `/incident/${currentIncidentId.value}/work`,
         icon: 'briefcase',
         text: t('nav.work'),
       },
       {
+        name: 'nav.phone',
         key: 'phone',
         icon: 'phone',
         text: t('nav.phone'),
@@ -371,6 +383,7 @@ export default defineComponent({
         disabled: !$can || !$can('phone_agent'),
       },
       {
+        name: 'nav.profile',
         key: 'profile',
         icon: 'user',
         text: t('nav.profile'),
