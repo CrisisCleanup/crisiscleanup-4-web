@@ -5,7 +5,7 @@ exports[`BaseIcon > should render correctly and match snapshot 1`] = `
   action="default() {
       }"
   alt="button"
-  class="flex items-center base-icon js-button"
+  class="flex items-center justify-center base-icon js-button"
   data-v-92245bab=""
   title="button"
 >
