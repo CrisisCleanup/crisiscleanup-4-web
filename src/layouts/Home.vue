@@ -1,5 +1,5 @@
 <template>
-  <div class="main-grid md:h-screen">
+  <div class="main-grid md:h-screen" :class="noHotline ? 'no-hotline' : ''">
     <div class="logo m-8 flex items-center justify-center md:block">
       <div class="w-40 md:w-52">
         <a href="/live">
@@ -11,8 +11,8 @@
         </a>
       </div>
     </div>
-    <IncidentContact class="w-full md:w-max hotline m-8" />
-    <div class="main m-8 overflow-scroll">
+    <IncidentContact v-if="!noHotline" class="w-full md:w-max hotline m-8" />
+    <div class="main m-8 overflow-auto">
       <slot />
     </div>
     <div class="register m-8">
@@ -92,6 +92,12 @@ import IncidentContact from '@/components/IncidentContact.vue';
 export default defineComponent({
   name: 'Home',
   components: { IncidentContact },
+  props: {
+    noHotline: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { t } = useI18n();
     const allRoutes = computed(() => [
@@ -300,6 +306,17 @@ ol.fifteen > li:before {
     'register main main main main'
     '. . . footer footer';
 }
+
+.main-grid.no-hotline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-areas:
+    'logo main main main main'
+    'nav main main main main'
+    'register main main main main'
+    '. . . footer footer';
+}
+
 .logo {
   grid-area: logo;
 }
@@ -328,6 +345,17 @@ ol.fifteen > li:before {
     grid-template-areas:
       'logo logo logo logo logo'
       'hotline hotline hotline hotline hotline'
+      'main main main main main'
+      'register register register register register'
+      'nav nav nav nav nav'
+      'footer footer footer footer footer';
+  }
+  .main-grid.no-hotline {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+      'logo logo logo logo logo'
+      'main main main main main'
       'main main main main main'
       'register register register register register'
       'nav nav nav nav nav'
