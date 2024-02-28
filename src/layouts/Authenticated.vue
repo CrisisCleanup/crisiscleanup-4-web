@@ -83,7 +83,7 @@
             class="flex flex-col text-sm"
           />
         </div>
-        <div class="header p-1 flex items-center">
+        <div class="header flex items-center">
           <font-awesome-icon
             icon="bars"
             :alt="$t('nav.show_navigation')"
