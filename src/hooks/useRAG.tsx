@@ -357,7 +357,10 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     uploadFile,
     uploadedDocuments: readonly(uploadedDocuments),
     collectionDocuments: computed(
-      () => collectionState.data.value?.files?.sort?.((a, b) => b.id - a.id),
+      () =>
+        collectionState.data.value?.files?.sort?.((a, b) =>
+          a.filenameOriginal.localeCompare(b.filenameOriginal),
+        ),
     ),
     isDocumentsLoading: readonly(collectionState.isLoading),
   };
