@@ -5,6 +5,9 @@
         <slot name="header"></slot>
       </div>
     </div>
+    <div class="body-header">
+      <slot name="body-header" />
+    </div>
     <div class="body">
       <div class="body--inner h-full" :style="bodyStyle">
         <template v-if="!loading">
