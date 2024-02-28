@@ -3,7 +3,7 @@
     <router-link :to="logoRoute.to" class="logo--grid">
       <div class="logo flex justify-center p-3">
         <img
-          :src="portal.logo_url || logo"
+          :src="portal?.logo_url || logo"
           style="height: 53px"
           data-testid="testCrisiscleanupLogoIcon"
         />
