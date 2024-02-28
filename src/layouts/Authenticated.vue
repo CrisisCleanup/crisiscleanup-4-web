@@ -573,7 +573,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 .layout {
   width: 100vw;
   height: 100vh;
@@ -589,10 +589,10 @@ export default defineComponent({
 }
 
 .sidebar {
+  @apply bg-crisiscleanup-dark-500;
   grid-area: sidebar;
   display: none;
   z-index: 5000;
-  background-color: #2d2d2d;
 }
 
 .sidebar.slide-over {
