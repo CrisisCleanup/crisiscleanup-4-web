@@ -44,7 +44,7 @@
       </div>
     </template>
     <template #actions="slotProps">
-      <div class="flex mr-2 justify-end w-full items-center">
+      <div class="flex flex-col gap-1 mr-2 justify-end w-full items-center">
         <ccu-icon
           v-if="slotProps.item.approved_by"
           v-tooltip="{
@@ -84,7 +84,7 @@
           :alt="$t('actions.approve')"
           variant="solid"
           size="small"
-          class="mx-1"
+          class="mx-1 sm:w-24"
           :action="
             () => {
               approveOrganization(slotProps.item.id);
@@ -98,7 +98,7 @@
           :alt="$t('actions.reject')"
           variant="outline"
           size="small"
-          class="mx-1"
+          class="mx-1 sm:w-24"
           :action="
             () => {
               rejectOrganization(slotProps.item.id);

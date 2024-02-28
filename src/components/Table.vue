@@ -1,5 +1,5 @@
 <template>
-  <div v-if="mq" class="table-grid js-table w-full">
+  <div v-if="mq" class="table-grid js-table w-full overflow-x-scroll">
     <div
       v-if="!hideHeader && !mq.mdMinus"
       class="header text-crisiscleanup-grey-700 bg-white"
@@ -515,6 +515,7 @@ export default defineComponent({
     const gridStyleBody = computed(() => {
       return {
         overflow: 'auto',
+        width: 'fit-content',
         ...props.bodyStyle,
       };
     });
