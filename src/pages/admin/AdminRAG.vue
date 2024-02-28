@@ -297,8 +297,13 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
         <div class="flex p-3">
           <BaseInput
             v-model="question"
-            placeholder="Ask a question"
+            :placeholder="
+              isStreamingMessage
+                ? t('Performing some witchcraft...')
+                : t('Ask a question...')
+            "
             class="w-full chat--input"
+            :disabled="isStreamingMessage"
             @keyup.enter="() => doSubmitQuestion()"
           />
         </div>
