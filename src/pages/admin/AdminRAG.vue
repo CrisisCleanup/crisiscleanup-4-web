@@ -58,13 +58,43 @@ const setConversation = (newConversationId: string) => {
   conversationId.value = newConversationId;
 };
 
-const { currentConversationEntries, conversations, fetchConversations } =
-  useRAGConversations(collectionId as Ref<string>, conversationId);
+const {
+  currentConversationEntries,
+  conversations,
+  fetchConversations,
+  deleteConversation,
+} = useRAGConversations(collectionId as Ref<string>, conversationId);
 const { history, submitQuestion, latestMessage, isStreamingMessage } = useRAG(
   collectionId as Ref<string>,
   conversationId as Ref<string>,
   currentConversationEntries,
 );
+
+const onDeleteConversation = async (conversationId: string) => {
+  const didConfirm = await confirm({
+    title: t('actions.confirm'),
+    content: t(`Are you sure you want to delete this conversation?`),
+    actions: {
+      no: {
+        text: t('actions.cancel'),
+        type: 'outline',
+        size: 'medium',
+      },
+      yes: {
+        text: t(`Delete`),
+        variant: 'solid',
+        size: 'medium',
+      },
+    },
+  });
+  if (didConfirm === 'yes') {
+    await deleteConversation(conversationId)
+      .then(() => toast.success('Conversation deleted'))
+      .catch(getAndToastErrorMessage);
+  } else {
+    toast.warning(t('actions.cancelled'));
+  }
+};
 
 const doSubmitQuestion = () => {
   submitQuestion(question.value, activeFileIds.value);
@@ -215,7 +245,6 @@ whenever(hasUploadsQueue, async () => {
 });
 
 // display message tools
-const currentDocumentDisplay = ref<string | undefined>(undefined);
 const displayMessageTools = async (entry: RAGEntry) => {
   await component({
     title: 'Documents',
@@ -293,14 +322,26 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
               }"
               @click="() => setConversation(conv.conversationId)"
             >
-              <BaseText
-                variant="h4"
-                :bold="conv.conversationId === conversationId"
-                class="p-2 ws-nowrap truncate text-wrap"
-                >{{
-                  truncate(conv.title.split('user: ')[1], { length: 250 })
-                }}</BaseText
-              >
+              <div class="flex pr-1">
+                <BaseText
+                  variant="h4"
+                  :bold="conv.conversationId === conversationId"
+                  class="p-2 ws-nowrap truncate text-wrap flex-1"
+                  >{{
+                    truncate(conv.title.split('user: ')[1], { length: 250 })
+                  }}</BaseText
+                >
+                <div class="mt-auto mb-auto">
+                  <ccu-icon
+                    type="cancel"
+                    size="xs"
+                    class="rounded-full hover:translate-y-[-1px] hover:scale-105 p-1 opacity-50 hover:opacity-100 z-10"
+                    @click.capture="
+                      () => onDeleteConversation(conv.conversationId)
+                    "
+                  />
+                </div>
+              </div>
             </div>
           </template>
         </template>
