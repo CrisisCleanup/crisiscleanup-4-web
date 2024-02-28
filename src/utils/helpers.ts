@@ -6,7 +6,9 @@ import _ from 'lodash';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
 import defu from 'defu';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
-import axios, { AxiosRequestTransformer } from 'axios';
+import axios from 'axios';
+import createDebug from 'debug';
+const debug = createDebug('@ccu:utils:helpers');
 
 /**
  * Convert rem to pixels.
@@ -134,12 +136,14 @@ export const createAxiosCasingTransform = (
     baseURL: import.meta.env.VITE_APP_API_BASE_URL,
     transformResponse: [
       (data) =>
-        toCamelCase<string | object>(
-          typeof data === 'string' ? JSON.parse(data) : <object>data,
-        ),
+        data
+          ? toCamelCase<string | object>(
+              typeof data === 'string' ? JSON.parse(data) : <object>data,
+            )
+          : data,
     ],
   };
   const axiosOptions = defu(baseOptions, transformOptions, options);
-  console.log(axiosOptions);
+  debug('axios options: %o', axiosOptions);
   return axiosOptions as AxiosRequestConfig;
 };
