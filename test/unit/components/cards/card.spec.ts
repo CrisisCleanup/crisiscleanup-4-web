@@ -35,6 +35,7 @@ describe('Card', () => {
             <div>Header</div>
           </div>
         </div>
+        <div data-v-cc50f56d="" class="body-header"></div>
         <div data-v-cc50f56d="" class="body">
           <div data-v-cc50f56d="" class="body--inner h-full" style="">
             <div>Hello world</div>
