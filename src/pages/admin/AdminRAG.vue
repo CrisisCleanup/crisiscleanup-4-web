@@ -295,12 +295,12 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
         </template>
       </div>
 
-      <template #footer>
-        <div class="flex">
+      <template #body-header>
+        <div class="flex p-3">
           <BaseInput
             v-model="question"
             placeholder="Ask a question"
-            class="w-full"
+            class="w-full chat--input"
             @keyup.enter="() => doSubmitQuestion()"
           />
         </div>
@@ -469,6 +469,15 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
   > button {
     transition: filter 150ms ease-in-out;
     filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.2));
+  }
+}
+
+:deep(.chat--input input) {
+  @apply rounded-xl !important;
+  @apply transition-all;
+  &:hover,
+  &:focus {
+    @apply ring-1 ring-primary-light;
   }
 }
 </style>
