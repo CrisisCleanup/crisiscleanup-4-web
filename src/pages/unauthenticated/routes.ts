@@ -6,8 +6,14 @@ const ResetPassword = () => import('./ResetPassword.vue');
 const MagicLink = () => import('./MagicLink.vue');
 const PewPew = () => import('./PewPew.vue');
 const OauthRedirect = () => import('@/pages/OauthRedirect.vue');
-const Disasters = () => import('@/pages/unauthenticated/Disasters.vue');
+const Disasters = () =>
+  import('@/pages/unauthenticated/disasters/Disasters.vue');
 
+const DisasterDetail = () =>
+  import('@/pages/unauthenticated/disasters/DisasterDetail.vue');
+
+const DisastersArchived = () =>
+  import('@/pages/unauthenticated/disasters/DisastersArchived.vue');
 const Blog = () => import('@/pages/unauthenticated/Blog.vue');
 const BlogPost = () => import('@/pages/unauthenticated/BlogPost.vue');
 
@@ -91,6 +97,18 @@ const routes = [
     path: '/disasters',
     component: Disasters,
     name: 'nav.disasters',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/disasters/:id',
+    component: DisasterDetail,
+    name: 'nav.disaster_detail',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/disasters/archived',
+    component: DisastersArchived,
+    name: 'nav.disasters_archived',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {
