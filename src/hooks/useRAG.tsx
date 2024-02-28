@@ -107,6 +107,8 @@ interface Conversation {
   conversationId: string;
   messages: Message[];
   title: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ToolMessage {
@@ -365,9 +367,10 @@ export const useRAGConversations = (
   collectionId: Ref<string | undefined>,
   currentConversationId: Ref<string | undefined>,
 ) => {
+  const client = axios.create(createAxiosCasingTransform());
   const conversationsState = useAxios<ConversationsResponse>(
     `/rag_collections/${collectionId.value}/conversations`,
-    createAxiosCasingTransform(),
+    client,
     { immediate: Boolean(collectionId.value), resetOnExecute: false },
   );
 
@@ -383,6 +386,21 @@ export const useRAGConversations = (
     return await conversationsState
       .execute(`/rag_collections/${collectionId.value}/conversations`)
       .catch(getErrorMessage);
+  };
+
+  const deleteConversation = async (conversationId: string) => {
+    try {
+      await client.delete(
+        `/rag_collections/${collectionId.value}/conversations`,
+        {
+          params: { conversation_id: conversationId },
+        },
+      );
+    } catch (error) {
+      debug('Error deleting conversation: %o', error);
+      return getErrorMessage(error);
+    }
+    await fetchConversations();
   };
 
   whenever(currentConversationId, async (newValue) => {
@@ -425,6 +443,7 @@ export const useRAGConversations = (
     conversations: readonly(conversationsState.data),
     isLoading: readonly(conversationsState.isLoading),
     fetchConversations,
+    deleteConversation,
   };
 };
 
