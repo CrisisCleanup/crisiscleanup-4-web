@@ -8,12 +8,7 @@ import {
   useRAGUpload,
 } from '@/hooks';
 import useDialogs from '@/hooks/useDialogs';
-import {
-  useAsyncQueue,
-  type UseAsyncQueueTask,
-  useStorage,
-  whenever,
-} from '@vueuse/core';
+import { useStorage, whenever } from '@vueuse/core';
 import BaseInput from '@/components/BaseInput.vue';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import DragDrop from '@/components/DragDrop.vue';
@@ -257,23 +252,26 @@ const displayMessageTools = async (entry: RAGEntry) => {
   });
 };
 
+const collectionsDropdownProps = computed(() => ({
+  placeholder: t('Select Collection'),
+  options: collectionOptions.value,
+  itemKey: 'uuid',
+  label: 'label',
+  loading: !hasCollection.value,
+  canDeselect: false,
+  value: collectionId.value,
+}));
+
 const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 </script>
 
 <template>
   <div class="rag grid grid-cols-2 gap-2 h-full overflow-x-visible">
-    <div class="col-span-1 md:col-span-2">
-      <BaseSelect
-        v-model="collectionId"
-        :placeholder="$t('Select Collection')"
-        :options="collectionOptions"
-        item-key="uuid"
-        label="label"
-        :loading="!hasCollection"
-        :can-deselect="false"
-      />
-    </div>
-    <TitledCard :title="$t('Chat')">
+    <TitledCard
+      :title="$t('Chat')"
+      :dropdown="collectionsDropdownProps"
+      @update:dropdown="(value) => (collectionId = value)"
+    >
       <div ref="chatDomRef" class="rag--chat p-2">
         <template v-for="h in history" :key="`${h.actor}:${h.content}`">
           <BaseText variant="h4" class="pl-1 font-display"
@@ -433,7 +431,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 .rag {
   /** 3 (1x3) column stack on small displays */
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) minmax(0, 0.25fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 0.25fr);
   transition: all 300ms ease-in-out;
   min-height: 90vh;
   max-height: 200vh;
@@ -443,7 +441,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
   .rag {
     /** 2x2 grid stack on small displays */
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.3fr);
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     min-height: 90vh;
     max-height: 90vh;
   }
@@ -478,6 +476,21 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
   &:hover,
   &:focus {
     @apply ring-1 ring-primary-light;
+  }
+}
+
+:deep(.card__dropdown) {
+  @apply m-0 pr-2;
+  div.border {
+    border-width: 0;
+  }
+  div[aria-controls='multiselect-options'] {
+    min-height: auto;
+    min-width: auto;
+    border: none;
+    p {
+      @apply pr-3;
+    }
   }
 }
 </style>
