@@ -272,7 +272,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
       :dropdown="collectionsDropdownProps"
       @update:dropdown="(value) => (collectionId = value)"
     >
-      <div ref="chatDomRef" class="rag--chat p-2">
+      <div ref="chatDomRef" class="rag--chat p-2 inline-grid auto-rows-min">
         <template v-for="h in history" :key="`${h.actor}:${h.content}`">
           <BaseText variant="h4" class="pl-1 font-display"
             >{{ h.actor.toUpperCase() }}:</BaseText
