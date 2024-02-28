@@ -43,6 +43,9 @@
       </slot>
     </template>
     <slot />
+    <template #body-header>
+      <slot name="body-header" />
+    </template>
     <template #footer>
       <slot name="footer" />
     </template>
