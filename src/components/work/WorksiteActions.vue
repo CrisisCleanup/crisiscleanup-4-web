@@ -31,6 +31,7 @@
       >
     </base-button>
     <base-button
+      v-if="showLayers"
       data-testid="testLayersButton"
       variant="text"
       :title="$t('casesVue.layers')"
@@ -255,7 +256,7 @@
           </div>
         </base-checkbox>
       </div>
-      <v-popover placement="bottom-start">
+      <v-popover v-if="showLayers" placement="bottom-start">
         <base-button
           data-testid="testLayersButton"
           variant="text"
@@ -539,6 +540,7 @@ export default defineComponent({
     initalFilters: { type: Object, default: null, required: false },
     map: { type: Object, default: null, required: false },
     currentIncidentId: { type: String, default: null, required: false },
+    showLayers: { type: Boolean, default: true, required: false },
   },
   setup(props, { emit }) {
     const store = useStore();
