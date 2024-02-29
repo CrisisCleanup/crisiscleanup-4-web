@@ -757,6 +757,7 @@
             <WorksiteTable
               :worksite-query="worksiteQuery"
               class=""
+              :body-style="{ height: 'calc(100vh - 22rem)' }"
               @row-click="loadCase"
               @selection-changed="onSelectionChanged"
             />
@@ -997,10 +998,12 @@ import useAcl from '@/hooks/useAcl';
 import ListDropdown from '@/pages/lists/ListDropdown.vue';
 import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import AjaxTable from '@/components/AjaxTable.vue';
 
 export default defineComponent({
   name: 'Work',
   components: {
+    AjaxTable,
     BaseButton,
     WorksiteSearchAndFilters,
     ListDropdown,

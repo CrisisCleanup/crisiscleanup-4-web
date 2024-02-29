@@ -883,6 +883,7 @@
             </div>
             <WorksiteTable
               :worksite-query="worksiteQuery"
+              :body-style="{ height: 'calc(100vh - 24rem)' }"
               @selection-changed="onSelectionChanged"
               @row-click="
                 (worksite) => {
