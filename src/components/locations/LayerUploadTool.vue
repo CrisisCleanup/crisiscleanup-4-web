@@ -3,7 +3,7 @@
     <form class="flex my-6 w-full justify-center">
       <div class="flex">
         <DragDrop
-          class="border w-72 bg-white"
+          class="border bg-white"
           data-testid="testDragDropShpKmlFile"
           :choose-title="$t('dragDrop.choose_files')"
           :drag-title="$t('layersVue.drag_drop_shp_kml')"
