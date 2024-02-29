@@ -618,7 +618,7 @@ export default defineComponent({
   .layout {
     display: grid;
     grid-template-columns: 150px 1fr;
-    grid-template-rows: 80px 1fr;
+    grid-template-rows: 65px 1fr;
     grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
     grid-auto-flow: row;
