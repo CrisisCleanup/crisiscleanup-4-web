@@ -26,8 +26,11 @@ test.describe('DashboardPage', () => {
       'production',
     ]),
     async ({ page }) => {
+      // const spinnerDiv = page.getByTestId('testSpinnerDiv');
+      // await expect(spinnerDiv).toBeHidden({ timeout: 60_000 });
+      const rootDiv = page.getByTestId('testIsAuthenticatedDiv');
+      await expect(rootDiv).toBeVisible({ timeout: 60_000 });
       const dataTestIds = [
-        'testIsAuthenticatedDiv',
         'testCrisiscleanupLogoIcon',
         'testdashboardLink',
         'testdashboardIcon',
@@ -67,9 +70,13 @@ test.describe('DashboardPage', () => {
         'testUserTransferRequestTable',
       ];
       const locators = dataTestIds.map((tId) => page.getByTestId(tId));
-      for (const l of locators) {
-        await expect(l).toBeVisible({ timeout: 15_000 });
-      }
+      // Create an array of promises for the visibility checks
+      const visibilityChecks = locators.map((locator) =>
+        expect(locator).toBeVisible({ timeout: 15_000 }),
+      );
+
+      // Wait for all visibility checks to complete in parallel
+      await Promise.all(visibilityChecks);
 
       await test.info().attach('dashboard-page-screenshot', {
         body: await page.screenshot({
