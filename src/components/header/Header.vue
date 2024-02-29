@@ -22,7 +22,7 @@
             :clearable="false"
             data-testid="testIncidentSelectorSelect"
             searchable
-            container-classes="relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-base leading-snug outline-none"
+            container-classes="relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-base leading-snug outline-none border"
             select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded p-2"
             item-key="id"
             label="name"
