@@ -30,6 +30,11 @@ export default defineComponent({
 
     const eventsInterval = ref<ReturnType<typeof setInterval> | null>(null);
 
+    const pageTitle = computed(
+      () => `${t(route.name?.toString() || '')}: Crisis Cleanup`,
+    );
+    useTitle(pageTitle);
+
     async function pushCurrentEvents(): Promise<void> {
       if (authStore.isAuthenticated.value) {
         await store.dispatch('events/pushEvents');
@@ -89,17 +94,6 @@ export default defineComponent({
       store.commit('enums/setPhases', enums.phases.data.results);
       store.commit('enums/setPortal', enums.portal.data);
     }
-
-    whenever(
-      () => route.name,
-      (n) => {
-        const newTitle = `${t(n?.toString() || '')}: Crisis Cleanup`;
-        if (document.title !== newTitle) {
-          document.title = newTitle;
-        }
-      },
-      { immediate: true },
-    );
 
     axios.defaults.headers.CCU_PORTAL_KEY = import.meta.env.VITE_APP_PORTAL_KEY;
     axios.defaults.headers.CCU_WEB_URL = window.location.href;
