@@ -101,6 +101,7 @@ export default defineComponent({
     }
 
     function setStyle() {
+      console.debug(`Setting disaster icon styles...`, incidentImage.value);
       setColor();
       if (props.width !== null || props.height !== null) {
         width_.value = props.width === null ? props.height : props.width;
@@ -131,10 +132,10 @@ export default defineComponent({
 
 <style>
 .disaster-icon .standard-icon {
-  @apply w-10 h-10;
+  @apply w-10 h-10 block;
 }
 
 .disaster-icon .easter-egg {
-  @apply w-10 h-10;
+  @apply w-10 h-10 block;
 }
 </style>
