@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col items-center justify-center">
+  <div
+    class="flex flex-col items-center justify-center"
+    data-testid="testSpinnerDiv"
+  >
     <font-awesome-icon :size="size" icon="spinner" spin />
     <div v-if="showQuote" class="my-3">{{ $t(randomQuote) }}</div>
   </div>
