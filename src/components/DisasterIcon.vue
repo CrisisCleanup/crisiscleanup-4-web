@@ -25,8 +25,10 @@
     ></object>
   </div>
 </template>
+
 <script lang="ts">
 import { ref, computed } from 'vue';
+import type { StyleValue } from 'vue';
 import _ from 'lodash';
 import Incident from '@/models/Incident';
 import { EASTER_EGG_DISASTER_ICONS } from '@/constants';
@@ -57,7 +59,7 @@ export default defineComponent({
     const randomEasterEgg = ref<string | null>(null);
     const icon = ref<HTMLObjectElement | null>(null);
 
-    const style = computed(() => ({
+    const style = computed<StyleValue>(() => ({
       visibility: ready.value ? 'visible' : 'hidden',
       pointerEvents: 'none',
     }));
