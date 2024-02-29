@@ -756,7 +756,7 @@
             </div>
             <WorksiteTable
               :worksite-query="worksiteQuery"
-              class="h-156"
+              class=""
               @row-click="loadCase"
               @selection-changed="onSelectionChanged"
             />
