@@ -12,7 +12,7 @@
         <base-checkbox
           class="mb-5 js-select-all"
           data-testid="testSetAllCheckedCheckbox"
-          @update:modelValue="setAllChecked"
+          @update:model-value="setAllChecked"
         />
       </div>
       <div
@@ -221,9 +221,10 @@
           :model-value="pagination.pageSize"
           :options="pageSizes"
           :clearable="false"
+          open-direction="top"
           data-testid="testPaginationPagesizeSelect"
           class="w-32"
-          select-classes="sm:w-24 bg-white border vue-select-up"
+          select-classes="sm:w-24 bg-white border"
           @update:model-value="onSelectPageSize"
         />
       </div>
