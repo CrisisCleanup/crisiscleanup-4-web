@@ -14,6 +14,7 @@
       :disabled="disabled"
       class="form-select text-base"
       :resolve-on-load="false"
+      :open-direction="openDirection"
       :clear-on-blur="false"
       :delay="isAsync ? 0 : undefined"
       :filter-results="isAsync ? false : undefined"
@@ -86,6 +87,7 @@
 
 <script lang="ts">
 import Multiselect from '@vueform/multiselect';
+import type { PropType } from 'vue';
 import { computed, h, nextTick, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { isEmpty as empty, kebabCase, xor } from 'lodash';
@@ -130,6 +132,10 @@ export default defineComponent({
       default() {
         return [];
       },
+    },
+    openDirection: {
+      type: String as PropType<'top' | 'bottom'>,
+      default: 'bottom',
     },
     limit: {
       type: Number,
