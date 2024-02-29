@@ -42,11 +42,6 @@
               </div>
             </template>
           </BaseSelect>
-          <div class="flex ml-2 font-bold mt-2">
-            <span data-testid="testHeaderRouteName">
-              {{ $t(($route.name ?? '') as string) }}
-            </span>
-          </div>
         </div>
       </div>
       <div v-if="can('development_mode')" class="flex gap-2">
