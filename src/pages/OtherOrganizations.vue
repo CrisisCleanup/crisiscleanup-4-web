@@ -21,7 +21,7 @@
         icon="search"
         class="sm:w-84 my-2"
         :placeholder="$t('actions.search')"
-        @update:modelValue="onSearchInput"
+        @update:model-value="onSearchInput"
       ></base-input>
 
       <base-button
@@ -40,7 +40,7 @@
       ref="table"
       :columns="columns"
       :data="organizations.data"
-      :body-style="{ height: '300px' }"
+      :body-style="{ height: 'calc(100vh - 30rem)' }"
       data-testid="testOrganizationsDataTable"
       enable-pagination
       :pagination="organizations.meta.pagination"
