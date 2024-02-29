@@ -1,57 +1,56 @@
 <template>
-  <div class="w-3/4 m-auto">
-    <LayerUploadTool :key="locations" @addedLayer="getLocations" />
-    <div class="mb-24">
-      <div class="flex justify-between mb-2">
-        <div class="flex flex-col sm:flex-row items-center">
-          <base-input
-            v-model="currentSearch"
-            data-testid="testGetLocationsSearch"
-            icon="search"
-            class="sm:w-72 w-full sm:mr-4"
-            :placeholder="$t('actions.search')"
-            @update:modelValue="getLocations"
-          ></base-input>
-          <div class="flex w-full">
-            <base-select
-              v-model="locationTypeFilter"
-              data-testid="testLocationTypeFilterSelect"
-              :options="
-                locationTypes.map((l) => {
-                  return { ...l, name_t: $t(l.name_t) };
-                })
-              "
-              class="w-full sm:w-64 border border-crisiscleanup-dark-100"
-              item-key="id"
-              label="name_t"
-              :placeholder="$t('locationVue.location_type')"
-              select-classes="bg-white border text-xs location-select p-1"
-              @update:modelValue="getLocations"
-            />
-            <base-button
-              :text="$t('actions.create_location')"
-              :alt="$t('actions.create_location')"
-              data-testid="testCreateLocationButton"
-              variant="solid"
-              size="small"
-              :action="
-                () => {
-                  $router.push('/locations/new');
-                }
-              "
-            />
-          </div>
+  <div class="w-5/6 mx-auto">
+    <LayerUploadTool :key="locations" @added-layer="getLocations" />
+    <div class="flex justify-between mb-2">
+      <div class="flex flex-col sm:flex-row items-center">
+        <base-input
+          v-model="currentSearch"
+          data-testid="testGetLocationsSearch"
+          icon="search"
+          class="sm:w-72 w-full sm:mr-4"
+          :placeholder="$t('actions.search')"
+          @update:model-value="getLocations"
+        ></base-input>
+        <div class="flex w-full">
+          <base-select
+            v-model="locationTypeFilter"
+            data-testid="testLocationTypeFilterSelect"
+            :options="
+              locationTypes.map((l) => {
+                return { ...l, name_t: $t(l.name_t) };
+              })
+            "
+            class="w-full sm:w-64 border border-crisiscleanup-dark-100"
+            item-key="id"
+            label="name_t"
+            :placeholder="$t('locationVue.location_type')"
+            select-classes="bg-white border text-xs location-select p-1"
+            @update:model-value="getLocations"
+          />
+          <base-button
+            :text="$t('actions.create_location')"
+            :alt="$t('actions.create_location')"
+            data-testid="testCreateLocationButton"
+            variant="solid"
+            size="small"
+            :action="
+              () => {
+                $router.push('/locations/new');
+              }
+            "
+          />
         </div>
       </div>
-      <LocationTable
-        :locations="locations"
-        :meta="locationsMeta"
-        :loading="locationsLoading"
-        data-testid="testLocationsTable"
-        @change="handleTableChange"
-        @deleteLocation="deleteLocation"
-      />
     </div>
+    <LocationTable
+      :locations="locations"
+      :meta="locationsMeta"
+      :loading="locationsLoading"
+      :body-style="{ height: 'calc(100vh - 30rem)' }"
+      data-testid="testLocationsTable"
+      @change="handleTableChange"
+      @delete-location="deleteLocation"
+    />
   </div>
 </template>
 
@@ -65,10 +64,11 @@ import LocationType from '@/models/LocationType';
 import { getQueryString } from '@/utils/urls';
 import { getErrorMessage } from '@/utils/errors';
 import { useCurrentUser } from '@/hooks';
+import Table from '@/components/Table.vue';
 
 export default defineComponent({
   name: 'Layers',
-  components: { LocationTable, LayerUploadTool },
+  components: { Table, LocationTable, LayerUploadTool },
   setup() {
     const toasted = useToast();
     const { t } = useI18n();
