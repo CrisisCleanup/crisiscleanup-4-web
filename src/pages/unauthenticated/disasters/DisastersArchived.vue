@@ -9,14 +9,14 @@
           class="text-primary cursor-pointer"
         />
         <router-link to="/disasters">
-          {{ $t('~~Back to active disasters') }}
+          {{ $t('disasters.back_to_active') }}
         </router-link>
       </div>
       <div
         class="text-4xl font-bold mb-6"
         data-testid="testCurrentDisastersHeader"
       >
-        {{ $t('~~Archived Disasters') }}
+        {{ $t('disasters.archived_disasters') }}
       </div>
       <div
         v-for="[year, incidents] in Object.entries(groupedIncidents)"
@@ -50,7 +50,7 @@
               "
               class="flex items-center gap-5 text-base"
             >
-              {{ $t('~~Hotline(s): ') }}
+              {{ $t('disasters.hotlines') }}
               <div class="flex gap-2">
                 <a
                   v-for="number in incident.active_phone_number"
