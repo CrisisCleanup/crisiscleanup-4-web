@@ -331,7 +331,7 @@
             <ListDropdown
               :selected-table-items="selectedUsers"
               model-type="user_users"
-              :title="$t('~~User Lists')"
+              :title="$t('list.user_lists')"
             />
             <InviteUsers />
           </div>

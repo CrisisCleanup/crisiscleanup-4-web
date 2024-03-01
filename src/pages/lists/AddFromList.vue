@@ -30,7 +30,7 @@
                 {{ getUser(list.created_by).first_name }}
               </span>
               <span class="">
-                {{ length(list.object_ids) }} {{ $t('~~items') }}
+                {{ length(list.object_ids) }} {{ $t('list.items') }}
               </span>
             </div>
           </base-button>
@@ -39,7 +39,7 @@
             class="px-4 py-1 cursor-pointer hover:bg-primary-light flex-grow"
             :action="() => createList(getLists)"
           >
-            {{ $t('~~Create New List') }}
+            {{ $t('list.create') }}
           </base-button>
         </div>
       </v-menu>
