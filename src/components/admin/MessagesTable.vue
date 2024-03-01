@@ -8,7 +8,8 @@ import useDialogs from '@/hooks/useDialogs';
 const { component } = useDialogs();
 
 const columns = makeTableColumns([
-  ['title', '25%', 'Title'],
+  ['id', '10%', 'ID'],
+  ['title', '20%', 'Title'],
   ['created_at', '15%', 'Created At'],
   ['recipients', 'auto', 'Recipients', 'recipients'],
   ['actions', '25%', 'Actions', 'actions'],
