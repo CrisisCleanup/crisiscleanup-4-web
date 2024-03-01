@@ -445,7 +445,7 @@
 
           <AddFromList
             model-type="user_users"
-            :title="$t('~~Add From User List')"
+            :title="$t('list.add_from_users')"
             :incident="currentIncidentId"
             @add-from-list="addUsersFromList"
           />
@@ -854,7 +854,7 @@ export default defineComponent({
       if (result.response instanceof AxiosError) {
         return $toasted.error(getErrorMessage(result.response));
       }
-      return $toasted.success(t('~~Team Updated'));
+      return $toasted.success(t('teams.team_updated'));
     };
 
     const updateTeam = async (
