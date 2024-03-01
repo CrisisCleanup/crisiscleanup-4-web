@@ -31,7 +31,7 @@
               :selected-table-items="selectedTeams"
               :incident="currentIncidentId"
               model-type="organization_organizations_incidents_teams"
-              :title="$t('~~Team Lists')"
+              :title="$t('list.team_lists')"
             />
           </div>
         </div>
@@ -94,7 +94,7 @@
                   </template>
                 </div>
                 <div v-else class="py-2">
-                  {{ $t('~~No Team Members') }}
+                  {{ $t('list.no_team_members') }}
                 </div>
               </div>
             </div>

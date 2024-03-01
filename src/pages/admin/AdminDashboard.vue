@@ -388,7 +388,7 @@
             v-model="messages.search"
             icon="search"
             class="w-48 md:w-72 mx-4"
-            :placeholder="$t('~~Search Title')"
+            :placeholder="$t('adminDashboard.search_message')"
           ></base-input>
         </div>
         <div v-if="messages.visible" class="p-4">

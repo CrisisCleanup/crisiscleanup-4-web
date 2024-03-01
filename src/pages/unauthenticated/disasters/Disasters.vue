@@ -2,7 +2,7 @@
   <Home no-hotline>
     <div>
       <div class="text-3xl my-6" data-testid="testCurrentDisastersHeader">
-        {{ $t('~~Active Disasters') }}
+        {{ $t('disasters.active_disasters') }}
       </div>
       <div
         v-for="incident in incidents"
@@ -28,7 +28,7 @@
             "
             class="flex items-center gap-5 text-base"
           >
-            {{ $t('~~Hotline(s): ') }}
+            {{ $t('disasters.hotlines') }}
             <div class="flex gap-2">
               <a
                 v-for="number in incident.active_phone_number"
@@ -46,7 +46,7 @@
         class="flex items-center gap-2 text-base text-crisiscleanup-dark-blue mb-3 underline"
       >
         <router-link to="/disasters/archived">
-          {{ $t('~~View archived disasters') }}
+          {{ $t('disasters.view_archived_disasters') }}
         </router-link>
         <font-awesome-icon
           :icon="['fas', 'arrow-right']"
@@ -55,11 +55,11 @@
       </div>
 
       <div class="text-3xl mt-6" data-testid="testCurrentDisastersHeader">
-        {{ $t('~~For Survivors') }}
+        {{ $t('disasters.for_survivors') }}
       </div>
 
       <div class="font-semibold mb-2">
-        {{ $t('~~Frequently Asked Quesitons') }}
+        {{ $t('disasters.faq') }}
       </div>
 
       <Accordion>

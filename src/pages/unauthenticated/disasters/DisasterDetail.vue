@@ -51,7 +51,7 @@ onMounted(async () => {
         class="text-primary cursor-pointer"
       />
       <router-link to="/disasters">
-        {{ $t('~~Back to active disasters') }}
+        {{ $t('disasters.back_to_active') }}
       </router-link>
     </div>
     <div class="text-2xl font-semibold">{{ incident.name }}</div>
@@ -62,7 +62,7 @@ onMounted(async () => {
       "
       class="flex items-center gap-5 my-1"
     >
-      {{ $t('~~Hotline(s): ') }}
+      {{ $t('disasters.hotlines') }}
       <div class="flex gap-2">
         <span
           v-for="number in incident.active_phone_number"
