@@ -263,6 +263,8 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     }),
   );
 
+  const client = axios.create(createAxiosCasingTransform());
+
   const uploadFile = (fileData: Blob) => {
     if (!collectionId.value) {
       const err = new Error('No collection ID provided');
@@ -293,6 +295,17 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
         .execute(`/rag_collections/${collectionId.value}`)
         .catch(getErrorMessage),
     );
+  };
+
+  const updateFile = async (
+    documentFile: CCUDocumentFileItem,
+    attr: Partial<CCUDocumentFileItemAttr>,
+  ) => {
+    const newAttr = defu(attr, documentFile.attr);
+    const result = await client
+      .patch(`/files/${documentFile.id}`, { attr: newAttr })
+      .catch(getAndToastErrorMessage);
+    debug('updated file: %o', { newAttrs: newAttr, result: result });
   };
 
   const activeToastIds = reactive<
@@ -372,6 +385,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   return {
     deleteFile,
     uploadFile,
+    updateFile,
     uploadedDocuments: readonly(uploadedDocuments),
     collectionDocuments: computed(
       () =>
