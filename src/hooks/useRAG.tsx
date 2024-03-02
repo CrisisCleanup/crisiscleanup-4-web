@@ -137,11 +137,26 @@ interface PaginatedResponse<T> {
   results: Array<T>;
 }
 
+interface CCUDocumentFileItemAttr {
+  [key: string]: string;
+  virtualPath: string;
+}
+
+interface CCUDocumentFileItem extends CamelCasedProperties<CCUFileItem> {
+  attr: null | CCUDocumentFileItemAttr;
+}
+
+interface DocumentFileBranch {
+  name: string;
+  branches: DocumentFileBranch[];
+  files: CCUDocumentFileItem[];
+}
+
 interface Collection {
   cmetadata: null | Record<string, unknown>;
   name: string;
   uuid: string;
-  files?: Array<CamelCasedProperties<CCUFileItem>>;
+  files?: Array<CCUDocumentFileItem>;
 }
 
 interface CollectionResponse extends PaginatedResponse<Collection> {}
@@ -151,6 +166,8 @@ export type {
   Document as RAGDocument,
   RAGEntry,
   ToolMessage as RAGToolMessage,
+  CCUDocumentFileItem,
+  DocumentFileBranch as RAGDocumentsFileBranch,
 };
 
 const RAGToastMessage: FunctionalComponent<{
