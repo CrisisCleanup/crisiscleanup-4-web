@@ -15,6 +15,7 @@ import type { CCUFileItem } from '@/models/types';
 import type { CamelCasedProperties } from 'type-fest';
 import axios from 'axios';
 import moment from 'moment';
+import defu from 'defu';
 
 const debug = createDebug('@ccu:hooks:useRAG');
 
@@ -335,7 +336,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
       }
       case 'end': {
         toastType = ToastType.SUCCESS;
-        content = `Document processing complete`;
+        content = `Finished: ${message.message}`;
         collectionState
           .execute(`/rag_collections/${collectionId.value}`)
           .then(() => debug('refetched collections'))
@@ -382,18 +383,53 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     handleDocumentMessage(newValue, newValue.fileId);
   });
 
+  const collectionDocuments = computed(
+    () =>
+      collectionState.data.value?.files?.sort?.((a, b) =>
+        a.filenameOriginal.localeCompare(b.filenameOriginal),
+      ),
+  );
+
+  const documentsTree = computed(() => {
+    const branches: DocumentFileBranch[] = [];
+
+    for (const file of collectionDocuments.value ?? []) {
+      const path = file.attr?.virtualPath ?? '';
+      const pathParts = path.split('/');
+      let currentBranch = branches;
+      let currentPath: string[] = [];
+      for (const dir of pathParts) {
+        currentPath = [...currentPath, dir];
+        const docsAtPath = (collectionDocuments.value ?? []).filter(
+          (doc) => (doc.attr?.virtualPath ?? '') === currentPath.join('/'),
+        );
+        const existing = currentBranch.find((b) => b.name === dir);
+        if (existing) {
+          currentBranch = existing.branches;
+          existing.files = docsAtPath;
+        } else {
+          const newBranch: DocumentFileBranch = {
+            name: dir,
+            branches: [],
+            files: [],
+          };
+          currentBranch.push(newBranch);
+          currentBranch = newBranch.branches;
+          newBranch.files = docsAtPath;
+        }
+      }
+    }
+    return branches.sort((a, b) => a.name.localeCompare(b.name));
+  });
+
   return {
     deleteFile,
     uploadFile,
     updateFile,
     uploadedDocuments: readonly(uploadedDocuments),
-    collectionDocuments: computed(
-      () =>
-        collectionState.data.value?.files?.sort?.((a, b) =>
-          a.filenameOriginal.localeCompare(b.filenameOriginal),
-        ),
-    ),
+    collectionDocuments,
     isDocumentsLoading: readonly(collectionState.isLoading),
+    documentsTree,
   };
 };
 
