@@ -4,7 +4,9 @@
       class="w-full text-left bg-white py-2 px-4 hover:bg-gray-100 focus:outline-none flex justify-between items-center"
       @click="toggleOpen"
     >
-      {{ name }}
+      <slot name="name">
+        {{ name }}
+      </slot>
       <font-awesome-icon :icon="isOpen ? 'chevron-down' : 'chevron-right'" />
     </button>
     <div v-show="isOpen" class="py-2 px-4">
