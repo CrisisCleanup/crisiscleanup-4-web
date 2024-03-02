@@ -311,7 +311,11 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
     </TitledCard>
 
     <div class="flex flex-col">
-      <TabbedCard :tabs="configTabs">
+      <TabbedCard
+        :tabs="configTabs"
+        :loading="false"
+        active-recall-key="rag:active:tab"
+      >
         <template #conversation>
           <template
             v-for="conv in conversations?.conversations"
