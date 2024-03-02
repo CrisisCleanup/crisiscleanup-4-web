@@ -3,7 +3,15 @@
  */
 
 import type { Ref } from 'vue';
-import { computed, onMounted, reactive, ref, watch, watchEffect } from 'vue';
+import {
+  computed,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+  isRef,
+} from 'vue';
 import _ from 'lodash';
 import type {
   RouteLocationNormalized,
@@ -28,6 +36,7 @@ export interface UseTabProps {
   useRoutes?: boolean;
   rootRoute?: string;
   onNavigate?: (route: RouteRecordRaw) => RouteRecordRaw;
+  activeIndex?: Ref<number> | number;
 }
 
 /**
@@ -46,6 +55,7 @@ export const useTabs = ({
   tabContainer,
   tabSelector,
   onNavigate = (route) => route,
+  ...props
 }: UseTabProps) => {
   // const Log = Logger({ name: 'useTabs' });
   const Log = console;
@@ -61,7 +71,9 @@ export const useTabs = ({
       ),
     ),
   }));
-  const activeIndex = ref(0);
+  const activeIndex = isRef<number>(props.activeIndex)
+    ? props.activeIndex
+    : ref<number>(<number>props.activeIndex ?? 0);
   const selectorState = reactive({
     transform: 0,
     scale: 0,
