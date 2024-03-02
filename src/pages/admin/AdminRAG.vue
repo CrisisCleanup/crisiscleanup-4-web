@@ -434,7 +434,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 
 <style scoped lang="postcss">
 .rag {
-  /** 3 (1x3) column stack on small displays */
+  /** (2x1) column stack on small displays */
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr) minmax(0, 0.25fr);
   transition: all 300ms ease-in-out;
@@ -445,7 +445,7 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
 @media screen(md) {
   .rag {
     /** 2x2 grid stack on small displays */
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.3fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.4fr);
     grid-template-rows: minmax(0, 1fr);
     min-height: 90vh;
     max-height: 90vh;
