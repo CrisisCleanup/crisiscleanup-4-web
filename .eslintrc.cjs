@@ -27,6 +27,9 @@ const config = {
     project: ['./tsconfig.json', './tsconfig.node.json'],
     tsconfigRootDir: __dirname,
     extraFileExtensions: ['.vue'],
+    ecmaFeatures: {
+      jsx: true,
+    }
   },
   settings: {
     'import/parsers': {
