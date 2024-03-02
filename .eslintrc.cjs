@@ -29,7 +29,7 @@ const config = {
     extraFileExtensions: ['.vue'],
     ecmaFeatures: {
       jsx: true,
-    }
+    },
   },
   settings: {
     'import/parsers': {
@@ -80,6 +80,13 @@ const config = {
   overrides: [
     {
       files: ['*.vue'],
+      parser: 'vue-eslint-parser',
+      parserOptions: {
+        // see:
+        // https://github.com/ota-meshi/typescript-eslint-parser-for-extra-files
+        // resolves tsx in vue among other issues
+        parser: 'typescript-eslint-parser-for-extra-files',
+      },
       rules: {
         'vue/multi-word-component-names': 'warn',
         'vue/no-reserved-component-names': 'warn',
