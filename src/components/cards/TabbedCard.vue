@@ -7,9 +7,15 @@ const props = withDefaults(
   defineProps<{
     tabs: Tab[];
     loading: boolean;
+    /**
+     * Optional key to use for storing the active tab index in local storage
+     * Defaults to first tab otherwise.
+     */
+    activeRecallKey?: string | undefined;
   }>(),
   {
     loading: false,
+    activeRecallKey: undefined,
   },
 );
 
@@ -17,10 +23,17 @@ const { tabs, loading } = toRefs(props);
 
 const tabContainer = ref<null | HTMLElement>(null);
 const tabSelector = ref<null | HTMLElement>(null);
+let activeRef = ref<number>(0);
+if (props.activeRecallKey !== undefined) {
+  activeRef = useStorage(props.activeRecallKey, 0, localStorage, {
+    writeDefaults: false,
+  });
+}
 const { activeIndex, selectorStyle, setTab, state } = useTabs({
   tabs: tabs,
   tabSelector,
   tabContainer,
+  activeIndex: activeRef,
 });
 
 const slots = useSlots();
