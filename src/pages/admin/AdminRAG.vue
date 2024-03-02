@@ -1,6 +1,11 @@
-<script lang="ts" setup>
-import { ref, type Ref } from 'vue';
-import type { RAGEntry, Tab } from '@/hooks';
+<script lang="tsx" setup>
+import { type FunctionalComponent, ref, type Ref, withModifiers } from 'vue';
+import type {
+  CCUDocumentFileItem,
+  RAGDocumentsFileBranch,
+  RAGEntry,
+  Tab,
+} from '@/hooks';
 import {
   useRAG,
   useRAGCollections,
@@ -22,6 +27,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { getAndToastErrorMessage } from '@/utils/errors';
 import MessageTools from '@/components/admin/rag/MessageTools.vue';
+import AccordionItem from '@/components/accordion/AccordionItem.vue';
 
 const question = ref<string>('');
 const { collections } = useRAGCollections();
@@ -122,8 +128,14 @@ const collection = computed(
   () => collections.value?.find((c) => c.uuid === collectionId.value),
 );
 const hasCollection = computed(() => !!collection.value);
-const { uploadFile, collectionDocuments, deleteFile, isDocumentsLoading } =
-  useRAGUpload(collectionId);
+const {
+  uploadFile,
+  collectionDocuments,
+  deleteFile,
+  isDocumentsLoading,
+  updateFile,
+  documentsTree,
+} = useRAGUpload(collectionId);
 
 const allCollectionFileIds = useStorage<Record<string, number[]>>(
   'rag:active:fileIds',
@@ -142,6 +154,7 @@ const currentCollectionActiveFileIds = computed<Set<number>>(
 );
 
 // shallowly validate active file ids (or default them to all if none)
+// this to keep our local storage backed state in check
 whenever(
   collectionDocuments,
   (newValue) => {
@@ -171,10 +184,10 @@ whenever(
   { deep: false },
 );
 
-const toggleFile = (fileId: number) => {
+const toggleFile = (fileId: number, toActive?: boolean) => {
   const isActive = currentCollectionActiveFileIds.value?.has(fileId);
   let newValue: number[];
-  if (isActive) {
+  if (isActive && (toActive === false || toActive === undefined)) {
     const values = new Set(currentCollectionActiveFileIds.value);
     values.delete(fileId);
     newValue = [...values];
@@ -263,6 +276,195 @@ const collectionsDropdownProps = computed(() => ({
 }));
 
 const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
+
+// Todo: Extract out
+
+const MoveFileInput: FunctionalComponent<{
+  documentFile: CCUDocumentFileItem;
+}> = (props, context) => {
+  const documentFile = toRef(props, 'documentFile');
+  const virtualPath = ref(documentFile.value?.attr?.virtualPath ?? '');
+  return (
+    <BaseInput
+      modelValue={virtualPath.value}
+      onUpdate:modelValue={(v) => context.emit('update:documentFile', v)}
+    />
+  );
+};
+
+const DocumentsBranch: FunctionalComponent<{
+  branch: RAGDocumentsFileBranch;
+}> = (props) => {
+  const DivBody: FunctionalComponent = (_, divContext) => (
+    <div>
+      {{
+        default: () => divContext.slots.default!(),
+      }}
+    </div>
+  );
+
+  const isFileActive = (file: CCUDocumentFileItem) =>
+    currentCollectionActiveFileIds.value.has(file.id);
+  const isBranchActive = (branch: RAGDocumentsFileBranch): boolean =>
+    branch.files.every((file) => isFileActive(file)) &&
+    branch.branches.every((child) => isBranchActive(child));
+
+  const setBranch = (branch: RAGDocumentsFileBranch, active: boolean) => {
+    for (const file of branch.files) {
+      if (active) {
+        toggleFile(file.id, true);
+      } else {
+        toggleFile(file.id, false);
+      }
+    }
+    for (const child of branch.branches) setBranch(child, active);
+  };
+
+  const toggleBranch = (branch: RAGDocumentsFileBranch) => {
+    const isActive = isBranchActive(branch);
+    setBranch(branch, !isActive);
+  };
+
+  const FileItem: FunctionalComponent<
+    {
+      file: CCUDocumentFileItem;
+      menuIsOpen: boolean;
+    },
+    { 'update:menuIsOpen': (v: boolean) => void }
+  > = (itemProps, itemContext) => {
+    const toggleMenu = withModifiers(() => {
+      itemContext.emit('update:menuIsOpen', !itemProps.menuIsOpen);
+    }, ['prevent']);
+    return (
+      // eslint-disable-next-line no-undef
+      <VPopover
+        shown={itemProps.menuIsOpen}
+        autoHide={true}
+        triggers={[]}
+        onContextmenu={toggleMenu}
+        onUpdate:shown={(v: boolean) =>
+          itemContext.emit('update:menuIsOpen', v)
+        }
+      >
+        {{
+          default: () => (
+            <div
+              class="border-2 border-transparent border-b-crisiscleanup-light-smoke py-1 pl-1 hover:bg-crisiscleanup-light-grey transition-all cursor-pointer"
+              title={itemProps.file.filenameOriginal}
+              onClick={() => toggleFile(itemProps.file.id)}
+            >
+              <BaseCheckbox
+                modelValue={isFileActive(itemProps.file)}
+                onUpdate:modelValue={() => toggleFile(itemProps.file.id)}
+              >
+                <BaseText
+                  variant="h4"
+                  class="pl-1 text-left truncate text-ellipsis"
+                >
+                  {itemProps.file.filenameOriginal}
+                </BaseText>
+              </BaseCheckbox>
+            </div>
+          ),
+          popper: () => (
+            // eslint-disable-next-line no-undef
+            <BaseButton
+              class="p-1"
+              text="Move to folder"
+              variant="text"
+              action={() => moveFile(itemProps.file)}
+            />
+          ),
+        }}
+      </VPopover>
+    );
+  };
+
+  const parentComponent = props.branch.name === '' ? DivBody : AccordionItem;
+  const fileMenus = reactive<Record<number, boolean>>(
+    Object.fromEntries(props.branch.files.map((file) => [file.id, false])),
+  );
+  let parentClasses = `font-h4 text-h4 text-crisiscleanup-dark-400`;
+  if (parentComponent === AccordionItem) {
+    parentClasses += ' rag__accordion';
+  }
+
+  return (
+    <parentComponent class={parentClasses} name={props.branch.name}>
+      {{
+        default: () => (
+          <div class="contents">
+            {props.branch.branches.map((child) => (
+              <DocumentsBranch branch={child} />
+            ))}
+            {props.branch.files.map((file) => (
+              <FileItem
+                key={`fileitem-${file.id}`}
+                file={file}
+                menuIsOpen={fileMenus[file.id]}
+                onUpdate:menuIsOpen={(v) => (fileMenus[file.id] = v)}
+              />
+            ))}
+          </div>
+        ),
+        name: () => (
+          <BaseCheckbox
+            modelValue={isBranchActive(props.branch)}
+            onUpdate:modelValue={() => toggleBranch(props.branch)}
+          >
+            <ccu-icon
+              linked
+              type="folder"
+              fa
+              icon-classes="fa-light"
+              size="sm"
+              with-text
+            >
+              <BaseText
+                variant="h4"
+                class="pl-1 text-left text-crisiscleanup-dark-500 font-bold truncate text-ellipsis"
+              >
+                {props.branch.name}
+              </BaseText>
+            </ccu-icon>
+          </BaseCheckbox>
+        ),
+      }}
+    </parentComponent>
+  );
+};
+
+const moveFile = async (documentFile: CCUDocumentFileItem) => {
+  const virtualPath = ref(documentFile.attr?.virtualPath ?? '');
+
+  const result = await component({
+    title: 'Move to folder',
+    component: MoveFileInput,
+    classes: 'w-full h-25 p-3',
+    modalClasses: 'bg-white max-w-4xl shadow',
+    props: {
+      documentFile,
+    },
+    listeners: {
+      'update:documentFile': (v: string) => {
+        virtualPath.value = v;
+      },
+    },
+  });
+  if (result === 'ok') {
+    documentFile.attr = {
+      ...documentFile.attr,
+      virtualPath: virtualPath.value,
+    };
+    await updateFile(documentFile, { virtualPath: virtualPath.value });
+    toast.success('File move to: ' + virtualPath.value, {
+      pauseOnFocusLoss: false,
+      timeout: 2000,
+    });
+  } else {
+    toast.warning('File move cancelled');
+  }
+};
 </script>
 
 <template>
@@ -385,24 +587,11 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
               >
             </base-checkbox>
           </div>
-          <template v-for="doc in collectionDocuments" :key="doc.filename">
-            <div
-              class="border-b-2 py-1 pl-1 hover:bg-crisiscleanup-light-grey transition-all cursor-pointer ws-nowrap text-ellipsis"
-              :title="doc.filenameOriginal"
-              @click="() => toggleFile(doc.id)"
-            >
-              <base-checkbox
-                :model-value="currentCollectionActiveFileIds.has(doc.id)"
-                @update:model-value="() => toggleFile(doc.id)"
-              >
-                <BaseText
-                  variant="h4"
-                  class="pl-1 text-left truncate text-ellipsis"
-                  >{{ doc.filenameOriginal }}</BaseText
-                >
-              </base-checkbox>
-            </div>
-          </template>
+          <DocumentsBranch
+            v-for="branch in documentsTree"
+            :key="branch.name"
+            :branch="branch"
+          />
         </template>
         <template #files-footer>
           <div class="flex flex-col">
@@ -501,5 +690,9 @@ const configTabs: Tab[] = [{ key: 'conversation' }, { key: 'files' }];
       @apply pr-3;
     }
   }
+}
+
+:deep(.rag__accordion button) {
+  @apply border-2 border-transparent border-b-crisiscleanup-light-smoke py-1 pl-1 pr-1 hover:bg-crisiscleanup-light-grey transition-colors cursor-pointer;
 }
 </style>
