@@ -30,6 +30,7 @@ import MessageTools from '@/components/admin/rag/MessageTools.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
 
 const question = ref<string>('');
+const fileSearch = ref<string>('');
 const { collections } = useRAGCollections();
 const collectionId = useStorage<string | undefined>(
   'rag:collectionId',
@@ -309,6 +310,16 @@ const DocumentsBranch: FunctionalComponent<{
     branch.files.every((file) => isFileActive(file)) &&
     branch.branches.every((child) => isBranchActive(child));
 
+  const shouldShowBranch = (branch: RAGDocumentsFileBranch): boolean =>
+    fileSearch.value === '' ||
+    branch.name.toLowerCase().includes(fileSearch.value.toLowerCase()) ||
+    branch.branches.some((branch) => shouldShowBranch(branch)) ||
+    branch.files.some((file) =>
+      file.filenameOriginal
+        .toLowerCase()
+        .includes(fileSearch.value.toLowerCase()),
+    );
+
   const setBranch = (branch: RAGDocumentsFileBranch, active: boolean) => {
     for (const file of branch.files) {
       if (active) {
@@ -395,7 +406,10 @@ const DocumentsBranch: FunctionalComponent<{
         default: () => (
           <div class="contents">
             {props.branch.branches.map((child) => (
-              <DocumentsBranch branch={child} />
+              <DocumentsBranch
+                v-show={shouldShowBranch(child)}
+                branch={child}
+              />
             ))}
             {props.branch.files.map((file) => (
               <FileItem
@@ -403,6 +417,15 @@ const DocumentsBranch: FunctionalComponent<{
                 file={file}
                 menuIsOpen={fileMenus[file.id]}
                 onUpdate:menuIsOpen={(v) => (fileMenus[file.id] = v)}
+                v-show={
+                  fileSearch.value === '' ||
+                  file.filenameOriginal
+                    .toLowerCase()
+                    .includes(fileSearch.value.toLowerCase()) ||
+                  props.branch.name
+                    .toLowerCase()
+                    .includes(fileSearch.value.toLowerCase())
+                }
               />
             ))}
           </div>
@@ -568,6 +591,8 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
           </div>
         </template>
         <template #files>
+          <BaseInput v-model="fileSearch" :placeholder="t('Search')" />
+
           <div
             class="border-2 border-transparent border-b-crisiscleanup-light-smoke py-1 pl-1"
           >
