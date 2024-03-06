@@ -153,18 +153,18 @@ onMounted(async () => {
         <div class="w-56">
           {{ length(list.object_ids) }} {{ getListItemName(model) }}
         </div>
-        <base-button
-          :action="() => printList(list.id)"
-          class="w-20 bg-crisiscleanup-dark-100"
-        >
-          {{ $t('actions.print') }}
-        </base-button>
-        <base-button
-          :action="() => shareList(list.id)"
-          class="w-20 bg-crisiscleanup-dark-100"
-        >
-          {{ $t('actions.print') }}
-        </base-button>
+        <!--        <base-button-->
+        <!--          :action="() => printList(list.id)"-->
+        <!--          class="w-20 bg-crisiscleanup-dark-100"-->
+        <!--        >-->
+        <!--          {{ $t('actions.print') }}-->
+        <!--        </base-button>-->
+        <!--        <base-button-->
+        <!--          :action="() => shareList(list.id)"-->
+        <!--          class="w-20 bg-crisiscleanup-dark-100"-->
+        <!--        >-->
+        <!--          {{ $t('actions.share') }}-->
+        <!--        </base-button>-->
         <base-button
           :action="() => editList(list.id)"
           class="w-20 bg-crisiscleanup-dark-100"

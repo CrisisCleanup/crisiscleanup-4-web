@@ -15,6 +15,9 @@
     >
       {{ $t('list.no_lists_found') }}
     </div>
+    <base-button :action="createList" class="mt-2 p-1 w-full" variant="solid">
+      {{ $t('~~Create New List') }}
+    </base-button>
   </div>
 </template>
 
@@ -22,6 +25,8 @@
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 import debounce from 'lodash/debounce';
+import useCreateList from '@/hooks/lists/useCreateList';
+import BaseButton from '@/components/BaseButton.vue';
 
 interface List {
   id: number;
@@ -38,10 +43,13 @@ const props = defineProps({
   },
 });
 
+const { createList } = useCreateList(getLists, props.modelType);
+
 const userLists = ref<List[]>([]);
 
 const baseUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/lists`;
-onMounted(async () => {
+
+async function getLists() {
   try {
     const response = await axios.get<{ results: List[] }>(baseUrl, {
       params: {
@@ -53,6 +61,10 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error fetching user lists:', error);
   }
+}
+
+onMounted(async () => {
+  await getLists();
 });
 
 const search = ref('');
