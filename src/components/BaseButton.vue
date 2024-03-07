@@ -278,4 +278,8 @@ button.large {
   padding-left: 34px;
   padding-right: 34px;
 }
+
+button.text-dark {
+  @apply text-crisiscleanup-link-blue;
+}
 </style>
