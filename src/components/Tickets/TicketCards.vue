@@ -2,8 +2,7 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import _ from 'lodash';
-import { useStore } from 'vuex';
-import { ref, Teleport } from 'vue';
+import { ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useMq } from 'vue3-mq';
 import Table from '../Table.vue';
@@ -33,9 +32,9 @@ const { t } = useI18n();
 const toast = useToast();
 
 export interface TicketCardsProps {
-  ticketData?: Record<string, any>;
-  agents: Record<string, any>[];
-  currentUser?: Record<string, any>;
+  ticketData?: Record<string, unknown>;
+  agents: Record<string, unknown>[];
+  currentUser?: Record<string, unknown>;
 }
 
 interface Thumbnail {
@@ -88,7 +87,6 @@ const StatusEnum = {
   PENDING: 'pending',
   SOLVED: 'solved',
 };
-const store = useStore();
 const props = withDefaults(defineProps<TicketCardsProps>(), {
   ticketData: undefined,
   agents: () => [],
@@ -205,7 +203,7 @@ const submittedFrom = computed(() => {
 const assignedUser = computed(() => {
   return _.find(props.agents, { id: props.ticketData?.assignee_id }) as Record<
     string,
-    any
+    unknown
   >;
 });
 const ticketAssigneeName = computed(() => {
@@ -370,7 +368,7 @@ const replyToTicket = (replyStatus: string) => {
           fetchActiveTicket();
           ticketReply.value = '';
         } else {
-          reAssignTicket(currentUserID.value);
+          reAssignTicket(currentUserID.value!);
         }
       })
       .then(() => {
@@ -562,11 +560,11 @@ const mappedMacros = ref([]);
 
 const getMacros = () => {
   axiosInstance
-    .get<Record<string, any>>(`/macros`, {})
+    .get<Record<string, unknown>>(`/macros`, {})
     .then((response: AxiosResponse<unknown>) => {
       const mappedData = response.data?.macros.map((macro) => {
         const templateAction = macro.actions.find(
-          (action: Record<string, any>) => action.field === 'comment_value',
+          (action: Record<string, unknown>) => action.field === 'comment_value',
         );
         const templateValue = templateAction?.value ?? '';
         return {
@@ -743,8 +741,6 @@ const showInvitationsModal = () => {
   invitationsModalVisibility.value = !invitationsModalVisibility.value;
 };
 const tableWidthMQ = computed(() => {
-  const screenWidth = window.innerWidth;
-
   return {
     height: '670px',
     width: '100%',
@@ -1261,12 +1257,8 @@ onMounted(async () => {
           class="comments__items"
           :class="getCommentHighlights(comment)"
         >
-          <BaseText class="font-bold">
+          <BaseText class="text-3xl font-bold">
             {{ getAgentById(comment.author_id) ?? zendeskUser.name }}
-          </BaseText>
-          <BaseText class="mb-2" style="color: #848f99">
-            <!--            {{ formatDateString(comment.created_at, 'MM/DD/YYYY, h:mm:ss A') }}-->
-            {{ momentFromNow(comment.created_at) }}
           </BaseText>
           <BaseText>{{ removeSubmittedFromFooter(comment.body) }}</BaseText>
 
@@ -1339,6 +1331,7 @@ onMounted(async () => {
                       {{ slotProps.item.template }}
                     </div>
                   </div>
+
                 </template>
               </Table>
             </template>
@@ -1520,7 +1513,7 @@ onMounted(async () => {
     @apply flex flex-col gap-2 px-4 py-2 col-span-6 row-span-2;
 
     .buttons__container {
-      @apply flex gap-2 grid grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4;
+      @apply flex gap-2 grid grid-cols-1 sm:grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4;
     }
   }
 }

@@ -722,7 +722,7 @@ onMounted(() => {
     :fullscreen="isFullscreen"
     :class="[mq.md ? 'px-10' : '', mq.lgPlus ? 'p-5' : '']"
     modal-header-classes="sticky top-0 bg-white"
-    modal-classes="overflow-auto"
+    modal-classes="overflow-auto h-full"
     @close="showTicketModal()"
   >
     <template #header>
