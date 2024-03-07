@@ -1,7 +1,7 @@
 <template>
   <div class="text-xs">
     <div class="flex items-center justify-between">
-      <span class="text-sm">{{ getEventTitle(currentEvent.event_key) }}</span>
+      <div v-html="getHeader()"></div>
       <span style="font-size: 10px">{{
         momentFromNow(currentEvent.created_at)
       }}</span>
@@ -20,6 +20,7 @@
 
 <script lang="ts">
 import { momentFromNow } from '@/filters';
+import useWorktypeImages from '@/hooks/worksite/useWorktypeImages';
 
 export default defineComponent({
   name: 'EventCard',
@@ -31,8 +32,9 @@ export default defineComponent({
       },
     },
   },
-  setup() {
+  setup(props) {
     const { t } = useI18n();
+    const { getWorktypeSVG } = useWorktypeImages();
     const $t = (text: string, attrs: Record<string, any>) => {
       return text ? t(text, attrs) : null;
     };
@@ -54,11 +56,24 @@ export default defineComponent({
       );
       return $t(tag, translated_attrs);
     }
+    const getHeader = () => {
+      if (props.currentEvent.attr) {
+        const work_type = props.currentEvent.attr.patient_name_t;
+        return getWorktypeSVG(
+          {
+            work_type: work_type.substring(work_type.indexOf('.') + 1, work_type.length),
+            status: props.currentEvent.attr.patient_status,
+          },
+          25,
+        );
+      }
+    };
 
     return {
       getEventTitle,
       getTranslation,
       momentFromNow,
+      getHeader,
     };
   },
 });
