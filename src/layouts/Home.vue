@@ -127,9 +127,9 @@ export default defineComponent({
         label: t('publicNav.training'),
       },
       {
-        key: 'survivor',
-        route: '/survivor',
-        label: t('publicNav.survivor'),
+        key: 'disasters',
+        route: '/disasters',
+        label: t('publicNav.disasters'),
       },
       {
         key: 'contact',
@@ -157,7 +157,7 @@ export default defineComponent({
           'blog',
           'map',
           'training',
-          'survivor',
+          'disasters',
           'contact',
         ].includes(r.key),
       );
