@@ -17,7 +17,7 @@
           skip-validation
           class="w-full"
           @input="(e) => updateWorksite(e, 'name')"
-          @selectedExisting="onWorksiteSelect"
+          @selected-existing="onWorksiteSelect"
         />
       </section>
       <div class="form-field">
@@ -37,8 +37,8 @@
               ? $t('caseForm.sms')
               : null
           "
-          @update:modelValue="(v) => updateWorksite(v, 'phone1')"
-          @iconClicked="() => sendSms(worksite.phone1)"
+          @update:model-value="(v) => updateWorksite(v, 'phone1')"
+          @icon-clicked="() => sendSms(worksite.phone1)"
         />
       </div>
       <div v-if="worksite.phone2 || addAdditionalPhone" class="form-field">
@@ -57,8 +57,8 @@
               ? $t('caseForm.sms')
               : null
           "
-          @update:modelValue="(v) => updateWorksite(v, 'phone2')"
-          @iconClicked="() => sendSms(worksite.phone2)"
+          @update:model-value="(v) => updateWorksite(v, 'phone2')"
+          @icon-clicked="() => sendSms(worksite.phone2)"
         />
       </div>
       <base-button
@@ -78,7 +78,7 @@
           selector="js-worksite-email"
           size="large"
           :placeholder="$t('formLabels.email')"
-          @update:modelValue="(v) => updateWorksite(v, 'email')"
+          @update:model-value="(v) => updateWorksite(v, 'email')"
         />
       </div>
       <div class="form-field">
@@ -100,7 +100,7 @@
           label="name_t"
           size="large"
           :placeholder="$t('formLabels.primary_language')"
-          @update:modelValue="(v) => updateWorksite(v, 'language')"
+          @update:model-value="(v) => updateWorksite(v, 'language')"
         />
       </div>
       <div
@@ -130,7 +130,7 @@
           item-key="value"
           label="name_t"
           :placeholder="$t('casesVue.auto_contact_frequency')"
-          @update:modelValue="
+          @update:model-value="
             (v) => updateWorksite(v, 'auto_contact_frequency_t')
           "
         />
@@ -202,7 +202,7 @@
               : $t('caseView.full_address')
           "
           required
-          @update:modelValue="(v) => updateWorksite(v, 'address')"
+          @update:model-value="(v) => updateWorksite(v, 'address')"
         />
         <WorksiteSearchInput
           v-else
@@ -222,8 +222,8 @@
           class="w-full"
           :use-recents="false"
           @input="(v) => updateWorksite(v, 'address')"
-          @selectedExisting="onWorksiteSelect"
-          @selectedGeocode="onGeocodeSelect"
+          @selected-existing="onWorksiteSelect"
+          @selected-geocode="onGeocodeSelect"
         />
       </div>
       <template v-if="showAddressDetails">
@@ -236,7 +236,7 @@
             size="large"
             :placeholder="$t('formLabels.city')"
             required
-            @update:modelValue="(v) => updateWorksite(v, 'city')"
+            @update:model-value="(v) => updateWorksite(v, 'city')"
           />
         </div>
         <div class="form-field">
@@ -249,7 +249,7 @@
             size="large"
             :placeholder="$t('formLabels.county')"
             required
-            @update:modelValue="(v) => updateWorksite(v, 'county')"
+            @update:model-value="(v) => updateWorksite(v, 'county')"
           />
         </div>
         <div class="form-field">
@@ -262,7 +262,7 @@
             size="large"
             :placeholder="$t('formLabels.state')"
             required
-            @update:modelValue="(v) => updateWorksite(v, 'state')"
+            @update:model-value="(v) => updateWorksite(v, 'state')"
           />
         </div>
         <div class="form-field">
@@ -275,7 +275,7 @@
             size="large"
             :placeholder="$t('formLabels.postal_code')"
             required
-            @update:modelValue="(v) => updateWorksite(v, 'postal_code')"
+            @update:model-value="(v) => updateWorksite(v, 'postal_code')"
           />
         </div>
       </template>
@@ -287,7 +287,7 @@
           :placeholder="$t('formLabels.what3words')"
           :required="!worksite.location"
           disabled
-          @update:modelValue="(v) => updateWorksite(v, 'what3words')"
+          @update:model-value="(v) => updateWorksite(v, 'what3words')"
         />
 
         <div class="flex justify-around items-center p-2 text-gray-700">
@@ -320,7 +320,7 @@
         <WorksiteNotes
           :worksite="worksite"
           data-testid="testSaveNoteInput"
-          @saveNote="saveNote"
+          @save-note="saveNote"
           @input="currentNote = $event"
         />
         <div v-if="!worksite.isWrongLocation" class="my-1 py-1">
@@ -358,14 +358,14 @@
         :field="field"
         :worksite="worksite"
         :dynamic-fields="dynamicFields"
-        @updateField="
+        @update-field="
           ({ key, value }) => {
             updateDirtyFields(key);
             dynamicFields[key] = value;
             dynamicFields = { ...dynamicFields };
           }
         "
-        @updateWorkTypeStatus="
+        @update-work-type-status="
           ({ work_type, status }) => {
             statusValueChange(status, work_type);
           }
@@ -380,7 +380,7 @@
           :key="worksite.total_time"
           :worksite="worksite"
           data-testid="testWorksiteTotalTimeDiv"
-          @timeAdded="reloadWorksite"
+          @time-added="reloadWorksite"
         />
         <SectionHeading :count="6" class="mb-3"
           >{{ $t('caseForm.photos') }}
@@ -391,14 +391,14 @@
           data-testid="testWorksiteImageSectionDiv"
           class="px-3 pb-3"
           :worksite="worksite"
-          @updateFiles="updateImage"
-          @popLocal="onRemoveFile"
+          @update-files="updateImage"
+          @pop-local="onRemoveFile"
         />
       </template>
     </div>
     <div class="form-footer flex justify-between p-3 gap-2">
       <base-button
-        size="medium"
+        size="large"
         data-testid="testCloseWorksiteButton"
         class="flex-grow"
         variant="outline"
@@ -411,7 +411,7 @@
         :text="$t('actions.cancel')"
       />
       <base-button
-        size="medium"
+        size="large"
         data-testid="testSaveButton"
         variant="solid"
         class="flex-grow"
@@ -421,7 +421,7 @@
       <base-button
         v-if="!disableClaimAndSave"
         data-testid="testSaveClaimButton"
-        size="medium"
+        size="large"
         variant="solid"
         class="flex-grow"
         :action="claimAndSaveWorksite"
