@@ -1,7 +1,9 @@
 <template>
   <div class="navbar overflow-y-auto">
     <router-link :to="logoRoute.to" class="logo--grid">
-      <div class="logo flex justify-center p-3">
+      <div
+        class="logo flex justify-center px-2 py-4 border-b border-crisiscleanup-dark-400"
+      >
         <img
           :src="portal?.logo_url || logo"
           style="height: 53px"
