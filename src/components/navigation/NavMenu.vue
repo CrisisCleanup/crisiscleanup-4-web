@@ -52,7 +52,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style lang="postcss">
 @media only screen and (max-width: 1223px) and (orientation: landscape) {
   .navbar {
     @apply mb-20;
