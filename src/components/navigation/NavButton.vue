@@ -79,7 +79,7 @@ a:focus {
   outline: 0;
 }
 .menu-item {
-  @apply px-2 py-3 border-b border-crisiscleanup-dark-400;
+  @apply px-2 py-2.5 border-b border-crisiscleanup-dark-400;
 }
 
 .menu-item:hover {
