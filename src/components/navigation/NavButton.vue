@@ -2,7 +2,7 @@
   <router-link
     v-if="!route.disabled"
     :to="route.to"
-    class="menu-item router-link p-2 border-b border-t border-gray-800"
+    class="menu-item router-link"
     :class="isActive ? 'menu-item--active' : ''"
     :data-testid="`test${route.key}Link`"
   >
@@ -71,15 +71,27 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style lang="postcss" scoped>
 a:hover,
 a:active,
 a:focus {
   outline: 0;
 }
+.menu-item {
+  @apply px-2 py-3 border-b border-crisiscleanup-dark-400;
+}
+
+.menu-item:hover {
+  @apply bg-crisiscleanup-dark-500 transition;
+}
+
 .router-link-active.menu-item {
   background-color: transparent;
   position: relative;
+}
+
+.router-link-active.menu-item--active {
+  background-color: theme('colors.crisiscleanup-dark.500');
 }
 
 .router-link-active.menu-item--active::before {

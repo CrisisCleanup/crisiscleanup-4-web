@@ -629,6 +629,7 @@ export default defineComponent({
 
   .sidebar {
     display: block;
+    background-color: theme('colors.crisiscleanup-dark.900');
   }
 
   .menu-button {
