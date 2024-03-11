@@ -20,6 +20,7 @@
         :alt="$t(`nav.${route.key}`)"
         :data-testid="$t(`test${route.key}Icon`)"
         :class="isActive ? 'filter-primary' : ''"
+        size="xl"
         v-bind="iconProps"
         :linked="true"
       />
