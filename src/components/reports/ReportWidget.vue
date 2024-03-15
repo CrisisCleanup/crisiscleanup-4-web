@@ -2,6 +2,7 @@
   <div v-if="hasData" class="p-3">
     <div class="actions flex my-4 justify-end items-center">
       <base-button
+        v-if="!hideDownload"
         class="text-base font-thin mx-1"
         data-testid="testDownloadWidgetCsvButton"
         ccu-icon="download"
@@ -13,6 +14,7 @@
         :action="() => $emit('downloadWidgetCsv', widgetKey)"
       />
       <base-button
+        v-if="!hidePrint"
         class="text-base font-thin mx-1"
         data-testid="testPrintWidgetButton"
         ccu-icon="print"
@@ -30,7 +32,7 @@
         data-testid="testAddToDashboardCheckbox"
         class="text-sm mx-1"
         :model-value="availableWidgets.includes(widgetKey)"
-        @update:modelValue="
+        @update:model-value="
           (v) => {
             if (v) {
               $emit('addWidgetToDashboard', widgetKey);
@@ -128,6 +130,14 @@ export default defineComponent({
     },
     allowAdd: {
       type: Boolean,
+    },
+    hidePrint: {
+      type: Boolean,
+      default: false,
+    },
+    hideDownload: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props) {

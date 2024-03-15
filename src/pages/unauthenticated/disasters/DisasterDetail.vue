@@ -12,8 +12,11 @@ import type { CmsItem } from '@/models/types';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { formatCmsItem } from '@/utils/helpers';
+import { transformGraphData } from '@/utils/reports';
+import ReportWidget from '@/components/reports/ReportWidget.vue';
 
 const route = useRoute();
+const REPORT_ID = 22;
 
 const incident = computed(() => {
   return Incident.find(route.params.id);
@@ -21,7 +24,11 @@ const incident = computed(() => {
 
 const assets = ref({});
 const cmsItems = ref([]);
-
+const graphData = ref<Array<any> | null>([]);
+const transformedData = computed<Record<any, any>>(() => {
+  return transformGraphData(graphData.value);
+});
+const loadingReports = ref(false);
 async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   const response: AxiosResponse<{ results: CmsItem[] }> = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/cms`,
@@ -38,6 +45,23 @@ onMounted(async () => {
   await Incident.api().fetchById(route.params.id);
   assets.value = await getAssets(route.params.id);
   cmsItems.value = await getCmsItems(route.params.id);
+  try {
+    loadingReports.value = true;
+    const response = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/reports/${REPORT_ID}/data`,
+      {
+        params: {
+          incident_id: route.params.id,
+          the_date: `${moment(incident?.value?.start_at).format(
+            'YYYY-MM-DD',
+          )}|${moment().format('YYYY-MM-DD')}`,
+        },
+      },
+    );
+    graphData.value = Object.entries(response.data.widget_data);
+  } finally {
+    loadingReports.value = false;
+  }
 });
 </script>
 
@@ -76,7 +100,7 @@ onMounted(async () => {
 
     <tabs>
       <tab name="Resources">
-        <div class="overflow-auto">
+        <div class="overflow-auto h-[calc(100vh-55px)]">
           <Card
             v-for="(assetGroup, assetType) in assets"
             :key="assetType"
@@ -122,7 +146,7 @@ onMounted(async () => {
         </div>
       </tab>
       <tab name="Latest">
-        <ul class="overflow-auto">
+        <ul class="overflow-auto h-[calc(100vh-55px)]">
           <li v-for="cmsItem in cmsItems" :key="cmsItem.id" class="p-5">
             <div class="flex gap-5">
               <!--              <img-->
@@ -162,7 +186,30 @@ onMounted(async () => {
           </li>
         </ul>
       </tab>
-      <tab name="Reports"> </tab>
+      <tab name="Reports">
+        <div class="overflow-auto h-[calc(100vh-55px)]">
+          <spinner v-if="loadingReports" size="xl" />
+          <div
+            v-for="[key, value] in Object.entries(transformedData)"
+            v-else
+            :key="key"
+            :data-testid="`testReportCard${key}Div`"
+            class="flex flex-col justify-center my-10 ml-8"
+          >
+            <ReportWidget
+              v-if="
+                (value.data.length > 0 || Object.keys(value.data).length > 0) &&
+                value.type !== 'pie'
+              "
+              hide-download
+              hide-print
+              data-testid="testReportWidgetContent"
+              :widget-key="key"
+              :value="value"
+            />
+          </div>
+        </div>
+      </tab>
     </tabs>
   </Home>
 </template>
