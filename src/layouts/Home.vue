@@ -12,7 +12,10 @@
       </div>
     </div>
     <IncidentContact v-if="!noHotline" class="w-full md:w-max hotline m-8" />
-    <div class="main m-8 overflow-auto">
+    <div
+      class="main m-8"
+      :class="noHotline ? 'overflow-hidden' : 'overflow-auto'"
+    >
       <slot />
     </div>
     <div class="register m-8">
@@ -48,7 +51,7 @@
         </router-link>
       </span>
     </div>
-    <div class="footer grid">
+    <div v-if="!noHotline" class="footer grid">
       <div class="flex flex-col m-8 self-end items-center md:items-end">
         <div class="flex items-center justify-center md:justify-end gap-5">
           <span v-for="item in footerRoutes" :key="item.key">
@@ -314,7 +317,7 @@ ol.fifteen > li:before {
     'logo main main main main'
     'nav main main main main'
     'register main main main main'
-    '. . . footer footer';
+    '. main main main main';
 }
 
 .logo {

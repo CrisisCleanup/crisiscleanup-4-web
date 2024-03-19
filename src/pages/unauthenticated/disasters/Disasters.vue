@@ -7,7 +7,8 @@
       <div
         v-for="incident in incidents"
         :key="incident.id"
-        class="mb-5 border rounded"
+        class="mb-5 border rounded cursor-pointer"
+        @click="$router.push('/disasters/' + incident.id)"
       >
         <div :id="camelCase(incident.short_name)" class="p-5 my-3 block">
           <div class="text-2xl font-semibold flex items-center justify-between">
@@ -15,7 +16,6 @@
             <font-awesome-icon
               :icon="['fas', 'chevron-right']"
               class="cursor-pointer"
-              @click="$router.push('/disasters/' + incident.id)"
             />
           </div>
           <div class="text-lg mb-3 opacity-60">
