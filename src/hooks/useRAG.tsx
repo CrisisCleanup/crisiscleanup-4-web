@@ -48,7 +48,7 @@ type RAGSocketConversationMessageBody =
   | RAGSocketQuestionMessageBody
   | RAGSocketAnswerMessageBody;
 
-interface RAGSocketDocumentMessageBody {
+interface RAGSocketDocumentCallbackMessageBody {
   fileId: string;
   fileName: string;
   messageType: 'start' | 'update' | 'error' | 'end';
@@ -56,6 +56,29 @@ interface RAGSocketDocumentMessageBody {
   timestamp: string;
   startTimestamp: string;
 }
+
+interface BaseRAGSocketDocumentActionMessageBody {
+  action: 'callback' | 'cancel';
+}
+
+interface RAGSocketDocumentCancelActionMessageBody
+  extends BaseRAGSocketDocumentActionMessageBody {
+  action: 'cancel';
+  fileId: string;
+}
+
+interface RAGSocketDocumentCallbackActionMessageBody
+  extends RAGSocketDocumentCallbackMessageBody {
+  action: 'callback';
+}
+
+type RAGSocketDocumentActionMessageBody =
+  | RAGSocketDocumentCancelActionMessageBody
+  | RAGSocketDocumentCallbackActionMessageBody;
+
+type RAGSocketDocumentMessageBody =
+  | RAGSocketDocumentCallbackMessageBody
+  | RAGSocketDocumentActionMessageBody;
 
 interface RAGSocketConversationMessage
   extends RAGSocketMessage<RAGSocketConversationMessageBody> {
@@ -176,7 +199,7 @@ const RAGToastMessage: FunctionalComponent<{
   content: string;
   timestamp: string;
   startTimestamp: string;
-}> = (props) => {
+}> = (props, context) => {
   const timestamp = computed(() => moment(props.timestamp));
   const startTimestamp = computed(() => moment(props.startTimestamp));
 
@@ -222,6 +245,16 @@ const RAGToastMessage: FunctionalComponent<{
           <span class={'font-bold'}>Elapsed: </span>
           {elapsed.minutes}m {elapsed.seconds}s
         </base-text>
+      </div>
+      <div class={'pt-1'}>
+        <base-button
+          icon={'cancel'}
+          icon-size={'sm'}
+          text={'Cancel'}
+          action={() => context.emit('cancel')}
+          variant={'text'}
+          class={'float-right'}
+        />
       </div>
     </div>
   );
@@ -310,11 +343,11 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
   };
 
   const activeToastIds = reactive<
-    Record<ToastID, RAGSocketDocumentMessageBody>
+    Record<ToastID, RAGSocketDocumentCallbackMessageBody>
   >({});
 
   function handleDocumentMessage(
-    message: RAGSocketDocumentMessageBody,
+    message: RAGSocketDocumentCallbackMessageBody,
     toastId: ToastID,
   ) {
     debug('Received document message: %o', message);
@@ -359,6 +392,10 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
         timestamp: message.timestamp,
         startTimestamp: message.startTimestamp,
       },
+      listeners: {
+        cancel: () => cancelUpload(message.fileId),
+        'close-toast': () => delete activeToastIds[toastId],
+      },
     };
 
     debug('toast content: %o', toastContent);
@@ -366,16 +403,42 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     if (toastId in activeToastIds) {
       toast.update(toastId, {
         content: toastContent,
-        options: { timeout, type: toastType, id: toastId },
+        options: {
+          timeout,
+          type: toastType,
+          id: toastId,
+          closeOnClick: false,
+          draggable: false,
+        },
       });
     } else {
-      toast(toastContent, { timeout, type: toastType, id: toastId });
+      toast(toastContent, {
+        timeout,
+        type: toastType,
+        id: toastId,
+        closeOnClick: false,
+        draggable: false,
+      });
     }
 
     activeToastIds[toastId] = message;
   }
 
-  const { message } = useRAGWebSocket();
+  const { message, socket } = useRAGWebSocket();
+
+  const cancelUpload = async (fileId: string) => {
+    const message: RAGSocketMessage<RAGSocketDocumentCancelActionMessageBody> =
+      {
+        type: 'rag.document',
+        message: {
+          action: 'cancel',
+          fileId,
+        },
+      };
+    debug('cancelling upload: %o', message);
+    socket.send(message);
+  };
+
   const documentMessage = computed(() =>
     message.value?.type === 'rag.document' ? message.value.message : undefined,
   );
@@ -426,6 +489,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     deleteFile,
     uploadFile,
     updateFile,
+    cancelUpload,
     uploadedDocuments: readonly(uploadedDocuments),
     collectionDocuments,
     isDocumentsLoading: readonly(collectionState.isLoading),
