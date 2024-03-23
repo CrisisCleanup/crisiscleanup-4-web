@@ -120,6 +120,9 @@ export default defineComponent({
                 context.emit('files', [target.files[i]]);
               }
             }
+            // reset after emitting.
+            // this allows subsequent file uploads to be emitted of the same file (i.e, uploaded twice)
+            fileinput.value!.value = '';
           });
         }
 
