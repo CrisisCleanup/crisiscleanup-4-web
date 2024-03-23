@@ -400,26 +400,13 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
 
     debug('toast content: %o', toastContent);
 
-    if (toastId in activeToastIds) {
-      toast.update(toastId, {
-        content: toastContent,
-        options: {
-          timeout,
-          type: toastType,
-          id: toastId,
-          closeOnClick: false,
-          draggable: false,
-        },
-      });
-    } else {
-      toast(toastContent, {
-        timeout,
-        type: toastType,
-        id: toastId,
-        closeOnClick: false,
-        draggable: false,
-      });
-    }
+    toast(toastContent, {
+      timeout,
+      type: toastType,
+      id: toastId,
+      closeOnClick: false,
+      draggable: false,
+    });
 
     activeToastIds[toastId] = message;
   }
