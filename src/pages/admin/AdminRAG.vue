@@ -507,9 +507,10 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
             <div v-if="h.tools" class="float-right">
               <ccu-icon
                 type="info"
-                size="md"
+                size="lg"
                 title="Info"
                 class="hover:bg-crisiscleanup-light-grey transition-all cursor-pointer hover:scale-105"
+                icon-classes="invert"
                 @click="() => displayMessageTools(h)"
               />
             </div>
