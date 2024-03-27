@@ -4,7 +4,7 @@
       <div class="w-40 md:w-52">
         <a href="/live">
           <img
-            src="../assets/ccu-logo-black-500w.png"
+            src="@/assets/ccu-logo-black-500w.png"
             data-testid="testLogoIcon"
             alt="Crisis Cleanup"
           />
