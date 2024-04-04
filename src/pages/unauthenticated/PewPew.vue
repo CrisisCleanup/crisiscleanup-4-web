@@ -944,13 +944,6 @@ export default defineComponent({
   color: #61d5f8;
 }
 
-.stats:hover {
-  text-shadow:
-    1px 1px 2px lightblue,
-    0 0 1em lightblue,
-    0 0 0.2em lightblue;
-}
-
 .pewpew {
   .ribbon-gradient {
     background: linear-gradient(
