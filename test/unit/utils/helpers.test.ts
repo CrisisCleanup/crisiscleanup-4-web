@@ -6,6 +6,7 @@ import {
   formatCmsItem,
   getApiUrl,
   generateHash,
+  getColorContrast,
 } from '@/utils/helpers';
 
 describe('utils > helpers', () => {
@@ -83,5 +84,68 @@ describe('utils > helpers', () => {
     const result = getApiUrl(endpoint);
     expect(result).toMatchInlineSnapshot('"https://test.ccu.org/test"');
     vi.unstubAllEnvs();
+  });
+
+  test('getColorContrast', () => {
+    const colors = [
+      { name: 'Classic Blue', hex: '#0D47A1' }, // A deep blue shade
+      { name: 'Turquoise', hex: '#40E0D0' }, // A medium turquoise blue-green
+      { name: 'Emerald Green', hex: '#50C878' }, // A bright, vivid shade of green
+      { name: 'Crimson Red', hex: '#DC143C' }, // A strong, bright, deep red color
+      { name: 'Amber', hex: '#FFBF00' }, // A pure chroma color, halfway between yellow and orange
+      { name: 'Deep Purple', hex: '#673AB7' }, // A dark shade of purple
+      { name: 'Coral', hex: '#FF7F50' }, // A soft, vibrant shade of orange
+      { name: 'Slate Gray', hex: '#708090' }, // A gray color with a hint of blue
+      { name: 'Mustard Yellow', hex: '#FFDB58' }, // A bright, medium shade of yellow
+      { name: 'Teal', hex: '#008080' }, // A medium blue-green color, similar to cyan
+    ];
+    const colorToContrast: Array<[string, string]> = colors.map((c) => [
+      c.hex,
+      getColorContrast(c.hex),
+    ]);
+    expect(colorToContrast).toMatchInlineSnapshot(`
+      [
+        [
+          "#0D47A1",
+          "#ffffff",
+        ],
+        [
+          "#40E0D0",
+          "#000000",
+        ],
+        [
+          "#50C878",
+          "#000000",
+        ],
+        [
+          "#DC143C",
+          "#ffffff",
+        ],
+        [
+          "#FFBF00",
+          "#000000",
+        ],
+        [
+          "#673AB7",
+          "#ffffff",
+        ],
+        [
+          "#FF7F50",
+          "#000000",
+        ],
+        [
+          "#708090",
+          "#000000",
+        ],
+        [
+          "#FFDB58",
+          "#000000",
+        ],
+        [
+          "#008080",
+          "#ffffff",
+        ],
+      ]
+    `);
   });
 });
