@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="pewpew h-screen w-screen"
-    :style="styles"
-    data-testid="testPewPewDiv"
-  >
+  <div class="pewpew" :style="styles" data-testid="testPewPewDiv">
     <div class="grid grid-cols-12 relative h-full w-full">
       <div class="h-full">
         <PewPewNavBar :color-mode="colorMode" />
@@ -945,6 +941,8 @@ export default defineComponent({
 }
 
 .pewpew {
+  @apply h-full w-full overflow-hidden;
+
   .ribbon-gradient {
     background: linear-gradient(
       270deg,
