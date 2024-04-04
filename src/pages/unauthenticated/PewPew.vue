@@ -17,7 +17,7 @@
               tab-classes="text-xs"
               tab-default-classes="flex items-center justify-center h-8 cursor-pointer px-2"
               tab-active-classes="bg-crisiscleanup-dark-400 rounded-t-xl"
-              @tabSelected="stopSiteInfoTabCirculationTimer"
+              @tab-selected="stopSiteInfoTabCirculationTimer"
             >
               <tab
                 :name="$t('pewPew.live')"
@@ -94,7 +94,7 @@
                             size="medium"
                           />
                         </div>
-                        <div :key="stat.id" class="text-xl text-blue-600 stats">
+                        <div :key="stat.id" class="text-xl stats">
                           {{ stat.currency_symbol
                           }}{{ formatStatValue(stat.value) }}
                         </div>
@@ -451,7 +451,7 @@
                     tab-classes="text-xs"
                     tab-default-classes="flex items-center justify-center text-center h-10 cursor-pointer px-2"
                     tab-active-classes="bg-crisiscleanup-dark-400 rounded-t-lg"
-                    @tabSelected="stopChartTabCirculationTimer"
+                    @tab-selected="stopChartTabCirculationTimer"
                   >
                     <LightTab
                       :name="$t('reports.pp_call_volume_title')"
