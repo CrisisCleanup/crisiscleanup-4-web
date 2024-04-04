@@ -115,7 +115,7 @@
                             size="medium"
                           />
                         </div>
-                        <div :key="stat.id" class="text-base stats">
+                        <div :key="stat.id" class="text-sm stats">
                           {{ stat.currency_symbol
                           }}{{ formatStatValue(stat.value) }}
                         </div>
