@@ -7,6 +7,7 @@ import * as d3 from 'd3';
 import { useI18n } from 'vue-i18n';
 import _ from 'lodash';
 import useLiveChart from '@/hooks/live/useLiveChart';
+import { getColorContrast } from '@/utils/helpers';
 
 export default defineComponent({
   name: 'TotalCases',
@@ -176,9 +177,8 @@ export default defineComponent({
           .selectAll('text')
           .data(root.descendants())
           .join('text')
-          .attr('fill', '#fefefe')
+          .attr('fill', (d) => getColorContrast(colorScale(d.data.name)))
           .style('stroke', 5)
-          .style('mix-blend-mode', 'difference')
           .style('fill-opacity', (d) => (d.parent === root ? 1 : 0))
           .style('font-size', (d) => d.r / 5)
           .style('display', (d) => (d.parent === root ? 'inline' : 'none'))
