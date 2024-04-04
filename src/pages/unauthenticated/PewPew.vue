@@ -79,7 +79,7 @@
                       class="mb-2"
                     >
                       <template v-if="index === 0">
-                        <div :key="stat.id" class="flex">
+                        <div :key="stat.id" class="flex font-bold">
                           {{ $t(stat.name_t) }}
                           <ccu-icon
                             v-tooltip="{
@@ -100,7 +100,7 @@
                         </div>
                       </template>
                       <template v-else>
-                        <div :key="stat.id" class="flex">
+                        <div :key="stat.id" class="flex font-bold">
                           {{ $t(stat.name_t) }}
                           <ccu-icon
                             v-tooltip="{
