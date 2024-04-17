@@ -52,7 +52,7 @@ export default class PhoneService {
       socketDest, // 'ws://d01-test.cf.dev:8080',
       callbacks: {
         closeResponse: this.onCloseFunction.bind(this),
-        openResponse: this.onOpenFunction,
+        openResponse: this.onOpenFunction.bind(this),
         newCallNotification: this.onNewCall.bind(this),
         addSessionNotification: this.onNewSession.bind(this),
         endCallNotification: this.endCallFunction.bind(this),

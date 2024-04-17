@@ -160,6 +160,7 @@ module.exports = {
         'crisiscleanup-grid-blue': '#CFE9F7',
         'crisiscleanup-grid-grey': '#F2F4F4',
         'crisiscleanup-grid-yellow': '#FECE09',
+        'crisiscleanup-phone-green': '#2D830C',
         'crisiscleanup-link-blue': '#59D9F6',
       },
       spacing: {

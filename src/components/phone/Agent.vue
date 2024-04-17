@@ -96,7 +96,7 @@
         size="lg"
         class="ml-2"
         type="hangup"
-        @click="hangup"
+        @click="hangUp"
       ></ccu-icon>
     </div>
     <EditAgentModal v-if="editingAgent" @cancel="editingAgent = false" />
@@ -120,7 +120,6 @@ export default defineComponent({
   setup(props, context) {
     const editingAgent = ref(false);
     const { currentUser } = useCurrentUser();
-    const phoneService = reactive(usePhoneService());
     const notPlayingNice = ref(false);
     const {
       languages,
@@ -130,6 +129,7 @@ export default defineComponent({
       setAway,
       loginPhone,
       isOutboundCall,
+      hangUp,
     } = useConnectFirst(context);
     return {
       editingAgent,
@@ -141,9 +141,9 @@ export default defineComponent({
       setAway,
       loginPhone,
       isOutboundCall,
-      hangup: phoneService.hangup,
       notPlayingNice,
       AllowedCallType,
+      hangUp,
     };
   },
 });

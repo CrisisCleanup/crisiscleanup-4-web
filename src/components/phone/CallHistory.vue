@@ -11,7 +11,7 @@
         :columns="historyCols"
         :data="historyData"
         data-testid="testAgentStatsTable"
-        @rowClick="
+        @row-click="
           (item) => {
             if ($mq === 'sm') $emit('rowClick', item);
           }
@@ -97,6 +97,7 @@ import { formatNationalNumber, momentFromNow } from '../../filters/index';
 import useValidation from '../../hooks/useValidation';
 import Table from '../Table.vue';
 import AgentStats from './AgentStats.vue';
+import User from '@/models/User';
 
 export default defineComponent({
   name: 'CallHistory',
@@ -115,6 +116,7 @@ export default defineComponent({
   },
   setup(props) {
     const callHistoryReady = ref(true);
+    const { t } = useI18n();
     const historyCols = [
       {
         title: 'phoneDashboard.incident',
@@ -134,6 +136,9 @@ export default defineComponent({
         dataIndex: 'status',
         key: 'status',
         width: '1fr',
+        transformer(_, item) {
+          return t(item.status);
+        },
       },
       {
         title: 'phoneDashboard.notes',
