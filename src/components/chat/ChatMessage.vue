@@ -1,5 +1,9 @@
 <template>
-  <div class="flex items-start space-x-4">
+  <div
+    class="flex items-start space-x-4 chat-message w-full"
+    @mouseenter="showFavorite = true"
+    @mouseleave="showFavorite = false"
+  >
     <!-- Existing message content -->
     <div
       class="bg-blue-600 text-white rounded-md w-10 h-10 flex items-center justify-center text-lg mt-2"
@@ -22,17 +26,25 @@
             {{ formatDateString(message.created_at, 'h:mm A') }}
           </div>
         </div>
-        <div class="text-gray-700 mt-1">{{ message.content }}</div>
+        <div class="text-gray-700 mt-1 w-11/12">{{ message.content }}</div>
       </div>
       <!-- Existing message content -->
-      <div>
+      <div
+        class="absolute top-1/2 right-2 mt-3 cursor-pointer flex items-center gap-1"
+      >
+        <font-awesome-icon
+          v-if="message.is_urgent"
+          :alt="$t('chat.is_urgent')"
+          data-testid="testIsUrgentIcon"
+          icon="exclamation-circle"
+          class="text-red-500"
+        />
         <!-- Existing message content -->
         <font-awesome-icon
-          v-if="showFavorite"
+          v-if="showFavorite && !message.is_favorite"
           :alt="$t('chat.show_favorite')"
           data-testid="testShowFavoriteContent"
           icon="star"
-          class="absolute top-1/2 right-2 mt-3"
           @click="$emit('onFavorite', message)"
         />
         <font-awesome-icon
@@ -40,16 +52,8 @@
           :alt="$t('chat.is_favorite')"
           data-testid="testIsFavoriteIcon"
           icon="star"
-          class="absolute top-1/2 right-2 mt-3"
           @mouseover="showFavorite"
           @click="$emit('onUnfavorite', message)"
-        />
-        <font-awesome-icon
-          v-if="message.is_urgent"
-          :alt="$t('chat.is_urgent')"
-          data-testid="testIsUrgentIcon"
-          icon="exclamation-circle"
-          class="absolute top-1/2 right-2 mt-3 text-red-500"
         />
       </div>
     </div>
