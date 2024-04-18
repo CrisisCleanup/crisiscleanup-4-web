@@ -252,7 +252,7 @@
                       "
                     >
                     </base-checkbox>
-                    {{ $t(feature.description) }}
+                    {{ feature.description }}
                   </div>
                 </div>
               </div>
