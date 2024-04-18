@@ -122,6 +122,7 @@ export interface Message {
   is_urgent: boolean;
   is_favorite: boolean;
   profile_picture_file: string;
+  parent_message: number | null;
 }
 
 export interface CCUFileItem {
