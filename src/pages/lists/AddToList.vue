@@ -16,7 +16,7 @@
       {{ $t('list.no_lists_found') }}
     </div>
     <base-button :action="createList" class="mt-2 p-1 w-full" variant="solid">
-      {{ $t('~~Create New List') }}
+      {{ $t('list.create') }}
     </base-button>
   </div>
 </template>
