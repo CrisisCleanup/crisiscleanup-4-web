@@ -535,6 +535,14 @@
           :select-case="selectCase"
           :worksite-id="worksiteId"
         />
+        <PhoneOverlay
+          v-if="can('beta_feature.new_phone_system')"
+          :case-id="worksiteId"
+          :selected-chat="selectedChat"
+          @on-complete-call="completeCall"
+          @set-case="selectCase"
+          @on-report-bug="reportBug"
+        />
         <div class="phone-system__main-content">
           <div v-show="showingMap" class="phone-system__main-content--map">
             <SimpleMap
@@ -547,6 +555,7 @@
               @on-zoom-interactive="goToInteractive"
             />
             <div
+              v-if="!can('beta_feature.new_phone_system')"
               ref="phoneButtons"
               class="phone-system__actions"
               data-testid="testPhoneButtonsDiv"
@@ -1081,6 +1090,8 @@ import {
 import { averageGeolocation } from '@/utils/map';
 import type { MapUtils } from '@/hooks/worksite/useLiveMap';
 import { useCurrentUser } from '@/hooks';
+import PhoneOverlay from '@/components/phone/PhoneOverlay.vue';
+import useAcl from '@/hooks/useAcl';
 
 export enum AllowedCallType {
   INBOUND_ONLY = 'INBOUND_ONLY',
@@ -1092,6 +1103,7 @@ export default defineComponent({
   name: 'PhoneSystem',
   components: {
     CaseFlag,
+    PhoneOverlay,
     WorksiteTable,
     PhoneIndicator,
     UpdateStatus,
@@ -1113,6 +1125,7 @@ export default defineComponent({
   },
   setup(props, context) {
     const { t } = useI18n();
+    const { $can } = useAcl();
     const $toasted = useToast();
     const { prompt, confirm, component } = useDialogs();
     const { emitter } = useEmitter();
@@ -1648,11 +1661,15 @@ export default defineComponent({
     }
 
     const switchToStatusTab = () => {
-      tabs.value.selectTab(statusTab.value.index);
+      if (tabs.value && statusTab.value) {
+        tabs.value.selectTab(statusTab.value.index);
+      }
     };
 
     const switchToCallTab = () => {
-      tabs.value.selectTab(callTab.value.index);
+      if (tabs.value && callTab.value) {
+        tabs.value.selectTab(callTab.value.index);
+      }
     };
 
     async function retryFailedCall() {
@@ -1878,6 +1895,7 @@ export default defineComponent({
       mq,
       showingSearchModal,
       mobileSearch,
+      can: $can,
     };
   },
 });

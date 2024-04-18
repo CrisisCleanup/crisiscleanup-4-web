@@ -1,5 +1,5 @@
 <template>
-  <form class="bg-white flex flex-col">
+  <form class="flex flex-col">
     <div
       class="flex flex-col flex-wrap text-center status-wrapper"
       data-testid="testStatusSelectorDiv"
@@ -30,22 +30,39 @@
       :placeholder="$t('phoneDashboard.notes')"
       @update:modelValue="(value) => (updateNotes = value)"
     ></textarea>
-    <base-button
-      class="self-end"
-      data-testid="testCompleteCallButton"
-      size="small"
-      variant="solid"
-      :alt="$t('phoneDashboard.complete_call')"
-      :action="
-        () =>
-          $emit('onCompleteCall', {
-            status: status,
-            notes: callNotes,
-          })
-      "
-    >
-      {{ $t('phoneDashboard.complete_call') }}
-    </base-button>
+    <div class="flex gap-2 mt-4">
+      <base-button
+        data-testid="testCompleteCallButton"
+        class="p-0.5 rounded"
+        size="small"
+        variant="solid"
+        :alt="$t('phoneDashboard.complete_call')"
+        :action="
+          () =>
+            $emit('onCompleteCall', {
+              status: status,
+              notes: callNotes,
+            })
+        "
+      >
+        {{ $t('phoneDashboard.complete_call') }}
+      </base-button>
+      <base-button
+        v-if="allowCancel"
+        class="p-0.5 rounded"
+        :action="
+          () =>
+            $emit('onCancel', {
+              status: status,
+              notes: callNotes,
+            })
+        "
+        size="small"
+        variant="outline"
+      >
+        {{ $t('phoneDashboard.cancel') }}
+      </base-button>
+    </div>
   </form>
 </template>
 
@@ -53,9 +70,17 @@
 import { useI18n } from 'vue-i18n';
 import PhoneStatus from '@/models/PhoneStatus';
 import useEmitter from '@/hooks/useEmitter';
+import BaseButton from '@/components/BaseButton.vue';
 
 export default defineComponent({
   name: 'UpdateStatus',
+  components: { BaseButton },
+  props: {
+    allowCancel: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { t } = useI18n();
     const { emitter } = useEmitter();

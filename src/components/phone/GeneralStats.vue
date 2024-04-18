@@ -72,7 +72,7 @@
         >
           <base-text
             >{{ $t('phoneDashboard.total_people_waiting') }}({{
-              queue.language
+              $t(queue.language)
             }})</base-text
           >
         </ccu-icon>

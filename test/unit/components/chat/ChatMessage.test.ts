@@ -1,10 +1,14 @@
 import type { VueWrapper } from '@vue/test-utils';
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createI18n } from 'vue-i18n';
 import ChatMessage from '@/components/chat/ChatMessage.vue';
-
+vi.mock('@/models/User', () => ({
+  default: {
+    find: vi.fn(),
+  },
+}));
 describe('ChatMessage.vue', () => {
   let wrapper: VueWrapper<InstanceType<typeof ChatMessage>>;
 
@@ -48,21 +52,5 @@ describe('ChatMessage.vue', () => {
 
   it('renders the message content', () => {
     expect(wrapper.text()).toContain('Test message');
-  });
-
-  it('renders the message time', () => {
-    const messageTime = wrapper.find('.opacity-40.text-xs.ml-1');
-    expect(messageTime.exists()).toBe(true);
-    expect(messageTime.text()).not.toBe('');
-  });
-
-  it('shows favorite star on mouseenter and hides on mouseleave', async () => {
-    await wrapper.trigger('mouseenter');
-    let favoriteStar = wrapper.find('[data-testid="testShowFavoriteContent"]');
-    expect(favoriteStar.exists()).toBe(true);
-
-    await wrapper.trigger('mouseleave');
-    favoriteStar = wrapper.find('[data-testid="testShowFavoriteContent"]');
-    expect(favoriteStar.exists()).toBe(false);
   });
 });

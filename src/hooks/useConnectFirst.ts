@@ -93,6 +93,10 @@ export default function useConnectFirst(context: {
     return phoneService.changeState('WORKING');
   }
 
+  async function hangUp() {
+    return phoneService.hangup();
+  }
+
   async function setAway() {
     return phoneService.changeState('AWAY');
   }
@@ -287,6 +291,7 @@ export default function useConnectFirst(context: {
     isInboundCall,
     isOutboundCall,
     dialManualOutbound,
+    hangUp,
     setCurrentIncidentId(id: string) {
       store.commit('incident/setCurrentIncidentId', id);
     },

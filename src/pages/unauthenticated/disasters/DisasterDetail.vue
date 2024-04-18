@@ -11,9 +11,9 @@ import { formatNationalNumber } from '@/filters';
 import type { CmsItem } from '@/models/types';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
-import { formatCmsItem } from '@/utils/helpers';
 import { transformGraphData } from '@/utils/reports';
 import ReportWidget from '@/components/reports/ReportWidget.vue';
+import BlogPosts from '@/components/blog/BlogPosts.vue';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -146,45 +146,7 @@ onMounted(async () => {
         </div>
       </tab>
       <tab name="Latest">
-        <ul class="overflow-auto h-[calc(100vh-55px)]">
-          <li v-for="cmsItem in cmsItems" :key="cmsItem.id" class="p-5">
-            <div class="flex gap-5">
-              <!--              <img-->
-              <!--                v-if="cmsItem.thumbnail_file"-->
-              <!--                :src="cmsItem.thumbnail_file.blog_url"-->
-              <!--                class="w-20 h-20 mr-2"-->
-              <!--                :alt="cmsItem.thumbnail_file"-->
-              <!--              />-->
-              <!--              <img-->
-              <!--                v-else-->
-              <!--                src="../../../assets/cc-logo.svg"-->
-              <!--                class="w-20 h-20 mr-2"-->
-              <!--                alt="crisis-cleanup-logo"-->
-              <!--              />-->
-              <div
-                class="px-5 h-16 bg-blue-400 text-white font-bold flex items-center justify-center"
-              >
-                <div class="text-center">
-                  {{ moment(cmsItem.publish_at).format('MMM') }}
-                  <br />
-                  <div class="text-2xl">
-                    {{ moment(cmsItem.publish_at).format('D') }}
-                  </div>
-                </div>
-              </div>
-              <div class="h-44 overflow-y-hidden">
-                <div
-                  class="text-xl font-bold truncate"
-                  v-html="$t(formatCmsItem(cmsItem.title))"
-                ></div>
-                <p
-                  class="text-base line-clamp-8"
-                  v-html="$t(formatCmsItem(cmsItem.content))"
-                ></p>
-              </div>
-            </div>
-          </li>
-        </ul>
+        <BlogPosts :cms-items="cmsItems" class="px-5 h-[calc(100vh-55px)]" />
       </tab>
       <tab name="Reports">
         <div class="overflow-auto h-[calc(100vh-55px)]">
@@ -213,5 +175,3 @@ onMounted(async () => {
     </tabs>
   </Home>
 </template>
-
-<style scoped></style>
