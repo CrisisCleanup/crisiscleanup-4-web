@@ -1,8 +1,8 @@
 <template>
   <div
-    class="flex items-start space-x-4 chat-message w-full"
-    @mouseenter="showFavorite = true"
-    @mouseleave="showFavorite = false"
+    class="flex items-start space-x-4 chat-message w-full hover:bg-crisiscleanup-light-smoke p-0.5 cursor-pointer"
+    @mouseenter="showActions = true"
+    @mouseleave="showActions = false"
   >
     <!-- Existing message content -->
     <div
@@ -23,6 +23,10 @@
             />
           </div>
           <div class="text-gray-500 text-sm">
+            <!-- If date is not today, include date -->
+            <template v-if="!isToday(message.created_at)">{{
+              formatDateString(message.created_at, 'MMM D')
+            }}</template>
             {{ formatDateString(message.created_at, 'h:mm A') }}
           </div>
         </div>
@@ -30,30 +34,37 @@
       </div>
       <!-- Existing message content -->
       <div
-        class="absolute top-1/2 right-2 mt-3 cursor-pointer flex items-center gap-1"
+        v-if="showActions"
+        class="actions-bar absolute top-1 right-2 mt-3 transform -translate-y-1/2 cursor-pointer flex items-center gap-1 bg-gray-100 p-2 rounded"
       >
+        <!-- Urgent Icon -->
         <font-awesome-icon
           v-if="message.is_urgent"
           :alt="$t('chat.is_urgent')"
-          data-testid="testIsUrgentIcon"
           icon="exclamation-circle"
           class="text-red-500"
         />
-        <!-- Existing message content -->
+
+        <!-- Favorite/Unfavorite Icon -->
         <font-awesome-icon
-          v-if="showFavorite && !message.is_favorite"
+          v-if="!message.is_favorite"
           :alt="$t('chat.show_favorite')"
-          data-testid="testShowFavoriteContent"
           icon="star"
           @click="$emit('onFavorite', message)"
         />
         <font-awesome-icon
           v-if="message.is_favorite"
           :alt="$t('chat.is_favorite')"
-          data-testid="testIsFavoriteIcon"
           icon="star"
-          @mouseover="showFavorite"
+          class="text-yellow-500"
           @click="$emit('onUnfavorite', message)"
+        />
+
+        <!-- Reply Icon -->
+        <font-awesome-icon
+          v-if="!isReply"
+          icon="reply"
+          @click="() => (showReplyBox = !showReplyBox)"
         />
       </div>
     </div>
@@ -63,37 +74,45 @@
     <div class="flex items-center gap-3 mt-3">
       <button
         class="text-blue-600 hover:text-blue-800"
-        @click="showReplies = !showReplies"
+        @click="
+          () => {
+            showReplies = !showReplies;
+            showReplyBox = false;
+          }
+        "
       >
-        <span v-if="showReplies">Hide replies</span>
+        <span v-if="showReplies || showReplyBox">Hide replies</span>
         <span v-else>Show replies</span>
         ({{ message.replies.length }})
       </button>
       <span class="text-gray-400 text-xs">
-        Last reply {{ moment(message.replies.at(-1).created_at).fromNow() }}
+        {{ $t('~~Last reply') }}
+        {{ moment(message.replies.at(-1).created_at).fromNow() }}
       </span>
     </div>
-    <div v-if="showReplies" class="mx-4">
-      <div v-for="reply in message.replies" :key="reply.id">
-        <ChatMessage :message="reply" class="my-1" is-reply />
-      </div>
-      <!-- Textarea for reply -->
-      <div class="flex items-center gap-3 mt-3">
-        <base-input
-          v-model="replyContent"
-          text-area
-          class="w-full rounded-lg"
-          placeholder="Reply to this message"
-        ></base-input>
-        <button
-          class="bg-blue-600 text-white rounded-lg px-4 py-2"
-          @click="sendReply"
-        >
-          Send
-        </button>
-      </div>
-    </div>
   </template>
+  <div v-if="showReplies || showReplyBox" class="mx-4">
+    <div v-for="reply in message.replies" :key="reply.id">
+      <ChatMessage :message="reply" class="my-1" is-reply />
+    </div>
+    <!-- Textarea for reply -->
+    <div class="flex items-center gap-3 mt-3">
+      <base-input
+        v-model="replyContent"
+        text-area
+        class="w-full rounded-lg"
+        placeholder="Reply to this message"
+      ></base-input>
+      <base-button
+        class="bg-crisiscleanup-dark-blue"
+        data-testid="testSendMessageButton"
+        :disabled="!Boolean(replyContent)"
+        ccu-icon="plane"
+        :action="sendReply"
+        :alt="$t('actions.send_message')"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -105,10 +124,11 @@ import { formatDateString } from '../../filters/index';
 import type { Message } from '@/models/types';
 import User from '@/models/User';
 import BaseInput from '@/components/BaseInput.vue';
+import BaseButton from '@/components/BaseButton.vue';
 
 export default defineComponent({
   name: 'ChatMessage',
-  components: { BaseInput, UserDetailsTooltip },
+  components: { BaseButton, BaseInput, UserDetailsTooltip },
   props: {
     message: {
       type: Object as PropType<Message>,
@@ -119,11 +139,11 @@ export default defineComponent({
       default: false,
     },
   },
-  setup() {
-    const showFavorite = ref(false);
+  setup(props, { emit }) {
+    const showActions = ref(false);
+    const replyContent = ref('');
     const showReplies = ref(false);
     const showReplyBox = ref(false);
-    const replyContent = ref('');
 
     const getUserInitials = (id: number) => {
       const user = User.find(id);
@@ -133,20 +153,24 @@ export default defineComponent({
       return '';
     };
 
+    const isToday = (date: string) => {
+      return moment(date).isSame(moment(), 'day');
+    };
+
     const sendReply = () => {
-      // Here you can implement the logic to send the reply.
-      // You can use the `replyContent` ref to get the content of the reply.
-      console.log(replyContent.value);
+      emit('onReply', replyContent.value);
       replyContent.value = '';
-      showReplyBox.value = false;
     };
     return {
-      showFavorite,
+      showActions,
       formatDateString,
       moment,
       getUserInitials,
       showReplies,
       sendReply,
+      showReplyBox,
+      isToday,
+      replyContent,
     };
   },
 });

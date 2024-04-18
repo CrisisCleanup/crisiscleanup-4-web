@@ -21,6 +21,7 @@ const aclModule: Module<AclModuleState, CCURootState> = {
   actions: {},
   mutations: {
     setUserAcl(state, user_id: number) {
+      state.acl.reset();
       const user = User.find(user_id)!;
       const { permissions, beta_features } = user;
       for (const permissionKey of Object.keys(permissions)) {

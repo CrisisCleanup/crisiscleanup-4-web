@@ -1,6 +1,6 @@
 <template>
   <div class="tabs">
-    <ul class="tabs-header flex h-full w-auto">
+    <ul class="tabs-header flex h-auto w-auto">
       <li
         v-for="(tab, index) in tabs"
         :key="index"

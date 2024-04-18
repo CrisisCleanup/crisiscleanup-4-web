@@ -77,7 +77,7 @@
                         :model-value="currentUser!.first_name"
                         :placeholder="$t('profileUser.first_name_placeholder')"
                         required
-                        @update:modelValue="
+                        @update:model-value="
                           (value) => updateUser(value, 'first_name')
                         "
                       />
@@ -93,7 +93,7 @@
                         :model-value="currentUser!.mobile"
                         :placeholder="$t('profileUser.mobile_placeholder')"
                         :validator="validatePhoneNumber"
-                        @update:modelValue="
+                        @update:model-value="
                           (value) => updateUser(value, 'mobile')
                         "
                       />
@@ -109,7 +109,7 @@
                         :model-value="currentUser!.last_name"
                         :placeholder="$t('profileUser.last_name_placeholder')"
                         required
-                        @update:modelValue="
+                        @update:model-value="
                           (value) => updateUser(value, 'last_name')
                         "
                       />
@@ -125,7 +125,7 @@
                         size="large"
                         :placeholder="$t('profileUser.email_placeholder ')"
                         required
-                        @update:modelValue="
+                        @update:model-value="
                           (value) => updateUser(value, 'email')
                         "
                       />
@@ -154,7 +154,7 @@
                     label="name_t"
                     size="large"
                     class="w-full"
-                    @update:modelValue="updateUserLanguageIds"
+                    @update:model-value="updateUserLanguageIds"
                   />
                 </div>
                 <div class="mt-3">
@@ -175,7 +175,7 @@
                       data-testid="testFacebookTextInput"
                       size="small"
                       :placeholder="$t('profileUser.facebook')"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           const social = {
                             ...currentUser!.social,
@@ -202,7 +202,7 @@
                       data-testid="testTwitterTextInput"
                       size="small"
                       :placeholder="$t('profileUser.twitter')"
-                      @update:modelValue="
+                      @update:model-value="
                         (value) => {
                           const social = {
                             ...currentUser!.social,
@@ -230,6 +230,31 @@
                 >
                   {{ $t('actions.change_password') }}
                 </base-button>
+              </div>
+              <div class="beta-features">
+                <h3>{{ $t('profileUser.beta_features') }}</h3>
+                <div class="flex flex-col py-3">
+                  <div
+                    v-for="feature in betaFeatures"
+                    :key="feature.id"
+                    :data-testid="`testBetaFeature${feature.id}Div`"
+                    class="flex w-1/2"
+                  >
+                    <base-checkbox
+                      class="mr-1"
+                      :model-value="
+                        can(`beta_feature.${feature.name || feature.key}`)
+                      "
+                      @update:model-value="
+                        (value) => {
+                          optInBetaFeature(feature.id);
+                        }
+                      "
+                    >
+                    </base-checkbox>
+                    {{ $t(feature.description) }}
+                  </div>
+                </div>
               </div>
               <div class="mt-6">
                 <h3>{{ $t('profileUser.your_organization') }}</h3>
@@ -295,7 +320,7 @@
                       <base-checkbox
                         class="mr-1"
                         :model-value="currentUser!.notificationSettings[key]"
-                        @update:modelValue="
+                        @update:model-value="
                           (value) => setNotifications(key, value)
                         "
                       >
@@ -355,6 +380,7 @@ import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useValidation from '@/hooks/useValidation';
 import ChangeOrganizationModal from '@/components/modals/ChangeOrganizationModal.vue';
 import { useCurrentUser, useAuthStore } from '@/hooks';
+import useAcl from '@/hooks/useAcl';
 
 export default defineComponent({
   name: 'Profile',
@@ -362,9 +388,10 @@ export default defineComponent({
   setup() {
     const $toasted = useToast();
     const route = useRoute();
-    const router = useRouter();
     const { validatePhoneNumber } = useValidation();
     const { t } = useI18n();
+    const { $can } = useAcl();
+
     const form = ref<HTMLFormElement | undefined>(undefined);
     const state = reactive({
       mode: 'view',
@@ -390,6 +417,7 @@ export default defineComponent({
       nav: {
         request_reset_password: '/password/new',
       },
+      betaFeatures: [],
     });
     const {
       currentUser,
@@ -399,6 +427,7 @@ export default defineComponent({
     } = useCurrentUser();
 
     const authStore = useAuthStore();
+    const store = useStore();
 
     const name = computed(() => currentUser.value?.full_name ?? '');
 
@@ -485,6 +514,23 @@ export default defineComponent({
       }
     }
 
+    async function getBetaFeatures() {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/beta_features`,
+      );
+      return data.results;
+    }
+
+    async function optInBetaFeature(feature_id: string) {
+      await axios.post(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/beta_features/${feature_id}/opt_in`,
+      );
+      await authStore.getMe();
+      store.commit('acl/setUserAcl', currentUser.value.id);
+    }
+
     async function updateUser(value: unknown, key: string) {
       await updateCurrentUserDebounced({
         [key]: value,
@@ -542,10 +588,16 @@ export default defineComponent({
       }
     }
 
-    onMounted(() => {
+    onMounted(async () => {
       if (route.query.move) {
         state.showChangeOrganizationModal = true;
       }
+      state.betaFeatures = await getBetaFeatures();
+      state.betaFeatures = state.betaFeatures.filter(
+        (feature: { opt_in: boolean }) => {
+          return feature.opt_in;
+        },
+      );
     });
 
     const stateRefs = toRefs(state);
@@ -567,6 +619,8 @@ export default defineComponent({
       updateUserLanguageIds,
       form,
       logoutApp: authStore.logout,
+      can: $can,
+      optInBetaFeature,
     };
   },
 });

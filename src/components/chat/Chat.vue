@@ -1,124 +1,151 @@
 <template>
-  <div class="flex-1 p-2 sm:p-3 flex flex-col w-full">
+  <div class="flex-1 p-2 sm:p-3 flex flex-col w-full h-full">
     <div class="flex sm:items-center py-1 border-b border-gray-200">
       <div class="text-lg">{{ chat.name }}</div>
     </div>
-    <tabs tab-details-classes="">
-      <tab :name="$t('chat.chat')">
-        <div class="message-container">
-          <div
-            id="messages"
-            ref="messagesBox"
-            data-testid="testMessagesContent"
-            class="flex flex-col flex-grow py-2 space-y-5 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-            @wheel="handleWheel"
-            @ontouchmove="handleWheel"
-          >
-            <ChatMessage
-              v-for="message in sortedMessages"
-              :key="message.id"
-              :message="message"
-              @onFavorite="(message: any) => toggleFavorite(message, true)"
-              @onUnfavorite="(message: any) => toggleFavorite(message, false)"
-            />
-          </div>
-          <div
-            class="border-t-2 pt-1 sm:mb-0"
-            :class="
-              urgent ? 'border-crisiscleanup-chat-red' : 'border-gray-200'
-            "
-          >
+    <div class="flex gap-2 h-full">
+      <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
+        <div class="flex flex-col">
+          <div class="text-lg mb-2">{{ $t('~~Online Now') }}</div>
+          <div class="flex flex-col space-y-1">
             <div
-              v-if="urgent"
-              class="text-crisiscleanup-chat-red flex items-center mb-1"
+              v-for="user in onlineUsers"
+              :key="user"
+              class="flex items-center space-x-2 w-full"
             >
               <ccu-icon
-                :alt="$t('chat.urgent')"
-                data-testid="testIsUrgentStyle"
-                size="small"
-                type="attention-red"
-                class="mr-1"
+                :alt="$t('chat.online')"
+                size="xs"
+                type="circle"
+                fa
+                class="text-green-500"
               />
-              {{ $t('chat.urgent') }}
+              <div class="text-base">{{ getUser(user).full_name }}</div>
             </div>
-            <div class="flex flex-col">
-              <base-input
-                v-model="currentMessage"
-                data-testid="testCurrentMessageContent"
-                text-area
-                class=""
-                @enter="sendMessage"
+          </div>
+        </div>
+      </div>
+      <tabs tab-details-classes="" class="flex-1">
+        <tab :name="$t('chat.chat')">
+          <div class="message-container h-156">
+            <div
+              id="messages"
+              ref="messagesBox"
+              data-testid="testMessagesContent"
+              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+              @wheel="handleWheel"
+              @ontouchmove="handleWheel"
+            >
+              <font-awesome-icon v-if="loadingMessages" icon="spinner" spin />
+              <ChatMessage
+                v-for="message in sortedMessages"
+                :key="message.id"
+                :message="message"
+                @on-favorite="(message: any) => toggleFavorite(message, true)"
+                @on-unfavorite="
+                  (message: any) => toggleFavorite(message, false)
+                "
+                @on-reply="(content) => sendMessage(message.id, content)"
               />
-              <div class="flex items-center justify-between py-2">
-                <base-checkbox
-                  v-model="urgent"
-                  data-testid="testIsUrgentCheckbox"
-                >
-                  {{ $t('chat.urgent') }}
-                </base-checkbox>
-                <span
-                  class="italic cursor-pointer"
-                  data-testid="testFocusNewsTabLink"
-                  @click="focusNewsTab"
-                  >{{ $t('chat.read_faq_first') }}</span
-                >
-                <div class="flex">
-                  <base-button
-                    class="h-8 w-8 bg-crisiscleanup-dark-blue"
-                    data-testid="testSendMessageButton"
-                    :disabled="!Boolean(currentMessage)"
-                    ccu-icon="plane"
-                    :action="sendMessage"
-                    :alt="$t('actions.send_message')"
-                  />
+            </div>
+            <div
+              class="border-t-2 pt-1 sm:mb-0"
+              :class="
+                urgent ? 'border-crisiscleanup-chat-red' : 'border-gray-200'
+              "
+            >
+              <div
+                v-if="urgent"
+                class="text-crisiscleanup-chat-red flex items-center mb-1"
+              >
+                <ccu-icon
+                  :alt="$t('chat.urgent')"
+                  data-testid="testIsUrgentStyle"
+                  size="small"
+                  type="attention-red"
+                  class="mr-1"
+                />
+                {{ $t('chat.urgent') }}
+              </div>
+              <div class="flex flex-col">
+                <base-input
+                  v-model="currentMessage"
+                  data-testid="testCurrentMessageContent"
+                  text-area
+                  class=""
+                  @enter="sendMessage"
+                />
+                <div class="flex items-center justify-between py-2">
+                  <base-checkbox
+                    v-model="urgent"
+                    data-testid="testIsUrgentCheckbox"
+                  >
+                    {{ $t('chat.urgent') }}
+                  </base-checkbox>
+                  <span
+                    class="italic cursor-pointer"
+                    data-testid="testFocusNewsTabLink"
+                    @click="focusNewsTab"
+                    >{{ $t('chat.read_faq_first') }}</span
+                  >
+                  <div class="flex">
+                    <base-button
+                      class="bg-crisiscleanup-dark-blue"
+                      data-testid="testSendMessageButton"
+                      :disabled="!Boolean(currentMessage)"
+                      ccu-icon="plane"
+                      :action="sendMessage"
+                      :alt="$t('actions.send_message')"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </tab>
-      <tab :name="$t('chat.favorites')">
-        <div class="flex flex-col h-84">
-          <div
-            class="flex flex-col flex-grow py-2 space-y-5 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-          >
-            <ChatMessage
-              v-for="favorite in favorites"
-              :key="favorite.id"
-              data-testid="testFavoritesContent"
-              :message="favorite"
-            />
+        </tab>
+        <tab :name="$t('chat.favorites')">
+          <div class="flex flex-col h-156">
+            <div
+              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+            >
+              <ChatMessage
+                v-for="favorite in favorites"
+                :key="favorite.id"
+                data-testid="testFavoritesContent"
+                :message="favorite"
+              />
+            </div>
           </div>
-        </div>
-      </tab>
-      <tab :name="$t('chat.search')">
-        <div class="flex flex-col h-84 w-full my-4">
-          <base-input
-            data-testid="testMessagesSearchTextInput"
-            :model-value="search"
-            icon="search"
-            class="w-full"
-            :placeholder="$t('info.search_items')"
-            @update:modelValue="
-              (value) => {
-                search = value;
-                throttle(searchMessages, 1000)();
-              }
-            "
-          />
-          <div
-            class="flex flex-col flex-grow py-2 space-y-5 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-          >
-            <ChatMessage
-              v-for="chat in searchResults"
-              :key="chat.id"
-              data-testid="testFavoritesContent"
-              :message="chat"
+        </tab>
+        <tab :name="$t('chat.search')">
+          <div class="flex flex-col w-full h-156">
+            <base-input
+              data-testid="testMessagesSearchTextInput"
+              :model-value="search"
+              icon="search"
+              class="w-full mt-2"
+              :placeholder="$t('info.search_items')"
+              @update:model-value="
+                (value) => {
+                  search = value;
+                  throttle(searchMessages, 1000)();
+                }
+              "
             />
+            <div
+              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+            >
+              <ChatMessage
+                v-for="chat in searchResults"
+                :key="chat.id"
+                data-testid="testFavoritesContent"
+                :message="chat"
+              />
+            </div>
           </div>
-        </div>
-      </tab>
-    </tabs>
+        </tab>
+      </tabs>
+    </div>
   </div>
 </template>
 
@@ -142,6 +169,7 @@ import User from '../../models/User';
 import { useWebSockets } from '../../hooks/useWebSockets';
 import ChatMessage from './ChatMessage.vue';
 import type { Message } from '@/models/types';
+import debounce from 'lodash/debounce';
 
 export default defineComponent({
   name: 'Chat',
@@ -158,11 +186,13 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const socket = ref<WebSocket | null>(null);
+    const online_users_socket = ref<WebSocket | null>(null);
     const currentMessage = ref('');
     const search = ref('');
     const messages = ref<Message[]>([]);
     const favorites = ref<Message[]>([]);
     const searchResults = ref<Message[]>([]);
+    const onlineUsers = ref<number[]>([]);
     const urgent = ref(false);
     const loadingMessages = ref(false);
     const searchLoading = ref(false);
@@ -192,7 +222,7 @@ export default defineComponent({
       searchLoading.value = false;
     }
 
-    function handleWheel() {
+    const handleWheel = debounce(function () {
       if (
         messagesBox?.value?.scrollTop === 0 &&
         sortedMessages.value.length > 0 &&
@@ -200,7 +230,7 @@ export default defineComponent({
       ) {
         getMessages(sortedMessages.value[0].created_at, false);
       }
-    }
+    }, 500);
 
     async function getMessages(before: string | null = null, scroll = true) {
       loadingMessages.value = true;
@@ -255,6 +285,14 @@ export default defineComponent({
       emit('unreadCount', response.data.count);
     }
 
+    function getUser(id) {
+      const user = User.find(id);
+      if (!user) {
+        User.api().get(`/users/${id}`, {});
+      }
+      return user;
+    }
+
     async function getUnreadUrgentMessagesCount() {
       loadingMessages.value = true;
       const parameters = {
@@ -273,10 +311,11 @@ export default defineComponent({
       emit('unreadUrgentCount', response.data.count);
     }
 
-    async function sendMessage() {
+    async function sendMessage(parentId = null, content = null) {
       sendToWebsocket({
-        content: currentMessage.value,
+        content: content || currentMessage.value,
         is_urgent: urgent.value,
+        parent_message_id: parentId,
       });
       currentMessage.value = '';
       urgent.value = false;
@@ -319,23 +358,41 @@ export default defineComponent({
         `/ws/chat/${props.chat.id}`,
         'chat',
         (data: Message) => {
-          messages.value = [data, ...messages.value];
-          if (String(data.created_by) !== String(currentUser?.value?.id)) {
-            if (data.is_urgent) {
-              emit('onNewUrgentMessage');
-            } else {
-              emit('onNewMessage');
+          if (data.parent_message) {
+            const parent = messages.value.find(
+              (message) => message.id === data.parent_message,
+            );
+            if (parent) {
+              parent.replies = parent.replies || [];
+              parent.replies.push(data);
             }
-          }
+          } else {
+            messages.value = [data, ...messages.value];
+            if (String(data.created_by) !== String(currentUser?.value?.id)) {
+              if (data.is_urgent) {
+                emit('onNewUrgentMessage');
+              } else {
+                emit('onNewMessage');
+              }
+            }
 
-          nextTick(() => {
-            if (messagesBox.value) {
-              messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
-            }
-          });
+            nextTick(() => {
+              if (messagesBox.value) {
+                messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
+              }
+            });
+          }
         },
       );
 
+      const { socket: online_users_s } = useWebSockets(
+        '/ws/online_chat_users',
+        'phone_stats',
+        (data) => {
+          onlineUsers.value = data;
+        },
+      );
+      online_users_socket.value = online_users_s;
       socket.value = s;
       sendToWebsocket = send;
     });
@@ -349,6 +406,7 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       socket?.value?.close();
+      online_users_socket?.value?.close();
     });
 
     return {
@@ -368,6 +426,8 @@ export default defineComponent({
       searchMessages,
       search,
       searchResults,
+      onlineUsers,
+      getUser,
     };
   },
 });
@@ -396,6 +456,5 @@ export default defineComponent({
 }
 .message-container {
   @apply flex flex-col;
-  height: 60vh;
 }
 </style>
