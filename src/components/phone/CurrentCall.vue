@@ -92,7 +92,7 @@ const scripts = computed(() => {
 <template>
   <div>
     <div class="flex gap-4">
-      <div class="font-bold mb-4">{{ $t('~~Details') }}</div>
+      <div class="font-bold mb-4">{{ $t('phoneDashboard.details') }}</div>
       <div
         v-if="caller"
         data-testid="testNumberOfInboundCallsDiv"
@@ -109,11 +109,11 @@ const scripts = computed(() => {
     </div>
     <div class="grid grid-cols-3 gap-5">
       <div class="prompts">
-        <div class="font-bold">{{ $t('~~Suggested Script') }}</div>
+        <div class="font-bold">{{ $t('phoneDashboard.suggested_script') }}</div>
         {{ `"${$t(scripts.currentScript.value)}"` }}
       </div>
       <div class="cases">
-        <div class="font-bold">{{ $t('~~Cases') }}</div>
+        <div class="font-bold">{{ $t('phoneDashboard.existing_cases') }}</div>
         <div class="h-120 overflow-auto">
           <div
             v-for="c in cases"
@@ -145,7 +145,7 @@ const scripts = computed(() => {
         </div>
       </div>
       <div class="faq">
-        <div class="font-bold">{{ $t('~~FAQ') }}</div>
+        <div class="font-bold">{{ $t('phoneDashboard.faq') }}</div>
         <PhoneFaqRAG />
       </div>
     </div>

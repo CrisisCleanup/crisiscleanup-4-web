@@ -87,10 +87,10 @@ function formatDateTime(dateTime) {
         <div class="flex flex-col gap-2">
           <base-input
             v-model="question"
-            :placeholder="$t('~~Type your question...')"
+            :placeholder="$t('phoneFaqRag.type_question')"
           />
           <base-button :action="sendMessage" variant="solid" class="p-2">
-            {{ $t('~~Send') }}
+            {{ $t('actions.submit') }}
           </base-button>
         </div>
       </div>

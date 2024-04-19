@@ -22,14 +22,30 @@ const sideBarExpanded = ref(true);
 const { t } = useI18n();
 
 const sections = [
-  { view: 'callHistory', text: t('~~My Calls'), icon: 'phone-history' },
-  { view: 'manualDialer', text: t('~~Manual Dialer'), icon: 'manual-dialer' },
-  { view: 'leaderboard', text: t('~~Leaderboard'), icon: 'leaderboard' },
-  { view: 'zoom', text: t('~~Zoom'), icon: 'zoom' },
-  { view: 'cms', text: t('~~News'), icon: 'news' },
-  { view: 'generalStats', text: t('~~General Stats'), icon: 'stats' },
-  { view: 'chat', text: t('~~Chat'), icon: 'chat' },
-  { view: 'reportBug', text: t('~~Report Bug'), icon: 'bug-report' },
+  {
+    view: 'callHistory',
+    text: t('phoneDashboard.last_10_calls'),
+    icon: 'phone-history',
+  },
+  {
+    view: 'manualDialer',
+    text: t('phoneDashboard.manual_dialer'),
+    icon: 'manual-dialer',
+  },
+  {
+    view: 'leaderboard',
+    text: t('phoneDashboard.leaderboard'),
+    icon: 'leaderboard',
+  },
+  { view: 'zoom', text: t('phoneDashboard.join_zoom'), icon: 'zoom' },
+  { view: 'cms', text: t('phoneDashboard.news'), icon: 'news' },
+  { view: 'generalStats', text: t('phoneDashboard.stats'), icon: 'stats' },
+  { view: 'chat', text: t('chat.chat'), icon: 'chat' },
+  {
+    view: 'reportBug',
+    text: t('phoneDashboard.report_bug'),
+    icon: 'bug-report',
+  },
 ];
 
 import { useClipboard } from '@vueuse/core';
@@ -216,7 +232,7 @@ const {
                   </div>
                 </div>
                 <div v-else data-testid="testIsCompletedDiv">
-                  {{ $t('~~Call Ended') }}
+                  {{ $t('phoneDashboard.call_ended') }}
                 </div>
                 <span class="font-bold">{{ caller.dnis }}</span>
                 <font-awesome-icon
@@ -233,7 +249,7 @@ const {
                 <base-button
                   class="p-1"
                   :action="() => (expanded = !expanded)"
-                  :text="$t('~~Show Details')"
+                  :text="$t('actions.show_details')"
                   :suffix-icon="expanded ? 'chevron-up' : 'chevron-down'"
                 />
                 <base-button
@@ -241,7 +257,7 @@ const {
                   class="p-1 text-black"
                   variant="solid"
                   :action="endCall"
-                  :text="$t('~~End Call')"
+                  :text="$t('actions.end_call')"
                 />
                 <base-button
                   v-else
@@ -249,7 +265,7 @@ const {
                   variant="solid"
                   :action="showCompleteCall"
                 >
-                  {{ $t('~~Complete Call') }}
+                  {{ $t('phoneDashboard.complete_call') }}
                 </base-button>
               </div>
             </div>
@@ -339,7 +355,7 @@ const {
                 >
                   <div class="w-full">
                     <div class="py-2">
-                      {{ $t('~~Complete Call') }}
+                      {{ $t('phoneDashboard.complete_call') }}
                     </div>
                     <UpdateStatus
                       class="max-w-4xl"
@@ -353,7 +369,7 @@ const {
                     <base-button
                       class="p-1 w-full bg-white"
                       :action="() => (showCompleteCallScreen = false)"
-                      :text="$t('~~Fold')"
+                      :text="$t('actions.hide')"
                     />
                   </div>
                 </div>
