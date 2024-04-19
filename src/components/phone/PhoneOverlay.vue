@@ -22,14 +22,30 @@ const sideBarExpanded = ref(true);
 const { t } = useI18n();
 
 const sections = [
-  { view: 'callHistory', text: t('phoneDashboard.last_10_calls'), icon: 'phone-history' },
-  { view: 'manualDialer', text: t('phoneDashboard.manual_dialer'), icon: 'manual-dialer' },
-  { view: 'leaderboard', text: t('phoneDashboard.leaderboard'), icon: 'leaderboard' },
+  {
+    view: 'callHistory',
+    text: t('phoneDashboard.last_10_calls'),
+    icon: 'phone-history',
+  },
+  {
+    view: 'manualDialer',
+    text: t('phoneDashboard.manual_dialer'),
+    icon: 'manual-dialer',
+  },
+  {
+    view: 'leaderboard',
+    text: t('phoneDashboard.leaderboard'),
+    icon: 'leaderboard',
+  },
   { view: 'zoom', text: t('phoneDashboard.join_zoom'), icon: 'zoom' },
   { view: 'cms', text: t('phoneDashboard.news'), icon: 'news' },
   { view: 'generalStats', text: t('phoneDashboard.stats'), icon: 'stats' },
   { view: 'chat', text: t('chat.chat'), icon: 'chat' },
-  { view: 'reportBug', text: t('phoneDashboard.report_bug'), icon: 'bug-report' },
+  {
+    view: 'reportBug',
+    text: t('phoneDashboard.report_bug'),
+    icon: 'bug-report',
+  },
 ];
 
 import { useClipboard } from '@vueuse/core';
