@@ -211,7 +211,7 @@ dependencies:
     version: 14.0.0
   markdown-it-anchor:
     specifier: ^8.6.7
-    version: 8.6.7(@types/markdown-it@13.0.7)(markdown-it@14.0.0)
+    version: 8.6.7(@types/markdown-it@14.0.1)(markdown-it@14.0.0)
   markdown-it-footnote:
     specifier: ^4.0.0
     version: 4.0.0
@@ -332,8 +332,8 @@ devDependencies:
     specifier: ^2.10.1
     version: 2.10.2
   '@types/crypto-js':
-    specifier: ^4.2.1
-    version: 4.2.1
+    specifier: ^4.2.2
+    version: 4.2.2
   '@types/d3':
     specifier: ^7.4.3
     version: 7.4.3
@@ -341,26 +341,26 @@ devDependencies:
     specifier: ^4.1.12
     version: 4.1.12
   '@types/geojson':
-    specifier: ^7946.0.13
-    version: 7946.0.13
+    specifier: ^7946.0.14
+    version: 7946.0.14
   '@types/google.maps':
-    specifier: ^3.54.8
-    version: 3.54.10
+    specifier: ^3.55.7
+    version: 3.55.7
   '@types/leaflet':
-    specifier: ^1.9.8
-    version: 1.9.8
+    specifier: ^1.9.12
+    version: 1.9.12
   '@types/lodash':
-    specifier: ^4.14.201
-    version: 4.14.202
+    specifier: ^4.17.0
+    version: 4.17.0
   '@types/markdown-it':
-    specifier: ^13.0.7
-    version: 13.0.7
+    specifier: ^14.0.1
+    version: 14.0.1
   '@types/markdown-it-footnote':
-    specifier: ^3.0.3
-    version: 3.0.3
+    specifier: ^3.0.4
+    version: 3.0.4
   '@types/node':
-    specifier: ^20.10.5
-    version: 20.10.5
+    specifier: ^20.12.7
+    version: 20.12.7
   '@types/postcss-pxtorem':
     specifier: ^6.0.3
     version: 6.0.3
@@ -441,7 +441,7 @@ devDependencies:
     version: 13.4.0
   playwright-slack-report:
     specifier: ^1.1.58
-    version: 1.1.58(@types/node@20.10.5)(debug@4.3.4)(typescript@5.3.3)
+    version: 1.1.58(@types/node@20.12.7)(debug@4.3.4)(typescript@5.3.3)
   postcss:
     specifier: ^8.4.31
     version: 8.4.32
@@ -474,7 +474,7 @@ devDependencies:
     version: 0.17.3(@vueuse/core@10.9.0)
   vite:
     specifier: ^5.0.10
-    version: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+    version: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
   vite-plugin-inspect:
     specifier: ^0.8.1
     version: 0.8.1(vite@5.0.12)
@@ -486,7 +486,7 @@ devDependencies:
     version: 4.0.2(vite@5.0.12)
   vitest:
     specifier: ^1.1.0
-    version: 1.1.0(@types/node@20.10.5)(happy-dom@13.5.0)(sass@1.69.5)
+    version: 1.1.0(@types/node@20.12.7)(happy-dom@13.5.0)(sass@1.69.5)
   vue-eslint-parser:
     specifier: ^9.4.2
     version: 9.4.2(eslint@8.56.0)
@@ -3328,7 +3328,7 @@ packages:
     resolution: {integrity: sha512-DTuBFbqu4gGfajREEMrkq5jBhcnskinhr4+AnfJEk48zhVeEv3XnUKGIX98B74kxhYsIMfApGGySTn7V3b5yBA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
     dependencies:
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
     dev: true
 
   /@slack/types@2.11.0:
@@ -3343,7 +3343,7 @@ packages:
       '@slack/logger': 3.0.0
       '@slack/types': 2.11.0
       '@types/is-stream': 1.1.0
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
       axios: 1.6.3(debug@4.3.4)
       eventemitter3: 3.1.2
       form-data: 2.5.1
@@ -3360,7 +3360,7 @@ packages:
     engines: {node: '>= 18', npm: '>= 8.6.0'}
     dependencies:
       '@slack/types': 2.11.0
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
       axios: 1.6.3(debug@4.3.4)
     transitivePeerDependencies:
       - debug
@@ -4420,8 +4420,8 @@ packages:
     resolution: {integrity: sha512-XW/Aa8APYr6jSVVA1y/DEIZX0/GMKLEVekNG727R8cs56ahETkRAy/3DR7+fJyh7oUgGwNQaRfXCun0+KbWY7Q==}
     dev: true
 
-  /@types/crypto-js@4.2.1:
-    resolution: {integrity: sha512-FSPGd9+OcSok3RsM0UZ/9fcvMOXJ1ENE/ZbLfOPlBWj7BgXtEAM8VYfTtT760GiLbQIMoVozwVuisjvsVwqYWw==}
+  /@types/crypto-js@4.2.2:
+    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
     dev: true
 
   /@types/d3-array@3.0.4:
@@ -4452,7 +4452,7 @@ packages:
     resolution: {integrity: sha512-k6/bGDoAGJZnZWaKzeB+9glgXCYGvh6YlluxzBREiVo8f/X2vpTEdgPy9DN7Z2i42PZOZ4JDhVdlTSTSkLDPlQ==}
     dependencies:
       '@types/d3-array': 3.0.4
-      '@types/geojson': 7946.0.13
+      '@types/geojson': 7946.0.14
     dev: true
 
   /@types/d3-delaunay@6.0.1:
@@ -4494,7 +4494,7 @@ packages:
   /@types/d3-geo@3.0.3:
     resolution: {integrity: sha512-bK9uZJS3vuDCNeeXQ4z3u0E7OeJZXjUgzFdSOtNtMCJCLvDtWDwfpRVWlyt3y8EvRzI0ccOu9xlMVirawolSCw==}
     dependencies:
-      '@types/geojson': 7946.0.13
+      '@types/geojson': 7946.0.14
     dev: true
 
   /@types/d3-hierarchy@3.1.2:
@@ -4630,21 +4630,21 @@ packages:
   /@types/estree@1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
-  /@types/geojson@7946.0.13:
-    resolution: {integrity: sha512-bmrNrgKMOhM3WsafmbGmC+6dsF2Z308vLFsQ3a/bT8X8Sv5clVYpPars/UPq+sAaJP+5OoLAYgwbkS5QEJdLUQ==}
+  /@types/geojson@7946.0.14:
+    resolution: {integrity: sha512-WCfD5Ht3ZesJUsONdhvm84dmzWOiOzOAqOncN0++w0lBw1o8OuDNJF2McvvCef/yBqb/HYRahp1BYtODFQ8bRg==}
 
   /@types/geojson@7946.0.8:
     resolution: {integrity: sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==}
     dev: false
 
-  /@types/google.maps@3.54.10:
-    resolution: {integrity: sha512-N6gwM01mKhooXaw+IKbUH7wJcIJCn8U60VoaVvom5EiQjmfgevhQ+0+/r17beXW5j8ad2x+WPr0iyOUodCw4/w==}
+  /@types/google.maps@3.55.7:
+    resolution: {integrity: sha512-SlWFx0vo7RSAOC63+PTz8FeqLDaRYs7PrS/L0bZSKswxIN5TnCuckbeIwZpgD/S+DWalPteXfDbg5JsUER5Cyw==}
     dev: true
 
   /@types/is-stream@1.1.0:
     resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
     dependencies:
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
     dev: true
 
   /@types/istanbul-lib-coverage@2.0.6:
@@ -4669,41 +4669,41 @@ packages:
   /@types/leaflet.gridlayer.googlemutant@0.4.7:
     resolution: {integrity: sha512-Wgy2vDTVZnTCnnxiCmGnqVmEKe1zZ2JRtdgy4JjO3EVtiqfiTIm28t1JsEHOzveP3I48gR02KbRQWUd8NPRRDw==}
     dependencies:
-      '@types/leaflet': 1.9.8
+      '@types/leaflet': 1.9.12
     dev: false
 
   /@types/leaflet.heat@0.2.2:
     resolution: {integrity: sha512-5PLDNtbbc/1uZTb37FY8c/Sxf3mSioj7fSg8HAUPcsybSJ9+lPViWTWJTc4/McVWwHNehjjrklKeYA7dZCjnKQ==}
     dependencies:
-      '@types/leaflet': 1.9.8
+      '@types/leaflet': 1.9.12
     dev: false
 
   /@types/leaflet.markercluster@1.5.4:
     resolution: {integrity: sha512-tfMP8J62+wfsVLDLGh5Zh1JZxijCaBmVsMAX78MkLPwvPitmZZtSin5aWOVRhZrCS+pEOZwNzexbfWXlY+7yjg==}
     dependencies:
-      '@types/leaflet': 1.9.8
+      '@types/leaflet': 1.9.12
     dev: false
 
-  /@types/leaflet@1.9.8:
-    resolution: {integrity: sha512-EXdsL4EhoUtGm2GC2ZYtXn+Fzc6pluVgagvo2VC1RHWToLGlTRwVYoDpqS/7QXa01rmDyBjJk3Catpf60VMkwg==}
+  /@types/leaflet@1.9.12:
+    resolution: {integrity: sha512-BK7XS+NyRI291HIo0HCfE18Lp8oA30H1gpi1tf0mF3TgiCEzanQjOqNZ4x126SXzzi2oNSZhZ5axJp1k0iM6jg==}
     dependencies:
-      '@types/geojson': 7946.0.13
+      '@types/geojson': 7946.0.14
 
   /@types/linkify-it@3.0.5:
     resolution: {integrity: sha512-yg6E+u0/+Zjva+buc3EIb+29XEg4wltq7cSmd4Uc2EE/1nUVmxyzpX6gUXD0V8jIrG0r7YeOGVIbYRkxeooCtw==}
 
-  /@types/lodash@4.14.202:
-    resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
+  /@types/lodash@4.17.0:
+    resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
     dev: true
 
-  /@types/markdown-it-footnote@3.0.3:
-    resolution: {integrity: sha512-sMLBj0VcWo/4vi1J7jx3DNdup2w+14RwDMdQtcFJPabeDwt945ghc8sFBgsUfnEjcBOuKaELY22JwGb7KGmsVw==}
+  /@types/markdown-it-footnote@3.0.4:
+    resolution: {integrity: sha512-XJ6n+v+2u+2gmYLSHcxyoNT/YrgrKvHuDJQlykFjuxCQCr86P2/fx1V6/0lcKxv5cSIlCaJ6sUcNS3zDI7I+LA==}
     dependencies:
-      '@types/markdown-it': 13.0.7
+      '@types/markdown-it': 14.0.1
     dev: true
 
-  /@types/markdown-it@13.0.7:
-    resolution: {integrity: sha512-U/CBi2YUUcTHBt5tjO2r5QV/x0Po6nsYwQU4Y04fBS6vfoImaiZ6f8bi3CjTCxBPQSO1LMyUqkByzi8AidyxfA==}
+  /@types/markdown-it@14.0.1:
+    resolution: {integrity: sha512-6WfOG3jXR78DW8L5cTYCVVGAsIFZskRHCDo5tbqa+qtKVt4oDRVH7hyIWu1SpDQJlmIoEivNQZ5h+AGAOrgOtQ==}
     dependencies:
       '@types/linkify-it': 3.0.5
       '@types/mdurl': 1.0.5
@@ -4715,24 +4715,10 @@ packages:
     resolution: {integrity: sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==}
     dev: true
 
-  /@types/node@20.10.5:
-    resolution: {integrity: sha512-nNPsNE65wjMxEKI93yOP+NPGGBJz/PoN3kZsVLee0XMiJolxSekEVD8wRwBUBqkwc7UWop0edW50yrCQW4CyRw==}
-    dependencies:
-      undici-types: 5.26.5
-
-  /@types/node@20.11.24:
-    resolution: {integrity: sha512-Kza43ewS3xoLgCEpQrsT+xRo/EJej1y0kVYGiLFE1NEODXGzTfwiC6tXTLMQskn1X4/Rjlh0MQUvx9W+L9long==}
-    requiresBuild: true
-    dependencies:
-      undici-types: 5.26.5
-    dev: false
-    optional: true
-
   /@types/node@20.12.7:
     resolution: {integrity: sha512-wq0cICSkRLVaf3UGLMGItu/PtdY7oaXaI/RVU+xliKVOtRna3PRY57ZDfztpDL0n11vfymMUnXv8QwYCO7L1wg==}
     dependencies:
       undici-types: 5.26.5
-    dev: false
 
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -4765,7 +4751,7 @@ packages:
   /@types/set-cookie-parser@2.4.3:
     resolution: {integrity: sha512-7QhnH7bi+6KAhBB+Auejz1uV9DHiopZqu7LfR/5gZZTkejJV5nYeZZpgfFoE0N8aDsXuiYpfKyfyMatCwQhyTQ==}
     dependencies:
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
     dev: true
 
   /@types/web-bluetooth@0.0.20:
@@ -4775,7 +4761,7 @@ packages:
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
     requiresBuild: true
     dependencies:
-      '@types/node': 20.11.24
+      '@types/node': 20.12.7
     dev: false
     optional: true
 
@@ -4925,7 +4911,7 @@ packages:
       '@babel/core': 7.23.5
       '@babel/plugin-transform-typescript': 7.23.5(@babel/core@7.23.5)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.23.5)
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
       vue: 3.3.13(typescript@5.3.3)
     transitivePeerDependencies:
       - supports-color
@@ -4938,7 +4924,7 @@ packages:
       vite: ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
       vue: 3.3.13(typescript@5.3.3)
     dev: true
 
@@ -4960,7 +4946,7 @@ packages:
       std-env: 3.7.0
       test-exclude: 6.0.0
       v8-to-istanbul: 9.2.0
-      vitest: 1.1.0(@types/node@20.10.5)(happy-dom@13.5.0)(sass@1.69.5)
+      vitest: 1.1.0(@types/node@20.12.7)(happy-dom@13.5.0)(sass@1.69.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9078,13 +9064,13 @@ packages:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
     dev: true
 
-  /markdown-it-anchor@8.6.7(@types/markdown-it@13.0.7)(markdown-it@14.0.0):
+  /markdown-it-anchor@8.6.7(@types/markdown-it@14.0.1)(markdown-it@14.0.0):
     resolution: {integrity: sha512-FlCHFwNnutLgVTflOYHPW2pPcl2AACqVzExlkGQNsi4CJgqOHN7YTgDd4LuhgN1BFO3TS0vLAruV1Td6dwWPJA==}
     peerDependencies:
       '@types/markdown-it': '*'
       markdown-it: '*'
     dependencies:
-      '@types/markdown-it': 13.0.7
+      '@types/markdown-it': 14.0.1
       markdown-it: 14.0.0
     dev: false
 
@@ -9895,7 +9881,7 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright-slack-report@1.1.58(@types/node@20.10.5)(debug@4.3.4)(typescript@5.3.3):
+  /playwright-slack-report@1.1.58(@types/node@20.12.7)(debug@4.3.4)(typescript@5.3.3):
     resolution: {integrity: sha512-u7UR+SnuA/IH0PSoHW6fSKIo66SJf8FyFGuO+i9vs1elB630hpw/+7GYQrDJK/ub5lmmMJ/eUs/zsI/CgFuylg==}
     hasBin: true
     dependencies:
@@ -9903,7 +9889,7 @@ packages:
       '@slack/webhook': 7.0.1(debug@4.3.4)
       commander: 11.1.0
       https-proxy-agent: 7.0.2
-      ts-node: 10.9.2(@types/node@20.10.5)(typescript@5.3.3)
+      ts-node: 10.9.2(@types/node@20.12.7)(typescript@5.3.3)
       zod: 3.22.4
     transitivePeerDependencies:
       - '@swc/core'
@@ -11571,7 +11557,7 @@ packages:
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  /ts-node@10.9.2(@types/node@20.10.5)(typescript@5.3.3):
+  /ts-node@10.9.2(@types/node@20.12.7)(typescript@5.3.3):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
     peerDependencies:
@@ -11590,7 +11576,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
       acorn: 8.11.2
       acorn-walk: 8.3.1
       arg: 4.1.3
@@ -11966,7 +11952,7 @@ packages:
     resolution: {integrity: sha512-TlhdSp2oEOLFXvEp4psKaeTjR5zBjTRcM/sHUN8PkV1UWuY8HKC8n7GaVdW5Xqnwdr/F1OmzLik1QwDjI4w/nw==}
     dev: false
 
-  /vite-node@1.1.0(@types/node@20.10.5)(sass@1.69.5):
+  /vite-node@1.1.0(@types/node@20.12.7)(sass@1.69.5):
     resolution: {integrity: sha512-jV48DDUxGLEBdHCQvxL1mEh7+naVy+nhUUUaPAZLd3FJgXuxQiewHcfeZebbJ6onDqNGkP4r3MhQ342PRlG81Q==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -11975,7 +11961,7 @@ packages:
       debug: 4.3.4
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -12005,7 +11991,7 @@ packages:
       open: 9.1.0
       picocolors: 1.0.0
       sirv: 2.0.4
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -12021,7 +12007,7 @@ packages:
       axios: 1.6.3(debug@4.3.4)
       debug: 4.3.4
       picocolors: 1.0.0
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -12040,7 +12026,7 @@ packages:
       '@vue/compiler-dom': 3.3.13
       kolorist: 1.8.0
       magic-string: 0.30.5
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -12049,7 +12035,7 @@ packages:
     resolution: {integrity: sha512-gdp/OFVXBiVq1UwPujVb7+4mmgYHTGrzslMbQvxmgzTN4/HC+3j4GNrumsIKSWfA/y3hktII7XqY38muRaGjhw==}
     dev: false
 
-  /vite@5.0.12(@types/node@20.10.5)(sass@1.69.5):
+  /vite@5.0.12(@types/node@20.12.7)(sass@1.69.5):
     resolution: {integrity: sha512-4hsnEkG3q0N4Tzf1+t6NdN9dg/L3BM+q8SWgbSPnJvrgH2kgdyzfVJwbR1ic69/4uMJJ/3dqDZZE5/WwqW8U1w==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -12077,7 +12063,7 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
       esbuild: 0.19.12
       postcss: 8.4.32
       rollup: 4.12.0
@@ -12085,7 +12071,7 @@ packages:
     optionalDependencies:
       fsevents: 2.3.3
 
-  /vitest@1.1.0(@types/node@20.10.5)(happy-dom@13.5.0)(sass@1.69.5):
+  /vitest@1.1.0(@types/node@20.12.7)(happy-dom@13.5.0)(sass@1.69.5):
     resolution: {integrity: sha512-oDFiCrw7dd3Jf06HoMtSRARivvyjHJaTxikFxuqJjO76U436PqlVw1uLn7a8OSPrhSfMGVaRakKpA2lePdw79A==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -12110,7 +12096,7 @@ packages:
       jsdom:
         optional: true
     dependencies:
-      '@types/node': 20.10.5
+      '@types/node': 20.12.7
       '@vitest/expect': 1.1.0
       '@vitest/runner': 1.1.0
       '@vitest/snapshot': 1.1.0
@@ -12130,8 +12116,8 @@ packages:
       strip-literal: 1.3.0
       tinybench: 2.5.1
       tinypool: 0.8.1
-      vite: 5.0.12(@types/node@20.10.5)(sass@1.69.5)
-      vite-node: 1.1.0(@types/node@20.10.5)(sass@1.69.5)
+      vite: 5.0.12(@types/node@20.12.7)(sass@1.69.5)
+      vite-node: 1.1.0(@types/node@20.12.7)(sass@1.69.5)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
       - less
