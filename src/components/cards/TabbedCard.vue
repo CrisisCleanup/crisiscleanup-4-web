@@ -25,6 +25,7 @@ const tabContainer = ref<null | HTMLElement>(null);
 const tabSelector = ref<null | HTMLElement>(null);
 let activeRef = ref<number>(0);
 if (props.activeRecallKey !== undefined) {
+  // eslint-disable-next-line vue/no-ref-as-operand
   activeRef = useStorage(props.activeRecallKey, 0, localStorage, {
     writeDefaults: false,
   });
