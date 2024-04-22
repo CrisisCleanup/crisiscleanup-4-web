@@ -169,8 +169,8 @@
     "@types/markdown-it-footnote": "^3.0.4",
     "@types/node": "^20.12.7",
     "@types/postcss-pxtorem": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.5.0",
     "@vue/test-utils": "^2.4.2",
@@ -201,8 +201,8 @@
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.7",
     "tailwindcss": "^3.4.0",
-    "type-fest": "^4.9.0",
-    "typescript": "^5.3.3",
+    "type-fest": "^4.16.0",
+    "typescript": "^5.4.5",
     "typescript-eslint-parser-for-extra-files": "^0.6.0",
     "unplugin-auto-import": "^0.17.5",
     "vite": "^5.2.10",
@@ -211,7 +211,7 @@
     "vite-plugin-vue-inspector": "^5.0.1",
     "vitest": "^1.5.0",
     "vue-eslint-parser": "^9.4.2",
-    "vue-tsc": "^1.8.27"
+    "vue-tsc": "^2.0.14"
   },
   "lint-staged": {
     "*.{vue,json,ts?(x)}": [
