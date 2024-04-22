@@ -95,11 +95,11 @@ export default defineComponent({
           popupAnchor: [0, -28],
         });
 
-        L.marker(latLng, { icon: divIcon }).addTo(map);
-        map.panTo(latLng);
+        L.marker(latLng, { icon: divIcon }).addTo(map.value);
+        map.value.panTo(latLng);
       }
 
-      map.attributionControl.setPosition('bottomright');
+      map.value.attributionControl.setPosition('bottomright');
     };
 
     onMounted(async () => {
