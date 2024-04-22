@@ -70,7 +70,7 @@
               class="w-108"
               size="large"
               data-testid="testOrganizationSearchInputSelect"
-              @selectedOrganization="selectedOrganization = $event"
+              @selected-organization="selectedOrganization = $event"
             />
           </tab>
           <tab
@@ -86,7 +86,7 @@
               <base-checkbox
                 class="pb-2"
                 data-testid="testSelectAllUsersCheckbox"
-                @update:modelValue="setAllUsers"
+                @update:model-value="setAllUsers"
                 >{{ $t('actions.select_all') }}</base-checkbox
               >
               <tree-menu
@@ -98,10 +98,10 @@
                 :data="user"
                 :indent="0"
                 :selected-users="selectedUsers"
-                @addUser="addUser"
-                @removeUser="removeUser"
-                @addUserTree="addUserTree"
-                @removeUserTree="removeUserTree"
+                @add-user="addUser"
+                @remove-user="removeUser"
+                @add-user-tree="addUserTree"
+                @remove-user-tree="removeUserTree"
               ></tree-menu>
             </div>
           </tab>
@@ -126,7 +126,7 @@
                     <base-checkbox
                       class="pb-2"
                       data-testid="testSelectAllCasesCheckbox"
-                      @update:modelValue="
+                      @update:model-value="
                         (value: boolean) => {
                           setCases(value, cases);
                         }
@@ -145,7 +145,7 @@
                         class="pb-2"
                         data-testid="testWorkTypeCheckbox"
                         :model-value="selectedCases.includes(work_type.id)"
-                        @update:modelValue="
+                        @update:model-value="
                           (value: boolean) => {
                             setCases(value, [work_type]);
                           }
@@ -313,8 +313,9 @@ export default defineComponent({
       const response = await $http.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/worksite_work_types?claimed_by=${currentUser?.value?.organization
-          .id}&limit=150`,
+        }/worksite_work_types?claimed_by=${
+          currentUser?.value?.organization.id
+        }&limit=150`,
       );
       claimedCases.value = groupBy(response.data.results, 'incident');
     }

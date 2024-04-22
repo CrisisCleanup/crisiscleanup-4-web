@@ -125,8 +125,8 @@ const collectionOptions = computed(() =>
   collections.value.map((c) => ({ ...c, label: c.name.toUpperCase() })),
 );
 
-const collection = computed(
-  () => collections.value?.find((c) => c.uuid === collectionId.value),
+const collection = computed(() =>
+  collections.value?.find((c) => c.uuid === collectionId.value),
 );
 const hasCollection = computed(() => !!collection.value);
 const {

@@ -274,6 +274,7 @@ Remember, these commands are flexible and can be adjusted based on your specific
 #### Useful Commands
 
 Update dependencies with pnpm:
+
 ```
 pnpm update --interactive --latest
 ```

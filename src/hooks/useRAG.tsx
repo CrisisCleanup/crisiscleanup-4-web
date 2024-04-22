@@ -433,11 +433,10 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
     handleDocumentMessage(newValue, newValue.fileId);
   });
 
-  const collectionDocuments = computed(
-    () =>
-      collectionState.data.value?.files?.sort?.((a, b) =>
-        a.filenameOriginal.localeCompare(b.filenameOriginal),
-      ),
+  const collectionDocuments = computed(() =>
+    collectionState.data.value?.files?.sort?.((a, b) =>
+      a.filenameOriginal.localeCompare(b.filenameOriginal),
+    ),
   );
 
   const documentsTree = computed(() => {

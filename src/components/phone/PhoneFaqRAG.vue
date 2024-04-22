@@ -29,8 +29,8 @@ watchOnce(collections, () => {
   }
 });
 
-const collection = computed(
-  () => collections.value?.find((c) => c.uuid === collectionId.value),
+const collection = computed(() =>
+  collections.value?.find((c) => c.uuid === collectionId.value),
 );
 
 const { history, submitQuestion, latestMessage, isStreamingMessage } = useRAG(

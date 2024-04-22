@@ -1404,9 +1404,8 @@ export default defineComponent({
       loading.value = true;
       let noClaimText = '';
       const worksiteToShare = Worksite.find(id);
-      const hasClaimedWorkType = worksiteToShare?.work_types.some(
-        (type) =>
-          currentUser?.value?.organization.affiliates.includes(type.claimed_by),
+      const hasClaimedWorkType = worksiteToShare?.work_types.some((type) =>
+        currentUser?.value?.organization.affiliates.includes(type.claimed_by),
       );
       if (hasClaimedWorkType) {
         noClaimText = '';
@@ -1498,9 +1497,8 @@ export default defineComponent({
       loading.value = true;
       let file;
       const worksiteToPrint = await Worksite.find(id);
-      const hasClaimedWorkType = worksiteToPrint?.work_types.some(
-        (type) =>
-          currentUser?.value?.organization.affiliates.includes(type.claimed_by),
+      const hasClaimedWorkType = worksiteToPrint?.work_types.some((type) =>
+        currentUser?.value?.organization.affiliates.includes(type.claimed_by),
       );
       if (hasClaimedWorkType) {
         file = await Worksite.api().printWorksite(id, '');
