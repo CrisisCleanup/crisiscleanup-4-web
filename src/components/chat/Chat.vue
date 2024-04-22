@@ -20,7 +20,7 @@
                 fa
                 class="text-green-500"
               />
-              <div class="text-base">{{ getUserFullName(user) }}</div>
+              <UserDetailsTooltip :user="user" />
             </div>
           </div>
         </div>
@@ -170,10 +170,11 @@ import { useWebSockets } from '../../hooks/useWebSockets';
 import ChatMessage from './ChatMessage.vue';
 import type { Message } from '@/models/types';
 import debounce from 'lodash/debounce';
+import UserDetailsTooltip from '@/components/user/DetailsTooltip.vue';
 
 export default defineComponent({
   name: 'Chat',
-  components: { ChatMessage },
+  components: { UserDetailsTooltip, ChatMessage },
   props: {
     chat: {
       type: Object,
@@ -284,15 +285,6 @@ export default defineComponent({
       );
       emit('unreadCount', response.data.count);
     }
-
-    function getUserFullName(id) {
-      const user = User.find(id);
-      if (!user) {
-        User.api().get(`/users/${id}`, {});
-      }
-      return user?.full_name || 'Unknown';
-    }
-
     async function getUnreadUrgentMessagesCount() {
       loadingMessages.value = true;
       const parameters = {
@@ -427,7 +419,6 @@ export default defineComponent({
       search,
       searchResults,
       onlineUsers,
-      getUserFullName,
     };
   },
 });
