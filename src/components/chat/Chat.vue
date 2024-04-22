@@ -20,7 +20,7 @@
                 fa
                 class="text-green-500"
               />
-              <div class="text-base">{{ getUser(user).full_name }}</div>
+              <div class="text-base">{{ getUserFullName(user) }}</div>
             </div>
           </div>
         </div>
@@ -285,12 +285,12 @@ export default defineComponent({
       emit('unreadCount', response.data.count);
     }
 
-    function getUser(id) {
+    function getUserFullName(id) {
       const user = User.find(id);
       if (!user) {
         User.api().get(`/users/${id}`, {});
       }
-      return user;
+      return user?.full_name || 'Unknown';
     }
 
     async function getUnreadUrgentMessagesCount() {
@@ -427,7 +427,7 @@ export default defineComponent({
       search,
       searchResults,
       onlineUsers,
-      getUser,
+      getUserFullName,
     };
   },
 });
