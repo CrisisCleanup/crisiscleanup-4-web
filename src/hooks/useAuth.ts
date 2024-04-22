@@ -354,8 +354,8 @@ const authStore = () => {
 
   // Token states.
   const hasAccessToken = computed(() => Boolean(authState.accessToken));
-  const isAccessTokenExpired = computed(
-    () => authState.accessTokenExpiry?.isBefore?.(moment()),
+  const isAccessTokenExpired = computed(() =>
+    authState.accessTokenExpiry?.isBefore?.(moment()),
   );
 
   const hasValidAccessToken = logicAnd(

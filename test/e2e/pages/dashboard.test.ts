@@ -115,8 +115,8 @@ test.describe('DashboardPage', () => {
       const linkInfos: Array<Record<string, unknown>> = [];
       for (const link of linkLocators) {
         const href = await link.getAttribute('href');
-        const isHrefValid = !['mailto:', 'tel:'].some(
-          (s) => href?.startsWith(s),
+        const isHrefValid = !['mailto:', 'tel:'].some((s) =>
+          href?.startsWith(s),
         );
         console.info('Found link', href);
         const isVisited = visitedLinks.has(href);

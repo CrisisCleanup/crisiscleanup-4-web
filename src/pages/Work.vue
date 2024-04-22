@@ -1305,11 +1305,8 @@ export default defineComponent({
 
     const workTypesClaimedByOrganization = computed<any>(() => {
       if (worksite.value) {
-        return worksite.value.work_types.filter(
-          (type) =>
-            currentUser?.value?.organization.affiliates.includes(
-              type.claimed_by,
-            ),
+        return worksite.value.work_types.filter((type) =>
+          currentUser?.value?.organization.affiliates.includes(type.claimed_by),
         );
       }
 
@@ -1353,11 +1350,10 @@ export default defineComponent({
         const ids = [...selectedTableItems.value];
 
         const hasClaimedWorkType = (w: Worksite) => {
-          return w.work_types.some(
-            (type) =>
-              currentUser?.value?.organization.affiliates.includes(
-                type.claimed_by,
-              ),
+          return w.work_types.some((type) =>
+            currentUser?.value?.organization.affiliates.includes(
+              type.claimed_by,
+            ),
           );
         };
 
@@ -1623,9 +1619,8 @@ export default defineComponent({
       loading.value = true;
       let noClaimText = '';
       const worksiteToShare = await Worksite.find(id);
-      const hasClaimedWorkType = worksiteToShare?.work_types.some(
-        (type) =>
-          currentUser?.value?.organization.affiliates.includes(type.claimed_by),
+      const hasClaimedWorkType = worksiteToShare?.work_types.some((type) =>
+        currentUser?.value?.organization.affiliates.includes(type.claimed_by),
       );
       if (hasClaimedWorkType) {
         noClaimText = '';
@@ -1716,9 +1711,8 @@ export default defineComponent({
       loading.value = true;
       let file;
       const worksiteToPrint = await Worksite.find(id);
-      const hasClaimedWorkType = worksiteToPrint?.work_types.some(
-        (type) =>
-          currentUser?.value?.organization.affiliates.includes(type.claimed_by),
+      const hasClaimedWorkType = worksiteToPrint?.work_types.some((type) =>
+        currentUser?.value?.organization.affiliates.includes(type.claimed_by),
       );
       if (hasClaimedWorkType) {
         file = await Worksite.api().printWorksite(id, '');
@@ -1775,11 +1769,8 @@ export default defineComponent({
       }
 
       const hasClaimedWorkType = (w: Worksite) => {
-        return w.work_types.some(
-          (type) =>
-            currentUser?.value?.organization.affiliates.includes(
-              type.claimed_by,
-            ),
+        return w.work_types.some((type) =>
+          currentUser?.value?.organization.affiliates.includes(type.claimed_by),
         );
       };
 
