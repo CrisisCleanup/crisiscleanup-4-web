@@ -149,6 +149,7 @@ const config = {
         'unicorn/no-array-for-each': 'warn',
         'unicorn/prefer-query-selector': 'warn',
         'unicorn/prefer-logical-operator-over-ternary': 'warn',
+        'unicorn/no-anonymous-default-export': 'warn',
         'import/namespace': 'warn',
         'import/export': 'warn',
         'promise/param-names': 'warn',
