@@ -354,6 +354,24 @@
                 <p class="my-3">
                   {{ $t('profileUser.clear_favorites_user_settings') }}
                 </p>
+                <a
+                  :href="$t('~~profileUser.delete_account_link')"
+                  data-testid="testDeleteUserAccountButton"
+                  class="flex justify-center items-center gap-3 w-min px-4 py-1 text-crisiscleanup-light-smoke bg-crisiscleanup-red-100"
+                  target="_blank"
+                >
+                  <span>{{ $t('~~profileUser.delete_account') }}</span>
+                  <ccu-icon
+                    :alt="$t('~~profileUser.delete_account_icon_alt')"
+                    type="external-link"
+                    fa
+                    size="small"
+                    data-testid="testNewCaseIcon"
+                  />
+                </a>
+                <p class="my-3">
+                  {{ $t('~~profileUser.delete_account_info') }}
+                </p>
               </div>
             </div>
           </div>
