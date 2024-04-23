@@ -189,7 +189,7 @@ jobs:
 
       - name: 📤 Upload blob report to GitHub Actions Artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: all-blob-reports
           path: blob-report
@@ -216,7 +216,7 @@ jobs:
         run: pnpm install
 
       - name: 📥 Download blob reports from GitHub Actions Artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: all-blob-reports
           path: all-blob-reports
@@ -238,7 +238,7 @@ jobs:
           cat report.md >> $GITHUB_STEP_SUMMARY # report.md is generated from markdown reporter
 
       - name: 📤 Upload HTML report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-report-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: playwright-report
