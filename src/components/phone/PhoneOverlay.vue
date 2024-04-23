@@ -413,7 +413,7 @@ const {
             </div>
           </ul>
           <div
-            class="w-full cursor-pointer flex items-center p-3"
+            class="w-full cursor-pointer flex items-center p-3 border border-t-2"
             :class="sideBarExpanded ? 'justify-between' : 'justify-center'"
             @click="() => (sideBarExpanded = !sideBarExpanded)"
           >
