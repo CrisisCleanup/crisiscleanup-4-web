@@ -70,7 +70,7 @@ dependencies:
     version: 0.4.7
   '@types/leaflet.heat':
     specifier: ^0.2.2
-    version: 0.2.2
+    version: 0.2.4
   '@types/leaflet.markercluster':
     specifier: ^1.5.4
     version: 1.5.4
@@ -4745,8 +4745,8 @@ packages:
       '@types/leaflet': 1.9.12
     dev: false
 
-  /@types/leaflet.heat@0.2.2:
-    resolution: {integrity: sha512-5PLDNtbbc/1uZTb37FY8c/Sxf3mSioj7fSg8HAUPcsybSJ9+lPViWTWJTc4/McVWwHNehjjrklKeYA7dZCjnKQ==}
+  /@types/leaflet.heat@0.2.4:
+    resolution: {integrity: sha512-Ocdgf2LUBsPAdQ29KY7QAwe5J5NDq/T2msTsA3OL7eYG3EVjMvkrPqXYJtLbXIauxP9e7bOReDie3GzC7lBLqg==}
     dependencies:
       '@types/leaflet': 1.9.12
     dev: false
