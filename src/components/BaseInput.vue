@@ -278,9 +278,6 @@ export default defineComponent({
         ) {
           element.style.height = `${element.scrollHeight}px`;
         }
-        // element.style.height = "auto";  // Reset the height to recalculate
-        //const heightLimit = 200;  // Maximum height
-        //element.style.height = `${Math.min(element.scrollHeight, heightLimit)}px`;
       });
     }
     function change(e) {
