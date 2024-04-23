@@ -319,7 +319,7 @@ dependencies:
     version: 4.1.0(vue@3.4.24)
   zod:
     specifier: ^3.23.0
-    version: 3.23.0
+    version: 3.23.3
 
 devDependencies:
   '@faker-js/faker':
@@ -9895,7 +9895,7 @@ packages:
       commander: 11.1.0
       https-proxy-agent: 7.0.4
       ts-node: 10.9.2(@types/node@20.12.7)(typescript@5.4.5)
-      zod: 3.23.0
+      zod: 3.23.3
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
@@ -12594,8 +12594,8 @@ packages:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
-  /zod@3.23.0:
-    resolution: {integrity: sha512-OFLT+LTocvabn6q76BTwVB0hExEBS0IduTr3cqZyMqEDbOnYmcU+y0tUAYbND4uwclpBGi4I4UUBGzylWpjLGA==}
+  /zod@3.23.3:
+    resolution: {integrity: sha512-tPvq1B/2Yu/dh2uAIH2/BhUlUeLIUvAjr6dpL/75I0pCYefHgjhXk1o1Kob3kTU8C7yU1j396jFHlsVWFi9ogg==}
 
   github.com/CrisisCleanup/cf-agent-library/f1953ec15ff69d7750d8071a729859daaf3f0739:
     resolution: {commit: f1953ec15ff69d7750d8071a729859daaf3f0739, repo: https://git@github.com/CrisisCleanup/cf-agent-library.git, type: git}
