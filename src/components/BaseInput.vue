@@ -105,6 +105,10 @@ import { ref, computed, defineComponent } from 'vue';
 export default defineComponent({
   name: 'BaseInput',
   props: {
+    textAreaAutoResize: {
+      type: Boolean,
+      default: false,
+    },
     size: {
       type: String,
       default: '',
@@ -243,6 +247,7 @@ export default defineComponent({
       'has-tooltip': Boolean(props.tooltip),
       invalid: Boolean(isInvalid.value),
       'border-none': Boolean(props.topLabel),
+      noscrollbars: Boolean(props.textAreaAutoResize),
     }));
 
     function update(e) {
@@ -255,12 +260,29 @@ export default defineComponent({
           return context.emit('update:modelValue', newValue);
         }
       }
-
+      if (props.textAreaAutoResize) {
+        textAreaAutoResize();
+      }
       context.emit('update:modelValue', value);
       isInvalid.value = !input?.value?.checkValidity();
       return value;
     }
 
+    function textAreaAutoResize() {
+      nextTick(() => {
+        const element = input.value;
+        if (
+          props.textArea &&
+          element &&
+          element.scrollHeight > element.clientHeight
+        ) {
+          element.style.height = `${element.scrollHeight}px`;
+        }
+        // element.style.height = "auto";  // Reset the height to recalculate
+        //const heightLimit = 200;  // Maximum height
+        //element.style.height = `${Math.min(element.scrollHeight, heightLimit)}px`;
+      });
+    }
     function change(e) {
       context.emit('change', e.target.value);
       isInvalid.value = !input?.value?.checkValidity();
@@ -308,6 +330,11 @@ textarea.invalid {
   @apply border border-crisiscleanup-red-100;
 }
 
+textarea.noscrollbars {
+  overflow: hidden;
+  width: 300px;
+  height: 100px;
+}
 input {
   outline: none;
   width: var(--width);
