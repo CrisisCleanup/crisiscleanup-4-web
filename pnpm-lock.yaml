@@ -22,7 +22,7 @@ dependencies:
     version: 3.0.6(@fortawesome/fontawesome-svg-core@6.5.2)(vue@3.4.24)
   '@geoman-io/leaflet-geoman-free':
     specifier: ^2.15.0
-    version: 2.15.0(leaflet@1.9.4)
+    version: 2.16.0(leaflet@1.9.4)
   '@pixi/constants':
     specifier: 6.5.10
     version: 6.5.10
@@ -1849,8 +1849,8 @@ packages:
       vue: 3.4.24(typescript@5.4.5)
     dev: false
 
-  /@geoman-io/leaflet-geoman-free@2.15.0(leaflet@1.9.4):
-    resolution: {integrity: sha512-esann1pQ8cCX3pMR7XkXuf1vwwJLz1mAbkeyRWOfoLMKA8LBnbRxChIBZzzwzyGIxybNO93Bl6LaK8wEj8uzlA==}
+  /@geoman-io/leaflet-geoman-free@2.16.0(leaflet@1.9.4):
+    resolution: {integrity: sha512-BnKAAoTXraWVFfhX/0gT/iBgAz1BPfpbdQ9dJamEFI4lIku9UNXXluu/E0k7YkZETq0tENX2GPnKLB4p+VgrSw==}
     peerDependencies:
       leaflet: ^1.2.0
     dependencies:
@@ -3770,7 +3770,7 @@ packages:
     dependencies:
       '@turf/helpers': 6.5.0
       '@turf/invariant': 6.5.0
-      polygon-clipping: 0.15.3
+      polygon-clipping: 0.15.7
     dev: false
 
   /@turf/dissolve@6.5.0:
@@ -3779,7 +3779,7 @@ packages:
       '@turf/helpers': 6.5.0
       '@turf/invariant': 6.5.0
       '@turf/meta': 6.5.0
-      polygon-clipping: 0.15.3
+      polygon-clipping: 0.15.7
     dev: false
 
   /@turf/distance-weight@6.5.0:
@@ -3878,7 +3878,7 @@ packages:
     dependencies:
       '@turf/helpers': 6.5.0
       '@turf/invariant': 6.5.0
-      polygon-clipping: 0.15.3
+      polygon-clipping: 0.15.7
     dev: false
 
   /@turf/invariant@6.5.0:
@@ -4025,7 +4025,7 @@ packages:
     resolution: {integrity: sha512-RQha4aU8LpBrmrkH8CPaaoAfk0Egj5OuXtv6HuCQnHeGNOQt3TQVibTA3Sh4iduq4EPxnZfDjgsOeKtrCA19lg==}
     dependencies:
       '@turf/helpers': 6.5.0
-      polygon-clipping: 0.15.3
+      polygon-clipping: 0.15.7
     dev: false
 
   /@turf/meta@6.5.0:
@@ -4471,7 +4471,7 @@ packages:
     dependencies:
       '@turf/helpers': 6.5.0
       '@turf/invariant': 6.5.0
-      polygon-clipping: 0.15.3
+      polygon-clipping: 0.15.7
     dev: false
 
   /@turf/unkink-polygon@6.5.0:
@@ -9923,6 +9923,13 @@ packages:
   /polygon-clipping@0.15.3:
     resolution: {integrity: sha512-ho0Xx5DLkgxRx/+n4O74XyJ67DcyN3Tu9bGYKsnTukGAW6ssnuak6Mwcyb1wHy9MZc9xsUWqIoiazkZB5weECg==}
     dependencies:
+      splaytree: 3.1.2
+    dev: false
+
+  /polygon-clipping@0.15.7:
+    resolution: {integrity: sha512-nhfdr83ECBg6xtqOAJab1tbksbBAOMUltN60bU+llHVOL0e5Onm1WpAXXWXVB39L8AJFssoIhEVuy/S90MmotA==}
+    dependencies:
+      robust-predicates: 3.0.2
       splaytree: 3.1.2
     dev: false
 
