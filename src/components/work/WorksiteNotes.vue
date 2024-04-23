@@ -89,9 +89,10 @@
       <base-input
         text-area
         data-testid="testCurrentNoteTextarea"
+        text-area-auto-resize
         :value="currentNote"
         :rows="3"
-        @update:modelValue="
+        @update:model-value="
           (value) => {
             currentNote = value;
             $emit('input', value);
