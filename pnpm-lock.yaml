@@ -67,7 +67,7 @@ dependencies:
     version: 6.5.0
   '@types/leaflet.gridlayer.googlemutant':
     specifier: ^0.4.7
-    version: 0.4.7
+    version: 0.4.9
   '@types/leaflet.heat':
     specifier: ^0.2.2
     version: 0.2.4
@@ -190,7 +190,7 @@ dependencies:
     version: 1.9.4(leaflet@1.9.4)(pixi.js@6.5.9)
   leaflet.gridlayer.googlemutant:
     specifier: ^0.14.0
-    version: 0.14.0
+    version: 0.14.1
   leaflet.heat:
     specifier: ^0.2.0
     version: 0.2.0
@@ -4739,8 +4739,8 @@ packages:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
     dev: true
 
-  /@types/leaflet.gridlayer.googlemutant@0.4.7:
-    resolution: {integrity: sha512-Wgy2vDTVZnTCnnxiCmGnqVmEKe1zZ2JRtdgy4JjO3EVtiqfiTIm28t1JsEHOzveP3I48gR02KbRQWUd8NPRRDw==}
+  /@types/leaflet.gridlayer.googlemutant@0.4.9:
+    resolution: {integrity: sha512-u/5Avs1KKkeABRDixGbGp2ldFs67+fYIATpkvvFgN+LQPNfq7dFd5adkksshiQBfYJ4SaQg1VJgN2dNirIC0aQ==}
     dependencies:
       '@types/leaflet': 1.9.12
     dev: false
@@ -8825,8 +8825,8 @@ packages:
       pixi.js: 6.5.9
     dev: false
 
-  /leaflet.gridlayer.googlemutant@0.14.0:
-    resolution: {integrity: sha512-DJ4hchHcqSf+znygd7r20pKijwHwGFrtf60FJeIafTbO6qsYC+65beGz+v42sYxUEKnQL2HmdPB8znWgsY8gBg==}
+  /leaflet.gridlayer.googlemutant@0.14.1:
+    resolution: {integrity: sha512-/OYxEjmgxO1U1KOhTzg+m8c0b95J0943LU8DXQmdJu/x2f+1Ur78rvEPO2QCS0cmwZ3m6FvE5I3zXnBzJNWRCA==}
     dev: false
 
   /leaflet.heat@0.2.0:
