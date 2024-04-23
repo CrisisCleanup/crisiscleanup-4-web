@@ -34,12 +34,12 @@ const sections = [
   },
   {
     view: 'leaderboard',
-    text: t('phoneDashboard.leaderboard'),
+    text: t('~~Volunteer Stats'),
     icon: 'leaderboard',
   },
   { view: 'zoom', text: t('phoneDashboard.join_zoom'), icon: 'zoom' },
   { view: 'cms', text: t('phoneDashboard.news'), icon: 'news' },
-  { view: 'generalStats', text: t('phoneDashboard.stats'), icon: 'stats' },
+  { view: 'generalStats', text: t('~~Stats'), icon: 'stats' },
   { view: 'chat', text: t('chat.chat'), icon: 'chat' },
   {
     view: 'reportBug',
@@ -65,6 +65,7 @@ import Chat from '@/components/chat/Chat.vue';
 import { reactive, ref } from 'vue';
 import moment from 'moment';
 import usePhoneService from '@/hooks/phone/usePhoneService';
+import BaseText from '@/components/BaseText.vue';
 const { emitter } = useEmitter();
 
 const { text, copy } = useClipboard({
@@ -390,14 +391,25 @@ const {
         <nav
           class="bg-gray-100 h-[calc(100vh-10.5rem)] flex flex-col justify-between"
         >
-          <ul class="mt-16">
+          <ul>
+            <div v-if="isOnCall" class="bg-blue">
+              <div
+                :class="isOnCall"
+                class="h-12 flex items-center justify-center pulse bg-crisiscleanup-green-900"
+              >
+                <BaseText class="font-bold text-white"
+                  >Current Call {{ ['Duration'] }}</BaseText
+                >
+              </div>
+            </div>
+
             <div class="flex flex-col items-center">
               <div
                 v-for="section in sections"
                 :key="section.view"
-                class="p-2.5 bg-white flex items-center gap-2 cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b"
+                class="p-2 bg-white flex items-center gap-2 cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b-4"
                 :class="{
-                  'border-l-4 border-l-primary-light':
+                  'border-l-4 border-l-primary-light font-bold':
                     currentView === section.view,
                   'justify-center': !sideBarExpanded,
                 }"
@@ -405,8 +417,12 @@ const {
               >
                 <ccu-icon
                   :type="section.icon"
-                  class="text-2xl"
-                  :color="currentView === section.view ? 'white' : 'black'"
+                  :class="
+                    currentView === section.view
+                      ? 'filter-yellow'
+                      : 'filter-gray'
+                  "
+                  size="large"
                 />
                 <div v-if="sideBarExpanded">{{ $t(section.text) }}</div>
               </div>
@@ -432,4 +448,23 @@ const {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* filter for hex #f9cd00   */
+.filter-yellow {
+  filter: brightness(0) saturate(100%) invert(76%) sepia(21%) saturate(2390%)
+    hue-rotate(5deg) brightness(103%) contrast(104%);
+}
+/* filter for hex #7e7e81   */
+
+.filter-gray {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(0%) saturate(0%)
+    hue-rotate(232deg) brightness(90%) contrast(90%);
+}
+
+/* ease for filters to not show wrong color during transition  */
+
+.filter-gray,
+.filter-yellow {
+  transition: filter 0s ease;
+}
+</style>
