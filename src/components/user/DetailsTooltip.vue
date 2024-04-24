@@ -14,7 +14,7 @@
       <slot
     /></base-text>
     <template #popper>
-      <div class="tooltip-content">
+      <div class="tooltip-content p-2">
         <div v-if="userItem" class="text-base">{{ userItem.full_name }}</div>
         <div
           v-if="userItem"
