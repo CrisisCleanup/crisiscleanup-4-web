@@ -71,7 +71,7 @@ export default defineComponent({
     const { emitter } = useEmitter();
 
     const phoneNumber = ref('');
-    const selectedCountryCode = ref(null);
+    const selectedCountryCode = ref('+1');
     const countryCodes = ref([{ code: '+1', icon: 'flag-usa' }]);
 
     emitter.on('dialer:set_phone_number', (phone) => {
