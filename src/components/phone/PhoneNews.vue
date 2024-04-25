@@ -35,9 +35,9 @@
         </li>
       </ul>
     </tab>
-    <tab name="User Guide">
+    <tab :name="$t('~~User Guide')">
       <li
-        v-for="newItem in userGuide"
+        v-for="newItem in userGuides"
         :key="newItem.id"
         class="hover:bg-crisiscleanup-light-grey cursor-pointer border-b-2"
         @click="() => showDetails(newItem)"
@@ -96,11 +96,13 @@ export default defineComponent({
     const { component } = useDialogs();
     const { userStates } = useCurrentUser();
 
-    const newsInterval = ref(undefined);
+    const newsInterval = ref();
     const news = ref([]);
+    const userGuides = ref([]);
     const unreadCount = ref(0);
 
     async function getNews() {
+      console.info('Getting NEWS');
       try {
         if (userStates.value?.[props.stateKey]) {
           const response = await axios.get(
@@ -114,21 +116,22 @@ export default defineComponent({
           emit('unreadCount', response.data.count);
         }
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/cms?tags=${
-          props.cmsTag
-        }&sort=-publish_at&limit=10`,
-      );
-      news.value = response.data.results;
-      const userResponse = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/cms?tags=user-guide&sort=-publish_at&limit=10`,
-      );
-      userGuide.value = userResponse.data.results;
-    } catch (e) {
-        console.error(e);
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/cms?tags=${
+            props.cmsTag
+          }&sort=-publish_at&limit=10`,
+        );
+        news.value = response.data.results;
+        const userGuideResponse = await axios.get(
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/cms?tags=user-guide&sort=-publish_at&limit=10`,
+        );
+        userGuides.value = userGuideResponse.data.results;
+      } catch (error) {
+        console.error(error);
       }
+    }
 
     async function showDetails(newItem) {
       await component({
@@ -145,7 +148,7 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      newsInterval.value = setInterval(getNews, 60_000);
+      newsInterval.value = setInterval(getNews, 10_000);
     });
 
     onBeforeUnmount(() => {
@@ -161,13 +164,14 @@ export default defineComponent({
 
     return {
       news,
+      userGuides,
       unreadCount,
       newsInterval,
       formatCmsItem,
       showDetails,
     };
-  }
-}});
+  },
+});
 </script>
 
 <style scoped>
