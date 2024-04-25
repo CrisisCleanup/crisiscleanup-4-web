@@ -11,11 +11,9 @@
       <base-select
         :model-value="selectedIncident"
         data-testid="testIncidentSelect"
-        class="form-field"
         :options="incidents"
         style="z-index: 10000; position: relative"
         searchable
-        select-classes="bg-white outline-none h-12 mb-3 w-72"
         item-key="id"
         label="name"
         :placeholder="$t('mapVue.disaster')"
