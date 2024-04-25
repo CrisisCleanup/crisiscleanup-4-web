@@ -4,12 +4,16 @@
     @mouseenter="showActions = true"
     @mouseleave="showActions = false"
   >
-    <!-- Existing message content -->
-    <div
-      class="bg-blue-600 text-white rounded-md w-10 h-10 flex items-center justify-center text-lg mt-2"
-    >
-      {{ getUserInitials(message.created_by) }}
-    </div>
+    <Avatar
+      :initials="message.full_name"
+      :url="
+        'https://api.dicebear.com/7.x/bottts/svg?seed=' +
+        message.full_name.trim().split(/\s+/)[0]
+      "
+      data-testid="testAvatarIcon"
+      size="xsmall"
+      inner-classes="shadow"
+    />
     <div class="relative flex justify-between w-full">
       <!-- Existing message content -->
       <div>
@@ -91,7 +95,7 @@
       </span>
     </div>
   </template>
-  <div v-if="showReplies || showReplyBox" class="mx-4">
+  <div v-if="showReplies || showReplyBox" class="mx-12">
     <div v-for="reply in message.replies" :key="reply.id">
       <ChatMessage :message="reply" class="my-1" is-reply />
     </div>
@@ -125,10 +129,11 @@ import type { Message } from '@/models/types';
 import User from '@/models/User';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import Avatar from '@/components/Avatar.vue';
 
 export default defineComponent({
   name: 'ChatMessage',
-  components: { BaseButton, BaseInput, UserDetailsTooltip },
+  components: { Avatar, BaseButton, BaseInput, UserDetailsTooltip },
   props: {
     message: {
       type: Object as PropType<Message>,
