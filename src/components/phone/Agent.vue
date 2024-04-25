@@ -78,6 +78,21 @@
           $t('phoneDashboard.not_playing_nice')
         }}</span></base-checkbox
       >
+      <ccu-icon
+        v-tooltip="{
+          content: $t(
+            '~~Sometimes calls do not play nice. If you encounter this issue, click the checkbox and select wether to recieve inbound or outbound calls only to prevent call collision',
+          ),
+          triggers: ['click'],
+          popperClass: 'interactive-tooltip w-72',
+          html: true,
+        }"
+        :alt="$t('~~Not Playing Nice Alt Text')"
+        data-testid="testLocationInstructionsIcon
+"
+        type="help"
+        size="large"
+      />
       <base-select
         v-if="notPlayingNice"
         data-testid="notPlayingNiceSelect"
