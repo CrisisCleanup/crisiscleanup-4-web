@@ -19,7 +19,7 @@
         item-key="id"
         label="name"
         :placeholder="$t('mapVue.disaster')"
-        @update:modelValue="
+        @update:model-value="
           (value) => {
             selectedIncident = value;
             reloadMap();
@@ -40,8 +40,10 @@
       <div class="text-lg my-1">
         {{ $t('mapVue.personal_info_hidden') }}
       </div>
-      <div class="podlink">
-        <a href="//pod.crisiscleanup.org">Checkout the Podcast</a>
+      <div class="text-lg my-1">
+        <a href="https://pod.crisiscleanup.org">
+          {{ $t('~~Checkout our Podcast') }}
+        </a>
       </div>
     </div>
   </Home>
@@ -223,10 +225,5 @@ export default defineComponent({
 }
 .input {
   @apply m-2;
-}
-.podlink {
-  @apply text-lg my-1 mr-1;
-  z-index: 9999;
-  position: relative;
 }
 </style>
