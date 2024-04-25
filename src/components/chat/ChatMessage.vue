@@ -39,7 +39,7 @@
       </div>
       <!-- Existing message content -->
       <div
-        v-if="showActions"
+        v-if="message.is_urgent || message.is_favorite ? true : showActions"
         class="actions-bar absolute top-1 right-2 mt-3 transform -translate-y-1/2 cursor-pointer flex items-center gap-1 bg-gray-100 p-2 rounded"
       >
         <!-- Urgent Icon -->
