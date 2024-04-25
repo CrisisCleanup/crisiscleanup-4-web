@@ -1,6 +1,7 @@
 <template>
   <div
     class="flex items-start space-x-4 chat-message w-full hover:bg-crisiscleanup-light-smoke p-0.5 cursor-pointer"
+    :class="message.is_urgent ? 'bg-[#FF000050]' : ''"
     @mouseenter="showActions = true"
     @mouseleave="showActions = false"
   >
