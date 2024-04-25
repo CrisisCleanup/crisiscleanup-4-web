@@ -106,6 +106,7 @@ const updateView = (view) => {
 
 const closeTab = () => {
   currentView.value = '';
+
   if (!caller.value) {
     expanded.value = false;
   }
@@ -530,7 +531,12 @@ const {
                     currentView === section.view,
                   'justify-center': !sideBarExpanded,
                 }"
-                @click="() => updateView(section.view)"
+                @click="
+                  () =>
+                    currentView === section.view
+                      ? closeTab()
+                      : updateView(section.view)
+                "
               >
                 <ccu-icon
                   :type="section.icon"
