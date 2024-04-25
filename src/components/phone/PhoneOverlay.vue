@@ -275,43 +275,83 @@ const {
           <template v-if="expanded">
             <div
               v-if="currentView"
-              class="flex items-center justify-between p-3 bg-gray-100"
+              class="flex items-center justify-between px-3 py-[11px] border-b-4"
             >
               <h1></h1>
               <base-button :action="closeTab" variant="">
                 {{ $t('Close Tab') }}
               </base-button>
             </div>
-            <div class="bg-white">
+            <div class="bg-white h-full">
               <Leaderboard
                 v-if="currentView === 'leaderboard'"
                 class="h-full"
               />
-              <ManualDialer
+              <div
                 v-if="currentView === 'manualDialer'"
-                class="p-2"
-                data-testid="testManualDialerDiv"
-                style="z-index: 1002"
-                :dialing="false"
-                @on-dial="dialManualOutbound"
-              ></ManualDialer>
+                class="flex items-center justify-center h-[calc(100vh-13rem)]"
+              >
+                <ManualDialer
+                  class="p-2"
+                  data-testid="testManualDialerDiv"
+                  style="z-index: 1002"
+                  :dialing="false"
+                  @on-dial="dialManualOutbound"
+                ></ManualDialer>
+              </div>
+
               <zoom v-if="currentView === 'zoom'">
-                <div class="flex items-center justify-center p-3 gap-2 mt-12">
-                  <a href="https://bit.ly/ccuzoom" target="_blank"
-                    ><div class="bg-primary-light py-1 px-4">
-                      {{ $t('phoneDashboard.join_zoom') }}
-                    </div></a
+                <div
+                  class="h-[calc(100vh-13rem)]"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                  "
+                >
+                  <header style="margin-bottom: 20px" class="font-bold">
+                    <h1>Welcome to Our Phone Support Zoom Call</h1>
+                  </header>
+                  <main
+                    style="
+                      display: flex;
+                      flex-direction: column;
+                      justify-content: center;
+                      align-items: center;
+                    "
                   >
+                    <img
+                      src="@/assets/zoomxcrisiscleanup.png"
+                      style="width: 50%"
+                      class="mb-10"
+                    />
+                    <p>
+                      Having trouble with your phone? Join our live Zoom meeting
+                      now and get real-time support from experts and community
+                      members!
+                    </p>
+                    <div class="flex items-center justify-center gap-2 mt-6">
+                      <a href="https://bit.ly/ccuzoom" target="_blank"
+                        ><div class="bg-primary-light py-4 px-12">
+                          {{ $t('phoneDashboard.join_zoom') }}
+                        </div></a
+                      >
+                    </div>
+                  </main>
                 </div>
               </zoom>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2"
+                class="p-2 h-[calc(100vh-13rem)]"
                 data-testid="testPhoneCmsItemsDiv"
                 style="z-index: 1002"
               ></PhoneCmsItems>
+
               <CallHistory
                 v-if="currentView === 'callHistory'"
+                class="border-top-4"
                 :calls="callHistory"
                 :table-body-style="{ height: '30rem' }"
                 @row-click="
@@ -320,11 +360,17 @@ const {
                   }
                 "
               ></CallHistory>
-              <GeneralStats
+              <div
                 v-if="currentView === 'generalStats'"
-                @on-remaining-callbacks="remainingCallbacks = $event"
-                @on-remaining-calldowns="remainingCalldowns = $event"
-              />
+                class="flex items-center justify-center h-full"
+              >
+                <div class="w-1/2 border rounded">
+                  <GeneralStats
+                    @on-remaining-callbacks="remainingCallbacks = $event"
+                    @on-remaining-calldowns="remainingCalldowns = $event"
+                  />
+                </div>
+              </div>
               <template v-if="currentView === 'chat'">
                 <Chat
                   v-if="selectedChat"
@@ -336,15 +382,86 @@ const {
                 />
               </template>
               <template v-if="currentView === 'reportBug'">
-                <div class="flex items-center justify-center p-3 gap-2">
-                  <base-button
-                    size="medium"
-                    data-testid="testReportBugButton"
-                    :text="$t('phoneDashboard.report_bug')"
-                    :alt="$t('phoneDashboard.report_bug')"
-                    :action="() => emit('onReportBug')"
-                    class="text-white bg-crisiscleanup-red-200"
-                  ></base-button>
+                <div
+                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5"
+                >
+                  <div class="flex flex-col lg:flex-row">
+                    <div class="flex items-center">
+                      <img
+                        src="@/assets/cc-bugs.png"
+                        alt="Crisis Cleanup Bugs"
+                        class="mb-5"
+                      />
+                    </div>
+                    <div
+                      class="flex flex-col items-center justify-center text-center font-sans text-gray-800"
+                    >
+                      <p class="font-bold text-2xl mb-2">
+                        Hey there, Bug Buster!
+                      </p>
+                      <p>
+                        Looks like you've got a sharp eye! 🕵️‍♂️ If you've stumbled
+                        upon a little critter in our software that's not playing
+                        nice, we'd love for you to report it to our Bug Brigade!
+                      </p>
+                      <p class="font-bold text-2xl m-2">
+                        Here's how you can send the buggy details our way:
+                      </p>
+                      <ul
+                        class="space-y-2 m-5 lg:flex lg:flex-row lg:space-y-0 lg:space-x-2"
+                      >
+                        <li>
+                          <div
+                            class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
+                          >
+                            1. Capture the critter! (Take a screenshot or
+                            describe what it's up to)
+                          </div>
+                        </li>
+                        <li>
+                          <div
+                            class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
+                          >
+                            2. Tell us where it's lurking. (Which part of the
+                            app are you in?)
+                          </div>
+                        </li>
+                        <li>
+                          <div
+                            class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
+                          >
+                            3. Describe the mischief it's causing. (What were
+                            you expecting vs. what happened?)
+                          </div>
+                        </li>
+                      </ul>
+                      <p>
+                        Just hit the "🐞 Report a Bug" button in our app, and
+                        we'll squish the troublemaker in no time! Plus, you'll
+                        earn your stripes as an honorary member of the Bug
+                        Brigade, complete with bragging rights and our eternal
+                        gratitude.
+                      </p>
+                      <p class="my-2">
+                        Your keen eyes help us keep our software as bug-free as
+                        a squeaky-clean kitchen! 🍽️✨
+                      </p>
+                      <p class="my-2">
+                        Happy Bug Hunting,<br />The Crisis Cleanup Development
+                        Team
+                      </p>
+
+                      <base-button
+                        size="large"
+                        data-testid="testReportBugButton"
+                        :text="$t('phoneDashboard.report_bug')"
+                        :alt="$t('phoneDashboard.report_bug')"
+                        :action="() => emit('onReportBug')"
+                        class="text-white bg-crisiscleanup-red-200 my-2"
+                        >🐞 Report Bug</base-button
+                      >
+                    </div>
+                  </div>
                 </div>
               </template>
             </div>
