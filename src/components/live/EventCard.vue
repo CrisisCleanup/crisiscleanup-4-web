@@ -1,8 +1,13 @@
 <template>
   <div class="text-xs">
     <div class="flex items-center justify-between">
-      <div v-html="getHeader()"></div>
-      <span style="font-size: 10px">{{
+      <div class="flex gap-1 justify-center items-center">
+        <span v-html="getHeader()"></span>
+        <span class="text-xs font-bold">{{
+          getEventTitle(currentEvent.event_key)
+        }}</span>
+      </div>
+      <span class="text-[0.6rem] font-extralight">{{
         momentFromNow(currentEvent.created_at)
       }}</span>
     </div>
@@ -61,10 +66,10 @@ export default defineComponent({
         const work_type = props.currentEvent.attr.patient_name_t;
         return getWorktypeSVG(
           {
-            work_type: work_type.substring(work_type.indexOf('.') + 1, work_type.length),
+            work_type: work_type.slice(work_type.indexOf('.') + 1),
             status: props.currentEvent.attr.patient_status,
           },
-          25,
+          16,
         );
       }
     };

@@ -10,7 +10,7 @@
         v-for="card in cards"
         :key="card.event.id"
         :current-event="card.event"
-        class="stacked-card bg-opacity-25 border w-full h-auto rounded my-2 p-3"
+        class="stacked-card bg-opacity-25 border w-full h-auto rounded my-2 p-2"
         :style="{
           backgroundColor: hexToRgba(card.color, 0.25),
           borderColor: card.strokeColor,
