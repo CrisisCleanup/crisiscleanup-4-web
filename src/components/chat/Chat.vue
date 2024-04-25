@@ -13,13 +13,13 @@
               :key="user"
               class="flex items-center space-x-2 w-full"
             >
-              <ccu-icon
-                :alt="$t('chat.online')"
-                size="xs"
-                type="circle"
-                fa
-                class="text-green-500"
-              />
+              <Avatar
+              :initials="getUser(user).first_name"
+              :url="'https://api.dicebear.com/7.x/bottts/svg?seed='+ getUser(user).first_name"
+              data-testid="testAvatarIcon"
+              size="xsmall"
+              inner-classes="shadow"
+            />
               <UserDetailsTooltip :user="user" />
             </div>
           </div>
@@ -171,10 +171,11 @@ import ChatMessage from './ChatMessage.vue';
 import type { Message } from '@/models/types';
 import debounce from 'lodash/debounce';
 import UserDetailsTooltip from '@/components/user/DetailsTooltip.vue';
+import Avatar from "@/components/Avatar.vue";
 
 export default defineComponent({
   name: 'Chat',
-  components: { UserDetailsTooltip, ChatMessage },
+  components: {Avatar, UserDetailsTooltip, ChatMessage },
   props: {
     chat: {
       type: Object,
@@ -223,6 +224,9 @@ export default defineComponent({
       searchLoading.value = false;
     }
 
+    function getUser(id) {
+      return User.find(id);
+    }
     const handleWheel = debounce(function () {
       if (
         messagesBox?.value?.scrollTop === 0 &&
@@ -419,6 +423,7 @@ export default defineComponent({
       search,
       searchResults,
       onlineUsers,
+      getUser
     };
   },
 });
