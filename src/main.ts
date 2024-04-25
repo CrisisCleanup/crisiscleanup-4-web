@@ -8,6 +8,7 @@ import VueTagsInput from '@sipec/vue3-tags-input';
 import Datepicker from '@vuepic/vue-datepicker';
 import * as Sentry from '@sentry/vue';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { far } from '@fortawesome/free-regular-svg-icons';
 import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
@@ -54,6 +55,7 @@ import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
 
 library.add(fas);
+library.add(far);
 
 axios.defaults.withCredentials = true;
 

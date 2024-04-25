@@ -54,9 +54,10 @@
         <font-awesome-icon
           v-if="!message.is_favorite"
           :alt="$t('chat.show_favorite')"
-          icon="star"
+          :icon="['far', 'star']"
           @click="$emit('onFavorite', message)"
         />
+
         <font-awesome-icon
           v-if="message.is_favorite"
           :alt="$t('chat.is_favorite')"
@@ -131,10 +132,11 @@ import User from '@/models/User';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import Avatar from '@/components/Avatar.vue';
+import CcuIcon from '@/components/BaseIcon.vue';
 
 export default defineComponent({
   name: 'ChatMessage',
-  components: { Avatar, BaseButton, BaseInput, UserDetailsTooltip },
+  components: { CcuIcon, Avatar, BaseButton, BaseInput, UserDetailsTooltip },
   props: {
     message: {
       type: Object as PropType<Message>,
