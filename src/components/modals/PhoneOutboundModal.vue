@@ -103,13 +103,14 @@ export default defineComponent({
       call_type: props.type,
     });
 
-    const handleRowClick = (payload) => {
+    const handleRowClick = (payload: Record<string, any>) => {
       emitter.emit('phone_component:close');
       emitter.emit('phone_component:open', 'dialer');
       emitter.emit(
         'dialer:set_phone_number',
         formatNationalNumber(payload.phone_number),
       );
+      emitter.emit('phone_outbound:click', payload);
       emit('close');
     };
 
