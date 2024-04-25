@@ -206,11 +206,7 @@
             <CallHistory
               :calls="callHistory"
               data-testid="testCallHistoryDiv"
-              @row-click="
-                ({ mobile }) => {
-                  setManualOutbound(mobile);
-                }
-              "
+              @row-click="handleCallHistoryRowClick"
             />
           </template>
         </PhoneComponentButton>
@@ -777,11 +773,7 @@
                   <CallHistory
                     :calls="callHistory"
                     data-testid="testCallHistoryDiv"
-                    @row-click="
-                      ({ mobile }) => {
-                        setManualOutbound(mobile);
-                      }
-                    "
+                    @row-click="handleCallHistoryRowClick"
                   />
                 </template>
               </PhoneComponentButton>
@@ -1099,6 +1091,10 @@ export enum AllowedCallType {
   BOTH = 'BOTH',
 }
 
+export const PhoneSystemActionQueryParam = {
+  OPEN_MANUAL_DIALER: 'open_manual_dialer',
+} as const;
+
 export default defineComponent({
   name: 'PhoneSystem',
   components: {
@@ -1130,6 +1126,7 @@ export default defineComponent({
     const { prompt, confirm, component } = useDialogs();
     const { emitter } = useEmitter();
     const router = useRouter();
+    const route = useRoute();
     const store = useStore();
     const { currentUser } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
@@ -1307,7 +1304,7 @@ export default defineComponent({
       }
     }
 
-    function setManualOutbound(phone) {
+    function setManualOutbound(phone: string) {
       emitter.emit('phone_component:open', 'dialer');
       emitter.emit('dialer:set_phone_number', formatNationalNumber(phone));
     }
@@ -1562,6 +1559,21 @@ export default defineComponent({
       worksiteId.value = marker.id;
     }
 
+    function handleCallHistoryRowClick(payload: Record<string, any>) {
+      const { mobile, incident } = payload;
+      setManualOutbound(mobile);
+      const incidentId = incident?.id;
+      if (incidentId) {
+        router.replace({
+          path: `/incident/${incidentId}/phone`,
+          query: {
+            action: PhoneSystemActionQueryParam.OPEN_MANUAL_DIALER,
+            phone_number: mobile,
+          },
+        });
+      }
+    }
+
     async function getWorksites() {
       mapLoading.value = true;
       const response = await loadCasesCached({
@@ -1808,6 +1820,28 @@ export default defineComponent({
         allowCallType.value = AllowedCallType.INBOUND_ONLY;
       }
 
+      emitter.on('phone_outbound:click', (payload: Record<string, any>) => {
+        const { phone_number, incident_id } = payload;
+        const [incidentId = null] = incident_id;
+        setManualOutbound(phone_number);
+        if (incidentId) {
+          router.replace({
+            path: `/incident/${incidentId}/phone`,
+            query: {
+              action: PhoneSystemActionQueryParam.OPEN_MANUAL_DIALER,
+              phone_number: phone_number,
+            },
+          });
+        }
+      });
+
+      if (
+        route.query.action === PhoneSystemActionQueryParam.OPEN_MANUAL_DIALER &&
+        route.query.phone_number
+      ) {
+        setManualOutbound(route.query.phone_number);
+      }
+
       await init();
     });
 
@@ -1861,6 +1895,7 @@ export default defineComponent({
       setTabs,
       toggleView,
       onSelectExistingWorksite,
+      handleCallHistoryRowClick,
       search,
       addMarkerToMap,
       jumpToCase,
