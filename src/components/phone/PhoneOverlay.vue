@@ -145,6 +145,7 @@ const updateElapsedTime = () => {
   }
 
   // Remove the 'Z' to prevent automatic conversion to UTC and parse as local time
+  console.log(call.value);
   const localTimeStr = call.value.call_at.slice(0, -1);
   const callAtLocal = new Date(localTimeStr);
 
@@ -283,7 +284,10 @@ const {
                 {{ $t('Close Tab') }}
               </base-button>
             </div>
-            <div class="bg-white h-full">
+            <div
+              class="bg-white"
+              :class="!currentView && caller ? '' : 'h-full'"
+            >
               <Leaderboard
                 v-if="currentView === 'leaderboard'"
                 class="h-full"
@@ -516,8 +520,8 @@ const {
                 class="h-12 flex items-center justify-center pulse bg-crisiscleanup-green-900"
               >
                 <BaseText class="font-bold text-white"
-                  >Current Call {{ ['Duration'] }}</BaseText
-                >
+                  >Current Call 00:00:00
+                </BaseText>
               </div>
             </div>
 
