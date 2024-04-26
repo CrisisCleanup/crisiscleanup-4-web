@@ -167,3 +167,20 @@ export function getColorContrast(
   const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
   return L > 0.179 ? darkColor : lightColor;
 }
+
+export function extractIconNameFromPath(path: string): string {
+  // Example path: /src/assets/disaster_icons/wind.svg
+  // Use the lastIndexOf method to find the last '/' character and slice everything after that
+  const lastIndex = path.lastIndexOf('/');
+  const filenameWithExtension =
+    lastIndex === -1 ? path : path.slice(lastIndex + 1);
+
+  // Use the lastIndexOf method again to remove the file extension
+  const lastDotIndex = filenameWithExtension.lastIndexOf('.');
+  const iconName =
+    lastDotIndex === -1
+      ? filenameWithExtension
+      : filenameWithExtension.slice(0, lastDotIndex);
+
+  return iconName;
+}
