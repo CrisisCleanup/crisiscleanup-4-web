@@ -231,7 +231,7 @@
           :key="JSON.stringify(field.children)"
           class="item-sub"
           :list="field.children"
-          @deleteItem="(value: any) => deleteItem(field, value)"
+          @delete-item="(value: any) => deleteItem(field, value)"
           @change="(value: any) => onChildChange(field, value)"
           @update="$emit('update', $event)"
         />

@@ -18,7 +18,7 @@
             ]"
             indicator-icon="caret-down"
             select-classes="h-10 border bg-white text-sm"
-            @update:modelValue="logChange"
+            @update:model-value="logChange"
           />
         </div>
         <div v-if="frequency === $t('recurringSchedule.daily')" class="daily">
@@ -28,7 +28,7 @@
             :name="$t('recurringSchedule.days')"
             :label="$t('recurringSchedule.days')"
             :model-value="dailyOption"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 dailyOption = value;
                 logChange();
@@ -51,7 +51,7 @@
             :name="$t('recurringSchedule.every_weekday')"
             :label="$t('recurringSchedule.every_weekday')"
             :model-value="dailyOption"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 dailyOption = value;
                 logChange();
@@ -74,7 +74,7 @@
             <div v-for="(day, key) in daysOfWeek" :key="key" class="p-1 w-24">
               <base-checkbox
                 v-model="selectedDays[key]"
-                @update:modelValue="logChange"
+                @update:model-value="logChange"
               >
                 {{ key }}
               </base-checkbox>
@@ -100,7 +100,7 @@
             }"
             :placeholder="$t('recurringSchedule.select_end_date')"
             as-single
-            @update:modelValue="logChange"
+            @update:model-value="logChange"
           ></datepicker>
         </div>
       </div>

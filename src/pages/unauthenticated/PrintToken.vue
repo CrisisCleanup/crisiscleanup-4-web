@@ -102,7 +102,7 @@
               :worksite="printToken"
               :is-print-token="true"
               data-testid="testPhotosFile"
-              @photosChanged="reloadFiles"
+              @photos-changed="reloadFiles"
             />
           </div>
           <base-button

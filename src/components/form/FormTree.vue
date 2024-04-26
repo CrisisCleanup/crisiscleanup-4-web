@@ -18,7 +18,7 @@
               Boolean(dynamicFields[field.field_key]) || hasSelectedChildren
             "
             :data-testid="`test${field.field_key}Checkbox`"
-            @update:modelValue="
+            @update:model-value="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
                 updateChildren(field, value);
@@ -82,7 +82,7 @@
                 ? 'form-field--recommended'
                 : ''
             "
-            @update:modelValue="
+            @update:model-value="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
               }
@@ -127,7 +127,7 @@
                 : ''
             "
             select-classes="bg-white border text-xs role-select p-1 form-multiselect"
-            @update:modelValue="
+            @update:model-value="
               (value: string[]) => {
                 $emit('updateField', {
                   key: field.field_key,
@@ -153,7 +153,7 @@
             size="large"
             :break-glass="field.read_only_break_glass"
             :placeholder="t(field.placeholder_t) || t(field.label_t)"
-            @update:modelValue="
+            @update:model-value="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
               }
@@ -174,7 +174,7 @@
             :model-value="dynamicFields[field.field_key] || field.recur_default"
             :is-default="!dynamicFields[field.field_key]"
             :data-testid="`test${field.field_key}CronSelect`"
-            @update:modelValue="
+            @update:model-value="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
               }
@@ -213,7 +213,7 @@
             :model-value="dynamicFields[field.field_key]"
             :placeholder="t(field.placeholder_t) || t(field.label_t)"
             :data-testid="`test${field.field_key}TextArea`"
-            @update:modelValue="
+            @update:model-value="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
               }
@@ -226,7 +226,7 @@
           <base-checkbox
             :model-value="dynamicFields[field.field_key]"
             :data-testid="`test${field.field_key}Checkbox`"
-            @update:modelValue="
+            @update:model-value="
               (value: string) => {
                 $emit('updateField', { key: field.field_key, value });
               }
@@ -266,12 +266,12 @@
       :field="item"
       :worksite="worksite"
       :dynamic-fields="dynamicFields"
-      @updateField="
+      @update-field="
         ({ key, value }: Record<string, string>) => {
           $emit('updateField', { key, value });
         }
       "
-      @updateWorkTypeStatus="
+      @update-work-type-status="
         ({ work_type, status }: Record<string, string>) => {
           $emit('updateWorkTypeStatus', { work_type, status });
         }

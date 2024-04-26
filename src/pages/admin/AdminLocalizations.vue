@@ -169,7 +169,7 @@
           data-testid="testSearchGroupLabelTextSearch"
           height="48"
           :placeholder="$t('adminLocalizations.search_group_label_text')"
-          @update:modelValue="
+          @update:model-value="
             (value) => {
               tableQuery.search = value;
               tableQuery = { ...tableQuery };
@@ -181,7 +181,7 @@
           data-testid="testSearchLabelsOnlySearch"
           height="48"
           :placeholder="$t('adminLocalizations.search_labels_only')"
-          @update:modelValue="
+          @update:model-value="
             (value) => {
               tableQuery.label__icontains = value;
               tableQuery = { ...tableQuery };
@@ -195,7 +195,7 @@
           :placeholder="$t('adminLocalizations.filter_groups')"
           :options="groups"
           multiple
-          @update:modelValue="
+          @update:model-value="
             (value) => {
               tableQuery.group__in = value.join(',');
               tableQuery = { ...tableQuery };
@@ -207,7 +207,7 @@
         :url="tableUrl"
         :columns="columns"
         :query="tableQuery"
-        @rowClick="
+        @row-click="
           (translation) => {
             currentLocalization = translation;
             loadLocalizationTexts(translation).then(() => {});

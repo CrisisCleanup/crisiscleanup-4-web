@@ -22,7 +22,7 @@
         :image-list="worksite.files ? worksite.files : imageList"
         :disable-modal="disableModal"
         data-testid="testImageUploaderModal"
-        @removeImage="deleteFile"
+        @remove-image="deleteFile"
       />
     </div>
   </section>

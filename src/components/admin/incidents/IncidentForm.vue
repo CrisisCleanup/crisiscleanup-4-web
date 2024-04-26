@@ -127,7 +127,7 @@
           item-key="id"
           label="number"
           :placeholder="$t('incidentBuilder.phone_numbers')"
-          @update:modelValue="
+          @update:model-value="
             (value: string) => {
               currentAni.anis = [];
               currentAni.anis = [...value];

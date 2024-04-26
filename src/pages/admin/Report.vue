@@ -9,9 +9,9 @@
       :key="currentIncidentId"
       data-testid="testReportFiltersContent"
       :inputs="report.inputs"
-      @onFilter="runReport"
-      @onCSV="runCsvReport"
-      @onPrint="printReport"
+      @on-filter="runReport"
+      @on-c-s-v="runCsvReport"
+      @on-print="printReport"
     />
     <spinner v-if="loading" size="xl" />
     <div
@@ -31,9 +31,9 @@
         :widget-key="key"
         :value="value"
         allow-add
-        @printWidget="printWidget"
-        @downloadWidgetCsv="downloadWidgetCsv"
-        @addWidgetToDashboard="addWidgetToDashboard"
+        @print-widget="printWidget"
+        @download-widget-csv="downloadWidgetCsv"
+        @add-widget-to-dashboard="addWidgetToDashboard"
       />
     </div>
   </div>

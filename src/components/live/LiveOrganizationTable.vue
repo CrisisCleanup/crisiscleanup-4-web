@@ -21,7 +21,7 @@
       :header-style="styles"
       :row-style="{ backgroundColor: 'unset' }"
       class="ml-1"
-      @rowClick="onRowClick"
+      @row-click="onRowClick"
     >
       <template #name="slotProps">
         <img

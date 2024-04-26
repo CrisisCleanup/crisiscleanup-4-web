@@ -8,7 +8,7 @@
         icon="search"
         class="w-72 mx-4"
         :placeholder="$t('info.search_items')"
-        @update:modelValue="
+        @update:model-value="
           (value) => {
             search = value;
             meta.pagination.page = 1;
@@ -30,8 +30,8 @@
       :loading="loading"
       v-bind="$attrs"
       @change="getData"
-      @rowClick="(payload) => $emit('rowClick', payload)"
-      @selectionChanged="(payload) => $emit('selectionChanged', payload)"
+      @row-click="(payload) => $emit('rowClick', payload)"
+      @selection-changed="(payload) => $emit('selectionChanged', payload)"
     >
       <template v-for="(_, slot) of $slots" #[slot]="scope"
         ><slot :name="slot" v-bind="scope"

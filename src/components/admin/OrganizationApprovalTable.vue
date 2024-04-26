@@ -6,7 +6,7 @@
     :pagination="meta.pagination"
     :loading="loading"
     @change="$emit('change', $event)"
-    @rowClick="showContacts"
+    @row-click="showContacts"
   >
     <template #statuses="slotProps">
       <div class="w-full flex items-center text-primary-dark">

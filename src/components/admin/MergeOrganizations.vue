@@ -30,14 +30,14 @@
           include-inactive
           class="w-108"
           data-testid="testKeepOrganizationSelect"
-          @selectedOrganization="keepOrganization = $event.id"
+          @selected-organization="keepOrganization = $event.id"
         />
         <div>{{ $t('mergeOrganizations.organization_merge') }}</div>
         <OrganizationSearchInput
           include-inactive
           class="w-108"
           data-testid="testMergeOrganizationSelect"
-          @selectedOrganization="mergeOrganization = $event.id"
+          @selected-organization="mergeOrganization = $event.id"
         />
         <div>{{ $t('mergeOrganizations.merge_reason') }}</div>
         <textarea

@@ -837,8 +837,8 @@ export default defineComponent({
         showAddMembersModal.value = false;
         ctx.emit('reload');
         $toasted.success('Successfully Added User');
-      } catch (e) {
-        $toasted.error(e);
+      } catch (error) {
+        $toasted.error(error);
       }
     };
 
@@ -915,11 +915,11 @@ export default defineComponent({
             users: newUsers,
           },
         });
-        $toasted.success('Removed User From Team')
+        $toasted.success('Removed User From Team');
         await updateCurrentTeam();
         ctx.emit('reload');
-      } catch(e) {
-        $toasted.error(e);
+      } catch (error) {
+        $toasted.error(error);
       }
     };
 
@@ -1011,8 +1011,8 @@ export default defineComponent({
         $toasted.success('Successfully Deleted Team');
         ctx.emit('reload');
         await router.push('/organization/teams');
-      } catch(e) {
-        $toasted.error(e);
+      } catch (error) {
+        $toasted.error(error);
       }
     };
 

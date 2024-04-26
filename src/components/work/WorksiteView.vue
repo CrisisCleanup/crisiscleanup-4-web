@@ -12,7 +12,7 @@
           :data-testid="`test${flag.reason_t}Flag`"
           :flag-reason="flag.reason_t"
           removable
-          @onRemove="removeFlag(flag)"
+          @on-remove="removeFlag(flag)"
         />
       </div>
     </div>
@@ -64,7 +64,7 @@
         <WorksiteNotes
           :worksite="worksite"
           data-testid="testWorksiteNotesContent"
-          @saveNote="saveNote"
+          @save-note="saveNote"
         />
         <div v-if="incident">
           <template v-for="field in incident.form_fields">
@@ -250,8 +250,8 @@
                 :work-types="workTypesClaimedByOthersUnrequested"
                 :initial-selection="initialWorkTypeRequestSelection"
                 :my-organization="currentUser.organization"
-                @onRequest="requestWorkTypes"
-                @onCancel="requestingWorkTypes = false"
+                @on-request="requestWorkTypes"
+                @on-cancel="requestingWorkTypes = false"
               />
             </div>
           </div>

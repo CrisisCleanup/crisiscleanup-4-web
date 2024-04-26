@@ -11,7 +11,7 @@
         item-key="id"
         label="name"
         :placeholder="$t('persistentInvitations.qr_invitation_type')"
-        @update:modelValue="persistentInvitationType = $event"
+        @update:model-value="persistentInvitationType = $event"
       />
 
       <base-select
@@ -25,7 +25,7 @@
         item-key="id"
         label="name"
         :placeholder="$t('persistentInvitations.select_team')"
-        @update:modelValue="selectedTeam = $event"
+        @update:model-value="selectedTeam = $event"
       />
 
       <base-checkbox

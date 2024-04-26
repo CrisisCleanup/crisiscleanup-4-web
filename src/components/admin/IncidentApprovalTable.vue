@@ -6,7 +6,7 @@
     :pagination="meta.pagination"
     :loading="loading"
     @change="$emit('change', $event)"
-    @rowClick="showContacts"
+    @row-click="showContacts"
   >
     <template #created_at="slotProps">
       <div :title="slotProps.item.created_at">

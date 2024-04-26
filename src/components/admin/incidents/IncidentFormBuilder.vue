@@ -9,7 +9,7 @@
         item-key="id"
         label="name"
         :placeholder="translate('incidentBuilder.select_template')"
-        @update:modelValue="
+        @update:model-value="
           (value: string) => {
             selectedIncidentTemplate = value;
             getTemplate(value);
@@ -20,7 +20,7 @@
         v-if="selectedIncidentTemplate"
         class="h-120 overflow-auto"
         :list="list"
-        @deleteItem="list = list.filter((f) => f.field_key !== $event)"
+        @delete-item="list = list.filter((f) => f.field_key !== $event)"
         @update="updateField"
         @change="
           (value) => {
@@ -41,7 +41,7 @@
         :placeholder="translate('incidentBuilder.search_elements')"
         class="mb-2"
         :model-value="elementSearch"
-        @update:modelValue="search"
+        @update:model-value="search"
       ></base-input>
       <div class="h-120 overflow-auto">
         <div

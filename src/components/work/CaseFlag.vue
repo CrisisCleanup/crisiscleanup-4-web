@@ -220,7 +220,7 @@
                 name="Yes"
                 label="Yes"
                 :model-value="currentFlag.attr.involves_you"
-                @update:modelValue="currentFlag.attr.involves_you = $event"
+                @update:model-value="currentFlag.attr.involves_you = $event"
               />
               <base-radio
                 class="mr-10"
@@ -228,7 +228,7 @@
                 name="No"
                 label="No"
                 :model-value="currentFlag.attr.involves_you"
-                @update:modelValue="currentFlag.attr.involves_you = $event"
+                @update:model-value="currentFlag.attr.involves_you = $event"
               />
             </div>
           </div>
@@ -240,7 +240,7 @@
           <OrganizationSearchInput
             size="large"
             data-testid="testOrganizationSearchInputSelect"
-            @selectedOrganization="
+            @selected-organization="
               (value) => {
                 selectedOrganizations = new Set(
                   selectedOrganizations.add(value.id),
@@ -269,7 +269,7 @@
           <OrganizationSearchInput
             size="large"
             data-testid="testOrganizationSearch"
-            @selectedOrganization="
+            @selected-organization="
               (value) => {
                 selectedOrganizations = new Set(
                   selectedOrganizations.add(value.id),
@@ -296,7 +296,7 @@
               name="Yes"
               label="Yes"
               :model-value="currentFlag.attr.have_you_contacted_org"
-              @update:modelValue="
+              @update:model-value="
                 currentFlag.attr.have_you_contacted_org = $event
               "
             />
@@ -306,7 +306,7 @@
               name="No"
               label="No"
               :model-value="currentFlag.attr.have_you_contacted_org"
-              @update:modelValue="
+              @update:model-value="
                 currentFlag.attr.have_you_contacted_org = $event
               "
             />

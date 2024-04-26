@@ -34,7 +34,7 @@
                 :capability="item"
                 :available-capabilities="organizationCapabilitiesForChild(item)"
                 :index="index"
-                @onHover="changeHover"
+                @on-hover="changeHover"
               />
             </div>
           </div>

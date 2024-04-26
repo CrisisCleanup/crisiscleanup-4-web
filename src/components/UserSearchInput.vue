@@ -9,7 +9,7 @@
     value-prop="id"
     object
     searchable
-    @update:modelValue="onUserUpdate"
+    @update:model-value="onUserUpdate"
   >
     <template #option="{ option }">
       <div class="flex items-center">

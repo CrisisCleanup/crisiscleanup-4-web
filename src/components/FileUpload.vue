@@ -13,7 +13,7 @@
           :options="Object.keys(fileAwareModels)"
           class="bg-white border border-crisiscleanup-dark-100 h-12 mb-3 w-full"
           :placeholder="$t('fileUpload.select_entity')"
-          @update:modelValue="(value) => (selectedModel = value)"
+          @update:model-value="(value) => (selectedModel = value)"
         />
 
         <base-select
@@ -23,14 +23,14 @@
           item-key="value"
           label="name_t"
           :placeholder="$t('fileUpload.select_file_type')"
-          @update:modelValue="(value) => (uploadType = value)"
+          @update:model-value="(value) => (uploadType = value)"
         />
 
         <OrganizationSearchInput
           v-if="selectedModel === 'Organization'"
           size="large"
           class="bg-white h-12 mb-3 w-full"
-          @selectedOrganization="entityId = $event.id"
+          @selected-organization="entityId = $event.id"
         />
 
         <base-select
@@ -41,7 +41,7 @@
           label="name_t"
           class="bg-white border border-crisiscleanup-dark-100 h-12 mb-3 w-full"
           :placeholder="$t('fileUpload.select_report')"
-          @update:modelValue="(value) => (entityId = value)"
+          @update:model-value="(value) => (entityId = value)"
         />
 
         <DragDrop

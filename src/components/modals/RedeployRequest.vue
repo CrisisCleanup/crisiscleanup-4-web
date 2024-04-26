@@ -35,7 +35,7 @@
           item-key="id"
           label="name"
           :placeholder="$t('locationVue.select_incident')"
-          @update:modelValue="selectedIncidentId = $event"
+          @update:model-value="selectedIncidentId = $event"
         >
           <template #option="{ option }">
             <div class="flex items-center w-full">

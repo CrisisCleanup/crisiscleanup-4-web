@@ -25,7 +25,7 @@
       :placeholder="$t('shareWorksite.search_emails')"
       data-testid="testSearchEmailsSearch"
       class="my-1"
-      @selectedUser="onSelectedUserEmail"
+      @selected-user="onSelectedUserEmail"
     />
 
     <div class="my-6"></div>
@@ -53,7 +53,7 @@
       data-testid="testSearchPhonesSearch"
       class="my-1"
       display-prop="mobile"
-      @selectedUser="onSelectedUserPhone"
+      @selected-user="onSelectedUserPhone"
     />
 
     <base-input
@@ -64,7 +64,7 @@
       :rows="6"
       class="my-4"
       :placeholder="$t('shareWorksite.add_message')"
-      @update:modelValue="
+      @update:model-value="
         (value: string) => {
           shareMessage = value;
           $emit('shareMessageUpdated', value);

@@ -8,7 +8,7 @@
       item-key="status"
       label="status"
       :placeholder="$t('actions.select_status')"
-      @update:modelValue="$emit('updatedStatus', $event)"
+      @update:model-value="$emit('updatedStatus', $event)"
     >
       <template #selected-option="{ option }">
         <div class="flex items-center justify-start absolute left-0 top-0 px-2">

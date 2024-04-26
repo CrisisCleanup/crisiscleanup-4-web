@@ -23,7 +23,7 @@
               item-key="id"
               label="name"
               :placeholder="$t('registerOrg.disaster')"
-              @update:modelValue="updateOrganizationIncident"
+              @update:model-value="updateOrganizationIncident"
             />
           </li>
 
@@ -39,7 +39,7 @@
                 class="form-field"
                 allow-new
                 required
-                @selectedOrganization="
+                @selected-organization="
                   (organization) => {
                     $router.push(
                       `/request_access?organization=${organization.name}`,

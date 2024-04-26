@@ -7,7 +7,7 @@
     :options="events.map((e) => e.key)"
     class="bg-white border border-crisiscleanup-dark-100 h-12 mb-3 w-full"
     :placeholder="$t('adminDashboard.filter_by_event')"
-    @update:modelValue="
+    @update:model-value="
       (value: string) => {
         filterEvents = [];
         filterEvents = [...value];

@@ -122,7 +122,7 @@
             label="name_t"
             :placeholder="$t('requestAccess.primary_language')"
             select-classes="bg-white border text-xs p-1 profile-select"
-            @update:modelValue="(value) => (primaryLanguage = value)"
+            @update:model-value="(value) => (primaryLanguage = value)"
           />
         </fieldset>
         <base-button

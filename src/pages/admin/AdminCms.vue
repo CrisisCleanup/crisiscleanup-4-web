@@ -159,14 +159,14 @@
       :url="tableUrl"
       :query="query"
       class="mt-6 shadow-lg"
-      @rowClick="(payload) => editItem(payload)"
+      @row-click="(payload) => editItem(payload)"
     >
       <template #header-actions>
         <div class="px-4 py-2">
           <base-checkbox
             class="pb-2"
             data-testid="testActiveOnlyCheckbox"
-            @update:modelValue="
+            @update:model-value="
               (value) => {
                 if (value) {
                   query = { ...query, is_active: true };

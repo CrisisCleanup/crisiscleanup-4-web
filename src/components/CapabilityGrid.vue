@@ -88,7 +88,7 @@
                     $emit('updated', { ...organizationCapabilityMatrix });
                   }
                 "
-                @update:modelValue="
+                @update:model-value="
                   (value) => {
                     setMatrixValue(value, phase.id, child.id);
                     $emit('updated', { ...organizationCapabilityMatrix });

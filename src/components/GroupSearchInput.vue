@@ -7,7 +7,7 @@
     :object="true"
     :placeholder="$t('Group (optional)')"
     :model-value="modelValue"
-    @update:modelValue="
+    @update:model-value="
       (value) => {
         $emit('update:modelValue', value);
       }

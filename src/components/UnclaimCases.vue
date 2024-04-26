@@ -11,7 +11,7 @@
       class="mb-5"
       data-testid="testBulkUnclaimNoChangeStatusCheckbox"
       :model-value="unchangedStatusOnUnclaim"
-      @update:modelValue="
+      @update:model-value="
         () => {
           unchangedStatusOnUnclaim = !unchangedStatusOnUnclaim;
           updateStatusOnUnclaim = !unchangedStatusOnUnclaim;
@@ -27,7 +27,7 @@
       class="mb-5"
       data-testid="testBulkUnclaimOpenUnassignedStatusCheckbox"
       :model-value="updateStatusOnUnclaim"
-      @update:modelValue="
+      @update:model-value="
         () => {
           updateStatusOnUnclaim = !updateStatusOnUnclaim;
           unchangedStatusOnUnclaim = !updateStatusOnUnclaim;

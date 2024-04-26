@@ -26,7 +26,7 @@
           size="medium"
           placeholder="+1 (000) 000-0000"
           :validator="validatePhoneNumber"
-          @update:modelValue="(value: string) => (phoneNumber = value)"
+          @update:model-value="(value: string) => (phoneNumber = value)"
         />
       </div>
       <div class="section flex flex-col">
@@ -48,7 +48,7 @@
           label="name_t"
           size="large"
           select-classes="bg-white border text-xs p-1 profile-select"
-          @update:modelValue="(value: string[]) => (languages = value)"
+          @update:model-value="(value: string[]) => (languages = value)"
         />
       </div>
     </div>

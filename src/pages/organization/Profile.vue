@@ -195,7 +195,7 @@
               :key="JSON.stringify(organization.primary_contacts)"
               :placeholder="$t('profileOrg.add_primary_contacts')"
               data-testid="testAddPrimaryContactsSearch"
-              @selectedUser="(user) => makePrimaryContact(user)"
+              @selected-user="(user) => makePrimaryContact(user)"
             />
           </div>
           <div class="form-row">

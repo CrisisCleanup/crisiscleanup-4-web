@@ -17,7 +17,7 @@
         item-key="id"
         label="name"
         :placeholder="$t('arcGisUploader.select_incident')"
-        @update:modelValue="incident = $event"
+        @update:model-value="incident = $event"
       />
       <base-input
         v-model="prefix"

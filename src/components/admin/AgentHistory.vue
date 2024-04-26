@@ -8,7 +8,7 @@
             :columns="urls.callHistory.columns"
             :body-style="{ height: '16rem' }"
             :enable-pagination="false"
-            @rowClick="onRowClick"
+            @row-click="onRowClick"
           />
         </div>
       </tab>
@@ -19,7 +19,7 @@
             :columns="urls.inboundHistory.columns"
             :body-style="{ height: '16rem' }"
             :enable-pagination="false"
-            @rowClick="onRowClick"
+            @row-click="onRowClick"
           />
         </div>
       </tab>
@@ -30,7 +30,7 @@
             :columns="urls.outboundHistory.columns"
             :body-style="{ height: '16rem' }"
             :enable-pagination="false"
-            @rowClick="onRowClick"
+            @row-click="onRowClick"
           />
         </div>
       </tab>
@@ -41,7 +41,7 @@
             :columns="urls.ringCentralHistory.columns"
             :body-style="{ height: '16rem' }"
             :enable-pagination="false"
-            @rowClick="onRowClick"
+            @row-click="onRowClick"
           />
         </div>
       </tab>

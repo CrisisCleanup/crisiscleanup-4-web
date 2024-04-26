@@ -175,7 +175,7 @@
             item-key="id"
             label="name_t"
             searchable
-            @update:modelValue="
+            @update:model-value="
               (e) => {
                 roleToAdd = e;
                 currentRole = e;
@@ -476,7 +476,7 @@
               item-key="id"
               label="name"
               searchable
-              @update:modelValue="
+              @update:model-value="
                 (value) => {
                   incidentToAdd = value;
                 }

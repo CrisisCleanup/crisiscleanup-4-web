@@ -23,7 +23,7 @@
           :model-value="user.first_name"
           :placeholder="$t('profileUser.first_name_placeholder')"
           required
-          @update:modelValue="
+          @update:model-value="
             (value) => {
               updateUser(value, 'first_name');
             }
@@ -36,7 +36,7 @@
           :model-value="user.last_name"
           :placeholder="$t('profileUser.last_name_placeholder')"
           required
-          @update:modelValue="
+          @update:model-value="
             (value) => {
               updateUser(value, 'last_name');
             }
@@ -49,7 +49,7 @@
           :model-value="user.mobile"
           :placeholder="$t('profileUser.mobile_placeholder')"
           required
-          @update:modelValue="
+          @update:model-value="
             (value) => {
               updateUser(value, 'mobile');
             }
