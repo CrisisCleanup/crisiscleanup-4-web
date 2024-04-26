@@ -573,7 +573,7 @@ const {
                   :type="section.icon"
                   :class="
                     currentView === section.view
-                      ? 'filter-yellow'
+                      ? 'filter-primary'
                       : 'filter-gray'
                   "
                   size="large"
@@ -602,23 +602,4 @@ const {
   </div>
 </template>
 
-<style scoped>
-/* filter for hex #f9cd00   */
-.filter-yellow {
-  filter: brightness(0) saturate(100%) invert(76%) sepia(21%) saturate(2390%)
-    hue-rotate(5deg) brightness(103%) contrast(104%);
-}
-/* filter for hex #7e7e81   */
-
-.filter-gray {
-  filter: brightness(0) saturate(100%) invert(83%) sepia(0%) saturate(0%)
-    hue-rotate(232deg) brightness(90%) contrast(90%);
-}
-
-/* ease for filters to not show wrong color during transition  */
-
-.filter-gray,
-.filter-yellow {
-  transition: filter 0s ease;
-}
-</style>
+<style lang="postcss" scoped></style>
