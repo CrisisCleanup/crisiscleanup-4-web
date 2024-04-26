@@ -102,7 +102,6 @@ export default defineComponent({
     const unreadCount = ref(0);
 
     async function getNews() {
-      console.info('Getting NEWS');
       try {
         if (userStates.value?.[props.stateKey]) {
           const response = await axios.get(
