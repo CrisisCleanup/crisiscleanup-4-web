@@ -16,7 +16,7 @@
               <Avatar
                 v-if="user"
                 :initials="getUser(user).first_name"
-                :url="getUserAvatarLink(getUser(user).first_name)"
+                :url="getUserAvatarLink(getUser(user)?.first_name ?? '')"
                 data-testid="testAvatarIcon"
                 size="xsmall"
                 inner-classes="shadow"

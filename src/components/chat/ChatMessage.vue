@@ -7,7 +7,7 @@
   >
     <Avatar
       :initials="message.full_name"
-      :url="getUserAvatarLink(message.full_name)"
+      :url="getUserAvatarLink(message?.full_name ?? '')"
       data-testid="testAvatarIcon"
       size="xsmall"
       inner-classes="shadow"
