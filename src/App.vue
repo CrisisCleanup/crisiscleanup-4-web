@@ -185,8 +185,8 @@ $dp__input_padding: 11px 12px !default;
 }
 
 .filter-gray {
-  filter: invert(84%) sepia(0%) saturate(30%) hue-rotate(209deg)
-    brightness(107%) contrast(90%);
+  filter: brightness(0) saturate(100%) invert(83%) sepia(0%) saturate(0%)
+    hue-rotate(232deg) brightness(90%) contrast(90%);
 }
 .filter-yellow {
   filter: invert(92%) sepia(21%) saturate(3995%) hue-rotate(346deg)
