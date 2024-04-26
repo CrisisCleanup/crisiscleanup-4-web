@@ -3,12 +3,15 @@ import axios from 'axios';
 import { DbService, WORKSITE_IMAGES_DATABASE } from '@/services/db.service';
 import { generateHash } from './helpers';
 import type Worksite from '@/models/Worksite';
+import createDebug from 'debug';
 
 export type CachedCase = Worksite;
 export interface CachedCaseResponse {
   count: number;
   results: CachedCase[];
 }
+
+const debug = createDebug('@ccu:utils:worksite');
 
 const loadCases = async (query: Record<string, unknown>) => {
   const response = await axios.get<CachedCaseResponse>(
@@ -35,7 +38,7 @@ const loadCasesCached = async (query: Record<string, unknown>) => {
     UPDATED: `casesUpdated:${queryHash}`,
     RECONCILED: `casesReconciled:${queryHash}`,
   };
-  console.debug('loadCasesCached::QueryHash', query, queryHash);
+  debug('loadCasesCached::QueryHash %o | %s', query, queryHash);
   const cachedCases = (await DbService.getItem(
     cacheKeys.CASES,
   )) as CachedCaseResponse;
@@ -112,7 +115,7 @@ const loadCaseImagesCached = async (query: Record<string, unknown>) => {
     RECONCILED: `casesImagesReconciled:${queryHash}`,
   };
 
-  console.debug('loadCaseImagesCached::QueryHash', query, queryHash);
+  debug('loadCaseImagesCached::QueryHash %o | %s', query, queryHash);
   const cachedCaseImages = (await DbService.getItem(
     cacheKeys.IMAGES,
     WORKSITE_IMAGES_DATABASE,
