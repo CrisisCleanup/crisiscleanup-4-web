@@ -571,11 +571,12 @@ const {
               >
                 <ccu-icon
                   :type="section.icon"
-                  :class="
+                  :class="[
                     currentView === section.view
                       ? 'filter-primary'
-                      : 'filter-gray'
-                  "
+                      : 'filter-gray',
+                    '!transition-none',
+                  ]"
                   size="large"
                 />
                 <div v-if="sideBarExpanded">{{ $t(section.text) }}</div>
