@@ -22,6 +22,7 @@ import { getErrorMessage } from '@/utils/errors';
 import InvitationTable from '@/components/admin/InvitationTable.vue';
 import InvitationRequestTable from '@/components/admin/InvitationRequestTable.vue';
 import { useAuthStore } from '@/hooks';
+import { getUserAvatarLink } from '@/utils/urls';
 
 const mq = useMq();
 const ccuApi = useApi();
@@ -193,7 +194,7 @@ const profilePictureUrl = computed(() => {
     }
   }
 
-  return `https://api.dicebear.com/7.x/bottts/svg?seed=${ccUser.value.first_name}`;
+  return getUserAvatarLink(ccUser.value.first_name);
 });
 const submittedFrom = computed(() => {
   const _separator = 'Submitted from:';

@@ -3,6 +3,7 @@ import createDebug from 'debug';
 import Language from './Language';
 import Role from './Role';
 import CCUModel from '@/models/base';
+import { getUserAvatarLink } from '@/utils/urls';
 
 export default class User extends CCUModel {
   static entity = 'users';
@@ -90,7 +91,7 @@ export default class User extends CCUModel {
         return profilePictures[0].large_thumbnail_url;
       }
     }
-    return `https://api.dicebear.com/7.x/bottts/svg?seed=${this.first_name}`;
+    return getUserAvatarLink(this.first_name);
   }
 
   get currentRole() {
