@@ -7,10 +7,7 @@
   >
     <Avatar
       :initials="message.full_name"
-      :url="
-        'https://api.dicebear.com/7.x/bottts/svg?seed=' +
-        message.full_name.trim().split(/\s+/)[0]
-      "
+      :url="getUserAvatarLink(message.full_name)"
       data-testid="testAvatarIcon"
       size="xsmall"
       inner-classes="shadow"
@@ -133,6 +130,7 @@ import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import Avatar from '@/components/Avatar.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
+import { getUserAvatarLink } from '@/utils/urls';
 
 export default defineComponent({
   name: 'ChatMessage',
@@ -169,7 +167,9 @@ export default defineComponent({
       emit('onReply', replyContent.value);
       replyContent.value = '';
     };
+
     return {
+      getUserAvatarLink,
       showActions,
       formatDateString,
       moment,

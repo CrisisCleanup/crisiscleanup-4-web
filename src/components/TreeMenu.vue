@@ -64,6 +64,7 @@
 
 <script lang="ts">
 import Avatar from '@/components/Avatar.vue';
+import { getUserAvatarLink } from '@/utils/urls';
 
 export default defineComponent({
   name: 'TreeMenu',
@@ -80,7 +81,7 @@ export default defineComponent({
         }
       }
 
-      return `https://api.dicebear.com/7.x/bottts/svg?seed=${props.data.first_name}`;
+      return getUserAvatarLink(props.data.first_name);
     });
   },
 });

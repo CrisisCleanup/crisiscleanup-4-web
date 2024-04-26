@@ -16,10 +16,7 @@
               <Avatar
                 v-if="user"
                 :initials="getUser(user).first_name"
-                :url="
-                  'https://api.dicebear.com/7.x/bottts/svg?seed=' +
-                  getUser(user).first_name
-                "
+                :url="getUserAvatarLink(getUser(user).first_name)"
                 data-testid="testAvatarIcon"
                 size="xsmall"
                 inner-classes="shadow"
@@ -166,7 +163,7 @@ import {
 import axios from 'axios';
 import moment from 'moment';
 import { useToast } from 'vue-toastification';
-import { getQueryString } from '../../utils/urls';
+import { getQueryString, getUserAvatarLink } from '../../utils/urls';
 import { getErrorMessage } from '../../utils/errors';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import User from '../../models/User';
@@ -430,6 +427,7 @@ export default defineComponent({
       getUser,
     };
   },
+  methods: { getUserAvatarLink },
 });
 </script>
 
