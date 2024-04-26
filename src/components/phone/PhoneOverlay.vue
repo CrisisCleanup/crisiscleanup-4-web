@@ -317,7 +317,9 @@ const {
                   "
                 >
                   <header style="margin-bottom: 20px" class="font-bold">
-                    <h1>Welcome to Our Phone Support Zoom Call</h1>
+                    <h1>
+                      {{ $t('~~Welcome to Our Phone Support Zoom Call') }}
+                    </h1>
                   </header>
                   <main
                     style="
@@ -333,9 +335,11 @@ const {
                       class="mb-10"
                     />
                     <p>
-                      Having trouble with your phone? Join our live Zoom meeting
+                      {{
+                        $t(`~~Having trouble with your phone? Join our live Zoom meeting
                       now and get real-time support from experts and community
-                      members!
+                      members!`)
+                      }}
                     </p>
                     <div class="flex items-center justify-center gap-2 mt-6">
                       <a href="https://bit.ly/ccuzoom" target="_blank"
@@ -402,15 +406,21 @@ const {
                       class="flex flex-col items-center justify-center text-center font-sans text-gray-800"
                     >
                       <p class="font-bold text-2xl mb-2">
-                        Hey there, Bug Buster!
+                        {{ $t('~~Hey there, Bug Buster!') }}
                       </p>
                       <p>
-                        Looks like you've got a sharp eye! 🕵️‍♂️ If you've stumbled
-                        upon a little critter in our software that's not playing
-                        nice, we'd love for you to report it to our Bug Brigade!
+                        {{
+                          $t(
+                            "~~Looks like you've got a sharp eye! 🕵️‍♂️ If you've stumbled upon a little critter in our software that's not playing nice, we'd love for you to report it to our Bug Brigade!",
+                          )
+                        }}
                       </p>
                       <p class="font-bold text-2xl m-2">
-                        Here's how you can send the buggy details our way:
+                        {{
+                          $t(
+                            "~~Here's how you can send the buggy details our way:",
+                          )
+                        }}
                       </p>
                       <ul
                         class="space-y-2 m-5 lg:flex lg:flex-row lg:space-y-0 lg:space-x-2"
@@ -419,41 +429,57 @@ const {
                           <div
                             class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
                           >
-                            1. Capture the critter! (Take a screenshot or
-                            describe what it's up to)
+                            {{
+                              $t(
+                                "~~ 1. Capture the critter! (Take a screenshot or describe what it's up to)",
+                              )
+                            }}
                           </div>
                         </li>
                         <li>
                           <div
                             class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
                           >
-                            2. Tell us where it's lurking. (Which part of the
-                            app are you in?)
+                            {{
+                              $t(
+                                "~~2. Tell us where it's lurking. (Which part of the app are you in?)",
+                              )
+                            }}
                           </div>
                         </li>
                         <li>
                           <div
                             class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
                           >
-                            3. Describe the mischief it's causing. (What were
-                            you expecting vs. what happened?)
+                            {{
+                              $t(
+                                "~~3. Describe the mischief it's causing. (What were you expecting vs. what happened?)",
+                              )
+                            }}
                           </div>
                         </li>
                       </ul>
                       <p>
-                        Just hit the "🐞 Report a Bug" button in our app, and
+                        {{
+                          $t(`~~Just hit the "🐞 Report a Bug" button in our app, and
                         we'll squish the troublemaker in no time! Plus, you'll
                         earn your stripes as an honorary member of the Bug
                         Brigade, complete with bragging rights and our eternal
-                        gratitude.
+                        gratitude.`)
+                        }}
                       </p>
                       <p class="my-2">
-                        Your keen eyes help us keep our software as bug-free as
-                        a squeaky-clean kitchen! 🍽️✨
+                        {{
+                          $t(
+                            '~~Your keen eyes help us keep our software as bug-free as a squeaky-clean kitchen! 🍽️✨',
+                          )
+                        }}
                       </p>
                       <p class="my-2">
-                        Happy Bug Hunting,<br />The Crisis Cleanup Development
-                        Team
+                        {{ $t('~~Happy Bug Hunting') }}
+                      </p>
+                      <p class="my-2">
+                        {{ $t('~~- The Crisis Cleanup Development Team') }}
                       </p>
 
                       <base-button
@@ -463,8 +489,9 @@ const {
                         :alt="$t('phoneDashboard.report_bug')"
                         :action="() => emit('onReportBug')"
                         class="text-white bg-crisiscleanup-red-200 my-2"
-                        >🐞 Report Bug</base-button
                       >
+                        {{ $t('~~🐞 Report Bug') }}
+                      </base-button>
                     </div>
                   </div>
                 </div>
@@ -519,8 +546,8 @@ const {
                 :class="isOnCall"
                 class="h-12 flex items-center justify-center pulse bg-crisiscleanup-green-900"
               >
-                <BaseText class="font-bold text-white"
-                  >Current Call 00:00:00
+                <BaseText class="font-bold text-white">
+                  {{ $t('~~Current Call') }} 00:00:00
                 </BaseText>
               </div>
             </div>
