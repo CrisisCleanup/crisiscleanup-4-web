@@ -145,7 +145,6 @@ const updateElapsedTime = () => {
   }
 
   // Remove the 'Z' to prevent automatic conversion to UTC and parse as local time
-  console.log(call.value);
   const localTimeStr = call.value.call_at.slice(0, -1);
   const callAtLocal = new Date(localTimeStr);
 
