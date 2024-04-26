@@ -679,6 +679,7 @@ import WorksiteDatesFilter from '@/utils/data_filters/WorksiteDatesFilter';
 import { getStatusName } from '@/filters/index';
 import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
+import moment from 'moment';
 
 export default defineComponent({
   name: 'WorksiteFilters',
@@ -925,17 +926,42 @@ export default defineComponent({
     );
 
     function updateFilters() {
-      emit('updatedFilters', {
-        filters: {
-          ...filters.value,
-        },
-        count: filtersCount.value,
-      });
-
-      for (const [key, value] of Object.entries(filters.value.fields.data)) {
-        if (!value) {
-          expanded.value[key] = false;
+      try {
+        // Handle date filters so they get stored in user states correctly instead of {}
+        const datesFilter = filters.value?.dates?.data;
+        const [createdStart = null, createdEnd = null] =
+          datesFilter?.created ?? [];
+        const [updatedStart = null, updatedEnd = null] =
+          datesFilter?.updated ?? [];
+        const hasValidCreatedRange = createdStart && createdEnd;
+        const hasValidUpdatedRange = updatedStart && updatedEnd;
+        if (hasValidCreatedRange) {
+          filters.value.dates.data.created = [
+            moment(createdStart).toISOString(),
+            moment(createdEnd).toISOString(),
+          ];
         }
+        if (hasValidUpdatedRange) {
+          filters.value.dates.data.updated = [
+            moment(updatedStart).toISOString(),
+            moment(updatedEnd).toISOString(),
+          ];
+        }
+        emit('updatedFilters', {
+          filters: {
+            ...filters.value,
+          },
+          count: filtersCount.value,
+        });
+        console.debug('Updating filters', filters.value);
+
+        for (const [key, value] of Object.entries(filters.value.fields.data)) {
+          if (!value) {
+            expanded.value[key] = false;
+          }
+        }
+      } catch (error) {
+        console.error('Error updating filters', error);
       }
     }
 
