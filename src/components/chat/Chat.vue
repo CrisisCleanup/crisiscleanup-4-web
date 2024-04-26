@@ -14,9 +14,10 @@
               class="flex items-center space-x-2 w-full"
             >
               <Avatar
-                :initials="user ?? getUser(user).first_name"
+                v-if="user"
+                :initials="getUser(user).first_name"
                 :url="
-                  'https://api.dicebear.com/7.x/bottts/svg?seed=' + user ??
+                  'https://api.dicebear.com/7.x/bottts/svg?seed=' +
                   getUser(user).first_name
                 "
                 data-testid="testAvatarIcon"
