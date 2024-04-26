@@ -183,4 +183,25 @@ $dp__input_padding: 11px 12px !default;
     opacity: 1;
   }
 }
+
+.filter-gray {
+  filter: invert(84%) sepia(0%) saturate(30%) hue-rotate(209deg)
+    brightness(107%) contrast(90%);
+}
+.filter-yellow {
+  filter: invert(92%) sepia(21%) saturate(3995%) hue-rotate(346deg)
+    brightness(98%) contrast(106%);
+}
+
+/*
+ * Converts white icon to ccu primary color
+ * ccu primary color match with 0.0 loss
+ *
+ * @see https://codepen.io/sosuke/pen/Pjoqqp
+ * @see https://angel-rs.github.io/css-color-filter-generator/
+ */
+.filter-primary {
+  filter: brightness(0) saturate(100%) invert(91%) sepia(25%) saturate(5576%)
+    hue-rotate(353deg) brightness(105%) contrast(99%);
+}
 </style>
