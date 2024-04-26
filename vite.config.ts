@@ -7,6 +7,8 @@ import * as vitest from 'vitest';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
 import autoImport from 'unplugin-auto-import/vite';
+import Icons from 'unplugin-icons/vite';
+import { FileSystemIconLoader } from 'unplugin-icons/loaders';
 import inspect from 'vite-plugin-inspect';
 import inspector from 'vite-plugin-vue-inspector';
 import markdownRawPlugin from 'vite-raw-plugin';
@@ -43,6 +45,14 @@ export default defineConfig(async ({ command }) => {
         enabled: true,
         filepath: './.eslintrc-auto-import.json',
         globalsPropValue: true,
+      },
+    }),
+    Icons({
+      autoInstall: true, // See: https://github.com/unplugin/unplugin-icons?tab=readme-ov-file#icons-data
+      customCollections: {
+        'ccu-disaster-icons': FileSystemIconLoader(
+          './src/assets/disaster_icons',
+        ),
       },
     }),
     // https://github.com/antfu/vite-plugin-inspect
