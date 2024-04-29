@@ -139,7 +139,7 @@ dependencies:
     version: 4.0.2
   dayjs:
     specifier: ^1.11.10
-    version: 1.11.10
+    version: 1.11.11
   debug:
     specifier: ^4.3.4
     version: 4.3.4
@@ -202,7 +202,7 @@ dependencies:
     version: 1.10.61
   litepie-datepicker:
     specifier: ^1.0.14
-    version: 1.0.14(dayjs@1.11.10)(tailwindcss@3.4.3)(vue@3.4.26)
+    version: 1.0.14(dayjs@1.11.11)(tailwindcss@3.4.3)(vue@3.4.26)
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -6606,8 +6606,8 @@ packages:
       '@babel/runtime': 7.21.5
     dev: false
 
-  /dayjs@1.11.10:
-    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
+  /dayjs@1.11.11:
+    resolution: {integrity: sha512-okzr3f11N6WuqYtZSvm+F776mB41wRZMhKP+hc34YdW+KmtYYK9iqvHSwo2k9FEH3fhGXvOPV6yz2IcSrfRUDg==}
     dev: false
 
   /de-indent@1.0.2:
@@ -8795,7 +8795,7 @@ packages:
       wrap-ansi: 9.0.0
     dev: true
 
-  /litepie-datepicker@1.0.14(dayjs@1.11.10)(tailwindcss@3.4.3)(vue@3.4.26):
+  /litepie-datepicker@1.0.14(dayjs@1.11.11)(tailwindcss@3.4.3)(vue@3.4.26):
     resolution: {integrity: sha512-u1BAsvLv5r7grMrKbRXKXPfk5okiYJBF247PWr5MGmbVxxWmDCoqQWtMdaHrQUzA/BQiU6J6L1nri0QkJISjyA==}
     engines: {node: '>=12'}
     peerDependencies:
@@ -8803,7 +8803,7 @@ packages:
       tailwindcss: ^2.0.3
       vue: ^3.0.5
     dependencies:
-      dayjs: 1.11.10
+      dayjs: 1.11.11
       tailwindcss: 3.4.3
       vue: 3.4.26(typescript@5.4.5)
     dev: false
