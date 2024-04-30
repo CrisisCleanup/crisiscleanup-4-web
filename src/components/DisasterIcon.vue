@@ -3,47 +3,33 @@
     class="disaster-icon select-none cursor-pointer"
     @dblclick="toggleEasterEgg"
   >
-    <object
+    <component
+      :is="randomEasterEgg"
       v-if="randomEasterEgg"
-      ref="icon"
-      data-testid="testRandomEasterEggIcon"
-      type="image/svg+xml"
+      ref="disaster-icon"
       class="easter-egg"
-      :data="randomEasterEgg"
-      :style="style"
-      @load="setStyle"
-    ></object>
-    <object
+      data-testid="testRandomEasterEggIcon"
+    ></component>
+    <component
+      :is="incidentIconComp"
       v-else
-      ref="icon"
-      data-testid="testIncidentImageIcon"
-      type="image/svg+xml"
+      ref="disaster-icon"
       class="standard-icon"
-      :data="incidentImage"
-      :style="style"
-      @load="setStyle"
-    ></object>
+      data-testid="testIncidentImageIcon"
+    ></component>
   </div>
 </template>
 
 <script lang="ts">
-import { ref, computed } from 'vue';
-import type { StyleValue } from 'vue';
 import _ from 'lodash';
 import Incident from '@/models/Incident';
-import { EASTER_EGG_DISASTER_ICONS } from '@/constants';
+import type { DisasterIcons } from '@/icons';
+import { DISASTER_ICONS, EASTER_EGG_DISASTER_ICONS } from '@/icons';
+import { extractIconNameFromPath } from '@/utils/helpers';
 
 export default defineComponent({
   name: 'DisasterIcon',
   props: {
-    width: {
-      type: Number,
-      default: null,
-    },
-    height: {
-      type: Number,
-      default: null,
-    },
     currentIncident: {
       type: Object,
       default() {
@@ -53,16 +39,8 @@ export default defineComponent({
   },
 
   setup(props) {
-    const ready = ref(false);
-    const width_ = ref<number | null>(null);
-    const height_ = ref<number | null>(null);
-    const randomEasterEgg = ref<string | null>(null);
-    const icon = ref<HTMLObjectElement | null>(null);
-
-    const style = computed<StyleValue>(() => ({
-      visibility: ready.value ? 'visible' : 'hidden',
-      pointerEvents: 'none',
-    }));
+    const randomEasterEgg = ref();
+    const iconRef = templateRef('disaster-icon');
 
     const incidentImage = computed(() => {
       if (props.currentIncident && props.currentIncident.incidentImage) {
@@ -72,70 +50,41 @@ export default defineComponent({
       return Incident.getIncidentImage(props.currentIncident.incident_type);
     });
 
-    const svgDocument = computed(() => {
-      return icon?.value?.getSVGDocument();
+    const incidentIconComp = computed(() => {
+      const iconPath = incidentImage.value;
+      if (!iconPath) return;
+      const iconKey = extractIconNameFromPath(iconPath) as DisasterIcons;
+      return DISASTER_ICONS[iconKey];
     });
 
-    function setColor() {
-      if (svgDocument.value) {
-        const { value } = svgDocument;
-        value.querySelectorAll('path')[0].style.fill =
+    const svgDocument = computed(() => iconRef?.value?.$el);
+    watch(svgDocument, () => {
+      if (isDefined(svgDocument) && !isDefined(randomEasterEgg)) {
+        svgDocument.value.querySelectorAll('path')[0].style.fill =
           props.currentIncident.color;
       }
-    }
+    });
 
     function toggleEasterEgg() {
       randomEasterEgg.value = randomEasterEgg.value
-        ? null
-        : _.sample(EASTER_EGG_DISASTER_ICONS) || '';
-    }
-
-    function setSize() {
-      if (svgDocument.value) {
-        const svg = svgDocument.value.activeElement as any;
-        if (svg) {
-          svg.attributes.width.nodeValue = width_.value;
-          svg.attributes.height.nodeValue = height_.value;
-        }
-      }
-    }
-
-    function setStyle() {
-      console.debug(`Setting disaster icon styles...`, incidentImage.value);
-      setColor();
-      if (props.width !== null || props.height !== null) {
-        width_.value = props.width === null ? props.height : props.width;
-        height_.value = props.height === null ? props.width : props.height;
-        setSize();
-      }
-
-      ready.value = true;
+        ? undefined
+        : _.sample(EASTER_EGG_DISASTER_ICONS);
     }
 
     return {
-      ready,
-      width_,
-      height_,
-      icon,
-      style,
       incidentImage,
       svgDocument,
-      setColor,
-      setSize,
-      setStyle,
       toggleEasterEgg,
       randomEasterEgg,
+      incidentIconComp,
     };
   },
 });
 </script>
 
-<style>
-.disaster-icon .standard-icon {
-  @apply w-10 h-10 block;
-}
-
-.disaster-icon .easter-egg {
+<style scoped lang="postcss">
+.standard-icon,
+.easter-egg {
   @apply w-10 h-10 block;
 }
 </style>
