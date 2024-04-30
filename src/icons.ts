@@ -99,3 +99,9 @@ export const EASTER_EGG_DISASTER_ICONS = {
   spider,
 };
 export type EasterEggDisasterIcons = keyof typeof EASTER_EGG_DISASTER_ICONS;
+
+export const CCU_ICONS = {
+  ...DISASTER_ICONS,
+  ...EASTER_EGG_DISASTER_ICONS,
+};
+export type CcuIcons = keyof typeof CCU_ICONS;
