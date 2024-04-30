@@ -157,6 +157,14 @@ const config = {
         'promise/always-return': 'warn',
         'vue/no-v-text-v-html-on-component': 'warn',
         'vue/no-unused-components': 'warn',
+        'import/no-unresolved': [
+          2,
+          {
+            ignore: [
+              '~icons/.*$', // For unplugin icon imports
+            ],
+          },
+        ],
       },
     },
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
