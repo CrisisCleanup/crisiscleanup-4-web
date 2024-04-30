@@ -1,5 +1,26 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.7.2/schema.json",
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 80,
+    "attributePosition": "auto",
+    "ignore": [
+      "**/.DS_Store",
+      "**/dist",
+      "**/public",
+      "**/node_modules",
+      "**/coverage/**",
+      "**/coverage",
+      "**/.pnpm-debug.log",
+      "**/pnpm-lock.yaml",
+      "**/auto-imports.d.ts",
+      "**/.eslintrc-auto-import.json"
+    ]
+  },
   "organizeImports": { "enabled": true },
   "linter": {
     "enabled": true,
@@ -103,6 +124,17 @@
     ]
   },
   "javascript": {
+    "formatter": {
+      "jsxQuoteStyle": "double",
+      "quoteProperties": "asNeeded",
+      "trailingComma": "all",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "quoteStyle": "single",
+      "attributePosition": "auto"
+    },
     "globals": [
       "useMounted",
       "refThrottled",
