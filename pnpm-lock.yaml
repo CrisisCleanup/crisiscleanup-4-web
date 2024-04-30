@@ -319,7 +319,7 @@ dependencies:
     version: 4.1.0(vue@3.4.26)
   zod:
     specifier: ^3.23.0
-    version: 3.23.4
+    version: 3.23.5
 
 devDependencies:
   '@faker-js/faker':
@@ -6860,8 +6860,8 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dompurify@2.5.1:
-    resolution: {integrity: sha512-HH391uRJXAAeelougod93W++2gECfHIVCqq+B/4znhjCgb2zVPL+iLOVnTYwejqAuNf69Ffc5ILQYdPHsZACJA==}
+  /dompurify@2.5.2:
+    resolution: {integrity: sha512-5vSyvxRAb45EoWwAktUT3AYqAwXK4FL7si22Cgj46U6ICsj/YJczCN+Bk7WNABIQmpWRymGfslMhrRUZkQNnqA==}
     requiresBuild: true
     dev: false
     optional: true
@@ -8660,7 +8660,7 @@ packages:
     optionalDependencies:
       canvg: 3.0.10
       core-js: 3.37.0
-      dompurify: 2.5.1
+      dompurify: 2.5.2
       html2canvas: 1.4.1
     dev: false
 
@@ -9768,7 +9768,7 @@ packages:
       commander: 11.1.0
       https-proxy-agent: 7.0.4
       ts-node: 10.9.2(@types/node@20.12.7)(typescript@5.4.5)
-      zod: 3.23.4
+      zod: 3.23.5
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
@@ -12467,8 +12467,8 @@ packages:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
     dev: false
 
-  /zod@3.23.4:
-    resolution: {integrity: sha512-/AtWOKbBgjzEYYQRNfoGKHObgfAZag6qUJX1VbHo2PRBgS+wfWagEY2mizjfyAPcGesrJOcx/wcl0L9WnVrHFw==}
+  /zod@3.23.5:
+    resolution: {integrity: sha512-fkwiq0VIQTksNNA131rDOsVJcns0pfVUjHzLrNBiF/O/Xxb5lQyEXkhZWcJ7npWsYlvs+h0jFWXXy4X46Em1JA==}
 
   github.com/CrisisCleanup/cf-agent-library/f1953ec15ff69d7750d8071a729859daaf3f0739:
     resolution: {commit: f1953ec15ff69d7750d8071a729859daaf3f0739, repo: https://git@github.com/CrisisCleanup/cf-agent-library.git, type: git}
