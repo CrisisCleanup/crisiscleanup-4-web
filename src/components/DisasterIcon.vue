@@ -7,6 +7,8 @@
       :is="randomEasterEgg"
       v-if="randomEasterEgg"
       ref="disaster-icon"
+      :alt="randomEasterEgg.name"
+      :title="randomEasterEgg.name"
       class="easter-egg"
       data-testid="testRandomEasterEggIcon"
     ></component>
