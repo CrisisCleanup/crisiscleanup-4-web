@@ -35,7 +35,7 @@
         </li>
       </ul>
     </tab>
-    <tab :name="$t('~~User Guide')">
+    <tab :name="$t('phoneDashboard.user_guide')">
       <li
         v-for="newItem in userGuides"
         :key="newItem.id"

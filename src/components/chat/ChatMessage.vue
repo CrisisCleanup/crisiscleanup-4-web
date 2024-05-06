@@ -89,7 +89,7 @@
         ({{ message.replies.length }})
       </button>
       <span class="text-gray-400 text-xs">
-        {{ $t('~~Last reply') }}
+        {{ $t('chat.last_reply') }}
         {{ moment(message.replies.at(-1).created_at).fromNow() }}
       </span>
     </div>

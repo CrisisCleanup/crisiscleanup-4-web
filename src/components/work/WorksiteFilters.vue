@@ -549,7 +549,7 @@
                   class="h-12 mr-2"
                   range
                   v-bind="datePickerDefaultProps"
-                  :placeholder="$t('~~worksiteFilters.update_date')"
+                  :placeholder="$t('worksiteFilters.update_date')"
                 ></datepicker>
               </div>
             </div>
