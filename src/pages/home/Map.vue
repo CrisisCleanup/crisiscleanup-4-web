@@ -40,7 +40,7 @@
       </div>
       <div class="text-lg my-1">
         <a href="https://pod.crisiscleanup.org">
-          {{ $t('~~Checkout our Podcast') }}
+          {{ $t('footer.check_out_podcast') }}
         </a>
       </div>
     </div>

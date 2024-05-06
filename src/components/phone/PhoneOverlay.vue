@@ -34,12 +34,12 @@ const sections = [
   },
   {
     view: 'leaderboard',
-    text: t('~~Volunteer Stats'),
+    text: t('phoneDashboard.volunteer_stats'),
     icon: 'leaderboard',
   },
   { view: 'zoom', text: t('phoneDashboard.join_zoom'), icon: 'zoom' },
   { view: 'cms', text: t('phoneDashboard.news'), icon: 'news' },
-  { view: 'generalStats', text: t('~~Stats'), icon: 'stats' },
+  { view: 'generalStats', text: t('phoneDashboard.stats'), icon: 'stats' },
   { view: 'chat', text: t('chat.chat'), icon: 'chat' },
   {
     view: 'reportBug',
@@ -317,7 +317,7 @@ const {
                 >
                   <header style="margin-bottom: 20px" class="font-bold">
                     <h1>
-                      {{ $t('~~Welcome to Our Phone Support Zoom Call') }}
+                      {{ $t('phoneDashboard.zoom_support') }}
                     </h1>
                   </header>
                   <main
@@ -334,11 +334,7 @@ const {
                       class="mb-10"
                     />
                     <p>
-                      {{
-                        $t(`~~Having trouble with your phone? Join our live Zoom meeting
-                      now and get real-time support from experts and community
-                      members!`)
-                      }}
+                      {{ $t(`phoneDashboard.zoom_description`) }}
                     </p>
                     <div class="flex items-center justify-center gap-2 mt-6">
                       <a href="https://bit.ly/ccuzoom" target="_blank"
@@ -397,7 +393,7 @@ const {
                     <div class="flex items-center">
                       <img
                         src="@/assets/cc-bugs.png"
-                        alt="Crisis Cleanup Bugs"
+                        alt="$t('phoneDashboard.crisis_cleanup_bugs')"
                         class="mb-5"
                       />
                     </div>
@@ -405,21 +401,13 @@ const {
                       class="flex flex-col items-center justify-center text-center font-sans text-gray-800"
                     >
                       <p class="font-bold text-2xl mb-2">
-                        {{ $t('~~Hey there, Bug Buster!') }}
+                        {{ $t('phoneDashboard.hey_bug_buster') }}
                       </p>
                       <p>
-                        {{
-                          $t(
-                            "~~Looks like you've got a sharp eye! 🕵️‍♂️ If you've stumbled upon a little critter in our software that's not playing nice, we'd love for you to report it to our Bug Brigade!",
-                          )
-                        }}
+                        {{ $t('phoneDashboard.stumble_across critter') }}
                       </p>
                       <p class="font-bold text-2xl m-2">
-                        {{
-                          $t(
-                            "~~Here's how you can send the buggy details our way:",
-                          )
-                        }}
+                        {{ $t('phoneDashboard.how_to_report_bugs') }}
                       </p>
                       <ul
                         class="space-y-2 m-5 lg:flex lg:flex-row lg:space-y-0 lg:space-x-2"
@@ -428,57 +416,35 @@ const {
                           <div
                             class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
                           >
-                            {{
-                              $t(
-                                "~~ 1. Capture the critter! (Take a screenshot or describe what it's up to)",
-                              )
-                            }}
+                            {{ $t('phoneDashboard.capture_the_critter') }}
                           </div>
                         </li>
                         <li>
                           <div
                             class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
                           >
-                            {{
-                              $t(
-                                "~~2. Tell us where it's lurking. (Which part of the app are you in?)",
-                              )
-                            }}
+                            {{ $t('phoneDashboard.where_lurking') }}
                           </div>
                         </li>
                         <li>
                           <div
                             class="font-bold p-2 border rounded hover:bg-crisiscleanup-yellow-100"
                           >
-                            {{
-                              $t(
-                                "~~3. Describe the mischief it's causing. (What were you expecting vs. what happened?)",
-                              )
-                            }}
+                            {{ $t('phoneDashboard.tell_us_what_happened') }}
                           </div>
                         </li>
                       </ul>
                       <p>
-                        {{
-                          $t(`~~Just hit the "🐞 Report a Bug" button in our app, and
-                        we'll squish the troublemaker in no time! Plus, you'll
-                        earn your stripes as an honorary member of the Bug
-                        Brigade, complete with bragging rights and our eternal
-                        gratitude.`)
-                        }}
+                        {{ $t('phoneDashboard.hit_report_a_bug_button') }}
                       </p>
                       <p class="my-2">
-                        {{
-                          $t(
-                            '~~Your keen eyes help us keep our software as bug-free as a squeaky-clean kitchen! 🍽️✨',
-                          )
-                        }}
+                        {{ $t('phoneDashboard.thank_you_keen_eyes') }}
                       </p>
                       <p class="my-2">
-                        {{ $t('~~Happy Bug Hunting') }}
+                        {{ $t('phoneDashboard.happy_bug_hunting') }}
                       </p>
                       <p class="my-2">
-                        {{ $t('~~- The Crisis Cleanup Development Team') }}
+                        {{ $t('phoneDashboard.ccu_dev_team_signature') }}
                       </p>
 
                       <base-button
@@ -489,7 +455,7 @@ const {
                         :action="() => emit('onReportBug')"
                         class="text-white bg-crisiscleanup-red-200 my-2"
                       >
-                        {{ $t('~~🐞 Report Bug') }}
+                        {{ $t('phoneDashboard.report_bug') }}
                       </base-button>
                     </div>
                   </div>
@@ -546,7 +512,7 @@ const {
                 class="h-12 flex items-center justify-center pulse bg-crisiscleanup-green-900"
               >
                 <BaseText class="font-bold text-white">
-                  {{ $t('~~Current Call') }} 00:00:00
+                  {{ $t('phoneDashboard.current_call') }} 00:00:00
                 </BaseText>
               </div>
             </div>

@@ -80,14 +80,12 @@
       >
       <ccu-icon
         v-tooltip="{
-          content: $t(
-            '~~Sometimes calls do not play nice. If you encounter this issue, click the checkbox and select wether to recieve inbound or outbound calls only to prevent call collision',
-          ),
+          content: $t('phoneDashboard.not_playing_nice_alt'),
           triggers: ['click'],
           popperClass: 'interactive-tooltip w-72',
           html: true,
         }"
-        :alt="$t('~~Not Playing Nice Alt Text')"
+        :alt="$t('phoneDashboard.not_playing_nice_alt')"
         data-testid="testLocationInstructionsIcon
 "
         type="help"

@@ -355,14 +355,14 @@
                   {{ $t('profileUser.clear_favorites_user_settings') }}
                 </p>
                 <a
-                  :href="$t('~~profileUser.delete_account_link')"
+                  :href="https://crisiscleanup.zendesk.com/hc/en-us/articles/25053795283597-Deleting-Your-User-Account"
                   data-testid="testDeleteUserAccountButton"
                   class="flex justify-center items-center gap-3 w-min px-4 py-1 text-crisiscleanup-light-smoke bg-crisiscleanup-red-100"
                   target="_blank"
                 >
-                  <span>{{ $t('~~profileUser.delete_account') }}</span>
+                  <span>{{ $t('profileUser.delete_account') }}</span>
                   <ccu-icon
-                    :alt="$t('~~profileUser.delete_account_icon_alt')"
+                    :alt="$t('profileUser.delete_account_alt')"
                     type="external-link"
                     fa
                     size="small"
@@ -370,7 +370,7 @@
                   />
                 </a>
                 <p class="my-3">
-                  {{ $t('~~profileUser.delete_account_info') }}
+                  {{ $t('profileUser.delete_account_info') }}
                 </p>
               </div>
             </div>
