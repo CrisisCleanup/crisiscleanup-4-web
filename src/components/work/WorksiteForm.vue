@@ -567,7 +567,7 @@ export default defineComponent({
 
     const supportedLanguages = computed(() => {
       const languages = Language.all();
-      const ids = new Set([2, 3, 7, 91, 11]);
+      const ids = new Set([2, 3, 7, 91, 11, 165, 166]);
       return languages.filter((l) => ids.has(Number(l.id)));
     });
 
