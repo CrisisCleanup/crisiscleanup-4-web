@@ -56,6 +56,14 @@ export default defineComponent({
           color: theme.extend.colors['crisiscleanup-green']['300'],
           borderColor: theme.extend.colors['crisiscleanup-green']['300'],
         },
+        165: {
+          color: theme.extend.colors['crisiscleanup-green']['300'],
+          borderColor: theme.extend.colors['crisiscleanup-green']['300'],
+        },
+        166: {
+          color: theme.extend.colors['crisiscleanup-green']['300'],
+          borderColor: theme.extend.colors['crisiscleanup-green']['300'],
+        },
       };
       return colorMap[language.value.id];
     });
