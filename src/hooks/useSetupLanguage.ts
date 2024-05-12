@@ -39,7 +39,11 @@ export default function useSetupLanguage() {
             name_t: string;
             subtag: string;
           }>
-        >(getApiUrl('/languages'));
+        >(getApiUrl('/languages'), {
+          params: {
+            limit: 100,
+          },
+        });
 
         const _availableLanguages = response?.data?.results ?? [];
 
@@ -51,6 +55,7 @@ export default function useSetupLanguage() {
           es: 'es',
           fr: 'fr',
           ar: 'ar',
+          pt: 'pt',
         };
         // Check if current language is available, if not, set to default
         for (const [key, value] of Object.entries(defaultLanguages)) {
