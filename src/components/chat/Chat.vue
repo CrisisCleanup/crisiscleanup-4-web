@@ -14,7 +14,7 @@
               class="flex items-center space-x-2 w-full"
             >
               <Avatar
-                v-if="user"
+                v-if="getUser(user)"
                 :initials="getUser(user).first_name"
                 :url="getUserAvatarLink(getUser(user)?.first_name ?? '')"
                 data-testid="testAvatarIcon"
