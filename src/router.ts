@@ -31,6 +31,9 @@ declare module 'vue-router' {
 }
 
 const Dashboard = () => import('./pages/Dashboard.vue');
+
+const DefaultDashboard = () =>
+  import('./pages/dashboards/DefaultDashboard.vue');
 const Work = () => import('./pages/Work.vue');
 const AppDownload = () => import('./pages/AppDownload.vue');
 const OtherOrganizations = () => import('@/pages/OtherOrganizations.vue');
@@ -61,6 +64,12 @@ const routes = [
     path: '/incident/:incident_id/dashboard',
     component: Dashboard,
     name: 'nav.dashboard',
+    meta: { layout: 'authenticated' },
+  },
+  {
+    path: '/incident/:incident_id/dashboard/default',
+    component: DefaultDashboard,
+    name: 'nav.default_dashboard',
     meta: { layout: 'authenticated' },
   },
   {

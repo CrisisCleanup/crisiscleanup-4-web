@@ -1549,66 +1549,21 @@ export default defineComponent({
     }
 
     function goToIncidentCenter() {
-      const { locationModels } = Incident.find(
-        currentIncidentId.value,
-      ) as Incident;
-      if (locationModels.length > 0) {
-        for (const location of locationModels) {
-          fitLocation(location);
-        }
-      } else {
-        const center = averageGeolocation(
-          mapUtils
-            ?.getPixiContainer()
-            ?.children.map((marker) => [marker.x, marker.y]),
-        );
-        if (center.latitude && center.longitude) {
-          mapUtils?.getMap().setView([center.latitude, center.longitude], 6);
-        }
-      }
+      mapUtils?.getMap().setView(getIncidentCenter(), 6);
     }
 
     function getIncidentCenter() {
-      const { locationModels } = Incident.find(
+      const { incident_center } = Incident.find(
         currentIncidentId.value,
       ) as Incident;
-      if (locationModels.length > 0) {
-        return mapUtils?.getLocationCenter(locationModels[0]);
-      } else {
-        const center = averageGeolocation(
-          mapUtils
-            ?.getPixiContainer()
-            ?.children.map((marker) => [marker.x, marker.y]),
-        );
-        if (center.latitude && center.longitude) {
-          return [center.latitude, center.longitude];
-        }
+      if (incident_center) {
+        return [incident_center.coordinates[1], incident_center.coordinates[0]];
       }
+      return [35.746_512_259_918_5, -96.411_509_631_256_56];
     }
 
     function goToInteractive() {
-      const { locationModels } = Incident.find(
-        currentIncidentId.value,
-      ) as Incident;
-
-      if (locationModels.length > 0) {
-        mapUtils?.getMap().setZoom(INTERACTIVE_ZOOM_LEVEL);
-        goToIncidentCenter();
-      } else {
-        const center = averageGeolocation(
-          mapUtils
-            ?.getPixiContainer()
-            ?.children.map((marker) => [marker.x, marker.y]),
-        );
-        if (center.latitude && center.longitude) {
-          mapUtils
-            ?.getMap()
-            .setView(
-              [center.latitude, center.longitude],
-              INTERACTIVE_ZOOM_LEVEL,
-            );
-        }
-      }
+      mapUtils?.getMap().setView(getIncidentCenter(), INTERACTIVE_ZOOM_LEVEL);
     }
 
     function onSelectionChanged(selectedItems: Set<number>) {

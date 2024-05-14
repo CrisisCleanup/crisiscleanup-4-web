@@ -9,7 +9,8 @@
       <div
         v-if="useIcon"
         ref="svgContainer"
-        class="case-svg-container mr-1 flex"
+        class="case-svg-container flex"
+        :class="size === 'sm' ? '' : 'mr-1'"
         v-html="workTypeImage"
       ></div>
       <div v-if="!hideName" class="tooltip-target">
@@ -23,7 +24,7 @@
         icon="chevron-down"
       />
     </div>
-    <template #popper>
+    <template #popper="{ hide }">
       <div
         class="bg-white border outline-none h-84 w-56 overflow-auto tooltip-content"
         @keyup="nextItem"
@@ -40,6 +41,7 @@
             @click="
               () => {
                 $emit('input', status.status);
+                hide();
               }
             "
           >

@@ -1,6 +1,7 @@
 import moment from 'moment';
 import type User from './User';
 import CCUModel from '@/models/base';
+import useCurrentUser from '@/hooks/useCurrentUser';
 
 export default class InvitationRequest extends CCUModel {
   static entity = 'invitation_requests';
@@ -64,6 +65,18 @@ export default class InvitationRequest extends CCUModel {
           },
           { save: false },
         );
+      },
+      async archiveInvitationRequest(request: InvitationRequest) {
+        const { updateCurrentUser, userPreferences } = useCurrentUser();
+
+        const archivedRequests =
+          userPreferences?.value?.archived_invitation_requests || [];
+        await updateCurrentUser({
+          preferences: {
+            ...userPreferences.value,
+            archived_worksite_requests: [request.id, ...archivedRequests],
+          },
+        });
       },
     } as any,
   };

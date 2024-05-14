@@ -24,6 +24,7 @@ import Badge from './components/Badge.vue';
 import Tag from './components/Tag.vue';
 import Modal from './components/Modal.vue';
 import Authenticated from './layouts/Authenticated.vue';
+import VueApexCharts from 'vue3-apexcharts';
 
 // Icons
 
@@ -90,6 +91,7 @@ const buildApp = (app: VueApp) =>
     // provide axios globally
     .provide('axios', axios)
     .use(Vue3Mq)
+    .use(VueApexCharts)
     .use(router)
     .use(i18n)
     .use(Toast, {

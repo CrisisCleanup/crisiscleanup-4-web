@@ -40,7 +40,6 @@ export default defineComponent({
 
 <template>
   <BlogPostDetail :post="post" />
-  <div id="commento"></div>
 </template>
 
 <style scoped></style>
