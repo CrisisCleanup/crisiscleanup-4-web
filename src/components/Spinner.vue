@@ -5,11 +5,28 @@
   >
     <font-awesome-icon :size="size" icon="spinner" spin />
     <div v-if="showQuote" class="my-3">{{ $t(randomQuote) }}</div>
+    <div
+      v-if="allowReset && showReset"
+      class="my-3 flex flex-col items-center justify-center"
+    >
+      <div>
+        {{ $t('~~Stuck?') }}
+      </div>
+      <base-button
+        data-testid="testSpinnerResetButton"
+        variant="outline"
+        :action="resetStates"
+        class="p-1"
+      >
+        {{ $t('~~Reset User States') }}
+      </base-button>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { sample } from 'lodash';
+import { useCurrentUser } from '@/hooks';
 
 const RANDOM_QUOTES = [
   'spinner.loading_perpetual_motion',
@@ -338,11 +355,28 @@ export default defineComponent({
     showQuote: {
       type: Boolean,
     },
+    allowReset: {
+      type: Boolean,
+    },
   },
   setup() {
+    const { updateCurrentUser } = useCurrentUser();
+    const showReset = ref(false);
+
+    setTimeout(() => {
+      showReset.value = true;
+    }, 30_000);
+    async function resetStates() {
+      await updateCurrentUser({
+        states: {},
+      });
+      window.location.reload();
+    }
     const randomQuote = ref<string>(sample(RANDOM_QUOTES));
     return {
       randomQuote,
+      resetStates,
+      showReset,
     };
   },
 });

@@ -743,7 +743,7 @@ export default defineComponent({
             (request) =>
               Number(request.requested_by_org.id) ===
                 Number(currentUser.value.organization.id) &&
-              !archivedRequests.value.includes(request.id) &&
+              !archivedRequests.includes(request.id) &&
               !request.has_response,
           )
           .get();

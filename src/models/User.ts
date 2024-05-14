@@ -4,6 +4,7 @@ import Language from './Language';
 import Role from './Role';
 import CCUModel from '@/models/base';
 import { getUserAvatarLink } from '@/utils/urls';
+import { i18n } from '@/modules/i18n';
 
 export default class User extends CCUModel {
   static entity = 'users';
@@ -98,6 +99,13 @@ export default class User extends CCUModel {
     return Role.query().whereIdIn(this.active_roles).get()[0];
   }
 
+  get highestRole() {
+    return Role.query()
+      .whereIdIn(this.active_roles)
+      .orderBy('level', 'desc')
+      .get()[0];
+  }
+
   get referringUser() {
     return User.find(this.referring_user);
   }
@@ -126,6 +134,12 @@ export default class User extends CCUModel {
     }
 
     return languageList;
+  }
+
+  get languageNames() {
+    return this.languages
+      .map((language) => i18n.global.t(language.name_t))
+      .join(', ');
   }
 
   get notificationSettings() {

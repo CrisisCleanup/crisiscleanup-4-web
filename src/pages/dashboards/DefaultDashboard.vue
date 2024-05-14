@@ -1,0 +1,535 @@
+<template>
+  <div class="flex items-center justify-center">
+    <div
+      v-if="loadingActionItems && !allDataLoaded"
+      class="h-screen flex items-center justify-center"
+    >
+      <spinner size="lg" />
+    </div>
+    <div v-else class="flex flex-col">
+      <header class="bg-white border p-6 flex items-center gap-3">
+        <h1 class="text-xl font-semibold">{{ $t('~~Default Dashboard') }}</h1>
+        <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
+      </header>
+
+      <main class="flex-grow overflow-auto bg-gray-100 border-l border-r">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+          <section class="bg-white p-5 border-r">
+            <UserProfileCard class="mb-5" :user="currentUser" />
+            <h2 class="font-bold text-lg mb-3">Action Items</h2>
+            <div
+              v-for="item in actionItems"
+              :key="item.id"
+              class="mb-2 flex flex-col gap-1"
+            >
+              <p class="text-crisiscleanup-dark-blue font-semibold text-sm">
+                {{ item.title }}
+              </p>
+              <p class="text-xs text-gray-500">
+                {{ momentFromNow(item.timestamp) }}
+              </p>
+              <div class="actions flex items-center justify-start gap-1">
+                <base-button
+                  v-for="action in item.actions"
+                  :key="action.title"
+                  :variant="action.variant"
+                  size="small"
+                  class="rounded-full"
+                  @click="performAction(action.action)"
+                >
+                  {{ action.title }}
+                </base-button>
+              </div>
+            </div>
+          </section>
+
+          <section class="col-span-3 bg-white md:col-span-1 lg:col-span-3">
+            <DownloadAppBanner />
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6 p-8">
+              <div>
+                <h2 class="font-bold text-lg mb-3 flex justify-between">
+                  {{ $t('~~Disaster Map') }}
+                  <router-link :to="`/incident/${currentIncidentId}/work`"
+                    ><span
+                      class="text-crisiscleanup-dark-blue text-sm hover:underline"
+                      >{{ $t('~~Go to Work Map →') }}</span
+                    ></router-link
+                  >
+                </h2>
+                <div class="h-84 bg-gray-200 relative">
+                  <SimpleMap
+                    :map-loading="loadingActionItems"
+                    data-testid="testSimpleMapContent"
+                  />
+                </div>
+              </div>
+              <div>
+                <h2 class="font-bold text-lg mb-3">Volunteer Engagement</h2>
+                <VolunteerChart
+                  :key="JSON.stringify(engagementData)"
+                  class="h-84"
+                  :data="engagementData"
+                />
+              </div>
+            </div>
+            <div
+              v-if="dashboardStatistics"
+              class="grid md:grid-cols-6 grid-cols-3 gap-2 mt-10 p-8"
+            >
+              <div class="stats-card">
+                <p>{{ $t('~~Total Value') }}</p>
+                <p>
+                  ${{ nFormatter(dashboardStatistics.total_commercial_value) }}
+                </p>
+              </div>
+              <div class="stats-card">
+                <p>{{ $t('~~Members Served') }}</p>
+                <p>{{ dashboardStatistics.members_served }}</p>
+              </div>
+              <div class="stats-card">
+                <p>{{ $t('~~Total Claimed Cases') }}</p>
+                <p>{{ dashboardStatistics.total_claimed_cases }}</p>
+              </div>
+              <div class="stats-card">
+                <p>{{ $t('~~Total Closed Cases') }}</p>
+                <p>{{ dashboardStatistics.total_closed_cases }}</p>
+              </div>
+              <div class="stats-card">
+                <p>{{ $t('~~Total Open Cases') }}</p>
+                <p>{{ dashboardStatistics.total_open_cases }}</p>
+              </div>
+              <div class="stats-card">
+                <p>{{ $t('~~Active Users Today') }}</p>
+                <p>{{ dashboardStatistics.active_users_today }}</p>
+              </div>
+            </div>
+            <div v-if="inboundWorksiteRequests.length > 0" class="p-8">
+              <h2 class="font-bold text-base mt-10">
+                {{ $t('~~Case Transfer Requests') }}
+              </h2>
+              <div v-if="inboundWorksiteRequests.length > 0">
+                <div>{{ $t('~~Inbound Requests') }}</div>
+                <div
+                  v-for="request in inboundWorksiteRequests"
+                  :key="request.id"
+                  class="grid grid-cols-3 items-center justify-start bg-crisiscleanup-light-smoke p-1 m-1"
+                >
+                  <div class="flex items-center justify-start gap-3">
+                    {{ request.case_number }}
+                    <div
+                      class="flex p-1 items-center justify-center rounded-lg"
+                      :style="{
+                        backgroundColor: `${getColorForStatus(
+                          request.worksite_work_type.status,
+                          Boolean(request.worksite_work_type.claimed_by),
+                        )}3D`,
+                      }"
+                    >
+                      <div
+                        class="case-svg-container"
+                        v-html="getWorkTypeImage(request.worksite_work_type)"
+                      ></div>
+                    </div>
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    {{ $t('~~Requested By') }}
+                    <span class="text-crisiscleanup-dark-blue">{{
+                      request.requested_by_org.name
+                    }}</span>
+                  </div>
+                  <div class="flex gap-2 justify-end">
+                    <base-button
+                      variant="primary"
+                      class="rounded-full"
+                      :action="
+                        () => acceptWorksiteRequest(request.id, fetchAllData)
+                      "
+                      size="small"
+                      >{{ $t('~~Approve') }}
+                    </base-button>
+                    <base-button
+                      variant="outline"
+                      class="rounded-full"
+                      :action="
+                        () => rejectWorksiteRequest(request.id, fetchAllData)
+                      "
+                      size="small"
+                      >{{ $t('~~Reject') }}
+                    </base-button>
+                  </div>
+                </div>
+              </div>
+
+              <!--              <a-->
+              <!--                href="#"-->
+              <!--                class="text-blue-500 hover:text-blue-700 transition duration-300 ease-in-out text-sm font-bold"-->
+              <!--                >{{ $t('~~View all transfer requests →') }}</a-->
+              <!--              >-->
+            </div>
+            <div
+              v-if="
+                claimedWorksites.length > 0 || invitationRequests.length > 0
+              "
+              class="grid md:grid-cols-2 gap-8 mt-5 p-8"
+            >
+              <div v-if="claimedWorksites.length > 0">
+                <div>
+                  <div class="text-lg font-semibold">
+                    {{
+                      $t('~~{count} Open Cases', {
+                        count: claimedWorksites.length,
+                      })
+                    }}
+                  </div>
+                  <div class="text-sm opacity-75">
+                    {{
+                      $t('~~Please unclaim old cases and close finished cases')
+                    }}
+                  </div>
+                  <div class="mt-4">
+                    {{ $t('~~Oldest Claimed Cases') }}
+                  </div>
+                  <div
+                    v-for="worksite in claimedWorksites"
+                    :key="worksite.id"
+                    class="grid grid-cols-12 items-center justify-start bg-crisiscleanup-light-smoke p-1 m-1"
+                  >
+                    <div
+                      class="flex items-center justify-start gap-1 col-span-6"
+                    >
+                      <span class="font-semibold mr-1">{{
+                        worksite.case_number
+                      }}</span>
+                      <div
+                        v-for="workType in worksite.work_types"
+                        :key="workType.id"
+                        class="flex items-center justify-center rounded-lg"
+                      >
+                        <WorksiteStatusDropdown
+                          class="block"
+                          :current-work-type="workType"
+                          use-icon
+                          hide-name
+                          size="sm"
+                          @input="
+                            (value) => {
+                              statusValueChange(value, workType, worksite.id);
+                            }
+                          "
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="text-xs text-gray-500 col-span-4 justify-self-center"
+                    >
+                      {{ $t('~~Claimed') }}
+                      {{ moment(worksite.updated_at).format('M/D/YY') }}
+                    </div>
+                    <div class="flex gap-2 justify-end col-span-2">
+                      <base-button
+                        variant="primary"
+                        class="rounded-full"
+                        :action="() => unclaimAll(worksite)"
+                        size="small"
+                        >{{ $t('~~Unclaim All') }}
+                      </base-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-if="invitationRequests.length > 0">
+                <div class="text-lg font-semibold">
+                  {{ $t('~~New Invitation Requests') }}
+                </div>
+                <div class="container mx-auto py-6 bg-white">
+                  <div class="space-y-4">
+                    <div
+                      v-for="invite in invitationRequests"
+                      :key="invite.id"
+                      class="border rounded-lg"
+                    >
+                      <div class="p-8">
+                        <div class="flex justify-between items-center mb-4">
+                          <div>
+                            <div class="text-lg font-medium">
+                              {{
+                                $t(
+                                  '{requester} ask to join {requested_to_organization}',
+                                  {
+                                    requester: `${invite.first_name} ${invite.last_name}`,
+                                    requested_to_organization:
+                                      invite.requested_to_organization,
+                                  },
+                                )
+                              }}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                              {{ momentFromNow(invite.requested_at) }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="flex items-center">
+                          <div class="flex-1 flex flex-col">
+                            <a class="text-sm" :href="`tel:${invite.mobile}`">
+                              <i class="fas fa-phone-alt mr-2"></i
+                              >{{ invite.mobile }}
+                            </a>
+                            <a class="text-sm" :href="`mailto:${invite.email}`">
+                              <i class="fas fa-envelope mr-2"></i
+                              >{{ invite.email }}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="flex border-t p-2 justify-end gap-2">
+                        <base-button
+                          :action="
+                            () => acceptInvitationRequest(invite, fetchAllData)
+                          "
+                          variant="primary"
+                          class="rounded-full"
+                          size="small"
+                          >{{ $t('~~Approve') }}
+                        </base-button>
+                        <base-button
+                          :action="
+                            () => rejectInvitationRequest(invite, fetchAllData)
+                          "
+                          variant="outline"
+                          size="small"
+                          class="rounded-full"
+                          >{{ $t('~~Reject') }}
+                        </base-button>
+                        <base-button
+                          :action="
+                            () => archiveInvitationRequest(invite, fetchAllData)
+                          "
+                          variant="outline"
+                          size="small"
+                          class="rounded-full"
+                          >{{ $t('~~Ignore') }}
+                        </base-button>
+                      </div>
+                    </div>
+                  </div>
+                  <!--                  <a href="#" class="text-blue-500 hover:underline mt-2">{{-->
+                  <!--                    $t('~~View All Invitations →')-->
+                  <!--                  }}</a>-->
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <DashboardFooter />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import UserProfileCard from '@/components/UserProfileCard.vue';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import {
+  acceptInvitationRequest,
+  acceptWorksiteRequest,
+  archiveInvitationRequest,
+  getDashboardStatistics,
+  getEngagementData,
+  getWorksites,
+  rejectInvitationRequest,
+  rejectWorksiteRequest,
+} from '@/utils/dashboard';
+import BaseButton from '@/components/BaseButton.vue';
+import { getColorForStatus, getWorkTypeImage, momentFromNow } from '@/filters';
+import { useCurrentIncident } from '@/hooks';
+import SimpleMap from '@/components/SimpleMap.vue';
+import useWorksiteMap from '@/hooks/worksite/useWorksiteMap';
+import moment from 'moment';
+import VolunteerChart from '@/components/dashboard/VolunteerChart.vue';
+import { useDashboardActionItems } from '@/hooks/useDashboardActionItems';
+import { nFormatter } from '../../utils/helpers';
+import DownloadAppBanner from '@/components/dashboard/DownloadAppBanner.vue';
+import WorksiteStatusDropdown from '@/components/WorksiteStatusDropdown.vue';
+import Worksite from '@/models/Worksite';
+import { getErrorMessage } from '@/utils/errors';
+import { useToast } from 'vue-toastification';
+import useNavigation from '@/hooks/useNavigation';
+import _ from 'lodash';
+import DashboardFooter from '@/components/dashboard/DashboardFooter.vue';
+
+const { currentUser } = useCurrentUser();
+const { currentIncidentId, currentIncident } = useCurrentIncident();
+const $toasted = useToast();
+
+const { HomeNavigation, FooterNavigation } = useNavigation();
+const publicRoutes = computed(() => {
+  const _homeSideRoutes = _.keyBy(HomeNavigation, 'key');
+  const _homeFooterRoutes = _.keyBy(FooterNavigation, 'key');
+  const homeRoutes = { ..._homeSideRoutes, ..._homeFooterRoutes };
+  return {
+    survivor: { ...homeRoutes.survivor, icon: 'contact' },
+    training: homeRoutes.training,
+    about: { title: 'publicNav.about_us', route: { name: 'nav.about' } },
+    blog: { ...homeRoutes.blog, icon: 'notepad' },
+    terms: homeRoutes.terms,
+    privacy: homeRoutes.privacy,
+  };
+});
+let mapUtils;
+
+const engagementData = ref([]);
+const dashboardStatistics = ref<any>(null);
+
+const inboundWorksiteRequests = computed(() => {
+  const preferences = currentUser.value?.preferences || {};
+  const archivedRequests = preferences.archived_worksite_requests || [];
+  return worksiteRequests.value.filter(
+    (request) =>
+      Number(request.requested_to_org.id) ===
+        Number(currentUser.value.organization.id) &&
+      !archivedRequests.includes(request.id) &&
+      !request.has_response,
+  );
+});
+
+const performAction = async (action) => {
+  await action();
+  await fetchAllData();
+};
+
+async function statusValueChange(value, workType, worksiteId) {
+  try {
+    await Worksite.api().updateWorkTypeStatus(workType.id, value);
+  } catch (error) {
+    await $toasted.error(getErrorMessage(error));
+  } finally {
+    await fetchAllData();
+  }
+}
+
+async function unclaimAll(worksite: Worksite) {
+  try {
+    Worksite.api().unclaimWorksite(worksite.id, []);
+  } catch (error) {
+    await $toasted.error(getErrorMessage(error));
+  } finally {
+    await Worksite.api().fetch(worksite.id);
+    await fetchAllData();
+  }
+}
+
+const {
+  actionItems,
+  claimedWorksites,
+  invitationRequests,
+  transferRequests,
+  worksiteRequests,
+  loadingActionItems,
+  fetchAllData,
+} = useDashboardActionItems(
+  currentIncidentId.value,
+  currentUser.value?.organization.id,
+  currentUser.value,
+);
+
+const allDataLoaded = ref(false);
+
+onMounted(() => {
+  console.log(publicRoutes.value);
+  watch(
+    loadingActionItems,
+    (newVal) => {
+      if (!newVal) {
+        allDataLoaded.value = true;
+      }
+    },
+    { immediate: true },
+  );
+
+  if (!loadingActionItems) {
+    allDataLoaded.value = true;
+  }
+});
+
+watch(allDataLoaded, (loaded) => {
+  if (loaded) {
+    getWorksites(currentIncidentId.value).then((worksites) => {
+      mapUtils = useWorksiteMap(
+        worksites,
+        worksites.map((m) => m.id),
+        () => {},
+        (_, map) => {
+          if (currentIncident.incident_center) {
+            map.setView(
+              [
+                currentIncident.incident_center.coordinates[1],
+                currentIncident.incident_center.coordinates[0],
+              ],
+              5,
+            );
+          } else {
+            map.setView([35.746_512_259_918_5, -96.411_509_631_256_56], 5);
+          }
+        },
+      );
+    });
+
+    Promise.all([
+      getEngagementData({
+        start_date: moment().add(-60, 'days'),
+        end_date: moment(),
+        incident: currentIncidentId.value,
+      }).then(({ data }) => {
+        engagementData.value = data;
+      }),
+      getDashboardStatistics({ incidentId: currentIncidentId.value })
+        .then((data) => {
+          dashboardStatistics.value = data;
+        })
+        .catch((error) => {
+          console.error('Error fetching dashboard statistics:', error);
+        }),
+    ]).catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+  }
+});
+</script>
+
+<style>
+.stats-card {
+  @apply border flex-1 p-4 shadow rounded-md h-28;
+}
+
+.stats-card p {
+  @apply text-start;
+}
+
+.stats-card p:first-child {
+  @apply text-sm font-light;
+}
+
+.stats-card p:last-child {
+  @apply text-3xl font-light mt-2;
+}
+
+.case-svg-container svg {
+  width: 20px;
+  height: 20px;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+/* Add any custom styles or override Tailwind styles if needed */
+</style>

@@ -2,6 +2,7 @@ import moment from 'moment';
 import type { Config, Request } from '@vuex-orm/plugin-axios';
 import CCUModel from '@/models/base';
 import type Organization from '@/models/Organization';
+import useCurrentUser from '@/hooks/useCurrentUser';
 
 export default class WorksiteRequest extends CCUModel {
   static entity = 'worksite_requests';
@@ -24,6 +25,18 @@ export default class WorksiteRequest extends CCUModel {
         };
         return this.post(`/worksite_requests/${id}/respond`, data, {
           save: false,
+        });
+      },
+      async archiveWorksiteRequest(this: Request, id: string) {
+        const { updateCurrentUser, userPreferences } = useCurrentUser();
+
+        const archivedRequests =
+          userPreferences?.value?.archived_worksite_requests || [];
+        await updateCurrentUser({
+          preferences: {
+            ...userPreferences.value,
+            archived_worksite_requests: [id, ...archivedRequests],
+          },
         });
       },
       async cancelRequest(this: Request, id: string) {

@@ -31,35 +31,10 @@
 </template>
 
 <script lang="ts" setup>
-import { getIncidentPhoneNumbers, isValidActiveHotline } from '@/filters';
-import type Incident from '@/models/Incident';
-import type { CCUApiListResponse } from '@/models/types';
+import { useActiveHotlines } from '@/hooks/useActiveHotlines';
+import { getIncidentPhoneNumbers } from '@/filters';
 
-const ccuApi = useApi();
-// TODO: Convert this logic into hook (useActiveHotlines)
-const fieldsToFetch = [
-  'id',
-  'name',
-  'short_name',
-  'active_phone_number',
-  'start_at',
-];
-const { isLoading, data } = ccuApi<CCUApiListResponse<Incident>>(
-  '/incidents?fields=id,name,short_name,active_phone_number&limit=200&sort=-start_at',
-  {
-    method: 'GET',
-    params: {
-      fields: fieldsToFetch.join(','),
-      limit: 200,
-      sort: '-start_at',
-    },
-  },
-);
-const incidentsWithActiveHotline = computed(() =>
-  (data.value?.results ?? []).filter((i) =>
-    isValidActiveHotline(i.active_phone_number),
-  ),
-);
+const { isLoading, incidentsWithActiveHotline } = useActiveHotlines();
 </script>
 
 <style lang="postcss" scoped>

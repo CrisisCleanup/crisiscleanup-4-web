@@ -46,7 +46,7 @@ export default (
   markers: Array<Sprite & Worksite>,
   visibleMarkerIds: string[],
   onMarkerClick: (marker: Sprite & Worksite) => void,
-  onLoadMarkers: (fn: { workTypes: Record<string, any> }) => void,
+  onLoadMarkers: (fn: { workTypes: Record<string, any> }, map: L.Map) => void,
   useGoogleMaps = false,
   mapBounds = null,
 ) => {
@@ -134,13 +134,13 @@ export default (
     return { workTypes, sprites: getPixiContainer()?.children };
   }
 
-  onLoadMarkers(setupMap(markers, visibleMarkerIds));
+  onLoadMarkers(setupMap(markers, visibleMarkerIds), map);
   const reloadMap = (
     newMarkers: Array<Sprite & Worksite>,
     visibleIds: string[],
   ) => {
     if (map) {
-      onLoadMarkers(setupMap(newMarkers, visibleIds));
+      onLoadMarkers(setupMap(newMarkers, visibleIds), map);
     }
   };
 

@@ -1702,51 +1702,24 @@ export default defineComponent({
       mapUtils.value?.getMap().zoomOut();
     }
 
-    function goToIncidentCenter() {
-      const { locationModels } = Incident.find(
+    function getIncidentCenter() {
+      const { incident_center } = Incident.find(
         currentIncidentId.value,
       ) as Incident;
-      if (locationModels.length > 0) {
-        for (const location of locationModels) {
-          mapUtils.value?.fitLocation(location);
-        }
-      } else {
-        const center = averageGeolocation(
-          mapUtils.value
-            ?.getPixiContainer()
-            ?.children.map((marker) => [marker.x, marker.y]),
-        );
-        if (center.latitude && center.longitude) {
-          mapUtils.value
-            ?.getMap()
-            .setView([center.latitude, center.longitude], 6);
-        }
+      if (incident_center) {
+        return [incident_center.coordinates[1], incident_center.coordinates[0]];
       }
+      return [35.746_512_259_918_5, -96.411_509_631_256_56];
+    }
+
+    function goToIncidentCenter() {
+      mapUtils.value?.getMap().setView(getIncidentCenter(), 6);
     }
 
     function goToInteractive() {
-      const { locationModels } = Incident.find(
-        currentIncidentId.value,
-      ) as Incident;
-
-      if (locationModels.length > 0) {
-        mapUtils.value?.getMap().setZoom(INTERACTIVE_ZOOM_LEVEL);
-        goToIncidentCenter();
-      } else {
-        const center = averageGeolocation(
-          mapUtils.value
-            ?.getPixiContainer()
-            ?.children.map((marker) => [marker.x, marker.y]),
-        );
-        if (center.latitude && center.longitude) {
-          mapUtils.value
-            ?.getMap()
-            .setView(
-              [center.latitude, center.longitude],
-              INTERACTIVE_ZOOM_LEVEL,
-            );
-        }
-      }
+      mapUtils.value
+        ?.getMap()
+        .setView(getIncidentCenter(), INTERACTIVE_ZOOM_LEVEL);
     }
 
     async function reportBug() {

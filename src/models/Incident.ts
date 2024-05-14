@@ -4,6 +4,7 @@ import Location from './Location';
 import { DISASTER_ICONS } from '@/constants';
 import CCUModel from '@/models/base';
 import type { FormField, LocationJoin } from '@/models/types';
+import type { GeoJSON } from 'leaflet';
 
 export default class Incident extends CCUModel {
   static entity = 'incidents';
@@ -69,6 +70,7 @@ export default class Incident extends CCUModel {
       active_phone_number: this.attr(null),
       created_work_types: this.attr([]),
       is_archived: this.attr(false),
+      incident_center: this.attr(null),
     };
   }
 
@@ -115,6 +117,7 @@ export default class Incident extends CCUModel {
   active_phone_number!: string | string[] | undefined;
   created_work_types!: any[];
   is_archived!: boolean;
+  incident_center!: GeoJSON | null;
 
   get incidentImage() {
     return Incident.getIncidentImage(this.incident_type) as unknown;

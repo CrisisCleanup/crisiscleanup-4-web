@@ -135,7 +135,7 @@
   </template>
   <!--   Page spinner -->
   <div v-else class="flex h-screen items-center justify-center">
-    <spinner show-quote />
+    <spinner show-quote allow-reset />
   </div>
 </template>
 
