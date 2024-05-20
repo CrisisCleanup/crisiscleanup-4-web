@@ -32,8 +32,12 @@ declare module 'vue-router' {
 
 const Dashboard = () => import('./pages/Dashboard.vue');
 
+const DashboardPage = () => import('./pages/dashboards/DashboardPage.vue');
 const DefaultDashboard = () =>
   import('./pages/dashboards/DefaultDashboard.vue');
+
+const PhoneVolunteerDashboard = () =>
+  import('./pages/dashboards/PhoneVolunteerDashboard.vue');
 const Work = () => import('./pages/Work.vue');
 const AppDownload = () => import('./pages/AppDownload.vue');
 const OtherOrganizations = () => import('@/pages/OtherOrganizations.vue');
@@ -67,10 +71,22 @@ const routes = [
     meta: { layout: 'authenticated' },
   },
   {
-    path: '/incident/:incident_id/dashboard/default',
-    component: DefaultDashboard,
-    name: 'nav.default_dashboard',
+    path: '/incident/:incident_id/dashboard',
+    component: DashboardPage,
+    name: 'nav.dashboard_page',
     meta: { layout: 'authenticated' },
+    children: [
+      {
+        path: 'default',
+        name: 'nav.default_dashboard',
+        component: DefaultDashboard,
+      },
+      {
+        path: 'phone_volunteer',
+        name: 'nav.phone_volunteer_dashboard',
+        component: PhoneVolunteerDashboard,
+      },
+    ],
   },
   {
     path: '/profile',

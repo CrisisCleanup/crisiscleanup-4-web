@@ -530,6 +530,7 @@
           :set-allowed-call-type="setAllowedCallType"
           :select-case="selectCase"
           :worksite-id="worksiteId"
+          :allowed-call-type="allowCallType"
         />
         <PhoneOverlay
           v-if="can('beta_feature.new_phone_system')"
@@ -1797,7 +1798,7 @@ export default defineComponent({
         const { phone_number, incident_id } = payload;
         const [incidentId = null] = incident_id;
         setManualOutbound(phone_number);
-        if (incidentId) {
+        if (!$can('beta_feature.new_phone_system') && incidentId) {
           router.replace({
             path: `/incident/${incidentId}/phone`,
             query: {
@@ -1902,6 +1903,7 @@ export default defineComponent({
       showingSearchModal,
       mobileSearch,
       can: $can,
+      allowCallType,
     };
   },
 });

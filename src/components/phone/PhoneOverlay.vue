@@ -20,6 +20,7 @@ const { caseId } = defineProps({
 const expanded = ref(false);
 const sideBarExpanded = ref(true);
 const { t } = useI18n();
+const { updateUserStates } = useCurrentUser();
 
 const sections = [
   {
@@ -62,7 +63,13 @@ const sections = [
     view: 'chat',
     text: t('chat.chat'),
     icon: 'chat',
-    alt: t('chat.chat'),
+    onOpen: () => {
+      updateUserStates({
+        chat_last_seen: moment().toISOString(),
+      });
+      unreadChatCount.value = 0;
+      unreadUrgentChatCount.value = 0;
+    },
   },
   {
     view: 'reportBug',
@@ -86,10 +93,13 @@ import ActiveCall from '@/components/phone/ActiveCall.vue';
 import CurrentCall from '@/components/phone/CurrentCall.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import Chat from '@/components/chat/Chat.vue';
-import { reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import moment from 'moment';
 import usePhoneService from '@/hooks/phone/usePhoneService';
 import BaseText from '@/components/BaseText.vue';
+import Badge from '@/components/Badge.vue';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import PhoneOutbound from '@/models/PhoneOutbound';
 const { emitter } = useEmitter();
 
 const { text, copy } = useClipboard({
@@ -99,9 +109,10 @@ const remainingCallbacks = ref(0);
 const remainingCalldowns = ref(0);
 const unreadChatCount = ref(0);
 const unreadUrgentChatCount = ref(0);
+const unreadNewsCount = ref(0);
 
 const showCompleteCallScreen = ref(false);
-
+const phoneNumberToDial = ref('');
 const endCall = () => {
   hangUp();
 };
@@ -123,9 +134,10 @@ const onCancelCompleteCall = () => {
   showCompleteCallScreen.value = false;
 };
 
-const updateView = (view) => {
+const updateView = (section) => {
   expanded.value = true;
-  currentView.value = view;
+  currentView.value = section.view;
+  section.onOpen?.();
 };
 
 const closeTab = () => {
@@ -138,7 +150,7 @@ const closeTab = () => {
 
 function setManualOutbound(phone) {
   currentView.value = 'manualDialer';
-  emitter.emit('dialer:set_phone_number', formatNationalNumber(phone));
+  phoneNumberToDial.value = formatNationalNumber(phone);
 }
 
 const currentView = ref('');
@@ -185,12 +197,35 @@ const updateElapsedTime = () => {
   formattedElapsedTime.value = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
+async function updateCallbacks() {
+  remainingCallbacks.value =
+    await PhoneOutbound.api().getRemainingCallbackCount('');
+  remainingCalldowns.value =
+    await PhoneOutbound.api().getRemainingCalldownCount('');
+}
+
+const callsWaiting = computed(function () {
+  return (
+    Number(stats.value.inQueue || 0) +
+    Number(stats.value.active || 0) +
+    Number(remainingCallbacks.value || 0) +
+    Number(remainingCalldowns.value || 0)
+  );
+});
+
 onMounted(() => {
   // Immediately update once in case component mounts after call has started
   updateElapsedTime();
 
   // Then set an interval to update every second
   intervalId = setInterval(updateElapsedTime, 1000);
+
+  updateCallbacks();
+
+  emitter.on('phone_outbound:click', (payload: Record<string, any>) => {
+    const { phone_number } = payload;
+    setManualOutbound(phone_number);
+  });
 });
 
 onBeforeUnmount(() => {
@@ -324,6 +359,7 @@ const {
                   data-testid="testManualDialerDiv"
                   style="z-index: 1002"
                   :dialing="false"
+                  :phone-number="phoneNumberToDial"
                   @on-dial="dialManualOutbound"
                 ></ManualDialer>
               </div>
@@ -375,6 +411,7 @@ const {
                 class="p-2 h-[calc(100vh-13rem)]"
                 data-testid="testPhoneCmsItemsDiv"
                 style="z-index: 1002"
+                @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
 
               <CallHistory
@@ -545,7 +582,7 @@ const {
               <div
                 v-for="section in sections"
                 :key="section.view"
-                class="p-2 bg-white flex items-center gap-2 cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b-4"
+                class="p-2 bg-white flex items-center gap-2 justify-between cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b-4"
                 :class="{
                   'border-l-4 border-l-primary-light font-bold':
                     currentView === section.view,
@@ -555,21 +592,59 @@ const {
                   () =>
                     currentView === section.view
                       ? closeTab()
-                      : updateView(section.view)
+                      : updateView(section)
                 "
               >
-                <ccu-icon
-                  :type="section.icon"
-                  :alt="section.alt"
+                <div class="flex items-center gap-2">
+                  <ccu-icon
+                    :type="section.icon"
+                    :alt="section.alt"
                   :class="[
-                    currentView === section.view
-                      ? 'filter-primary'
-                      : 'filter-gray',
-                    '!transition-none',
-                  ]"
-                  size="large"
-                />
-                <div v-if="sideBarExpanded">{{ $t(section.text) }}</div>
+                      currentView === section.view
+                        ? 'filter-primary'
+                        : 'filter-gray',
+                      '!transition-none',
+                    ]"
+                    size="large"
+                  />
+                  <div v-if="sideBarExpanded">{{ $t(section.text) }}</div>
+                </div>
+                <div v-if="section.view === 'generalStats'" class="relative">
+                  <badge
+                    v-if="callsWaiting > 0"
+                    class="ml-2 text-black bg-primary-light text-base"
+                    :class="
+                      sideBarExpanded
+                        ? 'relative p-3'
+                        : 'absolute top-0 right-0 p-2'
+                    "
+                    >{{ callsWaiting }}</badge
+                  >
+                </div>
+                <div v-if="section.view === 'cms'" class="relative">
+                  <badge
+                    v-if="unreadNewsCount > 0"
+                    class="ml-2 text-black bg-primary-light text-base"
+                    :class="
+                      sideBarExpanded
+                        ? 'relative p-3'
+                        : 'absolute top-0 right-0 p-2'
+                    "
+                    >{{ unreadNewsCount }}</badge
+                  >
+                </div>
+                <div v-if="section.view === 'chat'" class="relative">
+                  <badge
+                    v-if="unreadChatCount > 0"
+                    class="ml-2 text-black bg-primary-light text-base"
+                    :class="
+                      sideBarExpanded
+                        ? 'relative p-3'
+                        : 'absolute top-0 right-0 p-2'
+                    "
+                    >{{ unreadChatCount }}</badge
+                  >
+                </div>
               </div>
             </div>
           </ul>

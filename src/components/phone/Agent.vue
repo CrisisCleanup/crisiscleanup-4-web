@@ -1,6 +1,7 @@
 <template>
   <div class="bg-white p-2 text-xs flex justify-end w-full">
     <div class="flex items-center justify-center">
+      <div v-if="isTakingCalls">{{ allowedCallsString }}</div>
       <PhoneIndicator />
     </div>
     <div class="flex items-center justify-between mr-3">
@@ -130,7 +131,31 @@ import { AllowedCallType } from '@/pages/phone/PhoneSystem.vue';
 export default defineComponent({
   name: 'Agent',
   components: { BaseSelect, PhoneIndicator, EditAgentModal, LanguageTag },
+  props: {
+    allowedCallType: {
+      type: AllowedCallType,
+      default: 'BOTH',
+    },
+  },
   setup(props, context) {
+    const { t } = useI18n();
+
+    const allowedCallsString = computed(() => {
+      switch (props.allowedCallType) {
+        case AllowedCallType.BOTH: {
+          return t('~~Inbound and Outbound calls enabled');
+        }
+        case AllowedCallType.INBOUND_ONLY: {
+          return t('~~Inbound calls only');
+        }
+        case AllowedCallType.OUTBOUND_ONLY: {
+          return t('~~Outbound calls only');
+        }
+        default: {
+          return t('~~Inbound and Outbound calls enabled');
+        }
+      }
+    });
     const editingAgent = ref(false);
     const { currentUser } = useCurrentUser();
     const notPlayingNice = ref(false);
@@ -143,6 +168,7 @@ export default defineComponent({
       loginPhone,
       isOutboundCall,
       hangUp,
+      isTakingCalls,
     } = useConnectFirst(context);
     return {
       editingAgent,
@@ -157,6 +183,8 @@ export default defineComponent({
       notPlayingNice,
       AllowedCallType,
       hangUp,
+      allowedCallsString,
+      isTakingCalls,
     };
   },
 });

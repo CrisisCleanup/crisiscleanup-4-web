@@ -47,6 +47,8 @@ export default class User extends CCUModel {
 
   beta_features!: string[];
 
+  current_sign_in_at!: string;
+
   static fields() {
     return {
       id: this.attr(''),
@@ -62,6 +64,7 @@ export default class User extends CCUModel {
       preferences: this.attr({}),
       permissions: this.attr({}),
       beta_features: this.attr({}),
+      current_sign_in_at: this.attr({}),
       primary_language: this.attr(null),
       secondary_language: this.attr(null),
       accepted_terms_timestamp: this.attr(null),
@@ -104,6 +107,19 @@ export default class User extends CCUModel {
       .whereIdIn(this.active_roles)
       .orderBy('level', 'desc')
       .get()[0];
+  }
+
+  get allRoles() {
+    return Role.query()
+      .whereIdIn(this.active_roles)
+      .orderBy('level', 'desc')
+      .get();
+  }
+
+  get allRolesNames() {
+    return this.allRoles
+      .map((language) => i18n.global.t(language.name_t))
+      .join(', ');
   }
 
   get referringUser() {
