@@ -26,25 +26,49 @@ const sections = [
     view: 'callHistory',
     text: t('phoneDashboard.last_10_calls'),
     icon: 'phone-history',
+    alt: t('phoneDashboard.last_10_calls'),
   },
   {
     view: 'manualDialer',
     text: t('phoneDashboard.manual_dialer'),
     icon: 'manual-dialer',
+    alt: t('phoneDashboard.manual_dialer'),
   },
   {
     view: 'leaderboard',
     text: t('phoneDashboard.volunteer_stats'),
     icon: 'leaderboard',
+    alt: t('phoneDashboard.volunteer_stats'),
   },
-  { view: 'zoom', text: t('phoneDashboard.join_zoom'), icon: 'zoom' },
-  { view: 'cms', text: t('phoneDashboard.news'), icon: 'news' },
-  { view: 'generalStats', text: t('phoneDashboard.stats'), icon: 'stats' },
-  { view: 'chat', text: t('chat.chat'), icon: 'chat' },
+  {
+    view: 'zoom',
+    text: t('phoneDashboard.join_zoom'),
+    icon: 'zoom',
+    alt: t('phoneDashboard.join_zoom'),
+  },
+  {
+    view: 'cms',
+    text: t('phoneDashboard.news'),
+    icon: 'news',
+    text: t('phoneDashboard.news'),
+  },
+  {
+    view: 'generalStats',
+    text: t('phoneDashboard.stats'),
+    icon: 'stats',
+    alt: t('phoneDashboard.stats'),
+  },
+  {
+    view: 'chat',
+    text: t('chat.chat'),
+    icon: 'chat',
+    alt: t('chat.chat'),
+  },
   {
     view: 'reportBug',
     text: t('phoneDashboard.report_bug'),
     icon: 'bug-report',
+    alt: t('phoneDashboard.report_bug'),
   },
 ];
 
