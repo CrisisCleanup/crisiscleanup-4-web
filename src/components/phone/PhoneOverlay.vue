@@ -50,7 +50,7 @@ const sections = [
     view: 'cms',
     text: t('phoneDashboard.news'),
     icon: 'news',
-    text: t('phoneDashboard.news'),
+    alt: t('phoneDashboard.news'),
   },
   {
     view: 'generalStats',
@@ -560,6 +560,7 @@ const {
               >
                 <ccu-icon
                   :type="section.icon"
+                  :alt="section.alt"
                   :class="[
                     currentView === section.view
                       ? 'filter-primary'
