@@ -13,7 +13,6 @@ import inspect from 'vite-plugin-inspect';
 import inspector from 'vite-plugin-vue-inspector';
 import markdownRawPlugin from 'vite-raw-plugin';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
-import mkcert from 'vite-plugin-mkcert';
 import postcssConfig from './postcss.config';
 
 export default defineConfig(async ({ command }) => {
@@ -58,7 +57,6 @@ export default defineConfig(async ({ command }) => {
     inspect(),
     // https://github.com/webfansplz/vite-plugin-vue-inspector
     inspector(),
-    mkcert(),
     markdownRawPlugin({
       fileRegex: /\.svgr$/,
     }),
