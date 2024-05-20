@@ -355,7 +355,7 @@
                   {{ $t('profileUser.clear_favorites_user_settings') }}
                 </p>
                 <a
-                  :href="https://crisiscleanup.zendesk.com/hc/en-us/articles/25053795283597-Deleting-Your-User-Account"
+                  href="https://crisiscleanup.zendesk.com/hc/en-us/articles/25053795283597-Deleting-Your-User-Account"
                   data-testid="testDeleteUserAccountButton"
                   class="flex justify-center items-center gap-3 w-min px-4 py-1 text-crisiscleanup-light-smoke bg-crisiscleanup-red-100"
                   target="_blank"
