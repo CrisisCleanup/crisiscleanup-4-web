@@ -18,19 +18,21 @@
     >
       <slot />
     </div>
-    <div class="register m-8">
-      <div class="flex flex-col w-full">
-        <div class="text-crisiscleanup-dark-500 w-full text-center self-end">
-          {{ $t('publicNav.relief_orgs_only') }}
+    <slot name="register">
+      <div class="register m-8">
+        <div class="flex flex-col w-full">
+          <div class="text-crisiscleanup-dark-500 w-full text-center self-end">
+            {{ $t('publicNav.relief_orgs_only') }}
+          </div>
+          <a
+            href="/register"
+            class="cursor-pointer bg-yellow-400 p-4 mt-3 flex items-center justify-center"
+            type="submit"
+            >{{ $t('actions.register') }}</a
+          >
         </div>
-        <a
-          href="/register"
-          class="cursor-pointer bg-yellow-400 p-4 mt-3 flex items-center justify-center"
-          type="submit"
-          >{{ $t('actions.register') }}</a
-        >
       </div>
-    </div>
+    </slot>
     <div class="nav flex flex-col gap-3 m-8 md:text-left text-center">
       <span v-for="item in routes" :key="item.key">
         <a
