@@ -24,13 +24,13 @@
 
 <script lang="ts" setup>
 import _ from 'lodash';
-import Incident from '@/models/Incident';
+import type Incident from '@/models/Incident';
 import type { DisasterIcons } from '@/icons';
 import { DISASTER_ICONS, EASTER_EGG_DISASTER_ICONS } from '@/icons';
 import { extractIconNameFromPath } from '@/utils/helpers';
 
 export interface DisasterIconProps {
-  currentIncident: Record<string, any>;
+  currentIncident: Incident;
 }
 
 const props = defineProps<DisasterIconProps>();
@@ -38,19 +38,10 @@ const props = defineProps<DisasterIconProps>();
 const randomEasterEgg = ref();
 const iconRef = templateRef('disaster-icon');
 
-const incidentImage = computed(() => {
-  if (props.currentIncident && props.currentIncident.incidentImage) {
-    return props.currentIncident.incidentImage;
-  }
-
-  return Incident.getIncidentImage(props.currentIncident.incident_type);
-});
-
 const incidentIconComp = computed(() => {
-  const iconPath = incidentImage.value;
-  if (!iconPath) return;
-  const iconKey = extractIconNameFromPath(iconPath) as DisasterIcons;
-  return DISASTER_ICONS[iconKey];
+  const incidentType = props.currentIncident.incident_type as DisasterIcons;
+  if (!incidentType) return;
+  return DISASTER_ICONS[incidentType];
 });
 
 const svgDocument = computed(() => iconRef?.value?.$el);
