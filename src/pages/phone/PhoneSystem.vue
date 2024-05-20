@@ -555,7 +555,7 @@ import {
   INTERACTIVE_ZOOM_LEVEL,
 } from '@/constants';
 import { averageGeolocation } from '@/utils/map';
-import type { MapUtils } from '@/hooks/worksite/useLiveMap';
+import type { MapUtils } from '@/hooks/worksite/useWorksiteMap';
 import { useCurrentUser } from '@/hooks';
 import PhoneOverlay from '@/components/phone/PhoneOverlay.vue';
 import useAcl from '@/hooks/useAcl';
@@ -1277,19 +1277,34 @@ export default defineComponent({
     }
 
     function zoomIn() {
-      mapUtils.value?.getMap().zoomIn();
+      mapUtils.value!.getMap().zoomIn();
     }
 
     function zoomOut() {
-      mapUtils.value?.getMap().zoomOut();
+      mapUtils.value!.getMap().zoomOut();
+    }
+
+    function fitLocation(location: Location) {
+      mapUtils.value!.fitLocation(location);
     }
 
     function getIncidentCenter() {
       const { incident_center } = Incident.find(
         currentIncidentId.value,
       ) as Incident;
-      if (incident_center) {
-        return [incident_center.coordinates[1], incident_center.coordinates[0]];
+      if (locationModels.length > 0) {
+        for (const location of locationModels) {
+          fitLocation(location);
+        }
+      } else {
+        const center = averageGeolocation(
+          mapUtils.value
+            ?.getPixiContainer()
+            ?.children.map((marker) => [marker.x, marker.y]),
+        );
+        if (center.latitude && center.longitude) {
+          mapUtils.value.getMap().setView([center.latitude, center.longitude], 6);
+        }
       }
       return [35.746_512_259_918_5, -96.411_509_631_256_56];
     }
