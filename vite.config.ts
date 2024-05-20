@@ -46,11 +46,8 @@ export default defineConfig(async ({ command }) => {
     }),
     Icons({
       compiler: 'vue3',
-      autoInstall: true, // See: https://github.com/unplugin/unplugin-icons?tab=readme-ov-file#icons-data
       customCollections: {
-        'ccu-disaster-icons': FileSystemIconLoader(
-          './src/assets/disaster_icons',
-        ),
+        'ccu-disaster-icons': FileSystemIconLoader('src/assets/disaster_icons'),
       },
     }),
     // https://github.com/antfu/vite-plugin-inspect
