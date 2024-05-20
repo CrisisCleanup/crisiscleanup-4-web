@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import { computed, ref } from 'vue';
+import { computed, type PropType, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import DisasterIcon from '../DisasterIcon.vue';
@@ -108,6 +108,8 @@ import User from '@/models/User';
 import BaseText from '@/components/BaseText.vue';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import { useCurrentUser } from '@/hooks';
+import type Incident from '@/models/Incident';
+
 export default defineComponent({
   name: 'Header',
   components: {
@@ -125,7 +127,7 @@ export default defineComponent({
       default: () => [],
     },
     currentIncident: {
-      type: Object,
+      type: Object as PropType<Incident>,
       default: () => ({}),
     },
   },
