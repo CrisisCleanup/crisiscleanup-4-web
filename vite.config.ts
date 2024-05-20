@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig, type PluginOption, type UserConfig } from 'vite';
 import _ from 'lodash';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as vitest from 'vitest';
@@ -18,9 +18,7 @@ import postcssConfig from './postcss.config';
 
 export default defineConfig(async ({ command }) => {
   const vitePlugins = [
-    vue({
-      reactivityTransform: true,
-    }),
+    vue(),
     vueJsx(),
     // https://github.com/antfu/unplugin-auto-import
     autoImport({
@@ -63,7 +61,7 @@ export default defineConfig(async ({ command }) => {
     markdownRawPlugin({
       fileRegex: /\.svgr$/,
     }),
-  ];
+  ] as PluginOption[];
 
   const configs: Array<Partial<UserConfig>> = [];
   configs.push({
@@ -77,9 +75,6 @@ export default defineConfig(async ({ command }) => {
           new URL('tailwind.config.cjs', import.meta.url),
         ),
       },
-    },
-    server: {
-      https: false,
     },
     css: {
       postcss: {
