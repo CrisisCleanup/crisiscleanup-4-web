@@ -196,6 +196,10 @@
         </template>
       </modal>
     </div>
+    <template #register>
+      <!-- Don't show register info & button on this page -->
+      <span></span>
+    </template>
   </Home>
 </template>
 
