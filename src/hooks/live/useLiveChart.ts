@@ -25,7 +25,7 @@ export default function useLiveChart(
   function getHeight() {
     const chartContainer = d3.select(`#${chartId}`);
     if (chartContainer) {
-      return Number(chartContainer.style('height').slice(0, -2)) || 0;
+      return Number(chartContainer.style('height')?.slice(0, -2)) || 0;
     }
 
     return 0;
