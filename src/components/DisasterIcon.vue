@@ -22,66 +22,50 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import _ from 'lodash';
 import Incident from '@/models/Incident';
 import type { DisasterIcons } from '@/icons';
 import { DISASTER_ICONS, EASTER_EGG_DISASTER_ICONS } from '@/icons';
 import { extractIconNameFromPath } from '@/utils/helpers';
 
-export default defineComponent({
-  name: 'DisasterIcon',
-  props: {
-    currentIncident: {
-      type: Object,
-      default() {
-        return {};
-      },
-    },
-  },
+export interface DisasterIconProps {
+  currentIncident: Record<string, any>;
+}
 
-  setup(props) {
-    const randomEasterEgg = ref();
-    const iconRef = templateRef('disaster-icon');
+const props = defineProps<DisasterIconProps>();
 
-    const incidentImage = computed(() => {
-      if (props.currentIncident && props.currentIncident.incidentImage) {
-        return props.currentIncident.incidentImage;
-      }
+const randomEasterEgg = ref();
+const iconRef = templateRef('disaster-icon');
 
-      return Incident.getIncidentImage(props.currentIncident.incident_type);
-    });
+const incidentImage = computed(() => {
+  if (props.currentIncident && props.currentIncident.incidentImage) {
+    return props.currentIncident.incidentImage;
+  }
 
-    const incidentIconComp = computed(() => {
-      const iconPath = incidentImage.value;
-      if (!iconPath) return;
-      const iconKey = extractIconNameFromPath(iconPath) as DisasterIcons;
-      return DISASTER_ICONS[iconKey];
-    });
-
-    const svgDocument = computed(() => iconRef?.value?.$el);
-    watch(svgDocument, () => {
-      if (isDefined(svgDocument) && !isDefined(randomEasterEgg)) {
-        svgDocument.value.querySelectorAll('path')[0].style.fill =
-          props.currentIncident.color;
-      }
-    });
-
-    function toggleEasterEgg() {
-      randomEasterEgg.value = randomEasterEgg.value
-        ? undefined
-        : _.sample(EASTER_EGG_DISASTER_ICONS);
-    }
-
-    return {
-      incidentImage,
-      svgDocument,
-      toggleEasterEgg,
-      randomEasterEgg,
-      incidentIconComp,
-    };
-  },
+  return Incident.getIncidentImage(props.currentIncident.incident_type);
 });
+
+const incidentIconComp = computed(() => {
+  const iconPath = incidentImage.value;
+  if (!iconPath) return;
+  const iconKey = extractIconNameFromPath(iconPath) as DisasterIcons;
+  return DISASTER_ICONS[iconKey];
+});
+
+const svgDocument = computed(() => iconRef?.value?.$el);
+watch(svgDocument, () => {
+  if (isDefined(svgDocument) && !isDefined(randomEasterEgg)) {
+    svgDocument.value.querySelectorAll('path')[0].style.fill =
+      props.currentIncident.color;
+  }
+});
+
+function toggleEasterEgg() {
+  randomEasterEgg.value = randomEasterEgg.value
+    ? undefined
+    : _.sample(EASTER_EGG_DISASTER_ICONS);
+}
 </script>
 
 <style scoped lang="postcss">
