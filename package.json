@@ -25,7 +25,7 @@
     "lint:errors": "pnpm run lint --quiet",
     "lint:format": "pnpm run lint:fix && pnpm run format",
     "format": "prettier --write \"**/*.{vue,ts?(x),js?(x),json,md,y?(a)ml}\"",
-    "clean": "pnpm dlx rimraf dist \"**/coverage\"",
+    "clean": "pnpm dlx rimraf dist test-results playwright playwright-report coverage",
     "repair:clean-modules": "pnpm dlx rimraf node_modules",
     "repair:prune-pnpm": "pnpm run clean && pnpm run repair:clean-modules && pnpm store prune",
     "pw": "pnpm exec playwright",
