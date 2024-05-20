@@ -599,7 +599,7 @@ const {
                   <ccu-icon
                     :type="section.icon"
                     :alt="section.alt"
-                  :class="[
+                    :class="[
                       currentView === section.view
                         ? 'filter-primary'
                         : 'filter-gray',
