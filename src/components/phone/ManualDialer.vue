@@ -26,7 +26,7 @@
           </template>
         </base-select>
         <base-input
-          v-model="phoneNumber"
+          v-model="phone"
           data-testid="testPhoneNumberTextInput"
           type="tel"
           size="large"
@@ -44,7 +44,7 @@
         :alt="
           dialing ? $t('phoneDashboard.dialing') : $t('phoneDashboard.dial')
         "
-        :disabled="dialing || !phoneNumber"
+        :disabled="dialing || !phone"
         @click="handleDial"
       ></base-button>
     </div>
@@ -65,26 +65,30 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    phoneNumber: {
+      type: String,
+      default: '',
+    },
   },
   setup(props, { emit }) {
     const { t } = useI18n();
     const { emitter } = useEmitter();
 
-    const phoneNumber = ref('');
+    const phone = ref('');
     const selectedCountryCode = ref('+1');
     const countryCodes = ref([{ code: '+1', icon: 'flag-usa' }]);
 
-    emitter.on('dialer:set_phone_number', (phone) => {
-      phoneNumber.value = phone;
-    });
-
     const handleDial = () => {
-      emit('onDial', `${selectedCountryCode.value}${phoneNumber.value}`);
+      emit('onDial', `${selectedCountryCode.value}${phone.value}`);
     };
-
+    onMounted(() => {
+      if (props.phoneNumber) {
+        phone.value = props.phoneNumber;
+      }
+    });
     return {
       selectedCountryCode,
-      phoneNumber,
+      phone,
       countryCodes,
       handleDial,
     };

@@ -101,6 +101,10 @@ export default function useConnectFirst(context: {
     return phoneService.changeState('AWAY');
   }
 
+  async function apiGetQueueStats() {
+    return phoneService.apiGetQueueStats();
+  }
+
   async function loadAgent() {
     try {
       const { data } = await axios.get(
@@ -318,5 +322,6 @@ export default function useConnectFirst(context: {
     },
     loginPhone,
     dialNextOutbound,
+    apiGetQueueStats,
   };
 }

@@ -87,6 +87,7 @@ import androidRound from './assets/icons/android-round.svg';
 import bugReport from './assets/icons/bug-report.svg';
 import manualDialer from './assets/icons/manual-dialer.svg';
 import stats from './assets/icons/stats.svg';
+import qrcode from './assets/icons/qrcode.svg';
 // DISASTER ICONS
 import contaminatedWater from './assets/disaster_icons/contaminated-water.svg';
 import earthquake from './assets/disaster_icons/earthquake.svg';
@@ -277,6 +278,7 @@ export const ICON_MAP = {
   'bug-report': bugReport,
   'manual-dialer': manualDialer,
   stats: stats,
+  qrcode: qrcode,
 };
 
 export const ICONS = Object.fromEntries(
