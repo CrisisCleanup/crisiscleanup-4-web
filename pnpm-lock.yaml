@@ -331,6 +331,9 @@ devDependencies:
   '@faker-js/faker':
     specifier: ^8.4.1
     version: 8.4.1
+  '@iconify/json':
+    specifier: ^2.2.212
+    version: 2.2.212
   '@playwright/test':
     specifier: ^1.43.1
     version: 1.43.1
@@ -1836,6 +1839,13 @@ packages:
     dependencies:
       chalk: 2.4.2
       lodash: 4.17.21
+    dev: true
+
+  /@iconify/json@2.2.212:
+    resolution: {integrity: sha512-d1IXjpbSwk8V3C9D+mruRTJRPqZZpCnOWh9zyG/Zc5zJmPDLBEHNTKz+ZmeiJQ6LdzgjwLJai1WgFvt1HWVIPw==}
+    dependencies:
+      '@iconify/types': 2.0.0
+      pathe: 1.1.2
     dev: true
 
   /@iconify/types@2.0.0:
