@@ -450,7 +450,7 @@ devDependencies:
     version: 13.5.4
   playwright-slack-report:
     specifier: ^1.1.72
-    version: 1.1.72(@types/node@20.12.12)(debug@4.3.4)(typescript@5.4.5)
+    version: 1.1.80(@types/node@20.12.12)(debug@4.3.4)(typescript@5.4.5)
   postcss:
     specifier: ^8.4.38
     version: 8.4.38
@@ -9737,8 +9737,8 @@ packages:
     hasBin: true
     dev: true
 
-  /playwright-slack-report@1.1.72(@types/node@20.12.12)(debug@4.3.4)(typescript@5.4.5):
-    resolution: {integrity: sha512-Gt7Uyzn+SPQQniRCX7qAqOtgmU7rqF5HyM+laZ+1Drsl99xEqA6nyp0da/nqqORrJMnQLkgvGMtbXHIveBCPaQ==}
+  /playwright-slack-report@1.1.80(@types/node@20.12.12)(debug@4.3.4)(typescript@5.4.5):
+    resolution: {integrity: sha512-n7C6U914/KgXji7V+X4uZWdlJshvfrq+7x8Ad9BShSRCDbh4mFtZQdbzllP9XNjgvzEQE4uZVIsNAG7mPlZH/A==}
     hasBin: true
     dependencies:
       '@slack/web-api': 6.12.0(debug@4.3.4)
