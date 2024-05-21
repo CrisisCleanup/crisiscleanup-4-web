@@ -310,7 +310,7 @@ dependencies:
     version: 2.0.0-rc.5(vue@3.4.27)
   vue3-apexcharts:
     specifier: ^1.5.2
-    version: 1.5.2(apexcharts@3.49.1)(vue@3.4.27)
+    version: 1.5.3(apexcharts@3.49.1)(vue@3.4.27)
   vue3-mq:
     specifier: ^3.2.0
     version: 3.2.0(vue@3.4.27)
@@ -12140,8 +12140,8 @@ packages:
       typescript: 5.4.5
     dev: true
 
-  /vue3-apexcharts@1.5.2(apexcharts@3.49.1)(vue@3.4.27):
-    resolution: {integrity: sha512-rGbgUJDjtsyjfRF0uzwDjzt8+M7ICSRAbm1N9KCDiczW8BSpbEZuaEsJDJYnJuLFIIVXIGilYzIcjNBf6NbeYA==}
+  /vue3-apexcharts@1.5.3(apexcharts@3.49.1)(vue@3.4.27):
+    resolution: {integrity: sha512-yaHTPoj0iVKAtEVg8wEwIwwvf0VG+lPYNufCf3txRzYQOqdKPoZaZ9P3Dj3X+2A1XY9O1kcTk9HVqvLo+rppvQ==}
     peerDependencies:
       apexcharts: '> 3.0.0'
       vue: '> 3.0.0'
