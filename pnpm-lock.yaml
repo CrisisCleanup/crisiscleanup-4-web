@@ -19,7 +19,7 @@ dependencies:
     version: 6.5.2
   '@fortawesome/vue-fontawesome':
     specifier: ^3.0.6
-    version: 3.0.6(@fortawesome/fontawesome-svg-core@6.5.2)(vue@3.4.27)
+    version: 3.0.7(@fortawesome/fontawesome-svg-core@6.5.2)(vue@3.4.27)
   '@geoman-io/leaflet-geoman-free':
     specifier: ^2.15.0
     version: 2.16.0(leaflet@1.9.4)
@@ -1793,8 +1793,8 @@ packages:
       '@fortawesome/fontawesome-common-types': 6.5.2
     dev: false
 
-  /@fortawesome/vue-fontawesome@3.0.6(@fortawesome/fontawesome-svg-core@6.5.2)(vue@3.4.27):
-    resolution: {integrity: sha512-akrL7lTroyNpPkoHtvK2UpsMzJr6jXdHaQ0YdcwqDsB8jdwlpNHZYijpOUd9KJsARr+VB3WXY4EyObepqJ4ytQ==}
+  /@fortawesome/vue-fontawesome@3.0.7(@fortawesome/fontawesome-svg-core@6.5.2)(vue@3.4.27):
+    resolution: {integrity: sha512-VmkVXmqMoFnlz+2RszU4ZbJm39fB+Y+c+0PSIVis+Dj6ZWFuYIHO/yur3ha7IKb1x3G70FPMUvEtJDVB/x2ySw==}
     peerDependencies:
       '@fortawesome/fontawesome-svg-core': ~1 || ~6
       vue: '>= 3.0.0 < 4'
