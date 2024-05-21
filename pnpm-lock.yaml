@@ -480,7 +480,7 @@ devDependencies:
     version: 0.6.0(@typescript-eslint/parser@7.8.0)(typescript@5.4.5)(vue@3.4.27)
   unplugin-auto-import:
     specifier: ^0.17.5
-    version: 0.17.5(@vueuse/core@10.9.0)
+    version: 0.17.6(@vueuse/core@10.9.0)
   unplugin-icons:
     specifier: ^0.18.5
     version: 0.18.5
@@ -536,6 +536,10 @@ packages:
 
   /@antfu/utils@0.7.7:
     resolution: {integrity: sha512-gFPqTG7otEJ8uP6wrhDv6mqwGWYZKNvAcCq6u9hOj0c+IKCEsY4L1oC9trPq2SaWIzAfHvqfBDxF591JkMf+kg==}
+    dev: true
+
+  /@antfu/utils@0.7.8:
+    resolution: {integrity: sha512-rWQkqXRESdjXtc+7NRfK9lASQjpXJu1ayp7qi1d23zZorY+wBHVLHHoVcMsEnkqEBWTFqbztO7/QdJFzyEcLTg==}
     dev: true
 
   /@babel/code-frame@7.0.0:
@@ -8750,8 +8754,8 @@ packages:
     resolution: {integrity: sha512-ok6z3qlYyCDS4ZEU27HaU6x/xZa9Whf8jD4ptH5UZTQYZVYeb9bnZ3ojVhiJNLiXK1Hfc0GNbLXcmZ5plLDDBg==}
     engines: {node: '>=14'}
     dependencies:
-      mlly: 1.6.1
-      pkg-types: 1.1.0
+      mlly: 1.7.0
+      pkg-types: 1.1.1
     dev: true
 
   /localforage@1.10.0:
@@ -9039,6 +9043,15 @@ packages:
       acorn: 8.11.3
       pathe: 1.1.2
       pkg-types: 1.1.0
+      ufo: 1.5.3
+    dev: true
+
+  /mlly@1.7.0:
+    resolution: {integrity: sha512-U9SDaXGEREBYQgfejV97coK0UL1r+qnF2SyO9A3qcI8MzKnsIFKHNVEkrDyNncQTKQQumsasmeq84eNMdBfsNQ==}
+    dependencies:
+      acorn: 8.11.3
+      pathe: 1.1.2
+      pkg-types: 1.1.1
       ufo: 1.5.3
     dev: true
 
@@ -9675,6 +9688,14 @@ packages:
     dependencies:
       confbox: 0.1.7
       mlly: 1.6.1
+      pathe: 1.1.2
+    dev: true
+
+  /pkg-types@1.1.1:
+    resolution: {integrity: sha512-ko14TjmDuQJ14zsotODv7dBlwxKhUKQEhuhmbqo1uCi9BB0Z2alo/wAXg6q1dTR5TyuqYyWhjtfe/Tsh+X28jQ==}
+    dependencies:
+      confbox: 0.1.7
+      mlly: 1.7.0
       pathe: 1.1.2
     dev: true
 
@@ -11646,9 +11667,9 @@ packages:
       fast-glob: 3.3.2
       local-pkg: 0.5.0
       magic-string: 0.30.10
-      mlly: 1.6.1
+      mlly: 1.7.0
       pathe: 1.1.2
-      pkg-types: 1.1.0
+      pkg-types: 1.1.1
       scule: 1.3.0
       strip-literal: 1.3.0
       unplugin: 1.10.1
@@ -11665,8 +11686,8 @@ packages:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
 
-  /unplugin-auto-import@0.17.5(@vueuse/core@10.9.0):
-    resolution: {integrity: sha512-fHNDkDSxv3PGagX1wmKBYBkgaM4AKAgZmdJw/bxjhNljx9KSXSgHpGfX0MwUrq9qw6q1bhHIZVWyOwoY2koo4w==}
+  /unplugin-auto-import@0.17.6(@vueuse/core@10.9.0):
+    resolution: {integrity: sha512-dmX0Pex5DzMzVuALkexboOZvh51fL/BD6aoPO7qHoTYGlQp0GRKsREv2KMF1lzYI9SXKQiRxAjwzbQnrFFNydQ==}
     engines: {node: '>=14'}
     peerDependencies:
       '@nuxt/kit': ^3.2.2
@@ -11677,7 +11698,7 @@ packages:
       '@vueuse/core':
         optional: true
     dependencies:
-      '@antfu/utils': 0.7.7
+      '@antfu/utils': 0.7.8
       '@rollup/pluginutils': 5.1.0
       '@vueuse/core': 10.9.0(vue@3.4.27)
       fast-glob: 3.3.2
