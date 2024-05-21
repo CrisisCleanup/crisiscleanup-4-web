@@ -1285,6 +1285,7 @@ export default defineComponent({
     }
 
     function fitLocation(location: Location) {
+      console.log(location)
       mapUtils.value!.fitLocation(location);
     }
 
@@ -1292,21 +1293,7 @@ export default defineComponent({
       const { incident_center } = Incident.find(
         currentIncidentId.value,
       ) as Incident;
-      if (locationModels.length > 0) {
-        for (const location of locationModels) {
-          fitLocation(location);
-        }
-      } else {
-        const center = averageGeolocation(
-          mapUtils.value
-            ?.getPixiContainer()
-            ?.children.map((marker) => [marker.x, marker.y]),
-        );
-        if (center.latitude && center.longitude) {
-          mapUtils.value.getMap().setView([center.latitude, center.longitude], 6);
-        }
-      }
-      return [35.746_512_259_918_5, -96.411_509_631_256_56];
+      return [incident_center.coordinates[1], incident_center.coordinates[0]];
     }
 
     function goToIncidentCenter() {
