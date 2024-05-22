@@ -143,16 +143,16 @@ export default defineComponent({
     const allowedCallsString = computed(() => {
       switch (props.allowedCallType) {
         case AllowedCallType.BOTH: {
-          return t('~~Inbound and Outbound calls enabled');
+          return t('phoneDashboard.inbound_outbound');
         }
         case AllowedCallType.INBOUND_ONLY: {
-          return t('~~Inbound calls only');
+          return t('phoneDashboard.inbound_only');
         }
         case AllowedCallType.OUTBOUND_ONLY: {
-          return t('~~Outbound calls only');
+          return t('phoneDashboard.outbound_only');
         }
         default: {
-          return t('~~Inbound and Outbound calls enabled');
+          return t('phoneDashboard.inbound_outbound');
         }
       }
     });

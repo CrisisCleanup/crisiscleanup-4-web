@@ -93,19 +93,19 @@ export function useDashboardActionItems(
         timestamp: request.requested_at,
         actions: [
           {
-            title: i18n.global.t('~~Accept'),
+            title: i18n.global.t('actions.accept'),
             variant: 'solid',
             action: () =>
               InvitationRequest.api().acceptInvitationRequest(request),
           },
           {
-            title: i18n.global.t('~~Reject'),
+            title: i18n.global.t('actions.reject'),
             variant: 'outline',
             action: () =>
               InvitationRequest.api().rejectInvitationRequest(request),
           },
           {
-            title: i18n.global.t('~~Ignore'),
+            title: i18n.global.t('actions.ignore'),
             variant: 'outline',
             action: () =>
               InvitationRequest.api().archiveInvitationRequest(request),
@@ -125,17 +125,17 @@ export function useDashboardActionItems(
         timestamp: request.created_at,
         actions: [
           {
-            title: i18n.global.t('~~Accept'),
+            title: i18n.global.t('actions.accept'),
             variant: 'solid',
             action: () => WorksiteRequest.api().acceptRequest(request.id),
           },
           {
-            title: i18n.global.t('~~Reject'),
+            title: i18n.global.t('actions.reject'),
             variant: 'outline',
             action: () => WorksiteRequest.api().rejectRequest(request.id),
           },
           {
-            title: i18n.global.t('~~Ignore'),
+            title: i18n.global.t('actions.ignore'),
             variant: 'outline',
             action: () =>
               WorksiteRequest.api().archiveWorksiteRequest(request.id),

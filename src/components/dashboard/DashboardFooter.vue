@@ -16,7 +16,7 @@
     <div
       v-if="incidentsWithActiveHotline && incidentsWithActiveHotline.length > 0"
     >
-      <div class="font-bold mb-4">{{ $t('~~Hotlines') }}</div>
+      <div class="font-bold mb-4">{{ $t('disasters.hotlines') }}</div>
       <div
         v-for="incident in incidentsWithActiveHotline"
         :key="incident.id"
