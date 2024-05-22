@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center">
+  <div class="flex items-center justify-center md:mb-0 mb-10">
     <div
       v-if="loadingActionItems && !allDataLoaded"
       class="h-screen flex items-center justify-center"
@@ -8,7 +8,7 @@
     </div>
     <div v-else class="flex flex-col w-full">
       <header class="bg-white border p-6 flex items-center gap-3">
-        <h1 class="text-xl font-semibold">{{ $t('~~Default Dashboard') }}</h1>
+        <h1 class="text-xl font-semibold">{{ $t($route.name) }}</h1>
         <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
       </header>
 
@@ -44,7 +44,6 @@
           </section>
 
           <section class="col-span-3 bg-white md:col-span-1 lg:col-span-3">
-            <DownloadAppBanner />
             <router-view
               v-if="allDataLoaded"
               :current-incident-id="currentIncidentId"
@@ -73,7 +72,6 @@ import BaseButton from '@/components/BaseButton.vue';
 import { momentFromNow } from '@/filters';
 import { useCurrentIncident } from '@/hooks';
 import { useDashboardActionItems } from '@/hooks/useDashboardActionItems';
-import DownloadAppBanner from '@/components/dashboard/DownloadAppBanner.vue';
 import { useToast } from 'vue-toastification';
 import useNavigation from '@/hooks/useNavigation';
 import _ from 'lodash';
