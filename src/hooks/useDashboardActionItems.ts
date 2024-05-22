@@ -83,10 +83,10 @@ export function useDashboardActionItems(
     const items = [
       ...invitationRequests.value.map((request) => ({
         id: request.id,
-        description: i18n.global.t(`~~Join request to {organization}`, {
+        description: i18n.global.t(`dashboard.request_to_join_org`, {
           organization: request.requested_to_organization,
         }),
-        title: i18n.global.t('~~{requester} requested_access', {
+        title: i18n.global.t('dashboard.user_requested_access', {
           requester: `${request.first_name} ${request.last_name}`,
         }),
         type: 'InvitationRequest',
@@ -114,11 +114,11 @@ export function useDashboardActionItems(
       })),
       ...worksiteRequests.value.map((request) => ({
         id: request.id,
-        title: i18n.global.t('~~{requester} Requested Case {case_number}', {
+        title: i18n.global.t('dashboard.user_requested_case', {
           requester: request.requested_by_org.name,
           case_number: request.case_number,
         }),
-        description: i18n.global.t('~~Status: {status}', {
+        description: i18n.global.t('dashboard.request_status', {
           status: request.status,
         }),
         type: 'WorksiteRequest',

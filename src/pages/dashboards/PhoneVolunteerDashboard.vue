@@ -134,8 +134,8 @@ onMounted(async () => {
             $router.push('/phone?start=true');
           }
         "
-        :text="$t('~~Start taking calls →')"
-        :alt="$t('~~Start taking calls →')"
+        :text="$t('phoneDashboard.go_to_calls')"
+        :alt="$t('phoneDashboard.go_to_calls')"
       ></base-button>
       <div class="flex items-center justify-between mr-3">
         <div class="flex items-start justify-start">
@@ -180,7 +180,7 @@ onMounted(async () => {
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl w-full">
       <div>
-        <div class="text-lg font-semibold px-4">{{ $t('~~News') }}</div>
+        <div class="text-lg font-semibold px-4">{{ $t('phoneDashboard.news') }}</div>
         <PhoneCmsItems
           class="p-2 h-156"
           data-testid="testPhoneCmsItemsDiv"
@@ -191,22 +191,22 @@ onMounted(async () => {
       <div>
         <div>
           <div class="text-lg font-semibold px-4">
-            {{ $t('~~Phone Call Stats (stats delayed)') }}
+            {{ $t('phoneDashboard.stats') }}
           </div>
           <div class="m-2">
             <div
               class="stats-card flex items-center justify-center flex-col mb-2"
             >
               <div class="text-4xl">{{ callsWaiting }}</div>
-              <div>{{ $t('~~Remaining Calls') }}</div>
+              <div>{{ $t('phoneDashboard.remaining_calls') }}</div>
             </div>
             <div class="flex flex-wrap gap-2">
               <div class="stats-card w-full md:w-1/2">
-                <p>{{ $t('~~Volunteers Talking') }}</p>
+                <p>{{ $t('phoneDashboard.volunteers_talking') }}</p>
                 <p>{{ stats.active || 0 }}</p>
               </div>
               <div class="stats-card w-full md:w-1/2">
-                <p>{{ $t('~~Volunteers Online') }}</p>
+                <p>{{ $t('phoneDashboard.volunteers_online') }}</p>
                 <p>{{ stats.staffed || 0 }}</p>
               </div>
             </div>
@@ -215,11 +215,11 @@ onMounted(async () => {
         <div>
           <div class="flex items-center justify-between mt-8 px-4">
             <div class="text-lg font-semibold">
-              {{ $t('~~Invite Team Members') }}
+              {{ $t('usersVue.invite_new_user') }}
             </div>
             <base-button
               :action="showInvitationQrCode"
-              :text="$t('~~Show QR Code')"
+              :text="$t('actions.show_qr_code')"
               icon="qrcode"
               class="text-crisiscleanup-dark-blue"
             />
@@ -238,7 +238,7 @@ onMounted(async () => {
               "
             ></base-input>
 
-            {{ $t('~~Recently Active Users') }}
+            {{ $t('phoneDashboard.recently_active_users') }}
             <div class="max-h-156 overflow-auto">
               <div
                 v-for="user in recentUsers"
