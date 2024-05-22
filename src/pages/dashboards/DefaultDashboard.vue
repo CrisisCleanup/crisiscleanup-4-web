@@ -21,6 +21,7 @@ import useWorksiteMap from '@/hooks/worksite/useWorksiteMap';
 import { useCurrentIncident } from '@/hooks';
 import VolunteerChart from '@/components/dashboard/VolunteerChart.vue';
 import SimpleMap from '@/components/SimpleMap.vue';
+import DownloadAppBanner from '@/components/dashboard/DownloadAppBanner.vue';
 
 const props = defineProps({
   loadingActionItems: Boolean,
@@ -117,6 +118,7 @@ onMounted((loaded) => {
 </script>
 
 <template>
+  <DownloadAppBanner />
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6 p-8">
     <div>
       <h2 class="font-bold text-lg mb-3 flex justify-between">
