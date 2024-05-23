@@ -339,7 +339,7 @@ devDependencies:
     version: 1.44.1
   '@sentry/vite-plugin':
     specifier: ^2.16.1
-    version: 2.16.1
+    version: 2.17.0
   '@types/crypto-js':
     specifier: ^4.2.2
     version: 4.2.2
@@ -545,7 +545,7 @@ packages:
   /@babel/code-frame@7.0.0:
     resolution: {integrity: sha512-OfC2uemaknXr87bdLUkWog7nYuliM9Ij5HUcajsVcMCpQrcLmtxRbVFTIqmcSkSeYRBFBRxs2FiUqFJDLdiebA==}
     dependencies:
-      '@babel/highlight': 7.22.13
+      '@babel/highlight': 7.24.5
     dev: true
 
   /@babel/code-frame@7.24.2:
@@ -666,7 +666,7 @@ packages:
       '@babel/helper-optimise-call-expression': 7.22.5
       '@babel/helper-replace-supers': 7.22.20(@babel/core@7.23.5)
       '@babel/helper-skip-transparent-expression-wrappers': 7.22.5
-      '@babel/helper-split-export-declaration': 7.22.6
+      '@babel/helper-split-export-declaration': 7.24.5
       semver: 6.3.1
     dev: false
 
@@ -696,7 +696,7 @@ packages:
     resolution: {integrity: sha512-OErEqsrxjZTJciZ4Oo+eoZqeW9UIiOcuYKRJA4ZAgV9myA+pOXhhmpfNCKjEH/auVfEYVFJ6y1Tc4r0eIApqiw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/template': 7.22.15
+      '@babel/template': 7.24.0
       '@babel/types': 7.24.5
 
   /@babel/helper-hoist-variables@7.22.5:
@@ -810,13 +810,6 @@ packages:
     dependencies:
       '@babel/types': 7.24.5
 
-  /@babel/helper-split-export-declaration@7.22.6:
-    resolution: {integrity: sha512-AsUnxuLhRYsisFiaJwvp1QF+I3KjD5FOxut14q/GzovUe6orHLesW2C7d754kRm53h5gqrz6sFl6sxc4BVtE/g==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/types': 7.24.5
-    dev: false
-
   /@babel/helper-split-export-declaration@7.24.5:
     resolution: {integrity: sha512-5CHncttXohrHk8GWOFCcCl4oRD9fKosWlIRgWm4ql9VYioKm52Mk2xsmoohvm7f3JoiLSM5ZgJuRaf5QZZYd3Q==}
     engines: {node: '>=6.9.0'}
@@ -860,15 +853,6 @@ packages:
       '@babel/types': 7.24.5
     transitivePeerDependencies:
       - supports-color
-    dev: true
-
-  /@babel/highlight@7.22.13:
-    resolution: {integrity: sha512-C/BaXcnnvBCmHTpz/VGZ8jgtE2aYlW4hxDhseJAWZb7gqGM/qtCK6iZUb0TyKFf7BOUsBH7Q7fkRsDRhg1XklQ==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/helper-validator-identifier': 7.24.5
-      chalk: 2.4.2
-      js-tokens: 4.0.0
     dev: true
 
   /@babel/highlight@7.24.5:
@@ -1008,6 +992,7 @@ packages:
       '@babel/code-frame': 7.24.2
       '@babel/parser': 7.24.5
       '@babel/types': 7.24.5
+    dev: false
 
   /@babel/template@7.24.0:
     resolution: {integrity: sha512-Bkf2q8lMB0AFpX0NFEqSbx1OkTHf0f+0j82mkw+ZpzBnkk7e9Ql0891vlfgi+kHwOk8tQjiQHpqh4LaSa0fKEA==}
@@ -1016,7 +1001,6 @@ packages:
       '@babel/code-frame': 7.24.2
       '@babel/parser': 7.24.5
       '@babel/types': 7.24.5
-    dev: true
 
   /@babel/traverse@7.23.0:
     resolution: {integrity: sha512-t/QaEvyIoIkwzpiZ7aoSKK8kObQYeF7T2v+dazAYCb8SXtp58zEVkWW7zAnju8FNKNdr4ScAOEDmMItbyOmEYw==}
@@ -2975,8 +2959,8 @@ packages:
       '@sentry/utils': 7.112.2
     dev: false
 
-  /@sentry/babel-plugin-component-annotate@2.16.1:
-    resolution: {integrity: sha512-pJka66URsqQbk6hTs9H1XFpUeI0xxuqLYf9Dy5pRGNHSJMtfv91U+CaYSWt03aRRMGDXMduh62zAAY7Wf0HO+A==}
+  /@sentry/babel-plugin-component-annotate@2.17.0:
+    resolution: {integrity: sha512-njBWwVVFEb5SuGqk1KYiIcuKU3dEPuiaDN42hY72mfuQgeMR/RUZtibAQ5yu2Ii7yok6kewLe4OvztP2oP/IVQ==}
     engines: {node: '>= 14'}
     dev: true
 
@@ -2994,13 +2978,13 @@ packages:
       '@sentry/utils': 7.112.2
     dev: false
 
-  /@sentry/bundler-plugin-core@2.16.1:
-    resolution: {integrity: sha512-n6z8Ts3T9HROLuY7tVEYpBKvS+P7+b8NdqxP7QBcwp2nuPUlN5Ola1ivFjk1p5a7wRYeN9zM8orGe4l2HeNfYA==}
+  /@sentry/bundler-plugin-core@2.17.0:
+    resolution: {integrity: sha512-aIjCexNsB6DXtl/IngJcUxN7OalsyP5tS/4rqxj6pvqZbeg/7JMlMgy2nOOWsNhy+chX8swThS39dY8pCcEYLQ==}
     engines: {node: '>= 14'}
     dependencies:
       '@babel/core': 7.24.5
-      '@sentry/babel-plugin-component-annotate': 2.16.1
-      '@sentry/cli': 2.31.0
+      '@sentry/babel-plugin-component-annotate': 2.17.0
+      '@sentry/cli': 2.31.2
       dotenv: 16.4.5
       find-up: 5.0.0
       glob: 9.3.5
@@ -3011,16 +2995,16 @@ packages:
       - supports-color
     dev: true
 
-  /@sentry/cli-darwin@2.31.0:
-    resolution: {integrity: sha512-VM5liyxMnm4K2g0WsrRPXRCMLhaT09C7gK5Fz/CxKYh9sbMZB7KA4hV/3klkyuyw1+ECF1J66cefhNkFZepUig==}
+  /@sentry/cli-darwin@2.31.2:
+    resolution: {integrity: sha512-BHA/JJXj1dlnoZQdK4efRCtHRnbBfzbIZUKAze7oRR1RfNqERI84BVUQeKateD3jWSJXQfEuclIShc61KOpbKw==}
     engines: {node: '>=10'}
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@sentry/cli-linux-arm64@2.31.0:
-    resolution: {integrity: sha512-eENJTmXoFX3uNr8xRW7Bua2Sw3V1tylQfdtS85pNjZPdbm3U8wYQSWu2VoZkK2ASOoC+17YC8jTQxq62KWnSeQ==}
+  /@sentry/cli-linux-arm64@2.31.2:
+    resolution: {integrity: sha512-FLVKkJ/rWvPy/ka7OrUdRW63a/z8HYI1Gt8Pr6rWs50hb7YJja8lM8IO10tYmcFE/tODICsnHO9HTeUg2g2d1w==}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux, freebsd]
@@ -3028,8 +3012,8 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-linux-arm@2.31.0:
-    resolution: {integrity: sha512-AZoCN3waXEfXGCd3YSrikcX/y63oQe0Tiyapkeoifq/0QhI+2MOOrAQb60gthsXwb0UDK/XeFi3PaxyUCphzxA==}
+  /@sentry/cli-linux-arm@2.31.2:
+    resolution: {integrity: sha512-W8k5mGYYZz/I/OxZH65YAK7dCkQAl+wbuoASGOQjUy5VDgqH0QJ8kGJufXvFPM+f3ZQGcKAnVsZ6tFqZXETBAw==}
     engines: {node: '>=10'}
     cpu: [arm]
     os: [linux, freebsd]
@@ -3037,8 +3021,8 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-linux-i686@2.31.0:
-    resolution: {integrity: sha512-cQUFb3brhLaNSIoNzjU/YASnTM1I3TDJP9XXzH0eLK9sSopCcDcc6OrYEYvdjJXZKzFv5sbc9UNMsIDbh4+rYg==}
+  /@sentry/cli-linux-i686@2.31.2:
+    resolution: {integrity: sha512-A64QtzaPi3MYFpZ+Fwmi0mrSyXgeLJ0cWr4jdeTGrzNpeowSteKgd6tRKU+LVq0k5shKE7wdnHk+jXnoajulMA==}
     engines: {node: '>=10'}
     cpu: [x86, ia32]
     os: [linux, freebsd]
@@ -3046,8 +3030,8 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-linux-x64@2.31.0:
-    resolution: {integrity: sha512-z1zTNg91nZJRdcGHC/bCU1KwIaifV0MLJteip9KrFDprzhJk1HtMxFOS0+OZ5/UH21CjAFmg9Pj6IAGqm3BYjA==}
+  /@sentry/cli-linux-x64@2.31.2:
+    resolution: {integrity: sha512-YL/r+15R4mOEiU3mzn7iFQOeFEUB6KxeKGTTrtpeOGynVUGIdq4nV5rHow5JDbIzOuBS3SpOmcIMluvo1NCh0g==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux, freebsd]
@@ -3055,8 +3039,8 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-win32-i686@2.31.0:
-    resolution: {integrity: sha512-+K7fdk57aUd4CmYrQfDGYPzVyxsTnVro6IPb5QSSLpP03dL7ko5208epu4m2SyN/MkFvscy9Di3n3DTvIfDU2w==}
+  /@sentry/cli-win32-i686@2.31.2:
+    resolution: {integrity: sha512-Az/2bmW+TFI059RE0mSBIxTBcoShIclz7BDebmIoCkZ+retrwAzpmBnBCDAHow+Yi43utOow+3/4idGa2OxcLw==}
     engines: {node: '>=10'}
     cpu: [x86, ia32]
     os: [win32]
@@ -3064,8 +3048,8 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-win32-x64@2.31.0:
-    resolution: {integrity: sha512-w5cvpZ6VVlhlyleY8TYHmrP7g48vKHnoVt5xFccfxT+HqQI/AxodvzgVvBTM2kB/sh/kHwexp6bJGWCdkGftww==}
+  /@sentry/cli-win32-x64@2.31.2:
+    resolution: {integrity: sha512-XIzyRnJu539NhpFa+JYkotzVwv3NrZ/4GfHB/JWA2zReRvsk39jJG8D5HOmm0B9JA63QQT7Dt39RW8g3lkmb6w==}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [win32]
@@ -3073,8 +3057,8 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli@2.31.0:
-    resolution: {integrity: sha512-nCESoXAG3kRUO5n3QbDYAqX6RU3z1ORjnd7a3sqijYsCGHfOpcjGdS7JYLVg5if+tXMEF5529BPXFe5Kg/J9tw==}
+  /@sentry/cli@2.31.2:
+    resolution: {integrity: sha512-2aKyUx6La2P+pplL8+2vO67qJ+c1C79KYWAyQBE0JIT5kvKK9JpwtdNoK1F0/2mRpwhhYPADCz3sVIRqmL8cQQ==}
     engines: {node: '>= 10'}
     hasBin: true
     requiresBuild: true
@@ -3085,13 +3069,13 @@ packages:
       proxy-from-env: 1.1.0
       which: 2.0.2
     optionalDependencies:
-      '@sentry/cli-darwin': 2.31.0
-      '@sentry/cli-linux-arm': 2.31.0
-      '@sentry/cli-linux-arm64': 2.31.0
-      '@sentry/cli-linux-i686': 2.31.0
-      '@sentry/cli-linux-x64': 2.31.0
-      '@sentry/cli-win32-i686': 2.31.0
-      '@sentry/cli-win32-x64': 2.31.0
+      '@sentry/cli-darwin': 2.31.2
+      '@sentry/cli-linux-arm': 2.31.2
+      '@sentry/cli-linux-arm64': 2.31.2
+      '@sentry/cli-linux-i686': 2.31.2
+      '@sentry/cli-linux-x64': 2.31.2
+      '@sentry/cli-win32-i686': 2.31.2
+      '@sentry/cli-win32-x64': 2.31.2
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -3137,11 +3121,11 @@ packages:
       '@sentry/types': 7.112.2
     dev: false
 
-  /@sentry/vite-plugin@2.16.1:
-    resolution: {integrity: sha512-RSIyeqFG3PR5iJsZnagQxzOhM22z1Kh9DG+HQQsfVrxokzrWKRu/G17O2MIDh2I5iYEaL0Fkd/9RAXE4/b0aVg==}
+  /@sentry/vite-plugin@2.17.0:
+    resolution: {integrity: sha512-Zb/dz+8afIt9mFeYc9LclwZQDBUmlVe/FSo2os/jD/6DED21/NQZnPmMIvy2tIRxsa6yTDtBl2rfkNaQLuevsg==}
     engines: {node: '>= 14'}
     dependencies:
-      '@sentry/bundler-plugin-core': 2.16.1
+      '@sentry/bundler-plugin-core': 2.17.0
       unplugin: 1.0.1
     transitivePeerDependencies:
       - encoding
@@ -7780,6 +7764,18 @@ packages:
       minimatch: 9.0.4
       minipass: 7.1.1
       path-scurry: 1.11.1
+    dev: true
+
+  /glob@10.3.16:
+    resolution: {integrity: sha512-JDKXl1DiuuHJ6fVS2FXjownaavciiHNUU4mOvV/B793RLh05vZL1rcPnCSaOgv1hDT6RDlY7AB7ZUvFYAtPgAw==}
+    engines: {node: '>=16 || 14 >=14.18'}
+    hasBin: true
+    dependencies:
+      foreground-child: 3.1.1
+      jackspeak: 3.1.2
+      minimatch: 9.0.4
+      minipass: 7.1.1
+      path-scurry: 1.11.1
 
   /glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
@@ -8448,6 +8444,15 @@ packages:
 
   /jackspeak@2.3.6:
     resolution: {integrity: sha512-N3yCS/NegsOBokc8GAdM8UcmfsKiSS8cipheD/nivzr700H+nsMOxJjQnvwOcRYVuFkdH0wGUvW2WbXGmrZGbQ==}
+    engines: {node: '>=14'}
+    dependencies:
+      '@isaacs/cliui': 8.0.2
+    optionalDependencies:
+      '@pkgjs/parseargs': 0.11.0
+    dev: true
+
+  /jackspeak@3.1.2:
+    resolution: {integrity: sha512-kWmLKn2tRtfYMF/BakihVVRzBKOxz4gJMiL2Rj91WnAB5TPZumSH99R/Yf1qE1u4uRimvCSJfm6hnxohXeEXjQ==}
     engines: {node: '>=14'}
     dependencies:
       '@isaacs/cliui': 8.0.2
@@ -11118,7 +11123,7 @@ packages:
     dependencies:
       '@jridgewell/gen-mapping': 0.3.5
       commander: 4.1.1
-      glob: 10.3.15
+      glob: 10.3.16
       lines-and-columns: 1.2.4
       mz: 2.7.0
       pirates: 4.0.6
