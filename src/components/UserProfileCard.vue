@@ -6,7 +6,7 @@
       <img
         class="h-32 w-32 rounded-full my-5"
         :src="user.profilePictureUrl"
-        alt="User photo"
+        alt="profileUser.profile_picture"
       />
       <h1 class="text-lg font-semibold">{{ user.full_name }}</h1>
       <p class="text-gray-500">{{ user.highestRole.name_t }}</p>
@@ -24,15 +24,15 @@
     <a
       href="/profile"
       class="text-blue-500 hover:text-blue-700 transition duration-300 ease-in-out text-lg"
-      >{{ $t('~~View Profile →') }}</a
+      >{{ $t('actions.view_profile') }}</a
     >
     <div class="border-t py-4 w-full bg-crisiscleanup-light-smoke text-center">
       <p class="">
-        <span class="font-bold">{{ $t('~~Organization') }}</span>
+        <span class="font-bold">{{ $t('profileUser.your_organization') }}</span>
         {{ user.organization.name }}
       </p>
       <p class="">
-        <span class="font-bold">{{ $t('~~Languages') }}</span>
+        <span class="font-bold">{{ $t('profileUser.languages') }}</span>
         {{ user.languageNames }}
       </p>
     </div>

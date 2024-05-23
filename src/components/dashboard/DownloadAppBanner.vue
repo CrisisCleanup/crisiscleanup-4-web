@@ -14,14 +14,10 @@
     <div class="rounded-lg relative">
       <div class="p-6 ml-20">
         <h2 class="text-3xl font-bold mb-4">
-          {{ $t('~~Download the CC Mobile App') }}
+          {{ $t('dashboard.download_mobile_app') }}
         </h2>
         <p class="mb-4">
-          {{
-            $t(
-              '~~All the same features you need at your fingertips on your smartphone.',
-            )
-          }}
+          {{ $t('dashboard.mobile_app_features_no_data') }}
         </p>
         <div class="flex gap-4 mb-4">
           <div class="flex items-center gap-2">

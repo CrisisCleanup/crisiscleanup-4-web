@@ -122,10 +122,10 @@ onMounted((loaded) => {
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6 p-8">
     <div>
       <h2 class="font-bold text-lg mb-3 flex justify-between">
-        {{ $t('~~Disaster Map') }}
+        {{ $t('dashboard.disaster_map') }}
         <router-link :to="`/incident/${currentIncidentId}/work`"
           ><span class="text-crisiscleanup-dark-blue text-sm hover:underline">{{
-            $t('~~Go to Work Map →')
+            $t('actions.go_to_work_map')
           }}</span></router-link
         >
       </h2>
@@ -150,36 +150,36 @@ onMounted((loaded) => {
     class="grid md:grid-cols-6 grid-cols-3 gap-2 mt-10 p-8"
   >
     <div class="stats-card">
-      <p>{{ $t('~~Total Value') }}</p>
+      <p>{{ $t('dashboard.total_value') }}</p>
       <p>${{ nFormatter(dashboardStatistics.total_commercial_value) }}</p>
     </div>
     <div class="stats-card">
-      <p>{{ $t('~~Members Served') }}</p>
+      <p>{{ $t('dashboard.members_served') }}</p>
       <p>{{ dashboardStatistics.members_served }}</p>
     </div>
     <div class="stats-card">
-      <p>{{ $t('~~Total Claimed Cases') }}</p>
+      <p>{{ $t('dashboard.total_claimed_cases') }}</p>
       <p>{{ dashboardStatistics.total_claimed_cases }}</p>
     </div>
     <div class="stats-card">
-      <p>{{ $t('~~Total Closed Cases') }}</p>
+      <p>{{ $t('dashboard.total_closed_cases') }}</p>
       <p>{{ dashboardStatistics.total_closed_cases }}</p>
     </div>
     <div class="stats-card">
-      <p>{{ $t('~~Total Open Cases') }}</p>
+      <p>{{ $t('dashboard.total_open_cases') }}</p>
       <p>{{ dashboardStatistics.total_open_cases }}</p>
     </div>
     <div class="stats-card">
-      <p>{{ $t('~~Active Users Today') }}</p>
+      <p>{{ $t('dashboard.active_users_today') }}</p>
       <p>{{ dashboardStatistics.active_users_today }}</p>
     </div>
   </div>
   <div v-if="inboundWorksiteRequests.length > 0" class="p-8">
     <h2 class="font-bold text-base mt-10">
-      {{ $t('~~Case Transfer Requests') }}
+      {{ $t('dashboard.case_transfer_requests') }}
     </h2>
     <div v-if="inboundWorksiteRequests.length > 0">
-      <div>{{ $t('~~Inbound Requests') }}</div>
+      <div>{{ $t('dashboard.inbound_requests') }}</div>
       <div
         v-for="request in inboundWorksiteRequests"
         :key="request.id"
@@ -203,7 +203,7 @@ onMounted((loaded) => {
           </div>
         </div>
         <div class="text-xs text-gray-500">
-          {{ $t('~~Requested By') }}
+          {{ $t('dashboard.requested_by') }}
           <span class="text-crisiscleanup-dark-blue">{{
             request.requested_by_org.name
           }}</span>
@@ -214,14 +214,14 @@ onMounted((loaded) => {
             class="rounded-full"
             :action="() => acceptWorksiteRequest(request.id, fetchAllData)"
             size="small"
-            >{{ $t('~~Approve') }}
+            >{{ $t('actions.approve') }}
           </base-button>
           <base-button
             variant="outline"
             class="rounded-full"
             :action="() => rejectWorksiteRequest(request.id, fetchAllData)"
             size="small"
-            >{{ $t('~~Reject') }}
+            >{{ $t('actions.reject') }}
           </base-button>
         </div>
       </div>
@@ -230,7 +230,7 @@ onMounted((loaded) => {
     <!--              <a-->
     <!--                href="#"-->
     <!--                class="text-blue-500 hover:text-blue-700 transition duration-300 ease-in-out text-sm font-bold"-->
-    <!--                >{{ $t('~~View all transfer requests →') }}</a-->
+    <!--                >{{ $t('actions.view_all_transfer_requests') }}</a-->
     <!--              >-->
   </div>
   <div
@@ -241,16 +241,16 @@ onMounted((loaded) => {
       <div>
         <div class="text-lg font-semibold">
           {{
-            $t('~~{count} Open Cases', {
+            $t('dashboard.open_case_count', {
               count: claimedWorksites.length,
             })
           }}
         </div>
         <div class="text-sm opacity-75">
-          {{ $t('~~Please unclaim old cases and close finished cases') }}
+          {{ $t('dashboard.please_close_and_unclaim') }}
         </div>
         <div class="mt-4">
-          {{ $t('~~Oldest Claimed Cases') }}
+          {{ $t('dashboard.oldest_claimed_cases') }}
         </div>
         <div
           v-for="worksite in claimedWorksites"
@@ -279,7 +279,7 @@ onMounted((loaded) => {
             </div>
           </div>
           <div class="text-xs text-gray-500 col-span-4 justify-self-center">
-            {{ $t('~~Claimed') }}
+            {{ $t('dashboard.claimed') }}
             {{ moment(worksite.updated_at).format('M/D/YY') }}
           </div>
           <div class="flex gap-2 justify-end col-span-2">
@@ -288,7 +288,7 @@ onMounted((loaded) => {
               class="rounded-full"
               :action="() => unclaimAll(worksite)"
               size="small"
-              >{{ $t('~~Unclaim All') }}
+              >{{ $t('actions.unclaim_all') }}
             </base-button>
           </div>
         </div>
@@ -296,7 +296,7 @@ onMounted((loaded) => {
     </div>
     <div v-if="invitationRequests.length > 0">
       <div class="text-lg font-semibold">
-        {{ $t('~~New Invitation Requests') }}
+        {{ $t('dashboard.new_invitation_requests') }}
       </div>
       <div class="container mx-auto py-6 bg-white">
         <div class="space-y-4">
@@ -342,27 +342,27 @@ onMounted((loaded) => {
                 variant="primary"
                 class="rounded-full"
                 size="small"
-                >{{ $t('~~Approve') }}
+                >{{ $t('actions.approve') }}
               </base-button>
               <base-button
                 :action="() => rejectInvitationRequest(invite, fetchAllData)"
                 variant="outline"
                 size="small"
                 class="rounded-full"
-                >{{ $t('~~Reject') }}
+                >{{ $t('actions.reject') }}
               </base-button>
               <base-button
                 :action="() => archiveInvitationRequest(invite, fetchAllData)"
                 variant="outline"
                 size="small"
                 class="rounded-full"
-                >{{ $t('~~Ignore') }}
+                >{{ $t('actions.ignore') }}
               </base-button>
             </div>
           </div>
         </div>
         <!--                  <a href="#" class="text-blue-500 hover:underline mt-2">{{-->
-        <!--                    $t('~~View All Invitations →')-->
+        <!--                    $t('actions.view_all_invitations')-->
         <!--                  }}</a>-->
       </div>
     </div>

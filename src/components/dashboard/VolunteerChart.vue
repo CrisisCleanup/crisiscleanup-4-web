@@ -14,7 +14,7 @@
         <div class="font-bold">
           {{ chartData[0].velocity }}
         </div>
-        <div>Current Engagement</div>
+        <div>{{ $t('volunteerChart.current_engagement') }}</div>
       </div>
       <div
         class="p-5 text-white h-full flex-1 text-xl"
@@ -26,13 +26,13 @@
       >
         <div class="font-bold">{{ monthlyChange }}%</div>
         <div v-if="monthlyChange < 0">
-          {{ $t('~~Down from last month') }}
+          {{ $t('volunteerChart.down_from_last_month') }}
         </div>
         <div v-else-if="monthlyChange > 0">
-          {{ $t('~~Up from last month') }}
+          {{ $t('volunteerChart.up_from_last_month') }}
         </div>
         <div v-else>
-          {{ $t('~~No change from last month') }}
+          {{ $t('volunteerChart.no_change_from_last_month') }}
         </div>
       </div>
     </div>
@@ -40,7 +40,7 @@
   <div v-else>
     <div class="flex items-center justify-center h-84 w-108 opacity-50 text-xl">
       <div class="text-center">
-        {{ $t('~~No data available') }}
+        {{ $t('volunteerChart.no_data') }}
       </div>
     </div>
   </div>

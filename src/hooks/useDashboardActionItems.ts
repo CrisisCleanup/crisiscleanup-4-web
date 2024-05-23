@@ -83,29 +83,29 @@ export function useDashboardActionItems(
     const items = [
       ...invitationRequests.value.map((request) => ({
         id: request.id,
-        description: i18n.global.t(`~~Join request to {organization}`, {
+        description: i18n.global.t(`dashboard.request_to_join_org`, {
           organization: request.requested_to_organization,
         }),
-        title: i18n.global.t('~~{requester} requested_access', {
+        title: i18n.global.t('dashboard.user_requested_access', {
           requester: `${request.first_name} ${request.last_name}`,
         }),
         type: 'InvitationRequest',
         timestamp: request.requested_at,
         actions: [
           {
-            title: i18n.global.t('~~Accept'),
+            title: i18n.global.t('actions.accept'),
             variant: 'solid',
             action: () =>
               InvitationRequest.api().acceptInvitationRequest(request),
           },
           {
-            title: i18n.global.t('~~Reject'),
+            title: i18n.global.t('actions.reject'),
             variant: 'outline',
             action: () =>
               InvitationRequest.api().rejectInvitationRequest(request),
           },
           {
-            title: i18n.global.t('~~Ignore'),
+            title: i18n.global.t('actions.ignore'),
             variant: 'outline',
             action: () =>
               InvitationRequest.api().archiveInvitationRequest(request),
@@ -114,28 +114,28 @@ export function useDashboardActionItems(
       })),
       ...worksiteRequests.value.map((request) => ({
         id: request.id,
-        title: i18n.global.t('~~{requester} Requested Case {case_number}', {
+        title: i18n.global.t('dashboard.user_requested_case', {
           requester: request.requested_by_org.name,
           case_number: request.case_number,
         }),
-        description: i18n.global.t('~~Status: {status}', {
+        description: i18n.global.t('dashboard.request_status', {
           status: request.status,
         }),
         type: 'WorksiteRequest',
         timestamp: request.created_at,
         actions: [
           {
-            title: i18n.global.t('~~Accept'),
+            title: i18n.global.t('actions.accept'),
             variant: 'solid',
             action: () => WorksiteRequest.api().acceptRequest(request.id),
           },
           {
-            title: i18n.global.t('~~Reject'),
+            title: i18n.global.t('actions.reject'),
             variant: 'outline',
             action: () => WorksiteRequest.api().rejectRequest(request.id),
           },
           {
-            title: i18n.global.t('~~Ignore'),
+            title: i18n.global.t('actions.ignore'),
             variant: 'outline',
             action: () =>
               WorksiteRequest.api().archiveWorksiteRequest(request.id),

@@ -10,7 +10,7 @@
       class="my-3 flex flex-col items-center justify-center"
     >
       <div>
-        {{ $t('~~Stuck?') }}
+        {{ $t('spinner.stuck_refresh') }}
       </div>
       <base-button
         data-testid="testSpinnerResetButton"
@@ -18,7 +18,7 @@
         :action="resetStates"
         class="p-1"
       >
-        {{ $t('~~Reset User States') }}
+        {{ $t('actions.reset_user_states') }}
       </base-button>
     </div>
   </div>
