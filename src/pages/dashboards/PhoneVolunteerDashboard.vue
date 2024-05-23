@@ -180,7 +180,9 @@ onMounted(async () => {
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl w-full">
       <div>
-        <div class="text-lg font-semibold px-4">{{ $t('phoneDashboard.news') }}</div>
+        <div class="text-lg font-semibold px-4">
+          {{ $t('phoneDashboard.news') }}
+        </div>
         <PhoneCmsItems
           class="p-2 h-156"
           data-testid="testPhoneCmsItemsDiv"

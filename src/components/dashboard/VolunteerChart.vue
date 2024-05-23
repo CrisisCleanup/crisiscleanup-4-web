@@ -14,7 +14,7 @@
         <div class="font-bold">
           {{ chartData[0].velocity }}
         </div>
-        <div> {{ $t('volunteerChart.current_engagement') }}</div>
+        <div>{{ $t('volunteerChart.current_engagement') }}</div>
       </div>
       <div
         class="p-5 text-white h-full flex-1 text-xl"
