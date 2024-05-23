@@ -88,7 +88,7 @@ dependencies:
     version: 10.9.0(vue@3.4.27)
   '@vueuse/integrations':
     specifier: ^10.9.0
-    version: 10.9.0(axios@1.6.8)(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.3)(vue@3.4.27)
+    version: 10.9.0(axios@1.7.2)(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.3)(vue@3.4.27)
   '@vueuse/math':
     specifier: ^10.9.0
     version: 10.9.0(vue@3.4.27)
@@ -109,7 +109,7 @@ dependencies:
     version: 3.49.1
   axios:
     specifier: ^1.6.8
-    version: 1.6.8(debug@4.3.4)
+    version: 1.7.2(debug@4.3.4)
   bowser:
     specifier: ^2.11.0
     version: 2.11.0
@@ -3192,7 +3192,7 @@ packages:
       '@slack/types': 2.11.0
       '@types/is-stream': 1.1.0
       '@types/node': 20.12.12
-      axios: 1.6.8(debug@4.3.4)
+      axios: 1.7.2(debug@4.3.4)
       eventemitter3: 3.1.2
       form-data: 2.5.1
       is-electron: 2.2.2
@@ -3209,7 +3209,7 @@ packages:
     dependencies:
       '@slack/types': 2.11.0
       '@types/node': 20.12.12
-      axios: 1.6.8(debug@4.3.4)
+      axios: 1.7.2(debug@4.3.4)
     transitivePeerDependencies:
       - debug
     dev: true
@@ -5040,7 +5040,7 @@ packages:
       - '@vue/composition-api'
       - vue
 
-  /@vueuse/integrations@10.9.0(axios@1.6.8)(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.3)(vue@3.4.27):
+  /@vueuse/integrations@10.9.0(axios@1.7.2)(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.3)(vue@3.4.27):
     resolution: {integrity: sha512-acK+A01AYdWSvL4BZmCoJAcyHJ6EqhmkQEXbQLwev1MY7NBnS+hcEMx/BzVoR9zKI+UqEPMD9u6PsyAuiTRT4Q==}
     peerDependencies:
       async-validator: '*'
@@ -5083,7 +5083,7 @@ packages:
     dependencies:
       '@vueuse/core': 10.9.0(vue@3.4.27)
       '@vueuse/shared': 10.9.0(vue@3.4.27)
-      axios: 1.6.8(debug@4.3.4)
+      axios: 1.7.2(debug@4.3.4)
       fuse.js: 7.0.0
       jwt-decode: 4.0.0
       qrcode: 1.5.3
@@ -5587,8 +5587,8 @@ packages:
       - debug
     dev: false
 
-  /axios@1.6.8(debug@4.3.4):
-    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
+  /axios@1.7.2(debug@4.3.4):
+    resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
     dependencies:
       follow-redirects: 1.15.6(debug@4.3.4)
       form-data: 4.0.0
