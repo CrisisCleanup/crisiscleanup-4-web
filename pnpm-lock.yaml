@@ -333,7 +333,7 @@ devDependencies:
     version: 8.4.1
   '@iconify/json':
     specifier: ^2.2.212
-    version: 2.2.212
+    version: 2.2.213
   '@playwright/test':
     specifier: ^1.43.1
     version: 1.44.0
@@ -1842,8 +1842,8 @@ packages:
       lodash: 4.17.21
     dev: true
 
-  /@iconify/json@2.2.212:
-    resolution: {integrity: sha512-d1IXjpbSwk8V3C9D+mruRTJRPqZZpCnOWh9zyG/Zc5zJmPDLBEHNTKz+ZmeiJQ6LdzgjwLJai1WgFvt1HWVIPw==}
+  /@iconify/json@2.2.213:
+    resolution: {integrity: sha512-5tcEn+ZDoWlBXmlJidYjMsJyFXhXuVscbg7PRpaon86GqrDlwW/cl8mR682C06Oq4AfeypmfVI18YTnczwdqxA==}
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
