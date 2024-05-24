@@ -6,8 +6,10 @@
     <div class="flex gap-2 h-full">
       <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
         <div class="flex flex-col">
-          <div class="text-lg mb-2">{{ $t('chat.online_now') }}</div>
-          <div class="flex flex-col space-y-1">
+          <div class="text-lg mb-2">
+            {{ $t('chat.online_now') }} ({{ onlineUsers?.length }})
+          </div>
+          <div class="flex flex-col space-y-1 h-120 overflow-auto">
             <div
               v-for="user in onlineUsers"
               :key="user"
