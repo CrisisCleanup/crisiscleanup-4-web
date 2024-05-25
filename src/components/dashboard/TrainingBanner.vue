@@ -9,14 +9,10 @@
     <div class="rounded-lg relative">
       <div class="p-4 ml-5">
         <h2 class="text-2xl font-bold mb-2">
-          {{ $t('~~Training Available!') }}
+          {{ $t('dashboard.training_available') }}
         </h2>
         <p class="mb-4">
-          {{
-            $t(
-              '~~Visit the Training hub to learn how to get the most out of the CC platform. Videos are available to quickly up-skill you and your organization so you can get to helping survivors sooner.',
-            )
-          }}
+          {{ $t(dashboard.visit_training_page) }}
         </p>
         <base-button
           variant="solid"
@@ -27,7 +23,7 @@
             }
           "
         >
-          {{ $t('~~Go to Training') }}
+          {{ $t('actions.go_to_training') }}
         </base-button>
       </div>
     </div>
