@@ -60,7 +60,7 @@
         size="small"
         variant="outline"
       >
-        {{ $t('phoneDashboard.cancel') }}
+        {{ $t('actions.cancel') }}
       </base-button>
     </div>
   </form>
