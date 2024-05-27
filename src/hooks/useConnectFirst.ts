@@ -44,7 +44,9 @@ export default function useConnectFirst(context: {
   );
   const isInboundCall = computed(() => store.getters['phone/isInboundCall']);
   const isOutboundCall = computed(() => store.getters['phone/isOutboundCall']);
-
+  const isConnecting = computed(() => {
+    return isTransitioning.value || (isTakingCalls.value && !isOnCall.value);
+  });
   const callState = computed(() => store.getters['phone/callState']);
   const callType = computed(() => store.getters['phone/callType']);
   const call = computed(() => store.getters['phone/call']);
@@ -271,6 +273,7 @@ export default function useConnectFirst(context: {
     currentAgent,
     dialing,
     currentIncidentId,
+    currentIncident,
     loadAgent,
     setAvailable,
     setWorking,
@@ -294,6 +297,7 @@ export default function useConnectFirst(context: {
     isTransitioning,
     isInboundCall,
     isOutboundCall,
+    isConnecting,
     dialManualOutbound,
     hangUp,
     setCurrentIncidentId(id: string) {

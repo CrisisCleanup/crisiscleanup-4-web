@@ -382,7 +382,10 @@
             size="small"
             :action="() => selectCase(null)"
           />
-          <span class="px-1 mt-0.5">{{ $t('casesVue.new_case') }}</span>
+          <span class="px-1 mt-0.5"
+            >{{ $t('casesVue.new_case') }} -
+            {{ currentIncident?.short_name }}</span
+          >
         </div>
         <base-button
           v-if="$mq === 'sm'"
@@ -616,7 +619,10 @@
               size="small"
               :action="() => selectCase(null)"
             />
-            <span class="px-1 mt-0.5">{{ $t('casesVue.new_case') }}</span>
+            <span class="px-1 mt-0.5"
+              >{{ $t('casesVue.new_case') }} -
+              {{ currentIncident?.short_name }}</span
+            >
           </div>
           <base-button
             v-if="$mq === 'sm'"

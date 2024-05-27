@@ -6,9 +6,11 @@ import { useStorage } from '@vueuse/core/index';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import moment from 'moment';
+import useCurrentUser from '@/hooks/useCurrentUser';
 
 const question = ref<string>('');
 const { collections } = useRAGCollections();
+const { currentUser } = useCurrentUser();
 const collectionId = useStorage<string | undefined>(
   'rag:collectionId',
   undefined,
@@ -33,7 +35,7 @@ const collection = computed(() =>
   collections.value?.find((c) => c.uuid === collectionId.value),
 );
 
-const { history, submitQuestion, latestMessage, isStreamingMessage } = useRAG(
+const { history, submitQuestion } = useRAG(
   collectionId as Ref<string>,
   conversationId as Ref<string>,
 );
@@ -69,7 +71,13 @@ function formatDateTime(dateTime) {
               "
               class="p-2 rounded-lg"
             >
-              <div class="font-bold">{{ message.actor }}</div>
+              <div class="font-bold">
+                {{
+                  message.actor == 'user'
+                    ? currentUser?.full_name
+                    : 'Crisis Cleanup'
+                }}
+              </div>
               <div>{{ message.content }}</div>
               <div class="text-xs text-gray-500 mt-2">
                 {{ formatDateTime(message.createdAt) }}
@@ -87,7 +95,7 @@ function formatDateTime(dateTime) {
         <div class="flex flex-col gap-2">
           <base-input
             v-model="question"
-            :placeholder="$t('phoneFaqRag.type_question')"
+            :placeholder="$t('~~Ask any question')"
           />
           <base-button :action="sendMessage" variant="solid" class="p-2">
             {{ $t('actions.submit') }}
