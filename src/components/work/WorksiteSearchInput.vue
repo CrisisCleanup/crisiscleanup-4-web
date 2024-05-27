@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-center justify-start autocomplete">
+  <div
+    class="flex items-center justify-start autocomplete"
+    style="z-index: 9999"
+  >
     <div class="relative w-full">
       <base-input
         :model-value="value"
