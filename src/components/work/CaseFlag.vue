@@ -529,6 +529,44 @@ export default defineComponent({
       }
     }
 
+    whenever(
+      () => currentFlag.value.reason_t === 'flag.worksite_wrong_incident',
+      async () => {
+        console.log('Wrong incident selected, loading incidents...');
+        await loadIncidents();
+      },
+    );
+    whenever(
+      () => currentFlag.value.reason_t === 'flag.worksite_high_priority',
+      async () => {
+        console.log('High Priority selected, loading orgs...');
+        await loadOrganizations();
+      },
+    );
+
+    async function loadIncidents() {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/incidents?fields=id,name,start_at&move_case=true&limit=200&ordering=-start_at`,
+        {
+          save: false,
+        },
+      );
+      incidents.value = orderBy(response.data.results, ['start_at'], ['desc']);
+    }
+
+    async function loadOrganizations() {
+      const organizationResults = await Organization.api().get(
+        `/organizations?nearby_claimed=${worksite.value.longitude},${worksite.value.latitude}`,
+        {
+          dataKey: 'results',
+        },
+      );
+      organizationsWithClaimsInArea.value =
+        organizationResults.entities.organizations;
+    }
+
     onMounted(async () => {
       ready.value = false;
       try {
@@ -548,25 +586,11 @@ export default defineComponent({
       if (route.query.showOnMap) {
         emit('jumpToCase', props.worksiteId || route.params.id);
       }
-
-      const organizationResults = await Organization.api().get(
-        `/organizations?nearby_claimed=${worksite.value.longitude},${worksite.value.latitude}`,
-        {
-          dataKey: 'results',
-        },
-      );
-      organizationsWithClaimsInArea.value =
-        organizationResults.entities.organizations;
-
-      const response = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/incidents?fields=id,name,start_at&move_case=true&limit=200&ordering=-start_at`,
-        {
-          save: false,
-        },
-      );
-      incidents.value = orderBy(response.data.results, ['start_at'], ['desc']);
+      Promise.all([loadIncidents(), loadOrganizations()])
+        .then(() => {
+          console.info('lazy loaded incidents and orgs');
+        })
+        .catch((error) => console.error('Error fetching', error));
     });
 
     return {
