@@ -116,6 +116,8 @@ const phoneNumberToDial = ref('');
 const endCall = () => {
   hangUp();
 };
+const currentCallStart = ref<Date | null>(null);
+const hasCallEnded = ref(false);
 
 const showCompleteCall = () => {
   showCompleteCallScreen.value = true;
@@ -128,6 +130,7 @@ const completeCall = (payload) => {
   showCompleteCallScreen.value = false;
   expanded.value = false;
   currentView.value = '';
+  hasCallEnded.value = false;
 };
 
 const onCancelCompleteCall = () => {
@@ -162,6 +165,19 @@ watch(
   (newValue) => {
     if (newValue) {
       currentView.value = '';
+      expanded.value = true;
+    }
+  },
+);
+
+watch(
+  () => connectFirst.isOnCall.value,
+  (newValue) => {
+    if (newValue) {
+      currentCallStart.value = new Date();
+    } else {
+      currentCallStart.value = null;
+      hasCallEnded.value = true;
     }
   },
 );
@@ -176,17 +192,13 @@ function pad(number) {
 
 // Define a function to update the elapsed time
 const updateElapsedTime = () => {
-  if (!isOnCall.value || !call.value) {
+  if (!isOnCall.value || !call.value || !currentCallStart.value) {
     return;
   }
 
-  // Remove the 'Z' to prevent automatic conversion to UTC and parse as local time
-  const localTimeStr = call.value.call_at.slice(0, -1);
-  const callAtLocal = new Date(localTimeStr);
-
   // Calculate the difference in milliseconds
   const nowLocal = new Date();
-  const diff = nowLocal - callAtLocal;
+  const diff = nowLocal - currentCallStart.value;
 
   // Convert milliseconds into hours, minutes, and seconds
   const diffSeconds = Math.floor(diff / 1000);
@@ -292,7 +304,7 @@ const {
                     {{ $t('phoneDashboard.outbound_call') }}
                   </div>
                 </div>
-                <div v-else data-testid="testIsCompletedDiv">
+                <div v-else-if="hasCallEnded" data-testid="testIsCompletedDiv">
                   {{ $t('phoneDashboard.call_ended') }}
                 </div>
                 <span class="font-bold">{{ caller.dnis }}</span>

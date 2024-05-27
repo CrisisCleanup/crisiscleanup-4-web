@@ -122,6 +122,7 @@ export default class PhoneService {
   async onNewCall(info: any) {
     // Log.debug('callinfo: ', info);
     const currentUserStore = useCurrentUser();
+    const { emitter } = useEmitter();
     const currentUser = currentUserStore.currentUser.value;
     this.callInfo = info;
     let state = null;
@@ -159,10 +160,7 @@ export default class PhoneService {
         await Incident.api().fetchById(response.data.incident_id[0]);
         const { updateUserStates } = useCurrentUser();
         await updateUserStates({ incident: response.data.incident_id[0] });
-        this.store.commit(
-          'incident/setCurrentIncidentId',
-          response.data.incident_id[0],
-        );
+        emitter.emit('update:incident', response.data.incident_id[0]);
       } catch {
         // Log.debug('Error requesting incident access: ', error);
       }
@@ -179,7 +177,6 @@ export default class PhoneService {
     const [caller] = dnisResponse.data.results;
     this.store.commit('phone/setCaller', caller);
 
-    const { emitter } = useEmitter();
     emitter.emit('phone_component:close');
     emitter.emit('phone_component:open', 'caller');
   }
