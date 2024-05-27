@@ -529,21 +529,6 @@ export default defineComponent({
       }
     }
 
-    whenever(
-      () => currentFlag.value.reason_t === 'flag.worksite_wrong_incident',
-      async () => {
-        console.log('Wrong incident selected, loading incidents...');
-        await loadIncidents();
-      },
-    );
-    whenever(
-      () => currentFlag.value.reason_t === 'flag.worksite_high_priority',
-      async () => {
-        console.log('High Priority selected, loading orgs...');
-        await loadOrganizations();
-      },
-    );
-
     async function loadIncidents() {
       const response = await axios.get(
         `${
