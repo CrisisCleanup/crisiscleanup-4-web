@@ -420,13 +420,13 @@ export default defineComponent({
     const $toasted = useToast();
 
     const flagTypes = [
-      'flag.worksite_high_priority',
-      'flag.worksite_upset_client',
-      'flag.worksite_mark_for_deletion',
-      'flag.worksite_abuse',
-      'flag.duplicate',
-      'flag.worksite_wrong_location',
       'flag.worksite_wrong_incident',
+      'flag.worksite_wrong_location',
+      'flag.worksite_high_priority',
+      'flag.duplicate',
+      'flag.worksite_mark_for_deletion',
+      'flag.worksite_upset_client',
+      'flag.worksite_abuse',
     ].map((key) => {
       return { key, label: t(key) };
     });
