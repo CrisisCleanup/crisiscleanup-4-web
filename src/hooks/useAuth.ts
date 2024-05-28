@@ -62,6 +62,19 @@ interface AuthorizedToken {
   application: number;
 }
 
+interface OtpRequestResponse {
+  message: string;
+}
+
+interface OtpVerificationResponse {
+  accounts: Array<{
+    id: number;
+    email: string;
+    organization: string;
+  }>;
+  otp_id: number;
+}
+
 /**
  * Build oauth2 authorization url.
  * @param props Authorize props.
@@ -550,6 +563,52 @@ const authStore = () => {
     authState.status = AuthStatus.LOGOUT;
   };
 
+  const requestOtp = async (phoneNumber: string) => {
+    const response = await authInstance.post('/otp', {
+      phone_number: phoneNumber,
+    });
+    return response.data as OtpRequestResponse;
+  };
+
+  const verifyOtp = async (phoneNumber: string, otp: string) => {
+    const response = await authInstance.post('/otp/verify', {
+      phone_number: phoneNumber,
+      otp: otp,
+    });
+    return response.data as OtpVerificationResponse;
+  };
+
+  const generateTokenWithOtp = async (userId: number, otpId: number) => {
+    const response = await authInstance.post('/otp/generate_token', {
+      user: userId,
+      otp_id: otpId,
+    });
+    return response.data as TokenResponse;
+  };
+
+  const loginWithOtp = async (phoneNumber: string, otp: string) => {
+    const verifyResponse = await verifyOtp(phoneNumber, otp);
+    if (!verifyResponse.otp_id) {
+      throw new Error('OTP verification failed.');
+    }
+    const tokenResponse = await generateTokenWithOtp(
+      verifyResponse.accounts[0].id,
+      verifyResponse.otp_id,
+    );
+    if (!tokenResponse.access_token) {
+      throw new Error('Failed to generate token with OTP.');
+    }
+    authState.accessToken = tokenResponse.access_token;
+    authState.accessTokenExpiry = moment().add(
+      tokenResponse.expires_in - 100,
+      'seconds',
+    );
+    authState.refreshToken = tokenResponse.refresh_token;
+    authState.userId = verifyResponse.accounts[0].id;
+    authState.status = AuthStatus.AUTHENTICATED;
+    await getMe();
+  };
+
   const loginWithMagicLinkToken = async (token: string, logout = false) => {
     if (logout) {
       await authInstance.post('/logout/', undefined, {
@@ -578,6 +637,8 @@ const authStore = () => {
     currentUserId,
     currentAccessToken,
     loginWithMagicLinkToken,
+    requestOtp,
+    loginWithOtp,
   };
 };
 
