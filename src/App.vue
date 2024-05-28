@@ -192,6 +192,9 @@ $dp__input_padding: 11px 12px !default;
   filter: invert(92%) sepia(21%) saturate(3995%) hue-rotate(346deg)
     brightness(98%) contrast(106%);
 }
+.filter-black {
+  filter: invert(100%) saturate(0%);
+}
 
 /*
  * Converts white icon to ccu primary color
