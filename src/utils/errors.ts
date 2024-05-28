@@ -49,7 +49,7 @@ export function getErrorMessage(error: any): string {
   return error.message ?? t('info.unknown_error');
 }
 
-function handleBadRequest(data: Record<string, any>): string {
+function handleBadRequest(data: any): string {
   // Assuming 'data.errors' is an array of error objects
   if (data.errors && Array.isArray(data.errors)) {
     return data.errors
@@ -58,6 +58,9 @@ function handleBadRequest(data: Record<string, any>): string {
         return `${field}${e.message}`;
       })
       .join('\n');
+  }
+  if (typeof data === 'string') {
+    return data;
   }
   debug('Fallback bad request %o', data);
   return data.error ?? data.message ?? i18n.global.t('info.error_400');
