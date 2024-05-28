@@ -9,7 +9,7 @@
       :initials="message.full_name"
       :url="getUserAvatarLink(message?.full_name ?? '')"
       data-testid="testAvatarIcon"
-      size="xsmall"
+      :custom-size="{ width: '40px', height: '40px' }"
       inner-classes="shadow"
     />
     <div class="relative flex justify-between w-full">
