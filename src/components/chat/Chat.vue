@@ -5,29 +5,46 @@
     </div>
     <div class="flex gap-2 h-full">
       <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
-        <div class="flex flex-col">
-          <div class="text-lg mb-2">
-            {{ $t('chat.online_now') }} ({{ onlineUsers?.length }})
-          </div>
-          <div class="flex flex-col space-y-1 h-120 overflow-auto">
+        <div class="text-lg mb-2">
+          {{ $t('chat.online_now') }} ({{ onlineUsersWithData?.length }})
+        </div>
+        <div>
+          <div
+            v-for="organization in sortedOrganizations"
+            :key="organization.id"
+            class="organization-group"
+          >
             <div
-              v-for="user in onlineUsers"
-              :key="user"
-              class="flex items-center space-x-2 w-full"
+              class="organization-header flex items-center cursor-pointer"
+              @click="toggleOrganization(organization.id)"
             >
-              <Avatar
-                v-if="getUser(user)"
-                :initials="getUser(user).first_name"
-                :url="
-                  getUser(user).profilePictureUrl
-                    ? getUser(user).profilePictureUrl
-                    : getUserAvatarLink(getUser(user)?.first_name ?? '')
-                "
-                data-testid="testAvatarIcon"
-                size="xsmall"
-                inner-classes="shadow"
-              />
-              <UserDetailsTooltip :user="user" />
+              <span class="arrow" :class="{ open: isOpen(organization.id) }"
+                >▼</span
+              >
+              <span class="organization-name"
+                >{{ organization.name }} ({{ organization.users.length }})</span
+              >
+            </div>
+            <div v-if="isOpen(organization.id)" class="users-list">
+              <div
+                v-for="user in organization.users"
+                :key="user.id"
+                class="flex items-center space-x-2 w-full"
+              >
+                <Avatar
+                  v-if="user"
+                  :initials="user.first_name"
+                  :url="
+                    user.profilePictureUrl
+                      ? user.profilePictureUrl
+                      : getUserAvatarLink(user.first_name)
+                  "
+                  data-testid="testAvatarIcon"
+                  :custom-size="{ width: '40px', height: '40px' }"
+                  inner-classes="shadow"
+                />
+                <UserDetailsTooltip :user="user.id" />
+              </div>
             </div>
           </div>
         </div>
@@ -215,6 +232,56 @@ export default defineComponent({
       currentMessages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
       return _.uniqWith(currentMessages, _.isEqual);
     });
+
+    const expandedOrganizations = ref<{ [key: number]: boolean }>({});
+
+    const onlineUsersWithData = computed(() => {
+      return onlineUsers.value
+        .map((id) => getUser(id))
+        .filter((user) => user !== null);
+    });
+    const groupedByOrganization = computed(() => {
+      const grouped: { [key: number]: any } = {};
+      for (const user of onlineUsersWithData.value) {
+        if (user.organization) {
+          const orgId = user.organization.id;
+          if (!grouped[orgId]) {
+            grouped[orgId] = {
+              id: orgId,
+              name: user.organization.name,
+              users: [],
+            };
+          }
+          grouped[orgId].users.push(user);
+        }
+      }
+      return Object.values(grouped);
+    });
+
+    const sortedOrganizations = computed(() => {
+      return [...groupedByOrganization.value]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((org) => {
+          org.users.sort((a, b) => a.last_name.localeCompare(b.last_name));
+          return org;
+        });
+    });
+    watch(sortedOrganizations, (sortedOrgs) => {
+      for (const org of sortedOrgs) {
+        // Automatically expand groups with 3 or fewer users
+        if (org.users.length <= 3) {
+          expandedOrganizations.value[org.id] = true;
+        }
+      }
+    });
+
+    const toggleOrganization = (orgId: number) => {
+      expandedOrganizations.value[orgId] = !expandedOrganizations.value[orgId];
+    };
+
+    const isOpen = (orgId: number) => {
+      return expandedOrganizations.value[orgId];
+    };
 
     async function searchMessages() {
       searchLoading.value = false;
@@ -431,6 +498,10 @@ export default defineComponent({
       searchResults,
       onlineUsers,
       getUser,
+      onlineUsersWithData,
+      sortedOrganizations,
+      toggleOrganization,
+      isOpen,
     };
   },
   methods: { getUserAvatarLink },
@@ -438,6 +509,32 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.organization-group {
+  margin-bottom: 1rem;
+}
+
+.organization-header {
+  display: flex;
+  align-items: center;
+}
+
+.organization-name {
+  margin-left: 0.5rem;
+}
+
+.arrow {
+  transition: transform 0.3s;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.users-list {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
 .scrollbar-w-2::-webkit-scrollbar {
   width: 0.25rem;
   height: 0.25rem;
