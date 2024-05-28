@@ -19,6 +19,7 @@ const BlogPost = () => import('@/pages/unauthenticated/BlogPost.vue');
 
 const MagicLinkLogin = () =>
   import('@/pages/unauthenticated/MagicLinkLogin.vue');
+const OtpLogin = () => import('@/pages/unauthenticated/OtpLogin.vue');
 
 const routes = [
   {
@@ -49,6 +50,12 @@ const routes = [
     path: '/l/:token',
     component: MagicLinkLogin,
     name: 'nav.magic_link_login',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/otp-login',
+    component: OtpLogin,
+    name: 'nav.otp_login',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {
