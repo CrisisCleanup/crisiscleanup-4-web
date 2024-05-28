@@ -95,6 +95,7 @@
             class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
             type="sticky-note-solid"
           />
+
           <template #popper>
             <AddToList
               class="p-1.5"
@@ -104,6 +105,7 @@
             />
           </template>
         </v-popover>
+
         <ccu-icon
           :alt="$t('actions.flag')"
           data-testid="testFlagIcon"
@@ -162,6 +164,16 @@
           size="small"
           type="edit"
           @click="$emit('onEditCase')"
+        />
+        <ccu-icon
+          v-if="!isViewingWorksite && canEdit"
+          data-testid="testExitEditIcon"
+          :alt="$t('~~Exit Edit')"
+          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
+          size="small"
+          icon-classes="filter-black scale-150"
+          type="cases"
+          @click="$emit('onExitEditCase')"
         />
       </div>
     </div>

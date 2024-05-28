@@ -797,6 +797,15 @@
               );
             }
           "
+          @on-exit-edit-case="
+            () => {
+              isViewing = true;
+              isEditing = false;
+              router.push(
+                `/incident/${currentIncidentId}/work/${worksite?.id}`,
+              );
+            }
+          "
           @on-show-history="
             () => {
               showFlags = false;
