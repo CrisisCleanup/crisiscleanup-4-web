@@ -1,40 +1,66 @@
 import * as Sentry from '@sentry/vue';
 import { i18n } from '@/modules/i18n';
 import { useToast } from 'vue-toastification';
+import { AxiosError } from 'axios';
+import createDebug from 'debug';
 
-export function getErrorMessage(error: any) {
+const debug = createDebug('@ccu:utils:errors');
+
+export function getErrorMessage(error: any): string {
+  debug('getErrorMessage %o', error);
+
+  // Capture all errors with Sentry
   Sentry.captureException(error);
   const t = i18n.global.t;
-  if (!error.response || !error.response.status) {
-    return t('info.unknown_error');
-  }
-  if (error.response.status === 404) {
-    return t('info.error_404');
-  }
-  if (error.response.status === 500) {
-    // capture 500s
-    Sentry.captureException(error);
-    return t('info.error_500');
-  }
-
-  const _errors = error.response.data.errors as Array<Record<string, string>>;
-  const message = Array.isArray(_errors[0])
-    ? _errors[0].message[0]
-    : _errors[0].message;
-
-  if (error.response.status === 400) {
-    // Show the error field, unless it is 'non_field_errors'
-    let response = '';
-    for (const e of _errors) {
-      let { field } = e;
-      field = field === 'non_field_errors' ? '' : `${field}: `;
-      response = `${response}${field}${e.message}`;
+  // Handle Axios errors
+  if (error instanceof AxiosError) {
+    if (error.response) {
+      const { data, status } = error.response;
+      // Handle specific status codes
+      switch (status) {
+        case 400: {
+          debug('Handling bad request %o', { data, status });
+          return handleBadRequest(data);
+        }
+        case 404: {
+          return t('info.error_404');
+        }
+        case 500: {
+          return t('info.error_500');
+        }
+        default: {
+          debug('Handling default case %o', { data, status });
+          return (
+            data?.error ??
+            data?.message ??
+            error.message ??
+            t('info.unknown_error')
+          );
+        }
+      }
+    } else {
+      // Error related to setting up the request
+      debug('Fallback network error %o', error);
+      return error.message ?? t('info.network_error');
     }
-
-    return response;
   }
+  // Fallback for non-Axios errors
+  debug('Fallback %o', error);
+  return error.message ?? t('info.unknown_error');
+}
 
-  return message;
+function handleBadRequest(data: Record<string, any>): string {
+  // Assuming 'data.errors' is an array of error objects
+  if (data.errors && Array.isArray(data.errors)) {
+    return data.errors
+      .map((e: any) => {
+        const field = e.field === 'non_field_errors' ? '' : `${e.field}: `;
+        return `${field}${e.message}`;
+      })
+      .join('\n');
+  }
+  debug('Fallback bad request %o', data);
+  return data.error ?? data.message ?? i18n.global.t('info.error_400');
 }
 
 export function getAndToastErrorMessage(error: any) {
