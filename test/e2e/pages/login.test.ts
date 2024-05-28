@@ -118,6 +118,7 @@ test.describe('LoginPage', () => {
         'testRequestPasswordResetLink',
         'testLoginButton',
         'testRequestAccessButton',
+        'testNeedHelpCleaningUp',
         'testAwsLink',
         'testAwsImgIcon',
         'testGlobeIcon',
