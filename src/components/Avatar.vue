@@ -1,5 +1,5 @@
 <template>
-  <div :class="classes">
+  <div :class="classes" :style="customStyle">
     <div
       class="rounded-full w-full h-full overflow-hidden text-center bg-purple flex cursor-pointer"
       :class="innerClasses"
@@ -25,6 +25,11 @@ import useCurrentUser from '../hooks/useCurrentUser';
 
 type AvatarSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xl';
 
+interface CustomSize {
+  width: string;
+  height: string;
+}
+
 export default defineComponent({
   name: 'Avatar',
   props: {
@@ -44,17 +49,32 @@ export default defineComponent({
       type: String,
       default: 'shadow-inner',
     },
+    customSize: {
+      type: Object as PropType<CustomSize>,
+      default: null,
+    },
   },
   setup(props) {
     const { currentUser } = useCurrentUser();
+
     const classes = computed(() => {
       return {
-        [props.size]: true,
+        [props.size]: !props.customSize,
       };
+    });
+
+    const customStyle = computed(() => {
+      return props.customSize
+        ? {
+            width: props.customSize.width,
+            height: props.customSize.height,
+          }
+        : {};
     });
 
     return {
       classes,
+      customStyle,
       currentUser,
     };
   },
