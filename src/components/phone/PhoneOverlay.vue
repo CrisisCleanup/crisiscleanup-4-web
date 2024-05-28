@@ -290,35 +290,50 @@ const {
           >
             <div class="flex justify-between items-center">
               <div class="flex gap-3 items-center">
-                <div v-if="isConnecting" data-testid="testIsConnectingDiv">
-                  {{ $t('phoneDashboard.connecting') }}
-                </div>
-                <div v-else-if="isOnCall" data-testid="testIsOnCallDiv">
-                  <div v-if="isInboundCall" data-testid="testIsInboundCallDiv">
-                    {{ $t('phoneDashboard.inbound_call') }}
+                <div class="flex flex-col item-center">
+                  <div v-if="isConnecting" data-testid="testIsConnectingDiv">
+                    {{ $t('phoneDashboard.connecting') }}
+                  </div>
+                  <div v-else-if="isOnCall" data-testid="testIsOnCallDiv">
+                    <div
+                      v-if="isInboundCall"
+                      data-testid="testIsInboundCallDiv"
+                    >
+                      {{ $t('phoneDashboard.inbound_call') }}
+                    </div>
+                    <div
+                      v-if="isOutboundCall"
+                      data-testid="testIsOutboundCallDiv"
+                    >
+                      {{ $t('phoneDashboard.outbound_call') }}
+                    </div>
                   </div>
                   <div
-                    v-if="isOutboundCall"
-                    data-testid="testIsOutboundCallDiv"
+                    v-else-if="hasCallEnded"
+                    data-testid="testIsCompletedDiv"
                   >
-                    {{ $t('phoneDashboard.outbound_call') }}
+                    {{ $t('phoneDashboard.call_ended') }}
+                  </div>
+                  <div class="flex gap-1">
+                    <span class="font-bold">{{ caller.dnis }}</span>
+                    <font-awesome-icon
+                      :icon="['fas', 'copy']"
+                      class="cursor-pointer"
+                      @click="() => copy(caller.dnis)"
+                    />
                   </div>
                 </div>
-                <div v-else-if="hasCallEnded" data-testid="testIsCompletedDiv">
-                  {{ $t('phoneDashboard.call_ended') }}
-                </div>
-                <span class="font-bold">{{ caller.dnis }}</span>
-                <font-awesome-icon
-                  :icon="['fas', 'copy']"
-                  class="ml-3 cursor-pointer"
-                  @click="() => copy(caller.dnis)"
-                />
-                <span class="ml-3 font-light">
+
+                <span
+                  class="ml-3 font-light break-words text-xs sm:text-sm lg:text-base"
+                >
                   {{ caller.location_name }} {{ caller.state_name }}
                 </span>
+
                 <span class="ml-6 font-light">{{ formattedElapsedTime }}</span>
               </div>
-              <div class="flex items-center gap-4">
+
+              <div class="flex items-center">
                 <base-button
                   class="p-1"
                   :action="() => (expanded = !expanded)"
@@ -327,14 +342,14 @@ const {
                 />
                 <base-button
                   v-if="isOnCall"
-                  class="p-1 text-black"
+                  class="p-1 text-black text-sm"
                   variant="solid"
                   :action="endCall"
                   :text="$t('actions.end_call')"
                 />
                 <base-button
                   v-else
-                  class="p-1 text-black"
+                  class="p-1 text-black text-sm"
                   variant="solid"
                   :action="showCompleteCall"
                 >
@@ -582,7 +597,8 @@ const {
             <div v-if="isOnCall" class="bg-blue">
               <div
                 :class="isOnCall"
-                class="h-12 flex items-center justify-center pulse bg-crisiscleanup-green-900"
+                class="h-12 flex items-center justify-center"
+                style="background: #358816"
               >
                 <BaseText class="font-bold text-white">
                   {{ $t('phoneDashboard.current_call') }} 00:00:00
