@@ -391,7 +391,7 @@ const {
                 ></ManualDialer>
               </div>
 
-              <zoom v-if="currentView === 'zoom'">
+              <div v-if="currentView === 'zoom'">
                 <div
                   class="h-[calc(100vh-13rem)]"
                   style="
@@ -432,7 +432,7 @@ const {
                     </div>
                   </main>
                 </div>
-              </zoom>
+              </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
                 class="p-2 h-[calc(100vh-13rem)]"
