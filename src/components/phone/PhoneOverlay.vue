@@ -610,6 +610,7 @@ const {
               <div
                 v-for="section in sections"
                 :key="section.view"
+                :data-testid="`testPhoneOverlay_${section.view}`"
                 class="p-2 bg-white flex items-center gap-2 justify-between cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b-4"
                 :class="{
                   'border-l-4 border-l-primary-light font-bold':
