@@ -108,9 +108,7 @@ export default defineComponent({
 .image-container:hover .image-close {
   display: flex;
 }
-.image-close {
-  display: none;
-}
+
 .modal {
   @apply relative;
   z-index: 10000;
