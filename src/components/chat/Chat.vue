@@ -235,17 +235,17 @@ export default defineComponent({
 
     const expandedOrganizations = ref<{ [key: number]: boolean }>({});
 
-    const onlineUsersWithData = computedAsync(async () => {
+    const onlineUsersWithData = computed(() => {
       const result = [];
       for (const id of onlineUsers.value) {
-        const user = await User.fetchOrFindId(id);
+        const user = User.find(id);
         console.info('Computing Online users data', id, user);
         if (user) {
           result.push(user);
         }
       }
       return result;
-    }, []);
+    });
     const groupedByOrganization = computed(() => {
       const grouped: { [key: number]: any } = {};
       for (const user of onlineUsersWithData.value) {
