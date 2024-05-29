@@ -18,12 +18,12 @@
               class="organization-header flex items-center cursor-pointer"
               @click="toggleOrganization(organization.id)"
             >
-              <span class="arrow" :class="{ open: isOpen(organization.id) }"
-                >▼</span
-              >
-              <span class="organization-name"
-                >{{ organization.name }} ({{ organization.users.length }})</span
-              >
+              <span class="arrow" :class="{ open: isOpen(organization.id) }">
+                ▼
+              </span>
+              <span class="organization-name">
+                {{ organization.name }} ({{ organization.users.length }})
+              </span>
             </div>
             <div v-if="isOpen(organization.id)" class="users-list">
               <div
@@ -235,11 +235,17 @@ export default defineComponent({
 
     const expandedOrganizations = ref<{ [key: number]: boolean }>({});
 
-    const onlineUsersWithData = computed(() => {
-      return onlineUsers.value
-        .map((id) => getUser(id))
-        .filter((user) => user !== null);
-    });
+    const onlineUsersWithData = computedAsync(async () => {
+      const result = [];
+      for (const id of onlineUsers.value) {
+        const user = await User.fetchOrFindId(id);
+        console.info('Computing Online users data', id, user);
+        if (user) {
+          result.push(user);
+        }
+      }
+      return result;
+    }, []);
     const groupedByOrganization = computed(() => {
       const grouped: { [key: number]: any } = {};
       for (const user of onlineUsersWithData.value) {
