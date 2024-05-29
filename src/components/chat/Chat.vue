@@ -238,12 +238,14 @@ export default defineComponent({
     const onlineUsersWithData = computed(() => {
       const result = [];
       for (const id of onlineUsers.value) {
-        const user = User.find(id);
-        console.info('Computing Online users data', id, user);
-        if (user) {
-          result.push(user);
+        const user = getUser(id);
+        if (!user) {
+          console.info('User not found in store', id, user);
+          continue;
         }
+        result.push(user);
       }
+      console.debug('Found online users', result);
       return result;
     });
     const groupedByOrganization = computed(() => {
@@ -464,8 +466,9 @@ export default defineComponent({
       const { socket: online_users_s } = useWebSockets(
         '/ws/online_chat_users',
         'phone_stats',
-        (data) => {
-          onlineUsers.value = data;
+        async (data) => {
+          onlineUsers.value = data as number[];
+          await User.fetchOrFindId(onlineUsers.value); // fetch users if not in vuex store
         },
       );
       online_users_socket.value = online_users_s;
