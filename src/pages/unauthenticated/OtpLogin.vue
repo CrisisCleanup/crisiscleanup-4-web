@@ -4,10 +4,11 @@ import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/hooks/useAuth';
 import Home from '@/layouts/Home.vue';
-import { getAndToastErrorMessage, getErrorMessage } from '@/utils/errors';
+import { getAndToastErrorMessage } from '@/utils/errors';
 
-const { requestOtp, loginWithOtp } = useAuthStore();
+const { requestOtp, loginWithOtp, getMe } = useAuthStore();
 const toast = useToast();
+const router = useRouter();
 const { t } = useI18n();
 const phoneNumber = ref('');
 const otp = ref('');
@@ -33,6 +34,8 @@ const verifyOtpAndLogin = async () => {
     await loginWithOtp(phoneNumber.value, otp.value);
     showOtpCodeModal.value = false;
     toast.success(t('~~Logged in successfully!'));
+    await getMe();
+    await router.push('/dashboard');
     // Navigate the user to the dashboard or home page after successful login
   } catch (error) {
     getAndToastErrorMessage(error);
