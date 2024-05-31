@@ -365,7 +365,7 @@ const {
               class="flex items-center justify-between px-3 py-[11px] border-b-4"
             >
               <h1></h1>
-              <base-button :action="closeTab" variant="">
+              <base-button :action="closeTab">
                 {{ $t('Close Tab') }}
               </base-button>
             </div>

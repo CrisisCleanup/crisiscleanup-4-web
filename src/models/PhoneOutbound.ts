@@ -1,5 +1,7 @@
 import { isArray, isNil, omitBy } from 'lodash';
 import CCUModel from '@/models/base';
+import { AxiosError } from 'axios';
+import { getErrorMessage } from '@/utils/errors';
 
 export default class PhoneOutbound extends CCUModel {
   static entity = 'phone_outbound';
@@ -142,10 +144,16 @@ export default class PhoneOutbound extends CCUModel {
               language,
               locked_by: userId,
               completion: 1,
+              call_type: 'manual',
             },
             isNil,
           ),
         );
+
+        if (resp.response instanceof AxiosError) {
+          throw new TypeError(getErrorMessage(resp.response));
+        }
+
         const [outbound] = resp.entities.phone_outbound || [];
         return outbound;
       },
