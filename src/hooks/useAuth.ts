@@ -16,6 +16,7 @@ import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 import { useAxiosRetry } from '@/hooks/useAxiosRetry';
 import { useToast } from 'vue-toastification';
+import { i18n } from '@/modules/i18n';
 
 const debug = createDebug('@ccu:hooks:useAuth');
 
@@ -42,6 +43,11 @@ export interface TokenResponse {
   expires_in: number;
   token_type: string;
   scope: string;
+}
+
+export interface CodeResponse {
+  authorization_code: string;
+  expires_in: number;
 }
 
 interface AuthorizeProps {
@@ -281,7 +287,7 @@ const authStore = () => {
 
       if (invalidMagicLink) {
         const $toasted = useToast();
-        $toasted.error(t('magicLink.invalid_expired_magic_link'));
+        $toasted.error(i18n.global.t('magicLink.invalid_expired_magic_link'));
         return router.push('/magic-link');
       }
 
@@ -578,12 +584,12 @@ const authStore = () => {
     return response.data as OtpVerificationResponse;
   };
 
-  const generateTokenWithOtp = async (userId: number, otpId: number) => {
-    const response = await authInstance.post('/otp/generate_token', {
+  const generateAuthCodeWithOtp = async (userId: number, otpId: number) => {
+    const response = await authInstance.post('/otp/generate_code', {
       user: userId,
       otp_id: otpId,
     });
-    return response.data as TokenResponse;
+    return response.data as CodeResponse;
   };
 
   const loginWithOtp = async (phoneNumber: string, otp: string) => {
@@ -591,22 +597,28 @@ const authStore = () => {
     if (!verifyResponse.otp_id) {
       throw new Error('OTP verification failed.');
     }
-    const tokenResponse = await generateTokenWithOtp(
+    const codeResponse = await generateAuthCodeWithOtp(
       verifyResponse.accounts[0].id,
       verifyResponse.otp_id,
     );
-    if (!tokenResponse.access_token) {
-      throw new Error('Failed to generate token with OTP.');
+    if (!codeResponse.authorization_code) {
+      throw new Error('Failed to generate code with OTP.');
     }
-    authState.accessToken = tokenResponse.access_token;
-    authState.accessTokenExpiry = moment().add(
-      tokenResponse.expires_in - 100,
-      'seconds',
-    );
-    authState.refreshToken = tokenResponse.refresh_token;
-    authState.userId = verifyResponse.accounts[0].id;
-    authState.status = AuthStatus.AUTHENTICATED;
-    await getMe();
+    const params = new URLSearchParams({
+      client_id: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
+      grant_type: 'authorization_code',
+      code: codeResponse.authorization_code,
+      redirect_uri: `${window.location.origin}/o/callback`,
+      // code_verifier: verifierStorage.value,
+    });
+
+    await exchangeState.execute('/o/token/', {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: params.toString(),
+    });
   };
 
   const loginWithMagicLinkToken = async (token: string, logout = false) => {

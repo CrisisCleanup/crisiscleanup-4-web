@@ -205,20 +205,22 @@ export default defineComponent({
 
     async function saveIncident() {
       let response;
+      let incidentData = {
+        ...currentIncident.value,
+        start_at: moment(currentIncident.value.start_at),
+      };
+      delete incidentData.incident_center;
       response = await (savedIncident.value?.id
         ? axios.patch(
             `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${
               savedIncident.value.id
             }`,
-            {
-              ...currentIncident.value,
-              start_at: moment(currentIncident.value.start_at),
-            },
+            incidentData,
           )
-        : axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/incidents`, {
-            ...currentIncident.value,
-            start_at: moment(currentIncident.value.start_at),
-          }));
+        : axios.post(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/incidents`,
+            incidentData,
+          ));
 
       const incidentId = response.data.id;
 

@@ -933,7 +933,7 @@ export default defineComponent({
     }
 
     async function completeCall({ status, notes }) {
-      if (worksiteForm.value.dirtyFields.size > 0) {
+      if (worksiteForm.value?.dirtyFields.size > 0) {
         const result = await confirm({
           title: t('phoneDashboard.complete_call'),
           content: t('phoneDashboard.unsaved_changes_error'),
@@ -945,12 +945,23 @@ export default defineComponent({
             },
             yes: {
               text: t('actions.continue'),
+              type: 'outline',
+              buttonClass: 'border border-black',
+            },
+            save: {
+              text: t('~~Save Worksite'),
               type: 'solid',
             },
           },
         });
         if (result === 'no' || result === 'cancel') {
           return;
+        }
+        if (result === 'save') {
+          const saved = await worksiteForm.value?.saveWorksite();
+          if (!saved) {
+            return;
+          }
         }
       }
 
@@ -983,7 +994,7 @@ export default defineComponent({
           );
         }
 
-        await $toasted.success(t('phoneDashboard.update_success'));
+        $toasted.success(t('phoneDashboard.update_success'));
         clearCall();
         clearCase();
         setPotentialFailedCall(null);
@@ -992,7 +1003,7 @@ export default defineComponent({
         emitter.emit('phone:clear_call');
         switchToCallTab();
       } catch (error) {
-        await $toasted.error(getErrorMessage(error));
+        $toasted.error(getErrorMessage(error));
       }
     }
 

@@ -22,6 +22,9 @@ export function getErrorMessage(error: any): string {
           debug('Handling bad request %o', { data, status });
           return handleBadRequest(data);
         }
+        case 409: {
+          return handleBadRequest(data);
+        }
         case 404: {
           return t('info.error_404');
         }

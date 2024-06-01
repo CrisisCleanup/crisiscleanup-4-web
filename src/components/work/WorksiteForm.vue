@@ -996,7 +996,7 @@ export default defineComponent({
         if (firstErrorMessage) {
           if (firstErrorField === 'address' && !isAddressValid.value) {
             $toasted.error(t('caseForm.no_lat_lon_error'));
-            return;
+            return false;
           }
           $toasted.error(firstErrorMessage);
           const errorFieldElement = document.querySelector(
@@ -1008,13 +1008,13 @@ export default defineComponent({
           }
         }
 
-        return;
+        return false;
       }
 
       if (props.beforeSave) {
         const beforeSaveCheck = await props.beforeSave();
         if (!beforeSaveCheck) {
-          return;
+          return false;
         }
       }
 
@@ -1064,7 +1064,7 @@ export default defineComponent({
           element.scrollIntoView({ behavior: 'smooth' });
         }
 
-        return;
+        return false;
       }
 
       try {
@@ -1152,8 +1152,10 @@ export default defineComponent({
           emit('reloadMap', worksite.value.id);
           emit('savedWorksite', worksite.value);
         }
+        return true;
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
+        return false;
       }
     }
 
