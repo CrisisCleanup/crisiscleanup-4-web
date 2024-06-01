@@ -44,6 +44,13 @@
                   inner-classes="shadow"
                 />
                 <UserDetailsTooltip :user="user.id" />
+                <div v-if="mobileOnlineUsers.includes(user.id)">
+                  <font-awesome-icon
+                    icon="mobile-screen"
+                    class="text-green-700"
+                    :title="$t('~~Using mobile app')"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -196,10 +203,11 @@ import type { Message } from '@/models/types';
 import debounce from 'lodash/debounce';
 import UserDetailsTooltip from '@/components/user/DetailsTooltip.vue';
 import Avatar from '@/components/Avatar.vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 export default defineComponent({
   name: 'Chat',
-  components: { Avatar, UserDetailsTooltip, ChatMessage },
+  components: { FontAwesomeIcon, Avatar, UserDetailsTooltip, ChatMessage },
   props: {
     chat: {
       type: Object,
@@ -218,7 +226,8 @@ export default defineComponent({
     const messages = ref<Message[]>([]);
     const favorites = ref<Message[]>([]);
     const searchResults = ref<Message[]>([]);
-    const onlineUsers = ref<number[]>([]);
+    const allOnlineUsers = ref<number[]>([]);
+    const mobileOnlineUsers = ref<number[]>([]);
     const urgent = ref(false);
     const loadingMessages = ref(false);
     const searchLoading = ref(false);
@@ -237,7 +246,7 @@ export default defineComponent({
 
     const onlineUsersWithData = computed(() => {
       const result = [];
-      for (const id of onlineUsers.value) {
+      for (const id of allOnlineUsers.value) {
         const user = getUser(id);
         if (!user) {
           console.info('User not found in store', id, user);
@@ -467,8 +476,19 @@ export default defineComponent({
         '/ws/online_chat_users',
         'phone_stats',
         async (data) => {
-          onlineUsers.value = data as number[];
-          await User.fetchOrFindId(onlineUsers.value); // fetch users if not in vuex store
+          if (Array.isArray(data)) {
+            allOnlineUsers.value = data as number[];
+            await User.fetchOrFindId(allOnlineUsers.value);
+          } else if (data.online_users) {
+            allOnlineUsers.value = [
+              ...new Set([
+                ...(data.online_users as number[]),
+                ...(data.online_mobile_users as number[]),
+              ]),
+            ];
+            mobileOnlineUsers.value = data.online_mobile_users as number[];
+            await User.fetchOrFindId(allOnlineUsers.value);
+          }
         },
       );
       online_users_socket.value = online_users_s;
@@ -505,7 +525,8 @@ export default defineComponent({
       searchMessages,
       search,
       searchResults,
-      onlineUsers,
+      allOnlineUsers,
+      mobileOnlineUsers,
       getUser,
       onlineUsersWithData,
       sortedOrganizations,
