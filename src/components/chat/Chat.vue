@@ -8,7 +8,7 @@
         <div class="text-lg mb-2">
           {{ $t('chat.online_now') }} ({{ onlineUsersWithData?.length }})
         </div>
-        <div>
+        <div class="h-180 overflow-auto">
           <div
             v-for="organization in sortedOrganizations"
             :key="organization.id"
