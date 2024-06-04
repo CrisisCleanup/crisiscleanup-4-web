@@ -157,6 +157,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.7.2",
     "@faker-js/faker": "^8.4.1",
     "@iconify/json": "^2.2.212",
     "@playwright/test": "^1.43.1",
