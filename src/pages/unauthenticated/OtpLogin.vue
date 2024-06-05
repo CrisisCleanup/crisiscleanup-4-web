@@ -55,6 +55,7 @@ const verifyOtpAndLogin = async () => {
       if (result == false) {
         return;
       }
+      selectedUserId.value = result as number;
     }
 
     await loginWithOtp(selectedUserId.value, verifyResponse.otp_id);
