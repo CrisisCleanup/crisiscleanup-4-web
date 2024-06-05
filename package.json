@@ -117,7 +117,7 @@
     "litepie-datepicker": "^1.0.14",
     "lodash": "^4.17.21",
     "markdown-it": "^14.1.0",
-    "markdown-it-anchor": "^8.6.7",
+    "markdown-it-anchor": "^9.0.0",
     "markdown-it-footnote": "^4.0.0",
     "mitt": "^3.0.1",
     "moment": "^2.30.1",
