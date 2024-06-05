@@ -41,14 +41,17 @@ const verifyOtpAndLogin = async () => {
 
     selectedUserId.value = verifyResponse.accounts[0].id;
     if (verifyResponse.accounts.length > 1) {
-      selectedUserId.value = await selection({
-        title: t('~~Select User Account'),
+      selectedUserId.value = (await selection({
+        title: t('~~Select your login account'),
         content: '',
-        label: 'email',
+        label: 'label',
         itemKey: 'id',
-        options: verifyResponse.accounts,
-        placeholder: t('teams.select_target_team'),
-      });
+        options: verifyResponse.accounts.map((a) => ({
+          id: a.id,
+          label: `${a.organization} - (${a.email})`,
+        })),
+        placeholder: t('~~Select User Account'),
+      })) as number;
     }
 
     await loginWithOtp(selectedUserId.value, verifyResponse.otp_id);
