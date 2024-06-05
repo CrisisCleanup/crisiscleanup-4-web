@@ -5,13 +5,16 @@ import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/hooks/useAuth';
 import Home from '@/layouts/Home.vue';
 import { getAndToastErrorMessage } from '@/utils/errors';
+import useDialogs from '@/hooks/useDialogs';
 
-const { requestOtp, loginWithOtp, getMe } = useAuthStore();
+const { requestOtp, verifyOtp, loginWithOtp, getMe } = useAuthStore();
+const { selection } = useDialogs();
 const toast = useToast();
 const router = useRouter();
 const { t } = useI18n();
 const phoneNumber = ref('');
 const otp = ref('');
+const selectedUserId = ref<number>();
 const showOtpCodeModal = ref(false);
 const form = ref(null);
 
@@ -31,7 +34,24 @@ const sendOtp = async () => {
 
 const verifyOtpAndLogin = async () => {
   try {
-    await loginWithOtp(phoneNumber.value, otp.value);
+    const verifyResponse = await verifyOtp(phoneNumber.value, otp.value);
+    if (!verifyResponse.otp_id) {
+      throw new Error('OTP verification failed. Invalid otp_id');
+    }
+
+    selectedUserId.value = verifyResponse.accounts[0].id;
+    if (verifyResponse.accounts.length > 1) {
+      selectedUserId.value = await selection({
+        title: t('~~Select User Account'),
+        content: '',
+        label: 'email',
+        itemKey: 'id',
+        options: verifyResponse.accounts,
+        placeholder: t('teams.select_target_team'),
+      });
+    }
+
+    await loginWithOtp(selectedUserId.value, verifyResponse.otp_id);
     showOtpCodeModal.value = false;
     toast.success(t('~~Logged in successfully!'));
     await getMe();
