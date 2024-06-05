@@ -43,6 +43,19 @@
           <div class="modal-footer flex-shrink">
             <div class="flex items-center justify-center py-2 border-t">
               <base-button
+                :alt="$t('actions.cancel')"
+                data-testid="testCancelButton"
+                variant="outline"
+                class="px-4 p-2 border border-black mx-2"
+                :action="
+                  () => {
+                    closeDialog(false);
+                  }
+                "
+              >
+                {{ $t('actions.cancel') }}
+              </base-button>
+              <base-button
                 :alt="$t('actions.ok')"
                 data-testid="testOkButton"
                 variant="solid"
@@ -54,18 +67,6 @@
                 "
               >
                 {{ $t('actions.ok') }}
-              </base-button>
-              <base-button
-                :alt="$t('actions.cancel')"
-                data-testid="testCancelButton"
-                class="px-4 p-2 border border-black mx-2"
-                :action="
-                  () => {
-                    closeDialog(false);
-                  }
-                "
-              >
-                {{ $t('actions.cancel') }}
               </base-button>
             </div>
           </div>
