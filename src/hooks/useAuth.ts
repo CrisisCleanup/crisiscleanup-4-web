@@ -592,15 +592,8 @@ const authStore = () => {
     return response.data as CodeResponse;
   };
 
-  const loginWithOtp = async (phoneNumber: string, otp: string) => {
-    const verifyResponse = await verifyOtp(phoneNumber, otp);
-    if (!verifyResponse.otp_id) {
-      throw new Error('OTP verification failed.');
-    }
-    const codeResponse = await generateAuthCodeWithOtp(
-      verifyResponse.accounts[0].id,
-      verifyResponse.otp_id,
-    );
+  const loginWithOtp = async (userId: number, otpId: number) => {
+    const codeResponse = await generateAuthCodeWithOtp(userId, otpId);
     if (!codeResponse.authorization_code) {
       throw new Error('Failed to generate code with OTP.');
     }
@@ -650,6 +643,7 @@ const authStore = () => {
     currentAccessToken,
     loginWithMagicLinkToken,
     requestOtp,
+    verifyOtp,
     loginWithOtp,
   };
 };
