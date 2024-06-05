@@ -11,6 +11,7 @@
     </label>
     <component
       :is="textArea ? 'textarea' : 'input'"
+      v-bind="$attrs"
       ref="input"
       :class="[inputClasses, defaultInputClasses, selector]"
       :style="[cssVars, inputStyle]"
