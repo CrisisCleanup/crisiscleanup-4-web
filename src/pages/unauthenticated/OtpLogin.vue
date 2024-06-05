@@ -129,7 +129,7 @@ const verifyOtpAndLogin = async () => {
                 size="large"
                 data-testid="testResendOtpButton"
                 class="px-5 py-2 m-1 flex-grow"
-                variant="solid"
+                variant="outline"
                 :text="$t('~~Resend Code')"
                 :alt="$t('~~Resend Code')"
                 :action="sendOtp"
