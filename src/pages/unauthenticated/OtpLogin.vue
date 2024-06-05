@@ -121,6 +121,7 @@ const verifyOtpAndLogin = async () => {
               autocomplete="off"
               :placeholder="$t('~~Enter OTP verification code')"
               required
+              @enter="verifyOtpAndLogin"
             />
           </div>
           <template #footer>
