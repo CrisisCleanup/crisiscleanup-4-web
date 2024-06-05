@@ -488,6 +488,25 @@ export default defineComponent({
             ];
             mobileOnlineUsers.value = data.online_mobile_users as number[];
             await User.fetchOrFindId(allOnlineUsers.value);
+          } else {
+            const users = Object.keys(data)
+              .map((key) => {
+                const user = JSON.parse(data[key]);
+                return {
+                  id: user.user_id,
+                  is_mobile: user.is_mobile,
+                  last_seen_at: user.last_seen_at,
+                };
+              })
+              .filter(
+                (user) =>
+                  moment().diff(moment(user.last_seen_at), 'minutes') < 5,
+              );
+
+            allOnlineUsers.value = users.map((u) => u.id);
+            mobileOnlineUsers.value = users
+              .filter((u) => u.is_mobile)
+              .map((u) => u.id);
           }
         },
       );

@@ -62,7 +62,7 @@ export default defineComponent({
       return $t(tag, translated_attrs);
     }
     const getHeader = () => {
-      if (props.currentEvent.attr) {
+      if (props.currentEvent.attr && props.currentEvent.attr.patient_name_t) {
         const work_type = props.currentEvent.attr.patient_name_t;
         return getWorktypeSVG(
           {
