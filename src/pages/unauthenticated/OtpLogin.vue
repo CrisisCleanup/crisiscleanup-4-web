@@ -26,7 +26,7 @@ const sendOtp = async () => {
     }
     await requestOtp(phoneNumber.value);
     showOtpCodeModal.value = true;
-    toast.success(t('~~OTP sent successfully!'));
+    toast.success(t('loginWithPhone.success_check_phone'));
   } catch (error) {
     getAndToastErrorMessage(error);
   }
@@ -42,7 +42,7 @@ const verifyOtpAndLogin = async () => {
     selectedUserId.value = verifyResponse.accounts[0].id;
     if (verifyResponse.accounts.length > 1) {
       const result = (await selection({
-        title: t('~~Select your login account'),
+        title: t('loginWithPhone.select_account'),
         content: '',
         label: 'label',
         itemKey: 'id',
@@ -50,7 +50,7 @@ const verifyOtpAndLogin = async () => {
           id: a.id,
           label: `${a.organization} - (${a.email})`,
         })),
-        placeholder: t('~~Select User Account'),
+        placeholder: t('loginWithPhone.select_account'),
       })) as number | boolean;
       if (result == false) {
         return;
@@ -60,7 +60,7 @@ const verifyOtpAndLogin = async () => {
 
     await loginWithOtp(selectedUserId.value, verifyResponse.otp_id);
     showOtpCodeModal.value = false;
-    toast.success(t('~~Logged in successfully!'));
+    toast.success(t('loginWithPhone.login_success'));
     await getMe();
     await router.push('/dashboard');
     // Navigate the user to the dashboard or home page after successful login
@@ -79,7 +79,7 @@ const verifyOtpAndLogin = async () => {
             {{ $t('loginForm.login_with_cell') }}
           </div>
           <div>
-            {{ $t('~~Get a code to login with your cell phone') }}
+            {{ $t('loginWithPhone.get_code') }}
           </div>
         </section>
         <form ref="form" class="w-108 flex flex-col gap-4" autocomplete="off">
@@ -90,7 +90,7 @@ const verifyOtpAndLogin = async () => {
             class="input"
             size="large"
             autocomplete="off"
-            :placeholder="$t('Enter your phone number')"
+            :placeholder="$t('loginWithPhone.enter_cell')"
             required
           />
           <base-button
@@ -107,7 +107,7 @@ const verifyOtpAndLogin = async () => {
         <modal
           v-if="showOtpCodeModal"
           data-testid="testShowRequestAccessModalModal"
-          :title="$t('~~OTP Verification')"
+          :title="$t('loginWithPhone.code_verification')"
           modal-classes="w-108"
           @close="showOtpCodeModal = false"
         >
@@ -119,7 +119,7 @@ const verifyOtpAndLogin = async () => {
               class="input"
               size="large"
               autocomplete="off"
-              :placeholder="$t('~~Enter OTP verification code')"
+              :placeholder="$t('loginWithPhone.enter_x_digit_code')"
               required
               @enter="verifyOtpAndLogin"
             />
@@ -131,8 +131,8 @@ const verifyOtpAndLogin = async () => {
                 data-testid="testResendOtpButton"
                 class="px-5 py-2 m-1 flex-grow"
                 variant="outline"
-                :text="$t('~~Resend Code')"
-                :alt="$t('~~Resend Code')"
+                :text="$t('actions.resend_code')"
+                :alt="$t('actions.resend_code')"
                 :action="sendOtp"
               />
               <base-button
@@ -140,8 +140,8 @@ const verifyOtpAndLogin = async () => {
                 data-testid="testVerifyOtpButton"
                 class="px-5 py-2 m-1 flex-grow"
                 variant="solid"
-                :text="$t('~~Verify')"
-                :alt="$t('~~Verify')"
+                :text="$t('actions.continue')"
+                :alt="$t('actions.continue')"
                 :action="verifyOtpAndLogin"
               />
             </div>
