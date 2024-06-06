@@ -65,7 +65,7 @@
     "@pixi/ticker": "6.5.10",
     "@pixi/utils": "6.5.10",
     "@sentry/integrations": "^7.111.0",
-    "@sentry/vue": "^7.111.0",
+    "@sentry/vue": "^8.7.0",
     "@sipec/vue3-tags-input": "^3.0.4",
     "@turf/turf": "^6.5.0",
     "@types/leaflet.gridlayer.googlemutant": "^0.4.7",

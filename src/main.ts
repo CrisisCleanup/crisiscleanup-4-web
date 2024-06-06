@@ -118,10 +118,8 @@ const initSentry = (vueApp: VueApp) =>
     replaysOnErrorSampleRate: 0.2,
     trackComponents: true,
     integrations: [
-      new Sentry.BrowserTracing({
-        routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-      }),
-      new Sentry.Replay(),
+      Sentry.browserTracingIntegration({ router }),
+      Sentry.replayIntegration(),
     ],
   });
 
