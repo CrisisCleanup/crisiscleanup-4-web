@@ -115,6 +115,7 @@ test.describe('LoginPage', () => {
         'testEmailTextInput',
         'testPasswordTextInput',
         'testMagicLink',
+        'testCellPhoneLogin',
         'testRequestPasswordResetLink',
         'testLoginButton',
         'testRequestAccessButton',
