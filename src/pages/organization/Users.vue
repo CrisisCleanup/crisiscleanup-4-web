@@ -333,6 +333,14 @@
               model-type="user_users"
               :title="$t('list.user_lists')"
             />
+            <base-button
+              :text="$t('actions.download_csv')"
+              :alt="$t('actions.download_csv')"
+              data-testid="testDownloadOrgUsersCSVButton"
+              variant="solid"
+              size="medium"
+              :action="downloadCSV"
+            />
             <InviteUsers />
           </div>
         </div>
@@ -416,9 +424,8 @@
 </template>
 
 <script lang="ts">
-import { throttle } from 'lodash';
+import { mapKeys, startCase, throttle } from 'lodash';
 import { useMq } from 'vue3-mq';
-import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import InviteUsers from '@/components/modals/InviteUsers.vue';
 import User from '@/models/User';
@@ -431,9 +438,12 @@ import UserInvitedByFilter from '@/utils/data_filters/UserInvitedByFilter';
 import Modal from '@/components/Modal.vue';
 import UserEditModal from '@/pages/organization/UserEditModal.vue';
 import { getErrorMessage } from '@/utils/errors';
-import { useCurrentUser } from '@/hooks';
+import { useCurrentIncident, useCurrentUser } from '@/hooks';
+import { unparse } from 'papaparse';
+import moment from 'moment-timezone';
 import AjaxTable from '@/components/AjaxTable.vue';
 import ListDropdown from '@/pages/lists/ListDropdown.vue';
+import { downloadCSVFile } from '@/utils/downloads';
 
 export default defineComponent({
   name: 'Users',
@@ -451,6 +461,8 @@ export default defineComponent({
     const mq = useMq();
     const { t } = useI18n();
     const $toasted = useToast();
+    const { currentIncidentId, currentIncident, isCurrentIncidentLoading } =
+      useCurrentIncident();
 
     const currentFilterSection = ref('role');
     const currentSearch = ref();
@@ -560,6 +572,54 @@ export default defineComponent({
       }
     }
 
+    /**
+     * Headers:
+     *  First Name
+     *  Last Name
+     *  Phone Number
+     *  Email
+     *  Invited By (User first, last name)
+     *  Sign in Count
+     *  Last Logged In (at the time zone of the current incident)
+     */
+    async function downloadCSV() {
+      const orgUsers = users.value as User[];
+      const usersToDownload: Record<string, any>[] = [];
+      const referringUsersIds: number[] = orgUsers
+        .map((u) => u.referring_user)
+        .filter(Boolean);
+      await User.fetchOrFindId(referringUsersIds);
+      console.info(
+        'CurrentIncident timezone',
+        currentIncidentId.value,
+        isCurrentIncidentLoading.value,
+        currentIncident.timezone,
+      );
+      for (const u of orgUsers) {
+        console.log('Transforming user', u.id);
+        const referringUser = User.find(u.referring_user);
+        const userInfo = {
+          firstName: u.first_name,
+          lastName: u.last_name,
+          phoneNumber: u.mobile,
+          email: u.email,
+          invitedBy: referringUser?.full_name,
+          signInCount: u.sign_in_count ?? 0,
+          lastLoggedIn: moment(u.current_sign_in_at).isValid()
+            ? moment(u.current_sign_in_at)
+                .tz(currentIncident.timezone)
+                .format('MMMM Do YYYY, h:mm:ss a')
+            : undefined,
+        };
+        // convert keys to 'Start Case' for csv headers
+        const transformedUser = mapKeys(userInfo, (v, k) => startCase(k));
+        usersToDownload.push(transformedUser);
+      }
+      console.info('Users', usersToDownload);
+      const csvContent = unparse(usersToDownload);
+      downloadCSVFile(csvContent, 'orgUsers.csv');
+    }
+
     return {
       currentFilterSection,
       currentSearch,
@@ -579,6 +639,7 @@ export default defineComponent({
       selectedUser,
       saveUser,
       selectedUsers,
+      downloadCSV,
     };
   },
 });
