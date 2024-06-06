@@ -47,6 +47,8 @@ export default class User extends CCUModel {
 
   beta_features!: string[];
 
+  sign_in_count!: number;
+
   current_sign_in_at!: string;
 
   static fields() {
@@ -64,6 +66,7 @@ export default class User extends CCUModel {
       preferences: this.attr({}),
       permissions: this.attr({}),
       beta_features: this.attr({}),
+      sign_in_count: this.attr({}),
       current_sign_in_at: this.attr({}),
       primary_language: this.attr(null),
       secondary_language: this.attr(null),
