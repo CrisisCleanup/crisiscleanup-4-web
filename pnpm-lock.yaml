@@ -233,6 +233,9 @@ importers:
       moment-timezone:
         specifier: ^0.5.43
         version: 0.5.45
+      papaparse:
+        specifier: ^5.4.1
+        version: 5.4.1
       parse-address:
         specifier: ^1.1.2
         version: 1.1.2
@@ -372,6 +375,9 @@ importers:
       '@types/node':
         specifier: ^20.12.7
         version: 20.14.2
+      '@types/papaparse':
+        specifier: ^5.3.14
+        version: 5.3.14
       '@types/postcss-pxtorem':
         specifier: ^6.0.3
         version: 6.0.3
@@ -2444,6 +2450,9 @@ packages:
 
   '@types/offscreencanvas@2019.7.3':
     resolution: {integrity: sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==}
+
+  '@types/papaparse@5.3.14':
+    resolution: {integrity: sha512-LxJ4iEFcpqc6METwp9f6BV6VVc43m6MfH0VqFosHvrUgfXiFe6ww7R3itkOQ+TCK6Y+Iv/+RnnvtRZnkc5Kc9g==}
 
   '@types/postcss-pxtorem@6.0.3':
     resolution: {integrity: sha512-G3nPvxYvDc3xrBn+frsMCTeHqz77grbpUXkCJpkoLXO09LjvTznoiZBWGPmTYB2w2JXutRTkQtlJx2JNEYbMMg==}
@@ -5133,6 +5142,9 @@ packages:
   pac-resolver@7.0.1:
     resolution: {integrity: sha512-5NPgf87AT2STgwa2ntRMr45jTKrYBGkVU36yT0ig/n/GMAa3oPqhZfIQ2kMEimReg0+t9kZViDVZ83qfVUlckg==}
     engines: {node: '>= 14'}
+
+  papaparse@5.4.1:
+    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
 
   parchment@1.1.4:
     resolution: {integrity: sha512-J5FBQt/pM2inLzg4hEWmzQx/8h8D0CiDxaG3vyp9rKrQRSDgBlhjdP5jQGgosEajXPSQouXGHOmVdgo7QmJuOg==}
@@ -9238,6 +9250,10 @@ snapshots:
 
   '@types/offscreencanvas@2019.7.3': {}
 
+  '@types/papaparse@5.3.14':
+    dependencies:
+      '@types/node': 20.14.2
+
   '@types/postcss-pxtorem@6.0.3':
     dependencies:
       postcss: 8.4.38
@@ -12228,6 +12244,8 @@ snapshots:
     dependencies:
       degenerator: 5.0.1
       netmask: 2.0.2
+
+  papaparse@5.4.1: {}
 
   parchment@1.1.4: {}
 
