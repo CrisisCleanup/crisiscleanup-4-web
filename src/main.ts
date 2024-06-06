@@ -5,6 +5,7 @@ import axios from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VueTagsInput from '@sipec/vue3-tags-input';
+// eslint-disable-next-line import/default
 import Datepicker from '@vuepic/vue-datepicker';
 import * as Sentry from '@sentry/vue';
 import { fas } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +14,7 @@ import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
 import { i18n } from '@/modules/i18n';
+// eslint-disable-next-line import/default
 import vSelect from 'vue-select';
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';

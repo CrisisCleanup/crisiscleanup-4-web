@@ -1,4 +1,5 @@
 import { Sprite, Texture } from 'pixi.js';
+// eslint-disable-next-line import/default
 import KDBush from 'kdbush';
 import * as turf from '@turf/turf';
 import type * as L from 'leaflet';
