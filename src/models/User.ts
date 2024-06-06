@@ -19,7 +19,7 @@ export default class User extends CCUModel {
 
   active_roles!: any[];
 
-  referring_user!: string;
+  referring_user!: number;
 
   preferences!: Record<string, any>;
 
