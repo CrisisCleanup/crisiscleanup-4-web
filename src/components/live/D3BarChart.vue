@@ -73,7 +73,7 @@ export default defineComponent({
               .axisBottom(x)
               .tickValues(x.domain().filter((d, i) => !(i % 5))) // render ticks with 5 day gaps
               .tickFormat((d) =>
-                d3.timeFormat('%b %d')(new Date(d) || new Date()),
+                d3.timeFormat('%b %d')(d ? new Date(d) : new Date()),
               )
               .tickSizeOuter(0),
           )
