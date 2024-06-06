@@ -55,18 +55,17 @@ export function exportCSVFile(
   const csv = convertToCSV(jsonObject);
 
   const exportedFilename = `${fileTitle}.csv` || 'export.csv';
+  downloadCSVFile(exportedFilename, csv);
+}
 
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+export function downloadCSVFile(csvContent: string, fileName: string) {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
-  if (link.download !== undefined) {
-    // Feature detection
-    // Browsers that support HTML5 download attribute
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', exportedFilename);
-    link.style.visibility = 'hidden';
-    document.body.append(link);
-    link.click();
-    link.remove();
-  }
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', fileName);
+  link.style.visibility = 'hidden';
+  document.body.append(link);
+  link.click();
+  link.remove();
 }
