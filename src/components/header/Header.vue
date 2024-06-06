@@ -18,14 +18,14 @@
           <BaseSelect
             :key="String(currentIncident && currentIncident.id)"
             :model-value="currentIncident?.id"
-            :options="incidents"
+            :options="incidentOptions"
             :clearable="false"
             data-testid="testIncidentSelectorSelect"
             searchable
             container-classes="relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-base leading-snug outline-none border"
             select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded p-2"
             item-key="id"
-            label="name"
+            label="label"
             @update:model-value="
               (payload: string) => $emit('update:incident', payload)
             "
@@ -123,7 +123,7 @@ export default defineComponent({
   },
   props: {
     incidents: {
-      type: Array,
+      type: Array as PropType<Incident[]>,
       default: () => [],
     },
     currentIncident: {
@@ -135,6 +135,13 @@ export default defineComponent({
     const { component } = useDialogs();
     const { $can } = useAcl();
     const { t } = useI18n();
+
+    const incidentOptions = computed(() =>
+      props.incidents.map((i) => ({
+        ...i,
+        label: `${i.case_label}: ${i.name}`,
+      })),
+    );
 
     const { currentUser } = useCurrentUser();
     async function showCurrentUser() {
@@ -167,6 +174,7 @@ export default defineComponent({
     return {
       can: $can,
       showRedeployModal,
+      incidentOptions,
       showCurrentUser,
       $t(text: string) {
         return text ? t(text) : null;
