@@ -89,6 +89,51 @@ export const restHandlers = [
     },
   ),
   rest.get(
+    `${import.meta.env.VITE_APP_API_BASE_URL}/languages`,
+    async (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          count: 2,
+          next: null,
+          previous: null,
+          results: [
+            {
+              subtag: 'en-US',
+              name_t: 'languages.en-us',
+              id: 2,
+            },
+            {
+              subtag: 'es',
+              name_t: 'languages.es',
+              id: 6,
+            },
+          ],
+        }),
+      );
+    },
+  ),
+  rest.post(
+    `${import.meta.env.VITE_APP_API_BASE_URL}/languages/:languageSubtag/translate`,
+    async (req, res, ctx) => {
+      const body = await req.json();
+      const subtag = req.params.languageSubtag;
+      const translations: Record<string, any> = {
+        es: {
+          Hello: 'Hola',
+        },
+      };
+      const translated_text = translations[subtag][body?.text];
+      console.info('Translated text', translated_text);
+      return res(
+        ctx.status(200),
+        ctx.json({
+          translated_text,
+        }),
+      );
+    },
+  ),
+  rest.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages`,
     async (req, res, ctx) => {
       return res(
