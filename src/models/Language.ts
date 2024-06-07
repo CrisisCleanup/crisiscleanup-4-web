@@ -5,6 +5,7 @@ import detectBrowserLanguage from 'detect-browser-language';
 import _ from 'lodash';
 import CCUModel from '@/models/base';
 import { i18n } from '@/modules/i18n';
+import type { Config } from '@vuex-orm/plugin-axios';
 
 interface LanguageTranslationResponse {
   text: string;
@@ -47,55 +48,58 @@ export default class Language extends CCUModel {
       .first();
   }
 
-  static async fetchBySubtags(subtags: string[]) {
-    const _subtags: string[] = _.castArray(subtags);
-
-    const resolved = _subtags.filter((s) =>
-      this.query().where('subtag', s).exists(),
-    );
-
-    const unresolved = _.difference(_subtags, resolved);
-
-    if (!_.isEmpty(unresolved)) {
-      await this.api().get('/languages', {
-        params: {
-          subtag: unresolved.join(','),
-        },
-        dataKey: 'results',
-      });
-    }
-
-    return subtags.map((s) => this.query().where('subtag', s).first());
-  }
-
-  /**
-   * Perform real-time translation of text.
-   * Source language will be auto detected.
-   * @param id - Locale id.
-   * @param text - Text to translate.
-   * @returns {Promise<LanguageTranslationResponse>}
-   */
-  static async translateText(id: number, text: string) {
-    const locale: any = await this.fetchOrFindId(id);
-    const {
-      response: { data },
-    }: {
-      response: {
-        data: LanguageTranslationResponse;
-      };
-    } = await this.api().post(
-      `/languages/${locale?.subtag}/translate`,
-      {
-        text,
-      },
-      {
-        save: false,
-      },
-    );
-    return data;
-  }
-
   get shortName() {
     return i18n.global.t(this.name_t).split(' ')[0];
   }
+
+  static apiConfig: Config = {
+    actions: {
+      async fetchBySubtags(subtags: string[]) {
+        const _subtags: string[] = _.castArray(subtags);
+
+        const resolved = _subtags.filter((s) =>
+          Language.query().where('subtag', s).exists(),
+        );
+
+        const unresolved = _.difference(_subtags, resolved);
+
+        if (!_.isEmpty(unresolved)) {
+          await this.get('/languages', {
+            params: {
+              subtag: unresolved.join(','),
+            },
+            dataKey: 'results',
+          });
+        }
+
+        return subtags.map((s) => Language.query().where('subtag', s).first());
+      },
+      /**
+       * Perform real-time translation of text.
+       * Source language will be auto detected.
+       * @param id - Locale id.
+       * @param text - Text to translate.
+       * @returns {Promise<LanguageTranslationResponse>}
+       */
+      async translateText(id: number, text: string) {
+        const locale: any = await Language.fetchOrFindId(id);
+        const {
+          response: { data },
+        }: {
+          response: {
+            data: LanguageTranslationResponse;
+          };
+        } = await this.post(
+          `/languages/${locale?.subtag}/translate`,
+          {
+            text,
+          },
+          {
+            save: false,
+          },
+        );
+        return data;
+      },
+    },
+  };
 }
