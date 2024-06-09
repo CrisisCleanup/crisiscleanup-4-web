@@ -65,7 +65,6 @@
           :action="showCurrentIncidentStates"
         />
       </div>
-      <AppDownloadLinks />
       <div class="flex h-full items-center">
         <div
           v-if="can && can('phone_agent')"

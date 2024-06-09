@@ -4,6 +4,7 @@
       v-if="!hideTrigger"
       data-testid="testRequestRedeployButton"
       variant="outline"
+      size="medium"
       class="mx-1 px-3 py-1"
       :text="$t('requestRedeploy.request_redeploy')"
       :alt="$t('requestRedeploy.request_redeploy')"

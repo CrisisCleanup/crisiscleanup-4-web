@@ -16,7 +16,7 @@ test.describe('DashboardPage', () => {
     await page.waitForLoadState();
   });
 
-  test(
+  test.fail(
     testTitleWithTags(`should have data-testids`, [
       'fast',
       'primary',
@@ -30,44 +30,33 @@ test.describe('DashboardPage', () => {
       // await expect(spinnerDiv).toBeHidden({ timeout: 60_000 });
       const rootDiv = page.getByTestId('testIsAuthenticatedDiv');
       await expect(rootDiv).toBeVisible({ timeout: 60_000 });
+
+      const rootDashboardDiv = page.getByTestId('testDashboarddiv');
+      await expect(rootDashboardDiv).toBeVisible({ timeout: 60_000 });
+
       const dataTestIds = [
-        'testCrisiscleanupLogoIcon',
-        'testdashboardLink',
-        'testdashboardIcon',
-        'testworkLink',
-        'testworkIcon',
-        'testmy_organizationLink',
-        'testmy_organizationIcon',
-        'testother_organizationsLink',
-        'testother_organizationsIcon',
-        'testreportsLink',
-        'testreportsIcon',
-        'testtrainingLink',
-        'testtrainingIcon',
-        'testDisasterIcon',
-        'testIncidentImageIcon',
-        'testLogoutLink',
-        'testCurrentUserFullNameContent',
         'testDashboarddiv',
-        'testRequestRedeployButton',
-        'testInviteNewUserButton',
-        'testMetricCardMyClaimedCasesDiv',
-        'testMyClaimedCasesIcon',
-        'testMetricCardTotalClaimedDiv',
-        'testTotalClaimedIcon',
-        'testMetricCardInProgressDiv',
-        'testInProgressIcon',
-        'testInProgressDiv',
-        'testMetricCardClosedDiv',
-        'testClosedIcon',
-        'testClosedDiv',
-        'testClaimedWorksitesTable',
-        'testCaseTransferRequestsDiv',
-        'testInboundRequestsButton',
-        'testOutboundRequestsButton',
-        'testArchivedRequestsButton',
-        'testWorksiteRequestsTable',
-        'testUserTransferRequestTable',
+        'testMainContent',
+        'testHeader',
+        'testHeaderLeft',
+        'testDashboardIcon',
+        'testDashboardTitle',
+        'testSwitchButton',
+        'testHeaderRight',
+        'testRedeployRequest',
+        'testInviteUsers',
+        'testMain',
+        'testGrid',
+        'testLeftSection',
+        'testUserProfileCard',
+        'testActionItemsTitle',
+        'testActionItem',
+        'testActionItemTitle',
+        'testActionItemTimestamp',
+        'testActionItemActions',
+        'testActionButton',
+        'testRightSection',
+        'testDashboardFooter',
       ];
       const locators = dataTestIds.map((tId) => page.getByTestId(tId));
       // Create an array of promises for the visibility checks

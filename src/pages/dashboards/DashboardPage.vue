@@ -1,34 +1,86 @@
 <template>
-  <div class="flex items-center justify-center md:mb-0 mb-10">
+  <div
+    class="flex items-center justify-center md:mb-0 mb-10"
+    data-testid="testDashboarddiv"
+  >
     <div
       v-if="loadingActionItems && !allDataLoaded"
       class="h-screen flex items-center justify-center"
     >
       <spinner size="lg" />
     </div>
-    <div v-else class="flex flex-col w-full">
-      <header class="bg-white border p-6 flex items-center gap-3">
-        <h1 class="text-xl font-semibold">{{ $t($route.name) }}</h1>
-        <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
+    <div v-else class="flex flex-col w-full" data-testid="testMainContent">
+      <header
+        class="bg-white border p-6 items-center gap-3 flex justify-between"
+        data-testid="testHeader"
+      >
+        <div class="flex items-center gap-2" data-testid="testHeaderLeft">
+          <ccu-icon
+            :type="`${kebabCase($route.path.split('/').pop())}-dashboard`"
+            class="text-crisiscleanup-dashboard-blue"
+            size="xl"
+            data-testid="testDashboardIcon"
+          />
+          <h1 class="text-2xl" data-testid="testDashboardTitle">
+            {{ $t($route.name) }}
+          </h1>
+          <base-button
+            :action="goToDashboardSelector"
+            variant="text-dark"
+            data-testid="testSwitchButton"
+          >
+            {{ $t('~~Switch') }}
+          </base-button>
+        </div>
+        <div class="flex items-center" data-testid="testHeaderRight">
+          <RedeployRequest data-testid="testRedeployRequest" />
+          <InviteUsers class="mx-1" data-testid="testInviteUsers" />
+          <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
+        </div>
       </header>
 
-      <main class="flex-grow overflow-auto bg-gray-100 border-l border-r">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-          <section class="bg-white p-5 border-r">
-            <UserProfileCard class="mb-5" :user="currentUser" />
-            <h2 class="font-bold text-lg mb-3">Action Items</h2>
+      <main
+        class="flex-grow overflow-auto bg-gray-100 border-l border-r"
+        data-testid="testMain"
+      >
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+          data-testid="testGrid"
+        >
+          <section class="bg-white p-5 border-r" data-testid="testLeftSection">
+            <UserProfileCard
+              class="mb-5"
+              :user="currentUser"
+              data-testid="testUserProfileCard"
+            />
+            <h2
+              class="font-bold text-lg mb-3"
+              data-testid="testActionItemsTitle"
+            >
+              Action Items
+            </h2>
             <div
               v-for="item in actionItems"
               :key="item.id"
               class="mb-2 flex flex-col gap-1"
+              data-testid="testActionItem"
             >
-              <p class="text-crisiscleanup-dark-blue font-semibold text-sm">
+              <p
+                class="text-crisiscleanup-dark-blue font-semibold text-sm"
+                data-testid="testActionItemTitle"
+              >
                 {{ item.title }}
               </p>
-              <p class="text-xs text-gray-500">
+              <p
+                class="text-xs text-gray-500"
+                data-testid="testActionItemTimestamp"
+              >
                 {{ momentFromNow(item.timestamp) }}
               </p>
-              <div class="actions flex items-center justify-start gap-1">
+              <div
+                class="actions flex items-center justify-start gap-1"
+                data-testid="testActionItemActions"
+              >
                 <base-button
                   v-for="action in item.actions"
                   :key="action.title"
@@ -36,6 +88,7 @@
                   size="small"
                   class="rounded-full"
                   :action="() => performAction(action.action)"
+                  data-testid="testActionButton"
                 >
                   {{ action.title }}
                 </base-button>
@@ -43,7 +96,10 @@
             </div>
           </section>
 
-          <section class="col-span-3 bg-white md:col-span-1 lg:col-span-3">
+          <section
+            class="col-span-3 bg-white md:col-span-1 lg:col-span-3"
+            data-testid="testRightSection"
+          >
             <router-view
               v-if="allDataLoaded"
               :current-incident-id="currentIncidentId"
@@ -59,11 +115,10 @@
         </div>
       </main>
 
-      <DashboardFooter />
+      <DashboardFooter data-testid="testDashboardFooter" />
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref } from 'vue';
 import UserProfileCard from '@/components/UserProfileCard.vue';
@@ -74,27 +129,14 @@ import { useCurrentIncident } from '@/hooks';
 import { useDashboardActionItems } from '@/hooks/useDashboardActionItems';
 import { useToast } from 'vue-toastification';
 import useNavigation from '@/hooks/useNavigation';
-import _ from 'lodash';
+import _, { kebabCase } from 'lodash';
 import DashboardFooter from '@/components/dashboard/DashboardFooter.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
+import RedeployRequest from '@/components/modals/RedeployRequest.vue';
 
-const { currentUser } = useCurrentUser();
-const { currentIncidentId, currentIncident } = useCurrentIncident();
-const $toasted = useToast();
-
-const { HomeNavigation, FooterNavigation } = useNavigation();
-const publicRoutes = computed(() => {
-  const _homeSideRoutes = _.keyBy(HomeNavigation, 'key');
-  const _homeFooterRoutes = _.keyBy(FooterNavigation, 'key');
-  const homeRoutes = { ..._homeSideRoutes, ..._homeFooterRoutes };
-  return {
-    survivor: { ...homeRoutes.survivor, icon: 'contact' },
-    training: homeRoutes.training,
-    about: { title: 'publicNav.about_us', route: { name: 'nav.about' } },
-    blog: { ...homeRoutes.blog, icon: 'notepad' },
-    terms: homeRoutes.terms,
-    privacy: homeRoutes.privacy,
-  };
-});
+const { currentUser, userPreferences, updateCurrentUser } = useCurrentUser();
+const { currentIncidentId } = useCurrentIncident();
+const router = useRouter();
 
 const performAction = async (action) => {
   await action();
@@ -116,6 +158,17 @@ const {
 );
 
 const allDataLoaded = ref(false);
+
+const goToDashboardSelector = async () => {
+  const newPreferences = {
+    ...userPreferences.value,
+  };
+  delete newPreferences.dashboard;
+  await updateCurrentUser({
+    preferences: newPreferences,
+  });
+  await router.push(`/dashboard`);
+};
 
 onMounted(() => {
   watch(

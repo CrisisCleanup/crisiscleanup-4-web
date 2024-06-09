@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="user"
     class="max-w-sm mx-auto bg-white flex flex-col items-center space-y-4 border rounded-md"
   >
     <div class="flex flex-col items-center p-3">
@@ -9,7 +10,7 @@
         alt="profileUser.profile_picture"
       />
       <h1 class="text-lg font-semibold">{{ user.full_name }}</h1>
-      <p class="text-gray-500">{{ user.highestRole.name_t }}</p>
+      <p class="text-gray-500">{{ $t(user?.highestRole?.name_t) }}</p>
     </div>
     <div class="space-y-1 text-crisiscleanup-grey-900">
       <div class="flex items-center space-x-1">

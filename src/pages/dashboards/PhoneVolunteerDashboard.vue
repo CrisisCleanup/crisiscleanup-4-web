@@ -50,10 +50,9 @@ const callsWaiting = computed(function () {
 const recentUsers = ref<User[]>([]);
 const persistentInvitations = ref([]);
 
-async function getRecentUsers() {
-  const oneDayAgo = moment().subtract(1, 'day').toISOString();
+async function getRecentPhoneUsers() {
   const _results = await User.api().get(
-    `/users?current_sign_in_at__gte=${oneDayAgo}&limit=10&&organization=${currentUser?.value?.organization.id}&search=${search.value}`,
+    `/users?recent_phone_users=7&limit=10&&organization=${currentUser?.value?.organization.id}&search=${search.value}`,
     { dataKey: 'results' },
   );
 
@@ -112,7 +111,7 @@ function showQRCode(persistentInvitation) {
 
 onMounted(async () => {
   await updateCallbacks();
-  await getRecentUsers();
+  await getRecentPhoneUsers();
   await getPersistentInvitations();
   const queueStatsResponse = await apiGetQueueStats();
   stats.value = queueStatsResponse.data;
@@ -235,7 +234,7 @@ onMounted(async () => {
               @update:model-value="
                 (value) => {
                   search = value;
-                  throttle(getRecentUsers, 1000)();
+                  throttle(getRecentPhoneUsers, 1000)();
                 }
               "
             ></base-input>

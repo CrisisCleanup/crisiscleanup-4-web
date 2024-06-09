@@ -88,6 +88,12 @@ import bugReport from './assets/icons/bug-report.svg';
 import manualDialer from './assets/icons/manual-dialer.svg';
 import stats from './assets/icons/stats.svg';
 import qrcode from './assets/icons/qrcode.svg';
+import phoneVolunteerDashboard from './assets/icons/phone-volunteer-dashboard.svg';
+import governmentDashboard from './assets/icons/government-dashboard.svg';
+import fieldVolunteerDashboard from './assets/icons/field-volunteer-dashboard.svg';
+import commandCenterDashboard from './assets/icons/command-center-dashboard.svg';
+import defaultDashboard from './assets/icons/default-dashboard.svg';
+
 // DISASTER ICONS
 import contaminatedWater from './assets/disaster_icons/contaminated-water.svg';
 import earthquake from './assets/disaster_icons/earthquake.svg';
@@ -279,6 +285,11 @@ export const ICON_MAP = {
   'manual-dialer': manualDialer,
   stats: stats,
   qrcode: qrcode,
+  'phone-volunteer-dashboard': phoneVolunteerDashboard,
+  'government-dashboard': governmentDashboard,
+  'field-volunteer-dashboard': fieldVolunteerDashboard,
+  'command-center-dashboard': commandCenterDashboard,
+  'default-dashboard': defaultDashboard,
 };
 
 export const ICONS = Object.fromEntries(

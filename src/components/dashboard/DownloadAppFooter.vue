@@ -42,7 +42,7 @@ import appStoreLinks from '@/utils/app_store_links';
 
 const emit = defineEmits(['update:show']);
 const getQRValue = () => {
-  return appStoreLinks.apple;
+  return 'https://www.crisiscleanup.org/apps';
 };
 </script>
 

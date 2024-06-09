@@ -280,6 +280,6 @@ button.large {
 }
 
 button.text-dark {
-  @apply text-crisiscleanup-link-blue;
+  @apply text-crisiscleanup-dashboard-blue;
 }
 </style>

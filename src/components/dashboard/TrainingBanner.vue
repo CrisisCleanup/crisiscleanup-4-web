@@ -12,7 +12,7 @@
           {{ $t('dashboard.training_available') }}
         </h2>
         <p class="mb-4">
-          {{ $t(dashboard.visit_training_page) }}
+          {{ $t('dashboard.visit_training_page') }}
         </p>
         <base-button
           variant="solid"
