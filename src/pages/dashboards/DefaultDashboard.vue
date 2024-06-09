@@ -310,14 +310,11 @@ onMounted((loaded) => {
                 <div>
                   <div class="text-lg font-medium">
                     {{
-                      $t(
-                        '{requester} ask to join {requested_to_organization}',
-                        {
-                          requester: `${invite.first_name} ${invite.last_name}`,
-                          requested_to_organization:
-                            invite.requested_to_organization,
-                        },
-                      )
+                      $t('dashboard.invitation_request_from_organization', {
+                        requester: `${invite.first_name} ${invite.last_name}`,
+                        requested_to_organization:
+                          invite.requested_to_organization,
+                      })
                     }}
                   </div>
                   <div class="text-sm text-gray-500">

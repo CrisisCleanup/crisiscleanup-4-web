@@ -10,7 +10,17 @@
       <header
         class="bg-white border p-6 flex items-center gap-3 flex justify-between"
       >
-        <h1 class="text-xl font-semibold">{{ $t($route.name) }}</h1>
+        <div class="flex items-center gap-2">
+          <ccu-icon
+            :type="`${kebabCase($route.path.split('/').pop())}-dashboard`"
+            class="text-crisiscleanup-dashboard-blue"
+            size="xl"
+          />
+          <h1 class="text-2xl">{{ $t($route.name) }}</h1>
+          <base-button :action="goToDashboardSelector" variant="text-dark">
+            {{ $t('~~Switch') }}
+          </base-button>
+        </div>
         <div class="flex items-center">
           <RedeployRequest />
           <InviteUsers class="mx-1" />
@@ -80,13 +90,14 @@ import { useCurrentIncident } from '@/hooks';
 import { useDashboardActionItems } from '@/hooks/useDashboardActionItems';
 import { useToast } from 'vue-toastification';
 import useNavigation from '@/hooks/useNavigation';
-import _ from 'lodash';
+import _, { kebabCase } from 'lodash';
 import DashboardFooter from '@/components/dashboard/DashboardFooter.vue';
 import InviteUsers from '@/components/modals/InviteUsers.vue';
 import RedeployRequest from '@/components/modals/RedeployRequest.vue';
 
-const { currentUser } = useCurrentUser();
+const { currentUser, userPreferences, updateCurrentUser } = useCurrentUser();
 const { currentIncidentId } = useCurrentIncident();
+const router = useRouter();
 
 const performAction = async (action) => {
   await action();
@@ -108,6 +119,17 @@ const {
 );
 
 const allDataLoaded = ref(false);
+
+const goToDashboardSelector = async () => {
+  const newPreferences = {
+    ...userPreferences.value,
+  };
+  delete newPreferences.dashboard;
+  await updateCurrentUser({
+    preferences: newPreferences,
+  });
+  await router.push(`/dashboard`);
+};
 
 onMounted(() => {
   watch(

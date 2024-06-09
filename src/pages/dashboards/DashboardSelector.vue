@@ -5,6 +5,7 @@ import { useCurrentIncident } from '@/hooks';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import useCurrentUser from '@/hooks/useCurrentUser';
+import { snakeCase } from 'lodash';
 
 const { t } = useI18n();
 const { currentIncidentId } = useCurrentIncident();
@@ -41,7 +42,7 @@ const goToSelectedDashboard = async () => {
   });
   if (selectedDashboard.value) {
     await router.push(
-      `/incident/${currentIncidentId.value}/dashboard/${selectedDashboard.value}`,
+      `/incident/${currentIncidentId.value}/dashboard/${snakeCase(selectedDashboard.value)}`,
     );
   } else {
     $toasted.error(t('~~Please select a dashboard to continue.'));

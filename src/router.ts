@@ -68,7 +68,7 @@ const routes = [
   },
   {
     path: '/incident/:incident_id/dashboard',
-    component: Dashboard,
+    component: DashboardSelector,
     name: 'nav.dashboard',
     meta: { layout: 'authenticated' },
   },
