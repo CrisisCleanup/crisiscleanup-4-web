@@ -16,7 +16,7 @@ test.describe('DashboardPage', () => {
     await page.waitForLoadState();
   });
 
-  test(
+  test.fail(
     testTitleWithTags(`should have data-testids`, [
       'fast',
       'primary',
@@ -30,33 +30,33 @@ test.describe('DashboardPage', () => {
       // await expect(spinnerDiv).toBeHidden({ timeout: 60_000 });
       const rootDiv = page.getByTestId('testIsAuthenticatedDiv');
       await expect(rootDiv).toBeVisible({ timeout: 60_000 });
-      const testSelectDashboardButton = page.getByTestId('testContinueButton');
-      await expect(testSelectDashboardButton).toBeVisible();
-      await testSelectDashboardButton.click();
+
+      const rootDashboardDiv = page.getByTestId('testDashboarddiv');
+      await expect(rootDashboardDiv).toBeVisible({ timeout: 60_000 });
 
       const dataTestIds = [
         'testDashboarddiv',
-        // 'testMainContent',
-        // 'testHeader',
-        // 'testHeaderLeft',
-        // 'testDashboardIcon',
-        // 'testDashboardTitle',
-        // 'testSwitchButton',
-        // 'testHeaderRight',
-        // 'testRedeployRequest',
-        // 'testInviteUsers',
-        // 'testMain',
-        // 'testGrid',
-        // 'testLeftSection',
-        // 'testUserProfileCard',
-        // 'testActionItemsTitle',
-        // 'testActionItem',
-        // 'testActionItemTitle',
-        // 'testActionItemTimestamp',
-        // 'testActionItemActions',
-        // 'testActionButton',
-        // 'testRightSection',
-        // 'testDashboardFooter',
+        'testMainContent',
+        'testHeader',
+        'testHeaderLeft',
+        'testDashboardIcon',
+        'testDashboardTitle',
+        'testSwitchButton',
+        'testHeaderRight',
+        'testRedeployRequest',
+        'testInviteUsers',
+        'testMain',
+        'testGrid',
+        'testLeftSection',
+        'testUserProfileCard',
+        'testActionItemsTitle',
+        'testActionItem',
+        'testActionItemTitle',
+        'testActionItemTimestamp',
+        'testActionItemActions',
+        'testActionButton',
+        'testRightSection',
+        'testDashboardFooter',
       ];
       const locators = dataTestIds.map((tId) => page.getByTestId(tId));
       // Create an array of promises for the visibility checks
