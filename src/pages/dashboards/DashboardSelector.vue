@@ -108,6 +108,7 @@ onMounted(async () => {
           :action="goToSelectedDashboard"
           variant="solid"
           class="my-2 p-2"
+          data-testid="testContinueButton"
         >
           {{ $t('~~Continue') }}
         </base-button>

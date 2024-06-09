@@ -30,6 +30,10 @@ test.describe('DashboardPage', () => {
       // await expect(spinnerDiv).toBeHidden({ timeout: 60_000 });
       const rootDiv = page.getByTestId('testIsAuthenticatedDiv');
       await expect(rootDiv).toBeVisible({ timeout: 60_000 });
+      const testSelectDashboardButton = page.getByTestId('testContinueButton');
+      await expect(testSelectDashboardButton).toBeVisible();
+      await testSelectDashboardButton.click();
+
       const dataTestIds = [
         'testDashboarddiv',
         'testMainContent',
