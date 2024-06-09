@@ -61,7 +61,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="!loading" class="flex flex-col justify-between h-full">
+  <div
+    v-if="!loading"
+    class="flex flex-col justify-between h-full"
+    data-testid="testDashboarddiv"
+  >
     <header
       class="text-3xl flex items-center justify-center bg-crisiscleanup-dashboard-blue text-white h-20 w-full"
     >
