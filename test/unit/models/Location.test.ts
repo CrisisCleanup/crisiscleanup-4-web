@@ -1,4 +1,4 @@
-import { describe, expect, test, beforeEach, beforeAll } from 'vitest';
+import { describe, expect, test, beforeEach, beforeAll, vi } from 'vitest';
 import Location from '@/models/Location';
 import LocationType from '@/models/LocationType';
 import * as VuexORM from '@vuex-orm/core';
@@ -59,28 +59,32 @@ describe('models > Location', () => {
     expect(location.location_type?.name_t).toBe('Headquarters');
   });
 
-  test('fetchById API action calls get request with correct URL', async () => {
+  test('api action: fetchById', async () => {
     const actions = Location.api();
-    const spy = vi.spyOn(actions, 'get').mockResolvedValue({ data: {} });
+    const getMock = vi.spyOn(actions, 'get').mockResolvedValue({ data: {} });
 
-    await actions.fetchById('1');
-    expect(spy).toHaveBeenCalledWith('/locations/1');
+    await actions.fetchById('location-id');
 
-    spy.mockRestore();
+    expect(getMock).toHaveBeenCalledWith('/locations/location-id');
+
+    getMock.mockRestore();
   });
 
-  test('download API action calls request with correct options', async () => {
+  test('api action: download', async () => {
     const actions = Location.api();
-    const spy = vi.spyOn(actions, 'request').mockResolvedValue({});
+    const requestMock = vi
+      .spyOn(actions, 'request')
+      .mockResolvedValue({ data: {} });
 
-    await actions.download('1');
-    expect(spy).toHaveBeenCalledWith({
-      url: '/locations/1/download',
+    await actions.download('location-id');
+
+    expect(requestMock).toHaveBeenCalledWith({
+      url: '/locations/location-id/download',
       method: 'GET',
       responseType: 'blob',
       save: false,
     });
 
-    spy.mockRestore();
+    requestMock.mockRestore();
   });
 });
