@@ -73,7 +73,7 @@ import { useCurrentUser } from '@/hooks';
 
 const emit = defineEmits(['update:show']);
 const getQRValue = () => {
-  return appStoreLinks.apple;
+  return 'https://www.crisiscleanup.org/apps';
 };
 
 const { updateCurrentUser, userPreferences } = useCurrentUser();

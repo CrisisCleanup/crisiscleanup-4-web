@@ -12,7 +12,7 @@
     >
       <div class="h-full flex-1 text-xl bg-crisiscleanup-light-smoke p-5">
         <div class="font-bold">
-          {{ chartData[0].velocity }}
+          {{ chartData[0].velocity.toFixed(2) }}
         </div>
         <div>{{ $t('volunteerChart.current_engagement') }}</div>
       </div>
@@ -24,7 +24,7 @@
           'bg-crisiscleanup-light-smoke': monthlyChange === 0,
         }"
       >
-        <div class="font-bold">{{ monthlyChange }}%</div>
+        <div class="font-bold">{{ monthlyChange.toFixed(2) }}%</div>
         <div v-if="monthlyChange < 0">
           {{ $t('volunteerChart.down_from_last_month') }}
         </div>

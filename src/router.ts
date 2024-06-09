@@ -33,6 +33,8 @@ declare module 'vue-router' {
 const Dashboard = () => import('./pages/Dashboard.vue');
 
 const DashboardPage = () => import('./pages/dashboards/DashboardPage.vue');
+const DashboardSelector = () =>
+  import('./pages/dashboards/DashboardSelector.vue');
 const DefaultDashboard = () =>
   import('./pages/dashboards/DefaultDashboard.vue');
 
@@ -54,13 +56,13 @@ const List = () => import('@/pages/lists/List.vue');
 const routes = [
   {
     path: '/',
-    component: Dashboard,
+    component: DashboardSelector,
     name: 'nav.dashboard_home',
     meta: { layout: 'authenticated' },
   },
   {
     path: '/dashboard',
-    component: Dashboard,
+    component: DashboardSelector,
     name: 'nav.dashboard_no_incident',
     meta: { layout: 'authenticated' },
   },
@@ -87,6 +89,12 @@ const routes = [
         component: PhoneVolunteerDashboard,
       },
     ],
+  },
+  {
+    path: '/select_dashboard',
+    component: DashboardSelector,
+    name: 'nav.dashboard_selector',
+    meta: { layout: 'authenticated' },
   },
   {
     path: '/profile',

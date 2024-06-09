@@ -162,6 +162,7 @@ module.exports = {
         'crisiscleanup-grid-yellow': '#FECE09',
         'crisiscleanup-phone-green': '#2D830C',
         'crisiscleanup-link-blue': '#59D9F6',
+        'crisiscleanup-dashboard-blue': '#0054BB',
       },
       spacing: {
         18: '4.5rem',

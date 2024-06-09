@@ -7,9 +7,15 @@
       <spinner size="lg" />
     </div>
     <div v-else class="flex flex-col w-full">
-      <header class="bg-white border p-6 flex items-center gap-3">
+      <header
+        class="bg-white border p-6 flex items-center gap-3 flex justify-between"
+      >
         <h1 class="text-xl font-semibold">{{ $t($route.name) }}</h1>
-        <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
+        <div class="flex items-center">
+          <RedeployRequest />
+          <InviteUsers class="mx-1" />
+          <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
+        </div>
       </header>
 
       <main class="flex-grow overflow-auto bg-gray-100 border-l border-r">
@@ -76,25 +82,11 @@ import { useToast } from 'vue-toastification';
 import useNavigation from '@/hooks/useNavigation';
 import _ from 'lodash';
 import DashboardFooter from '@/components/dashboard/DashboardFooter.vue';
+import InviteUsers from '@/components/modals/InviteUsers.vue';
+import RedeployRequest from '@/components/modals/RedeployRequest.vue';
 
 const { currentUser } = useCurrentUser();
-const { currentIncidentId, currentIncident } = useCurrentIncident();
-const $toasted = useToast();
-
-const { HomeNavigation, FooterNavigation } = useNavigation();
-const publicRoutes = computed(() => {
-  const _homeSideRoutes = _.keyBy(HomeNavigation, 'key');
-  const _homeFooterRoutes = _.keyBy(FooterNavigation, 'key');
-  const homeRoutes = { ..._homeSideRoutes, ..._homeFooterRoutes };
-  return {
-    survivor: { ...homeRoutes.survivor, icon: 'contact' },
-    training: homeRoutes.training,
-    about: { title: 'publicNav.about_us', route: { name: 'nav.about' } },
-    blog: { ...homeRoutes.blog, icon: 'notepad' },
-    terms: homeRoutes.terms,
-    privacy: homeRoutes.privacy,
-  };
-});
+const { currentIncidentId } = useCurrentIncident();
 
 const performAction = async (action) => {
   await action();
