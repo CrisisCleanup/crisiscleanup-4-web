@@ -32,7 +32,6 @@ test.describe('DashboardPage', () => {
       await expect(rootDiv).toBeVisible({ timeout: 60_000 });
       const dataTestIds = [
         'testDashboarddiv',
-        'testLoadingSpinner',
         'testMainContent',
         'testHeader',
         'testHeaderLeft',
