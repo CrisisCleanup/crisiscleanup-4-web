@@ -492,4 +492,261 @@ describe('models > Worksite', () => {
 
     getMock.mockRestore();
   });
+
+  test('api action: addFileWithToken', async () => {
+    const actions = Worksite.api();
+    const postMock = vi.spyOn(actions, 'post').mockResolvedValue({ data: {} });
+
+    await actions.addFileWithToken('token', 'file-content');
+
+    expect(postMock).toHaveBeenCalledWith(
+      '/print_tokens/token/files',
+      {
+        file: 'file-content',
+      },
+      { save: false },
+    );
+
+    postMock.mockRestore();
+  });
+
+  test('api action: addFileWithSurvivorToken', async () => {
+    const actions = Worksite.api();
+    const postMock = vi.spyOn(actions, 'post').mockResolvedValue({ data: {} });
+
+    await actions.addFileWithSurvivorToken('token', 'file-content');
+
+    expect(postMock).toHaveBeenCalledWith(
+      '/survivor_tokens/token/files',
+      {
+        file: 'file-content',
+      },
+      { save: false },
+    );
+
+    postMock.mockRestore();
+  });
+
+  test('api action: getHistory', async () => {
+    const actions = Worksite.api();
+    const getMock = vi
+      .spyOn(actions, 'get')
+      .mockResolvedValue({ response: { data: [] } });
+
+    await actions.getHistory('worksite-id');
+
+    expect(getMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/history',
+      {},
+      { save: false },
+    );
+
+    getMock.mockRestore();
+  });
+
+  test('api action: deleteFileWithSurvivorToken', async () => {
+    const actions = Worksite.api();
+    const deleteMock = vi
+      .spyOn(actions, 'delete')
+      .mockResolvedValue({ response: { data: [] } });
+
+    await actions.deleteFileWithSurvivorToken('token-id', 'file-content');
+
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/survivor_tokens/token-id/files',
+      {
+        data: { file: 'file-content' },
+      },
+      { save: false },
+    );
+
+    deleteMock.mockRestore();
+  });
+
+  test('api action: addFlag', async () => {
+    const actions = Worksite.api();
+    const postMock = vi.spyOn(actions, 'post').mockResolvedValue({ data: {} });
+
+    await actions.addFlag('worksite-id', { is_high_priority: true });
+
+    expect(postMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/flags',
+      { is_high_priority: true },
+      { save: false },
+    );
+
+    postMock.mockRestore();
+  });
+
+  test('api action: deleteFlag', async () => {
+    const actions = Worksite.api();
+    const deleteMock = vi
+      .spyOn(actions, 'delete')
+      .mockResolvedValue({ response: { data: [] } });
+
+    await actions.deleteFlag('worksite-id', { id: 'flag-id' });
+
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/flags',
+      {
+        data: { flag_id: 'flag-id' },
+      },
+      { save: false },
+    );
+
+    deleteMock.mockRestore();
+  });
+
+  test('api action: favorite', async () => {
+    const actions = Worksite.api();
+    const postMock = vi.spyOn(actions, 'post').mockResolvedValue({ data: {} });
+
+    await actions.favorite('worksite-id', 'favorite');
+
+    expect(postMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/favorite',
+      { type_t: 'favorite' },
+      { save: false },
+    );
+
+    postMock.mockRestore();
+  });
+
+  test('api action: unfavorite', async () => {
+    const actions = Worksite.api();
+    const deleteMock = vi
+      .spyOn(actions, 'delete')
+      .mockResolvedValue({ response: { data: [] } });
+
+    await actions.unfavorite('worksite-id', 'favorite-id');
+
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/favorite',
+      {
+        data: { favorite_id: 'favorite-id' },
+      },
+      { save: false },
+    );
+
+    deleteMock.mockRestore();
+  });
+
+  test('api action: sendSurvivorSms', async () => {
+    const actions = Worksite.api();
+    const postMock = vi.spyOn(actions, 'post').mockResolvedValue({ data: {} });
+
+    await actions.sendSurvivorSms('worksite-id', 'phone-number');
+
+    expect(postMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/send_survivor_sms',
+      { phone: 'phone-number' },
+      { save: false },
+    );
+
+    postMock.mockRestore();
+  });
+
+  test('api action: updateWorkTypeStatus', async () => {
+    const actions = Worksite.api();
+    const patchMock = vi
+      .spyOn(actions, 'patch')
+      .mockResolvedValue({ data: {} });
+
+    await actions.updateWorkTypeStatus('worktype-id', 'completed');
+
+    expect(patchMock).toHaveBeenCalledWith(
+      '/worksite_work_types/worktype-id',
+      { status: 'completed' },
+      { save: false },
+    );
+
+    patchMock.mockRestore();
+  });
+
+  test('api action: printWorksite', async () => {
+    const actions = Worksite.api();
+    const requestMock = vi
+      .spyOn(actions, 'request')
+      .mockResolvedValue({ data: {} });
+
+    await actions.printWorksite('worksite-id', 'No reason');
+
+    expect(requestMock).toHaveBeenCalledWith({
+      url: '/worksites/worksite-id/download',
+      method: 'POST',
+      responseType: 'blob',
+      data: { no_claim_reason_text: 'No reason' },
+      headers: { Accept: 'application/pdf' },
+      save: false,
+    });
+
+    requestMock.mockRestore();
+  });
+
+  test('api action: shareWorksite', async () => {
+    const actions = Worksite.api();
+    const postMock = vi.spyOn(actions, 'post').mockResolvedValue({ data: {} });
+
+    await actions.shareWorksite(
+      'worksite-id',
+      ['email@example.com'],
+      ['+1234567890'],
+      'Please check this worksite.',
+      'No reason',
+    );
+
+    expect(postMock).toHaveBeenCalledWith(
+      '/worksites/worksite-id/share',
+      {
+        emails: ['email@example.com'],
+        phone_numbers: ['+1234567890'],
+        share_message: 'Please check this worksite.',
+        no_claim_reason_text: 'No reason',
+      },
+      { save: false },
+    );
+
+    postMock.mockRestore();
+  });
+
+  test('api action: downloadWorksite', async () => {
+    const actions = Worksite.api();
+    const requestMock = vi
+      .spyOn(actions, 'request')
+      .mockResolvedValue({ data: {} });
+
+    await actions.downloadWorksite(['worksite-id'], 'text/csv');
+
+    expect(requestMock).toHaveBeenCalledWith({
+      url: '/worksites?id__in=worksite-id',
+      method: 'GET',
+      responseType: 'blob',
+      headers: { Accept: 'text/csv' },
+      save: false,
+    });
+
+    requestMock.mockRestore();
+  });
+
+  test('api action: fetchByPhoneNumber', async () => {
+    const actions = Worksite.api();
+    const getMock = vi
+      .spyOn(actions, 'get')
+      .mockResolvedValue({ response: { data: [] } });
+
+    await actions.fetchByPhoneNumber('1234567890', 'incident-id');
+
+    expect(getMock).toHaveBeenCalledWith(
+      '/worksites',
+      {
+        params: {
+          phone_number: '1234567890',
+          incident: 'incident-id',
+        },
+      },
+      { save: false },
+    );
+
+    getMock.mockRestore();
+  });
 });
