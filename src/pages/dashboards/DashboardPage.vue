@@ -35,11 +35,7 @@
         <div class="flex items-center" data-testid="testHeaderRight">
           <RedeployRequest data-testid="testRedeployRequest" />
           <InviteUsers class="mx-1" data-testid="testInviteUsers" />
-          <spinner
-            v-show="loadingActionItems && allDataLoaded"
-            size="lg"
-            data-testid="testHeaderSpinner"
-          />
+          <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
         </div>
       </header>
 
@@ -114,7 +110,6 @@
               :worksite-requests="worksiteRequests"
               :all-data-loaded="allDataLoaded"
               :fetch-all-data="fetchAllData"
-              data-testid="testRouterView"
             />
           </section>
         </div>

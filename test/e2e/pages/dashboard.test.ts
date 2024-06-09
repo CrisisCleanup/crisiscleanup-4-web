@@ -41,7 +41,6 @@ test.describe('DashboardPage', () => {
         'testHeaderRight',
         'testRedeployRequest',
         'testInviteUsers',
-        'testHeaderSpinner',
         'testMain',
         'testGrid',
         'testLeftSection',
@@ -53,7 +52,6 @@ test.describe('DashboardPage', () => {
         'testActionItemActions',
         'testActionButton',
         'testRightSection',
-        'testRouterView',
         'testDashboardFooter',
       ];
       const locators = dataTestIds.map((tId) => page.getByTestId(tId));
