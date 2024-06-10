@@ -72,9 +72,7 @@ onMounted(async () => {
 
     <main class="flex flex-col justify-center mt-5 items-center">
       <p class="mb-4">
-        {{
-          $t('dashboard.selector_welcome_description')
-        }}
+        {{ $t('dashboard.selector_welcome_description') }}
       </p>
 
       <div class="flex flex-col gap-2">
