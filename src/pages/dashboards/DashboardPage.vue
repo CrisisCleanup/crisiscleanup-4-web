@@ -29,7 +29,7 @@
             variant="text-dark"
             data-testid="testSwitchButton"
           >
-            {{ $t('~~Switch') }}
+            {{ $t('actions.switch') }}
           </base-button>
         </div>
         <div class="flex items-center" data-testid="testHeaderRight">

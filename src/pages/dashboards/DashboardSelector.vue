@@ -16,17 +16,15 @@ const loading = ref(true);
 
 const availableDashboards = [
   {
-    name: t('~~Default'),
+    name: t('dashboard.default'),
     path: 'default',
-    description: t(
-      '~~Choose this dashboard if you don’t know which one you want. It has a little bit of everything.',
-    ),
+    description: t('dashboard.default_description'),
     icon: 'default-dashboard',
   },
   {
-    name: t('~~Phone Volunteer'),
+    name: t('dashboard.phone_volunteer'),
     path: 'phone-volunteer',
-    description: t('~~For volunteers who are taking phone calls.'),
+    description: t('dashboard.phone_volunteer_description'),
     icon: 'phone-volunteer-dashboard',
   },
 ];
@@ -45,7 +43,7 @@ const goToSelectedDashboard = async () => {
       `/incident/${currentIncidentId.value}/dashboard/${snakeCase(selectedDashboard.value)}`,
     );
   } else {
-    $toasted.error(t('~~Please select a dashboard to continue.'));
+    $toasted.error(t('info.please_select_dashboard'));
   }
 };
 
@@ -69,15 +67,13 @@ onMounted(async () => {
     <header
       class="text-3xl flex items-center justify-center bg-crisiscleanup-dashboard-blue text-white h-20 w-full"
     >
-      {{ $t('~~Welcome to the CC Dashboard') }} {{ currentIncidentId }}
+      {{ $t('dashboard.selector_welcome') }} {{ currentIncidentId }}
     </header>
 
     <main class="flex flex-col justify-center mt-5 items-center">
       <p class="mb-4">
         {{
-          $t(
-            '~~Select a Dashboard view to get started. You can change it later if you decide you want something different.',
-          )
+          $t('dashboard.selector_welcome_description')
         }}
       </p>
 
@@ -110,7 +106,7 @@ onMounted(async () => {
           class="my-2 p-2"
           data-testid="testContinueButton"
         >
-          {{ $t('~~Continue') }}
+          {{ $t('actions.continue') }}
         </base-button>
       </div>
     </main>
