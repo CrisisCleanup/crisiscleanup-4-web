@@ -168,7 +168,7 @@
         <ccu-icon
           v-if="!isViewingWorksite && canEdit"
           data-testid="testExitEditIcon"
-          :alt="$t('~~Exit Edit')"
+          :alt="$t('actions.go_to_work')"
           class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
           size="small"
           icon-classes="filter-black scale-150"

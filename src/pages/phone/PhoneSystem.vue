@@ -949,7 +949,7 @@ export default defineComponent({
               buttonClass: 'border border-black',
             },
             save: {
-              text: t('~~Save Worksite'),
+              text: t('actions.save_worksite'),
               type: 'solid',
             },
           },

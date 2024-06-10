@@ -48,7 +48,8 @@
                   <font-awesome-icon
                     icon="mobile-screen"
                     class="text-green-700"
-                    :title="$t('~~Using mobile app')"
+                    :title="$t('chat.using_mobile_app')"
+                    :alt="$t('chat.using_mobile_app')"
                   />
                 </div>
               </div>
