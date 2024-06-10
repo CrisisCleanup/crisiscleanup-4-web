@@ -20,6 +20,13 @@ config.global.mocks = {
 
 config.global.plugins = [i18n, Vue3Mq];
 
+vi.mock('@/modules/i18n', () => ({
+  i18n: {
+    global: {
+      t: (key: string) => key,
+    },
+  },
+}));
 vi.mock('@geoman-io/leaflet-geoman-free', () => {
   return {
     __esModule: true,
