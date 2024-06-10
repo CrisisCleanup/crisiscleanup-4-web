@@ -1,5 +1,4 @@
-import { describe, expect, test, vi } from 'vitest';
-import { i18n } from '@/modules/i18n';
+import { describe, expect, test } from 'vitest';
 import FormDataFilter from '@/utils/data_filters/FormDataFilter';
 
 describe('FormDataFilter', () => {
@@ -37,6 +36,12 @@ describe('FormDataFilter', () => {
       key1: false,
       key2: false,
     });
+    const count = formDataFilter.getCount();
+    expect(count).toBe(0);
+  });
+
+  test('getCount should return 0 when data is undefined', () => {
+    const formDataFilter = new FormDataFilter('test', undefined);
     const count = formDataFilter.getCount();
     expect(count).toBe(0);
   });
