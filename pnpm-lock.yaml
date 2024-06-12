@@ -94,7 +94,7 @@ importers:
         version: 10.10.0(axios@1.7.2(debug@4.3.5))(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.3)(sortablejs@1.15.2)(vue@3.4.27(typescript@5.4.5))
       '@vueuse/math':
         specifier: ^10.9.0
-        version: 10.10.0(vue@3.4.27(typescript@5.4.5))
+        version: 10.11.0(vue@3.4.27(typescript@5.4.5))
       '@vueuse/router':
         specifier: ^10.9.0
         version: 10.10.0(vue-router@4.3.2(vue@3.4.27(typescript@5.4.5)))(vue@3.4.27(typescript@5.4.5))
@@ -2705,8 +2705,8 @@ packages:
       universal-cookie:
         optional: true
 
-  '@vueuse/math@10.10.0':
-    resolution: {integrity: sha512-+jAA7wla5T400VcMLLRMMozAkoL/3LGJE8qNoteX1YHsvpDSN0UR0DkgCmu9UakhK3JWpX4SURXtwd98rDtMyA==}
+  '@vueuse/math@10.11.0':
+    resolution: {integrity: sha512-Ocb6ldMQDDh0jEItW+0vhlFQI8c8Dje2aawRoUL1Ui9u+SZSLRNdDjONi21V98VLyNecfMyrDnT2oaYfc3FqGw==}
 
   '@vueuse/metadata@10.10.0':
     resolution: {integrity: sha512-UNAo2sTCAW5ge6OErPEHb5z7NEAg3XcO9Cj7OK45aZXfLLH1QkexDcZD77HBi5zvEiLOm1An+p/4b5K3Worpug==}
@@ -9588,9 +9588,9 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/math@10.10.0(vue@3.4.27(typescript@5.4.5))':
+  '@vueuse/math@10.11.0(vue@3.4.27(typescript@5.4.5))':
     dependencies:
-      '@vueuse/shared': 10.10.0(vue@3.4.27(typescript@5.4.5))
+      '@vueuse/shared': 10.11.0(vue@3.4.27(typescript@5.4.5))
       vue-demi: 0.14.8(vue@3.4.27(typescript@5.4.5))
     transitivePeerDependencies:
       - '@vue/composition-api'
