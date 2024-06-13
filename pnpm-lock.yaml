@@ -100,7 +100,7 @@ importers:
         version: 10.11.0(vue-router@4.3.2(vue@3.4.27(typescript@5.4.5)))(vue@3.4.27(typescript@5.4.5))
       '@vueuse/shared':
         specifier: ^10.9.0
-        version: 10.10.0(vue@3.4.27(typescript@5.4.5))
+        version: 10.11.0(vue@3.4.27(typescript@5.4.5))
       '@vuex-orm/core':
         specifier: ^0.36.4
         version: 0.36.4(vuex@4.1.0(vue@3.4.27(typescript@5.4.5)))
