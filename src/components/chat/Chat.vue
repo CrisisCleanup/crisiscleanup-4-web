@@ -505,6 +505,7 @@ export default defineComponent({
               );
 
             allOnlineUsers.value = users.map((u) => u.id);
+            await User.fetchOrFindId(allOnlineUsers.value);
             mobileOnlineUsers.value = users
               .filter((u) => u.is_mobile)
               .map((u) => u.id);
