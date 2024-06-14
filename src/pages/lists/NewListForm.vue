@@ -91,7 +91,7 @@ const sharedOptions = {
 watch(
   newList,
   () => {
-    emit('onNewList', structuredClone(newList.value));
+    emit('onNewList', { ...newList.value });
   },
   {
     deep: true,
