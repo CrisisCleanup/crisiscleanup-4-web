@@ -44,6 +44,7 @@ exports[`BaseInput > should render correctly and match snapshot when required an
     rows="0"
     style="--height: 40px; --width: 300px;"
     type="search"
+    value="Test"
   />
   <!--v-if-->
   <!--v-if-->
@@ -70,6 +71,7 @@ exports[`BaseInput > should render correctly and match snapshot when required an
     rows="0"
     style="--height: 40px; --width: 300px;"
     type="search"
+    value="Test"
   />
   <!--v-if-->
   <!--v-if-->
