@@ -5,7 +5,6 @@ import { getAssets } from '@/utils/incident_assets';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
 import Card from '@/components/cards/Card.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import IncidentAssetEditor from '@/components/IncidentAssetEditor.vue';
 import moment from 'moment';
 import { formatNationalNumber } from '@/filters';
 import type { CmsItem } from '@/models/types';
@@ -14,6 +13,9 @@ import axios from 'axios';
 import { transformGraphData } from '@/utils/reports';
 import ReportWidget from '@/components/reports/ReportWidget.vue';
 import BlogPosts from '@/components/blog/BlogPosts.vue';
+import PdfViewer from '@/components/PdfViewer.vue';
+import { forceFileDownload } from '@/utils/downloads';
+import type { IncidentAniAsset } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -40,6 +42,16 @@ async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   );
   return response.data.results;
 }
+
+const downloadAsset = async (asset: IncidentAniAsset) => {
+  const response = await axios.get(asset.files[0].general_file_url, {
+    responseType: 'blob',
+    headers: {
+      Authorization: null,
+    },
+  });
+  forceFileDownload(response, asset.files[0].filename);
+};
 
 onMounted(async () => {
   await Incident.api().fetchById(route.params.id);
@@ -100,11 +112,11 @@ onMounted(async () => {
 
     <tabs>
       <tab name="Resources">
-        <div class="overflow-auto h-[calc(100vh-55px)]">
+        <div class="overflow-auto h-[calc(100vh-200px)]">
           <Card
             v-for="(assetGroup, assetType) in assets"
             :key="assetType"
-            class="p-3 my-2 min-w-max max-w-6xl"
+            class="p-3 my-2 min-w-max max-w-6xl !h-max"
             :title="$t(assetType)"
           >
             <template #header>
@@ -114,15 +126,21 @@ onMounted(async () => {
             </template>
             <div class="grid grid-cols-2 mt-4">
               <div
-                v-for="asset in assetGroup"
+                v-for="asset in assetGroup.filter((a) => a.files.length > 0)"
                 :key="`${asset.asset_type}:${asset.language}:${asset.ani}`"
-                class="p-3 h-max w-min"
+                class="p-3 w-min cursor-pointer"
+                @click="() => downloadAsset(asset)"
               >
-                <incident-asset-editor
-                  :key="asset.content"
-                  v-model="asset.content"
-                  read-only
-                  class="scale-75 origin-top-left -mb-16"
+                <PdfViewer
+                  v-if="asset.files[0].mime_content_type === 'application/pdf'"
+                  :pdf="asset.files[0]"
+                  :show-download-button="false"
+                />
+                <img
+                  v-else
+                  :src="asset.files[0].general_file_url"
+                  :alt="asset.files[0].filename"
+                  class="h-64 max-w-84"
                 />
                 <div class="flex mt-2 items-center justify-between">
                   <div class="flex gap-5 items-center">
