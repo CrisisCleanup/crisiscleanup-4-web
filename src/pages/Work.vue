@@ -406,7 +406,7 @@
               </span>
               <WorksiteSearchAndFilters
                 :key="currentIncidentId"
-                :current-incident="String(currentIncidentId)"
+                :current-incident="currentIncident"
                 :initial-filters="filters"
                 @selected-existing="handleSelectedExisting"
                 @updated-query="onUpdateQuery"
@@ -999,7 +999,7 @@ import Organization from '@/models/Organization';
 import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
-import { useCurrentUser } from '@/hooks';
+import { useCurrentIncident, useCurrentUser } from '@/hooks';
 import type { Portal } from '@/models/types';
 import WorksiteFeed from '@/components/WorksiteFeed.vue';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
@@ -1043,15 +1043,10 @@ export default defineComponent({
     const mq = useMq();
     const { $can } = useAcl();
 
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
-    );
+    const { currentIncidentId, currentIncident } = useCurrentIncident();
     const portal = store.getters['enums/portal'] as Portal;
 
-    const incidentName = computed(() => {
-      const { name } = Incident.find(currentIncidentId.value) as Incident;
-      return name;
-    });
+    const incidentName = computed(() => currentIncident.name);
 
     const { currentUser, updateUserStates } = useCurrentUser();
     const { recentWorksites } = useRecentWorksites();
@@ -2126,6 +2121,7 @@ export default defineComponent({
       can: $can,
       updateFilterLabels,
       filterLabels,
+      currentIncident,
     };
   },
 });
