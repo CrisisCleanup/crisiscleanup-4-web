@@ -17,31 +17,52 @@
       </base-button>
     </div>
     <div class="flex gap-2">
-      <base-select
-        v-model="selectedAssetType"
-        class="flex-1 border border-crisiscleanup-dark-100"
-        data-testid="testLanguagesSelect"
-        :options="AssetTypes"
-        item-key="key"
-        label="value"
-        select-classes="bg-white border"
-      />
-      <base-select
-        v-model="selectedWorkTypes"
-        class="flex-1 border border-crisiscleanup-dark-100"
-        data-testid="testWorkTypesSelect"
-        :options="selectableWorkTypes"
-        item-key="key"
-        label="value"
-        select-classes="bg-white border"
-        multiple
-        max="4"
-        :placeholder="$t('incidentAssets.relevant_work_types')"
-      />
-      <base-button :action="generateAsset" class="ml-2 p-2" variant="solid">
-        {{ $t('incidentAssets.add_asset') }}
-      </base-button>
+      <div class="flex flex-grow gap-2">
+        <base-select
+          v-model="selectedAssetType"
+          class="flex-1"
+          data-testid="testLanguagesSelect"
+          :options="AssetTypes"
+          item-key="key"
+          label="value"
+          select-classes="bg-white border"
+        />
+        <base-select
+          v-model="selectedWorkTypes"
+          class="flex-1"
+          data-testid="testWorkTypesSelect"
+          :options="selectableWorkTypes"
+          item-key="key"
+          label="value"
+          select-classes="bg-white border"
+          multiple
+          max="4"
+          :placeholder="$t('incidentAssets.relevant_work_types')"
+        />
+        <base-select
+          v-model="selectedLanguages"
+          data-testid="testLanguageSelect"
+          class="flex-1"
+          :options="supportedLanguages"
+          item-key="id"
+          label="name_t"
+          size="large"
+          multiple
+          select-classes="bg-white border text-xs p-1"
+          :placeholder="$t('~~Languages')"
+        />
+        <datepicker
+          v-model="selectedEndDate"
+          data-testid="testCurrentAniStartAtSelect"
+          :timezone="currentIncident.timezone"
+          :placeholder="$t('~~End Date')"
+          v-bind="datePickerDefaultProps"
+        ></datepicker>
+      </div>
     </div>
+    <base-button :action="generateAsset" class="ml-2 p-2 mt-4" variant="solid">
+      {{ $t('incidentAssets.add_asset') }}
+    </base-button>
     <Card
       v-for="(assetGroup, assetType) in groupedAssets"
       :key="assetType"
@@ -72,18 +93,27 @@
           </div>
           <div class="flex gap-2">
             <base-button
+              v-if="checkIfAssetTypeSaved(assetType)"
               :action="() => publishAssets(assetType)"
               class="p-2 mb-1"
-              variant="solid"
+              variant="outline"
             >
               {{ $t('actions.publish_all') }}
             </base-button>
             <base-button
+              v-if="checkIfAssetTypeSaved(assetType)"
               :action="() => deleteAssets(assetType)"
+              class="p-2 mb-1"
+              variant="outline"
+            >
+              {{ $t('actions.deleteAll') }}
+            </base-button>
+            <base-button
+              :action="() => saveAssetsForType(assetType)"
               class="p-2 mb-1"
               variant="solid"
             >
-              {{ $t('actions.deleteAll') }}
+              {{ $t('actions.saveAll') }}
             </base-button>
           </div>
         </div>
@@ -130,6 +160,7 @@
                   icon-size="md"
                 />
                 <base-button
+                  v-if="asset.files && asset.files.length > 0"
                   :action="() => downloadAsset(asset)"
                   class="p-2"
                   ccu-icon="download"
@@ -143,11 +174,15 @@
                 />
               </div>
               <div
-                v-if="asset.published_at"
+                v-if="asset.files && asset.files.length > 0"
                 class="text-xs text-crisiscleanup-dark-300"
               >
-                {{ $t('incidentAssets.published_at') }}:
-                {{ moment(asset.published_at).format('MM/DD/YYYY') }}
+                {{ $t('~~Last Published') }}:
+                {{
+                  moment(asset.files[0].file_updated_at).format(
+                    'YYYY-MM-DD HH:mm',
+                  )
+                }}
               </div>
               <div v-else class="text-xs text-crisiscleanup-dark-300">
                 {{ $t('incidentAssets.not_published') }}
@@ -176,7 +211,7 @@ import useTranslation from '@/hooks/useTranslation';
 import Language from '@/models/Language';
 import BaseButton from '@/components/BaseButton.vue';
 import Incident from '@/models/Incident';
-import type { Ani } from '@/models/types';
+import type { Ani, CCUFileItem } from '@/models/types';
 import Card from '@/components/cards/Card.vue';
 import { useToast } from 'vue-toastification';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
@@ -189,6 +224,9 @@ import QRCode from 'qrcode-svg';
 import { i18n } from '@/modules/i18n';
 import { i18nService } from '@/services/i18n.service';
 import size from 'lodash/size';
+import BaseSelect from '@/components/BaseSelect.vue';
+import { useCurrentIncident } from '@/hooks';
+import type { VueDatePicker } from '@vuepic/vue-datepicker';
 
 export interface IncidentAniAsset {
   id?: number;
@@ -199,6 +237,8 @@ export interface IncidentAniAsset {
   incident: number;
   visibility: string;
   published_at: string | null;
+  created_at: string;
+  files: CCUFileItem[];
 }
 
 export interface AssetTypeValue {
@@ -222,7 +262,14 @@ interface PrintOption {
 }
 
 export default {
-  components: { CcuIcon, LanguageTag, Card, BaseButton, IncidentAssetEditor },
+  components: {
+    BaseSelect,
+    CcuIcon,
+    LanguageTag,
+    Card,
+    BaseButton,
+    IncidentAssetEditor,
+  },
 
   props: {
     incident: {
@@ -295,11 +342,20 @@ export default {
       { key: 'PRIVATE', value: 'Private' },
     ];
 
+    const datePickerDefaultProps = reactive<VueDatePicker>({
+      format: 'yyyy-MM-dd HH:mm:ss',
+      autoApply: true,
+      enableSeconds: true,
+    });
+
     const anis = computed(() => props.anis);
+    const { currentIncident } = useCurrentIncident();
 
     const assets = ref<IncidentAniAsset[]>([]);
     const selectedAssetType = ref('incidentAniAsset.handbill');
     const selectedWorkTypes = ref<string[]>([]);
+    const selectedLanguages = ref<string[]>([]);
+    const selectedEndDate = ref<string | null>(null);
     const getWorktypeSVGByKey = (
       workTypeKey: string,
       size = 53,
@@ -329,10 +385,8 @@ export default {
         header: 'CRISISCLEANUP.ORG',
         incident_name: `${incident?.name.toUpperCase()} CLEANUP HOTLINE`,
         phone_number: formatNationalNumber(ani.phone_number?.toString()),
-        assistance:
-          'If you need help cleaning up damage from the {INCIDENT_TYPE} in {INCIDENT_NAME_OR_LOCATION}, call {ANI} to ask for help. We will connect you with volunteers from local relief organizations, community groups and faith communities who may be able to assist with:',
-        hotline_text:
-          'All services are free, but service is not guaranteed due to the overwhelming need. This hotline will remain open through {ANI_CLOSE_DATE}.',
+        assistance: `If you need help cleaning up damage from the ${incident?.name}, call ${ani.phone_number?.toString()} to ask for help. We will connect you with volunteers from local relief organizations, community groups and faith communities who may be able to assist with:`,
+        hotline_text: `All services are free, but service is not guaranteed due to the overwhelming need. This hotline will remain open through ${ani.end_at}.`,
         notes_text:
           'PLEASE NOTE: this hotline CANNOT assist with social services such as food, clothing, shelter, insurance, or questions about FEMA registration. Volunteers work free of charge and provide the tools and equipment necessary to complete the work.',
         work_types: selectedWorkTypes.value
@@ -368,33 +422,10 @@ export default {
         incident,
       };
 
-      const spanishValues = {
-        header: 'CRISISCLEANUP.ORG',
-        incident_name: `${incident?.name.toUpperCase()} LÍNEA DIRECTA DE LIMPIEZA`,
-        phone_number: formatNationalNumber(ani.phone_number?.toString()),
-        assistance:
-          'Si necesita ayuda para limpiar los daños causados por {INCIDENT_TYPE} en {INCIDENT_NAME_OR_LOCATION}, llame a {ANI} para pedir ayuda. Lo conectaremos con voluntarios de organizaciones de ayuda locales, grupos comunitarios y comunidades religiosas que puedan ayudarlo con:',
-        hotline_text:
-          'Todos los servicios son gratuitos, pero el servicio no está garantizado debido a la abrumadora necesidad. Esta línea directa permanecerá abierta hasta el {ANI_CLOSE_DATE}.',
-        notes_text:
-          'TENGA EN CUENTA: esta línea directa NO PUEDE ayudar con servicios sociales como alimentos, ropa, refugio, seguros o preguntas sobre el registro de FEMA. Los voluntarios trabajan de forma gratuita y proporcionan las herramientas y equipos necesarios para completar el trabajo.',
-        work_types: englishValues.work_types,
-        volunteer_help: 'Ayuda de Limpieza por Voluntarios:',
-        qr_code: new QRCode({
-          content: formatNationalNumber(ani.phone_number?.toString()),
-          width: 160,
-          height: 160,
-        }).svg(),
-        language,
-        ani,
-        incident,
-      };
       if (language?.subtag.startsWith('en')) {
         return englishValues;
       }
-      if (language?.subtag.startsWith('es')) {
-        return spanishValues;
-      }
+
       return {
         header: englishValues.header,
         incident_name: await translate(
@@ -424,6 +455,11 @@ export default {
           language.subtag,
         ),
         work_types: englishValues.work_types,
+        qr_code: new QRCode({
+          content: formatNationalNumber(ani.phone_number?.toString()),
+          width: 160,
+          height: 160,
+        }).svg(),
         language,
         ani,
         incident,
@@ -431,10 +467,14 @@ export default {
     }
 
     const generateAsset = async () => {
-      for (let language of supportedLanguages.value) {
+      for (let language of selectedLanguages.value) {
         const defaultTemplateValues = await Promise.all(
           anis.value.map(async (ani: Ani) => {
-            return generateDefaultTemplateValues(ani, props.incident, language);
+            return generateDefaultTemplateValues(
+              ani,
+              props.incident,
+              supportedLanguages.value.find((l) => l.id === language),
+            );
           }),
         );
 
@@ -458,6 +498,7 @@ export default {
               ani: value.ani.ani,
               incident: value.incident.id,
               visibility: 'public',
+              invalidated_at: selectedEndDate.value,
             };
           }),
         ];
@@ -482,8 +523,47 @@ export default {
         assetsByType[assetType].push(asset);
       }
 
+      // Sort each group of assets
+      for (const assetType in assetsByType) {
+        assetsByType[assetType].sort((a, b) => {
+          // Sort by presence of id first (new items without id come first)
+          return Number(a.language) - Number(b.language);
+        });
+      }
+
       return assetsByType;
     });
+
+    const saveAssetsForType = async (type: string) => {
+      const assetsToSave = assets.value.filter(
+        (asset) => asset.asset_type === type,
+      );
+
+      if (assetsToSave.length === 0) {
+        $toasted.warning('No assets to save.');
+        return;
+      }
+
+      await Promise.all(
+        assetsToSave.map((asset) => {
+          return asset.id
+            ? axios.put(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets/${
+                  asset.id
+                }`,
+                asset,
+              )
+            : axios.post(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets`,
+                asset,
+              );
+        }),
+      );
+
+      await getAssets();
+
+      await $toasted.success(t('info.upload_file_successful'));
+    };
 
     const publishAssets = async (type: string) => {
       const assetsToPublish = assets.value.filter(
@@ -499,14 +579,7 @@ export default {
 
       await Promise.all(
         assetsToPublish.map((asset) => {
-          return axios.patch(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets/${
-              asset.id
-            }`,
-            {
-              published_at: moment().toISOString(),
-            },
-          );
+          return publishAsset(asset);
         }),
       );
 
@@ -565,7 +638,7 @@ export default {
         return;
       }
 
-      await Promise.all(
+      const savedAssetsResponses = await Promise.all(
         assetsToSave.map((asset) => {
           return asset.id
             ? axios.put(
@@ -586,6 +659,14 @@ export default {
               );
         }),
       );
+
+      if (publish) {
+        await Promise.all(
+          savedAssetsResponses.map((response) => {
+            return publishAsset(response.data as IncidentAniAsset);
+          }),
+        );
+      }
 
       await getAssets();
 
@@ -614,17 +695,22 @@ export default {
       assets.value = response.data.results;
     }
 
-    const downloadAsset = async (asset: IncidentAniAsset) => {
-      const response = await axios.get(
+    const publishAsset = async (asset: IncidentAniAsset) => {
+      await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets/${
           asset.id
-        }/download`,
-        {
-          responseType: 'blob',
-        },
+        }/publish`,
       );
+    };
 
-      forceFileDownload(response);
+    const downloadAsset = async (asset: IncidentAniAsset) => {
+      const response = await axios.get(asset.files[0].general_file_url, {
+        responseType: 'blob',
+        headers: {
+          Authorization: null,
+        },
+      });
+      forceFileDownload(response, asset.files[0].filename);
     };
 
     const editors = ref<Record<string, any>>({});
@@ -681,6 +767,7 @@ export default {
       getIncidentName,
       getAniPhoneNumber,
       publishAssets,
+      publishAsset,
       downloadAsset,
       setEditorRef,
       printEditorContent,
@@ -688,6 +775,12 @@ export default {
       deleteAsset,
       moment,
       checkIfAssetTypeSaved,
+      selectedLanguages,
+      supportedLanguages,
+      selectedEndDate,
+      currentIncident,
+      datePickerDefaultProps,
+      saveAssetsForType,
     };
   },
   computed: {

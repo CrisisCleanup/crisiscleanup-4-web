@@ -58,7 +58,7 @@ const doorHangerTemplate = `<div style="position: relative; border-left: dotted 
   </div>
 </div>`;
 
-const socialMediaTemplate = `<div style="position: relative; height: 100%; border-width: 1px; width: 600px; height: 375px">
+const socialMediaTemplate = `<div style="position: relative; height: 100%; border-width: 1px; width: 600px; height: 430px">
     <div
       style="position: absolute; display: flex; height: 100%; width: 3rem; transform: scale(1); align-items: center; justify-content: center; background-color: #FDB44B; text-align: center; font-size: 1.5rem; font-weight: 800; color: black; writing-mode: vertical-rl;"
     >

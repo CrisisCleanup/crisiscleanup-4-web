@@ -1,19 +1,22 @@
 import { type AxiosResponse } from 'axios';
 
-export function forceFileDownload(response: AxiosResponse) {
+export function forceFileDownload(
+  response: AxiosResponse,
+  fileName = 'unknown',
+) {
   const url = window.URL.createObjectURL(response.data);
   const link = document.createElement('a');
   link.href = url;
   const contentDisposition = response.headers['content-disposition'];
-  let fileName = 'unknown';
+  let name = fileName ?? 'unknown';
   if (contentDisposition) {
     const fileNameMatch = /filename=(.+)/.exec(contentDisposition);
     if (fileNameMatch?.length === 2) {
-      [, fileName] = fileNameMatch;
+      [, name] = fileNameMatch;
     }
   }
 
-  link.setAttribute('download', fileName);
+  link.setAttribute('download', name);
   document.body.append(link);
   link.href = url;
   link.target = '_blank';
