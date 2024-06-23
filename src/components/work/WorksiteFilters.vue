@@ -379,7 +379,7 @@
                   v-for="field in getFieldsForType(f.key)"
                   :key="field.field_key"
                 >
-                  <div class="border-b py-3">
+                  <div class="py-1">
                     <template v-if="field.html_type === 'select'">
                       <div class="font-bold">
                         {{ field.label_t }}
@@ -393,27 +393,34 @@
                             :key="option.value"
                             :span="8"
                           >
-                            <base-checkbox :model-value="option.value">
-                              {{ option.name_t }}
-                            </base-checkbox>
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-                    <template v-if="field.html_type === 'multiselect'">
-                      <div class="font-bold">
-                        {{ field.label_t }}
-                      </div>
-                      <div>
-                        <div>
-                          <div
-                            v-for="option in field.values.filter((option) =>
-                              Boolean(option.value),
-                            )"
-                            :key="option.value"
-                            :span="8"
-                          >
-                            <base-checkbox :model-value="option.value">
+                            <base-checkbox
+                              :model-value="
+                                filters.form_data.data[field.field_key] &&
+                                filters.form_data.data[
+                                  field.field_key
+                                ].includes(option.value)
+                              "
+                              @update:model-value="
+                                (value) => {
+                                  filters.form_data.data[field.field_key] =
+                                    value
+                                      ? [
+                                          ...(filters.form_data.data[
+                                            field.field_key
+                                          ] || []),
+                                          option.value,
+                                        ]
+                                      : filters.form_data.data[
+                                          field.field_key
+                                        ].filter(
+                                          (item) => item !== option.value,
+                                        );
+                                  filters.form_data.data = {
+                                    ...filters.form_data.data,
+                                  };
+                                }
+                              "
+                            >
                               {{ option.name_t }}
                             </base-checkbox>
                           </div>
@@ -422,19 +429,26 @@
                     </template>
                     <template v-if="field.html_type === 'checkbox'">
                       <div class="flex">
-                        <span class="font-bold w-1/2">
-                          {{ field.label_t }}
-                        </span>
-                        <div class="flex justify-around w-1/2">
-                          <base-checkbox>{{
-                            $t('worksiteFilters.yes')
-                          }}</base-checkbox>
-                          <base-checkbox>{{
-                            $t('worksiteFilters.no')
-                          }}</base-checkbox>
-                          <base-checkbox>{{
-                            $t('worksiteFilters.maybe')
-                          }}</base-checkbox>
+                        <div>
+                          <base-checkbox
+                            :model-value="
+                              filters.form_data.data[field.field_key]
+                            "
+                            @update:model-value="
+                              (value: Boolean) => {
+                                if (value) {
+                                  filters.form_data.data[field.field_key] =
+                                    true;
+                                } else {
+                                  delete filters.form_data.data[
+                                    field.field_key
+                                  ];
+                                }
+                              }
+                            "
+                          >
+                            {{ field.label_t }}
+                          </base-checkbox>
                         </div>
                       </div>
                     </template>
