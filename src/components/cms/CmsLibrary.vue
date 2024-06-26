@@ -115,7 +115,7 @@ export default defineComponent({
     };
 
     const isItemSelected = (item) => {
-      return selectedItems.value.findIndex((i) => i.id === item.id) !== -1;
+      return selectedItems.value.some((i) => i.id === item.id);
     };
 
     async function handleFileUpload(e) {
