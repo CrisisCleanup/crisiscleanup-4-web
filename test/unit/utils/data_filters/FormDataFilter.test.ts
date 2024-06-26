@@ -54,8 +54,8 @@ describe('FormDataFilter', () => {
     });
     const labels = formDataFilter.getFilterLabels();
     expect(labels).toEqual({
-      key1: 'formLabels.key1',
-      key3: 'formLabels.key3',
+      key1: 'formLabels.key1: true',
+      key3: 'formLabels.key3: true',
     });
   });
 
