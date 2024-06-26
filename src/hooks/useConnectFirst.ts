@@ -224,7 +224,9 @@ export default function useConnectFirst(context: {
     setCaller(caller);
     await phoneService.dial(
       number,
-      currentIncident?.value?.active_phone_number,
+      Array.isArray(currentIncident?.value?.active_phone_number)
+        ? currentIncident?.value?.active_phone_number[0]
+        : currentIncident?.value?.active_phone_number,
     );
   }
 
