@@ -347,7 +347,7 @@ importers:
         version: 8.4.1
       '@iconify/json':
         specifier: ^2.2.212
-        version: 2.2.219
+        version: 2.2.222
       '@playwright/test':
         specifier: ^1.43.1
         version: 1.44.1
@@ -1178,8 +1178,8 @@ packages:
     resolution: {integrity: sha512-DnIVVAiXR4tfWERTiQxr1Prrs/uFEbC1C4gTGORMvbF4k7ENyVQeLcoUfNyhlAj2MB/OeorCrN3wSnYuDOUS6Q==}
     engines: {node: '>=8.0.0'}
 
-  '@iconify/json@2.2.219':
-    resolution: {integrity: sha512-q8asqbM61woVZ9rJGm/gvW46i5vdeHrq4TqZQ/5wF5ypk4pAZU9+4qVa5NQE2MZngYkMPeO68PDGGl7WaEV8jQ==}
+  '@iconify/json@2.2.222':
+    resolution: {integrity: sha512-7Q3wTaWCOk/npMrH1fyy37noARUBTb3B6daGr23+CiNCrTpV3byH+d5LEqPPVi+RT369IEKEcE8+s5MFN1hcOg==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -2462,8 +2462,8 @@ packages:
   '@types/node@20.14.2':
     resolution: {integrity: sha512-xyu6WAMVwv6AKFLB+e/7ySZVr/0zLCzOa7rSpq6jNwpqOrUbcACDWC+53d4n2QHOnDou0fbIsg8wZu/sxrnI4Q==}
 
-  '@types/node@20.14.8':
-    resolution: {integrity: sha512-DO+2/jZinXfROG7j7WKFn/3C6nFwxy2lLpgLjEXJz+0XKphZlTLJ14mo8Vfg8X5BWN6XjyESXq+LcYdT7tR3bA==}
+  '@types/node@20.14.9':
+    resolution: {integrity: sha512-06OCtnTXtWOZBJlRApleWndH4JsRVs1pDCc8dLSQp+7PpUpX3ePdHyeNSFTeSe7FtKyQkrlPvHwJOW3SLd8Oyg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -3722,8 +3722,8 @@ packages:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
 
-  es-module-lexer@1.5.3:
-    resolution: {integrity: sha512-i1gCgmR9dCl6Vil6UKPI/trA69s08g/syhiDK9TG0Nf1RJjjFI+AzoWW7sPufzkgYAn861skuCwJa0pIIHYxvg==}
+  es-module-lexer@1.5.4:
+    resolution: {integrity: sha512-MVNK56NiMrOwitFB7cqDwq0CQutbw+0BvLshJSse0MUNU+y1FC3bUS/AQg7oUng+/wKrrki7JfmwtVHkVfPLlw==}
 
   es-object-atoms@1.0.0:
     resolution: {integrity: sha512-MZ4iQ6JwHOBQjahnjwaC1ZtIBH+2ohjamzAO3oaHcXYup7qxjF2fixyH+Q71voWHeOkI2q/TnJao/KfXYIZWbw==}
@@ -7484,7 +7484,7 @@ snapshots:
       chalk: 2.4.2
       lodash: 4.17.21
 
-  '@iconify/json@2.2.219':
+  '@iconify/json@2.2.222':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -9266,7 +9266,7 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
-  '@types/node@20.14.8':
+  '@types/node@20.14.9':
     dependencies:
       undici-types: 5.26.5
 
@@ -10729,7 +10729,7 @@ snapshots:
 
   es-errors@1.3.0: {}
 
-  es-module-lexer@1.5.3: {}
+  es-module-lexer@1.5.4: {}
 
   es-object-atoms@1.0.0:
     dependencies:
@@ -11683,7 +11683,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.14.8
+      '@types/node': 20.14.9
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -13991,7 +13991,7 @@ snapshots:
       browserslist: 4.23.0
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.0
-      es-module-lexer: 1.5.3
+      es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
