@@ -83,17 +83,11 @@ describe('EventCard', () => {
     });
 
     expect(wrapper.html()).toMatchInlineSnapshot(`
-      "<div class=\\"text-xs\\">
-        <div class=\\"flex items-center justify-between\\">
-          <div class=\\"flex gap-1 justify-center items-center\\">
-            <span><svg></svg></span>
-            <span class=\\"text-xs font-bold\\">Event Created</span>
-          </div>
-          <span class=\\"text-[0.6rem] font-extralight\\">a few seconds ago</span>
+      "<div class="text-xs">
+        <div class="flex items-center justify-between">
+          <div class="flex gap-1 justify-center items-center"><span><svg></svg></span><span class="text-xs font-bold">Event Created</span></div><span class="text-[0.6rem] font-extralight">a few seconds ago</span>
         </div>
-        <div>
-          <span>John Doe</span> from <span>Organization</span> created
-        </div>
+        <div><span>John Doe</span> from <span>Organization</span> created</div>
       </div>"
     `);
   });
