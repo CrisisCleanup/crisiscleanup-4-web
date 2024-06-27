@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col h-screen" data-testid="testDashboarddiv">
+  <div
+    class="flex items-center justify-center md:mb-0 mb-10 h-full"
+    data-testid="testDashboarddiv"
+  >
     <div
       v-if="loadingActionItems && !allDataLoaded"
       class="h-screen flex items-center justify-center"
@@ -41,14 +44,17 @@
       </header>
 
       <main
-        class="flex-grow overflow-auto bg-gray-100 border-l border-r"
+        class="flex-grow overflow-y-auto overflow-x-hidden bg-gray-100 border-l border-r"
         data-testid="testMain"
       >
         <div
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
           data-testid="testGrid"
         >
-          <section class="bg-white p-5 border-r" data-testid="testLeftSection">
+          <section
+            class="bg-white p-5 border-r h-full"
+            data-testid="testLeftSection"
+          >
             <UserProfileCard
               class="mb-5"
               :user="currentUser"

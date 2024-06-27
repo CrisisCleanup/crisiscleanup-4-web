@@ -26,7 +26,6 @@ export default function useConnectFirst(context: {
   const { currentUser } = useCurrentUser();
 
   const languages = computed(() => currentUser?.value?.languages);
-  const statuses = computed(() => PhoneStatus.all());
   const currentIncident = computed(() => {
     return Incident.find(currentIncidentId.value);
   });
@@ -224,7 +223,9 @@ export default function useConnectFirst(context: {
     setCaller(caller);
     await phoneService.dial(
       number,
-      currentIncident?.value?.active_phone_number,
+      Array.isArray(currentIncident?.value?.active_phone_number)
+        ? currentIncident?.value?.active_phone_number[0]
+        : currentIncident?.value?.active_phone_number,
     );
   }
 
@@ -240,7 +241,7 @@ export default function useConnectFirst(context: {
       });
       await createOutboundCall(outbound, number);
     } catch (error) {
-      await $toasted.error(getErrorMessage(error));
+      $toasted.error(getErrorMessage(error));
     } finally {
       dialing.value = false;
     }

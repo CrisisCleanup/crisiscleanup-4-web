@@ -167,6 +167,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { computedAsync } from '@vueuse/core';
 import Incident from '@/models/Incident';
+import { useCurrentIncident } from '@/hooks';
 
 interface List {
   id: number;
@@ -190,6 +191,7 @@ const baseUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/lists`;
 const selectedItemId = ref<number | null>(null);
 const route = useRoute();
 const listId = route.params.id as string;
+const { currentIncidentId } = useCurrentIncident();
 const currentList = ref<List>({
   id: Number(listId),
   name: '',
@@ -257,10 +259,14 @@ async function fetchModelOptions(
   endpoint: string,
   fields: string,
   idIn = '',
+  incidentId = null,
 ) {
   const params: Record<string, any> = { fields, limit: '10', search: value };
   if (idIn) {
     params.id__in = idIn; // Adding id__in to the parameters
+  }
+  if (incidentId) {
+    params.incident = incidentId;
   }
   const results = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/${endpoint}`,
@@ -315,6 +321,7 @@ const listItems = computedAsync(async () => {
       'worksites',
       'id,name,case_number,incident',
       currentList.value.object_ids.join(','),
+      currentIncidentId,
     );
   } else if (
     currentList.value.object_ids?.length &&
