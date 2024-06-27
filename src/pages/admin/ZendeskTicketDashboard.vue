@@ -242,7 +242,7 @@ const getUsersRelatedToTickets = () => {
       getTicketStats();
     })
     .catch((error: Error) => {
-      console.error('Error fetching tickets:', error);
+      console.error('Error fetching Tickets:', error);
     });
 };
 
@@ -414,7 +414,7 @@ const fetchTickets = () => {
       getUsersRelatedToTickets();
     })
     .catch((error: Error) => {
-      console.error('Error fetching tickets:', error);
+      console.error('Error fetching Tickets:', error);
     });
 };
 

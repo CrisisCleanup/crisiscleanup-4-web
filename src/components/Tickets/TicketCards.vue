@@ -292,7 +292,7 @@ const fetchActiveTicket = () => {
       ticketTestData.value.assignee_id = response.data.ticket.assignee_id;
     })
     .catch((error: Error) => {
-      console.error('Error fetching tickets:', error);
+      console.error('Error fetching Tickets:', error);
     });
 };
 
@@ -385,7 +385,7 @@ const replyToTicket = (replyStatus: string) => {
 const deleteTicket = () => {
   toast.info('helpdesk.coming_soon');
   // axiosInstance
-  //   .delete(`/tickets/${props.ticketData.id}.json`).then((response: AxiosResponse<unknown>) => {
+  //   .delete(`/Tickets/${props.ticketData.id}.json`).then((response: AxiosResponse<unknown>) => {
   //   if (response.status === 200) {
   // toast.success(
   // 	t('helpdesk.sucessfully_deleted')` ${replyStatus}`
