@@ -26,7 +26,6 @@ export default function useConnectFirst(context: {
   const { currentUser } = useCurrentUser();
 
   const languages = computed(() => currentUser?.value?.languages);
-  const statuses = computed(() => PhoneStatus.all());
   const currentIncident = computed(() => {
     return Incident.find(currentIncidentId.value);
   });
@@ -242,7 +241,7 @@ export default function useConnectFirst(context: {
       });
       await createOutboundCall(outbound, number);
     } catch (error) {
-      await $toasted.error(getErrorMessage(error));
+      $toasted.error(getErrorMessage(error));
     } finally {
       dialing.value = false;
     }

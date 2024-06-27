@@ -503,7 +503,7 @@ export default defineComponent({
 
     onMounted(async () => {
       const results = await User.api().get(
-        `/users?organization=${currentUser.value?.organization.id}`,
+        `/users?organization=${currentUser.value?.organization.id}&limit=10000`,
         { dataKey: 'results' },
       );
       users.value = results.entities?.users || [];

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-center md:mb-0 mb-10"
+    class="flex items-center justify-center md:mb-0 mb-10 h-full"
     data-testid="testDashboarddiv"
   >
     <div
@@ -9,7 +9,11 @@
     >
       <spinner size="lg" />
     </div>
-    <div v-else class="flex flex-col w-full" data-testid="testMainContent">
+    <div
+      v-else
+      class="flex flex-col w-full h-full"
+      data-testid="testMainContent"
+    >
       <header
         class="bg-white border p-6 items-center gap-3 flex justify-between"
         data-testid="testHeader"
@@ -40,14 +44,17 @@
       </header>
 
       <main
-        class="flex-grow overflow-auto bg-gray-100 border-l border-r"
+        class="flex-grow overflow-y-auto overflow-x-hidden bg-gray-100 border-l border-r"
         data-testid="testMain"
       >
         <div
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
           data-testid="testGrid"
         >
-          <section class="bg-white p-5 border-r" data-testid="testLeftSection">
+          <section
+            class="bg-white p-5 border-r h-full"
+            data-testid="testLeftSection"
+          >
             <UserProfileCard
               class="mb-5"
               :user="currentUser"
