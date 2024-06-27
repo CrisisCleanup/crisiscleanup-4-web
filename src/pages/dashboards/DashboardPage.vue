@@ -1,15 +1,16 @@
 <template>
-  <div
-    class="flex items-center justify-center md:mb-0 mb-10"
-    data-testid="testDashboarddiv"
-  >
+  <div class="flex flex-col h-screen" data-testid="testDashboarddiv">
     <div
       v-if="loadingActionItems && !allDataLoaded"
       class="h-screen flex items-center justify-center"
     >
       <spinner size="lg" />
     </div>
-    <div v-else class="flex flex-col w-full" data-testid="testMainContent">
+    <div
+      v-else
+      class="flex flex-col w-full flex-grow"
+      data-testid="testMainContent"
+    >
       <header
         class="bg-white border p-6 items-center gap-3 flex justify-between"
         data-testid="testHeader"
@@ -115,12 +116,16 @@
         </div>
       </main>
 
-      <DashboardFooter data-testid="testDashboardFooter" />
+      <DashboardFooter
+        data-testid="testDashboardFooter"
+        class="flex flex-shrink"
+      />
     </div>
   </div>
 </template>
+
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import UserProfileCard from '@/components/UserProfileCard.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import BaseButton from '@/components/BaseButton.vue';
@@ -220,5 +225,22 @@ header {
   align-items: center;
   gap: 0.75rem;
 }
+
+[data-testid='testDashboarddiv'] {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-testid='testMainContent'] {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-testid='testMain'] {
+  flex-grow: 1;
+}
+
 /* Add any custom styles or override Tailwind styles if needed */
 </style>
