@@ -100,7 +100,9 @@ import BaseText from '@/components/BaseText.vue';
 import Badge from '@/components/Badge.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import PhoneOutbound from '@/models/PhoneOutbound';
+import { useToast } from 'vue-toastification';
 const { emitter } = useEmitter();
+const $toasted = useToast();
 
 const { text, copy } = useClipboard({
   source: '',
@@ -225,6 +227,14 @@ const callsWaiting = computed(function () {
   );
 });
 
+const reset = async () => {
+  await resetPhoneSystem();
+  await updateCallbacks();
+  currentView.value = '';
+  expanded.value = false;
+  $toasted.success(t('~~Successfully reset phone system'));
+};
+
 onMounted(() => {
   // Immediately update once in case component mounts after call has started
   updateElapsedTime();
@@ -250,17 +260,14 @@ const {
   isOnCall,
   caller,
   stats,
-  currentIncidentId,
   call,
-  potentialFailedCall,
-  setPotentialFailedCall,
-  setCurrentIncidentId,
   isConnecting,
   isInboundCall,
   isOutboundCall,
   callHistory,
   dialManualOutbound,
   hangUp,
+  resetPhoneSystem,
 } = connectFirst;
 </script>
 
@@ -475,7 +482,7 @@ const {
               </template>
               <template v-if="currentView === 'reportBug'">
                 <div
-                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5"
+                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5 w-full"
                 >
                   <div class="flex flex-col lg:flex-row">
                     <div class="flex items-center">
@@ -544,6 +551,17 @@ const {
                         class="text-white bg-crisiscleanup-red-200 my-2"
                       >
                         {{ $t('phoneDashboard.report_bug') }}
+                      </base-button>
+
+                      <base-button
+                        :action="reset"
+                        class="text-white bg-crisiscleanup-red-200 my-2"
+                        :text="$t('~~Reset Phone System')"
+                        :alt="$t('~~Reset Phone System')"
+                        data-testid="testResetPhoneSystemButton"
+                        size="large"
+                      >
+                        {{ $t('phoneDashboard.reset_phone_system') }}
                       </base-button>
                     </div>
                   </div>

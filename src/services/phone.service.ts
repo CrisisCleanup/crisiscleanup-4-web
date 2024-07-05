@@ -28,10 +28,10 @@ export default class PhoneService {
   cf: typeof AgentLibrary | undefined;
 
   constructor() {
-    this.loggedInAgentId = null;
-    this.agent_id = null;
-    this.username = null;
-    this.password = null;
+    this.loggedInAgentId = undefined;
+    this.agent_id = undefined;
+    this.username = undefined;
+    this.password = undefined;
     this.callInfo = {};
   }
 
@@ -213,12 +213,17 @@ export default class PhoneService {
 
   onCloseFunction() {
     // Log.debug('AgentLibrary closed');
-    this.loggedInAgentId = null;
+    this.loggedInAgentId = undefined;
     this.store.commit('phone/resetState');
 
     this.getAccessToken().then((result) => {
       this.initPhoneService(result.accessToken);
     });
+  }
+
+  async resetPhoneSystem() {
+    await this.logout();
+    this.store.commit('phone/resetState');
   }
 
   async onNewSession(info: any) {
@@ -286,7 +291,7 @@ export default class PhoneService {
     username = import.meta.env.VITE_APP_PHONE_DEFAULT_USERNAME,
     password = import.meta.env.VITE_APP_PHONE_DEFAULT_PASSWORD,
     state = 'AVAILABLE',
-    agentId = null,
+    agentId: string | undefined,
   ) {
     this.username = username;
     this.password = password;
@@ -345,7 +350,7 @@ export default class PhoneService {
                 ) {
                   // Log.debug('Existing login found. Setting status');
                   this.apiLogoutAgent(this.loggedInAgentId).then(() => {
-                    this.loggedInAgentId = null;
+                    this.loggedInAgentId = undefined;
                     reject();
                   });
                 } else {
@@ -407,7 +412,7 @@ export default class PhoneService {
     });
   }
 
-  async dial(destination: string, callerId: string | undefined = null) {
+  async dial(destination: string, callerId: string | undefined) {
     return new Promise((resolve) => {
       this.cf.offhookInit((offhookInitResponse: any) => {
         // Log.debug('Offhook init response', offhookInitResponse);

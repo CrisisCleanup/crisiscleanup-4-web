@@ -98,6 +98,10 @@ export default function useConnectFirst(context: {
     return phoneService.hangup();
   }
 
+  async function resetPhoneSystem() {
+    return phoneService.resetPhoneSystem();
+  }
+
   async function setAway() {
     return phoneService.changeState('AWAY');
   }
@@ -328,5 +332,6 @@ export default function useConnectFirst(context: {
     loginPhone,
     dialNextOutbound,
     apiGetQueueStats,
+    resetPhoneSystem,
   };
 }

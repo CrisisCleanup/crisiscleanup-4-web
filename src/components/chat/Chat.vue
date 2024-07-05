@@ -333,7 +333,7 @@ export default defineComponent({
       loadingMessages.value = true;
       const parameters = {
         message_group: props.chat.id,
-        limit: 5,
+        limit: 50,
       } as Record<string, any>;
       if (before && messages.value.length > 0) {
         parameters.created_at__lte = before;
