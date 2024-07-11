@@ -1,14 +1,26 @@
 <template>
   <main
     v-if="author"
-    class="pt-8 pb-16 lg:pt-16 lg:pb-24 bg-white dark:bg-gray-900 antialiased"
+    class="bg-crisiscleanup-light-smoke antialiased flex flex-col h-max min-h-screen"
   >
-    <div class="flex justify-between px-4 mx-auto max-w-screen-xl">
+    <div class="mx-auto bg-crisiscleanup-light-smoke flex-grow">
       <article
-        class="mx-auto w-full max-w-3xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert"
+        class="pt-8 px-4 mx-auto w-full max-w-4xl format format-sm sm:format-base lg:format-lg format-blue dark:format-invert"
       >
-        <header class="mb-4 lg:mb-6 not-format">
-          <address class="flex items-center mb-6 not-italic">
+        <router-link
+          to="/blog"
+          class="underline text-crisiscleanup-dark-blue text-lg font-semibold block mb-3"
+        >
+          {{ $t('~~ ← Back to Blog Home') }}
+        </router-link>
+        <div class="mb-4 mb-6 not-format bg-auto">
+          <router-link
+            class="mb-6 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white"
+            :to="`/blog/post/${post.slug}`"
+          >
+            {{ formatCmsItem(post.title) }}
+          </router-link>
+          <div class="flex items-center mb-6 not-italic">
             <div
               class="inline-flex items-center mr-3 text-sm text-gray-900 dark:text-white"
             >
@@ -32,17 +44,29 @@
                 </p>
               </div>
             </div>
-          </address>
-          <router-link
-            class="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white"
-            :to="`/blog/post/${post.slug}`"
-          >
-            {{ formatCmsItem(post.title) }}
-          </router-link>
-        </header>
+          </div>
+        </div>
         <div class="blog-post" v-html="formatCmsItem(post.content)"></div>
       </article>
     </div>
+    <footer class="w-full bg-white min-h-16 p-4">
+      <div
+        class="grid grid-cols-2 justify-between max-w-180 w-auto mx-auto gap-3"
+      >
+        <div v-if="previousPost" class="text-right">
+          <router-link :to="`/blog/post/${previousPost.slug}`">
+            <div class="my-2">{{ $t('~~ ← Previous Post') }}</div>
+          </router-link>
+          <span class="font-semibold">{{ previousPost.title }}</span>
+        </div>
+        <div v-if="nextPost">
+          <router-link :to="`/blog/post/${nextPost.slug}`">
+            <div class="my-2">{{ $t('~~ Next Post ->') }}</div>
+          </router-link>
+          <span class="font-semibold">{{ nextPost.title }}</span>
+        </div>
+      </div>
+    </footer>
   </main>
 </template>
 
@@ -58,6 +82,14 @@ export default {
     post: {
       type: Object as PropType<CmsItem>,
       required: true,
+    },
+    previousPost: {
+      type: Object as PropType<CmsItem>,
+      default: null,
+    },
+    nextPost: {
+      type: Object as PropType<CmsItem>,
+      default: null,
     },
   },
   setup(props) {

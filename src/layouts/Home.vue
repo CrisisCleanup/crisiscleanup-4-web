@@ -12,10 +12,7 @@
       </div>
     </div>
     <IncidentContact v-if="!noHotline" class="w-full md:w-max hotline m-8" />
-    <div
-      class="main m-8"
-      :class="noHotline ? 'overflow-hidden' : 'overflow-auto'"
-    >
+    <div class="main">
       <slot />
     </div>
     <slot name="register">
@@ -34,24 +31,36 @@
       </div>
     </slot>
     <div class="nav flex flex-col gap-3 m-8 md:text-left text-center">
-      <span v-for="item in routes" :key="item.key">
-        <a
-          v-if="item.external"
-          :data-testid="`testNavRoute${item.key}Link`"
-          :href="item.route"
-          class="text-2xl text-crisiscleanup-dark-500"
-          target="_blank"
-        >
-          {{ item.label }}
-        </a>
-        <router-link
-          v-if="!item.external"
-          :to="item.route || '#'"
-          class="text-2xl text-crisiscleanup-dark-500"
-        >
-          {{ item.label }}
-        </router-link>
-      </span>
+      <template v-if="isAuthenticated">
+        <span v-for="route in authenticatedRoutes" :key="route.key">
+          <router-link
+            :to="route.to || '#'"
+            class="text-2xl text-crisiscleanup-dark-500"
+          >
+            {{ route.text || $t(`nav.${route.key}`) }}
+          </router-link>
+        </span>
+      </template>
+      <template v-else>
+        <span v-for="item in routes" :key="item.key">
+          <a
+            v-if="item.external"
+            :data-testid="`testNavRoute${item.key}Link`"
+            :href="item.route"
+            class="text-2xl text-crisiscleanup-dark-500"
+            target="_blank"
+          >
+            {{ item.label }}
+          </a>
+          <router-link
+            v-if="!item.external"
+            :to="item.route || '#'"
+            class="text-2xl text-crisiscleanup-dark-500"
+          >
+            {{ item.label }}
+          </router-link>
+        </span>
+      </template>
     </div>
     <div v-if="!noHotline" class="footer grid">
       <div class="flex flex-col m-8 self-end items-center md:items-end">
@@ -93,6 +102,8 @@
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
 import IncidentContact from '@/components/IncidentContact.vue';
+import { useAuthStore } from '@/hooks';
+import { useAuthenticatedRoutes } from '@/hooks/useAuthenticatedRoutes';
 
 export default defineComponent({
   name: 'Home',
@@ -105,6 +116,10 @@ export default defineComponent({
   },
   setup() {
     const { t } = useI18n();
+    const { isAuthenticated } = useAuthStore();
+
+    const { routes: authenticatedRoutes } = useAuthenticatedRoutes();
+
     const allRoutes = computed(() => [
       {
         key: 'home',
@@ -177,6 +192,8 @@ export default defineComponent({
     return {
       routes: defaultRoutes,
       footerRoutes,
+      authenticatedRoutes,
+      isAuthenticated,
     };
   },
 });

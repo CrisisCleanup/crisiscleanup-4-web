@@ -1,6 +1,6 @@
 <template>
   <Home no-hotline>
-    <div>
+    <div class="bg-crisiscleanup-light-smoke p-6 h-full">
       <div
         class="flex items-center gap-0.5 text-base text-crisiscleanup-dark-blue mb-3 underline"
       >
@@ -27,7 +27,7 @@
         <div
           v-for="incident in incidents"
           :key="incident.id"
-          class="mb-5 border rounded cursor-pointer"
+          class="mb-5 border rounded cursor-pointer bg-white"
           @click="$router.push('/disasters/' + incident.id)"
         >
           <div :id="camelCase(incident.short_name)" class="p-5 my-3 block">

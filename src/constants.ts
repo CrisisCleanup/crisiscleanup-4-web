@@ -72,6 +72,7 @@ import mapRedo from './assets/icons/map-redo.svg';
 import otherorg from './assets/icons/other-org.svg';
 import dialer from './assets/icons/dialer.svg';
 import hangup from './assets/icons/hangup.svg';
+import blog from './assets/icons/blog.svg';
 import time from './assets/icons/time.svg';
 import logout from './assets/icons/logout.svg';
 import plane from './assets/icons/plane.svg';
@@ -226,6 +227,7 @@ export const ICON_MAP = {
   print,
   pin,
   phone,
+  blog,
   'phone-classic': phoneClassic,
   'phone-user': phoneUser,
   'phone-hangup': phoneHangup,

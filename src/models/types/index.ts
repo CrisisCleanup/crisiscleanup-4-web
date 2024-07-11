@@ -165,6 +165,7 @@ export interface Ani {
   ani?: number;
   incident?: number;
   phone_number?: string;
+  end_at?: string;
 }
 
 export interface CmsItem {
@@ -174,7 +175,7 @@ export interface CmsItem {
   content: string;
   publish_at: string;
   created_by: number;
-  thumbnail_file?: { blog_url: string };
+  thumbnail_file?: CCUFileItem;
 }
 
 export type PhoneDnisResponse = CCUApiListResponse<PhoneDnisResult>;

@@ -3,7 +3,7 @@
     <li
       v-for="cmsItem in cmsItems"
       :key="cmsItem.id"
-      class="py-3 cursor-pointer border-b-2 hover:bg-crisiscleanup-light-grey"
+      :class="itemClasses"
       @click="emit('onClick', cmsItem)"
     >
       <div class="flex gap-5">
@@ -29,10 +29,10 @@
           ></p>
         </div>
         <img
-          v-if="cmsItem.thumbnail_file"
+          v-if="cmsItem.thumbnail_file && !hideThumbnails"
           :src="cmsItem.thumbnail_file.blog_url"
           class="w-32 h-32 self-center"
-          :alt="cmsItem.thumbnail_file"
+          :alt="cmsItem.thumbnail_file.blog_url"
         />
       </div>
     </li>
@@ -42,12 +42,21 @@
 <script setup lang="ts">
 import { formatCmsItem } from '@/utils/helpers';
 import moment from 'moment';
-import { defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits, type PropType } from 'vue';
+import { type CmsItem } from '@/models/types';
 
-const props = defineProps({
+defineProps({
   cmsItems: {
-    type: Array,
+    type: Array as PropType<CmsItem[]>,
     required: true,
+  },
+  itemClasses: {
+    type: String,
+    default: 'py-3 cursor-pointer border-b-2 hover:bg-crisiscleanup-light-grey',
+  },
+  hideThumbnails: {
+    type: Boolean,
+    default: false,
   },
 });
 
