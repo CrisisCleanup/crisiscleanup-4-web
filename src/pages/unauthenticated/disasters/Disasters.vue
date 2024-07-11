@@ -1,6 +1,9 @@
 <template>
   <Home no-hotline>
-    <div v-if="loading" class="flex justify-center items-center h-full">
+    <div
+      v-if="loading"
+      class="flex justify-center items-center h-full bg-crisiscleanup-light-smoke"
+    >
       <spinner />
     </div>
     <div v-else class="bg-crisiscleanup-light-smoke p-6 h-full">
