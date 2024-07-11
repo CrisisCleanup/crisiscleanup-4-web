@@ -107,6 +107,12 @@ const routes = [
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {
+    path: '/survivor',
+    component: Disasters,
+    name: 'nav.survivor',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
     path: '/disasters/:id',
     component: DisasterDetail,
     name: 'nav.disaster_detail',

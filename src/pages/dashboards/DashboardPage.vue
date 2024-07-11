@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-center md:mb-0 mb-10 h-full"
+    class="flex items-center justify-center md:mb-0 mb-10 min-h-max h-full"
     data-testid="testDashboarddiv"
   >
     <div
@@ -11,7 +11,7 @@
     </div>
     <div
       v-else
-      class="flex flex-col w-full flex-grow"
+      class="flex flex-col w-full h-full"
       data-testid="testMainContent"
     >
       <header
@@ -44,7 +44,7 @@
       </header>
 
       <main
-        class="flex-grow overflow-y-auto overflow-x-hidden bg-white border-l border-r"
+        class="flex-grow overflow-y-auto overflow-x-hidden bg-gray-100 border-l border-r"
         data-testid="testMain"
       >
         <div
@@ -122,16 +122,12 @@
         </div>
       </main>
 
-      <DashboardFooter
-        data-testid="testDashboardFooter"
-        class="flex flex-shrink"
-      />
+      <DashboardFooter class="flex-shrink" data-testid="testDashboardFooter" />
     </div>
   </div>
 </template>
-
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref } from 'vue';
 import UserProfileCard from '@/components/UserProfileCard.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import BaseButton from '@/components/BaseButton.vue';
@@ -231,22 +227,5 @@ header {
   align-items: center;
   gap: 0.75rem;
 }
-
-[data-testid='testDashboarddiv'] {
-  min-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-[data-testid='testMainContent'] {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-[data-testid='testMain'] {
-  flex-grow: 1;
-}
-
 /* Add any custom styles or override Tailwind styles if needed */
 </style>

@@ -101,6 +101,7 @@ const currentStoreStore = () => {
     () =>
       currentUser.value &&
       currentUser.value.organization &&
+      !Number.isInteger(currentUser.value.organization) &&
       !currentUser.value.organization.is_active,
   );
   const isAdmin = computedEager(

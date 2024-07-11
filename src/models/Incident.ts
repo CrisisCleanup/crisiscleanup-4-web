@@ -101,6 +101,7 @@ export default class Incident extends CCUModel {
     ];
   }
 
+  id!: number;
   case_label!: string;
   timezone!: string;
   form_fields!: FormField[];
