@@ -1,6 +1,9 @@
 <template>
   <Home no-hotline>
-    <div class="bg-crisiscleanup-light-smoke p-6 h-full">
+    <div v-if="loading" class="flex justify-center items-center h-full">
+      <spinner />
+    </div>
+    <div v-else class="bg-crisiscleanup-light-smoke p-6 h-full">
       <div class="text-3xl mb-6" data-testid="testCurrentDisastersHeader">
         {{ $t('disasters.active_disasters') }}
       </div>
@@ -108,6 +111,7 @@ import camelCase from 'lodash/camelCase';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import type { Ani } from '@/models/types';
+import Spinner from '@/components/Spinner.vue';
 
 interface Faq {
   name: string;
@@ -115,6 +119,7 @@ interface Faq {
 }
 
 const route = useRoute();
+const loading = ref(false);
 const incidents = ref<Incident[]>([]);
 const incidentAniMap = ref<Record<number, Ani[]>>({});
 const faqs: Faq[] = [
@@ -178,10 +183,11 @@ const faqs: Faq[] = [
 ];
 
 onMounted(async () => {
+  loading.value = true;
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
-    }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=500&sort=-start_at`,
+    }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=20&sort=-start_at`,
   );
   incidents.value = response.data.results.filter(
     (incident) =>
@@ -205,6 +211,7 @@ onMounted(async () => {
 
     incidentAniMap.value[incident.id] = aniIncidents;
   }
+  loading.value = false;
 });
 </script>
 

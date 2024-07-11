@@ -1,6 +1,12 @@
 <template>
   <Home no-hotline>
-    <div class="bg-crisiscleanup-light-smoke p-6 h-full">
+    <div
+      v-if="loading"
+      class="flex justify-center items-center h-full bg-crisiscleanup-light-smoke"
+    >
+      <spinner />
+    </div>
+    <div v-else class="bg-crisiscleanup-light-smoke p-6 h-full">
       <div
         class="flex items-center gap-0.5 text-base text-crisiscleanup-dark-blue mb-3 underline"
       >
@@ -79,13 +85,16 @@ import axios from 'axios';
 import useDialogs from '@/hooks/useDialogs';
 import { formatNationalNumber } from '@/filters';
 import camelCase from 'lodash/camelCase';
+import Spinner from '@/components/Spinner.vue';
 
 const { component } = useDialogs();
 const route = useRoute();
 const incidents = ref<Incident>([]);
 const groupedIncidents = ref<Record<string, Incident[]>>({});
+const loading = ref(true);
 
 onMounted(async () => {
+  loading.value = true;
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
@@ -106,6 +115,7 @@ onMounted(async () => {
     acc[year].push(incident);
     return acc;
   }, {});
+  loading.value = false;
 });
 </script>
 
