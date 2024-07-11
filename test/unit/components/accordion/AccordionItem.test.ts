@@ -58,20 +58,21 @@ describe('AccordionItem', () => {
     const wrapper = mount(AccordionItem, {
       props: {
         name: 'Test Name',
+        iconStyle: 'chevron',
       },
     });
     const button = wrapper.find('button');
-    expect(wrapper.find('font-awesome-icon').attributes('icon')).toBe(
+    expect(wrapper.find('.svg-inline--fa').attributes('data-icon')).toBe(
       'chevron-right',
     );
 
     await button.trigger('click');
-    expect(wrapper.find('font-awesome-icon').attributes('icon')).toBe(
+    expect(wrapper.find('.svg-inline--fa').attributes('data-icon')).toBe(
       'chevron-down',
     );
 
     await button.trigger('click');
-    expect(wrapper.find('font-awesome-icon').attributes('icon')).toBe(
+    expect(wrapper.find('.svg-inline--fa').attributes('data-icon')).toBe(
       'chevron-right',
     );
   });
