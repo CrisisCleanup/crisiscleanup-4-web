@@ -88,12 +88,13 @@
 </template>
 
 <script lang="ts">
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import PhoneOutbound from '@/models/PhoneOutbound';
 import useEmitter from '@/hooks/useEmitter';
 import useConnectFirst from '@/hooks/useConnectFirst';
 import Language from '@/models/Language';
 import PhoneOutboundModal from '@/components/modals/PhoneOutboundModal.vue';
+import { useWebSockets } from '@/hooks/useWebSockets';
 
 export default defineComponent({
   name: 'GeneralStats',
@@ -109,6 +110,8 @@ export default defineComponent({
     const agentsOnline = ref(0);
     const showingOutboundsModal = ref(false);
     const showingOutboundsModalType = ref('callback');
+    const socket = ref(null);
+    const agentStats = ref(null);
 
     function showOutboundsModal(type = 'callback') {
       showingOutboundsModal.value = true;
@@ -128,9 +131,15 @@ export default defineComponent({
       setInterval(() => {
         updateCallbacks();
       }, 30_000);
-      emitter.on('phone:agents_online', (count: any) => {
-        agentsOnline.value = count;
-      });
+
+      const { socket: s } = useWebSockets(
+        '/ws/phone_stats',
+        'phone_stats',
+        (data) => {
+          agentStats.value = data;
+        },
+      );
+      socket.value = s;
     });
 
     onMounted(() => {
@@ -157,6 +166,17 @@ export default defineComponent({
         return { language: Language.find(key)?.name_t };
       });
     });
+
+    watch(
+      () => agentStats.value,
+      (agents) => {
+        if (agents) {
+          agentsOnline.value = agents.filter(
+            (agent) => agent.state === 'AVAILABLE',
+          ).length;
+        }
+      },
+    );
 
     return {
       remainingCallbacks,
