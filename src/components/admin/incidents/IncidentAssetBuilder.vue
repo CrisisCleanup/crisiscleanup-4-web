@@ -17,7 +17,7 @@
       </base-button>
     </div>
     <div class="flex gap-2">
-      <div class="flex flex-grow gap-2">
+      <div class="grid grid-cols-3 gap-2 w-full">
         <base-select
           v-model="selectedAssetType"
           class="flex-1"
@@ -58,6 +58,17 @@
           :placeholder="$t('~~End Date')"
           v-bind="datePickerDefaultProps"
         ></datepicker>
+        <base-select
+          v-model="selectedAnis"
+          class="flex-1"
+          data-testid="testVisibilitySelect"
+          :options="anis"
+          item-key="id"
+          label="phone_number"
+          multiple
+          select-classes="bg-white border"
+          :placeholder="$t('~~Choose ANIs')"
+        />
       </div>
     </div>
     <base-button :action="generateAsset" class="ml-2 p-2 mt-4" variant="solid">
@@ -101,7 +112,6 @@
               {{ $t('actions.publish_all') }}
             </base-button>
             <base-button
-              v-if="checkIfAssetTypeSaved(assetType)"
               :action="() => deleteAssets(assetType)"
               class="p-2 mb-1"
               variant="outline"
@@ -167,7 +177,6 @@
                   icon-size="md"
                 />
                 <base-button
-                  v-if="asset.id"
                   :action="() => deleteAsset(asset)"
                   ccu-icon="trash"
                   icon-size="md"
@@ -355,6 +364,7 @@ export default {
     const selectedAssetType = ref('incidentAniAsset.handbill');
     const selectedWorkTypes = ref<string[]>([]);
     const selectedLanguages = ref<string[]>([]);
+    const selectedAnis = ref<string[]>([]);
     const selectedEndDate = ref<string | null>(null);
     const getWorktypeSVGByKey = (
       workTypeKey: string,
@@ -469,13 +479,15 @@ export default {
     const generateAsset = async () => {
       for (let language of selectedLanguages.value) {
         const defaultTemplateValues = await Promise.all(
-          anis.value.map(async (ani: Ani) => {
-            return generateDefaultTemplateValues(
-              ani,
-              props.incident,
-              supportedLanguages.value.find((l) => l.id === language),
-            );
-          }),
+          anis.value
+            .filter((ani: Ani) => selectedAnis.value.includes(ani.id))
+            .map(async (ani: Ani) => {
+              return generateDefaultTemplateValues(
+                ani,
+                props.incident,
+                supportedLanguages.value.find((l) => l.id === language),
+              );
+            }),
         );
 
         const assetTypeTemplates: Record<string, string> = {
@@ -589,14 +601,15 @@ export default {
     };
 
     const deleteAssets = async (type: string) => {
+      assets.value = assets.value.filter(
+        (asset) => !(asset.asset_type === type && !asset.id),
+      );
+
       const assetsToDelete = assets.value.filter(
         (asset) => asset.asset_type === type && Boolean(asset.id),
       );
 
       if (assetsToDelete.length === 0) {
-        $toasted.warning(
-          'No saved assets to delete. Please save assets first.',
-        );
         return;
       }
 
@@ -617,7 +630,7 @@ export default {
 
     const deleteAsset = async (asset: IncidentAniAsset) => {
       if (!asset.id) {
-        $toasted.warning('No saved asset to delete. Please save asset first.');
+        assets.value = assets.value.filter((a) => a !== asset);
         return;
       }
 
@@ -781,6 +794,7 @@ export default {
       currentIncident,
       datePickerDefaultProps,
       saveAssetsForType,
+      selectedAnis,
     };
   },
   computed: {
