@@ -185,7 +185,9 @@ onMounted(async () => {
     }/incidents?fields=id,name,short_name,active_phone_number,start_at&start_at__gt=${sixtyDaysAgo.toISOString()}`,
   );
   incidents.value = response.data.results.filter(
-    (incident) => incident.active_phone_number,
+    (incident) =>
+      Array.isArray(incident.active_phone_number) &&
+      incident.active_phone_number.length > 0,
   );
 
   const aniIncidentResponse = await axios.get(
