@@ -117,7 +117,6 @@ interface Faq {
 const route = useRoute();
 const incidents = ref<Incident[]>([]);
 const incidentAniMap = ref<Record<number, Ani[]>>({});
-const sixtyDaysAgo = moment().subtract(60, 'days');
 const faqs: Faq[] = [
   {
     name: 'survivor.what_is_ccu',
@@ -182,10 +181,12 @@ onMounted(async () => {
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
-    }/incidents?fields=id,name,short_name,active_phone_number,start_at&start_at__gt=${sixtyDaysAgo.toISOString()}`,
+    }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=500&sort=-start_at`,
   );
   incidents.value = response.data.results.filter(
-    (incident) => incident.active_phone_number,
+    (incident) =>
+      Array.isArray(incident.active_phone_number) &&
+      incident.active_phone_number.length > 0,
   );
 
   const aniIncidentResponse = await axios.get(

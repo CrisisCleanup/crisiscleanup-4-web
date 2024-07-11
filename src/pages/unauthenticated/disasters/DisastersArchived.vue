@@ -84,15 +84,18 @@ const { component } = useDialogs();
 const route = useRoute();
 const incidents = ref<Incident>([]);
 const groupedIncidents = ref<Record<string, Incident[]>>({});
-const sixtyDaysAgo = moment().subtract(60, 'days');
 
 onMounted(async () => {
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
-    }/incidents?fields=id,name,short_name,active_phone_number,start_at&start_at__lt=${sixtyDaysAgo.toISOString()}`,
+    }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=500&sort=-start_at`,
   );
-  incidents.value = response.data.results;
+  incidents.value = response.data.results.filter(
+    (incident) =>
+      Array.isArray(incident.active_phone_number) &&
+      incident.active_phone_number.length === 0,
+  );
 
   // group incidents by year
   groupedIncidents.value = incidents.value.reduce((acc, incident) => {
