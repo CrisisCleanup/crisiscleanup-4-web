@@ -115,7 +115,7 @@ export default class User extends CCUModel {
   get allRoles() {
     return Role.query()
       .whereIdIn(this.active_roles)
-      .orderBy('level', 'desc')
+      .orderBy('level', 'asc')
       .get();
   }
 

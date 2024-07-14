@@ -446,6 +446,28 @@
               />
             </div>
           </div>
+          <tag
+            v-if="overDueFilterLabel"
+            data-testid="testOverDueFilterLabelDiv"
+            closeable
+            class="p-1.5 my-1 w-max mx-2"
+            :style="{
+              fontSize: '0.85rem',
+            }"
+            @closed="clearQuery"
+            >{{ overDueFilterLabel }}</tag
+          >
+          <tag
+            v-if="queryFilterLabel"
+            data-testid="testQueryFilterLabelDiv"
+            closeable
+            class="p-1.5 my-1 w-max mx-2"
+            :style="{
+              fontSize: '0.85rem',
+            }"
+            @closed="clearQuery"
+            >{{ queryFilterLabel }}</tag
+          >
           <div v-if="filterLabels.length > 0" class="mx-4">
             <div class="flex gap-3">
               <span class="font-bold">{{
@@ -478,15 +500,6 @@
               </template>
             </div>
           </div>
-
-          <tag
-            v-if="overDueFilterLabel"
-            data-testid="testOverDueFilterLabelDiv"
-            closeable
-            class="m-1 p-1 w-max"
-            @closed="clearQuery"
-            >{{ overDueFilterLabel }}</tag
-          >
           <div
             v-if="
               !collapsedUtilityBar &&
@@ -1190,6 +1203,32 @@ export default defineComponent({
         'work_type__status__in' in route.query &&
         'created_at__lte' in route.query
       );
+    });
+
+    const hasQueryFilter = computed(() => {
+      return (
+        'work_type__claimed_by' in route.query ||
+        'work_type__claimed_by__isnull' in route.query ||
+        'work_type__status__primary_state' in route.query
+      );
+    });
+
+    const queryFilterLabel = computed(() => {
+      if (hasQueryFilter.value) {
+        if ('work_type__claimed_by' in route.query) {
+          return `${getOrganizationName(
+            route.query.work_type__claimed_by as string,
+          )} ${t('casesVue.claimed_cases')}`;
+        } else if ('work_type__claimed_by__isnull' in route.query) {
+          return t('casesVue.unclaimed_cases');
+        } else if ('work_type__status__primary_state' in route.query) {
+          return t(
+            `casesVue.${route.query.work_type__status__primary_state}_cases`,
+          );
+        }
+      }
+
+      return '';
     });
 
     const overDueFilterLabel = computed(() => {
@@ -2110,6 +2149,7 @@ export default defineComponent({
       handleWorksiteSave,
       handleWorksiteNavigation,
       overDueFilterLabel,
+      queryFilterLabel,
       getOrganizationName,
       clearQuery,
       mq,

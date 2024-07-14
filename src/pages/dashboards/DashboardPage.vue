@@ -26,7 +26,7 @@
             data-testid="testDashboardIcon"
           />
           <h1 class="text-2xl" data-testid="testDashboardTitle">
-            {{ $t($route.name) }}
+            {{ $t(String($route.name)) }}
           </h1>
           <base-button
             :action="goToDashboardSelector"
@@ -201,6 +201,10 @@ onMounted(() => {
 
 .stats-card p {
   @apply text-start;
+}
+
+.stats-card p > a {
+  @apply text-primary-dark;
 }
 
 .stats-card p:first-child {
