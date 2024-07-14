@@ -229,7 +229,7 @@
                 />
               </div>
               <template #popper>
-                <div class="bg-white shadow w-108" style="z-index: 1001">
+                <div class="bg-white shadow w-108 z-toolbar">
                   <div
                     class="flex items-center bg-crisiscleanup-light-grey p-1 px-2 w-full flex-wrap"
                     data-testid="testUserFiltersDiv"

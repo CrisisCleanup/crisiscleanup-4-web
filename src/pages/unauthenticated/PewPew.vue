@@ -225,14 +225,12 @@
                 <div
                   v-if="mapLoading"
                   data-testid="testMapLoadingDiv"
-                  style="z-index: 1001"
-                  class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+                  class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls"
                 >
                   <spinner />
                 </div>
                 <div
-                  style="z-index: 1001"
-                  class="absolute top-0 left-0 m-2 p-2 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md"
+                  class="absolute top-0 left-0 m-2 p-2 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md z-map-controls"
                 >
                   <Slider
                     primary-color="#FECE09"
@@ -248,8 +246,7 @@
                   ></Slider>
                 </div>
                 <div
-                  style="z-index: 1001"
-                  class="absolute top-0 left-0 m-2 p-2 rounded-md mt-12 flex flex-col absolute"
+                  class="absolute top-0 left-0 m-2 p-2 rounded-md mt-12 flex flex-col z-map-controls"
                 >
                   <div class="zoom-control flex flex-col mb-5">
                     <base-button
@@ -278,8 +275,7 @@
                 </div>
                 <div
                   :key="incidentId"
-                  style="z-index: 1001"
-                  class="absolute top-0 right-0 h-48 w-auto overflow-hidden mt-3 mr-3"
+                  class="absolute top-0 right-0 h-48 w-auto overflow-hidden mt-3 mr-3 z-map-controls"
                 >
                   <transition-group
                     ref="incidentScroll"
@@ -298,8 +294,8 @@
                 </div>
                 <div
                   v-if="displayedWorkTypeSvgs.length > 0"
-                  class="absolute bottom-0 left-0 w-1/3 h-auto bg-crisiscleanup-dark-400 p-2 ml-3 bg-opacity-25"
-                  style="z-index: 1001; bottom: 25%"
+                  class="absolute bottom-0 left-0 w-1/3 h-auto bg-crisiscleanup-dark-400 p-2 ml-3 bg-opacity-25 z-map-controls"
+                  style="bottom: 25%"
                 >
                   <div
                     class="flex justify-between font-bold my-1 text-white text-sm"
@@ -356,10 +352,7 @@
                     </div>
                   </transition>
                 </div>
-                <div
-                  style="z-index: 1001"
-                  class="absolute left-0 bottom-0 right-0"
-                >
+                <div class="absolute left-0 bottom-0 right-0 z-map-controls">
                   <div class="relative">
                     <img
                       src="@/assets/cc-logo.svg"

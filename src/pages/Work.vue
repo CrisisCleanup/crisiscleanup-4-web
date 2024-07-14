@@ -41,8 +41,7 @@
       </div>
       <span
         v-if="allWorksiteCount && !showingFeed"
-        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6"
-        style="z-index: 1002"
+        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6 z-toolbar"
       >
         <span class="bg-black rounded p-2 text-white">
           <span
@@ -59,10 +58,7 @@
           </span>
         </span>
       </span>
-      <div
-        style="z-index: 1002"
-        class="absolute top-4 right-4 flex items-center"
-      >
+      <div class="absolute top-4 right-4 flex items-center z-toolbar">
         <WorksiteActions
           v-if="currentIncidentId"
           :key="currentIncidentId"
@@ -80,7 +76,7 @@
           @toggle-search="showingSearchModal = !showingSearchModal"
         />
       </div>
-      <div style="z-index: 1002" class="absolute top-20 left-12 mt-2">
+      <div class="absolute top-20 left-12 mt-2 z-toolbar">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"
@@ -99,10 +95,7 @@
           "
         />
       </div>
-      <div
-        style="z-index: 1002"
-        class="fixed bottom-20 gap-2 right-4 flex flex-col"
-      >
+      <div class="fixed bottom-20 gap-2 right-4 flex flex-col z-toolbar">
         <base-button
           data-testid="testAddCaseButton"
           icon="plus"
@@ -2243,8 +2236,7 @@ export default defineComponent({
   grid-template-columns: minmax(0, auto) minmax(auto, 400px);
 
   &__actions {
-    @apply absolute top-0 right-0 flex flex-col select-text;
-    z-index: 1004;
+    @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;
   }
 
   &__action {

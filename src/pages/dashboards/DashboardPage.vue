@@ -221,9 +221,9 @@ onMounted(() => {
 }
 
 header {
+  @apply z-toolbar;
   position: sticky;
   top: 0;
-  z-index: 1000;
   background: white;
   border: 1px solid #e2e8f0;
   padding: 1.5rem;

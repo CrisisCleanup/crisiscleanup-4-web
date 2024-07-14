@@ -93,9 +93,8 @@ const footerSlot = computed(
 
   &__selector {
     height: 4px;
-    @apply bg-primary-light;
+    @apply bg-primary-light z-50;
     position: absolute;
-    z-index: 99;
     bottom: 0;
     width: 100%;
     display: inline-block;

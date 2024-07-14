@@ -2,8 +2,7 @@
   <div class="flex h-full relative" data-testid="testLocationdiv">
     <div
       v-if="loading"
-      style="z-index: 1001"
-      class="absolute inset-0 bg-crisiscleanup-light-grey opacity-75 flex items-center justify-center"
+      class="absolute inset-0 bg-crisiscleanup-light-grey opacity-75 flex items-center justify-center z-map-controls"
     >
       <spinner />
     </div>

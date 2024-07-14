@@ -329,10 +329,9 @@ export default defineComponent({
 }
 
 .add-list-popover {
-  @apply p-3 outline-none;
+  @apply p-3 outline-none z-max;
   width: 300px;
   left: 0.75rem !important;
-  z-index: 99999999;
   height: 500px;
   overflow: auto;
 }

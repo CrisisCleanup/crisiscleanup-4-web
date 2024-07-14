@@ -601,10 +601,9 @@ export default defineComponent({
 
 <style>
 .contact-popover {
-  @apply bg-black text-white p-3 outline-none;
+  @apply bg-black text-white p-3 outline-none z-popover;
   width: 300px;
   left: 0.75rem !important;
-  z-index: 1000;
   height: 200px;
   overflow: auto;
 }

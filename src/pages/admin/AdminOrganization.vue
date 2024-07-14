@@ -598,8 +598,7 @@
             <GroupSearchInput
               v-model="groupToAdd"
               data-testid="testGroupToAddSelect"
-              class="mr-1 w-108"
-              style="z-index: 10"
+              class="mr-1 w-108 z-10"
               size="large"
             />
             <base-button

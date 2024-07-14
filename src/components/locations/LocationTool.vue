@@ -1,6 +1,6 @@
 <template>
   <div class="p-2" style="display: grid; grid-template-rows: auto 1fr">
-    <div class="h-16 flex items-center w-full p-6" style="z-index: 10000">
+    <div class="h-16 flex items-center w-full p-6 z-modal">
       <base-select
         class="flex-1"
         :placeholder="$t('locationTool.search_several_area_types')"
@@ -49,8 +49,7 @@
       <div
         ref="buttons"
         data-testid="testMapButtonsDiv"
-        class="absolute w-full h-8 ml-4 mt-4 flex"
-        style="z-index: 1001"
+        class="absolute w-full h-8 ml-4 mt-4 flex z-map-controls"
       >
         <div class="flex mr-4">
           <MapButton
@@ -864,7 +863,7 @@ export default defineComponent({
 
         if (layer instanceof L.Circle) {
           const numberOfEdges = 64;
-          // eslint-disable-next-line import/namespace
+
           const geometry = L.PM.Utils.circleToPolygon(layer, numberOfEdges);
           newLayer = L.geoJSON(geometry.toGeoJSON());
         }

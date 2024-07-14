@@ -720,8 +720,7 @@ export default defineComponent({
   height: 26px !important;
 }
 .modal {
-  @apply relative;
-  z-index: 10001;
+  @apply relative z-modal;
   position: absolute;
   left: 0;
   top: 0;

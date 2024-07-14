@@ -1,7 +1,7 @@
 <template>
   <template v-if="mq.mdMinus">
     <div v-if="!isEditing && !isNew">
-      <div class="h-20 absolute top-0 w-24 mt-20" style="z-index: 1002">
+      <div class="h-20 absolute top-0 w-24 mt-20 z-toolbar">
         <PhoneToolBar
           :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
@@ -95,9 +95,8 @@
         >
           <template #component>
             <ManualDialer
-              class="p-2"
+              class="p-2 z-toolbar"
               data-testid="testManualDialerDiv"
-              style="z-index: 1002"
               :dialing="dialing"
               @on-dial="dialManualOutbound"
             ></ManualDialer>
@@ -259,8 +258,7 @@
       </div>
       <span
         v-if="allWorksiteCount"
-        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6"
-        style="z-index: 1002"
+        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6 z-toolbar"
       >
         <span class="bg-black rounded p-2 text-white">
           <span data-testid="testCaseCountContent">
@@ -269,7 +267,7 @@
           </span>
         </span>
       </span>
-      <div style="z-index: 1002" class="absolute top-4 right-4 flex">
+      <div class="absolute top-4 right-4 flex z-toolbar">
         <base-button
           text=""
           data-testid="testSearchButton"
@@ -285,7 +283,7 @@
           class="w-10 h-10 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
       </div>
-      <div style="z-index: 1002" class="absolute top-28 left-12 mt-2">
+      <div class="absolute top-28 left-12 mt-2 z-toolbar">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"
@@ -304,10 +302,7 @@
           "
         />
       </div>
-      <div
-        style="z-index: 1002"
-        class="absolute bottom-20 gap-2 right-4 flex flex-col"
-      >
+      <div class="absolute bottom-20 gap-2 right-4 flex flex-col z-toolbar">
         <base-button
           data-testid="testAddCaseButton"
           icon="plus"
@@ -1673,8 +1668,7 @@ export default defineComponent({
   grid-template-columns: auto 350px;
 
   &__actions {
-    @apply absolute top-0 right-0 flex flex-col select-text;
-    z-index: 1004;
+    @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;
   }
 
   &__action {

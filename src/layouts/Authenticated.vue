@@ -7,8 +7,7 @@
           v-if="currentIncident && currentIncident.incidentImage"
           :current-incident="currentIncident"
           data-testid="testDisasterIcon"
-          class="fixed left-4 top-4"
-          style="z-index: 1003"
+          class="fixed left-4 top-4 z-disaster-icon"
           @click="showIncidentSelectionModal"
         />
         <main>
@@ -517,10 +516,9 @@ export default defineComponent({
 }
 
 .sidebar {
-  @apply bg-crisiscleanup-dark-500;
+  @apply bg-crisiscleanup-dark-500 z-sidebar;
   grid-area: sidebar;
   display: none;
-  z-index: 5000;
 }
 
 .sidebar.slide-over {

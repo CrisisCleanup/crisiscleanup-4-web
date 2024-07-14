@@ -1,16 +1,15 @@
 <template>
-  <div id="map" ref="map" class="absolute top-0 left-0 right-0 bottom-0">
+  <div id="map" ref="map" class="absolute top-0 left-0 right-0 bottom-0 z-50">
     <div
       v-if="mapLoading"
-      style="z-index: 1001"
-      class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+      class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls"
     >
       <spinner show-quote />
     </div>
     <div
       v-if="showZoomButtons"
-      class="flex flex-col absolute zoom-control-container"
-      style="z-index: 1001; top: 10px; left: 10px"
+      class="flex flex-col absolute zoom-control-container z-map-controls"
+      style="top: 10px; left: 10px"
       :class="zoomButtonsClass"
     >
       <div class="zoom-control flex flex-col mb-5">
