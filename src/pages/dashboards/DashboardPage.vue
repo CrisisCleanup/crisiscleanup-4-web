@@ -38,7 +38,19 @@
         </div>
         <div class="flex items-center" data-testid="testHeaderRight">
           <RedeployRequest data-testid="testRedeployRequest" />
-          <InviteUsers class="mx-1" data-testid="testInviteUsers" />
+          <base-button
+            :text="$t('usersVue.invite_new_user')"
+            :alt="$t('usersVue.invite_new_user')"
+            data-testid="testInviteNewUserButton"
+            variant="solid"
+            class="mx-1"
+            size="medium"
+            :action="
+              () => {
+                showInviteSection = true;
+              }
+            "
+          />
           <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
         </div>
       </header>
@@ -107,6 +119,42 @@
             class="col-span-3 bg-white md:col-span-1 lg:col-span-3"
             data-testid="testRightSection"
           >
+            <template v-if="showInviteSection">
+              <Invite
+                :is-admin="false"
+                @tags-changed="
+                  usersToInvite = $event.tags;
+                  emails = $event.emails;
+                "
+                @selected-organization="selectedOrganization = $event"
+                @on-set-organization-does-not-exist="
+                  (value) => {
+                    organizationDoesNotExist = value;
+                  }
+                "
+              />
+              <div class="p-3 flex justify-end">
+                <base-button
+                  :text="$t('actions.cancel')"
+                  :alt="$t('actions.cancel')"
+                  data-testid="testCancelButton"
+                  class="ml-2 p-3 px-6 mr-1 text-xs border border-black"
+                  :action="
+                    () => {
+                      showInviteSection = false;
+                    }
+                  "
+                />
+                <base-button
+                  variant="solid"
+                  data-testid="testSubmitInvitesButton"
+                  :action="() => sendInvitations()"
+                  :text="$t('actions.submit_invites')"
+                  :alt="$t('actions.submit_invites')"
+                  class="ml-2 p-3 px-6 text-xs"
+                />
+              </div>
+            </template>
             <router-view
               v-if="allDataLoaded"
               :current-incident-id="currentIncidentId"
@@ -140,10 +188,23 @@ import _, { kebabCase } from 'lodash';
 import DashboardFooter from '@/components/dashboard/DashboardFooter.vue';
 import InviteUsers from '@/components/modals/InviteUsers.vue';
 import RedeployRequest from '@/components/modals/RedeployRequest.vue';
+import Invite from '@/components/Invite.vue';
+import { getErrorMessage } from '@/utils/errors';
+import type { TagInputData } from '@sipec/vue3-tags-input';
+import useInviteUsers from '@/hooks/useInviteUsers';
 
 const { currentUser, userPreferences, updateCurrentUser } = useCurrentUser();
 const { currentIncidentId } = useCurrentIncident();
 const router = useRouter();
+const $toasted = useToast();
+const { t } = useI18n();
+
+const emails = ref('');
+const usersToInvite = ref<TagInputData[]>([]);
+const selectedOrganization = ref(null);
+const organizationDoesNotExist = ref(false);
+const { inviteUsers } = useInviteUsers();
+const showInviteSection = ref(false);
 
 const performAction = async (action) => {
   await action();
@@ -175,6 +236,23 @@ const goToDashboardSelector = async () => {
     preferences: newPreferences,
   });
   await router.push(`/dashboard`);
+};
+
+const sendInvitations = async () => {
+  return inviteUsers({
+    usersToInvite: usersToInvite.value,
+    emails: emails.value,
+    selectedOrganization: selectedOrganization.value,
+    organizationDoesNotExist: organizationDoesNotExist.value,
+    onSuccess: () => {
+      $toasted.success(t('inviteTeammates.invites_sent_success'));
+      showInviteSection.value = false;
+      usersToInvite.value = [];
+    },
+    onError: (error: unknown) => {
+      $toasted.error(getErrorMessage(error));
+    },
+  });
 };
 
 onMounted(() => {
