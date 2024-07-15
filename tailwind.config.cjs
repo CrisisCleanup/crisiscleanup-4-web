@@ -190,7 +190,7 @@ module.exports = {
       },
       zIndex: {
         'popover': 100,
-        'z-map-controls': 200,
+        'map-controls': 200,
         'toolbar': 300,
         'phone-component': 400,
         'disaster-icon': 500,
