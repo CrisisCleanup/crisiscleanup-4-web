@@ -141,7 +141,7 @@ describe('models > User', () => {
       ],
     });
     const user = new User({ active_roles: [1, 2] });
-    expect(user.allRolesNames).toBe('role.admin, role.user');
+    expect(user.allRolesNames).toBe('role.user, role.admin');
   });
 
   test('computed property: referringUser', () => {
