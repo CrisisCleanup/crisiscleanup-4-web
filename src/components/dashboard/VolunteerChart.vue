@@ -24,7 +24,7 @@
           'bg-crisiscleanup-light-smoke': monthlyChange === 0,
         }"
       >
-        <div class="font-bold">{{ monthlyChange.toFixed(2) }}%</div>
+        <div class="font-bold">{{ monthlyChange?.toFixed(2) }}%</div>
         <div v-if="monthlyChange < 0">
           {{ $t('volunteerChart.down_from_last_month') }}
         </div>
@@ -147,7 +147,7 @@ const series = computed(() => [
 ]);
 
 const monthlyChange = computed(() => {
-  return calculateMonthlyChange(chartData.value, 'velocity');
+  return Number(calculateMonthlyChange(chartData.value, 'velocity'));
 });
 
 function calculateMonthlyChange(data, metric) {
