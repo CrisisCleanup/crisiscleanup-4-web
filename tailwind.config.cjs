@@ -188,6 +188,19 @@ module.exports = {
         12: 'repeat(12, minmax(0, 1fr))',
         30: 'repeat(30, 1fr)',
       },
+      zIndex: {
+        'popover': 100,
+        'map-controls': 200,
+        'toolbar': 300,
+        'phone-component': 400,
+        'disaster-icon': 500,
+        'phone-overlay': 600,
+        'header': 700,
+        'sidebar': 800,
+        'modal-mask': 900,
+        'modal': 1000,
+        'max': 10000,
+      }
     },
   },
   variants: {

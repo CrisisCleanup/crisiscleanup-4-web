@@ -134,7 +134,7 @@ export default defineComponent({
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 9998;
+  @apply z-modal-mask;
   top: 0;
   left: 0;
   width: 100%;

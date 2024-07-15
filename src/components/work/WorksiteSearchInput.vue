@@ -357,7 +357,7 @@ export default defineComponent({
 
 <style>
 .autocomplete {
-  z-index: 1000;
+  @apply z-modal;
 }
 
 .case-svg-container svg {
@@ -407,7 +407,7 @@ export default defineComponent({
   min-width: 10vw;
   max-width: 100vw;
   position: absolute;
-  z-index: 10000001;
+  @apply z-modal;
   border: 1px solid #e0e0e0;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;

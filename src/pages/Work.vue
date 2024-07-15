@@ -41,8 +41,7 @@
       </div>
       <span
         v-if="allWorksiteCount && !showingFeed"
-        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6"
-        style="z-index: 1002"
+        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6 z-toolbar"
       >
         <span class="bg-black rounded p-2 text-white">
           <span
@@ -59,10 +58,7 @@
           </span>
         </span>
       </span>
-      <div
-        style="z-index: 1002"
-        class="absolute top-4 right-4 flex items-center"
-      >
+      <div class="absolute top-4 right-4 flex items-center z-toolbar">
         <WorksiteActions
           v-if="currentIncidentId"
           :key="currentIncidentId"
@@ -80,7 +76,7 @@
           @toggle-search="showingSearchModal = !showingSearchModal"
         />
       </div>
-      <div style="z-index: 1002" class="absolute top-20 left-12 mt-2">
+      <div class="absolute top-20 left-12 mt-2 z-toolbar">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"
@@ -99,10 +95,7 @@
           "
         />
       </div>
-      <div
-        style="z-index: 1002"
-        class="fixed bottom-20 gap-2 right-4 flex flex-col"
-      >
+      <div class="fixed bottom-20 gap-2 right-4 flex flex-col z-toolbar">
         <base-button
           data-testid="testAddCaseButton"
           icon="plus"
@@ -446,6 +439,28 @@
               />
             </div>
           </div>
+          <tag
+            v-if="overDueFilterLabel"
+            data-testid="testOverDueFilterLabelDiv"
+            closeable
+            class="p-1.5 my-1 w-max mx-2"
+            :style="{
+              fontSize: '0.85rem',
+            }"
+            @closed="clearQuery"
+            >{{ overDueFilterLabel }}</tag
+          >
+          <tag
+            v-if="queryFilterLabel"
+            data-testid="testQueryFilterLabelDiv"
+            closeable
+            class="p-1.5 my-1 w-max mx-2"
+            :style="{
+              fontSize: '0.85rem',
+            }"
+            @closed="clearQuery"
+            >{{ queryFilterLabel }}</tag
+          >
           <div v-if="filterLabels.length > 0" class="mx-4">
             <div class="flex gap-3">
               <span class="font-bold">{{
@@ -478,15 +493,6 @@
               </template>
             </div>
           </div>
-
-          <tag
-            v-if="overDueFilterLabel"
-            data-testid="testOverDueFilterLabelDiv"
-            closeable
-            class="m-1 p-1 w-max"
-            @closed="clearQuery"
-            >{{ overDueFilterLabel }}</tag
-          >
           <div
             v-if="
               !collapsedUtilityBar &&
@@ -1190,6 +1196,32 @@ export default defineComponent({
         'work_type__status__in' in route.query &&
         'created_at__lte' in route.query
       );
+    });
+
+    const hasQueryFilter = computed(() => {
+      return (
+        'work_type__claimed_by' in route.query ||
+        'work_type__claimed_by__isnull' in route.query ||
+        'work_type__status__primary_state' in route.query
+      );
+    });
+
+    const queryFilterLabel = computed(() => {
+      if (hasQueryFilter.value) {
+        if ('work_type__claimed_by' in route.query) {
+          return `${getOrganizationName(
+            route.query.work_type__claimed_by as string,
+          )} ${t('casesVue.claimed_cases')}`;
+        } else if ('work_type__claimed_by__isnull' in route.query) {
+          return t('casesVue.unclaimed_cases');
+        } else if ('work_type__status__primary_state' in route.query) {
+          return t(
+            `casesVue.${route.query.work_type__status__primary_state}_cases`,
+          );
+        }
+      }
+
+      return '';
     });
 
     const overDueFilterLabel = computed(() => {
@@ -2110,6 +2142,7 @@ export default defineComponent({
       handleWorksiteSave,
       handleWorksiteNavigation,
       overDueFilterLabel,
+      queryFilterLabel,
       getOrganizationName,
       clearQuery,
       mq,
@@ -2203,8 +2236,7 @@ export default defineComponent({
   grid-template-columns: minmax(0, auto) minmax(auto, 400px);
 
   &__actions {
-    @apply absolute top-0 right-0 flex flex-col select-text;
-    z-index: 1004;
+    @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;
   }
 
   &__action {

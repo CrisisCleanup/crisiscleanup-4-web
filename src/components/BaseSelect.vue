@@ -362,7 +362,7 @@ export default defineComponent({
 
 <style>
 .multiselect-dropdown {
-  z-index: 4999;
+  @apply z-header;
 }
 
 .multiselect-search {

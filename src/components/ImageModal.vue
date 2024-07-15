@@ -110,8 +110,7 @@ export default defineComponent({
 }
 
 .modal {
-  @apply relative;
-  z-index: 10000;
+  @apply relative z-modal;
   position: absolute;
   left: 0;
   top: 0;

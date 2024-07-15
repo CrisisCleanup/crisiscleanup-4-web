@@ -22,6 +22,12 @@ import { useCurrentIncident } from '@/hooks';
 import VolunteerChart from '@/components/dashboard/VolunteerChart.vue';
 import SimpleMap from '@/components/SimpleMap.vue';
 import DownloadAppBanner from '@/components/dashboard/DownloadAppBanner.vue';
+import { useWebSockets } from '@/hooks/useWebSockets';
+import User from '@/models/User';
+import { computed, ref } from 'vue';
+import useDialogs from '@/hooks/useDialogs';
+import UserList from '@/components/user/UserList.vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   loadingActionItems: Boolean,
@@ -37,9 +43,14 @@ const { currentUser } = useCurrentUser();
 const { currentIncidentId, currentIncident } = useCurrentIncident();
 
 const $toasted = useToast();
+const { component } = useDialogs();
+const { t } = useI18n();
 
 const engagementData = ref([]);
 const dashboardStatistics = ref<any>(null);
+const online_users_socket = ref<WebSocket | null>(null);
+const allOnlineUsers = ref<number[]>([]);
+const mobileOnlineUsers = ref<number[]>([]);
 
 const inboundWorksiteRequests = computed(() => {
   const preferences = currentUser.value?.preferences || {};
@@ -74,7 +85,62 @@ async function unclaimAll(worksite: Worksite) {
   }
 }
 
-onMounted((loaded) => {
+const onlineUsersWithData = computed(() => {
+  const result = [];
+  for (const id of allOnlineUsers.value) {
+    const user = User.find(id);
+    if (!user) {
+      console.info('User not found in store', id, user);
+      continue;
+    }
+    result.push(user);
+  }
+  console.debug('Found online users', result);
+  return result;
+});
+
+async function showOnlineUsersList() {
+  await component({
+    title: t('~~Online Users'),
+    component: UserList,
+    classes: 'w-full h-108 overflow-auto p-3',
+    modalClasses: 'bg-white max-w-3xl shadow',
+    props: {
+      users: onlineUsersWithData.value,
+      mobileOnlineUserIds: mobileOnlineUsers.value,
+    },
+  });
+}
+
+onBeforeMount(() => {
+  const { socket: online_users_s } = useWebSockets(
+    '/ws/online_chat_users',
+    'phone_stats',
+    async (data) => {
+      const users = Object.keys(data)
+        .map((key) => {
+          const user = JSON.parse(data[key]);
+          return {
+            id: user.user_id,
+            is_mobile: user.is_mobile,
+            last_seen_at: user.last_seen_at,
+          };
+        })
+        .filter(
+          (user) => moment().diff(moment(user.last_seen_at), 'minutes') < 5,
+        );
+
+      allOnlineUsers.value = users.map((u) => u.id);
+      await User.fetchOrFindId(allOnlineUsers.value);
+      mobileOnlineUsers.value = users
+        .filter((u) => u.is_mobile)
+        .map((u) => u.id);
+    },
+  );
+  online_users_socket.value = online_users_s;
+});
+
+onMounted(() => {
   getWorksites(currentIncidentId.value).then((worksites) => {
     mapUtils = useWorksiteMap(
       worksites,
@@ -147,7 +213,7 @@ onMounted((loaded) => {
   </div>
   <div
     v-if="dashboardStatistics"
-    class="grid md:grid-cols-6 grid-cols-3 gap-2 mt-10 p-8"
+    class="grid md:grid-cols-4 grid-cols-3 gap-2 mt-10 p-8"
   >
     <div class="stats-card">
       <p>{{ $t('dashboard.total_value') }}</p>
@@ -158,20 +224,54 @@ onMounted((loaded) => {
       <p>{{ dashboardStatistics.members_served }}</p>
     </div>
     <div class="stats-card">
+      <p>{{ $t('dashboard.total_cases') }}</p>
+      <p>
+        <router-link :to="`/incident/${currentIncidentId}/work`"
+          >{{ dashboardStatistics.total_cases }}
+        </router-link>
+      </p>
+    </div>
+    <div class="stats-card">
       <p>{{ $t('dashboard.total_claimed_cases') }}</p>
-      <p>{{ dashboardStatistics.total_claimed_cases }}</p>
+      <p>
+        <router-link
+          :to="`/incident/${currentIncidentId}/work?work_type__claimed_by=${currentUser.organization.id}`"
+          >{{ dashboardStatistics.total_claimed_cases }}
+        </router-link>
+      </p>
+    </div>
+    <div class="stats-card">
+      <p>{{ $t('dashboard.total_unclaimed_cases') }}</p>
+      <p>
+        <router-link
+          :to="`/incident/${currentIncidentId}/work?work_type__claimed_by__isnull=true`"
+          >{{ dashboardStatistics.total_unclaimed_cases }}
+        </router-link>
+      </p>
     </div>
     <div class="stats-card">
       <p>{{ $t('dashboard.total_closed_cases') }}</p>
-      <p>{{ dashboardStatistics.total_closed_cases }}</p>
+      <p>
+        <router-link
+          :to="`/incident/${currentIncidentId}/work?work_type__status__primary_state=closed`"
+          >{{ dashboardStatistics.total_closed_cases }}
+        </router-link>
+      </p>
     </div>
     <div class="stats-card">
       <p>{{ $t('dashboard.total_open_cases') }}</p>
-      <p>{{ dashboardStatistics.total_open_cases }}</p>
+      <p>
+        <router-link
+          :to="`/incident/${currentIncidentId}/work?work_type__status__primary_state=open`"
+          >{{ dashboardStatistics.total_open_cases }}
+        </router-link>
+      </p>
     </div>
     <div class="stats-card">
       <p>{{ $t('dashboard.active_users_today') }}</p>
-      <p>{{ dashboardStatistics.active_users_today }}</p>
+      <p class="text-primary-dark cursor-pointer" @click="showOnlineUsersList">
+        {{ dashboardStatistics.active_users_today }}
+      </p>
     </div>
   </div>
   <div v-if="inboundWorksiteRequests.length > 0" class="p-8">

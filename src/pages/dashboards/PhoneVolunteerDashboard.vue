@@ -185,7 +185,6 @@ onMounted(async () => {
         <PhoneCmsItems
           class="p-2 h-156"
           data-testid="testPhoneCmsItemsDiv"
-          style="z-index: 1002"
           @unread-count="unreadNewsCount = $event"
         ></PhoneCmsItems>
       </div>

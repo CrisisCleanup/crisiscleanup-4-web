@@ -2,7 +2,6 @@
   <div>
     <form
       v-if="showSchedule"
-      style="z-index: 1001"
       class="p-2 border"
       :class="containerClass"
       @change="logChange"
@@ -253,7 +252,6 @@ export default defineComponent({
 
 <style>
 .cron-popover {
-  @apply bg-white text-black outline-none w-full border shadow w-84;
-  z-index: 100;
+  @apply bg-white text-black outline-none w-full border shadow w-84 z-50;
 }
 </style>

@@ -10,7 +10,11 @@
         alt="profileUser.profile_picture"
       />
       <h1 class="text-lg font-semibold">{{ user.full_name }}</h1>
-      <p class="text-gray-500">{{ $t(user?.highestRole?.name_t) }}</p>
+      <div class="text-gray-500 text-center">
+        <div v-for="role in user.allRoles" :key="role.id">
+          {{ $t(role.name_t) }}
+        </div>
+      </div>
     </div>
     <div class="space-y-1 text-crisiscleanup-grey-900">
       <div class="flex items-center space-x-1">
@@ -41,11 +45,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import type User from '@/models/User';
 
-const props = defineProps<{
+defineProps<{
   user: User;
 }>();
 </script>

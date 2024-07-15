@@ -280,10 +280,7 @@ const {
       'h-0': !expanded && !caller,
     }"
   >
-    <div
-      class="top-0 flex absolute right-0 left-0 bottom-0"
-      style="z-index: 4998"
-    >
+    <div class="top-0 flex absolute right-0 left-0 bottom-0 z-phone-overlay">
       <!-- Container for the expand/collapse component -->
       <div class="flex-1 h-full">
         <div
@@ -389,9 +386,8 @@ const {
                 class="flex items-center justify-center h-[calc(100vh-13rem)]"
               >
                 <ManualDialer
-                  class="p-2"
+                  class="p-2 z-phone-component"
                   data-testid="testManualDialerDiv"
-                  style="z-index: 1002"
                   :dialing="false"
                   :phone-number="phoneNumberToDial"
                   @on-dial="dialManualOutbound"
@@ -442,9 +438,8 @@ const {
               </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2 h-[calc(100vh-13rem)]"
+                class="p-2 h-[calc(100vh-13rem)] z-phone-component"
                 data-testid="testPhoneCmsItemsDiv"
-                style="z-index: 1002"
                 @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
 

@@ -3,8 +3,7 @@
     <div
       v-if="showingLegend"
       data-testid="testShowingLegendDiv"
-      style="z-index: 1001"
-      class="legend absolute legend-landscape bottom-0 w-72 bg-white border-2 p-2"
+      class="legend absolute legend-landscape bottom-0 w-72 bg-white border-2 p-2 z-map-controls"
     >
       <div
         class="flex items-center justify-between cursor-pointer"
@@ -74,8 +73,7 @@
     </div>
     <div
       v-else
-      style="z-index: 1001"
-      class="cursor-pointer legend absolute legend-landscape bottom-0 w-22 bg-white border-2 p-2 flex justify-center items-center"
+      class="cursor-pointer legend absolute legend-landscape bottom-0 w-22 bg-white border-2 p-2 flex justify-center items-center z-map-controls"
       @click="() => toggleLegend(true)"
     >
       <div class="text-base font-bold my-1 mr-2">
