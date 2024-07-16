@@ -49,13 +49,13 @@
           size="large"
           multiple
           select-classes="bg-white border text-xs p-1"
-          :placeholder="$t('~~Languages')"
+          :placeholder="$t('incidentAssets.languages')"
         />
         <datepicker
           v-model="selectedEndDate"
           data-testid="testCurrentAniStartAtSelect"
           :timezone="currentIncident.timezone"
-          :placeholder="$t('~~End Date')"
+          :placeholder="$t('incidentAssets.end_date')"
           v-bind="datePickerDefaultProps"
         ></datepicker>
         <base-select
@@ -186,7 +186,7 @@
                 v-if="asset.files && asset.files.length > 0"
                 class="text-xs text-crisiscleanup-dark-300"
               >
-                {{ $t('~~Last Published') }}:
+                {{ $t('incidentAssets.last_published') }}:
                 {{
                   moment(asset.files[0].file_updated_at).format(
                     'YYYY-MM-DD HH:mm',
