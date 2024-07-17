@@ -931,7 +931,7 @@ export default defineComponent({
       const response = await component({
         title: t('profileOrg.select_location'),
         component: LocationTool,
-        modalClasses: `w-${mq.current === 'sm' ? 'full' : '2/3'}`,
+        modalClasses: `max-w-6xl`,
         props: {
           organization: stateRefs.organization.value.id,
           class: classes,
