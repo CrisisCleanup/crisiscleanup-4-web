@@ -49,7 +49,7 @@
       <div
         ref="buttons"
         data-testid="testMapButtonsDiv"
-        class="absolute w-full h-8 ml-4 mt-4 flex z-map-controls"
+        class="absolute w-full h-8 ml-4 mt-4 flex z-map-controls flex-wrap gap-5"
       >
         <div class="flex mr-4">
           <MapButton
@@ -144,90 +144,92 @@
             @click="clearAll"
           />
         </div>
-        <base-button
-          class="bg-white p-1 border ml-5 flex items-center justify-center px-2"
-          style="height: 37px"
-          data-testid="testUploadLayerPlusButton"
-          :text="$t('locationTool.upload_layer_plus')"
-          :alt="$t('locationTool.upload_layer_plus')"
-          :action="
-            () => {
-              showingUploadModal = true;
-            }
-          "
-        />
-        <modal
-          v-if="showingUploadModal"
-          modal-classes="bg-white w-3/4 shadow"
-          data-testid="testUploadLayerModal"
-          :title="$t('locationTool.upload_layer')"
-          @cancel="showingUploadModal = false"
-        >
-          <div class="flex items-center justify-center w-full">
-            <LayerUploadTool
-              :key="currentLayerUpload"
-              data-testid="testLayerUploadToolDiv"
-              class="flex w-full justify-center items-center"
-              @added-layer="
-                (layer) => {
-                  currentLayerUpload = layer;
-                }
-              "
-            />
-          </div>
-          <div v-if="currentLayerUpload" class="text-center">
-            {{ $t('locationTool.selected_location') }}
-            {{ currentLayerUpload[0].name }}
-          </div>
-          <template #footer>
-            <div class="p-3 flex items-center justify-center">
-              <base-button
-                :action="
-                  () => {
-                    showingUploadModal = false;
+        <div class="flex md:gap-2 gap-1 text-sm md:text-base">
+          <base-button
+            class="bg-white p-1 border flex items-center justify-center px-2"
+            style="height: 37px"
+            data-testid="testUploadLayerPlusButton"
+            :text="$t('locationTool.upload_layer_plus')"
+            :alt="$t('locationTool.upload_layer_plus')"
+            :action="
+              () => {
+                showingUploadModal = true;
+              }
+            "
+          />
+          <modal
+            v-if="showingUploadModal"
+            modal-classes="bg-white max-w-6xl shadow"
+            data-testid="testUploadLayerModal"
+            :title="$t('locationTool.upload_layer')"
+            @cancel="showingUploadModal = false"
+          >
+            <div class="flex items-center justify-center w-full">
+              <LayerUploadTool
+                :key="currentLayerUpload"
+                data-testid="testLayerUploadToolDiv"
+                class="flex w-full justify-center items-center"
+                @added-layer="
+                  (layer) => {
+                    currentLayerUpload = layer;
                   }
                 "
-                :text="$t('actions.cancel')"
-                :alt="$t('actions.cancel')"
-                data-testid="testCancelButton"
-                variant="outline"
-                class="ml-2 p-3 px-6 text-xs"
-              />
-              <base-button
-                variant="solid"
-                :action="applyCurrentLayerUpload"
-                :text="$t('actions.apply')"
-                :alt="$t('actions.apply')"
-                data-testid="testApplyButton"
-                class="ml-2 p-3 px-6 text-xs"
               />
             </div>
-          </template>
-        </modal>
-        <div
-          v-if="incident || organization"
-          class="bg-white p-1 border ml-5 flex items-center justify-center"
-          style="height: 37px"
-        >
-          <base-checkbox
-            :disabled="worksitesLoading"
-            data-testid="testShowCasesCheckbox"
-            @update:model-value="toggleWorksites"
+            <div v-if="currentLayerUpload" class="text-center">
+              {{ $t('locationTool.selected_location') }}
+              {{ currentLayerUpload[0].name }}
+            </div>
+            <template #footer>
+              <div class="p-3 flex items-center justify-center">
+                <base-button
+                  :action="
+                    () => {
+                      showingUploadModal = false;
+                    }
+                  "
+                  :text="$t('actions.cancel')"
+                  :alt="$t('actions.cancel')"
+                  data-testid="testCancelButton"
+                  variant="outline"
+                  class="ml-2 p-3 px-6 text-xs"
+                />
+                <base-button
+                  variant="solid"
+                  :action="applyCurrentLayerUpload"
+                  :text="$t('actions.apply')"
+                  :alt="$t('actions.apply')"
+                  data-testid="testApplyButton"
+                  class="ml-2 p-3 px-6 text-xs"
+                />
+              </div>
+            </template>
+          </modal>
+          <div
+            v-if="incident || organization"
+            class="bg-white p-1 border flex items-center justify-center"
+            style="height: 37px"
           >
-            {{ $t('locationTool.show_cases') }}
-          </base-checkbox>
-        </div>
-        <div
-          v-if="organization"
-          class="bg-white p-1 border ml-5 flex items-center justify-center"
-          style="height: 37px"
-        >
-          <base-checkbox
-            data-testid="testShowIncidentsCheckbox"
-            @update:model-value="toggleIncidents"
+            <base-checkbox
+              :disabled="worksitesLoading"
+              data-testid="testShowCasesCheckbox"
+              @update:model-value="toggleWorksites"
+            >
+              {{ $t('locationTool.show_cases') }}
+            </base-checkbox>
+          </div>
+          <div
+            v-if="organization"
+            class="bg-white p-1 border flex items-center justify-center"
+            style="height: 37px"
           >
-            {{ $t('locationTool.show_incidents') }}
-          </base-checkbox>
+            <base-checkbox
+              data-testid="testShowIncidentsCheckbox"
+              @update:model-value="toggleIncidents"
+            >
+              {{ $t('locationTool.show_incidents') }}
+            </base-checkbox>
+          </div>
         </div>
       </div>
       <div id="map" class="h-full"></div>
@@ -764,7 +766,7 @@ export default defineComponent({
     );
 
     watch(
-      () => stateRefs.currentBufferDistance,
+      () => stateRefs.currentBufferDistance.value,
       () => {
         drawBuffer();
       },
