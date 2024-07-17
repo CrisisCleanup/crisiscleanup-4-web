@@ -88,11 +88,14 @@ export default defineComponent({
           // `portal:${locale.value}`,
         ),
       });
-      store.commit('enums/setStatuses', enums.statuses.data.results);
-      store.commit('enums/setWorkTypes', enums.workTypes.data.results);
-      store.commit('enums/setLocationTypes', enums.locationTypes.data.results);
-      store.commit('enums/setPhases', enums.phases.data.results);
-      store.commit('enums/setPortal', enums.portal.data);
+      store.commit('enums/setStatuses', enums?.statuses?.data?.results);
+      store.commit('enums/setWorkTypes', enums?.workTypes?.data?.results);
+      store.commit(
+        'enums/setLocationTypes',
+        enums?.locationTypes?.data?.results,
+      );
+      store.commit('enums/setPhases', enums?.phases?.data?.results);
+      store.commit('enums/setPortal', enums?.portal?.data);
     }
 
     axios.defaults.headers.CCU_PORTAL_KEY = import.meta.env.VITE_APP_PORTAL_KEY;
