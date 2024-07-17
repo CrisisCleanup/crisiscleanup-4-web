@@ -1,7 +1,7 @@
 import * as L from 'leaflet';
 import 'leaflet.heat';
 import 'leaflet/dist/leaflet.css';
-import type { Sprite, type Container } from 'pixi.js';
+import type { Sprite, Container } from 'pixi.js';
 import type { LatLng, HeatLayer, LeafletMouseEvent } from 'leaflet';
 import { getMarkerLayer, mapTileLayer, mapAttribution } from '../../utils/map';
 import Location from '../../models/Location';
@@ -56,31 +56,41 @@ export default (
   let loadMarker: (marker: Sprite & Worksite, index: number) => void = (
     marker,
     index,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
   ) => {};
-
-  const map = L.map('map', {
-    zoomControl: false,
-  }).fitBounds(
-    mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
-  );
-  if (useGoogleMaps) {
-    L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
-  } else {
-    L.tileLayer(mapTileLayer, {
-      attribution: mapAttribution,
-      detectRetina: false,
-      maxZoom: 18,
-      noWrap: false,
-    }).addTo(map);
+  const existingMap = L.DomUtil.get('map');
+  L.Map.addInitHook(function () {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    this.getContainer()._leaflet_map = this;
+  });
+  if (existingMap !== null && (existingMap as any)._leaflet_map) {
+    (existingMap as any)._leaflet_map.invalidateSize();
   }
-
+  let map: L.Map = null as any;
+  try {
+    map = L.map('map', {
+      zoomControl: false,
+    }).fitBounds(
+      mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
+    );
+    if (useGoogleMaps) {
+      L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
+    } else {
+      L.tileLayer(mapTileLayer, {
+        attribution: mapAttribution,
+        detectRetina: false,
+        maxZoom: 18,
+        noWrap: false,
+      }).addTo(map);
+    }
+  } catch {
+    return;
+  }
   const removeLayer = (key: string) => {
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
         try {
-          layer.destroy();
+          layer.remove();
         } catch (error) {
           console.error('Error destroying map layer', layer, error);
           getErrorMessage(error);
