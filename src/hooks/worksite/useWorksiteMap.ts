@@ -57,40 +57,29 @@ export default (
     marker,
     index,
   ) => {};
-  const existingMap = L.DomUtil.get('map');
-  L.Map.addInitHook(function () {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    this.getContainer()._leaflet_map = this;
-  });
-  if (existingMap !== null && (existingMap as any)._leaflet_map) {
-    (existingMap as any)._leaflet_map.invalidateSize();
+
+  const map = L.map('map', {
+    zoomControl: false,
+  }).fitBounds(
+    mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
+  );
+  if (useGoogleMaps) {
+    L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
+  } else {
+    L.tileLayer(mapTileLayer, {
+      attribution: mapAttribution,
+      detectRetina: false,
+      maxZoom: 18,
+      noWrap: false,
+    }).addTo(map);
   }
-  let map: L.Map = null as any;
-  try {
-    map = L.map('map', {
-      zoomControl: false,
-    }).fitBounds(
-      mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
-    );
-    if (useGoogleMaps) {
-      L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
-    } else {
-      L.tileLayer(mapTileLayer, {
-        attribution: mapAttribution,
-        detectRetina: false,
-        maxZoom: 18,
-        noWrap: false,
-      }).addTo(map);
-    }
-  } catch {
-    return;
-  }
+
   const removeLayer = (key: string) => {
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === key) {
         map.removeLayer(layer);
         try {
-          layer.remove();
+          layer.destroy();
         } catch (error) {
           console.error('Error destroying map layer', layer, error);
           getErrorMessage(error);
