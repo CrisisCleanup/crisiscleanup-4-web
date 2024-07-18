@@ -232,7 +232,7 @@ const reset = async () => {
   await updateCallbacks();
   currentView.value = '';
   expanded.value = false;
-  $toasted.success(t('~~Successfully reset phone system'));
+  $toasted.success(t('phoneDashboard.reset_phone_system_success'));
 };
 
 onMounted(() => {
@@ -551,8 +551,8 @@ const {
                       <base-button
                         :action="reset"
                         class="text-white bg-crisiscleanup-red-200 my-2"
-                        :text="$t('~~Reset Phone System')"
-                        :alt="$t('~~Reset Phone System')"
+                        :text="$t('phoneDashboard.reset_phone_system')"
+                        :alt="$t('phoneDashboard.reset_phone_system')"
                         data-testid="testResetPhoneSystemButton"
                         size="large"
                       >

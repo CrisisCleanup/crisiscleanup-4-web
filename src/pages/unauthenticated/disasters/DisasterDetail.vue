@@ -109,7 +109,7 @@ onMounted(async () => {
             class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-full"
             :href="`tel:${number}`"
           >
-            {{ $t('~~Hotline:') }}
+            {{ $t('disasters.hotline') }}
             {{ formatNationalNumber(String(number)) }}
           </a>
         </div>

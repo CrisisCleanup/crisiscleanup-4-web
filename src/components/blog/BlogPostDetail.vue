@@ -11,7 +11,7 @@
           to="/blog"
           class="underline text-crisiscleanup-dark-blue text-lg font-semibold block mb-3"
         >
-          {{ $t('~~ ← Back to Blog Home') }}
+          {{ $t('blog.back_to_home') }}
         </router-link>
         <div class="mb-4 mb-6 not-format bg-auto">
           <router-link
@@ -55,13 +55,13 @@
       >
         <div v-if="previousPost" class="text-right">
           <router-link :to="`/blog/post/${previousPost.slug}`">
-            <div class="my-2">{{ $t('~~ ← Previous Post') }}</div>
+            <div class="my-2">{{ $t('blog.previous_post') }}</div>
           </router-link>
           <span class="font-semibold">{{ previousPost.title }}</span>
         </div>
         <div v-if="nextPost">
           <router-link :to="`/blog/post/${nextPost.slug}`">
-            <div class="my-2">{{ $t('~~ Next Post ->') }}</div>
+            <div class="my-2">{{ $t('blog.next_post') }}</div>
           </router-link>
           <span class="font-semibold">{{ nextPost.title }}</span>
         </div>
