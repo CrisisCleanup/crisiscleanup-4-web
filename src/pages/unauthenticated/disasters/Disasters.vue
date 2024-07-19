@@ -47,7 +47,8 @@
                 {{ formatNationalNumber(String(ani.phone_number)) }}
               </a>
               <span class="italic opacity-50 text-sm">
-                {{ $t('disasters.hotline_closes_in') }} {{ momentFromNow(ani.end_at) }}
+                {{ $t('disasters.hotline_closes_in') }}
+                {{ momentFromNow(ani.end_at) }}
               </span>
             </div>
           </div>
