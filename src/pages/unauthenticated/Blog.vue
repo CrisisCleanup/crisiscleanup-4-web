@@ -3,7 +3,7 @@
     <div class="blog-list bg-crisiscleanup-light-smoke h-full">
       <div class="h-84 bg-crisiscleanup-dark-500 mb-6">
         <div class="w-full text-center text-white text-4xl py-3">
-          {{ $t('~~Crisis Cleanup Blog') }}
+          {{ $t('blog.crisis_cleanup_blog') }}
         </div>
         <div class="text-white">
           <div
@@ -39,7 +39,7 @@
       </div>
       <div v-if="!loading" class="flex mx-auto p-4 justify-evenly gap-5">
         <div class="md:w-2/3 w-full">
-          <span class="text-xl opacity-60">{{ $t('~~Latest Posts') }}</span>
+          <span class="text-xl opacity-60">{{ $t('blog.latest_posts') }}</span>
           <BlogPosts
             :cms-items="posts"
             item-classes="py-6 cursor-pointer"
@@ -64,7 +64,7 @@
           <div class="sidebar mt-4">
             <div>
               <div class="tags p-3 mb-4 shadow-crisiscleanup-card bg-white">
-                <div class="text-lg opacity-50">{{ $t('~~TAGS') }}</div>
+                <div class="text-lg opacity-50">{{ $t('blog.tags') }}</div>
                 <div class="flex gap-2">
                   <tag
                     v-for="tag in availableTags"
@@ -87,7 +87,7 @@
               </div>
               <div class="posts-by-date shadow-crisiscleanup-card p-3 bg-white">
                 <div class="text-lg opacity-50">
-                  {{ $t('~~POSTS BY DATE') }}
+                  {{ $t('blog.posts_by_date') }}
                 </div>
                 <ul>
                   <li v-for="year in Object.keys(availableYears)" :key="year">

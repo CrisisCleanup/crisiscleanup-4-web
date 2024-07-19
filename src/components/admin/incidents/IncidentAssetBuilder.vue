@@ -67,7 +67,7 @@
           label="phone_number"
           multiple
           select-classes="bg-white border"
-          :placeholder="$t('~~Choose ANIs')"
+          :placeholder="$t('incidentAssets.choose_anis')"
         />
       </div>
     </div>

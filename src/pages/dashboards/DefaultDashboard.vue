@@ -101,7 +101,7 @@ const onlineUsersWithData = computed(() => {
 
 async function showOnlineUsersList() {
   await component({
-    title: t('~~Online Users'),
+    title: t('chat.online_users'),
     component: UserList,
     classes: 'w-full h-108 overflow-auto p-3',
     modalClasses: 'bg-white max-w-3xl shadow',

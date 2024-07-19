@@ -43,11 +43,12 @@
                 class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-full"
                 :href="`tel:${ani.phone_number}`"
               >
-                {{ $t('~~Hotline:') }}
+                {{ $t('disasters.hotline') }}
                 {{ formatNationalNumber(String(ani.phone_number)) }}
               </a>
               <span class="italic opacity-50 text-sm">
-                {{ $t('Hotline closes in') }} {{ momentFromNow(ani.end_at) }}
+                {{ $t('disasters.hotline_closes_in') }}
+                {{ momentFromNow(ani.end_at) }}
               </span>
             </div>
           </div>
