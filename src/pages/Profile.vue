@@ -133,14 +133,20 @@
                   </div>
                 </div>
                 <hr class="p-2 m-auto" />
-                <div class="grid grid-cols-1 md:grid-cols-2 pb-4 gap-2">
-                  <div class="">
+                <div class="grid grid-cols-1 pb-4 gap-2">
+                  <div class="w-full">
                     <p>{{ $t('profileUser.user_roles') }}</p>
                     <UserRolesSelect
                       class="w-full flex-grow"
                       data-testid="testUserRolesSelect"
                       :user="currentUser!"
                     />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 pb-4 gap-2">
+                  <div>
+                    <p>{{ $t('~~Equipment') }}</p>
+                    <UserEquipmentSelect :user="currentUser!" />
                   </div>
                 </div>
                 <div>{{ $t('profileUser.languages') }}</div>
@@ -399,10 +405,17 @@ import useValidation from '@/hooks/useValidation';
 import ChangeOrganizationModal from '@/components/modals/ChangeOrganizationModal.vue';
 import { useCurrentUser, useAuthStore } from '@/hooks';
 import useAcl from '@/hooks/useAcl';
+import UserEquipmentSelect from '@/components/UserEquipmentSelect.vue';
 
 export default defineComponent({
   name: 'Profile',
-  components: { Avatar, ChangeOrganizationModal, DragDrop, UserRolesSelect },
+  components: {
+    UserEquipmentSelect,
+    Avatar,
+    ChangeOrganizationModal,
+    DragDrop,
+    UserRolesSelect,
+  },
   setup() {
     const $toasted = useToast();
     const route = useRoute();
