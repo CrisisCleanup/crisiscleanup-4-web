@@ -286,37 +286,39 @@ export default defineComponent({
       to: '/pew-pew',
     }));
 
-    const mobileRoutes = computed(() => [
-      {
-        name: 'nav.dashboard',
-        key: 'dashboard',
-        text: t('nav.dashboard'),
-        to: `/incident/${currentIncidentId.value}/dashboard`,
-        icon: 'dashboard',
-      },
-      {
-        name: 'nav.work',
-        key: 'work',
-        to: `/incident/${currentIncidentId.value}/work`,
-        icon: 'briefcase',
-        text: t('nav.work'),
-      },
-      {
-        name: 'nav.phone',
-        key: 'phone',
-        icon: 'phone',
-        text: t('nav.phone'),
-        to: `/incident/${currentIncidentId.value}/phone`,
-        disabled: !$can || !$can('phone_agent'),
-      },
-      {
-        name: 'nav.profile',
-        key: 'profile',
-        icon: 'user',
-        text: t('nav.profile'),
-        to: '/profile',
-      },
-    ]);
+    const mobileRoutes = computed(() =>
+      [
+        {
+          name: 'nav.dashboard',
+          key: 'dashboard',
+          text: t('nav.dashboard'),
+          to: `/incident/${currentIncidentId.value}/dashboard`,
+          icon: 'dashboard',
+        },
+        {
+          name: 'nav.work',
+          key: 'work',
+          to: `/incident/${currentIncidentId.value}/work`,
+          icon: 'briefcase',
+          text: t('nav.work'),
+        },
+        {
+          name: 'nav.phone',
+          key: 'phone',
+          icon: 'phone',
+          text: t('nav.phone'),
+          to: `/incident/${currentIncidentId.value}/phone`,
+          disabled: !$can || !$can('phone_agent'),
+        },
+        {
+          name: 'nav.profile',
+          key: 'profile',
+          icon: 'user',
+          text: t('nav.profile'),
+          to: '/profile',
+        },
+      ].filter((r) => !r.disabled),
+    );
 
     const hasAcceptedTaC = computed(() => {
       if (!currentUser.value) return false;
