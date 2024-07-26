@@ -58,7 +58,7 @@ export function exportCSVFile(
   const csv = convertToCSV(jsonObject);
 
   const exportedFilename = `${fileTitle ?? 'export'}.csv`;
-  downloadCSVFile(exportedFilename, csv);
+  downloadCSVFile(csv, exportedFilename);
 }
 
 export function downloadCSVFile(csvContent: string, fileName: string) {
