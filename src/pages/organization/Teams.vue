@@ -1,11 +1,11 @@
 <template>
   <div class="px-8 py-4">
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center mr-4 mb-6">
       <base-input
         v-model="currentSearch"
         data-testid="testTeamSearch"
         icon="search"
-        class="w-84 mr-4 mb-6"
+        class="w-84"
         :placeholder="$t('actions.search')"
         @update:model-value="onSearch"
       ></base-input>
@@ -99,6 +99,46 @@
               </div>
             </div>
           </div>
+          <div
+            class="h-full p-4 hover:bg-crisiscleanup-light-grey cursor-pointer"
+            :class="
+              String('unassigned') === String($route.params.team_id)
+                ? 'bg-crisiscleanup-light-grey'
+                : 'bg-white'
+            "
+            @click="
+              () => {
+                $router.push(`/organization/teams/unassigned`);
+              }
+            "
+          >
+            <div class="flex items-center">
+              <div class="w-full">
+                <div class="flex justify-between items-center w-full">
+                  <base-text>{{ '~~Unassigned Users' }}</base-text>
+                </div>
+                <div
+                  v-if="usersWithoutTeams"
+                  class="mt-2 grid users-avatars-list"
+                >
+                  <template
+                    v-for="user in usersWithoutTeams
+                      .slice(0, 10)
+                      .map((u) => getUser(u.id))"
+                  >
+                    <Avatar
+                      v-if="user"
+                      :key="`${user.id}`"
+                      :initials="user.first_name"
+                      :url="user.profilePictureUrl"
+                      class="mr-2"
+                      size="xsmall"
+                    />
+                  </template>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="h-full">
@@ -110,6 +150,7 @@
             :users="usersWithoutTeams"
             :teams="teams"
             @reload="getData"
+            @filter-unassigned-user-equipment="filterUnassignedUserEquipment"
           ></router-view>
         </div>
       </div>
@@ -266,6 +307,27 @@ export default defineComponent({
       await getClaimedWorksites();
     };
 
+    const filterUnassignedUserEquipment = async (data) => {
+      const params = {
+        organization: currentUser.value.organization.id,
+        no_team_incident: currentIncidentId.value,
+        limit: 500,
+        fields: 'id,first_name,last_name,files,email,mobile',
+        ...data,
+      };
+
+      const queryString = new URLSearchParams(params).toString();
+
+      const usersWithoutTeamsResults = await User.api().get(
+        `/users?${queryString}`,
+        {
+          dataKey: 'results',
+        },
+      );
+      usersWithoutTeams.value = (usersWithoutTeamsResults.entities?.users ||
+        []) as User[];
+    };
+
     const onTeamCreate = () => {
       $toast.success('Successfully Created Team');
       getData();
@@ -298,6 +360,7 @@ export default defineComponent({
       getAssignedWorkTypes,
       getCaseCompletion,
       getClaimedWorksites,
+      filterUnassignedUserEquipment,
       currentSearch,
       creatingTeam,
       users,
