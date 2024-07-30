@@ -46,23 +46,23 @@ export const useAuthenticatedRoutes = () => {
       to: `/incident/${currentIncidentId.value}/other_organizations`,
     },
 
-    {
-      name: 'nav.reports',
-      key: 'reports',
-      icon: 'reports',
-      text: i18n.global.t('nav.reports'),
-      to: `/incident/${currentIncidentId.value}/reports`,
-      // newBadge: Report.query()
-      //     .where('created_at', (created_at: string) => {
-      //       const reportsAccessed =
-      //           currentUser?.value?.states &&
-      //           currentUser.value.states.reports_last_accessed;
-      //       return reportsAccessed
-      //           ? moment(created_at).isAfter(moment(reportsAccessed))
-      //           : true;
-      //     })
-      //     .exists(),
-    },
+    // {
+    //   name: 'nav.reports',
+    //   key: 'reports',
+    //   icon: 'reports',
+    //   text: i18n.global.t('nav.reports'),
+    //   to: `/incident/${currentIncidentId.value}/reports`,
+    //   newBadge: Report.query()
+    //       .where('created_at', (created_at: string) => {
+    //         const reportsAccessed =
+    //             currentUser?.value?.states &&
+    //             currentUser.value.states.reports_last_accessed;
+    //         return reportsAccessed
+    //             ? moment(created_at).isAfter(moment(reportsAccessed))
+    //             : true;
+    //       })
+    //       .exists(),
+    // },
     {
       name: 'nav.disasters',
       key: 'disasters',

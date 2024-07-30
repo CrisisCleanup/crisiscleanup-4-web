@@ -527,7 +527,7 @@
             :work-types="mapWorkTypes"
           ></WorkTypeMap>
         </div>
-        <div class="w-2/3 px-5 py-2">
+        <div class="w-2/3 px-5 py-2 flex flex-col gap-2">
           <div class="py-2">
             {{ $t('teams.choose_cases') }}
           </div>
@@ -535,7 +535,7 @@
             v-model="currentCaseSearch"
             data-testid="testCaseSearch"
             icon="search"
-            class="w-64 mr-4 mb-6"
+            class="w-64"
             :placeholder="$t('actions.search')"
             @input="getClaimedWorksites"
           ></base-input>

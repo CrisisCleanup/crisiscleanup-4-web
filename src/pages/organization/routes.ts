@@ -7,6 +7,7 @@ const Users = () => import('@/pages/organization/Users.vue');
 const UserView = () => import('@/pages/organization/UserView.vue');
 const Teams = () => import('@/pages/organization/Teams.vue');
 const TeamDetail = () => import('@/pages/organization/TeamDetail.vue');
+const TeamUnassigned = () => import('@/pages/organization/TeamUnassigned.vue');
 
 export const routes = [
   {
@@ -55,6 +56,12 @@ export const routes = [
         component: Teams,
         name: 'nav.organization_teams',
         children: [
+          {
+            path: 'unassigned',
+            component: TeamUnassigned,
+            name: 'nav.organization_team_unassigned',
+            meta: { id: 'team_unassigned' },
+          },
           {
             path: ':team_id',
             component: TeamDetail,

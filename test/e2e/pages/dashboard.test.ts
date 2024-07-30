@@ -94,7 +94,6 @@ test.describe('DashboardPage', () => {
         'testphoneLink',
         'testmy_organizationLink',
         'testother_organizationsLink',
-        'testreportsLink',
         'testtrainingLink',
       ];
       const links = navLinks;
