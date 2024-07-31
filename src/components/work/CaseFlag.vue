@@ -533,7 +533,7 @@ export default defineComponent({
       const response = await axios.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/incidents?fields=id,name,start_at&move_case=true&limit=200&ordering=-start_at`,
+        }/incidents?fields=id,name,start_at&move_case=true&limit=200&sort=-start_at`,
         {
           save: false,
         },
