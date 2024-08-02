@@ -159,7 +159,7 @@ export default defineComponent({
 
 <style lang="scss">
 $dp__input_padding: 11px 12px !default;
-@import '@vuepic/vue-datepicker/src/VueDatePicker/style/main.scss';
+@import '@vuepic/vue-datepicker/dist/main.css';
 
 .crisiscleanup-map-marker svg {
   width: 40px;

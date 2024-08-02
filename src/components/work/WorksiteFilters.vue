@@ -745,6 +745,7 @@ export default defineComponent({
     const datePickerDefaultProps = reactive({
       format: 'yyyy-MM-dd',
       autoApply: true,
+      weekStart: 0,
     });
     const currentSection = ref('general');
     const expanded = ref({});

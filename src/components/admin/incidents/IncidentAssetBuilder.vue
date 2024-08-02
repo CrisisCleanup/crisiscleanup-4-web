@@ -57,7 +57,15 @@
           :timezone="currentIncident.timezone"
           :placeholder="$t('incidentAssets.end_date')"
           v-bind="datePickerDefaultProps"
-        ></datepicker>
+        >
+          <template #menu-header>
+            <div
+              class="my-header flex items-center text-center w-full justify-center mt-3"
+            >
+              {{ currentIncident.timezone }}
+            </div>
+          </template>
+        </datepicker>
         <base-select
           v-model="selectedAnis"
           class="flex-1"
@@ -355,6 +363,7 @@ export default {
       format: 'yyyy-MM-dd HH:mm:ss',
       autoApply: true,
       enableSeconds: true,
+      weekStart: 0,
     });
 
     const anis = computed(() => props.anis);
@@ -391,12 +400,16 @@ export default {
       if (size(translations) > 0) {
         setLocaleMessage(language.subtag, translations);
       }
+      const endDate = moment(ani.end_at)
+        .subtract(((moment(ani.end_at).day() + 1) % 7) + 1, 'days')
+        .format('dddd, MMMM D, YYYY');
+
       const englishValues = {
         header: 'CRISISCLEANUP.ORG',
         incident_name: `${incident?.name.toUpperCase()} CLEANUP HOTLINE`,
         phone_number: formatNationalNumber(ani.phone_number?.toString()),
-        assistance: `If you need help cleaning up damage from the ${incident?.name}, call ${ani.phone_number?.toString()} to ask for help. We will connect you with volunteers from local relief organizations, community groups and faith communities who may be able to assist with:`,
-        hotline_text: `All services are free, but service is not guaranteed due to the overwhelming need. This hotline will remain open through ${ani.end_at}.`,
+        assistance: `If you need help cleaning up damage from the ${incident?.name}, call ${formatNationalNumber(ani.phone_number?.toString())} to ask for help. We will connect you with volunteers from local relief organizations, community groups and faith communities who may be able to assist with:`,
+        hotline_text: `All services are free, but service is not guaranteed due to the overwhelming need. This hotline will remain open through ${endDate}.`,
         notes_text:
           'PLEASE NOTE: this hotline CANNOT assist with social services such as food, clothing, shelter, insurance, or questions about FEMA registration. Volunteers work free of charge and provide the tools and equipment necessary to complete the work.',
         work_types: selectedWorkTypes.value
@@ -572,7 +585,7 @@ export default {
         }),
       );
 
-      await getAssets();
+      await getAssets(type);
 
       await $toasted.success(t('info.upload_file_successful'));
     };
@@ -696,7 +709,7 @@ export default {
       return ani ? ani.phone_number : '';
     }
 
-    async function getAssets() {
+    async function getAssets(type = '') {
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/incident_assets`,
         {
@@ -705,7 +718,19 @@ export default {
           },
         },
       );
-      assets.value = response.data.results;
+
+      if (type) {
+        assets.value = assets.value.filter(
+          (asset) => asset.asset_type !== type,
+        );
+        assets.value = assets.value.concat(
+          response.data.results.filter(
+            (asset: IncidentAniAsset) => asset.asset_type === type,
+          ),
+        );
+      } else {
+        assets.value = response.data.results;
+      }
     }
 
     const publishAsset = async (asset: IncidentAniAsset) => {

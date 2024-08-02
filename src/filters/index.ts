@@ -43,7 +43,7 @@ export function formatRecurrence(date: string) {
   return formatDateString(date, 'ddd MMMM Do YYYY [at] h:mm A');
 }
 
-export function momentFromNow(date: string) {
+export function momentFromNow(date: string | moment.Moment) {
   return moment(date).fromNow();
 }
 

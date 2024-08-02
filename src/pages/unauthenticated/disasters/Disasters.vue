@@ -27,29 +27,62 @@
           <div class="text-lg mb-3 opacity-60">
             {{ moment(incident.start_at).format('MMMM Y') }}
           </div>
-          <div
-            v-if="
-              incidentAniMap[incident.id] &&
-              incidentAniMap[incident.id].length > 0
-            "
-            class="grid items-center gap-2"
-          >
+          <div class="inline-block items-center overflow-hidden">
             <div
-              v-for="ani in incidentAniMap[incident.id]"
-              :key="ani.id"
-              class="flex gap-3 items-center"
+              v-if="
+                incidentAniMap[incident.id] &&
+                incidentAniMap[incident.id].length > 0
+              "
+              class="grid items-center gap-2"
             >
-              <a
-                class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-full"
-                :href="`tel:${ani.phone_number}`"
+              <div
+                v-for="ani in incidentAniMap[incident.id]"
+                :key="ani.id"
+                class="flex gap-3 items-center"
               >
-                {{ $t('disasters.hotline') }}
-                {{ formatNationalNumber(String(ani.phone_number)) }}
-              </a>
-              <span class="italic opacity-50 text-sm">
-                {{ $t('disasters.hotline_closes_in') }}
-                {{ momentFromNow(ani.end_at) }}
-              </span>
+                <a
+                  class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-full"
+                  :href="`tel:${ani.phone_number}`"
+                >
+                  {{ $t('disasters.hotline') }}
+                  {{ formatNationalNumber(String(ani.phone_number)) }}
+                </a>
+                <span class="italic opacity-50 text-sm">
+                  {{ $t('disasters.hotline_closes_in') }}
+                  {{ momentFromNow(getAniClosingDate(ani)) }}
+                </span>
+              </div>
+            </div>
+            <div v-if="incidentsAssetsMap[incident.id]">
+              <div class="flex mt-4 items-end">
+                <template v-for="assetGroup in incidentsAssetsMap[incident.id]">
+                  <div
+                    v-for="asset in assetGroup.filter(
+                      (a) => a.files.length > 0,
+                    )"
+                    :key="`${asset.asset_type}:${asset.language}:${asset.ani}`"
+                    class="p-3 w-min cursor-pointer"
+                  >
+                    <PdfViewer
+                      v-if="
+                        asset.files[0].mime_content_type === 'application/pdf'
+                      "
+                      :pdf="asset.files[0]"
+                      :show-download-button="false"
+                      :width="75"
+                    />
+                    <img
+                      v-else
+                      :src="asset.files[0].general_file_url"
+                      :alt="asset.files[0].filename"
+                      class="h-18 max-w-84"
+                    />
+                    <div class="mt-2 w-min">
+                      <LanguageTag :language-id="asset.language" />
+                    </div>
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
         </div>
@@ -105,7 +138,7 @@
 
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import moment from 'moment/moment';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
@@ -116,6 +149,11 @@ import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import type { Ani } from '@/models/types';
 import Spinner from '@/components/Spinner.vue';
+import type { GroupedAssets } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import { hash } from '@/utils/promise';
+import { getAssets } from '@/utils/incident_assets';
+import PdfViewer from '@/components/PdfViewer.vue';
+import LanguageTag from '@/components/tags/LanguageTag.vue';
 
 interface Faq {
   name: string;
@@ -126,6 +164,7 @@ const route = useRoute();
 const loading = ref(false);
 const incidents = ref<Incident[]>([]);
 const incidentAniMap = ref<Record<number, Ani[]>>({});
+const incidentsAssetsMap = ref<Record<number, GroupedAssets>>({});
 const faqs: Faq[] = [
   {
     name: 'survivor.what_is_ccu',
@@ -186,6 +225,18 @@ const faqs: Faq[] = [
   },
 ];
 
+const getAniClosingDate = (ani: Ani) =>
+  moment(ani.end_at).subtract(((moment(ani.end_at).day() + 1) % 7) + 1, 'days');
+
+async function fetchAllAssets() {
+  const promises = incidents.value.reduce((acc, incident) => {
+    acc[incident.id] = getAssets(incident.id);
+    return acc;
+  }, {});
+
+  return await hash(promises);
+}
+
 onMounted(async () => {
   loading.value = true;
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
@@ -215,6 +266,9 @@ onMounted(async () => {
 
     incidentAniMap.value[incident.id] = aniIncidents;
   }
+
+  incidentsAssetsMap.value = await fetchAllAssets();
+
   loading.value = false;
 });
 </script>
