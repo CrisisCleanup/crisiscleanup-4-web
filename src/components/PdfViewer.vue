@@ -10,7 +10,7 @@
     >
   </div>
   <div class="h-max overflow-y-auto border">
-    <vue-pdf-embed :source="pdf.full_url" />
+    <vue-pdf-embed :source="pdf.full_url" :width="width" />
   </div>
 </template>
 
@@ -28,6 +28,10 @@ export default defineComponent({
     showDownloadButton: {
       type: Boolean,
       default: true,
+    },
+    width: {
+      type: Number,
+      default: 300,
     },
   },
 });

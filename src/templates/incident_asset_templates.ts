@@ -15,15 +15,15 @@ const replacePlaceholders = (
   return result;
 };
 
-const handbillTemplate = `<div style="position: relative; width: 800px; height: 255px">
+const handbillTemplate = `<div style="position: relative; width: 800px; height: 255px; border-bottom: 1px dotted black;">
     <div
-      style="position: absolute; background: black"
+      style="position: absolute; background: black;"
     >
       <svg width="40" height="250" xmlns="http://www.w3.org/2000/svg">
         <text x="-240" y="30" transform="rotate(-90)" font-size="23" fill="white">CRISISCLEANUP.ORG</text>
       </svg>
     </div>
-    <div style="margin-left: 2.5rem; line-height: 18px">
+    <div style="margin-left: 2.5rem; line-height: 18px;">
       <div style="padding: 1rem 0.5rem; text-align: justify;">
         <div style="text-align: center; font-size: 1.75rem; font-weight: 1000;margin-bottom: 10px; line-height: 25px"">{{incident_name}} : <span style="white-space: nowrap">{{phone_number}}</span></div>
         <span style="font-size: 0.8rem;">{{assistance}}</span>
@@ -46,7 +46,7 @@ const doorHangerTemplate = `<div style="position: relative; border-left: dotted 
     {{phone_number}}
   </div>
   <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-    <div style="display: flex; flex-direction: column; font-size: 0.875rem;">{{work_types}}</div>
+    <div style="display: grid; grid-template-rows: 1fr; grid-template-columns: repeat(2, 1fr); font-size: 0.875rem; gap: 10px">{{work_types}}</div>
     <div style="margin-top: 0.25rem; padding: 0.25rem; font-size: 0.75rem; text-align: center">{{hotline_text}}</div>
     <div style="display: flex; width: 100%; align-items: center; justify-content: center; padding: 0.75rem;">${logo}</div>
     <div style="display: flex; height: 100%; width: 100%; align-items: center; justify-content: center; background-color: #FFC947; text-align: center; font-size: 1.25rem; font-weight: 800; letter-spacing: 0.05em; color: black;">{{header}}</div>
@@ -60,7 +60,7 @@ const doorHangerTemplate = `<div style="position: relative; border-left: dotted 
 
 const socialMediaTemplate = `<div style="position: relative; height: 100%; border-width: 1px; width: 600px; height: 430px">
     <div
-      style="position: absolute; display: flex; height: 100%; width: 3rem; transform: scale(1); align-items: center; justify-content: center; background-color: #FDB44B; text-align: center; font-size: 1.5rem; font-weight: 800; color: black; writing-mode: vertical-rl;"
+      style="position: absolute; display: flex; height: 100%; width: 3rem; transform: scale(-1); align-items: center; justify-content: center; background-color: #FDB44B; text-align: center; font-size: 1.5rem; font-weight: 800; color: black; writing-mode: vertical-rl;"
     >
       {{header}}
     </div>
@@ -79,7 +79,7 @@ const socialMediaTemplate = `<div style="position: relative; height: 100%; borde
     </div>
   </div>`;
 
-const pullTabFlyerTemplate = `<div style="position: relative; width: 800px; height: 1085px; margin: 0.25rem">
+const pullTabFlyerTemplate = `<div style="position: relative; width: 800px; height: 1085px; margin: 0.5rem">
   <div style="display: flex; width: 100%; align-items: center; justify-content: center; padding: 3px;">${logo}</div>
   <div style="margin-bottom: 1rem; text-align: center; font-size: 2.5rem; font-weight: 1000;">{{incident_name}} <br>{{phone_number}}</div>
   <div style="text-align: center; display: flex; flex-direction: column; justify-content: space-between">

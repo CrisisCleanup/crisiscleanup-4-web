@@ -132,6 +132,7 @@ export interface CCUFileItem {
   url: string;
   full_url: string;
   blog_url: string;
+  general_file_url: string;
   large_thumbnail_url: string;
   small_thumbnail_url: string;
   filename_original: string;

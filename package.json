@@ -73,7 +73,7 @@
     "@types/leaflet.markercluster": "^1.5.4",
     "@vitejs/plugin-vue-jsx": "^4.0.0",
     "@vueform/multiselect": "^2.6.7",
-    "@vuepic/vue-datepicker": "^3.6.8",
+    "@vuepic/vue-datepicker": "^9.0.1",
     "@vueuse/core": "^10.9.0",
     "@vueuse/integrations": "^10.9.0",
     "@vueuse/math": "^10.9.0",

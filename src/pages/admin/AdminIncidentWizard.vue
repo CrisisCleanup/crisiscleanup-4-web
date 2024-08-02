@@ -15,6 +15,7 @@
       step-default-classes="flex items-center justify-center h-8 cursor-pointer px-2"
       step-active-classes=""
       :loading="loading"
+      :is-completed="Boolean(savedIncident)"
       @done="onCompletedIncident"
     >
       <Step
