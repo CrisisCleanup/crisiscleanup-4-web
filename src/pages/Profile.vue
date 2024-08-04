@@ -145,7 +145,7 @@
                 </div>
                 <div class="grid grid-cols-1 pb-4 gap-2">
                   <div>
-                    <p>{{ $t('~~Equipment') }}</p>
+                    <p>{{ $t('usersVue.equipment') }}</p>
                     <UserEquipmentSelect :user="currentUser!" />
                   </div>
                 </div>

@@ -41,7 +41,7 @@ export default class UserTeamFilter extends Filter {
       return Boolean(value) && String(key).startsWith('no_team');
     });
     if (noTeam && noTeam[1]) {
-      labels.no_team = i18n.global.t('~~No Team');
+      labels.no_team = i18n.global.t('usersVue.no_team');
     }
 
     return labels;
