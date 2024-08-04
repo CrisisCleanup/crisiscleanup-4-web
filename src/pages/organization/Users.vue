@@ -166,7 +166,7 @@
                 :data-testid="`testNoUserTeamCheckbox`"
                 class="block my-1"
                 @update:model-value="onFilter"
-                >{{ $t('~~No Team') }}
+                >{{ $t('usersVue.no_team') }}
               </base-checkbox>
             </div>
             <div v-if="currentFilterSection === 'equipment'">
@@ -448,7 +448,7 @@
                           :data-testid="`testNoUserTeamCheckbox`"
                           class="block my-1"
                           @update:model-value="onFilter"
-                          >{{ $t('~~No Team') }}
+                          >{{ $t('usersVue.no_team') }}
                         </base-checkbox>
                       </div>
                       <div v-if="currentFilterSection === 'equipment'">

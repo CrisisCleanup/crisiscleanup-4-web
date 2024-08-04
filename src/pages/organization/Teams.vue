@@ -115,7 +115,7 @@
             <div class="flex items-center">
               <div class="w-full">
                 <div class="flex justify-between items-center w-full">
-                  <base-text>{{ '~~Unassigned Users' }}</base-text>
+                  <base-text>{{ 'teams.unassigned_users' }}</base-text>
                 </div>
                 <div
                   v-if="usersWithoutTeams"
