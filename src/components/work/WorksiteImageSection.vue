@@ -112,7 +112,7 @@ export default defineComponent({
     }
 
     async function deleteFile(fileId, id) {
-      if (props.worksite.id) {
+      if (props.worksite) {
         if (props.isSurvivorToken) {
           await Worksite.api().deleteFileWithSurvivorToken(
             props.worksite.token,
