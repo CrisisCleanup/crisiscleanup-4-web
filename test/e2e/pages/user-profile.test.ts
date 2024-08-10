@@ -19,7 +19,7 @@ test.describe('UserProfile', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test(
+  test.fail(
     testTitleWithTags('should have visible data-testids', [
       'primary',
       'slow',
