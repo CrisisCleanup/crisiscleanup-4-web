@@ -16,7 +16,7 @@ test.describe('UserProfile', () => {
     const userProfileLink = page.getByTestId('testUserprofileProfileLink');
     await userProfileLink.click();
     await page.waitForURL(/.*\/profile.*/);
-    await page.waitForLoadState();
+    await page.waitForLoadState('networkidle');
   });
 
   test(
@@ -63,7 +63,10 @@ test.describe('UserProfile', () => {
       // Expand all sections
       for (const section of expandableSections) {
         const toggleButton = page.getByTestId(`testToggle${section}Section`);
+        await toggleButton.scrollIntoViewIfNeeded();
+        await expect(toggleButton).toBeVisible(); // Ensure it's visible
         await toggleButton.click();
+        await page.waitForTimeout(100); // Optional slight delay to ensure UI stability
       }
 
       const locators: Locator[] = [];
@@ -71,6 +74,7 @@ test.describe('UserProfile', () => {
         const l = page.getByTestId(testId).first();
         locators.push(l);
         await expect(l).toBeVisible();
+        await expect(l).toBeEnabled(); // Ensure the element is enabled and interactable
       }
 
       await test.info().attach('reports-page-screenshot', {
