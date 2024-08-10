@@ -5,7 +5,9 @@
         {{ $t('teams.unassigned_users') }}
       </div>
     </div>
-    <base-text>{{ `${$t('teams.users')} (${allTeamUsers?.length})` }}</base-text>
+    <base-text>{{
+      `${$t('teams.users')} (${allTeamUsers?.length})`
+    }}</base-text>
     <v-popover :auto-hide="false" popover-class="" placement="bottom-start">
       <div
         class="flex items-center bg-white border p-1 px-4 cursor-pointer w-max h-10 mt-3"
