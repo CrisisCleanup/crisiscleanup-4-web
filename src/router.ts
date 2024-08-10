@@ -47,7 +47,7 @@ const Reports = () => import('@/pages/admin/Reports.vue');
 const Report = () => import('@/pages/admin/Report.vue');
 const NotFound = () => import('@/pages/NotFound.vue');
 const Location = () => import('@/pages/Location.vue');
-const Profile = () => import('@/pages/Profile.vue');
+const Profile = () => import('@/pages/UserProfile.vue');
 const Downloads = () => import('@/pages/Downloads.vue');
 
 const Lists = () => import('@/pages/lists/Lists.vue');

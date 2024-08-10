@@ -221,3 +221,10 @@ export interface UserTransferResult {
 }
 
 export type UserTransfersResponse = CCUApiListResponse<UserTransferResult>;
+
+export interface BetaFeature {
+  id: string;
+  name: string;
+  description: string;
+  opt_in: boolean;
+}

@@ -9,7 +9,7 @@
     mode="tags"
     :options="equipment"
     item-key="id"
-    label="name"
+    label="name_t"
     size="large"
     :loading="selectInputLoading"
     select-classes="bg-white border text-xs equipment-select p-1"
@@ -37,9 +37,10 @@ export default defineComponent({
     const selectInputLoading = ref(false);
     const userEquipment = ref<Collection<UserEquipment>>([]);
     const selectedEquipmentIds = ref<number[]>([]);
+    const equipment = ref<Collection<Equipment>>([]);
 
-    const equipment = async (value: string) => {
-      const results = await Equipment.api().get(`/equipment?search=${value}`, {
+    const getEquipment = async () => {
+      const results = await Equipment.api().get(`/equipment`, {
         dataKey: 'results',
       });
       return (results.entities?.equipment || []) as Collection<Equipment>;
@@ -47,6 +48,7 @@ export default defineComponent({
 
     onMounted(async () => {
       await updateUserEquipmentData();
+      equipment.value = await getEquipment();
     });
 
     async function updateUserEquipmentData() {
