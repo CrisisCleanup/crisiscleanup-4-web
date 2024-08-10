@@ -124,14 +124,14 @@
               class="p-2 mb-1"
               variant="outline"
             >
-              {{ $t('actions.deleteAll') }}
+              {{ $t('actions.delete_all') }}
             </base-button>
             <base-button
               :action="() => saveAssetsForType(assetType)"
               class="p-2 mb-1"
               variant="solid"
             >
-              {{ $t('actions.saveAll') }}
+              {{ $t('actions.save_all') }}
             </base-button>
           </div>
         </div>
