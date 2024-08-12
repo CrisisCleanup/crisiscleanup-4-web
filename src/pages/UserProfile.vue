@@ -38,7 +38,7 @@
       </base-button>
     </div>
     <div class="mt-3 text-xl md:col-span-3">
-      <span>{{ $t('~~Your Profile') }}</span>
+      <span>{{ $t('profileUser.your_profile') }}</span>
       <!-- Contact Section -->
       <UserProfileSection
         :title="$t('profileUser.contact')"
@@ -57,25 +57,25 @@
           <div class="grid md:grid-cols-2 gap-3">
             <base-input
               :model-value="currentUser!.first_name"
-              placeholder="~~First Name"
+              placeholder="profileUser.first_name_placeholder"
               data-testid="testFullNameInput"
               @update:model-value="(value) => updateUser(value, 'first_name')"
             />
             <base-input
               v-model="currentUser!.last_name"
-              placeholder="~~Last Name"
+              placeholder="profileUser.last_name_placeholder"
               data-testid="testLastNameInput"
               @update:model-value="(value) => updateUser(value, 'last_name')"
             />
             <base-input
               :model-value="currentUser!.email"
-              placeholder="~~Email"
+              placeholder="profileUser.email_placeholder"
               data-testid="testEmailInput"
               @update:model-value="(value) => updateUser(value, 'email')"
             />
             <base-input
               :model-value="currentUser!.mobile"
-              placeholder="~~Mobile"
+              placeholder="profileUser.mobile_placeholder"
               data-testid="testMobileInput"
               :validator="validatePhoneNumber"
               @update:model-value="(value) => updateUser(value, 'mobile')"
@@ -164,11 +164,11 @@
           <div>
             <div>
               {{ $t('profileUser.facebook') }}:
-              {{ currentUser!.facebook || $t('~~No Facebook') }}
+              {{ currentUser!.facebook || $t('profileUser.no_facebook') }}
             </div>
             <div>
               {{ $t('profileUser.twitter') }}:
-              {{ currentUser!.twitter || $t('~~No Twitter') }}
+              {{ currentUser!.twitter || $t('profileUser.no_twitter_x') }}
             </div>
           </div>
         </template>
@@ -272,8 +272,8 @@
               {{ feature.description }} :
               <span class="font-semibold">{{
                 $can(`beta_feature.${feature.name}`)
-                  ? $t('~~Enabled')
-                  : $t('~~Disabled')
+                  ? $t('profileUser.enabled')
+                  : $t('profileUser.disabled')
               }}</span>
             </div>
           </div>
