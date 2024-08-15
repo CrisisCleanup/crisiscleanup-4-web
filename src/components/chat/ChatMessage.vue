@@ -32,7 +32,9 @@
             {{ formatDateString(message.created_at, 'h:mm A') }}
           </div>
         </div>
-        <div class="text-gray-700 mt-1 w-11/12">{{ message.content }}</div>
+        <div class="text-gray-700 mt-1 w-11/12">
+          <span v-html="message.content"></span>
+        </div>
       </div>
       <!-- Existing message content -->
       <div

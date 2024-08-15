@@ -250,6 +250,17 @@ onMounted(() => {
   });
 });
 
+const viewToTitleMap = {
+  callHistory: t('phoneDashboard.last_10_calls'),
+  manualDialer: t('phoneDashboard.manual_dialer'),
+  leaderboard: t('phoneDashboard.volunteer_stats'),
+  zoom: t('phoneDashboard.join_zoom'),
+  cms: t('phoneDashboard.news'),
+  generalStats: t('phoneDashboard.stats'),
+  chat: t('chat.chat'),
+  reportBug: t('phoneDashboard.report_bug'),
+};
+
 onBeforeUnmount(() => {
   if (intervalId) {
     clearInterval(intervalId);
@@ -368,9 +379,9 @@ const {
               v-if="currentView"
               class="flex items-center justify-between px-3 py-[11px] border-b-4"
             >
-              <h1></h1>
+              <h1>{{ viewToTitleMap[currentView] }}</h1>
               <base-button :action="closeTab">
-                {{ $t('Close Tab') }}
+                {{ $t('~~Close Tab') }}
               </base-button>
             </div>
             <div
@@ -458,7 +469,7 @@ const {
                 v-if="currentView === 'generalStats'"
                 class="flex items-center justify-center h-full"
               >
-                <div class="w-1/2 border rounded">
+                <div class="h-full flex flex-col items-center justify-center">
                   <GeneralStats
                     @on-remaining-callbacks="remainingCallbacks = $event"
                     @on-remaining-calldowns="remainingCalldowns = $event"

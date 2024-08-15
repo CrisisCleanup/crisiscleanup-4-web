@@ -69,16 +69,39 @@
               @ontouchmove="handleWheel"
             >
               <font-awesome-icon v-if="loadingMessages" icon="spinner" spin />
-              <ChatMessage
-                v-for="message in sortedMessages"
+              <template
+                v-for="(message, index) in sortedMessages"
                 :key="message.id"
-                :message="message"
-                @on-favorite="(message: any) => toggleFavorite(message, true)"
-                @on-unfavorite="
-                  (message: any) => toggleFavorite(message, false)
-                "
-                @on-reply="(content) => sendMessage(message.id, content)"
-              />
+              >
+                <!-- Date Divider -->
+                <div
+                  v-if="
+                    index === 0 ||
+                    !moment(message.created_at).isSame(
+                      sortedMessages[index - 1].created_at,
+                      'day',
+                    )
+                  "
+                  class="flex items-center justify-center relative text-center my-5 w-full"
+                >
+                  <div class="flex-grow bg-gray-300 h-px"></div>
+                  <span
+                    class="px-3 py-1 bg-white text-gray-800 border border-gray-300 rounded-full text-sm"
+                  >
+                    {{ moment(message.created_at).format('dddd, MMMM Do') }}
+                  </span>
+                  <div class="flex-grow bg-gray-300 h-px"></div>
+                </div>
+                <!-- Chat Message -->
+                <ChatMessage
+                  :message="message"
+                  @on-favorite="(message: any) => toggleFavorite(message, true)"
+                  @on-unfavorite="
+                    (message: any) => toggleFavorite(message, false)
+                  "
+                  @on-reply="(content) => sendMessage(message.id, content)"
+                />
+              </template>
             </div>
             <div
               class="border-t-2 pt-1 sm:mb-0"
@@ -553,6 +576,7 @@ export default defineComponent({
       sortedOrganizations,
       toggleOrganization,
       isOpen,
+      moment,
     };
   },
   methods: { getUserAvatarLink },
