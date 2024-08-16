@@ -6,8 +6,8 @@
           <base-button
             type="button"
             class="text-sm font-semibold text-crisiscleanup-dark-blue"
-            :text="$t('~~Back')"
-            :alt="$t('~~Back')"
+            :text="$t('actions.back')"
+            :alt="$t('actions.back')"
             :icon="['fas', 'arrow-left']"
             :action="() => (showingOutboundsModal = false)"
           ></base-button>
@@ -21,7 +21,7 @@
           ccu-icon="filters"
           icon-size="md"
         >
-          {{ $t('~~Filter Calls') }}
+          {{ $t('actions.filter') }}
           <span
             v-if="filterCount > 0"
             class="rounded-full mx-1 px-1 bg-yellow-500 text-xs"
@@ -66,7 +66,7 @@
     <div
       class="flex flex-col gap-3 items-center justify-center shadow border rounded w-full p-10"
     >
-      {{ $t('~~Live Conversations') }}
+      {{ $t('phoneDashboard.on_phone_now') }}
 
       <div class="text-center text-5xl font-light">
         {{ stats.active || 0 }}
@@ -82,8 +82,8 @@
             type="link"
             class="underline text-sm font-semibold"
             data-testid="testShowOutboundsModalButton"
-            :text="$t('~~View all')"
-            :alt="$t('~~View all')"
+            :text="$t('actions.view_all')"
+            :alt="$t('actions.view_all')"
             :action="showOutboundsModal"
           ></base-button>
         </div>
@@ -98,8 +98,8 @@
             type="link"
             class="underline text-sm font-semibold"
             data-testid="testShowOutboundsModalButton"
-            :text="$t('~~View all')"
-            :alt="$t('~~View all')"
+            :text="$t('actions.view_all')"
+            :alt="$t('actions.view_all')"
             :action="() => showOutboundsModal('calldown')"
           ></base-button>
         </div>

@@ -381,7 +381,7 @@ const {
             >
               <h1>{{ viewToTitleMap[currentView] }}</h1>
               <base-button :action="closeTab">
-                {{ $t('~~Close Tab') }}
+                {{ $t('phoneDashboard.close_tab') }}
               </base-button>
             </div>
             <div

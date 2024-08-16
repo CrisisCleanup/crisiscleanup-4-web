@@ -111,7 +111,7 @@ const incidents = computed(() =>
           }"
           @click="currentFilterSection = 'language'"
         >
-          {{ $t('~~Language') }}
+          {{ $t('phoneDashboard.language') }}
           <span
             v-if="filters.language.count > 0"
             class="rounded-full px-1 bg-black text-white text-xs"
@@ -126,7 +126,7 @@ const incidents = computed(() =>
           }"
           @click="currentFilterSection = 'incident'"
         >
-          {{ $t('~~Incident') }}
+          {{ $t('phoneDashboard.incident') }}
           <span
             v-if="filters.incident.count > 0"
             class="rounded-full px-1 bg-black text-white text-xs"
@@ -136,7 +136,7 @@ const incidents = computed(() =>
       </div>
       <div class="p-2 h-full overflow-auto">
         <div v-if="currentFilterSection === 'language'">
-          {{ $t('~~Language') }}
+          {{ $t('phoneDashboard.language') }}
           <base-checkbox
             v-for="language in languages"
             :key="language.id"
@@ -162,7 +162,7 @@ const incidents = computed(() =>
           >
         </div>
         <div v-else-if="currentFilterSection === 'incident'">
-          {{ $t('~~Incident') }}
+          {{ $t('phoneDashboard.incident') }}
           <base-checkbox
             v-for="incident in incidents"
             :key="incident.id"
