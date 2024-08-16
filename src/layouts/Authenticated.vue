@@ -235,6 +235,15 @@ export default defineComponent({
         },
       });
 
+      // Orphaned Users can't really login this will navigate to a public landing page once it is built
+      if (isOrphan.value && to.name !== 'nav.request_access') {
+        const requestAccessLocation: RouteLocationRaw = {
+          name: 'nav.request_access',
+          query: { orphan: String(true) },
+        };
+        return next(requestAccessLocation);
+      }
+
       // route guard for inactive organizations.
       if (isOrganizationInactive.value) {
         authStore.logout();
@@ -243,15 +252,7 @@ export default defineComponent({
       if (to.meta.admin && currentUser.value && !currentUser.value.isAdmin) {
         return next({ name: 'nav.dashboard' });
       }
-      // Orphaned Users can't really login this will navigate to a public landing page once it is built
-      if (isOrphan.value) {
-        const requestAccessLocation: RouteLocationRaw = {
-          name: 'nav.request_access',
-          query: { orphan: String(true) },
-        };
-        next(requestAccessLocation);
-      }
-      next();
+      return next();
     });
     loadDebug('Loading started...');
     const onPageReadyUnSub = whenever(hasCurrentIncident, () => {
