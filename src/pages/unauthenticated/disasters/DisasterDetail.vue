@@ -134,7 +134,6 @@ onMounted(async () => {
                   v-for="asset in assetGroup.filter((a) => a.files.length > 0)"
                   :key="`${asset.asset_type}:${asset.language}:${asset.ani}`"
                   class="p-3 w-min cursor-pointer"
-                  @click="() => downloadAsset(asset)"
                 >
                   <PdfViewer
                     v-if="
@@ -142,12 +141,14 @@ onMounted(async () => {
                     "
                     :pdf="asset.files[0]"
                     :show-download-button="false"
+                    @click-pdf="() => downloadAsset(asset)"
                   />
                   <img
                     v-else
                     :src="asset.files[0].general_file_url"
                     :alt="asset.files[0].filename"
                     class="h-64 max-w-84"
+                    @click="() => downloadAsset(asset)"
                   />
                   <div class="flex mt-2 items-center justify-between">
                     <div class="flex gap-5 items-center">
