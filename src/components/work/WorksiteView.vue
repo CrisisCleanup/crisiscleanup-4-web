@@ -468,6 +468,7 @@ import SectionHeading from './SectionHeading.vue';
 import WorksiteReportSection from './WorksiteReportSection.vue';
 import WorksiteImageSection from './WorksiteImageSection.vue';
 import useAcl from '@/hooks/useAcl';
+import { AxiosError } from 'axios';
 
 export default defineComponent({
   name: 'WorksiteView',
@@ -692,11 +693,14 @@ export default defineComponent({
     async function requestWorkTypes({ workTypes, reason }) {
       try {
         requestingWorkTypes.value = false;
-        await Worksite.api().requestWorksite(
+        const result = await Worksite.api().requestWorksite(
           props.worksiteId,
           workTypes,
           reason,
         );
+        if (result.response instanceof AxiosError) {
+          return $toasted.error(getErrorMessage(result.response));
+        }
         await Worksite.api().fetch(props.worksiteId);
         await getWorksiteRequests();
         emit('reloadMap', props.worksiteId);

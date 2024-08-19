@@ -9,7 +9,7 @@
       >{{ $t('actions.download') }}</a
     >
   </div>
-  <div class="h-max overflow-y-auto border">
+  <div class="h-max overflow-y-auto border" @click="$emit('clickPdf')">
     <vue-pdf-embed :source="pdf.full_url" :width="width" />
   </div>
 </template>
@@ -34,6 +34,7 @@ export default defineComponent({
       default: 300,
     },
   },
+  emits: ['clickPdf'],
 });
 </script>
 

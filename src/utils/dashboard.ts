@@ -24,14 +24,11 @@ interface DashboardStatisticsResponse {
   members_served: number;
   active_users_today: number;
 }
-async function getWorksiteRequests(incident) {
+async function getWorksiteRequests() {
   await WorksiteRequest.deleteAll();
-  const results = await WorksiteRequest.api().get(
-    `/worksite_requests?worksite_work_type__incident=${incident}`,
-    {
-      dataKey: 'results',
-    },
-  );
+  const results = await WorksiteRequest.api().get(`/worksite_requests`, {
+    dataKey: 'results',
+  });
   return results.entities.worksite_requests || [];
 }
 

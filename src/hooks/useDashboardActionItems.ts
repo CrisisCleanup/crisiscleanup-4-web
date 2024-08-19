@@ -87,7 +87,7 @@ export function useDashboardActionItems(
         getClaimedWorksites(currentIncidentId, organizationId),
         getInvitationRequests(),
         getUserTransferRequests(),
-        getWorksiteRequests(currentIncidentId),
+        getWorksiteRequests(),
       ]);
       invitationRequests.value = invitationRequestsData.filter(
         (request) => !archivedInvitationRequests.includes(request.id),
@@ -147,6 +147,9 @@ export function useDashboardActionItems(
         title: i18n.global.t('dashboard.user_requested_case', {
           requester: request.requested_by_org.name,
           case_number: request.case_number,
+          work_type: i18n.global.t(
+            `workType.${request.worksite_work_type.work_type}`,
+          ),
         }),
         description: i18n.global.t('dashboard.request_status', {
           status: request.status,

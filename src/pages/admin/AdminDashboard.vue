@@ -47,7 +47,7 @@
           </div>
           <base-button
             icon="sync"
-            :action="getOrganizationsForApproval"
+            :action="setIncidentApprovalQuery"
             :alt="$t('adminDashboard.refresh_pending_organizations')"
             data-testid="testRefreshPendingOrganizationsButton"
           />
@@ -116,7 +116,7 @@
           <base-button
             icon="sync"
             data-testid="testRefreshRedeployRequestsButton"
-            :action="getIncidentRequests"
+            :action="setIncidentApprovalQuery"
             :alt="$t('adminDashboard.refresh_incident_redeploy_requests')"
           />
         </div>
@@ -158,8 +158,7 @@
         </div>
         <div class="p-4">
           <IncidentApprovalTable
-            :requests="incident_requests"
-            @reload="getIncidentRequests"
+            :query="incidentApprovalQuery"
           ></IncidentApprovalTable>
         </div>
       </div>
@@ -519,7 +518,7 @@ export default defineComponent({
     const organizationsForApproval = ref([]);
     const organizationApprovalView = ref('default');
     const redeployView = ref('default');
-    const incident_requests = ref([]);
+    const incidentApprovalQuery = ref({});
     const loading = ref(false);
     const defaultPagination = ref({
       pageSize: 20,
@@ -539,7 +538,7 @@ export default defineComponent({
 
     async function setRedeployViewView(view) {
       redeployView.value = view;
-      return getIncidentRequests();
+      setIncidentApprovalQuery();
     }
 
     async function getOrganizationsForApproval() {
@@ -721,7 +720,7 @@ export default defineComponent({
       };
     }
 
-    async function getIncidentRequests() {
+    async function setIncidentApprovalQuery() {
       if ($can('move_orgs')) {
         const parametersDict = {
           default: {
@@ -733,32 +732,19 @@ export default defineComponent({
           approved: {
             approved_by__isnull: false,
             sort: '-approved_at',
-            limit: 10,
+            limit: 50,
           },
           rejected: {
             rejected_by__isnull: false,
             sort: '-rejected_at',
-            limit: 10,
+            limit: 50,
           },
         };
 
         const parameters = {
           ...parametersDict[redeployView.value],
         };
-
-        const queryString = getQueryString(parameters);
-        try {
-          const response = await axios.get(
-            `${
-              import.meta.env.VITE_APP_API_BASE_URL
-            }/admins/incident_requests?${queryString}`,
-          );
-          if (response.data) {
-            incident_requests.value = [...response.data.results];
-          }
-        } catch {
-          // this.$log.debug(error);
-        }
+        incidentApprovalQuery.value = { ...parameters };
       }
     }
 
@@ -775,7 +761,7 @@ export default defineComponent({
     async function reloadDashBoard() {
       await Promise.all([
         getOrganizationsForApproval(),
-        getIncidentRequests(),
+        setIncidentApprovalQuery(),
         getOrganizations({ pagination: defaultPagination.value }),
         getUsers({ pagination: defaultPagination.value }),
         getGhostUsers({ pagination: defaultPagination.value }),
@@ -804,7 +790,8 @@ export default defineComponent({
       getUsers,
       getGhostUsers,
       getInvitationRequests,
-      getIncidentRequests,
+      setIncidentApprovalQuery,
+      incidentApprovalQuery,
       inviteUsers,
       reloadDashBoard,
       showArcGisUploader,
@@ -817,7 +804,6 @@ export default defineComponent({
       invitationRequests,
       invitations,
       organizationsForApproval,
-      incident_requests,
       messages,
       loading,
       defaultPagination,
