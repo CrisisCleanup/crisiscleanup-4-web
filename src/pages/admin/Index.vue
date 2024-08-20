@@ -41,6 +41,9 @@ export default defineComponent({
       {
         key: 'nav.rag',
       },
+      {
+        key: 'nav.reports',
+      },
     ]);
 
     const ccuApi = useApi();
