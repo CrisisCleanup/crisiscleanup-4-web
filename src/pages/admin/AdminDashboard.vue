@@ -518,7 +518,12 @@ export default defineComponent({
     const organizationsForApproval = ref([]);
     const organizationApprovalView = ref('default');
     const redeployView = ref('default');
-    const incidentApprovalQuery = ref({});
+    const incidentApprovalQuery = ref({
+      approved_by__isnull: true,
+      rejected_by__isnull: true,
+      organization__is_verified: true,
+      sort: '-updated_at',
+    });
     const loading = ref(false);
     const defaultPagination = ref({
       pageSize: 20,
