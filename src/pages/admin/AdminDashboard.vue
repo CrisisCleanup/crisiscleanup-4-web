@@ -47,7 +47,7 @@
           </div>
           <base-button
             icon="sync"
-            :action="setIncidentApprovalQuery"
+            :action="setOrganizationApprovalQuery"
             :alt="$t('adminDashboard.refresh_pending_organizations')"
             data-testid="testRefreshPendingOrganizationsButton"
           />
@@ -101,8 +101,8 @@
 
         <div class="p-4">
           <OrganizationApprovalTable
-            :organizations="organizationsForApproval"
-            @reload="getOrganizationsForApproval"
+            :query="organizationApprovalQuery"
+            @reload="setOrganizationApprovalQuery"
           ></OrganizationApprovalTable>
         </div>
       </div>
@@ -159,6 +159,7 @@
         <div class="p-4">
           <IncidentApprovalTable
             :query="incidentApprovalQuery"
+            @reload="setIncidentApprovalQuery"
           ></IncidentApprovalTable>
         </div>
       </div>
@@ -515,7 +516,11 @@ export default defineComponent({
       search: '',
       visible: true,
     });
-    const organizationsForApproval = ref([]);
+    const organizationApprovalQuery = ref({
+      approved_by__isnull: true,
+      rejected_by__isnull: true,
+      sort: '-created_at',
+    });
     const organizationApprovalView = ref('default');
     const redeployView = ref('default');
     const incidentApprovalQuery = ref({
@@ -538,50 +543,12 @@ export default defineComponent({
 
     async function setApprovalView(view) {
       organizationApprovalView.value = view;
-      return getOrganizationsForApproval();
+      setOrganizationApprovalQuery();
     }
 
     async function setRedeployViewView(view) {
       redeployView.value = view;
       setIncidentApprovalQuery();
-    }
-
-    async function getOrganizationsForApproval() {
-      if ($can('approve_orgs_full')) {
-        const parametersDict = {
-          default: {
-            approved_by__isnull: true,
-            rejected_by__isnull: true,
-          },
-          approved: {
-            approved_by__isnull: false,
-            sort: '-approved_at',
-            limit: 10,
-          },
-          rejected: {
-            rejected_by__isnull: false,
-            sort: '-rejected_at',
-            limit: 10,
-          },
-        };
-
-        const parameters = {
-          ...parametersDict[organizationApprovalView.value],
-        };
-
-        if (globalSearch.value) {
-          parameters.search = globalSearch.value;
-        }
-
-        const queryString = getQueryString(parameters);
-
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/admins/organizations?${queryString}`,
-        );
-        organizationsForApproval.value = response.data.results;
-      }
     }
 
     async function getOrganizations(data = {}) {
@@ -725,7 +692,7 @@ export default defineComponent({
       };
     }
 
-    async function setIncidentApprovalQuery() {
+    function setIncidentApprovalQuery() {
       if ($can('move_orgs')) {
         const parametersDict = {
           default: {
@@ -753,6 +720,34 @@ export default defineComponent({
       }
     }
 
+    function setOrganizationApprovalQuery() {
+      if ($can('approve_orgs_full')) {
+        const parametersDict = {
+          default: {
+            approved_by__isnull: true,
+            rejected_by__isnull: true,
+            sort: '-created_at',
+          },
+          approved: {
+            approved_by__isnull: false,
+            sort: '-approved_at',
+          },
+          rejected: {
+            rejected_by__isnull: false,
+            sort: '-rejected_at',
+          },
+        };
+
+        const parameters = {
+          ...parametersDict[organizationApprovalView.value],
+        };
+        if (globalSearch.value) {
+          parameters.search = globalSearch.value;
+        }
+        organizationApprovalQuery.value = { ...parameters };
+      }
+    }
+
     async function inviteUsers() {
       try {
         const emails = usersToInvite.value.split(',');
@@ -765,7 +760,7 @@ export default defineComponent({
 
     async function reloadDashBoard() {
       await Promise.all([
-        getOrganizationsForApproval(),
+        setOrganizationApprovalQuery(),
         setIncidentApprovalQuery(),
         getOrganizations({ pagination: defaultPagination.value }),
         getUsers({ pagination: defaultPagination.value }),
@@ -790,7 +785,6 @@ export default defineComponent({
     });
 
     return {
-      getOrganizationsForApproval,
       getOrganizations,
       getUsers,
       getGhostUsers,
@@ -808,7 +802,8 @@ export default defineComponent({
       ghostUsers,
       invitationRequests,
       invitations,
-      organizationsForApproval,
+      organizationApprovalQuery,
+      setOrganizationApprovalQuery,
       messages,
       loading,
       defaultPagination,

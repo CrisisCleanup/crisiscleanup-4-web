@@ -148,6 +148,7 @@ export default defineComponent({
       default: () => ({}),
     },
   },
+  emits: ['reload'],
   setup(props, { emit }) {
     const { t } = useI18n();
     const { confirm } = useDialogs();
