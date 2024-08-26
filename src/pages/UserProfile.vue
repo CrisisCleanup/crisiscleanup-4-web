@@ -489,6 +489,7 @@ const expandedSections = ref<Record<string, boolean>>({
 
 const reloadCurrentUser = async () => {
   await authStore.getMe();
+  store.commit('acl/setUserAcl', currentUser?.value?.id);
 };
 
 const toggleSection = (section: string) => {
