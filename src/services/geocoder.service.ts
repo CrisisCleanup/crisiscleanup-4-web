@@ -160,6 +160,10 @@ export default {
     const streetName =
       this.extractFromAddress(address_components, 'route') ||
       `${parsedAddress.prefix} ${parsedAddress.street}`;
+    const subpremise = this.extractFromAddress(
+      address_components,
+      'subpremise',
+    );
     const city =
       this.extractFromAddress(address_components, 'locality') ||
       this.extractFromAddress(address_components, 'sublocality_level_1') ||
@@ -178,7 +182,7 @@ export default {
 
     return {
       address_components: {
-        address: `${streetNumber} ${streetName}`,
+        address: `${streetNumber} ${streetName} ${subpremise}`,
         city,
         county: `${this.extractFromAddress(
           address_components,
@@ -271,7 +275,7 @@ export default {
                 address: `${this.extractFromAddress(
                   address_components,
                   'street_number',
-                )} ${this.extractFromAddress(address_components, 'route')}`,
+                )} ${this.extractFromAddress(address_components, 'route')} ${this.extractFromAddress(address_components, 'subpremise')}`,
                 city: `${
                   this.extractFromAddress(address_components, 'locality') ||
                   this.extractFromAddress(

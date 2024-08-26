@@ -33,7 +33,7 @@
         :columns="columns"
         class="w-full h-full"
         :url="url"
-        :query="computedQuery"
+        :query="query"
         :body-style="{ height: '100%' }"
         @row-click="handleRowClick"
       >
@@ -66,10 +66,10 @@
     <div
       class="flex flex-col gap-3 items-center justify-center shadow border rounded w-full p-10"
     >
-      {{ $t('phoneDashboard.on_phone_now') }}
+      {{ $t('~~Total Callers In Queue') }}
 
       <div class="text-center text-5xl font-light">
-        {{ stats.active || 0 }}
+        {{ allUsersInQueue }}
       </div>
     </div>
     <div class="grid grid-cols-2 gap-4 w-full mt-4">
@@ -106,11 +106,17 @@
         <span class="text-lg">{{ remainingCalldowns || 0 }}</span>
       </div>
 
-      <div class="flex flex-col bg-white p-4 rounded shadow border col-span-2">
+      <div class="flex flex-col bg-white p-4 rounded shadow border">
         <base-text class="text-sm font-medium">{{
-          $t('phoneDashboard.agents_online')
+          $t('~~Agents Online')
         }}</base-text>
         <span class="text-2xl">{{ agentsOnline || 0 }}</span>
+      </div>
+      <div class="flex flex-col bg-white p-4 rounded shadow border">
+        <base-text class="text-sm font-medium">{{
+          $t('~~Agents Available')
+        }}</base-text>
+        <span class="text-2xl">{{ agentsAvailable || 0 }}</span>
       </div>
       <div
         v-for="queue in statsPerQueue"
@@ -163,6 +169,7 @@ export default defineComponent({
     const remainingCallbacks = ref(0);
     const remainingCalldowns = ref(0);
     const agentsOnline = ref(0);
+    const agentsAvailable = ref(0);
     const showingOutboundsModal = ref(false);
     const showingOutboundsModalType = ref('callback');
     const showingOutboundFilters = ref(false);
@@ -228,8 +235,12 @@ export default defineComponent({
       () => agentStats.value,
       (agents) => {
         if (agents) {
-          agentsOnline.value = agents.filter(
-            (agent) => agent.state === 'AVAILABLE',
+          agentsOnline.value = agents.filter((agent) =>
+            ['ENGAGED', 'TRANSITIONING'].includes(agent.state),
+          ).length;
+
+          agentsAvailable.value = agents.filter((agent) =>
+            ['AVAILABLE', 'WORKING'].includes(agent.state),
           ).length;
         }
       },
@@ -279,16 +290,12 @@ export default defineComponent({
     const currentFilters = ref({});
 
     const url = ref(`${import.meta.env.VITE_APP_API_BASE_URL}/phone_outbound`);
-    const query = ref({
-      completion__lt: 1,
-      filter_ani: 1,
-      locked_at__isnull: true,
-      call_type: showingOutboundsModalType.value,
-    });
-
-    const computedQuery = computed(() => {
+    const query = computed(() => {
       return {
-        ...query.value,
+        completion__lt: 1,
+        filter_ani: 1,
+        locked_at__isnull: true,
+        call_type: showingOutboundsModalType.value,
         ...currentFilters.value,
       };
     });
@@ -304,10 +311,21 @@ export default defineComponent({
       showingOutboundsModal.value = false;
     };
 
+    const allUsersInQueue = computed(() => {
+      return (
+        (stats.value.active || 0) +
+        (stats.value.inQueue || 0) +
+        remainingCallbacks.value +
+        remainingCalldowns.value
+      );
+    });
+
     return {
+      allUsersInQueue,
       remainingCallbacks,
       remainingCalldowns,
       agentsOnline,
+      agentsAvailable,
       showOutboundsModal,
       statsPerQueue,
       gateStats,
@@ -320,7 +338,6 @@ export default defineComponent({
       handleRowClick,
       showingOutboundFilters,
       currentFilters,
-      computedQuery,
       filterCount,
     };
   },
