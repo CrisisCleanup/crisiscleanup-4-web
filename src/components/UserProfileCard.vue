@@ -32,11 +32,11 @@
       >{{ $t('actions.view_profile') }}</a
     >
     <div class="border-t py-4 w-full bg-crisiscleanup-light-smoke text-center">
-      <p class="">
+      <p class="mx-2">
         <span class="font-bold">{{ $t('profileUser.your_organization') }}</span>
         {{ user.organization.name }}
       </p>
-      <p class="">
+      <p class="mx-2">
         <span class="font-bold">{{ $t('profileUser.languages') }}</span>
         {{ user.languageNames }}
       </p>
