@@ -67,7 +67,7 @@ onMounted(async () => {
     <header
       class="text-3xl flex items-center justify-center bg-crisiscleanup-dashboard-blue text-white h-20 w-full"
     >
-      {{ $t('dashboard.selector_welcome') }} {{ currentIncidentId }}
+      {{ $t('dashboard.selector_welcome') }}
     </header>
 
     <main class="h-[80vh] flex flex-col justify-center mt-5 items-center">
