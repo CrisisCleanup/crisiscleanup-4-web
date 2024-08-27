@@ -71,7 +71,7 @@ onMounted(async () => {
     </header>
 
     <main class="flex flex-col justify-center mt-5 items-center">
-      <p class="mb-4">
+      <p class="mb-4 mx-2 md:text-2xl text-center md:w-3/6">
         {{ $t('dashboard.selector_welcome_description') }}
       </p>
 
@@ -108,7 +108,7 @@ onMounted(async () => {
 
 <style scoped>
 .dashboard-option-tile {
-  @apply transition duration-300 bg-white p-5 rounded-lg border-2 flex items-start gap-4 cursor-pointer border-gray-200;
+  @apply transition duration-300 bg-white p-5 mx-2 rounded-lg border-2 flex items-start gap-4 cursor-pointer border-gray-200;
 }
 .dashboard-option-tile:hover {
   @apply bg-crisiscleanup-light-smoke border-primary-light;
