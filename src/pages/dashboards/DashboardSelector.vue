@@ -61,7 +61,7 @@ onMounted(async () => {
 <template>
   <div
     v-if="!loading"
-    class="flex flex-col justify-between h-full"
+    class="flex flex-col justify-between"
     data-testid="testDashboarddiv"
   >
     <header
@@ -70,7 +70,7 @@ onMounted(async () => {
       {{ $t('dashboard.selector_welcome') }} {{ currentIncidentId }}
     </header>
 
-    <main class="flex flex-col justify-center mt-5 items-center">
+    <main class="h-[80vh] flex flex-col justify-center mt-5 items-center">
       <p class="mb-4 mx-2 md:text-2xl text-center md:w-3/6">
         {{ $t('dashboard.selector_welcome_description') }}
       </p>
@@ -99,10 +99,7 @@ onMounted(async () => {
         </div>
       </div>
     </main>
-
-    <footer>
-      <DashboardFooter />
-    </footer>
+    <DashboardFooter />
   </div>
 </template>
 
