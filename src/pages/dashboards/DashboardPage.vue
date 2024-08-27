@@ -112,7 +112,7 @@
           </section>
 
           <section
-            class="col-span-3 bg-white md:col-span-1 lg:col-span-3 h-[100vh]"
+            class="col-span-3 bg-white md:col-span-1 lg:col-span-3"
             data-testid="testRightSection"
           >
             <template v-if="showInviteSection">
