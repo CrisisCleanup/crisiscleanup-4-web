@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center justify-center md:mb-0 mb-10 min-h-max h-full"
+    class="flex items-center justify-center md:mb-0 mb-10"
     data-testid="testDashboarddiv"
   >
     <div
@@ -9,11 +9,7 @@
     >
       <spinner size="lg" />
     </div>
-    <div
-      v-else
-      class="flex flex-col w-full h-full"
-      data-testid="testMainContent"
-    >
+    <div v-else class="flex flex-col" data-testid="testMainContent">
       <header
         class="bg-white border p-6 items-center gap-3 flex justify-between"
         data-testid="testHeader"
@@ -116,7 +112,7 @@
           </section>
 
           <section
-            class="col-span-3 bg-white md:col-span-1 lg:col-span-3"
+            class="col-span-3 bg-white md:col-span-1 lg:col-span-3 h-[100vh]"
             data-testid="testRightSection"
           >
             <template v-if="showInviteSection">
