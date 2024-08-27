@@ -79,13 +79,13 @@ onMounted(async () => {
         <div
           v-for="dashboard in availableDashboards"
           :key="dashboard.path"
-          class="bg-white p-5 rounded-lg border flex items-start gap-4 cursor-pointer hover:bg-crisiscleanup-light-smoke"
-          :class="
-            selectedDashboard === dashboard.path
-              ? 'border-2 border-primary-light'
-              : 'border-2 border-gray-200'
+          class="dashboard-option-tile"
+          @click="
+            () => {
+              selectedDashboard = dashboard.path;
+              goToSelectedDashboard();
+            }
           "
-          @click="() => (selectedDashboard = dashboard.path)"
         >
           <ccu-icon
             :type="dashboard.icon"
@@ -97,15 +97,6 @@ onMounted(async () => {
             <p>{{ dashboard.description }}</p>
           </div>
         </div>
-
-        <base-button
-          :action="goToSelectedDashboard"
-          variant="solid"
-          class="my-2 p-2"
-          data-testid="testContinueButton"
-        >
-          {{ $t('actions.continue') }}
-        </base-button>
       </div>
     </main>
 
@@ -115,4 +106,11 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.dashboard-option-tile {
+  @apply transition duration-300 bg-white p-5 rounded-lg border-2 flex items-start gap-4 cursor-pointer border-gray-200;
+}
+.dashboard-option-tile:hover {
+  @apply bg-crisiscleanup-light-smoke border-primary-light;
+}
+</style>
