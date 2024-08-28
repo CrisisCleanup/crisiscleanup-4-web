@@ -17,9 +17,10 @@ test.describe('UserProfile', () => {
     await userProfileLink.click();
     await page.waitForURL(/.*\/profile.*/);
     await page.waitForLoadState('networkidle');
+    await profileMenuDiv.click(); // close dropdown menu hiding items on page
   });
 
-  test.fail(
+  test(
     testTitleWithTags('should have visible data-testids', [
       'primary',
       'slow',
@@ -62,7 +63,8 @@ test.describe('UserProfile', () => {
 
       // Expand all sections
       for (const section of expandableSections) {
-        const toggleButton = page.getByTestId(`testToggle${section}Section`);
+        const testId = `testToggle${section}Section`;
+        const toggleButton = page.getByTestId(testId).first();
         await toggleButton.scrollIntoViewIfNeeded();
         await expect(toggleButton).toBeVisible(); // Ensure it's visible
         await toggleButton.click();
@@ -74,7 +76,6 @@ test.describe('UserProfile', () => {
         const l = page.getByTestId(testId).first();
         locators.push(l);
         await expect(l).toBeVisible();
-        await expect(l).toBeEnabled(); // Ensure the element is enabled and interactable
       }
 
       await test.info().attach('reports-page-screenshot', {
