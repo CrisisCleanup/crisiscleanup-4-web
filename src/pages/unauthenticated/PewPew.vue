@@ -128,19 +128,28 @@
             </tabs>
           </div>
           <div class="h-full col-span-5 flex flex-col">
-            <div class="h-12 grid grid-cols-10">
+            <div class="min-h-12 grid grid-cols-10">
               <div
-                class="my-2 col-span-8 flex justify-center items-center text-black font-bold ribbon-gradient"
+                class="col-span-8 flex justify-center items-center text-black font-bold ribbon-gradient"
               >
-                <div v-if="incidentList.length > 0">
-                  <div
-                    v-for="incident in incidentList"
+                <div
+                  v-if="incidentList.length > 0"
+                  class="text-[0.7rem] sm:text-sm text-center md:py-1 px-8 md:px-32"
+                >
+                  <span
+                    v-for="(incident, index) in incidentList"
                     :key="incident.id"
                     :data-testid="`testIncident${incident.id}Div`"
                   >
                     {{ incident.short_name }}:
                     {{ getIncidentPhoneNumbers(incident) }}
-                  </div>
+                    <span
+                      v-if="index < incidentList.length - 1"
+                      class="text-base text-primary-light"
+                    >
+                      &nbsp; | &nbsp;
+                    </span>
+                  </span>
                 </div>
                 <div v-else data-testid="testPewPewBannerDiv">
                   {{ $t('homeVue.pew_pew_banner') }}
