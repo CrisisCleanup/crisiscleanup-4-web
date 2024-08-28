@@ -7,7 +7,7 @@
     @change="$emit('change', $event)"
     @row-click="showContacts"
   >
-    <template #organization_statuses="slotProps">
+    <template #statuses="slotProps">
       <div class="w-full flex items-center">
         <font-awesome-icon
           v-if="slotProps.item.profile_completed"
