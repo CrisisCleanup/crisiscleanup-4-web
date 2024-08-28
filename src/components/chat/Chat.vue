@@ -19,7 +19,7 @@
               @click="toggleOrganization(organization.id)"
             >
               <span class="arrow" :class="{ open: isOpen(organization.id) }">
-                ▼
+                <ccu-icon fa size="md" type="caret-down"></ccu-icon>
               </span>
               <span class="organization-name">
                 {{ organization.name }} ({{ organization.users.length }})
