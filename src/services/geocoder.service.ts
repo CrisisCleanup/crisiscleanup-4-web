@@ -182,7 +182,7 @@ export default {
 
     return {
       address_components: {
-        address: `${streetNumber} ${streetName} ${subpremise}`,
+        address: `${streetNumber} ${streetName}${subpremise ? ` ${subpremise}` : ''}`,
         city,
         county: `${this.extractFromAddress(
           address_components,
@@ -275,7 +275,7 @@ export default {
                 address: `${this.extractFromAddress(
                   address_components,
                   'street_number',
-                )} ${this.extractFromAddress(address_components, 'route')} ${this.extractFromAddress(address_components, 'subpremise')}`,
+                )} ${this.extractFromAddress(address_components, 'route')}${this.extractFromAddress(address_components, 'subpremise') ? ` ${this.extractFromAddress(address_components, 'subpremise')}` : ''}`,
                 city: `${
                   this.extractFromAddress(address_components, 'locality') ||
                   this.extractFromAddress(
