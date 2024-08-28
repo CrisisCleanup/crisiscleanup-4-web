@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG NODE_VERSION=20.9.0
+ARG NODE_VERSION=20.17.0
 FROM node:${NODE_VERSION}-alpine as base
 
 # Build Config.
@@ -38,7 +38,7 @@ RUN apk add --no-cache \
 # Builder
 FROM base as builder
 ARG TARGETPLATFORM
-ARG PNPM_VERSION=9.2.0
+ARG PNPM_VERSION=9.9.0
 RUN corepack enable pnpm \
     && corepack prepare pnpm@${PNPM_VERSION} --activate
 WORKDIR ${APP_PATH}
