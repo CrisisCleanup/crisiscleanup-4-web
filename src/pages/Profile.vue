@@ -504,9 +504,10 @@ export default defineComponent({
 
       if (!currentUser.value) {
         // shouldn't be possible.
-        throw getErrorMessage(
-          new Error('Tried to update photos without current user.'),
-        );
+        const errorMsg = 'Tried to update photos without current user.';
+        const err = new Error(errorMsg);
+        getErrorMessage(err);
+        throw err;
       }
 
       const formData = new FormData();
