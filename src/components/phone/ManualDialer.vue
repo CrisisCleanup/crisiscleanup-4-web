@@ -47,6 +47,17 @@
         :disabled="dialing || !phone"
         @click="handleDial"
       ></base-button>
+
+      <div>{{ $t('~~Or') }}</div>
+
+      <base-button
+        variant="outline"
+        data-testid="testDialHiddenCallerIdButton"
+        class="px-5 py-2 my-3 w-full"
+        :text="$t('~~Remove this number from callback queue')"
+        :alt="$t('~Remove this number from callback queue')"
+        @click="removeNumberFromQueue"
+      />
     </div>
   </div>
 </template>
@@ -70,6 +81,7 @@ export default defineComponent({
       default: '',
     },
   },
+  emits: ['onDial', 'onRemoveNumberFromQueue'],
   setup(props, { emit }) {
     const { t } = useI18n();
     const { emitter } = useEmitter();
@@ -81,6 +93,11 @@ export default defineComponent({
     const handleDial = () => {
       emit('onDial', `${selectedCountryCode.value}${phone.value}`);
     };
+
+    const removeNumberFromQueue = () => {
+      emit('onRemoveNumberFromQueue', phone.value);
+    };
+
     onMounted(() => {
       if (props.phoneNumber) {
         phone.value = props.phoneNumber;
@@ -91,6 +108,7 @@ export default defineComponent({
       phone,
       countryCodes,
       handleDial,
+      removeNumberFromQueue,
     };
   },
 });
