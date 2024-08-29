@@ -147,14 +147,14 @@ export default defineComponent({
 
     const timeout = async () => {
       await delay(props.timeout);
-      throw undefined;
+      throw new Error('Button Action timed out!');
     };
 
     const performAction = async () => {
       loading.value = true;
 
       try {
-        if (props.action) {
+        if (typeof props.action == 'function') {
           await Promise.race([props.action(), timeout()]);
         }
       } catch {
@@ -184,6 +184,7 @@ button {
   outline: 0;
   transition: all 300ms ease;
 }
+
 button:focus {
   outline: 0;
 }
@@ -192,9 +193,11 @@ button:focus {
 .primary {
   @apply bg-primary-light;
 }
+
 .link {
   @apply text-primary-dark;
 }
+
 /** ----- DEPRECATED ----- */
 
 button.solid {
