@@ -49,7 +49,7 @@
                 </a>
                 <span class="italic opacity-50 text-sm">
                   {{ $t('disasters.hotline_closes_in') }}
-                  {{ fmtAniClosingDate(getAniClosingDate(ani)) }}
+                  {{ formatHotlineClosingDate(getAniClosingDate(ani)) }}
                 </span>
               </div>
             </div>
@@ -138,12 +138,11 @@
 
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
-import { onMounted, ref } from 'vue';
-import moment, { type Moment } from 'moment/moment';
+import moment from 'moment/moment';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
-import { formatNationalNumber, momentFromNow } from '@/filters';
+import { formatNationalNumber } from '@/filters';
 import camelCase from 'lodash/camelCase';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
@@ -154,6 +153,10 @@ import { hash } from '@/utils/promise';
 import { getAssets } from '@/utils/incident_assets';
 import PdfViewer from '@/components/PdfViewer.vue';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
+import {
+  formatHotlineClosingDate,
+  getAniClosingDate,
+} from '../../../utils/helpers';
 
 interface Faq {
   name: string;
@@ -224,15 +227,6 @@ const faqs: Faq[] = [
     ],
   },
 ];
-
-const getAniClosingDate = (ani: Ani) =>
-  moment(ani.end_at).subtract(((moment(ani.end_at).day() + 1) % 7) + 1, 'days');
-
-const fmtAniClosingDate = (date: Moment | Date | string) => {
-  const formattedDate = moment(date).format('dddd, MMMM D, YYYY');
-  const relativeDate = momentFromNow(date);
-  return `${formattedDate} (${relativeDate})`;
-};
 
 async function fetchAllAssets() {
   const promises = incidents.value.reduce((acc, incident) => {

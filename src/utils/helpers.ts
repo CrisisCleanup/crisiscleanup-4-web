@@ -1,13 +1,15 @@
 import { i18n } from '@/modules/i18n';
 import { MD5 } from 'crypto-js';
 import { store } from '@/store';
-import type { Portal } from '@/models/types';
+import type { Ani, Portal } from '@/models/types';
 import _ from 'lodash';
 import type { CamelCasedPropertiesDeep } from 'type-fest';
 import defu from 'defu';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import createDebug from 'debug';
+import type { Moment } from 'moment/moment';
+import moment from 'moment';
 const debug = createDebug('@ccu:utils:helpers');
 
 /**
@@ -183,4 +185,17 @@ export function extractIconNameFromPath(path: string): string {
       : filenameWithExtension.slice(0, lastDotIndex);
 
   return iconName;
+}
+
+export function getAniClosingDate(ani: Ani) {
+  return moment(ani.end_at).subtract(
+    ((moment(ani.end_at).day() + 1) % 7) + 1,
+    'days',
+  );
+}
+
+export function formatHotlineClosingDate(date: Moment | Date | string) {
+  const formattedDate = moment(date).format('dddd, MMMM D, YYYY');
+  const relativeDate = moment(date).fromNow();
+  return `${formattedDate} (${relativeDate})`;
 }
