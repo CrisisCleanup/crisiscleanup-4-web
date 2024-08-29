@@ -49,7 +49,7 @@
                 </a>
                 <span class="italic opacity-50 text-sm">
                   {{ $t('disasters.hotline_closes_in') }}
-                  {{ momentFromNow(getAniClosingDate(ani)) }}
+                  {{ fmtAniClosingDate(getAniClosingDate(ani)) }}
                 </span>
               </div>
             </div>
@@ -139,7 +139,7 @@
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
 import { onMounted, ref } from 'vue';
-import moment from 'moment/moment';
+import moment, { type Moment } from 'moment/moment';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
@@ -227,6 +227,12 @@ const faqs: Faq[] = [
 
 const getAniClosingDate = (ani: Ani) =>
   moment(ani.end_at).subtract(((moment(ani.end_at).day() + 1) % 7) + 1, 'days');
+
+const fmtAniClosingDate = (date: Moment | Date | string) => {
+  const formattedDate = moment(date).format('dddd, MMMM D, YYYY');
+  const relativeDate = momentFromNow(date);
+  return `${formattedDate} (${relativeDate})`;
+};
 
 async function fetchAllAssets() {
   const promises = incidents.value.reduce((acc, incident) => {
