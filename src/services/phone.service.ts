@@ -351,11 +351,15 @@ export default class PhoneService {
                   // Log.debug('Existing login found. Setting status');
                   this.apiLogoutAgent(this.loggedInAgentId).then(() => {
                     this.loggedInAgentId = undefined;
-                    reject();
+                    reject(new Error('Active agent session found'));
                   });
                 } else {
                   this.logout(data.agentSettings.agentId);
-                  reject();
+                  reject(
+                    new Error(
+                      'Configuration failed: ' + configureResponse.detail,
+                    ),
+                  );
                 }
               } else {
                 // Log.debug('AgentLibrary successfully logged in');
@@ -364,7 +368,9 @@ export default class PhoneService {
                     resolve(state);
                   })
                   .catch(() => {
-                    reject();
+                    reject(
+                      new Error(`Failed to change state: ${error.message}`),
+                    );
                   });
               }
             },

@@ -204,7 +204,7 @@ export default {
           this.getGooglePlaceDetails(placeId).then((place) => {
             const { address_components } = place;
             if (!address_components) {
-              reject('No address_components');
+              reject(new Error('No address_components'));
               return;
             }
 
@@ -216,7 +216,7 @@ export default {
             if (status === google.maps.GeocoderStatus.OK) {
               if (!results || results.length === 0) {
                 console.error("getPlaceDetails: Can't find address", address);
-                reject(`Can't find address: ${status}`);
+                reject(new Error(`Can't find address: ${status}`));
                 return;
               }
 
@@ -224,7 +224,7 @@ export default {
               const { address_components } = location;
               resolve(this.getAddress(address_components, location, address));
             } else {
-              reject(`Can't find address: ${status}`);
+              reject(new Error(`Can't find address: ${status}`));
             }
           });
           store.commit('map/setAutocompleteToken', null);
@@ -264,7 +264,7 @@ export default {
           if (status === google.maps.GeocoderStatus.OK) {
             if (!results || results.length === 0) {
               console.error('getLocationDetails: No results', results);
-              reject(`No results: ${status}`);
+              reject(new Error(`No results: ${status}`));
               return;
             }
 
@@ -302,7 +302,7 @@ export default {
               },
             });
           } else {
-            reject(`Can't find location: ${status}`);
+            reject(new Error(`Can't find location: ${status}`));
           }
         });
       });
