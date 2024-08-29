@@ -16,6 +16,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import { useI18n } from 'vue-i18n';
 import { throttle } from 'lodash';
 import TrainingBanner from '@/components/dashboard/TrainingBanner.vue';
+import GeneralStats from '@/components/phone/GeneralStats.vue';
 
 const emit = defineEmits(['setCase']);
 const { apiGetQueueStats, languages } = useConnectFirst({
@@ -193,24 +194,11 @@ onMounted(async () => {
           <div class="text-lg font-semibold px-4">
             {{ $t('phoneDashboard.stats') }}
           </div>
-          <div class="m-2">
-            <div
-              class="stats-card flex items-center justify-center flex-col mb-2"
-            >
-              <div class="text-4xl">{{ callsWaiting }}</div>
-              <div>{{ $t('phoneDashboard.remaining_calls') }}</div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <div class="stats-card w-full md:w-1/2">
-                <p>{{ $t('phoneDashboard.volunteers_talking') }}</p>
-                <p>{{ stats.active || 0 }}</p>
-              </div>
-              <div class="stats-card w-full md:w-1/2">
-                <p>{{ $t('phoneDashboard.volunteers_online') }}</p>
-                <p>{{ stats.staffed || 0 }}</p>
-              </div>
-            </div>
-          </div>
+          <GeneralStats
+            class="mx-4"
+            @on-remaining-callbacks="remainingCallbacks = $event"
+            @on-remaining-calldowns="remainingCalldowns = $event"
+          />
         </div>
         <div>
           <div class="flex items-center justify-between mt-8 px-4">
