@@ -129,7 +129,7 @@
     "pixi.js": "^6.5.9",
     "postcss-import": "^16.1.0",
     "pretty-format": "^29.7.0",
-    "puppeteer": "^22.6.5",
+    "puppeteer": "^23.0.0",
     "qrcode": "^1.5.4",
     "qrcode-svg": "^1.1.0",
     "quill": "^2.0.0",
