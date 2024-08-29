@@ -569,8 +569,9 @@ export default defineComponent({
           (pos) => {
             resolve(pos);
           },
-          (err) => {
-            reject(err);
+          (error) => {
+            getErrorMessage(error);
+            reject(new Error(error.message));
           },
         );
       });
