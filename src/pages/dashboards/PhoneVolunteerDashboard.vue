@@ -184,7 +184,7 @@ onMounted(async () => {
           {{ $t('phoneDashboard.news') }}
         </div>
         <PhoneCmsItems
-          class="p-2 max-h-none h-[80vh]"
+          class="p-2 max-h-none"
           data-testid="testPhoneCmsItemsDiv"
           @unread-count="unreadNewsCount = $event"
         ></PhoneCmsItems>
