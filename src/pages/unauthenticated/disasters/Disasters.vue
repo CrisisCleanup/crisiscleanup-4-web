@@ -54,7 +54,9 @@
               </div>
             </div>
             <div v-if="incidentsAssetsMap[incident.id]">
-              <div class="flex mt-4 items-end">
+              <div
+                class="flex mt-4 items-end overflow-x-auto max-w-xs sm:max-w-sm md:max-w-md lg:max-w-none"
+              >
                 <template v-for="assetGroup in incidentsAssetsMap[incident.id]">
                   <div
                     v-for="asset in assetGroup.filter(
