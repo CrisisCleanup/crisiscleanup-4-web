@@ -117,6 +117,23 @@
             }
           "
         />
+        <base-button
+          v-if="
+            slotProps.item.is_verified &&
+            (slotProps.item.approved_by || slotProps.item.rejected_by)
+          "
+          data-testid="testClearApprovalButton"
+          :text="$t('actions.clear_approval')"
+          :alt="$t('actions.clear_approval')"
+          variant="outline"
+          size="small"
+          class="mx-2"
+          :action="
+            () => {
+              clearApproval(slotProps.item.id);
+            }
+          "
+        />
         <base-link
           :href="`/admin/organization/${slotProps.item.organization}`"
           data-testid="testEditOrganizationLink"
@@ -191,10 +208,20 @@ export default defineComponent({
       emit('reload');
     }
 
+    async function clearApproval(requestId: string) {
+      await axios.post(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/incident_requests/${requestId}/clear_approval`,
+      );
+      emit('reload');
+    }
+
     return {
       showContacts,
       approveRequest,
       rejectRequest,
+      clearApproval,
       momentFromNow,
       moment,
       url,
