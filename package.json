@@ -205,7 +205,7 @@
     "nock": "^13.5.5",
     "playwright-slack-report": "^1.1.86",
     "postcss": "^8.4.41",
-    "postcss-preset-env": "^9.5.9",
+    "postcss-preset-env": "^10.0.0",
     "postcss-pxtorem": "^6.1.0",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.6",
