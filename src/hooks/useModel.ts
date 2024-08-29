@@ -51,7 +51,7 @@ export const useModelInstance = <ModelT extends typeof Model>(
   const itemId = ref(targetId);
   const item = reactiveComputed<ModelT | { id: number | undefined }>(() =>
     itemId.value && !itemState.isLoading.value
-      ? <ModelT>model.value.find(itemId.value) ?? { id: undefined }
+      ? ((model.value.find(itemId.value) as ModelT) ?? { id: undefined })
       : { id: undefined },
   );
 
