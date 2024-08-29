@@ -1344,7 +1344,8 @@ export default defineComponent({
             resolve(pos);
           },
           (error) => {
-            reject(error);
+            getErrorMessage(error);
+            reject(new Error(error.message));
           },
         );
       });
