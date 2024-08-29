@@ -183,7 +183,7 @@ interface Collection {
   files?: Array<CCUDocumentFileItem>;
 }
 
-interface CollectionResponse extends PaginatedResponse<Collection> {}
+type CollectionResponse = PaginatedResponse<Collection>;
 
 export type {
   Collection as RAGCollection,
