@@ -16,6 +16,7 @@ import BlogPosts from '@/components/blog/BlogPosts.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import type { IncidentAniAsset } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -112,6 +113,10 @@ onMounted(async () => {
             {{ $t('disasters.hotline') }}
             {{ formatNationalNumber(String(number)) }}
           </a>
+          <span class="italic opacity-50 text-sm">
+            {{ $t('disasters.hotline_closes_in') }}
+            {{ formatHotlineClosingDate(getAniClosingDate(incident)) }}
+          </span>
         </div>
       </div>
 
