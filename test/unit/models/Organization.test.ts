@@ -97,6 +97,7 @@ describe('models > Organization', () => {
       Request {
         "addFile": [Function],
         "approve": [Function],
+        "clearApproval": [Function],
         "config": {
           "save": true,
         },
