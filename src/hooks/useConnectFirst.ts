@@ -267,6 +267,11 @@ export default function useConnectFirst(context: {
     }
   }
 
+  async function removeNumberFromQueue(number: string) {
+    await PhoneOutbound.api().completeCallsForPhoneNumber(number);
+    $toasted.success(t('~~Number removed from queue'));
+  }
+
   onMounted(async () => {
     const { data } = await axios.get(
       `${import.meta.env.VITE_APP_API_BASE_URL}/phone_agents/call_history`,
@@ -304,6 +309,7 @@ export default function useConnectFirst(context: {
     isOutboundCall,
     isConnecting,
     dialManualOutbound,
+    removeNumberFromQueue,
     hangUp,
     setCurrentIncidentId(id: string) {
       store.commit('incident/setCurrentIncidentId', id);

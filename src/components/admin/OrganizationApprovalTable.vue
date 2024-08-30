@@ -106,6 +106,24 @@
             }
           "
         />
+        <base-button
+          v-if="
+            currentUser &&
+            currentUser.isAdmin &&
+            (slotProps.item.approved_by || slotProps.item.rejected_by)
+          "
+          data-testid="testClearApprovalButton"
+          :text="$t('actions.clear_approval')"
+          :alt="$t('actions.clear_approval')"
+          variant="outline"
+          size="small"
+          class="mx-1"
+          :action="
+            () => {
+              clearApproval(slotProps.item.id);
+            }
+          "
+        />
         <base-link
           v-if="currentUser && currentUser.isAdmin"
           data-testid="testOrganizationLink"
@@ -200,12 +218,18 @@ export default defineComponent({
       }
     }
 
+    async function clearApproval(organizationId: string) {
+      await Organization.api().clearApproval(organizationId);
+      emit('reload');
+    }
+
     return {
       currentUser,
       getIncidentName,
       showContacts,
       approveOrganization,
       rejectOrganization,
+      clearApproval,
       moment,
       url,
       columns: [

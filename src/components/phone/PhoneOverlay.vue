@@ -277,6 +277,7 @@ const {
   isOutboundCall,
   callHistory,
   dialManualOutbound,
+  removeNumberFromQueue,
   hangUp,
   resetPhoneSystem,
 } = connectFirst;
@@ -402,6 +403,7 @@ const {
                   :dialing="false"
                   :phone-number="phoneNumberToDial"
                   @on-dial="dialManualOutbound"
+                  @on-remove-number-from-queue="removeNumberFromQueue"
                 ></ManualDialer>
               </div>
 

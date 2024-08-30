@@ -45,6 +45,21 @@ export default class Organization extends CCUModel {
 
         return this.post(`/organizations/${id}/reject`, data, { save: false });
       },
+      async clearApproval(this: Request, id: string) {
+        return this.patch(
+          `admins/organizations/${id}`,
+          {
+            approve_reject_reason_t: null,
+            approved_by: null,
+            approved_at: null,
+            rejected_by: null,
+            rejected_at: null,
+            org_verified: false,
+            is_active: false,
+          },
+          { save: false },
+        );
+      },
     },
   };
 
