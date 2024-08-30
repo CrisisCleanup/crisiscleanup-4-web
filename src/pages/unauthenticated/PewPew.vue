@@ -570,6 +570,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const { t } = useI18n();
     const authStore = useAuthStore();
 
     const queryFilter = ref({
@@ -888,6 +889,7 @@ export default defineComponent({
       displayedWorkTypeSvgs,
       getWorkTypeName,
       logout: () => authStore.logout(),
+      $t: (text: string) => (text ? t(text) : undefined),
     };
   },
 });
