@@ -91,7 +91,7 @@ importers:
         version: 11.0.3(vue@3.4.38(typescript@5.5.4))
       '@vueuse/integrations':
         specifier: ^11.0.3
-        version: 11.0.3(axios@1.7.5(debug@4.3.6))(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.4)(sortablejs@1.15.2)(vue@3.4.38(typescript@5.5.4))
+        version: 11.0.3(axios@1.7.6(debug@4.3.6))(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.4)(sortablejs@1.15.2)(vue@3.4.38(typescript@5.5.4))
       '@vueuse/math':
         specifier: ^11.0.3
         version: 11.0.3(vue@3.4.38(typescript@5.5.4))
@@ -112,7 +112,7 @@ importers:
         version: 3.53.0
       axios:
         specifier: ^1.7.5
-        version: 1.7.5(debug@4.3.6)
+        version: 1.7.6(debug@4.3.6)
       bowser:
         specifier: ^2.11.0
         version: 2.11.0
@@ -3024,8 +3024,8 @@ packages:
   axios@0.21.4:
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
 
-  axios@1.7.5:
-    resolution: {integrity: sha512-fZu86yCo+svH3uqJ/yTdQ0QHpQu5oL+/QE+QPSv6BZSkDAoky9vytxp7u5qk83OJFS3kEBcesWni9WTZAv3tSw==}
+  axios@1.7.6:
+    resolution: {integrity: sha512-Ekur6XDwhnJ5RgOCaxFnXyqlPALI3rVeukZMwOdfghW7/wGz784BYKiQq+QD8NPcr91KRo30KfHOchyijwWw7g==}
 
   b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -8352,7 +8352,7 @@ snapshots:
       '@slack/types': 2.12.0
       '@types/node': 20.16.2
       '@types/retry': 0.12.0
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
       eventemitter3: 5.0.1
       form-data: 4.0.0
       is-electron: 2.2.2
@@ -8367,7 +8367,7 @@ snapshots:
     dependencies:
       '@slack/types': 2.12.0
       '@types/node': 20.16.2
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
     transitivePeerDependencies:
       - debug
 
@@ -9693,13 +9693,13 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/integrations@11.0.3(axios@1.7.5(debug@4.3.6))(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.4)(sortablejs@1.15.2)(vue@3.4.38(typescript@5.5.4))':
+  '@vueuse/integrations@11.0.3(axios@1.7.6(debug@4.3.6))(fuse.js@7.0.0)(jwt-decode@4.0.0)(qrcode@1.5.4)(sortablejs@1.15.2)(vue@3.4.38(typescript@5.5.4))':
     dependencies:
       '@vueuse/core': 11.0.3(vue@3.4.38(typescript@5.5.4))
       '@vueuse/shared': 11.0.3(vue@3.4.38(typescript@5.5.4))
       vue-demi: 0.14.10(vue@3.4.38(typescript@5.5.4))
     optionalDependencies:
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
       fuse.js: 7.0.0
       jwt-decode: 4.0.0
       qrcode: 1.5.4
@@ -10042,7 +10042,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.7.5(debug@4.3.6):
+  axios@1.7.6(debug@4.3.6):
     dependencies:
       follow-redirects: 1.15.6(debug@4.3.6)
       form-data: 4.0.0
