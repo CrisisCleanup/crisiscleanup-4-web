@@ -3,7 +3,7 @@
     <div>
       <div class="report-generator p-6 bg-white mb-10">
         <h2 class="text-2xl font-semibold mb-4">
-          {{ $t('~~Admin Reports') }}
+          {{ $t('adminDashboard.admin_reports') }}
         </h2>
 
         <div class="mb-6">
@@ -41,7 +41,7 @@
               select-classes="bg-white w-full h-10"
               item-key="id"
               label="name"
-              :placeholder="$t('~~Select Incident')"
+              :placeholder="$t('actions.select_incident')"
             />
             <base-input
               v-else
@@ -53,7 +53,7 @@
         </div>
 
         <base-button
-          :text="$t('reportGenerator.generateCsv')"
+          :text="$t('adminDashboard.generate_csv')"
           class="w-full py-2"
           variant="solid"
           @click="generateCsv"
@@ -70,7 +70,7 @@
             :href="item?.file?.csv_url"
             target="_blank"
             class="text-blue-500 underline"
-            >{{ $t('~~Download') }}</a
+            >{{ $t('actions.download') }}</a
           >
         </template>
       </AjaxTable>

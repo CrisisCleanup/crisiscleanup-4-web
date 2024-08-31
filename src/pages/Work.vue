@@ -702,6 +702,7 @@
                 :selected-table-items="selectedTableItems"
                 model-type="worksite_worksites"
                 :title="$t('list.worksite_lists')"
+                :alt="$t('list.worksite_lists')"
                 :incident="currentIncidentId"
               />
               <base-button

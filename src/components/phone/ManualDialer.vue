@@ -48,14 +48,14 @@
         @click="handleDial"
       ></base-button>
 
-      <div>{{ $t('~~Or') }}</div>
+      <div>{{ $t('phoneDashboard.or') }}</div>
 
       <base-button
         variant="outline"
         data-testid="testDialHiddenCallerIdButton"
         class="px-5 py-2 my-3 w-full"
-        :text="$t('~~Remove this number from callback queue')"
-        :alt="$t('~Remove this number from callback queue')"
+        :text="$t('phoneDashboard.remove_from_queue')"
+        :alt="$t('phoneDashboard.remove_from_queue')"
         @click="removeNumberFromQueue"
       />
     </div>
