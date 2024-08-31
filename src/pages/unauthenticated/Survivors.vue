@@ -620,9 +620,6 @@ export default defineComponent({
             },
           },
         );
-        if (result instanceof AxiosError && result.response.status === 404) {
-          $toasted.error(t('survivorContact.invalid_expired_token'));
-        }
         if (filesOnly) {
           state.survivorToken.files = result.data.files;
         } else {
@@ -633,7 +630,7 @@ export default defineComponent({
           }
         }
       } catch (error) {
-        await $toasted.error(getErrorMessage(error));
+        $toasted.error(getErrorMessage(error));
         // this.$log.debug(error);
       } finally {
         state.loading = false;

@@ -698,9 +698,6 @@ export default defineComponent({
           workTypes,
           reason,
         );
-        if (result.response instanceof AxiosError) {
-          return $toasted.error(getErrorMessage(result.response));
-        }
         await Worksite.api().fetch(props.worksiteId);
         await getWorksiteRequests();
         emit('reloadMap', props.worksiteId);

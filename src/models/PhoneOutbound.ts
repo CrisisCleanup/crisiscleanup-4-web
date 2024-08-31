@@ -159,10 +159,6 @@ export default class PhoneOutbound extends CCUModel {
           ),
         );
 
-        if (resp.response instanceof AxiosError) {
-          throw new TypeError(getErrorMessage(resp.response));
-        }
-
         const [outbound] = resp.entities.phone_outbound || [];
         return outbound;
       },
