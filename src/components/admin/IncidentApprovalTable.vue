@@ -123,8 +123,8 @@
             (slotProps.item.approved_by || slotProps.item.rejected_by)
           "
           data-testid="testClearApprovalButton"
-          :text="$t('actions.clear_approval')"
-          :alt="$t('actions.clear_approval')"
+          :text="$t('actions.undo')"
+          :alt="$t('actions.undo')"
           variant="outline"
           size="small"
           class="mx-2"
