@@ -66,7 +66,7 @@
     <div
       class="flex flex-col gap-3 items-center justify-center shadow border rounded w-full p-10"
     >
-      {{ $t('~~Total Callers In Queue') }}
+      {{ $t('phoneDashboard.total_people_waiting') }}
 
       <div class="text-center text-5xl font-light">
         {{ allUsersInQueue }}
@@ -108,13 +108,13 @@
 
       <div class="flex flex-col bg-white p-4 rounded shadow border">
         <base-text class="text-sm font-medium">{{
-          $t('~~Agents Online')
+          $t('phoneDashboard.agents_online')
         }}</base-text>
         <span class="text-2xl">{{ agentsOnline || 0 }}</span>
       </div>
       <div class="flex flex-col bg-white p-4 rounded shadow border">
         <base-text class="text-sm font-medium">{{
-          $t('~~Agents Available')
+          $t('phoneDashboard.agents_available')
         }}</base-text>
         <span class="text-2xl">{{ agentsAvailable || 0 }}</span>
       </div>

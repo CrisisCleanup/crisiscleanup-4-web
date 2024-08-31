@@ -269,7 +269,7 @@ export default function useConnectFirst(context: {
 
   async function removeNumberFromQueue(number: string) {
     await PhoneOutbound.api().completeCallsForPhoneNumber(number);
-    $toasted.success(t('~~Number removed from queue'));
+    $toasted.success(t('info.dnis_removed_from_queue'));
   }
 
   onMounted(async () => {
