@@ -65,8 +65,11 @@ axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Here, you can ensure that Axios always throws an AxiosError
-    if (error instanceof AxiosError) {
+    if (
+      error instanceof AxiosError &&
+      error.response?.status !== 403 &&
+      error.response?.status !== 401
+    ) {
       return getAndToastErrorMessage(error);
     }
   },
