@@ -40,6 +40,8 @@ const DefaultDashboard = () =>
 
 const PhoneVolunteerDashboard = () =>
   import('./pages/dashboards/PhoneVolunteerDashboard.vue');
+const CommandCenterDashboard = () =>
+  import('./pages/dashboards/CommandCenterDashboard.vue');
 const Work = () => import('./pages/Work.vue');
 const AppDownload = () => import('./pages/AppDownload.vue');
 const OtherOrganizations = () => import('@/pages/OtherOrganizations.vue');
@@ -87,6 +89,11 @@ const routes = [
         path: 'phone_volunteer',
         name: 'nav.phone_volunteer_dashboard',
         component: PhoneVolunteerDashboard,
+      },
+      {
+        path: 'command_center',
+        name: 'nav.command_center_dashboard',
+        component: CommandCenterDashboard,
       },
     ],
   },

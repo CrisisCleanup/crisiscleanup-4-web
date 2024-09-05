@@ -27,6 +27,12 @@ const availableDashboards = [
     description: t('dashboard.phone_volunteer_description'),
     icon: 'phone-volunteer-dashboard',
   },
+  // {
+  //   name: t('dashboard.command_center'),
+  //   path: 'command-center',
+  //   description: t('dashboard.command_center_description'),
+  //   icon: 'command-center-dashboard',
+  // },
 ];
 
 const selectedDashboard = ref('');

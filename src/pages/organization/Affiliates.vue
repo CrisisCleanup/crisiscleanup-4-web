@@ -216,14 +216,16 @@ export default defineComponent({
       await Affiliate.api().get('/organization_affiliate_requests', {
         dataKey: 'results',
       });
-      await Organization.api().get(
-        `/organizations?id__in=${Affiliate.all()
-          .map((org) => org.affiliate)
-          .join(',')}`,
-        {
-          dataKey: 'results',
-        },
-      );
+      if (Affiliate.all().length > 0) {
+        await Organization.api().get(
+          `/organizations?id__in=${Affiliate.all()
+            .map((org) => org.affiliate)
+            .join(',')}`,
+          {
+            dataKey: 'results',
+          },
+        );
+      }
       loading.value = false;
     };
 
