@@ -1,7 +1,7 @@
 import { version } from '@/../package.json';
 import { createApp, type App as VueApp } from 'vue';
 import './style.css';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VueTagsInput from '@sipec/vue3-tags-input';
@@ -56,12 +56,21 @@ import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
+import { getAndToastErrorMessage } from '@/utils/errors';
 
 library.add(fas);
 library.add(far);
 
 axios.defaults.withCredentials = true;
-
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Here, you can ensure that Axios always throws an AxiosError
+    if (error instanceof AxiosError) {
+      return getAndToastErrorMessage(error);
+    }
+  },
+);
 const buildApp = (app: VueApp) =>
   app
     .component('FontAwesomeIcon', FontAwesomeIcon as any)

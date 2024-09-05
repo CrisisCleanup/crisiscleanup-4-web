@@ -13,6 +13,7 @@ export default class Team extends CCUModel {
   assigned_work_types!: WorkType[];
   cases_area!: Record<string, unknown>;
   incident!: Incident;
+  organization!: string;
 
   static fields() {
     return {
@@ -23,6 +24,7 @@ export default class Team extends CCUModel {
       assigned_work_types: this.attr([]),
       cases_area: this.attr({}),
       incident: this.attr(null),
+      organization: this.attr(''),
     };
   }
 

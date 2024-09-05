@@ -856,9 +856,6 @@ export default defineComponent({
         `/teams/${team.value?.id}`,
         team.value?.$toJson(),
       );
-      if (result.response instanceof AxiosError) {
-        return $toasted.error(getErrorMessage(result.response));
-      }
       return $toasted.success(t('teams.team_updated'));
     };
 

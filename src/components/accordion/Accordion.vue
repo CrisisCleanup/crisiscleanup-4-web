@@ -1,5 +1,5 @@
 <template>
-  <div class="divide-y divide-gray-200">
+  <div :class="classes">
     <slot :icon-style="iconStyle"></slot>
   </div>
 </template>
@@ -11,6 +11,10 @@ export default {
     iconStyle: {
       type: String,
       default: 'chevron', // Options: 'chevron', 'plus-minus'
+    },
+    classes: {
+      type: String,
+      default: 'divide-y divide-gray-200',
     },
   },
 };

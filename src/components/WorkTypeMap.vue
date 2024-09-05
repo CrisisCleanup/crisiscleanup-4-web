@@ -2,7 +2,6 @@
   <div class="relative">
     <div
       id="map"
-      ref="map"
       data-testid="testWorkTypeMapDiv"
       class="absolute top-0 left-0 right-0 bottom-0"
     ></div>
@@ -50,11 +49,9 @@ export default defineComponent({
     };
 
     const renderMap = async (markers: Record<string, any>[]) => {
-      if (!map.value) {
-        map.value = L.map('map', {
-          zoomControl: false,
-        }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 10);
-      }
+      map.value = L.map('map', {
+        zoomControl: false,
+      }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 10);
 
       L.tileLayer(mapTileLayer, {
         // tileSize: 512,
@@ -121,9 +118,9 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
 .leaflet-data-marker svg {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
 }
 </style>

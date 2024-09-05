@@ -92,7 +92,7 @@
       />
     </div>
     <WorksiteLegend
-      v-if="showZoomButtons || showLegend"
+      v-if="(showZoomButtons && !removeLegend) || showLegend"
       :key="availableWorkTypes"
       class="hidden md:block"
       data-testid="testShowLegendDiv"
@@ -119,6 +119,9 @@ export default defineComponent({
       type: Boolean,
     },
     showLegend: {
+      type: Boolean,
+    },
+    removeLegend: {
       type: Boolean,
     },
     availableWorkTypes: {

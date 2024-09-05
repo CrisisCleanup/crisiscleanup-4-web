@@ -183,9 +183,6 @@ export default defineComponent({
             mobile,
             title,
           });
-          if (result.response instanceof AxiosError) {
-            return $toasted.error(getErrorMessage(result.response));
-          }
           await confirm({
             title: t('info.success'),
             content: t(`invitationSignup.success_accept_invitation`),

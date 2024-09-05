@@ -1,10 +1,18 @@
 <template>
   <div :class="classes">
     <button :class="buttonClasses" @click="toggleOpen">
+      <font-awesome-icon
+        v-if="iconPosition === 'left'"
+        :icon="isOpen ? openIcon : closedIcon"
+        size="xs"
+      />
       <slot name="name">
         {{ name }}
       </slot>
-      <font-awesome-icon :icon="isOpen ? openIcon : closedIcon" />
+      <font-awesome-icon
+        v-if="iconPosition === 'right'"
+        :icon="isOpen ? openIcon : closedIcon"
+      />
     </button>
     <div v-show="isOpen" :class="bodyClasses">
       <slot></slot>
@@ -39,6 +47,10 @@ export default {
       type: String,
       default: 'chevron', // Options: 'chevron', 'plus-minus'
     },
+    iconPosition: {
+      type: String,
+      default: 'right', // Options: 'left', 'right'
+    },
     classes: {
       type: String,
       default: 'border-b border-gray-200',
@@ -52,10 +64,14 @@ export default {
       type: String,
       default: 'py-2 px-4',
     },
+    startOpen: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props) {
     const state = reactive({
-      isOpen: false,
+      isOpen: props.startOpen,
     });
 
     const toggleOpen = () => {
