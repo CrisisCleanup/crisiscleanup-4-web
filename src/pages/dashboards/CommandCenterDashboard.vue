@@ -31,6 +31,12 @@ const { loadingActionItems } = useDashboardActionItems(
 const getAffiliates = async () => {
   const response = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/affiliated_teams`,
+    {
+      params: {
+        limit: 500,
+        incident: currentIncidentId.value,
+      },
+    },
   );
   affiliatedTeams.value = response.data.results;
 
