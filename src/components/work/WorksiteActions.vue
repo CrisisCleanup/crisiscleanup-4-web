@@ -499,6 +499,17 @@
               </v-menu>
             </template>
           </v-menu>
+          <v-menu placement="right-start" trigger="hover" instant-move>
+            <div class="menu-item">
+              <base-checkbox
+                :model-value="showingUserLocations"
+                data-testid="testShowUserLocationsCheckbox"
+                @update:model-value="toggleUserLocations"
+              >
+                {{ $t('casesVue.show_user_locations') }}
+              </base-checkbox>
+            </div>
+          </v-menu>
         </template>
       </v-popover>
       <base-button
@@ -532,16 +543,25 @@ import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { useCurrentUser } from '@/hooks';
 import Location from '@/models/Location';
+import { Menu as VMenu } from 'floating-vue';
+import BaseCheckbox from '@/components/BaseCheckbox.vue';
 
 export default defineComponent({
   name: 'WorksiteActions',
-  components: { AccordionItem, Accordion, WorksiteFilters },
+  components: {
+    BaseCheckbox,
+    VMenu,
+    AccordionItem,
+    Accordion,
+    WorksiteFilters,
+  },
   props: {
     initalFilters: { type: Object, default: null, required: false },
     map: { type: Object, default: null, required: false },
     currentIncidentId: { type: String, default: null, required: false },
     showLayers: { type: Boolean, default: true, required: false },
   },
+  emits: ['applyLocation', 'applyTeamGeoJson', 'toggleUserLocations'],
   setup(props, { emit }) {
     const store = useStore();
     const mq = useMq();
@@ -563,6 +583,8 @@ export default defineComponent({
     const districts = ref<any[]>([]);
     const counties = ref<any[]>([]);
     const organizationLocations = ref<any[]>([]);
+    const showingUserLocations = ref<boolean>(false);
+
     const pdas = ref(null);
     const showingHeatMap = ref(false);
     const search = ref('');
@@ -610,6 +632,11 @@ export default defineComponent({
         appliedLocations.value.delete(locationId);
         appliedLocations.value = new Set(appliedLocations.value);
       }
+    }
+
+    function toggleUserLocations(value: boolean) {
+      showingUserLocations.value = value;
+      emit('toggleUserLocations', value);
     }
 
     async function getIncidentLocations() {
@@ -735,6 +762,8 @@ export default defineComponent({
       pdas,
       showingHeatMap,
       mq,
+      toggleUserLocations,
+      showingUserLocations,
     };
   },
 });

@@ -4,6 +4,7 @@ import { DbService, WORKSITE_IMAGES_DATABASE } from '@/services/db.service';
 import { generateHash } from './helpers';
 import type Worksite from '@/models/Worksite';
 import createDebug from 'debug';
+import User from '@/models/User';
 
 export type CachedCase = Worksite;
 export interface CachedCaseResponse {
@@ -22,6 +23,17 @@ const loadCases = async (query: Record<string, unknown>) => {
       },
     },
   );
+  return response.data;
+};
+
+const loadUserLocations = async (query: Record<string, unknown>) => {
+  const response = await axios.get(
+    `${import.meta.env.VITE_APP_API_BASE_URL}/user_geo_locations/latest_locations`,
+  );
+  const userIds = response.data.map((location: any) => location.user_id);
+  await User.api().get(`/users?id__in=${userIds.join(',')}`, {
+    dataKey: 'results',
+  });
   return response.data;
 };
 
@@ -219,4 +231,4 @@ const loadCaseImagesCached = async (query: Record<string, unknown>) => {
   return response.data;
 };
 
-export { loadCasesCached, loadCases, loadCaseImagesCached };
+export { loadCasesCached, loadCases, loadCaseImagesCached, loadUserLocations };

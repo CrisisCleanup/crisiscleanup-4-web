@@ -228,3 +228,9 @@ export interface BetaFeature {
   description: string;
   opt_in: boolean;
 }
+
+export interface UserLocation {
+  user_id: number;
+  location: [number, number];
+  timestamp: string;
+}
