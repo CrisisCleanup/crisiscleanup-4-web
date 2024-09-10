@@ -177,6 +177,7 @@ import createDebug from 'debug';
 import type { Portal } from '@/models/types';
 import { VERSION_3_LAUNCH_DATE } from '@/constants';
 import { useAuthenticatedRoutes } from '@/hooks/useAuthenticatedRoutes';
+import axios from 'axios';
 
 const debug = createDebug('@ccu:layouts:Authed');
 const loadDebug = debug.extend('loading');
@@ -348,6 +349,36 @@ export default defineComponent({
       showAcceptTermsModal.value = false;
     };
 
+    const checkUserLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            axios
+              .post(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/user_geo_locations`,
+                {
+                  point: {
+                    coordinates: [
+                      position.coords.longitude,
+                      position.coords.latitude,
+                    ],
+                    type: 'Point',
+                  },
+                },
+              )
+              .then(() => {
+                debug('User location updated');
+              });
+          },
+          (error) => {
+            console.error(`Error Code = ${error.code} - ${error.message}`);
+          },
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
+    };
+
     const handleChange = async (value: number) => {
       if (!value) return;
       await updateCurrentIncidentId(value).catch(getErrorMessage);
@@ -433,7 +464,7 @@ export default defineComponent({
     }
 
     const loadState = useAsyncState(
-      () => Promise.all([setupLanguage(), loadPageData()]),
+      () => Promise.all([setupLanguage(), loadPageData(), checkUserLocation()]),
       undefined,
       {
         immediate: false,

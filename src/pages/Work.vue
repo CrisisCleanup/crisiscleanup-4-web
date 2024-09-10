@@ -74,6 +74,7 @@
           @toggle-heat-map="toggleHeatMap"
           @selected-existing="handleSelectedExisting"
           @toggle-search="showingSearchModal = !showingSearchModal"
+          @toggle-user-locations="toggleUserLocations"
         />
       </div>
       <div class="absolute top-20 left-12 mt-2 z-toolbar">
@@ -419,6 +420,7 @@
                 @apply-team-geo-json="applyTeamGeoJson"
                 @download-csv="downloadWorksites"
                 @toggle-heat-map="toggleHeatMap"
+                @toggle-user-locations="toggleUserLocations"
               />
             </div>
             <div
@@ -981,8 +983,12 @@ import WorksiteTable from '../components/work/WorksiteTable.vue';
 import CaseHeader from '../components/work/CaseHeader.vue';
 import Worksite from '../models/Worksite';
 import CaseHistory from '../components/work/CaseHistory.vue';
-import { loadCaseImagesCached, loadCasesCached } from '../utils/worksite';
-import { averageGeolocation } from '../utils/map';
+import {
+  loadCaseImagesCached,
+  loadCasesCached,
+  loadUserLocations,
+} from '../utils/worksite';
+import { averageGeolocation, getUserLocationLayer } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import { forceFileDownload } from '../utils/downloads';
 import { getErrorMessage } from '../utils/errors';
@@ -1006,7 +1012,7 @@ import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
 import { useCurrentIncident, useCurrentUser } from '@/hooks';
-import type { Portal } from '@/models/types';
+import type { Portal, UserLocation } from '@/models/types';
 import WorksiteFeed from '@/components/WorksiteFeed.vue';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import useAcl from '@/hooks/useAcl';
@@ -1014,6 +1020,8 @@ import ListDropdown from '@/pages/lists/ListDropdown.vue';
 import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
+import { momentFromNow } from '@/filters';
+import User from '@/models/User';
 
 export default defineComponent({
   name: 'Work',
@@ -1095,6 +1103,7 @@ export default defineComponent({
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
     const caseImages = ref<Record<string, any>[]>([]);
+    const userLocations = ref<Record<string, any>[]>([]);
     const mapLoading = ref<boolean>(false);
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
@@ -1430,6 +1439,39 @@ export default defineComponent({
         mapUtils?.addHeatMap(points);
       } else {
         mapUtils?.removeHeatMap();
+      }
+    }
+
+    function toggleUserLocations(value: boolean) {
+      if (value) {
+        const locationLayer = getUserLocationLayer(
+          userLocations.value,
+          (location: UserLocation) => {
+            const user = User.find(location.user_id);
+            if (user) {
+              const popup = L.popup({
+                closeButton: true,
+                closeOnClick: true,
+                autoClose: false,
+                closeOnEscapeKey: true,
+              }).setContent(
+                `<div class="flex flex-col items-center">
+                        <div class="text-sm font-bold">${user.full_name}</div>
+                        <div class="text-sm">${user.email}</div>
+                        <div class="text-sm">${user.organization.name}</div>
+                        <div class="text-xs italic">${t('~~Last seen')} ${momentFromNow(location.timestamp)}</div>
+                      </div>`,
+              );
+
+              popup.setLatLng([location.location[1], location.location[0]]);
+              popup.openOn(mapUtils?.getMap());
+            }
+          },
+        );
+
+        locationLayer.addTo(mapUtils?.getMap());
+      } else {
+        mapUtils?.removeLayer('user_location_layer');
       }
     }
 
@@ -1954,6 +1996,10 @@ export default defineComponent({
               ]);
             }
 
+            loadUserLocations({}).then((response) => {
+              userLocations.value = response;
+            });
+
             filterSvi(sviSliderValue.value);
             nextTick(() => {
               // Used to trigger calculation of labels ofr updated slider
@@ -2155,6 +2201,8 @@ export default defineComponent({
       updateFilterLabels,
       filterLabels,
       currentIncident,
+      userLocations,
+      toggleUserLocations,
     };
   },
 });
