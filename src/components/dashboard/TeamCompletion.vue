@@ -7,13 +7,13 @@
       </div>
       <div class="text-right">
         <a href="#" class="text-blue-600"
-          >{{ closedCases }} {{ $t('~~cases closed') }}</a
+          >{{ closedCases }} {{ $t('teams.cases_closed') }}</a
         ><br />
         <a href="#" class="text-blue-600"
-          >{{ openCases }} {{ $t('~~open cases') }}</a
+          >{{ openCases }} {{ $t('teams.open_cases') }}</a
         ><br />
         <a href="#" class="text-blue-600"
-          >{{ overdueCases }} {{ $t('~~overdue cases') }}</a
+          >{{ overdueCases }} {{ $t('teams.overdue_cases') }}</a
         >
       </div>
     </div>

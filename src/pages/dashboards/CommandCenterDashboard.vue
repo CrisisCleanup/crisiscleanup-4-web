@@ -136,7 +136,7 @@ onMounted(async () => {
     <!-- Accordion on the left -->
     <div class="p-2 overflow-x-auto">
       <h2 class="font-semibold text-lg mb-3 flex justify-between">
-        {{ $t('~~Affiliated Organizations') }}
+        {{ $t('dashboard.affiliated_organizations') }}
       </h2>
       <Accordion>
         <AccordionItem
@@ -154,9 +154,9 @@ onMounted(async () => {
             <div
               class="col-span-3 grid gap-1 grid-cols-3 font-semibold bg-crisiscleanup-light-smoke rounded p-0.5"
             >
-              <span class="text-gray-700">{{ $t('~~Team') }}</span>
-              <span class="text-gray-700">{{ $t('~~Size') }}</span>
-              <span class="text-gray-700">{{ $t('~~Cases') }}</span>
+              <span class="text-gray-700">{{ $t('dashboard.team_name') }}</span>
+              <span class="text-gray-700">{{ $t('dashboard.team_size') }}</span>
+              <span class="text-gray-700">{{ $t('dashboard.team_cases') }}</span>
             </div>
 
             <!-- Data Rows -->
@@ -182,10 +182,10 @@ onMounted(async () => {
     <div class="flex flex-col gap-4 p-2">
       <!-- Map Section -->
       <h2 class="font-semibold text-lg mb-3 flex justify-between">
-        {{ $t('~~Teams Disaster Map') }}
+        {{ $t('dashboard.teams_map') }}
         <router-link :to="`/incident/${currentIncidentId}/work`"
           ><span class="text-crisiscleanup-dark-blue text-sm hover:underline">{{
-            $t('~~Go to Teams')
+            $t('dashboard.go_to_teams')
           }}</span></router-link
         >
       </h2>
@@ -230,7 +230,7 @@ onMounted(async () => {
 
       <div class="md:mt-6">
         <h2 class="font-semibold text-lg mb-3 flex justify-between">
-          {{ $t('~~Completion Rate') }}
+          {{ $t('dashboard.completion_rate') }}
         </h2>
 
         <TeamCompletion :teams="affiliatedTeams" />
