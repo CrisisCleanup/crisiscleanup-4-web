@@ -1460,7 +1460,7 @@ export default defineComponent({
                         <div class="text-sm font-bold">${user.full_name}</div>
                         <div class="text-sm">${user.email}</div>
                         <div class="text-sm">${user.organization.name}</div>
-                        <div class="text-xs italic">${t('~~Last seen')} ${momentFromNow(location.timestamp)}</div>
+                        <div class="text-xs italic">${t('casesVue.last_seen')} ${momentFromNow(location.timestamp)}</div>
                       </div>`,
               );
 

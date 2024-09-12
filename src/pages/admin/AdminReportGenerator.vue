@@ -165,14 +165,14 @@ const generateCsv = async () => {
       },
     );
     if (response.status === 201) {
-      $toasted.success(t('reportGenerator.csvGenerated'));
+      $toasted.success(t('info.csv_generated'));
     } else if (response.status === 202) {
-      $toasted.info(t('reportGenerator.csvGenerating'));
+      $toasted.info(t('info.csv_generating'));
     }
     emitter.emit(`refreshTable-${tableId}`);
   } catch (error) {
     console.error('Error generating CSV:', error);
-    $toasted.error(t('reportGenerator.csvError'));
+    $toasted.error(t('info.csv_error'));
   }
 };
 </script>
