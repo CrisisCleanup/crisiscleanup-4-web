@@ -314,6 +314,7 @@ onMounted(() => {
             class="rounded-full"
             :action="() => acceptWorksiteRequest(request.id, fetchAllData)"
             size="small"
+            :alt="$t('actions.approve')"
             >{{ $t('actions.approve') }}
           </base-button>
           <base-button
@@ -321,6 +322,7 @@ onMounted(() => {
             class="rounded-full"
             :action="() => rejectWorksiteRequest(request.id, fetchAllData)"
             size="small"
+            :alt="$t('actions.reject')"
             >{{ $t('actions.reject') }}
           </base-button>
         </div>
@@ -387,6 +389,7 @@ onMounted(() => {
               variant="primary"
               class="rounded-full"
               :action="() => unclaimAll(worksite)"
+              :alt="$t('actions.unclaim_all')"
               size="small"
               >{{ $t('actions.unclaim_all') }}
             </base-button>
@@ -436,6 +439,7 @@ onMounted(() => {
             <div class="flex border-t p-2 justify-end gap-2">
               <base-button
                 :action="() => acceptInvitationRequest(invite, fetchAllData)"
+                :alt="$t('actions.approve')"
                 variant="primary"
                 class="rounded-full"
                 size="small"
@@ -443,6 +447,7 @@ onMounted(() => {
               </base-button>
               <base-button
                 :action="() => rejectInvitationRequest(invite, fetchAllData)"
+                :alt="$t('actions.reject')"
                 variant="outline"
                 size="small"
                 class="rounded-full"
@@ -450,6 +455,7 @@ onMounted(() => {
               </base-button>
               <base-button
                 :action="() => archiveInvitationRequest(invite, fetchAllData)"
+                :alt="$t('actions.ignore')"
                 variant="outline"
                 size="small"
                 class="rounded-full"

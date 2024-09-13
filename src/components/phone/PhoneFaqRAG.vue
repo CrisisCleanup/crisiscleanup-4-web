@@ -97,7 +97,12 @@ function formatDateTime(dateTime) {
             v-model="question"
             :placeholder="$t('phoneDashboard.faq')"
           />
-          <base-button :action="sendMessage" variant="solid" class="p-2">
+          <base-button
+            :action="sendMessage"
+            variant="solid"
+            class="p-2"
+            :alt="$t('actions.submit')"
+          >
             {{ $t('actions.submit') }}
           </base-button>
         </div>

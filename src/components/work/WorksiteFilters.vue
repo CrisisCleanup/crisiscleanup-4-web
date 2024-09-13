@@ -606,6 +606,7 @@
                       }
                     "
                     :text="$t('actions.subtract')"
+                    :alt="$t('actions.subtract')"
                   />
                   <base-button
                     :class="[
@@ -637,6 +638,7 @@
                       }
                     "
                     :text="$t('actions.add')"
+                    :alt="$t('actions.add')"
                   />
                 </template>
               </div>

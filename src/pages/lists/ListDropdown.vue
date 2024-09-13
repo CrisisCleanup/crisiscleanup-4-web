@@ -12,6 +12,7 @@
         :button-classes="{ 'justify-start': true, 'justify-center': false }"
         class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
         :action="() => createList(getLists)"
+        :alt="$t('actions.create_new')"
       >
         {{ $t('actions.create_new') }}
       </base-button>
@@ -19,6 +20,7 @@
         :button-classes="{ 'justify-start': true, 'justify-center': false }"
         class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
         :action="() => updateLists(userLists, selectedTableItems, null, false)"
+        :alt="$t('actions.remove_from_all_lists')"
       >
         {{ $t('actions.remove_from_all_lists') }}
       </base-button>

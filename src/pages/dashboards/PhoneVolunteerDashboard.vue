@@ -220,6 +220,7 @@ onMounted(async () => {
             <base-button
               :action="showInvitationQrCode"
               :text="$t('actions.show_qr_code')"
+              :alt="$t('actions.show_qr_code')"
               icon="qrcode"
               class="text-crisiscleanup-dark-blue"
             />

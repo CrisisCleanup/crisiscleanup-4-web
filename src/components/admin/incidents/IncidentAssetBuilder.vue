@@ -3,6 +3,7 @@
     <div class="flex self-end gap-2">
       <base-button
         :action="saveAssets"
+        :alt="$t('actions.save')"
         class="mb-4 self-end p-2"
         variant="solid"
       >
@@ -10,6 +11,7 @@
       </base-button>
       <base-button
         :action="() => saveAssets(true)"
+        :alt="$t('actions.save_and_publish')"
         class="mb-4 self-end p-2"
         variant="solid"
       >
@@ -79,7 +81,12 @@
         />
       </div>
     </div>
-    <base-button :action="generateAsset" class="ml-2 p-2 mt-4" variant="solid">
+    <base-button
+      :action="generateAsset"
+      class="ml-2 p-2 mt-4"
+      variant="solid"
+      :alt="$t('incidentAssets.add_asset')"
+    >
       {{ $t('incidentAssets.add_asset') }}
     </base-button>
     <Card
@@ -116,6 +123,7 @@
               :action="() => publishAssets(assetType)"
               class="p-2 mb-1"
               variant="outline"
+              :alt="$t('actions.publish_all')"
             >
               {{ $t('actions.publish_all') }}
             </base-button>
@@ -123,6 +131,7 @@
               :action="() => deleteAssets(assetType)"
               class="p-2 mb-1"
               variant="outline"
+              :alt="$t('actions.delete_all')"
             >
               {{ $t('actions.delete_all') }}
             </base-button>
@@ -130,6 +139,7 @@
               :action="() => saveAssetsForType(assetType)"
               class="p-2 mb-1"
               variant="solid"
+              :alt="$t('actions.save_all')"
             >
               {{ $t('actions.save_all') }}
             </base-button>
@@ -176,6 +186,7 @@
                   "
                   ccu-icon="print"
                   icon-size="md"
+                  :alt="$t('actions.print')"
                 />
                 <base-button
                   v-if="asset.files && asset.files.length > 0"
@@ -183,11 +194,13 @@
                   class="p-2"
                   ccu-icon="download"
                   icon-size="md"
+                  :alt="$t('actions.download')"
                 />
                 <base-button
                   :action="() => deleteAsset(asset)"
                   ccu-icon="trash"
                   icon-size="md"
+                  :alt="$t('actions.delete')"
                 />
               </div>
               <div

@@ -298,6 +298,7 @@
             class=""
             :action="locateMe"
             :text="$t('caseForm.use_my_location')"
+            :alt="$t('caseForm.use_my_location')"
           />
           <span
             class="p-1"
@@ -314,6 +315,7 @@
               class=""
               :action="toggleSelectOnMap"
               :text="$t('caseForm.select_on_map')"
+              :alt="$t('caseForm.select_on_map')"
             />
           </span>
         </div>
@@ -409,6 +411,7 @@
           }
         "
         :text="$t('actions.cancel')"
+        :alt="$t('actions.cancel')"
       />
       <base-button
         size="large"
@@ -417,6 +420,7 @@
         class="flex-grow"
         :action="saveWorksite"
         :text="$t('actions.save')"
+        :alt="$t('actions.save')"
       />
       <base-button
         v-if="!disableClaimAndSave"
@@ -426,6 +430,7 @@
         class="flex-grow"
         :action="claimAndSaveWorksite"
         :text="$t('actions.save_claim')"
+        :alt="$t('actions.save_claim')"
       />
     </div>
   </form>

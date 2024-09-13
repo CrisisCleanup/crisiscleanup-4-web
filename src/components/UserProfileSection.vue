@@ -28,6 +28,7 @@
           :action="saveAction"
           class="mt-2"
           size="small"
+          :alt="$t('actions.save')"
         >
           {{ $t('actions.save') }}
         </base-button>
@@ -36,6 +37,7 @@
           class="mt-2"
           size="small"
           @click="toggleSection"
+          :alt="$t('actions.cancel')"
         >
           {{ $t('actions.cancel') }}
         </base-button>

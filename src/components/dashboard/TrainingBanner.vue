@@ -17,6 +17,7 @@
         <base-button
           variant="solid"
           size="large"
+          :alt="$t('dashboard.visit_training_page')"
           :action="
             () => {
               $router.push('/training');

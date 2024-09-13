@@ -54,6 +54,7 @@
 
         <base-button
           :text="$t('adminDashboard.generate_csv')"
+          :alt="$t('adminDashboard.generate_csv')"
           class="w-full py-2"
           variant="solid"
           @click="generateCsv"

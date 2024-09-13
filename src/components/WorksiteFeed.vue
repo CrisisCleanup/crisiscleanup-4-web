@@ -140,6 +140,7 @@
           <base-button
             :action="prevFeedItem"
             :disabled="currentFeedItemIndex === 0"
+            :alt="$t('worksiteFeed.prev')"
             class="h-10 text-white bg-crisiscleanup-dark-400 hover:bg-gray-400 px-3 py-2 rounded-l-md border border-r-0 border-gray-400 transition duration-300 ease-in-out focus:outline-none"
           >
             <font-awesome-icon :icon="['fas', 'arrow-left']" class="mr-1" />
@@ -149,6 +150,7 @@
           <base-button
             class="bg-primary-light px-5 py-2 border border-black transition duration-300 ease-in-out focus:outline-none rounded h-12"
             :action="() => $emit('loadCase', currentFeedItem)"
+            :alt="$t('worksiteFeed.view')"
           >
             {{ $t('worksiteFeed.view') }}
           </base-button>
@@ -157,6 +159,7 @@
             :action="nextFeedItem"
             :disabled="currentFeedItemIndex === worksites.length - 1"
             class="h-10 text-white bg-crisiscleanup-dark-400 hover:bg-gray-400 px-3 py-2 rounded-r-md border border-l-0 border-gray-400 transition duration-300 ease-in-out focus:outline-none"
+            :alt="$t('worksiteFeed.next')"
           >
             {{ $t('worksiteFeed.next') }}
             <font-awesome-icon :icon="['fas', 'arrow-right']" class="ml-1" />

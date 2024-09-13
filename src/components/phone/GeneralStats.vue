@@ -17,6 +17,7 @@
         </div>
         <base-button
           :action="() => (showingOutboundFilters = true)"
+          :alt="$t('actions.filter')"
           type="button"
           ccu-icon="filters"
           icon-size="md"
