@@ -15,6 +15,7 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line import/default
 import VuePdfEmbed from 'vue-pdf-embed';
 
 export default defineComponent({
