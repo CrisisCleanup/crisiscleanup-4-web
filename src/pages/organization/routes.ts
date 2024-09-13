@@ -35,7 +35,7 @@ export const routes = [
           {
             path: ':user_id',
             component: UserView,
-            name: 'nav.organization_users',
+            name: 'nav.organization_user_detail',
             meta: { id: 'user_detail' },
           },
         ],
