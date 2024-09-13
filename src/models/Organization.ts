@@ -32,12 +32,7 @@ export default class Organization extends CCUModel {
           { save: false },
         );
       },
-      async reject(
-        this: Request,
-        id: string,
-        reason: string,
-        note?: string | undefined,
-      ) {
+      async reject(this: Request, id: string, reason: string, note?: string) {
         const data: Record<string, any> = { approve_reject_reason_t: reason };
         if (note) {
           data.rejection_note = note;
