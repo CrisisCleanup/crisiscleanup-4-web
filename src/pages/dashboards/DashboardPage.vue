@@ -26,6 +26,7 @@
           </h1>
           <base-button
             :action="goToDashboardSelector"
+            :alt="$t('actions.switch')"
             variant="text-dark"
             data-testid="testSwitchButton"
           >

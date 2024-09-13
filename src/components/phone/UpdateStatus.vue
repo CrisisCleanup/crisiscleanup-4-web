@@ -50,6 +50,7 @@
       <base-button
         v-if="allowCancel"
         class="p-0.5 rounded"
+        :alt="$t('actions.cancel')"
         :action="
           () =>
             $emit('onCancel', {

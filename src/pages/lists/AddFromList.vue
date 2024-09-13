@@ -38,6 +38,7 @@
             :button-classes="{ 'justify-start': true, 'justify-center': false }"
             class="px-4 py-1 cursor-pointer hover:bg-primary-light flex-grow"
             :action="() => createList(getLists)"
+            :alt="$t('list.create')"
           >
             {{ $t('list.create') }}
           </base-button>

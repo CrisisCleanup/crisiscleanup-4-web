@@ -114,6 +114,7 @@
           class="text-primary-dark underline sm:ml-0 ml-1"
           :icon-classes="$mq === 'sm' ? 'fa-2x' : 'fa-lg'"
           icon="globe"
+          :alt="$t('profileOrg.url')"
           :style="slotProps.item.url === '' ? 'opacity: .5' : ''"
           :action="
             () => {
@@ -135,7 +136,7 @@
           src="@/assets/facebook.svg"
           class="sm:ml-1 sm:w-16 w-12"
           :style="slotProps.item.facebook === '' ? 'opacity: .5' : ''"
-          alt="facebook"
+          :alt="$t('profileOrg.facebook')"
           @click="
             () => {
               if (slotProps.item.facebook != '')
@@ -155,7 +156,7 @@
           src="@/assets/twitter.svg"
           class="sm:w-6 w-10 sm:ml-0 ml-1"
           :style="slotProps.item.twitter === '' ? 'opacity: .5' : ''"
-          alt="twitter"
+          :alt="$t('profileOrg.twitter')"
           @click="
             () => {
               if (slotProps.item.twitter != '')

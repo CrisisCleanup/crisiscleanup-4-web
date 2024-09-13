@@ -354,6 +354,7 @@ const {
                   class="p-1"
                   :action="() => (expanded = !expanded)"
                   :text="$t('actions.show_details')"
+                  :alt="$t('actions.show_details')"
                   :suffix-icon="expanded ? 'chevron-up' : 'chevron-down'"
                 />
                 <base-button
@@ -362,12 +363,14 @@ const {
                   variant="solid"
                   :action="endCall"
                   :text="$t('actions.end_call')"
+                  :alt="$t('actions.end_call')"
                 />
                 <base-button
                   v-else
                   class="p-1 text-black text-sm"
                   variant="solid"
                   :action="showCompleteCall"
+                  :alt="$t('phoneDashboard.complete_call')"
                 >
                   {{ $t('phoneDashboard.complete_call') }}
                 </base-button>
@@ -381,7 +384,7 @@ const {
               class="flex items-center justify-between px-3 py-[11px] border-b-4"
             >
               <h1>{{ viewToTitleMap[currentView] }}</h1>
-              <base-button :action="closeTab">
+              <base-button :action="closeTab" :alt="$t('phoneDashboard.close_tab')">
                 {{ $t('phoneDashboard.close_tab') }}
               </base-button>
             </div>
@@ -599,6 +602,7 @@ const {
                       class="p-1 w-full bg-white"
                       :action="() => (showCompleteCallScreen = false)"
                       :text="$t('actions.hide')"
+                      :alt="$t('actions.hide')"
                     />
                   </div>
                 </div>

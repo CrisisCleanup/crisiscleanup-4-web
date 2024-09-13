@@ -15,7 +15,12 @@
     >
       {{ $t('list.no_lists_found') }}
     </div>
-    <base-button :action="createList" class="mt-2 p-1 w-full" variant="solid">
+    <base-button
+      :action="createList"
+      :alt="$t('list.create')"
+      class="mt-2 p-1 w-full"
+      variant="solid"
+      >
       {{ $t('list.create') }}
     </base-button>
   </div>

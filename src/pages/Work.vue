@@ -247,6 +247,7 @@
           icon="arrow-left"
           data-testid="testHistoryButton"
           icon-size="medium"
+          :alt="$t('actions.history')"
           :action="
             () => {
               showHistory = false;
@@ -472,6 +473,7 @@
                 class="underline"
                 type="link"
                 :action="() => (filters = {})"
+                :alt="$t('actions.clear_all')"
               >
                 {{ $t('actions.clear_all') }}
               </base-button>

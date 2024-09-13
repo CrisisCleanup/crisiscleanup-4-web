@@ -17,6 +17,7 @@
         variant="outline"
         :action="resetStates"
         class="p-1"
+        :alt="$t('actions.reset_user_states')"
       >
         {{ $t('actions.reset_user_states') }}
       </base-button>
