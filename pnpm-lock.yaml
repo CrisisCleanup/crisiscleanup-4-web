@@ -205,7 +205,7 @@ importers:
         version: 1.5.3(leaflet@1.9.4)
       libphonenumber-js:
         specifier: ^1.11.7
-        version: 1.11.7
+        version: 1.11.8
       litepie-datepicker:
         specifier: ^1.0.14
         version: 1.0.14(dayjs@1.11.13)(tailwindcss@3.4.11(ts-node@10.9.2(@types/node@20.16.5)(typescript@5.5.4)))(vue@3.4.38(typescript@5.5.4))
@@ -4755,8 +4755,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  libphonenumber-js@1.11.7:
-    resolution: {integrity: sha512-x2xON4/Qg2bRIS11KIN9yCNYUjhtiEjNyptjX0mX+pyKHecxuJVLIpfX1lq9ZD6CrC/rB+y4GBi18c6CEcUR+A==}
+  libphonenumber-js@1.11.8:
+    resolution: {integrity: sha512-0fv/YKpJBAgXKy0kaS3fnqoUVN8901vUYAKIGD/MWZaDfhJt1nZjPL3ZzdZBt/G8G8Hw2J1xOIrXWdNHFHPAvg==}
 
   lie@3.1.1:
     resolution: {integrity: sha512-RiNhHysUjhrDQntfYSfY4MU24coXXdEOgw9WGcKHNeEwffDYbF//u87M1EWaMGzuFoSbqW0C9C6lEEhDOAswfw==}
@@ -11875,7 +11875,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  libphonenumber-js@1.11.7: {}
+  libphonenumber-js@1.11.8: {}
 
   lie@3.1.1:
     dependencies:
