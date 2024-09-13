@@ -156,7 +156,9 @@ onMounted(async () => {
             >
               <span class="text-gray-700">{{ $t('dashboard.team_name') }}</span>
               <span class="text-gray-700">{{ $t('dashboard.team_size') }}</span>
-              <span class="text-gray-700">{{ $t('dashboard.team_cases') }}</span>
+              <span class="text-gray-700">{{
+                $t('dashboard.team_cases')
+              }}</span>
             </div>
 
             <!-- Data Rows -->
