@@ -82,7 +82,7 @@ importers:
         version: 4.0.1(vite@5.4.5(@types/node@20.16.5)(sass@1.78.0)(terser@5.32.0))(vue@3.5.6(typescript@5.6.2))
       '@vueform/multiselect':
         specifier: ^2.6.9
-        version: 2.6.9
+        version: 2.6.10
       '@vuepic/vue-datepicker':
         specifier: ^9.0.2
         version: 9.0.3(vue@3.5.6(typescript@5.6.2))
@@ -2698,8 +2698,8 @@ packages:
   '@vue/test-utils@2.4.6':
     resolution: {integrity: sha512-FMxEjOpYNYiFe0GkaHsnJPXFHxQ6m4t8vI/ElPGpMWxZKpmRvQ33OIrvRXemy6yha03RxhOlQuy+gZMC3CQSow==}
 
-  '@vueform/multiselect@2.6.9':
-    resolution: {integrity: sha512-eW+pMaWFGnK+WGvUPcB/mEwLx/5Y4VB8wRFGFQZ9c5Wi+K/xFrm/nQ/NbtrFQUcX0nbuQWKYnFBmwa5MENGQxw==}
+  '@vueform/multiselect@2.6.10':
+    resolution: {integrity: sha512-w1otA5P2F7Bg0Er9ohIsBg/Xkda/9ZzCO62PmXXmjS2mOEKWPdb/852FQbc8Gv99EYRotfxgyJ5lTC+c7YeCTA==}
 
   '@vuepic/vue-datepicker@9.0.3':
     resolution: {integrity: sha512-OtCAKG+CkVBpCwnPx7/BGRF+/z+jDzNl2cMBpcr8j2NkAN+13xkUt7sctbOVKbG/jhuXtKoUSedI69e0cDXPXw==}
@@ -9671,7 +9671,7 @@ snapshots:
       js-beautify: 1.15.1
       vue-component-type-helpers: 2.0.19
 
-  '@vueform/multiselect@2.6.9': {}
+  '@vueform/multiselect@2.6.10': {}
 
   '@vuepic/vue-datepicker@9.0.3(vue@3.5.6(typescript@5.6.2))':
     dependencies:
