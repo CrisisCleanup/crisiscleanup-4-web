@@ -100,7 +100,7 @@ importers:
         version: 11.1.0(vue-router@4.4.5(vue@3.5.6(typescript@5.6.2)))(vue@3.5.6(typescript@5.6.2))
       '@vueuse/shared':
         specifier: ^11.0.3
-        version: 11.0.3(vue@3.5.6(typescript@5.6.2))
+        version: 11.1.0(vue@3.5.6(typescript@5.6.2))
       '@vuex-orm/core':
         specifier: ^0.36.4
         version: 0.36.4(vuex@4.1.0(vue@3.5.6(typescript@5.6.2)))
@@ -2761,9 +2761,6 @@ packages:
     resolution: {integrity: sha512-OjTNIOzX5jD1HDzmDApMke2QsCZ+gWKaydfndKJ3j9ttn41Pr11cQbSY6ZBp+bNjctAR+jhQBV/DGtL3iKpuHg==}
     peerDependencies:
       vue-router: '>=4.0.0-rc.1'
-
-  '@vueuse/shared@11.0.3':
-    resolution: {integrity: sha512-0rY2m6HS5t27n/Vp5cTDsKTlNnimCqsbh/fmT2LgE+aaU42EMfXo8+bNX91W9I7DDmxfuACXMmrd7d79JxkqWA==}
 
   '@vueuse/shared@11.1.0':
     resolution: {integrity: sha512-YUtIpY122q7osj+zsNMFAfMTubGz0sn5QzE5gPzAIiCmtt2ha3uQUY1+JPyL4gRCTsLPX82Y9brNbo/aqlA91w==}
@@ -9718,13 +9715,6 @@ snapshots:
       '@vueuse/shared': 11.1.0(vue@3.5.6(typescript@5.6.2))
       vue-demi: 0.14.10(vue@3.5.6(typescript@5.6.2))
       vue-router: 4.4.5(vue@3.5.6(typescript@5.6.2))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-
-  '@vueuse/shared@11.0.3(vue@3.5.6(typescript@5.6.2))':
-    dependencies:
-      vue-demi: 0.14.10(vue@3.5.6(typescript@5.6.2))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
