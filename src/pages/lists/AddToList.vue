@@ -20,7 +20,7 @@
       :alt="$t('list.create')"
       class="mt-2 p-1 w-full"
       variant="solid"
-      >
+    >
       {{ $t('list.create') }}
     </base-button>
   </div>

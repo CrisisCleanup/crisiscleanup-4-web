@@ -384,7 +384,10 @@ const {
               class="flex items-center justify-between px-3 py-[11px] border-b-4"
             >
               <h1>{{ viewToTitleMap[currentView] }}</h1>
-              <base-button :action="closeTab" :alt="$t('phoneDashboard.close_tab')">
+              <base-button
+                :action="closeTab"
+                :alt="$t('phoneDashboard.close_tab')"
+              >
                 {{ $t('phoneDashboard.close_tab') }}
               </base-button>
             </div>
