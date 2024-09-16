@@ -247,7 +247,6 @@
           icon="arrow-left"
           data-testid="testHistoryButton"
           icon-size="medium"
-          :alt="$t('actions.history')"
           :action="
             () => {
               showHistory = false;
