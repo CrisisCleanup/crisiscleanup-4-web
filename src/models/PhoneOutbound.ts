@@ -105,7 +105,7 @@ export default class PhoneOutbound extends CCUModel {
           const {
             response: { data },
           } = phoneOutbound;
-          return data.count;
+          return Number(data.count);
         } catch (error) {
           console.log(error);
         }
@@ -118,7 +118,7 @@ export default class PhoneOutbound extends CCUModel {
           const {
             response: { data },
           } = phoneOutbound;
-          return data.count;
+          return Number(data.count);
         } catch (error) {
           console.log(error);
         }

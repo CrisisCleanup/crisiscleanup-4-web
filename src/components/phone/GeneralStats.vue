@@ -314,8 +314,8 @@ export default defineComponent({
 
     const allUsersInQueue = computed(() => {
       return (
-        (stats.value.active || 0) +
-        (stats.value.inQueue || 0) +
+        (Number(stats.value.active) || 0) +
+        (Number(stats.value.inQueue) || 0) +
         remainingCallbacks.value +
         remainingCalldowns.value
       );
