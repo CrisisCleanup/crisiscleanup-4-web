@@ -695,17 +695,29 @@ const {
                     >{{ unreadNewsCount }}</badge
                   >
                 </div>
-                <div v-if="section.view === 'chat'" class="relative">
+                <div v-if="section.view === 'chat'" class="flex gap-1 relative">
                   <badge
                     v-if="unreadChatCount > 0"
-                    class="ml-2 text-black bg-primary-light text-base"
+                    class="text-black bg-primary-light text-base"
                     :class="
                       sideBarExpanded
                         ? 'relative p-3'
                         : 'absolute top-0 right-0 p-2'
                     "
-                    >{{ unreadChatCount }}</badge
                   >
+                    {{ unreadChatCount }}
+                  </badge>
+                  <badge
+                    v-if="unreadUrgentChatCount > 0"
+                    class="text-white bg-red-500 text-base"
+                    :class="
+                      sideBarExpanded
+                        ? 'relative p-3'
+                        : 'absolute top-0 right-0 p-2'
+                    "
+                  >
+                    {{ unreadUrgentChatCount }}
+                  </badge>
                 </div>
               </div>
             </div>
