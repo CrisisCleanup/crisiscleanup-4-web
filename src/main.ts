@@ -10,6 +10,7 @@ import Datepicker from '@vuepic/vue-datepicker';
 import * as Sentry from '@sentry/vue';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
@@ -59,6 +60,7 @@ import TreeMenu from '@/components/TreeMenu.vue';
 
 library.add(fas);
 library.add(far);
+library.add(fab);
 
 axios.defaults.withCredentials = true;
 const buildApp = (app: VueApp) =>
