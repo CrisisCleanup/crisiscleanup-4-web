@@ -395,7 +395,7 @@ importers:
         version: 8.6.0(eslint@9.10.0(jiti@1.21.6))(typescript@5.6.2)
       '@vitejs/plugin-vue':
         specifier: ^5.1.2
-        version: 5.1.3(vite@5.4.6(@types/node@20.16.5)(sass@1.79.1)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))
+        version: 5.1.4(vite@5.4.6(@types/node@20.16.5)(sass@1.79.1)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^2.0.5
         version: 2.1.1(vitest@2.1.1(@types/node@20.16.5)(happy-dom@15.7.4)(msw@1.3.4(typescript@5.6.2))(sass@1.79.1)(terser@5.33.0))
@@ -2411,6 +2411,9 @@ packages:
   '@types/estree@1.0.5':
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
 
+  '@types/estree@1.0.6':
+    resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
+
   '@types/geojson@7946.0.14':
     resolution: {integrity: sha512-WCfD5Ht3ZesJUsONdhvm84dmzWOiOzOAqOncN0++w0lBw1o8OuDNJF2McvvCef/yBqb/HYRahp1BYtODFQ8bRg==}
 
@@ -2553,8 +2556,8 @@ packages:
       vite: ^5.0.0
       vue: ^3.0.0
 
-  '@vitejs/plugin-vue@5.1.3':
-    resolution: {integrity: sha512-3xbWsKEKXYlmX82aOHufFQVnkbMC/v8fLpWwh6hWOUrK5fbbtBh9Q/WWse27BFgSy2/e2c0fz5Scgya9h2GLhw==}
+  '@vitejs/plugin-vue@5.1.4':
+    resolution: {integrity: sha512-N2XSI2n3sQqp5w7Y/AN/L2XDjBIRGqXko+eDp42sydYSBeJuSm5a1sLf8zakmo8u7tA8NmBgoDLA1HeOESjp9A==}
     engines: {node: ^18.0.0 || >=20.0.0}
     peerDependencies:
       vite: ^5.0.0
@@ -9271,11 +9274,13 @@ snapshots:
 
   '@types/eslint@9.6.1':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@types/json-schema': 7.0.15
     optional: true
 
   '@types/estree@1.0.5': {}
+
+  '@types/estree@1.0.6': {}
 
   '@types/geojson@7946.0.14': {}
 
@@ -9445,7 +9450,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-vue@5.1.3(vite@5.4.6(@types/node@20.16.5)(sass@1.79.1)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))':
+  '@vitejs/plugin-vue@5.1.4(vite@5.4.6(@types/node@20.16.5)(sass@1.79.1)(terser@5.33.0))(vue@3.5.6(typescript@5.6.2))':
     dependencies:
       vite: 5.4.6(@types/node@20.16.5)(sass@1.79.1)(terser@5.33.0)
       vue: 3.5.6(typescript@5.6.2)
@@ -14095,7 +14100,7 @@ snapshots:
 
   webpack@5.94.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
