@@ -11,6 +11,7 @@
     use-recents
     class="mx-4 py-1"
     @selected-existing="$emit('selected-existing', $event)"
+    @on-worksite-search="$emit('onWorksiteSearch', $event)"
     @input="
       (value: string) => {
         currentSearch = value;
@@ -55,6 +56,7 @@ const emit = defineEmits([
   'closed-filters',
   'update-filters-count',
   'updatedFilterLabels',
+  'onWorksiteSearch',
 ]);
 
 const currentSearch = ref('');
