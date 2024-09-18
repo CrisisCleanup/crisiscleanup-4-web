@@ -176,6 +176,7 @@ export default defineComponent({
     'selectedExisting',
     'clearSuggestions',
     'iconClicked',
+    'onWorksiteSearch',
   ],
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();
@@ -275,6 +276,7 @@ export default defineComponent({
       if (props.useWorksites) {
         const sites = await searchWorksites(value, currentIncidentId.value);
         worksites.value = sites.data.results;
+        emit('onWorksiteSearch', worksites.value);
       }
 
       if (props.useGeocoder) {
