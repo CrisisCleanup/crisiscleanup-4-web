@@ -30,7 +30,7 @@
         <draggable
           v-model="team.users"
           data-testid="testTeamUsersDrag"
-          item-key="id"
+          :item-key="(u) => u.id"
           group="people"
           handle=".handle"
           class="h-32 overflow-scroll w-3/4 border"
@@ -187,14 +187,17 @@
           <base-text class="font-light mb-4"
             >{{ $t('teams.choose_drag_cases') }}
           </base-text>
-          <base-input
-            v-model="currentCaseSearch"
-            data-testid="testCurrentCaseSearchSearch"
-            icon="search"
-            class="w-84 mr-4 mb-6"
-            :placeholder="$t('actions.search')"
-            @update:model-value="getClaimedWorksites"
-          ></base-input>
+          <WorksiteSearchAndFilters
+            :key="currentIncidentId"
+            :current-incident="currentIncident"
+            :initial-filters="filters"
+            data-testid="testCreateTeamCaseSearch"
+            @on-worksite-search="handleOnWorksiteSearch"
+            @selected-existing="handleSelectedExisting"
+            @updated-query="onUpdateQuery"
+            @updated-filters="onUpdateFilters"
+            @updated-filter-labels="updateFilterLabels"
+          />
           <draggable
             v-model="worksites"
             data-testid="testWorksitesDrag"
@@ -293,11 +296,18 @@ import { getErrorMessage } from '@/utils/errors';
 import { getQueryString } from '@/utils/urls';
 import WorksiteStatusDropdown from '@/components/WorksiteStatusDropdown.vue';
 import type User from '@/models/User';
-import { useCurrentUser } from '@/hooks';
+import { useCurrentIncident, useCurrentUser } from '@/hooks';
+import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters.vue';
+import { uniqBy } from 'lodash';
 
 export default defineComponent({
   name: 'CreateTeamModal',
-  components: { WorksiteStatusDropdown, Avatar, Draggable },
+  components: {
+    WorksiteSearchAndFilters,
+    WorksiteStatusDropdown,
+    Avatar,
+    Draggable,
+  },
   props: {
     users: {
       type: Array as PropType<User[]>,
@@ -315,9 +325,13 @@ export default defineComponent({
   emits: ['saved', 'close', 'reloadMap', 'reloadTable'],
   setup(props, ctx) {
     const $toasted = useToast();
+    const { currentIncidentId, currentIncident } = useCurrentIncident();
+    const filters = ref<any>({});
+    const filterQuery = ref<any>({});
+    const filterLabels = ref<any>([]);
     const ccuApi = useApi();
     const store = useStore();
-    const { currentUser } = useCurrentUser();
+    const { currentUser, updateUserStates } = useCurrentUser();
     const usersList = ref<unknown[]>([]);
     const caseList = ref<unknown[]>([]);
     const currentSearch = ref('');
@@ -330,15 +344,60 @@ export default defineComponent({
     });
     const teamWorksites = ref<Worksite[]>([]);
     const worksites = ref<Worksite[]>([]);
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
-    );
+
+    // remove worksite duplicates
+    watchEffect(() => {
+      teamWorksites.value = uniqBy(teamWorksites.value, 'id');
+      worksites.value = uniqBy(worksites.value, 'id');
+    });
 
     onMounted(async () => {
       usersList.value = [...props.users];
       caseList.value = [...props.cases];
       await getClaimedWorksites();
     });
+
+    function updateUserState(incomingData: Record<string, any>) {
+      let data = incomingData;
+      if (!data) {
+        data = {};
+      }
+      const newStates = {
+        ...data,
+      };
+      updateUserStates({ incident: currentIncidentId.value }, newStates).catch(
+        getErrorMessage,
+      );
+    }
+
+    function handleOnWorksiteSearch(result: Worksite[]) {
+      worksites.value = result;
+    }
+
+    function handleSelectedExisting(w: Worksite) {
+      console.info('Adding case', teamWorksites.value, w);
+      teamWorksites.value.push(w);
+    }
+
+    function onUpdateQuery(query: any) {
+      filterQuery.value = query;
+      updateUserState({
+        appliedFilters: filterQuery.value,
+        filters: filters.value,
+      });
+    }
+
+    function onUpdateFilters(f: any) {
+      filters.value = f;
+      updateUserState({
+        appliedFilters: filterQuery.value,
+        filters: filters.value,
+      });
+    }
+
+    function updateFilterLabels(labels: any) {
+      filterLabels.value = labels;
+    }
 
     const getClaimedWorksites = async () => {
       const params: Record<string, unknown> = {
@@ -443,7 +502,14 @@ export default defineComponent({
       team,
       teamWorksites,
       worksites,
+      filters,
       currentIncidentId,
+      currentIncident,
+      handleOnWorksiteSearch,
+      handleSelectedExisting,
+      onUpdateQuery,
+      onUpdateFilters,
+      updateFilterLabels,
       getClaimedWorksites,
       statusValueChange,
       saveTeam,
