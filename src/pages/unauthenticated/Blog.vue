@@ -1,7 +1,7 @@
 <template>
   <Home no-hotline>
     <div class="blog-list bg-crisiscleanup-light-smoke h-full">
-      <div class="h-84 bg-crisiscleanup-dark-500 mb-6">
+      <div class="h-84 bg-crisiscleanup-dark-500 mb-6 relative">
         <div class="w-full text-center text-white text-4xl py-3">
           {{ $t('blog.crisis_cleanup_blog') }}
         </div>
@@ -36,6 +36,9 @@
             <spinner data-testid="testSpinnerLoadingIcon" />
           </div>
         </div>
+        <SocialLinks
+          class="m-2 p-2 absolute bottom-0 right-0 rounded-md bg-crisiscleanup-smoke opacity-75"
+        />
       </div>
       <div v-if="!loading" class="flex mx-auto p-4 justify-evenly gap-5">
         <div class="md:w-2/3 w-full">
@@ -177,11 +180,13 @@ import BlogPosts from '@/components/blog/BlogPosts.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';
 import { getIncidentPhoneNumbers } from '@/filters';
+import SocialLinks from '@/components/SocialLinks.vue';
 
 const POSTS_PER_PAGE = 5;
 
 export default {
   components: {
+    SocialLinks,
     CcuIcon,
     BlogPosts,
     Home,
