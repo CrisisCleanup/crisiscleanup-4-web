@@ -244,7 +244,7 @@ onMounted(async () => {
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
-    }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=20&sort=-start_at`,
+    }/incidents_list?fields=id,name,short_name,active_phone_number,start_at&limit=20&sort=-start_at`,
   );
   incidents.value = response.data.results.filter(
     (incident) =>

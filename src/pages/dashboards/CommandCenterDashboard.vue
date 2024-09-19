@@ -14,11 +14,20 @@ import { INTERACTIVE_ZOOM_LEVEL } from '@/constants';
 import Incident from '@/models/Incident';
 import { nFormatter } from '@/utils/helpers';
 import TeamCompletion from '@/components/dashboard/TeamCompletion.vue';
+import DownloadAppBanner from '@/components/dashboard/DownloadAppBanner.vue';
+import DownloadAppBannerTeams from '@/components/dashboard/DownloadAppBannerTeams.vue';
+import { loadUserLocations } from '@/utils/worksite';
+import { getUserLocationLayer } from '@/utils/map';
+import type { UserLocation } from '@/models/types';
+import User from '@/models/User';
+import { momentFromNow } from '@/filters';
 
 const { currentIncidentId, currentIncident } = useCurrentIncident();
 const { currentUser } = useCurrentUser();
+const { t } = useI18n();
 
 const affiliatedTeams = ref<Team[]>([]);
+const userLocations = ref<Record<string, any>>({});
 const dashboardStatistics = ref<Record<string, any>>({});
 let mapUtils;
 
@@ -96,6 +105,9 @@ function goToInteractive() {
 
 onMounted(async () => {
   await getAffiliates();
+  await loadUserLocations({}).then((response) => {
+    userLocations.value = response;
+  });
   getWorksites(currentIncidentId.value).then((worksites) => {
     mapUtils = useWorksiteMap(
       worksites,
@@ -118,6 +130,40 @@ onMounted(async () => {
             color: team.color,
           }).addTo(map);
         }
+        const locationLayer = getUserLocationLayer(
+          userLocations.value,
+          (location: UserLocation) => {
+            const user = User.find(location.user_id);
+            if (user) {
+              const emailSection = user.email
+                ? `<div class="text-sm"><a href="mailto:${user.email}" class="ml-1">${user.email}</a></div>`
+                : '';
+              const mobileSection = user.mobile
+                ? `<div class="text-sm"><a href="tel:${user.mobile}" class="ml-1">${user.mobile}</a></div>`
+                : '';
+
+              const popup = L.popup({
+                closeButton: true,
+                closeOnClick: true,
+                autoClose: false,
+                closeOnEscapeKey: true,
+              }).setContent(
+                `<div class="flex flex-col items-center">
+          <div class="text-sm font-bold">${user.full_name}</div>
+          ${emailSection}
+          ${mobileSection}
+          <div class="text-sm">${user.organization.name}</div>
+          <div class="text-xs italic">${t('casesVue.last_seen')} ${momentFromNow(location.timestamp)}</div>
+        </div>`,
+              );
+
+              popup.setLatLng([location.location[1], location.location[0]]);
+              popup.openOn(map);
+            }
+          },
+        );
+
+        locationLayer.addTo(map);
       },
     );
   });
@@ -132,6 +178,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <DownloadAppBannerTeams />
   <div class="grid md:grid-cols-2 grid-cols-1 min-h-180 gap-4">
     <!-- Accordion on the left -->
     <div class="p-2 overflow-x-auto">
