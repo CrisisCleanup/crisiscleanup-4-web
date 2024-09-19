@@ -1451,6 +1451,13 @@ export default defineComponent({
           (location: UserLocation) => {
             const user = User.find(location.user_id);
             if (user) {
+              const emailSection = user.email
+                ? `<div class="text-sm"><a href="mailto:${user.email}" class="ml-1">${user.email}</a></div>`
+                : '';
+              const mobileSection = user.mobile
+                ? `<div class="text-sm"><a href="tel:${user.mobile}" class="ml-1">${user.mobile}</a></div>`
+                : '';
+
               const popup = L.popup({
                 closeButton: true,
                 closeOnClick: true,
@@ -1458,11 +1465,12 @@ export default defineComponent({
                 closeOnEscapeKey: true,
               }).setContent(
                 `<div class="flex flex-col items-center">
-                        <div class="text-sm font-bold">${user.full_name}</div>
-                        <div class="text-sm">${user.email}</div>
-                        <div class="text-sm">${user.organization.name}</div>
-                        <div class="text-xs italic">${t('casesVue.last_seen')} ${momentFromNow(location.timestamp)}</div>
-                      </div>`,
+          <div class="text-sm font-bold">${user.full_name}</div>
+          ${emailSection}
+          ${mobileSection}
+          <div class="text-sm">${user.organization.name}</div>
+          <div class="text-xs italic">${t('casesVue.last_seen')} ${momentFromNow(location.timestamp)}</div>
+        </div>`,
               );
 
               popup.setLatLng([location.location[1], location.location[0]]);
