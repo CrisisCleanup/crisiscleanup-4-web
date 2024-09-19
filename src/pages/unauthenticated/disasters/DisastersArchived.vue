@@ -25,7 +25,7 @@
         {{ $t('disasters.archived_disasters') }}
       </div>
       <div
-        v-for="[year, incidents] in Object.entries(groupedIncidents)"
+        v-for="[year, incidents] in sortByRecentIncidentEntries"
         :key="year"
         class="mb-5"
       >
@@ -77,7 +77,6 @@
 
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
-import { ref, onMounted } from 'vue';
 import moment from 'moment/moment';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
@@ -92,6 +91,12 @@ const route = useRoute();
 const incidents = ref<Incident>([]);
 const groupedIncidents = ref<Record<string, Incident[]>>({});
 const loading = ref(true);
+
+const sortByRecentIncidentEntries = computed(() => {
+  return Object.entries(groupedIncidents.value).sort(([yearA], [yearB]) => {
+    return Number.parseInt(yearB) - Number.parseInt(yearA);
+  });
+});
 
 onMounted(async () => {
   loading.value = true;
