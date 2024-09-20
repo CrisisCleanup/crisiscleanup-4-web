@@ -14,14 +14,10 @@
     <div class="rounded-lg relative">
       <div class="p-6 ml-20">
         <h2 class="text-3xl font-bold mb-4">
-          {{ $t('~~Ask your teams to download the CC Mobile App') }}
+          {{ $t('dashboard.ask_teams_to_download_app') }}
         </h2>
         <p class="mb-4">
-          {{
-            $t(
-              '~~All the same features you need at your fingertips on your smartphone.',
-            )
-          }}
+          {{ $t('dashboard.mobile_app_features_see_teams') }}
         </p>
         <div class="flex gap-4 mb-4">
           <div class="flex items-center gap-2">
