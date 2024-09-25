@@ -29,7 +29,7 @@ export default function useNavigation() {
     },
     {
       key: 'blog',
-      route: 'http://blog.crisiscleanup.org',
+      route: '/blog',
       external: true,
     },
     {
