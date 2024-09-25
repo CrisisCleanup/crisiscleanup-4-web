@@ -57,7 +57,7 @@
         data-testid="testIsNotTakingCallsButton"
         variant="solid"
         size="medium"
-        :action="loginPhone"
+        :action="startTakingCalls"
         :text="$t('phoneDashboard.start_taking_calls')"
         :alt="$t('phoneDashboard.start_taking_calls')"
       ></base-button>
@@ -127,6 +127,7 @@ import usePhoneService from '@/hooks/phone/usePhoneService';
 import { useCurrentUser } from '@/hooks';
 import BaseSelect from '@/components/BaseSelect.vue';
 import { AllowedCallType } from '@/pages/phone/PhoneSystem.vue';
+import useEmitter from '@/hooks/useEmitter';
 
 export default defineComponent({
   name: 'Agent',
@@ -139,6 +140,8 @@ export default defineComponent({
   },
   setup(props, context) {
     const { t } = useI18n();
+
+    const { emitter } = useEmitter();
 
     const allowedCallsString = computed(() => {
       switch (props.allowedCallType) {
@@ -170,6 +173,12 @@ export default defineComponent({
       hangUp,
       isTakingCalls,
     } = useConnectFirst(context);
+
+    const startTakingCalls = () => {
+      loginPhone();
+      emitter.emit('clearWorksite');
+    };
+
     return {
       editingAgent,
       languages,
@@ -185,6 +194,7 @@ export default defineComponent({
       hangUp,
       allowedCallsString,
       isTakingCalls,
+      startTakingCalls,
     };
   },
 });

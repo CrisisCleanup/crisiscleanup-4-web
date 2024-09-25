@@ -232,7 +232,7 @@ onMounted(async () => {
       <!-- Map Section -->
       <h2 class="font-semibold text-lg mb-3 flex justify-between">
         {{ $t('dashboard.teams_map') }}
-        <router-link :to="`/incident/${currentIncidentId}/work`"
+        <router-link :to="`/organization/teams`"
           ><span class="text-crisiscleanup-dark-blue text-sm hover:underline">{{
             $t('dashboard.go_to_teams')
           }}</span></router-link

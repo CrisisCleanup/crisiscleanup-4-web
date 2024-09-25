@@ -166,6 +166,12 @@
             "
             :per-page="AssetPrintOptions[asset.asset_type].perPage"
           />
+          <base-input
+            v-model="asset.share_text_t"
+            text-area
+            class="mt-3"
+            :placeholder="$t('~~Sharing Text for asset')"
+          />
           <div class="flex mt-2 items-center justify-between">
             <div class="flex gap-5 items-center">
               {{ getIncidentName(asset.incident) }}
@@ -257,6 +263,7 @@ import size from 'lodash/size';
 import BaseSelect from '@/components/BaseSelect.vue';
 import { useCurrentIncident } from '@/hooks';
 import type { VueDatePicker } from '@vuepic/vue-datepicker';
+import BaseInput from '@/components/BaseInput.vue';
 
 export interface IncidentAniAsset {
   id?: number;
@@ -269,6 +276,7 @@ export interface IncidentAniAsset {
   published_at: string | null;
   created_at: string;
   files: CCUFileItem[];
+  share_text_t: string;
 }
 
 export interface AssetTypeValue {
@@ -293,6 +301,7 @@ interface PrintOption {
 
 export default {
   components: {
+    BaseInput,
     BaseSelect,
     CcuIcon,
     LanguageTag,
