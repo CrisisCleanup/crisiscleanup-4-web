@@ -13,8 +13,8 @@
         awesome you are... Yep, you're awesome.
       </base-text>
       <base-text>
-        If anything unusual is happening, we will share details on our
-        <base-link href="http://blog.crisiscleanup.org"> blog. </base-link>
+        If anything unusual is happening, we will share details on
+        <base-link href="https://www.facebook.com/CrisisCleanup/"> Facebook. </base-link>
       </base-text>
       <base-text>&mdash; The Team</base-text>
     </div>
