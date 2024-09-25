@@ -407,6 +407,7 @@
         :action="
           () => {
             clearWorksiteStorage();
+            clearLocationFields();
             $emit('closeWorksite');
           }
         "
@@ -1422,6 +1423,7 @@ export default defineComponent({
           ? 'formOptions.not_often'
           : 'formOptions.never',
       };
+      clearLocationFields();
     });
 
     onMounted(async () => {
