@@ -14,9 +14,10 @@
       </base-text>
       <base-text>
         If anything unusual is happening, we will share details on
-        <base-link href="https://www.facebook.com/CrisisCleanup/"> Facebook. </base-link>
+        <base-link href="https://www.facebook.com/CrisisCleanup/">
+          Facebook.
+        </base-link>
       </base-text>
-      <base-text>&mdash; The Team</base-text>
     </div>
   </section>
 </template>
