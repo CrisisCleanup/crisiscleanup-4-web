@@ -365,7 +365,7 @@ importers:
         version: 7946.0.14
       '@types/google.maps':
         specifier: ^3.55.12
-        version: 3.58.0
+        version: 3.58.1
       '@types/leaflet':
         specifier: ^1.9.12
         version: 1.9.12
@@ -2416,8 +2416,8 @@ packages:
   '@types/geojson@7946.0.8':
     resolution: {integrity: sha512-1rkryxURpr6aWP7R786/UQOkJ3PcpQiWkAXBmdWc7ryFWqN6a4xfK7BtjXvFBKO9LjQ+MWQSWxYeZX1OApnArA==}
 
-  '@types/google.maps@3.58.0':
-    resolution: {integrity: sha512-rZPrbNHoGxeY70uuQYFLGQqcz5mLd3pZy0u286GSugvN7PLFsHNRF2wN2QXtUgNiC33IC0LX+MD3LGAC3wN7Eg==}
+  '@types/google.maps@3.58.1':
+    resolution: {integrity: sha512-X9QTSvGJ0nCfMzYOnaVs/k6/4L+7F5uCS+4iUmkLEls6J9S/Phv+m/i3mDeyc49ZBgwab3EFO1HEoBY7k98EGQ==}
 
   '@types/js-levenshtein@1.1.3':
     resolution: {integrity: sha512-jd+Q+sD20Qfu9e2aEXogiO3vpOC1PYJOUdyN9gvs4Qrvkg4wF43L5OhqrPeokdv8TL0/mXoYfpkcoGZMNN2pkQ==}
@@ -2460,6 +2460,9 @@ packages:
 
   '@types/node@20.16.5':
     resolution: {integrity: sha512-VwYCweNo3ERajwy0IUlqqcyZ8/A7Zwa9ZP3MnENWcB11AejO+tLy3pu850goUW2FC/IJMdZUfKpX/yxL1gymCA==}
+
+  '@types/node@20.16.8':
+    resolution: {integrity: sha512-sbo5JmfbZNkyDv+2HCccr9Y9ZkKJBMTru7UdAsCojMGjKNjdaOV73bqEW242QrHEZL8R4LbHMrW+FHB5lZ5/bw==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -9280,7 +9283,7 @@ snapshots:
 
   '@types/geojson@7946.0.8': {}
 
-  '@types/google.maps@3.58.0': {}
+  '@types/google.maps@3.58.1': {}
 
   '@types/js-levenshtein@1.1.3': {}
 
@@ -9322,6 +9325,10 @@ snapshots:
   '@types/ms@0.7.34': {}
 
   '@types/node@20.16.5':
+    dependencies:
+      undici-types: 6.19.8
+
+  '@types/node@20.16.8':
     dependencies:
       undici-types: 6.19.8
 
@@ -11789,7 +11796,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.16.5
+      '@types/node': 20.16.8
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
