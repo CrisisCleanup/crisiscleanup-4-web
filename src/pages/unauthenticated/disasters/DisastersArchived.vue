@@ -105,10 +105,11 @@ onMounted(async () => {
       import.meta.env.VITE_APP_API_BASE_URL
     }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=500&sort=-start_at`,
   );
+  // incidents older than 2 months are considered archived
+  const twoMonthsAgo = moment().subtract(2, 'months');
   incidents.value = response.data.results.filter(
     (incident) =>
-      Array.isArray(incident.active_phone_number) &&
-      incident.active_phone_number.length === 0,
+      incident.start_at && moment(incident.start_at).isBefore(twoMonthsAgo),
   );
 
   // group incidents by year
