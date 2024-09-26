@@ -29,7 +29,7 @@ async function copyToClipboard(text: string) {
       class="flex items-center bg-primary-light bg-opacity-30 py-1 px-3 rounded-l-full text-xs md:text-sm"
     >
       <span class="pr-1">{{ $t('disasters.hotline') }}</span>
-      <a :href="`tel:${phoneNumber}`">
+      <a :href="`tel:${phoneNumber}`" @click.stop>
         {{ formatNationalNumber(String(phoneNumber)) }}
       </a>
     </div>
@@ -41,7 +41,7 @@ async function copyToClipboard(text: string) {
         popperClass: 'interactive-tooltip',
       }"
       class="flex items-center cursor-pointer bg-primary-light text-sm bg-opacity-80 p-2 rounded-r-full"
-      @click="copyToClipboard(phoneNumber)"
+      @click.stop="copyToClipboard(phoneNumber)"
     >
       <span class="flex gap-1 items-center text-xs">
         <ccu-icon
