@@ -6,7 +6,6 @@ import LanguageTag from '@/components/tags/LanguageTag.vue';
 import Card from '@/components/cards/Card.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import moment from 'moment';
-import { formatNationalNumber } from '@/filters';
 import type { CmsItem } from '@/models/types';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
@@ -17,9 +16,7 @@ import PdfViewer from '@/components/PdfViewer.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import type { IncidentAniAsset } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
-import { useClipboard } from '@vueuse/core';
-import CcuIcon from '@/components/BaseIcon.vue';
-import { useToast } from 'vue-toastification';
+import HotlineNumber from '@/components/HotlineNumber.vue';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -29,7 +26,6 @@ const incident = computed(() => {
 });
 
 const { t } = useI18n();
-const $toasted = useToast();
 const assets = ref({});
 const cmsItems = ref([]);
 const graphData = ref<Array<any> | null>([]);
@@ -37,15 +33,6 @@ const transformedData = computed<Record<any, any>>(() => {
   return transformGraphData(graphData.value);
 });
 const loadingReports = ref(false);
-
-const { copy } = useClipboard({
-  legacy: true, // copy with execCommand as fallback
-});
-
-async function copyToClipboard(text: string) {
-  await copy(text);
-  $toasted.success(t('~~Text copied to clipboard!'), { timeout: 2000 });
-}
 
 async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   const response: AxiosResponse<{ results: CmsItem[] }> = await axios.get(
@@ -124,27 +111,7 @@ onMounted(async () => {
             :key="phoneNumber"
             class="flex"
           >
-            <div
-              class="flex items-center bg-primary-light bg-opacity-30 py-1 px-3 rounded-l-full text-xs md:text-sm"
-            >
-              <span class="pr-1">{{ $t('disasters.hotline') }}</span>
-              <a :href="`tel:${phoneNumber}`">
-                {{ formatNationalNumber(String(phoneNumber)) }}
-              </a>
-            </div>
-            <div
-              v-tooltip="{
-                content: t('~~Copy to clipboard'),
-                triggers: ['hover'],
-                popperClass: 'interactive-tooltip',
-              }"
-              class="flex items-center cursor-pointer bg-primary-light text-sm bg-opacity-80 p-2 rounded-r-full"
-              @click="copyToClipboard(phoneNumber)"
-            >
-              <span class="flex gap-1 items-center text-xs">
-                <ccu-icon size="sm" fa type="fa-regular fa-copy" />
-              </span>
-            </div>
+            <HotlineNumber :phone-number="phoneNumber" />
           </div>
           <span class="italic opacity-50 text-sm">
             {{ $t('disasters.hotline_closes_in') }}
