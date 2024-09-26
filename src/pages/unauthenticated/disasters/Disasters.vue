@@ -38,15 +38,9 @@
               <div
                 v-for="ani in incidentAniMap[incident.id]"
                 :key="ani.id"
-                class="flex gap-3 items-center"
+                class="flex flex-wrap items-center gap-2"
               >
-                <a
-                  class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-full"
-                  :href="`tel:${ani.phone_number}`"
-                >
-                  {{ $t('disasters.hotline') }}
-                  {{ formatNationalNumber(String(ani.phone_number)) }}
-                </a>
+                <HotlineNumber :phone-number="ani.phone_number" />
                 <span class="italic opacity-50 text-sm">
                   {{ $t('disasters.hotline_closes_in') }}
                   {{ formatHotlineClosingDate(getAniClosingDate(ani)) }}
@@ -144,7 +138,6 @@ import moment from 'moment/moment';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
-import { formatNationalNumber } from '@/filters';
 import camelCase from 'lodash/camelCase';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
@@ -153,12 +146,10 @@ import Spinner from '@/components/Spinner.vue';
 import type { GroupedAssets } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 import { hash } from '@/utils/promise';
 import { getAssets } from '@/utils/incident_assets';
+import HotlineNumber from '@/components/HotlineNumber.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
-import {
-  formatHotlineClosingDate,
-  getAniClosingDate,
-} from '../../../utils/helpers';
+import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 
 interface Faq {
   name: string;
