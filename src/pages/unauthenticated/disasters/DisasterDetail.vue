@@ -183,7 +183,7 @@ onMounted(async () => {
                     class="h-64 max-w-84"
                     @click="() => downloadAsset(asset)"
                   />
-                  <div class="flex mt-2 items-center justify-between">
+                  <div class="flex mt-2 items-center justify-center gap-2">
                     <div class="flex gap-5 items-center">
                       <language-tag
                         class="tag-item mx-0.5"
