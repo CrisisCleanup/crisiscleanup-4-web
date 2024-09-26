@@ -19,6 +19,7 @@ import type { IncidentAniAsset } from '@/components/admin/incidents/IncidentAsse
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 import { useClipboard } from '@vueuse/core';
 import CcuIcon from '@/components/BaseIcon.vue';
+import { useToast } from 'vue-toastification';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -28,6 +29,7 @@ const incident = computed(() => {
 });
 
 const { t } = useI18n();
+const $toasted = useToast();
 const assets = ref({});
 const cmsItems = ref([]);
 const graphData = ref<Array<any> | null>([]);
@@ -36,9 +38,14 @@ const transformedData = computed<Record<any, any>>(() => {
 });
 const loadingReports = ref(false);
 
-const { copy: copyToClipboard, copied: isCopiedToClipboard } = useClipboard({
+const { copy } = useClipboard({
   legacy: true, // copy with execCommand as fallback
 });
+
+async function copyToClipboard(text: string) {
+  await copy(text);
+  $toasted.success(t('~~Text copied to clipboard!'), { timeout: 2000 });
+}
 
 async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   const response: AxiosResponse<{ results: CmsItem[] }> = await axios.get(
@@ -111,16 +118,14 @@ onMounted(async () => {
         "
         class="flex items-center gap-5 my-1"
       >
-        <div
-          class="flex flex-col md:flex-row gap-0 justify-center items-center"
-        >
+        <div class="flex flex-wrap items-center gap-2">
           <div
             v-for="phoneNumber in incident.active_phone_number"
             :key="phoneNumber"
-            class="flex items-center"
+            class="flex"
           >
             <div
-              class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-l-full"
+              class="flex items-center bg-primary-light bg-opacity-30 py-1 px-3 rounded-l-full text-xs md:text-sm"
             >
               <span class="pr-1">{{ $t('disasters.hotline') }}</span>
               <a :href="`tel:${phoneNumber}`">
@@ -128,28 +133,23 @@ onMounted(async () => {
               </a>
             </div>
             <div
-              class="cursor-pointer bg-crisiscleanup-dark-blue text-sm bg-opacity-30 p-2 rounded-r-full"
+              v-tooltip="{
+                content: t('~~Copy to clipboard'),
+                triggers: ['hover'],
+                popperClass: 'interactive-tooltip',
+              }"
+              class="flex items-center cursor-pointer bg-primary-light text-sm bg-opacity-80 p-2 rounded-r-full"
               @click="copyToClipboard(phoneNumber)"
             >
               <span class="flex gap-1 items-center text-xs">
-                <span v-if="!isCopiedToClipboard">{{ t('~~Copy') }}</span>
-                <span v-else>{{ t('~~Copied!') }}</span>
-                <ccu-icon
-                  size="sm"
-                  fa
-                  :type="
-                    isCopiedToClipboard
-                      ? 'fa-solid fa-copy'
-                      : 'fa-regular fa-copy'
-                  "
-                />
+                <ccu-icon size="sm" fa type="fa-regular fa-copy" />
               </span>
             </div>
-            <span class="md:pl-2 italic opacity-50 text-sm">
-              {{ $t('disasters.hotline_closes_in') }}
-              {{ formatHotlineClosingDate(getAniClosingDate(incident)) }}
-            </span>
           </div>
+          <span class="italic opacity-50 text-sm">
+            {{ $t('disasters.hotline_closes_in') }}
+            {{ formatHotlineClosingDate(getAniClosingDate(incident)) }}
+          </span>
         </div>
       </div>
 
