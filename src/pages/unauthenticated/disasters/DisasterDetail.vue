@@ -14,9 +14,13 @@ import ReportWidget from '@/components/reports/ReportWidget.vue';
 import BlogPosts from '@/components/blog/BlogPosts.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import { forceFileDownload } from '@/utils/downloads';
-import type { IncidentAniAsset } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import type {
+  GroupedAssets,
+  IncidentAniAsset,
+} from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 import HotlineNumber from '@/components/HotlineNumber.vue';
+import { getErrorMessage } from '@/utils/errors';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -26,7 +30,7 @@ const incident = computed(() => {
 });
 
 const { t } = useI18n();
-const assets = ref({});
+const assets = ref<GroupedAssets>({});
 const cmsItems = ref([]);
 const graphData = ref<Array<any> | null>([]);
 const transformedData = computed<Record<any, any>>(() => {
@@ -46,19 +50,43 @@ async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   return response.data.results;
 }
 
+async function fetchAssets() {
+  assets.value = await getAssets(route.params.id);
+}
+
 const downloadAsset = async (asset: IncidentAniAsset) => {
-  const response = await axios.get(asset.files[0].general_file_url, {
-    responseType: 'blob',
-    headers: {
-      Authorization: null,
-    },
-  });
-  forceFileDownload(response, asset.files[0].filename);
+  // refetch assets before downloading so that they don't have expired link
+  // in case user's been on the page for a while
+  try {
+    await fetchAssets();
+    const groupedAssets = assets.value as GroupedAssets;
+    for (const assetType in groupedAssets) {
+      const groupAssets = groupedAssets[assetType];
+      const matchingAsset = groupAssets.find((a) => a.id == asset.id);
+      if (matchingAsset) {
+        // set asset to newly fetched asset with updated link
+        console.info('Updating asset before download', {
+          oldAsset: asset,
+          newAsset: matchingAsset,
+        });
+        asset = matchingAsset;
+      }
+    }
+    const response = await axios.get(asset.files[0].general_file_url, {
+      responseType: 'blob',
+      headers: {
+        Authorization: null,
+      },
+    });
+    forceFileDownload(response, asset.files[0].filename);
+  } catch (error) {
+    getErrorMessage(error);
+  }
 };
 
 onMounted(async () => {
   await Incident.api().fetchById(route.params.id);
-  assets.value = await getAssets(route.params.id);
+  await fetchAssets();
   cmsItems.value = await getCmsItems(route.params.id);
   try {
     loadingReports.value = true;
