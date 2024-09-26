@@ -17,6 +17,8 @@ import PdfViewer from '@/components/PdfViewer.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import type { IncidentAniAsset } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
+import { useClipboard } from '@vueuse/core';
+import CcuIcon from '@/components/BaseIcon.vue';
 
 const route = useRoute();
 const REPORT_ID = 22;
@@ -25,6 +27,7 @@ const incident = computed(() => {
   return Incident.find(route.params.id);
 });
 
+const { t } = useI18n();
 const assets = ref({});
 const cmsItems = ref([]);
 const graphData = ref<Array<any> | null>([]);
@@ -32,6 +35,11 @@ const transformedData = computed<Record<any, any>>(() => {
   return transformGraphData(graphData.value);
 });
 const loadingReports = ref(false);
+
+const { copy: copyToClipboard, copied: isCopiedToClipboard } = useClipboard({
+  legacy: true, // copy with execCommand as fallback
+});
+
 async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   const response: AxiosResponse<{ results: CmsItem[] }> = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/cms`,
@@ -103,20 +111,45 @@ onMounted(async () => {
         "
         class="flex items-center gap-5 my-1"
       >
-        <div class="flex gap-2">
-          <a
-            v-for="number in incident.active_phone_number"
-            :key="number"
-            class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-full"
-            :href="`tel:${number}`"
+        <div
+          class="flex flex-col md:flex-row gap-0 justify-center items-center"
+        >
+          <div
+            v-for="phoneNumber in incident.active_phone_number"
+            :key="phoneNumber"
+            class="flex items-center"
           >
-            {{ $t('disasters.hotline') }}
-            {{ formatNationalNumber(String(number)) }}
-          </a>
-          <span class="italic opacity-50 text-sm">
-            {{ $t('disasters.hotline_closes_in') }}
-            {{ formatHotlineClosingDate(getAniClosingDate(incident)) }}
-          </span>
+            <div
+              class="bg-primary-light bg-opacity-30 py-1 px-3 rounded-l-full"
+            >
+              <span class="pr-1">{{ $t('disasters.hotline') }}</span>
+              <a :href="`tel:${phoneNumber}`">
+                {{ formatNationalNumber(String(phoneNumber)) }}
+              </a>
+            </div>
+            <div
+              class="cursor-pointer bg-crisiscleanup-dark-blue text-sm bg-opacity-30 p-2 rounded-r-full"
+              @click="copyToClipboard(phoneNumber)"
+            >
+              <span class="flex gap-1 items-center text-xs">
+                <span v-if="!isCopiedToClipboard">{{ t('~~Copy') }}</span>
+                <span v-else>{{ t('~~Copied!') }}</span>
+                <ccu-icon
+                  size="sm"
+                  fa
+                  :type="
+                    isCopiedToClipboard
+                      ? 'fa-solid fa-copy'
+                      : 'fa-regular fa-copy'
+                  "
+                />
+              </span>
+            </div>
+            <span class="md:pl-2 italic opacity-50 text-sm">
+              {{ $t('disasters.hotline_closes_in') }}
+              {{ formatHotlineClosingDate(getAniClosingDate(incident)) }}
+            </span>
+          </div>
         </div>
       </div>
 
