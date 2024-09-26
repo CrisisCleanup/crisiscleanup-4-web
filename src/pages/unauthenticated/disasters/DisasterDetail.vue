@@ -31,6 +31,7 @@ const incident = computed(() => {
 
 const { t } = useI18n();
 const assets = ref<GroupedAssets>({});
+const aniIncidents = ref<Record<string, any>[]>([]);
 const cmsItems = ref([]);
 const graphData = ref<Array<any> | null>([]);
 const transformedData = computed<Record<any, any>>(() => {
@@ -52,6 +53,26 @@ async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
 
 async function fetchAssets() {
   assets.value = await getAssets(route.params.id);
+}
+
+async function fetchAniIncident() {
+  const aniIncidentResponse = await axios.get(
+    `${import.meta.env.VITE_APP_API_BASE_URL}/ani_incidents`,
+    {
+      params: {
+        incident: incident.value.id,
+      },
+    },
+  );
+  aniIncidents.value = aniIncidentResponse.data.results;
+}
+
+function getAniIncident(phoneNumber: number | string) {
+  const matchingAniIncident = aniIncidents.value.find(
+    (aniIncident) =>
+      aniIncident?.phone_number?.toString() === phoneNumber?.toString(),
+  );
+  return matchingAniIncident ?? incident.value;
 }
 
 const downloadAsset = async (asset: IncidentAniAsset) => {
@@ -86,7 +107,7 @@ const downloadAsset = async (asset: IncidentAniAsset) => {
 
 onMounted(async () => {
   await Incident.api().fetchById(route.params.id);
-  await fetchAssets();
+  await Promise.all([fetchAssets(), fetchAniIncident()]);
   cmsItems.value = await getCmsItems(route.params.id);
   try {
     loadingReports.value = true;
@@ -137,14 +158,18 @@ onMounted(async () => {
           <div
             v-for="phoneNumber in incident.active_phone_number"
             :key="phoneNumber"
-            class="flex"
+            class="flex flex-wrap items-center gap-2"
           >
             <HotlineNumber :phone-number="phoneNumber" />
+            <span class="italic opacity-50 text-sm">
+              {{ $t('disasters.hotline_closes_in') }}
+              {{
+                formatHotlineClosingDate(
+                  getAniClosingDate(getAniIncident(phoneNumber)),
+                )
+              }}
+            </span>
           </div>
-          <span class="italic opacity-50 text-sm">
-            {{ $t('disasters.hotline_closes_in') }}
-            {{ formatHotlineClosingDate(getAniClosingDate(incident)) }}
-          </span>
         </div>
       </div>
 
