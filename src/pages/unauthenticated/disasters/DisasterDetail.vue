@@ -192,10 +192,12 @@ onMounted(async () => {
                       <div class="flex justify-self-end">
                         <base-button
                           :action="() => downloadAsset(asset)"
+                          variant="solid"
+                          :text="$t('actions.download')"
                           :alt="$t('actions.download')"
-                          class="p-2"
+                          class="py-1 px-2"
                           ccu-icon="download"
-                          icon-size="md"
+                          icon-size="small"
                         />
                       </div>
                     </div>
