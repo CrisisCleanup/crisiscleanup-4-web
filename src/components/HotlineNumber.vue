@@ -13,7 +13,7 @@ const { t } = useI18n();
 const $toasted = useToast();
 
 const phoneNumber = computed(() => props.phoneNumber);
-const { copy } = useClipboard({
+const { copy, copied } = useClipboard({
   legacy: true, // copy with execCommand as fallback
 });
 
@@ -34,15 +34,20 @@ async function copyToClipboard(text: string) {
   </div>
   <div
     v-tooltip="{
-      content: t('~~Copy to clipboard'),
-      triggers: ['hover'],
+      content: copied ? t('~~Copied') : t('~~Copy to clipboard'),
+      showTriggers: ['hover', 'click'],
+      hideTriggers: ['hover'],
       popperClass: 'interactive-tooltip',
     }"
     class="flex items-center cursor-pointer bg-primary-light text-sm bg-opacity-80 p-2 rounded-r-full"
     @click="copyToClipboard(phoneNumber)"
   >
     <span class="flex gap-1 items-center text-xs">
-      <ccu-icon size="sm" fa type="fa-regular fa-copy" />
+      <ccu-icon
+        size="sm"
+        fa
+        :type="copied ? 'fa-solid fa-copy' : 'fa-regular fa-copy'"
+      />
     </span>
   </div>
 </template>
