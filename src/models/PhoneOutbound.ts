@@ -159,7 +159,8 @@ export default class PhoneOutbound extends CCUModel {
           ),
         );
 
-        const [outbound] = resp.entities.phone_outbound || [];
+        console.info('createManual response', resp);
+        const [outbound] = resp?.entities?.phone_outbound || [];
         return outbound;
       },
     } as any,

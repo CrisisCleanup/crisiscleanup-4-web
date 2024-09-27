@@ -1074,7 +1074,8 @@ export default defineComponent({
       }
 
       try {
-        const notesToSave = worksite.value.notes
+        console.info('worksite notesToSave', worksite.value);
+        const notesToSave = (worksite.value?.notes ?? [])
           .filter((n) => Boolean(n.pending))
           .map((n) => n.note);
 
