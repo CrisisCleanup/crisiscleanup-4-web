@@ -1419,6 +1419,7 @@ export default defineComponent({
       worksite.value = {
         incident: props.incidentId,
         form_data: [],
+        notes: [],
         formFields: {},
         auto_contact_frequency_t: currentIncident.value.auto_contact
           ? 'formOptions.not_often'
