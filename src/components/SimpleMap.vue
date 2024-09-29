@@ -90,6 +90,21 @@
         "
         class="w-8 h-8 border border-crisiscleanup-dark-100 my-1 bg-white shadow-xl text-crisiscleanup-dark-400"
       />
+      <base-button
+        v-if="showMapLayerToggle"
+        text=""
+        data-testid="testToggleMapTypeButton"
+        icon="map"
+        icon-size="xs"
+        :title="$t('~~Toggle Map Type')"
+        :alt="$t('~~Toggle Map Type')"
+        :action="
+          () => {
+            $emit('onToggleMapType');
+          }
+        "
+        class="w-8 h-8 border-crisiscleanup-dark-100 border-t border-l border-r border-b bg-white shadow-xl text-xl text-crisiscleanup-dark-400 mt-4"
+      />
     </div>
     <WorksiteLegend
       v-if="(showZoomButtons && !removeLegend) || showLegend"
@@ -127,6 +142,9 @@ export default defineComponent({
     availableWorkTypes: {
       type: Object,
       default: () => ({}),
+    },
+    showMapLayerToggle: {
+      type: Boolean,
     },
   },
 });

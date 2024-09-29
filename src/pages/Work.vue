@@ -7,6 +7,7 @@
         :map-loading="mapLoading"
         data-testid="testSimpleMapdiv"
         show-zoom-buttons
+        show-map-layer-toggle
         :available-work-types="availableWorkTypes"
         class="mb-16"
         zoom-buttons-class="mt-20"
@@ -14,6 +15,7 @@
         @on-zoom-out="zoomOut"
         @on-zoom-incident-center="goToIncidentCenter"
         @on-zoom-interactive="goToInteractive"
+        @on-toggle-map-type="toggleMapType"
       />
       <WorksitePhotoMap
         v-else-if="showingPhotoMap && caseImages.length > 0"
@@ -549,11 +551,13 @@
               :map-loading="mapLoading"
               data-testid="testSimpleMapdiv"
               show-zoom-buttons
+              show-map-layer-toggle
               :available-work-types="availableWorkTypes"
               @on-zoom-in="zoomIn"
               @on-zoom-out="zoomOut"
               @on-zoom-incident-center="goToIncidentCenter"
               @on-zoom-interactive="goToInteractive"
+              @on-toggle-map-type="toggleMapType"
             />
             <WorksitePhotoMap
               v-else-if="showingPhotoMap && caseImages.length > 0"
@@ -1654,6 +1658,10 @@ export default defineComponent({
       mapUtils?.getMap().setView(getIncidentCenter(), INTERACTIVE_ZOOM_LEVEL);
     }
 
+    function toggleMapType() {
+      mapUtils?.switchTileLayer();
+    }
+
     function onSelectionChanged(selectedItems: Set<number>) {
       selectedTableItems.value = selectedItems;
     }
@@ -2165,6 +2173,7 @@ export default defineComponent({
       collapsedUtilityBar,
       goToIncidentCenter,
       goToInteractive,
+      toggleMapType,
       reloadCase,
       availableWorkTypes,
       applyLocation,

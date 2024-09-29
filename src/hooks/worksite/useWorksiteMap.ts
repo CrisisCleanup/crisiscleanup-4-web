@@ -3,7 +3,12 @@ import 'leaflet.heat';
 import 'leaflet/dist/leaflet.css';
 import type { Sprite, Container } from 'pixi.js';
 import type { LatLng, HeatLayer, LeafletMouseEvent } from 'leaflet';
-import { getMarkerLayer, mapTileLayer, mapAttribution } from '../../utils/map';
+import {
+  getMarkerLayer,
+  mapTileLayer,
+  mapAttribution,
+  mapTileLayerDark,
+} from '../../utils/map';
 import Location from '../../models/Location';
 import useRenderedMarkers from './useRenderedMarkers';
 import { i18n } from '@/modules/i18n';
@@ -36,6 +41,7 @@ export interface MapUtils {
   loadMarker: (marker: Sprite & Worksite, index: number) => void;
   hideMarkers: () => void;
   showMarkers: () => void;
+  switchTileLayer: (useGoogleMaps: boolean) => void;
 }
 
 const DEFAULT_MAP_BOUNDS = [
@@ -58,21 +64,71 @@ export default (
     index,
   ) => {};
 
+  let currentTileLayer: L.Layer | null = null;
+
   const map = L.map('map', {
     zoomControl: false,
   }).fitBounds(
     mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
   );
-  if (useGoogleMaps) {
-    L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map);
-  } else {
-    L.tileLayer(mapTileLayer, {
-      attribution: mapAttribution,
-      detectRetina: false,
-      maxZoom: 18,
-      noWrap: false,
-    }).addTo(map);
-  }
+  currentTileLayer = useGoogleMaps
+    ? L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map)
+    : L.tileLayer(mapTileLayer, {
+        attribution: mapAttribution,
+        detectRetina: false,
+        maxZoom: 18,
+        noWrap: false,
+      }).addTo(map);
+
+  // const switchTileLayer = () => {
+  //   if (currentTileLayer) {
+  //     map.removeLayer(currentTileLayer);
+  //   }
+  //   usingGoogleMaps = !usingGoogleMaps;
+  //   currentTileLayer = usingGoogleMaps
+  //     ? L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map)
+  //     : L.tileLayer(mapTileLayer, {
+  //         attribution: mapAttribution,
+  //         detectRetina: false,
+  //         maxZoom: 18,
+  //         noWrap: false,
+  //       }).addTo(map);
+  // };
+
+  // Array to hold different map layer configurations, not instantiated layers
+  const mapLayerConfigs = [
+    () => L.gridLayer.googleMutant({ type: 'roadmap' }), // Google Roadmap, instantiated when needed
+    () => L.gridLayer.googleMutant({ type: 'satellite' }), // Google Satellite
+    () =>
+      L.tileLayer(mapTileLayer, {
+        // Custom tile layer
+        attribution: mapAttribution,
+        detectRetina: false,
+        maxZoom: 18,
+        noWrap: false,
+      }),
+    () =>
+      L.tileLayer(mapTileLayerDark, {
+        // Dark theme tile layer
+        attribution: mapAttribution,
+        detectRetina: false,
+        maxZoom: 18,
+        noWrap: false,
+      }),
+  ];
+
+  let currentLayerIndex = useGoogleMaps ? 0 : 2;
+  const switchTileLayer = () => {
+    if (currentTileLayer) {
+      map.removeLayer(currentTileLayer); // Remove current layer
+    }
+
+    // Increment the index, reset if it goes beyond the array length
+    currentLayerIndex = (currentLayerIndex + 1) % mapLayerConfigs.length;
+
+    // Instantiate and add the new layer to the map
+    currentTileLayer = mapLayerConfigs[currentLayerIndex]().addTo(map);
+  };
 
   const removeLayer = (key: string) => {
     map.eachLayer((layer) => {
@@ -378,6 +434,7 @@ export default (
     loadMarker,
     hideMarkers,
     showMarkers,
+    switchTileLayer,
   };
   return mapUtils;
 };
