@@ -43,7 +43,7 @@
                   :custom-size="{ width: '40px', height: '40px' }"
                   inner-classes="shadow"
                 />
-                <UserDetailsTooltip :user="user.id" />
+                <UserDetailsTooltip :user="user.id" :user-object="user" />
                 <div v-if="mobileOnlineUsers.includes(user.id)">
                   <font-awesome-icon
                     icon="mobile-screen"
@@ -205,7 +205,6 @@
 </template>
 
 <script lang="ts">
-import _, { throttle } from 'lodash';
 import {
   computed,
   nextTick,
@@ -220,14 +219,16 @@ import { useToast } from 'vue-toastification';
 import { getQueryString, getUserAvatarLink } from '../../utils/urls';
 import { getErrorMessage } from '../../utils/errors';
 import useCurrentUser from '../../hooks/useCurrentUser';
-import User from '../../models/User';
+import type User from '../../models/User';
 import { useWebSockets } from '../../hooks/useWebSockets';
 import ChatMessage from './ChatMessage.vue';
 import type { Message } from '@/models/types';
 import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import UserDetailsTooltip from '@/components/user/DetailsTooltip.vue';
 import Avatar from '@/components/Avatar.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'Chat',
@@ -269,18 +270,27 @@ export default defineComponent({
     const expandedOrganizations = ref<{ [key: number]: boolean }>({});
 
     const onlineUsersWithData = computed(() => {
-      const result = [];
-      for (const id of allOnlineUsers.value) {
-        const user = getUser(id);
-        if (!user) {
-          console.info('User not found in store', id, user);
-          continue;
-        }
-        result.push(user);
-      }
-      console.debug('Found online users', result);
-      return result;
+      return userCache.value
+        ? allOnlineUsers.value.map((id) => userCache.value[id])
+        : [];
     });
+
+    const userCache = ref<{ [key: number]: User }>({});
+
+    const getUsersById = async (ids: number[]) => {
+      const missingIds = ids.filter((id) => !userCache.value[id]);
+      if (missingIds.length > 0) {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/users?id__in=${missingIds.join(',')}&limit=1000&fields=id,first_name,last_name,organization,email,mobile`,
+        );
+        const userList = response.data.results;
+        for (const user of userList) {
+          userCache.value[user.id] = user;
+        }
+      }
+      return ids.map((id) => userCache.value[id]);
+    };
+
     const groupedByOrganization = computed(() => {
       const grouped: { [key: number]: any } = {};
       for (const user of onlineUsersWithData.value) {
@@ -307,6 +317,7 @@ export default defineComponent({
           return org;
         });
     });
+
     watch(sortedOrganizations, (sortedOrgs) => {
       for (const org of sortedOrgs) {
         // Automatically expand groups with 3 or fewer users
@@ -325,23 +336,29 @@ export default defineComponent({
     };
 
     async function searchMessages() {
-      searchLoading.value = false;
+      if (!search.value) {
+        searchResults.value = [];
+        return;
+      }
+      searchLoading.value = true;
       const parameters = {
         message_group: props.chat.id,
         limit: 30,
         search: search.value,
       } as Record<string, any>;
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      searchResults.value = response.data.results;
-      searchLoading.value = false;
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        searchResults.value = response.data.results;
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        searchLoading.value = false;
+      }
     }
 
-    function getUser(id) {
-      return User.find(id);
-    }
     const handleWheel = debounce(function () {
       if (
         messagesBox?.value?.scrollTop === 0 &&
@@ -363,28 +380,34 @@ export default defineComponent({
       }
 
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      messages.value = [...messages.value, ...response.data.results];
-      if (scroll) {
-        nextTick(() => {
-          if (messagesBox.value) {
-            messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
-          }
-        });
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        messages.value = [...messages.value, ...response.data.results];
+        if (scroll) {
+          nextTick(() => {
+            if (messagesBox.value) {
+              messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
+            }
+          });
+        }
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        loadingMessages.value = false;
       }
-
-      loadingMessages.value = false;
     }
 
     async function getFavorites() {
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_groups/${
-          props.chat.id
-        }/my_favorites`,
-      );
-      favorites.value = response.data;
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_groups/${props.chat.id}/my_favorites`,
+        );
+        favorites.value = response.data;
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
     }
 
     async function getUnreadMessagesCount() {
@@ -399,11 +422,18 @@ export default defineComponent({
       }
 
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      emit('unreadCount', response.data.count);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        emit('unreadCount', response.data.count);
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        loadingMessages.value = false;
+      }
     }
+
     async function getUnreadUrgentMessagesCount() {
       loadingMessages.value = true;
       const parameters = {
@@ -416,10 +446,16 @@ export default defineComponent({
       }
 
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      emit('unreadUrgentCount', response.data.count);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        emit('unreadUrgentCount', response.data.count);
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        loadingMessages.value = false;
+      }
     }
 
     async function sendMessage(parentId = null, content = null) {
@@ -440,29 +476,59 @@ export default defineComponent({
       try {
         if (state) {
           await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${
-              message.id
-            }/favorite`,
+            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${message.id}/favorite`,
           );
           message.is_favorite = true;
         } else {
           await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${
-              message.id
-            }/unfavorite`,
+            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${message.id}/unfavorite`,
           );
           message.is_favorite = false;
         }
 
         await getFavorites();
       } catch (error) {
-        await $toasted.error(getErrorMessage(error));
+        $toasted.error(getErrorMessage(error));
       }
     }
 
     function focusNewsTab() {
       emit('focusNewsTab');
     }
+
+    // Throttle the online users handler to prevent UI freezes
+    const handleOnlineUsersUpdate = throttle(async (data) => {
+      let updatedAllOnlineUsers: number[] = [];
+      let updatedMobileOnlineUsers: number[] = [];
+
+      if (Array.isArray(data)) {
+        updatedAllOnlineUsers = data as number[];
+      } else if (data.online_users) {
+        updatedAllOnlineUsers = [
+          ...new Set([
+            ...(data.online_users as number[]),
+            ...(data.online_mobile_users as number[]),
+          ]),
+        ];
+        updatedMobileOnlineUsers = data.online_mobile_users as number[];
+      } else {
+        const users = Object.keys(data)
+          .map((key) => JSON.parse(data[key]))
+          .filter(
+            (user) => moment().diff(moment(user.last_seen_at), 'minutes') < 5,
+          );
+
+        updatedAllOnlineUsers = users.map((u) => u.user_id);
+        updatedMobileOnlineUsers = users
+          .filter((u) => u.is_mobile)
+          .map((u) => u.user_id);
+      }
+
+      await getUsersById(updatedAllOnlineUsers);
+
+      allOnlineUsers.value = updatedAllOnlineUsers;
+      mobileOnlineUsers.value = updatedMobileOnlineUsers;
+    }, 1000);
 
     onBeforeMount(() => {
       const { socket: s, send } = useWebSockets<Message>(
@@ -499,42 +565,9 @@ export default defineComponent({
       const { socket: online_users_s } = useWebSockets(
         '/ws/online_chat_users',
         'phone_stats',
-        async (data) => {
-          if (Array.isArray(data)) {
-            allOnlineUsers.value = data as number[];
-            await User.fetchOrFindId(allOnlineUsers.value);
-          } else if (data.online_users) {
-            allOnlineUsers.value = [
-              ...new Set([
-                ...(data.online_users as number[]),
-                ...(data.online_mobile_users as number[]),
-              ]),
-            ];
-            mobileOnlineUsers.value = data.online_mobile_users as number[];
-            await User.fetchOrFindId(allOnlineUsers.value);
-          } else {
-            const users = Object.keys(data)
-              .map((key) => {
-                const user = JSON.parse(data[key]);
-                return {
-                  id: user.user_id,
-                  is_mobile: user.is_mobile,
-                  last_seen_at: user.last_seen_at,
-                };
-              })
-              .filter(
-                (user) =>
-                  moment().diff(moment(user.last_seen_at), 'minutes') < 5,
-              );
-
-            allOnlineUsers.value = users.map((u) => u.id);
-            await User.fetchOrFindId(allOnlineUsers.value);
-            mobileOnlineUsers.value = users
-              .filter((u) => u.is_mobile)
-              .map((u) => u.id);
-          }
-        },
+        handleOnlineUsersUpdate,
       );
+
       online_users_socket.value = online_users_s;
       socket.value = s;
       sendToWebsocket = send;
@@ -571,7 +604,6 @@ export default defineComponent({
       searchResults,
       allOnlineUsers,
       mobileOnlineUsers,
-      getUser,
       onlineUsersWithData,
       sortedOrganizations,
       toggleOrganization,

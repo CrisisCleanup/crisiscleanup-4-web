@@ -9,13 +9,15 @@
         v-if="userItem"
         data-testid="testUserFullNameContent"
         :class="`${nameClass} tooltip-target cursor-pointer hover:text-primary-dark`"
-        >{{ userItem.full_name }}</span
+        >{{ `${userItem.first_name} ${userItem.last_name}` }}</span
       >
       <slot
     /></base-text>
     <template #popper>
       <div class="tooltip-content p-2">
-        <div v-if="userItem" class="text-base">{{ userItem.full_name }}</div>
+        <div v-if="userItem" class="text-base">
+          {{ `${userItem.first_name} ${userItem.last_name}` }}
+        </div>
         <div
           v-if="userItem"
           class="text-xs"
@@ -62,14 +64,18 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    userObject: {
+      type: Object,
+      default: null,
+    },
   },
   setup(props) {
     const asyncUser = ref(null);
     const userItem = computed(() => {
-      return User.find(props.user);
+      return props.userObject || User.find(props.user);
     });
     onMounted(() => {
-      const user = User.find(props.user);
+      const user = props.userObject || User.find(props.user);
       if (!user) {
         User.api().get(`/users/${props.user}`, {});
       }
