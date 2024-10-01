@@ -57,12 +57,21 @@ import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
+import { getAndToastErrorMessage } from '@/utils/errors';
 
 library.add(fas);
 library.add(far);
 library.add(fab);
 
 axios.defaults.withCredentials = true;
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error instanceof AxiosError && error.response?.status === 400) {
+      return getAndToastErrorMessage(error);
+    }
+  },
+);
 const buildApp = (app: VueApp) =>
   app
     .component('FontAwesomeIcon', FontAwesomeIcon as any)
