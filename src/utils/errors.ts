@@ -75,3 +75,10 @@ export function getAndToastErrorMessage(error: any) {
   toast.error(message);
   return message;
 }
+
+export function getAndToastWarningMessage(error: any) {
+  const toast = useToast();
+  const message = getErrorMessage(error);
+  toast.warning(message);
+  return message;
+}
