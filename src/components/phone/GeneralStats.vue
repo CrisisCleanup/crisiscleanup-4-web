@@ -195,7 +195,7 @@ export default defineComponent({
     onBeforeMount(() => {
       setInterval(() => {
         updateCallbacks();
-      }, 30_000);
+      }, 60_000);
 
       const { socket: s } = useWebSockets(
         '/ws/phone_stats',
