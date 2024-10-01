@@ -3,7 +3,7 @@
     <div class="grid--main m-10">
       <div class="text-4xl">{{ $t('registerOrg.register_org') }}</div>
       <div class="text-2xl w-3/4">
-        {{ $t('registerOrg.please_create_profile') }}
+        <span v-html="$t('registerOrg.please_create_profile')"></span>
       </div>
       <form
         ref="form"
