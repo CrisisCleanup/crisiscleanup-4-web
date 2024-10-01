@@ -528,7 +528,7 @@ export default defineComponent({
 
       allOnlineUsers.value = updatedAllOnlineUsers;
       mobileOnlineUsers.value = updatedMobileOnlineUsers;
-    }, 1000);
+    }, 10_000);
 
     onBeforeMount(() => {
       const { socket: s, send } = useWebSockets<Message>(
