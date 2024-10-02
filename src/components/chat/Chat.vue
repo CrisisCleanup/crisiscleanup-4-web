@@ -282,14 +282,6 @@ export default defineComponent({
     let pendingRequests: number[] = []; // Queue to hold subsequent requests
 
     const getUsersById = async (ids: number[]) => {
-      if (requestInProgress) {
-        // If a request is in progress, add the new IDs to the pending queue
-        pendingRequests.push(...ids);
-        return;
-      }
-
-      requestInProgress = true; // Mark the request as in progress
-
       // Initialize arrays to track missing IDs
       const missingIdsFromCache = ids.filter((id) => !userCache.value[id]);
       const missingIdsFromDb: number[] = [];
@@ -317,15 +309,6 @@ export default defineComponent({
           // Store the user in the DbService for future use
           await DbService.setItem(`user_${user.id}`, user, USER_DATABASE);
         }
-      }
-
-      requestInProgress = false; // Mark the request as finished
-
-      // Process any pending requests in the queue
-      if (pendingRequests.length > 0) {
-        const nextRequestIds = [...pendingRequests]; // Copy the pending requests
-        pendingRequests = []; // Clear the queue
-        await getUsersById(nextRequestIds); // Recursively call getUsersById with the next set of IDs
       }
 
       // Return the users in the order of the original IDs array
@@ -569,7 +552,7 @@ export default defineComponent({
 
       allOnlineUsers.value = updatedAllOnlineUsers;
       mobileOnlineUsers.value = updatedMobileOnlineUsers;
-    }, 10_000);
+    }, 30_000);
 
     onBeforeMount(() => {
       const { socket: s, send } = useWebSockets<Message>(
