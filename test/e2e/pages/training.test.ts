@@ -24,7 +24,6 @@ test.describe('Training', () => {
         // Any one of these videos should work. Doesn't matter which one. - Aaron
         'testMandatoryTrainingVideoIframe',
         'testSupplimentPhoneTrainingIframe',
-        'testCalldownTrainingIframe',
       ];
       const locators: Locator[] = [];
       for (const testId of dataTestIds) {
