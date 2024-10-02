@@ -23,11 +23,12 @@ import VolunteerChart from '@/components/dashboard/VolunteerChart.vue';
 import SimpleMap from '@/components/SimpleMap.vue';
 import DownloadAppBanner from '@/components/dashboard/DownloadAppBanner.vue';
 import { useWebSockets } from '@/hooks/useWebSockets';
-import User from '@/models/User';
+import type User from '@/models/User';
 import { computed, ref } from 'vue';
 import useDialogs from '@/hooks/useDialogs';
 import UserList from '@/components/user/UserList.vue';
 import { useI18n } from 'vue-i18n';
+import axios from 'axios';
 
 const props = defineProps({
   loadingActionItems: Boolean,
@@ -51,6 +52,7 @@ const dashboardStatistics = ref<any>(null);
 const online_users_socket = ref<WebSocket | null>(null);
 const allOnlineUsers = ref<number[]>([]);
 const mobileOnlineUsers = ref<number[]>([]);
+const userCache = ref<{ [key: number]: User }>({});
 
 const inboundWorksiteRequests = computed(() => {
   const preferences = currentUser.value?.preferences || {};
@@ -85,10 +87,24 @@ async function unclaimAll(worksite: Worksite) {
   }
 }
 
+const getUsersById = async (ids: number[]) => {
+  const missingIds = ids.filter((id) => !userCache.value[id]);
+  if (missingIds.length > 0) {
+    const response = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/users?id__in=${missingIds.join(',')}&limit=1000&fields=id,first_name,last_name,organization,email,mobile`,
+    );
+    const userList = response.data.results;
+    for (const user of userList) {
+      userCache.value[user.id] = user;
+    }
+  }
+  return ids.map((id) => userCache.value[id]);
+};
+
 const onlineUsersWithData = computed(() => {
   const result = [];
   for (const id of allOnlineUsers.value) {
-    const user = User.find(id);
+    const user = userCache.value[id];
     if (!user) {
       console.info('User not found in store', id, user);
       continue;
@@ -131,7 +147,7 @@ onBeforeMount(() => {
         );
 
       allOnlineUsers.value = users.map((u) => u.id);
-      await User.fetchOrFindId(allOnlineUsers.value);
+      await getUsersById(allOnlineUsers.value);
       mobileOnlineUsers.value = users
         .filter((u) => u.is_mobile)
         .map((u) => u.id);
