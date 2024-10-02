@@ -45,6 +45,7 @@
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import User from '../../models/User';
+import { DbService, USER_DATABASE } from '@/services/db.service';
 
 export default defineComponent({
   name: 'UserDetailsTooltip',
@@ -70,14 +71,32 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const userFromCache = ref(null);
+
     const asyncUser = ref(null);
     const userItem = computed(() => {
-      return props.userObject || User.find(props.user);
+      return props.userObject || userFromCache.value || User.find(props.user);
     });
-    onMounted(() => {
+    onMounted(async () => {
       const user = props.userObject || User.find(props.user);
+
       if (!user) {
-        User.api().get(`/users/${props.user}`, {});
+        userFromCache.value = await DbService.getItem(
+          `user_${props.user}`,
+          USER_DATABASE,
+        );
+      }
+
+      if (!user && !userFromCache.value) {
+        User.api()
+          .get(`/users/${props.user}`, {})
+          .then((response) => {
+            DbService.setItem(
+              `user_${props.user}`,
+              User.find(props.user).$toJson(),
+              USER_DATABASE,
+            );
+          });
       }
     });
     return {
