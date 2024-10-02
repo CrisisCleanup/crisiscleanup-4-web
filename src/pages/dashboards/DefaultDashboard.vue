@@ -104,19 +104,19 @@ const getUsersById = async (ids: number[]) => {
   }
 
   // Fetch remaining missing users from the API
-  if (missingIdsFromDb.length > 0) {
-    const response = await axios.get(
-      `${import.meta.env.VITE_APP_API_BASE_URL}/users?id__in=${missingIdsFromDb.join(
-        ',',
-      )}&limit=1000&fields=id,first_name,last_name,organization,email,mobile`,
-    );
-    const userList = response.data.results;
-    for (const user of userList) {
-      userCache.value[user.id] = user;
-      // Store the user in the DbService for future use
-      await DbService.setItem(`user_${user.id}`, user, USER_DATABASE);
-    }
-  }
+  // if (missingIdsFromDb.length > 0) {
+  //   const response = await axios.get(
+  //     `${import.meta.env.VITE_APP_API_BASE_URL}/users?id__in=${missingIdsFromDb.join(
+  //       ',',
+  //     )}&limit=1000&fields=id,first_name,last_name,organization,email,mobile`,
+  //   );
+  //   const userList = response.data.results;
+  //   for (const user of userList) {
+  //     userCache.value[user.id] = user;
+  //     // Store the user in the DbService for future use
+  //     await DbService.setItem(`user_${user.id}`, user, USER_DATABASE);
+  //   }
+  // }
 
   // Return the users in the order of the original IDs array
   return ids.map((id) => userCache.value[id]);
