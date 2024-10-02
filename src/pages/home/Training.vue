@@ -21,7 +21,7 @@
               data-testid="testMandatoryTrainingVideoIframe"
               width="100%"
               height="100%"
-              src="https://www.youtube.com/embed/ot4LZjtK0xo"
+              src="https://www.youtube.com/embed/bFetJpyj4fA"
               frameborder="0"
               allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
@@ -65,36 +65,6 @@
           </h1>
           <p class="px-10 text-xl text-crisiscleanup-dark-400">
             {{ $t('training.suppliment_phone_training_intro') }}
-          </p>
-        </div>
-        <!--- /Training Video Description --->
-      </div>
-      <!--- /Content --->
-
-      <!--- Content --->
-      <div class="flex flex-col sm:flex-row justify-between m-5">
-        <!--- Training Video --->
-        <div class="flex-col sm:w-1/2">
-          <div class="video-container">
-            <iframe
-              class="resp-video"
-              data-testid="testCalldownTrainingIframe"
-              width="100%"
-              height="100%"
-              src="https://www.youtube.com/embed/HqXm2s5Dy3c"
-              frameborder="0"
-              allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            />
-          </div>
-        </div>
-        <!--- Training Video Description --->
-        <div class="flex-col sm:w-1/2">
-          <h1 class="px-10 text-3xl font-bold text-crisiscleanup-dark-500">
-            {{ $t('training.calldown_training') }}
-          </h1>
-          <p class="px-10 text-xl text-crisiscleanup-dark-400">
-            {{ $t('training.calldown_training_intro') }}
           </p>
         </div>
         <!--- /Training Video Description --->
