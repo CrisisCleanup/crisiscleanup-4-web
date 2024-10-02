@@ -244,11 +244,20 @@ export default defineComponent({
     }
 
     function validatePassword() {
-      if (userInfo.password !== userInfo.confirmPassword) {
+      const password = userInfo.password;
+      const confirmPassword = userInfo.confirmPassword;
+      if (!password && !confirmPassword) {
+        $toasted.error(t('invitationSignup.password_empty_error'));
+        return false;
+      }
+      if (password !== confirmPassword) {
         $toasted.error(t('invitationSignup.password_match_error'));
         return false;
       }
-
+      if (!password || password?.length < 8) {
+        $toasted.error(t('invitationSignup.password_length_error'));
+        return false;
+      }
       return true;
     }
 
