@@ -447,31 +447,7 @@ export default defineComponent({
       }
 
       const queryString = getQueryString(params);
-
-      const { data: orgData, isFinished } = ccuApi<{
-        count: number;
-        next: string;
-        previous: string;
-        results: Organization[];
-      }>(`/incidents/${currentIncidentId.value}/organizations?${queryString}`, {
-        method: 'GET',
-      });
-      whenever(isFinished, () => {
-        if (!isDefined(orgData)) {
-          console.error('Org data is not defined');
-          return;
-        }
-
-        organizations.data = orgData.value.results.sort(otherOrgSorterFunc);
-        const newPagination = {
-          ...pagination,
-          total: orgData.value.count,
-        };
-        organizations.meta = {
-          pagination: newPagination,
-        };
-        loading.value = false;
-      });
+      organizations.data = [];
     }
 
     function getOpenStatuses() {
