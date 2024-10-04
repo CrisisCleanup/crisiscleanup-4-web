@@ -318,7 +318,7 @@ export default defineComponent({
     const groupedByOrganization = computed(() => {
       const grouped: { [key: number]: any } = {};
       for (const user of onlineUsersWithData.value) {
-        if (user.organization) {
+        if (user?.organization) {
           const orgId = user.organization.id;
           if (!grouped[orgId]) {
             grouped[orgId] = {
@@ -450,7 +450,7 @@ export default defineComponent({
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
         );
-        emit('unreadCount', response.data.count);
+        emit('unreadCount', response?.data?.count || 0);
       } catch (error) {
         $toasted.error(getErrorMessage(error));
       } finally {
@@ -474,7 +474,7 @@ export default defineComponent({
         const response = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
         );
-        emit('unreadUrgentCount', response.data.count);
+        emit('unreadUrgentCount', response?.data?.count || 0);
       } catch (error) {
         $toasted.error(getErrorMessage(error));
       } finally {
