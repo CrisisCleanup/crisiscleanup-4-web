@@ -43,8 +43,8 @@ export default defineComponent({
               userStates.value[props.stateKey]
             }&publish_at__lt=${moment().toISOString()}&limit=1`,
           );
-          unreadCount.value = response.data.count;
-          emit('unreadCount', response.data.count);
+          unreadCount.value = response?.data?.count || 0;
+          emit('unreadCount', response?.data?.count || 0);
         }
 
         const response = await axios.get(
