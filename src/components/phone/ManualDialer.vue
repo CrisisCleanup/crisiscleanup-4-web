@@ -44,7 +44,7 @@
         :alt="
           dialing ? $t('phoneDashboard.dialing') : $t('phoneDashboard.dial')
         "
-        :disabled="dialing || !phone"
+        :disabled="dialing || !phone || after10pmEastern"
         @click="handleDial"
       ></base-button>
 
@@ -67,6 +67,7 @@ import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useEmitter from '../../hooks/useEmitter';
 import BaseInput from '@/components/BaseInput.vue';
+import moment from 'moment';
 
 export default defineComponent({
   name: 'EnhancedManualDialer',
@@ -90,6 +91,10 @@ export default defineComponent({
     const selectedCountryCode = ref('+1');
     const countryCodes = ref([{ code: '+1', icon: 'flag-usa' }]);
 
+    const after10pmEastern = moment().isAfter(
+      moment().utcOffset(-4).hour(22).minute(0).second(0).millisecond(0),
+    );
+
     const handleDial = () => {
       emit('onDial', `${selectedCountryCode.value}${phone.value}`);
     };
@@ -109,6 +114,7 @@ export default defineComponent({
       countryCodes,
       handleDial,
       removeNumberFromQueue,
+      after10pmEastern,
     };
   },
 });
