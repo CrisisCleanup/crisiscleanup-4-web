@@ -93,7 +93,7 @@ export default defineComponent({
           .then((response) => {
             DbService.setItem(
               `user_${props.user}`,
-              User.find(props.user).$toJson(),
+              User.find(props.user)?.$toJson(),
               USER_DATABASE,
             );
           });
