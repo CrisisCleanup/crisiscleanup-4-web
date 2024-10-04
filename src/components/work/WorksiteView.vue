@@ -543,8 +543,11 @@ export default defineComponent({
 
     const workTypesClaimedByOrganization = computed(() => {
       if (worksite.value) {
-        return worksite.value.work_types.filter((type) =>
-          currentUser.value.organization.affiliates.includes(type.claimed_by),
+        return worksite.value.work_types.filter(
+          (type) =>
+            currentUser.value.organization.affiliates.includes(
+              type.claimed_by,
+            ) || type.claimed_by === currentUser.value.organization.id,
         );
       }
 
@@ -558,7 +561,8 @@ export default defineComponent({
             type.claimed_by &&
             !currentUser.value.organization.affiliates.includes(
               type.claimed_by,
-            ),
+            ) &&
+            type.claimed_by !== currentUser.value.organization.id,
         );
         return groupBy(list, 'claimed_by');
       }
