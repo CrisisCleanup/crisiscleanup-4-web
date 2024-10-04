@@ -6,9 +6,11 @@ import { useAuthStore } from '@/hooks/useAuth';
 import Home from '@/layouts/Home.vue';
 import { getAndToastErrorMessage } from '@/utils/errors';
 import useDialogs from '@/hooks/useDialogs';
+import useValidation from '@/hooks/useValidation';
 
 const { requestOtp, verifyOtp, loginWithOtp, getMe } = useAuthStore();
 const { selection } = useDialogs();
+const { validatePhoneNumber } = useValidation();
 const toast = useToast();
 const router = useRouter();
 const { t } = useI18n();
@@ -86,11 +88,9 @@ const verifyOtpAndLogin = async () => {
           <base-input
             v-model="phoneNumber"
             data-testid="testPhoneNumberInput"
-            type="tel"
-            class="input"
             size="large"
-            autocomplete="off"
             :placeholder="$t('loginWithPhone.enter_cell')"
+            :validator="validatePhoneNumber"
             required
           />
           <base-button
