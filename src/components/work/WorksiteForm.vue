@@ -411,8 +411,8 @@
             $emit('closeWorksite');
           }
         "
-        :text="$t('actions.cancel')"
-        :alt="$t('actions.cancel')"
+        :text="$t('casesVue.new_case')"
+        :alt="$t('casesVue.new_case')"
       />
       <base-button
         size="large"
