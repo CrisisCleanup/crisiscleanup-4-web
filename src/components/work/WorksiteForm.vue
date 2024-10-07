@@ -292,6 +292,7 @@
 
         <div class="flex justify-around items-center p-2 text-gray-700">
           <base-button
+            v-if="showUseMyLocation"
             type="bare"
             data-testid="testUseMyLocationButton"
             icon="street-view"
@@ -640,6 +641,10 @@ export default defineComponent({
         isWrongLocation.value ||
         !hideDetailedAddressFields.value
       );
+    });
+
+    const showUseMyLocation = computed<boolean>(() => {
+      return !['nav.phone', 'nav.phone_no_incident'].includes(route.name);
     });
 
     function updateDirtyFields(key) {
@@ -1452,6 +1457,7 @@ export default defineComponent({
       isWrongLocation,
       hideDetailedAddressFields,
       showAddressDetails,
+      showUseMyLocation,
       ready,
       dynamicFields,
       saveNote,
