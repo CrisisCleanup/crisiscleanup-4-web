@@ -142,7 +142,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const addingNotes = ref(false);
+    const addingNotes = ref(true);
     const addingTime = ref(false);
     const expandedNotes = ref({});
     const showingAllNotes = ref(false);
