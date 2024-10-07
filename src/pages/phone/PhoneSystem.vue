@@ -866,6 +866,8 @@ export default defineComponent({
 
     const {
       isOnCall,
+      isTakingCalls,
+      isTransitioning,
       caller,
       stats,
       currentIncidentId,
@@ -1282,7 +1284,7 @@ export default defineComponent({
       return response.results;
     }
 
-    async function onLoggedIn() {
+    async function onLoggedIn(forceOutbound = false) {
       if (
         allowCallType.value === AllowedCallType.BOTH &&
         Number(stats.value.inQueue || stats.value.routing || 0) === 0
@@ -1304,6 +1306,18 @@ export default defineComponent({
           await dialNextOutbound();
         } catch {
           await setAway();
+        }
+      } else if (
+        forceOutbound &&
+        remainingCallbacks.value + remainingCalldowns.value > 0
+      ) {
+        if (isTakingCalls.value && !isOnCall.value && !isTransitioning.value) {
+          await setWorking();
+          try {
+            await dialNextOutbound();
+          } catch {
+            await setAvailable();
+          }
         }
       } else {
         await setAvailable();
@@ -1505,6 +1519,12 @@ export default defineComponent({
       }
 
       await init();
+
+      setInterval(() => {
+        if (isTakingCalls.value && !isOnCall.value && !isTransitioning.value) {
+          onLoggedIn(true);
+        }
+      }, 20_000);
     });
 
     return {

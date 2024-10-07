@@ -243,7 +243,9 @@ export default function useConnectFirst(context: {
         userId: currentUser?.value?.id,
         language: currentUser?.value?.primary_language,
       });
-      await createOutboundCall(outbound, number);
+      if (outbound) {
+        await createOutboundCall(outbound, number);
+      }
     } catch (error) {
       $toasted.error(getErrorMessage(error));
     } finally {
