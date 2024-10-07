@@ -1307,18 +1307,6 @@ export default defineComponent({
         } catch {
           await setAway();
         }
-      } else if (
-        forceOutbound &&
-        remainingCallbacks.value + remainingCalldowns.value > 0
-      ) {
-        if (isTakingCalls.value && !isOnCall.value && !isTransitioning.value) {
-          await setWorking();
-          try {
-            await dialNextOutbound();
-          } catch {
-            await setAvailable();
-          }
-        }
       } else {
         await setAvailable();
       }
