@@ -1,6 +1,7 @@
 <template>
   <section class="flex">
     <DragDrop
+      v-if="!disableImageUpload"
       class="w-20 h-20 border-solid border-2"
       data-testid="testImageUploaderFile"
       :disabled="uploading"
@@ -45,6 +46,10 @@ export default defineComponent({
     ImageModal,
   },
   props: {
+    disableImageUpload: {
+      type: Boolean,
+      default: false,
+    },
     worksite: {
       type: Object,
     },
