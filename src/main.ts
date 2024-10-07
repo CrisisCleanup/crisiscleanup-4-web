@@ -67,7 +67,10 @@ axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error instanceof AxiosError && error.response?.status === 400) {
+    if (
+      error instanceof AxiosError &&
+      [400, 408, 409, 422, 502].includes(error.response?.status as number)
+    ) {
       return getAndToastWarningMessage(error);
     }
   },
