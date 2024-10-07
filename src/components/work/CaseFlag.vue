@@ -397,6 +397,7 @@ import { What3wordsService } from '../../services/what3words.service';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import type { CaseFlag } from '@/models/types';
 import type Incident from '@/models/Incident';
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'CaseFlag',
@@ -464,8 +465,6 @@ export default defineComponent({
         emit('reloadMap', props.worksiteId || route.params.id);
         if (props.incidentId) {
           emit('clearCase');
-        } else {
-          await router.push(`/incident/${route.params.incident_id}/cases/new`);
         }
 
         return;
@@ -559,10 +558,9 @@ export default defineComponent({
           props.worksiteId || route.params.id,
           props.incidentId || route.params.incident_id,
         );
-      } catch {
-        await router.push(
-          `/incident/${props.incidentId || route.params.incident_id}/cases/new`,
-        );
+      } catch (error) {
+        console.error(error);
+        getErrorMessage(error);
       } finally {
         ready.value = true;
       }
