@@ -82,17 +82,17 @@ const routes = [
     children: [
       {
         path: 'default',
-        name: 'nav.default_dashboard',
+        name: 'nav.dashboard_default',
         component: DefaultDashboard,
       },
       {
         path: 'phone_volunteer',
-        name: 'nav.phone_volunteer_dashboard',
+        name: 'nav.dashboard_phone_volunteer',
         component: PhoneVolunteerDashboard,
       },
       {
         path: 'command_center',
-        name: 'nav.command_center_dashboard',
+        name: 'nav.dashboard_command_center',
         component: CommandCenterDashboard,
       },
     ],
