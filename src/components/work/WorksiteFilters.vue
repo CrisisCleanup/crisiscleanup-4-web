@@ -382,7 +382,7 @@
                   <div class="py-1">
                     <template v-if="field.html_type === 'select'">
                       <div class="font-bold">
-                        {{ field.label_t }}
+                        {{ $t(field.label_t) }}
                       </div>
                       <div>
                         <div>
@@ -421,7 +421,7 @@
                                 }
                               "
                             >
-                              {{ option.name_t }}
+                              {{ $t(option.name_t) }}
                             </base-checkbox>
                           </div>
                         </div>
@@ -447,7 +447,7 @@
                               }
                             "
                           >
-                            {{ field.label_t }}
+                            {{ $t(field.label_t) }}
                           </base-checkbox>
                         </div>
                       </div>
