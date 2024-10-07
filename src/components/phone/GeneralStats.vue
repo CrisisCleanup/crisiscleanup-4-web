@@ -119,19 +119,19 @@
         }}</base-text>
         <span class="text-2xl">{{ agentsAvailable || 0 }}</span>
       </div>
-      <div
-        v-for="queue in statsPerQueue"
-        :key="queue.queueId"
-        :data-testid="`testAgentsOnlineQueue${queue.queueId}Div`"
-        class="flex flex-col bg-white p-4 rounded shadow border"
-      >
-        <base-text class="text-sm font-medium"
-          >{{ $t('phoneDashboard.total_people_waiting') }}({{
-            $t(queue.language)
-          }})</base-text
-        >
-        <span class="text-2xl">{{ queue.inQueue || 0 }}</span>
-      </div>
+      <!--      <div-->
+      <!--        v-for="queue in statsPerQueue"-->
+      <!--        :key="queue.queueId"-->
+      <!--        :data-testid="`testAgentsOnlineQueue${queue.queueId}Div`"-->
+      <!--        class="flex flex-col bg-white p-4 rounded shadow border"-->
+      <!--      >-->
+      <!--        <base-text class="text-sm font-medium"-->
+      <!--          >{{ $t('phoneDashboard.total_people_waiting') }}({{-->
+      <!--            $t(queue.language)-->
+      <!--          }})</base-text-->
+      <!--        >-->
+      <!--        <span class="text-2xl">{{ queue.inQueue || 0 }}</span>-->
+      <!--      </div>-->
     </div>
   </div>
 </template>
@@ -236,14 +236,17 @@ export default defineComponent({
       () => agentStats.value,
       (agents) => {
         if (agents) {
-          agentsOnline.value = agents.filter((agent) =>
-            ['ENGAGED', 'TRANSITIONING'].includes(agent.state),
-          ).length;
-
           agentsAvailable.value = agents.filter((agent) =>
             ['AVAILABLE', 'WORKING'].includes(agent.state),
           ).length;
         }
+      },
+    );
+
+    watch(
+      () => stats.value.active,
+      () => {
+        agentsOnline.value = Number(stats.value.active) || 0;
       },
     );
 
