@@ -26,6 +26,11 @@
         {{ $t('survivorContact.case_number') }}:
         {{ survivorToken.worksite.case_number }}
       </div>
+      <div
+        v-if="isSurvivorIncidentOutdated"
+        class="text-lg text-center p-2 mb-4 border border-primary-light bg-primary-light bg-opacity-25"
+        v-html="incidentOutdatedWarning"
+      ></div>
       <div class="text-lg mb-1" data-testid="testNameDiv">
         {{ survivorToken.worksite.name }}:
       </div>
@@ -239,6 +244,7 @@
           :key="JSON.stringify(survivorToken)"
           :worksite="survivorToken"
           :is-survivor-token="true"
+          :disable-image-upload="isSurvivorIncidentOutdated"
           data-testid="testUploadPhotosFile"
           @photos-changed="() => getSurvivorToken(true)"
           @image-click="showImage"
@@ -393,6 +399,7 @@ import GeocoderService from '@/services/geocoder.service';
 import LocationViewer from '@/components/locations/LocationViewer.vue';
 import WorksiteImageSection from '@/components/work/WorksiteImageSection.vue';
 import WorksiteNotes from '@/components/work/WorksiteNotes.vue';
+import moment from 'moment';
 import { getWorkTypeImage, getWorkTypeName } from '@/filters';
 import { formatCmsItem } from '@/utils/helpers';
 import survivor from '@/pages/home/Survivor.vue';
@@ -431,7 +438,6 @@ export default defineComponent({
     );
 
     const sToken = computed(() => {
-      console.info('asdfsdf', route.params?.token);
       if (route.params?.token) {
         return sanitizeToken(route.params.token);
       }
@@ -448,12 +454,28 @@ export default defineComponent({
       addressSet: true,
       hideDetailedAddressFields: true,
       survivorToken: null,
+      survivorIncident: null,
       geocoderResults: [],
       faqs: [],
       workTypeHelpNeeded: new Set(),
       currentNote: '',
       getWorkTypeImage,
       formatCmsItem,
+    });
+
+    const incidentOutdatedWarning = computed(() =>
+      t(
+        '~~You may download old photos from this case, but you may not update or add new photos. If you were affected by a new disaster, please see if we have opened a <a href="https://www.crisiscleanup.org" title="Current Disasters">Crisis Cleanup Hotline</a> for your area and call a relevant phone number to create a NEW case.',
+      ),
+    );
+    const isSurvivorIncidentOutdated = computed(() => {
+      const startAt = state.survivorIncident?.start_at;
+      if (!startAt) {
+        return false;
+      }
+      const incidentDate = moment(startAt);
+      const sixMonthsAgo = moment().subtract(6, 'months');
+      return incidentDate.isBefore(sixMonthsAgo);
     });
 
     const worksiteAddress = computed(() => {
@@ -677,9 +699,23 @@ export default defineComponent({
       if (response && response.data) state.faqs = response.data.results;
     }
 
+    async function getSurvivorIncident() {
+      const incidentId = state.survivorToken?.worksite?.incident;
+      if (!incidentId) {
+        $toasted.error('~~Failed to fetch survivor incident!');
+        return;
+      }
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${incidentId}?fields=id,name,short_name,start_at`,
+      );
+      state.survivorIncident = response.data;
+      console.info('Response', response);
+    }
+
     onMounted(async () => {
       await getFaqs();
       await getSurvivorToken();
+      await getSurvivorIncident();
     });
 
     return {
@@ -687,6 +723,8 @@ export default defineComponent({
       worksiteAddress,
       closedWorkTypes,
       openWorkTypes,
+      isSurvivorIncidentOutdated,
+      incidentOutdatedWarning,
       showImage,
       updateWorkTypesHelpNeeded,
       unlockLocationFields,
