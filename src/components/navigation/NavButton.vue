@@ -86,16 +86,16 @@ a:focus {
   @apply bg-crisiscleanup-dark-500 transition;
 }
 
-.router-link-active.menu-item {
+.menu-item {
   background-color: transparent;
   position: relative;
 }
 
-.router-link-active.menu-item--active {
+.menu-item--active {
   background-color: theme('colors.crisiscleanup-dark.500');
 }
 
-.router-link-active.menu-item--active::before {
+.menu-item--active::before {
   content: '';
   width: 5px;
   height: 100%;
