@@ -147,7 +147,7 @@ export default defineComponent({
     }
 
     onBeforeMount(() => {
-      newsInterval.value = setInterval(getNews, 10_000);
+      newsInterval.value = setInterval(getNews, 300_000);
     });
 
     onBeforeUnmount(() => {
