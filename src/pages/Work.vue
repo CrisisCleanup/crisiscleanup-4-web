@@ -1270,11 +1270,11 @@ export default defineComponent({
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
 
-      loadCaseImagesCached({
-        ...worksiteQuery.value,
-      }).then((response) => {
-        caseImages.value = response.results;
-      });
+      // loadCaseImagesCached({
+      //   ...worksiteQuery.value,
+      // }).then((response) => {
+      //   caseImages.value = response.results;
+      // });
       return response.results;
     }
 
