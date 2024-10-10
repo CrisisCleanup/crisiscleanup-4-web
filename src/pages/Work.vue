@@ -1270,11 +1270,13 @@ export default defineComponent({
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
 
-      // loadCaseImagesCached({
-      //   ...worksiteQuery.value,
-      // }).then((response) => {
-      //   caseImages.value = response.results;
-      // });
+      if ($can('beta_feature.enable_feed')) {
+        loadCaseImagesCached({
+          ...worksiteQuery.value,
+        }).then((response) => {
+          caseImages.value = response.results;
+        });
+      }
       return response.results;
     }
 
@@ -1853,7 +1855,7 @@ export default defineComponent({
       }
     }
 
-    async function downloadWorksites(ids: any[]) {
+    async function downloadWorksites(ids: any[], skipSizeCheck = false) {
       loading.value = true;
       try {
         let params;
@@ -1865,6 +1867,10 @@ export default defineComponent({
           : {
               ...worksiteQuery.value,
             };
+
+        if (skipSizeCheck) {
+          params.skip_size_warning = true;
+        }
 
         const response = await axios.get(
           `${
@@ -1881,6 +1887,26 @@ export default defineComponent({
             title: t('info.processing_download'),
             content: t('info.processing_download_d'),
           });
+        } else if (response === 'info.error_400') {
+          const result = await confirm({
+            title: t('~~Large Data Download'),
+            content: t(
+              '~~The size of the data you are trying to download is too large. You can use the filters to reduce the size of the data to under 5000 records for faster downloads. Do you want to continue?',
+            ),
+            actions: {
+              yes: {
+                text: t('~~Yes'),
+                type: 'solid',
+              },
+              no: {
+                text: t('No'),
+                type: 'outline',
+              },
+            },
+          });
+          if (result === 'yes') {
+            return downloadWorksites(ids, true);
+          }
         } else {
           forceFileDownload(response);
         }
