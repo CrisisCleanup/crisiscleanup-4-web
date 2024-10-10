@@ -64,6 +64,7 @@
         <WorksiteNotes
           :worksite="worksite"
           data-testid="testWorksiteNotesContent"
+          :expanded="false"
           @save-note="saveNote"
         />
         <div v-if="incident">

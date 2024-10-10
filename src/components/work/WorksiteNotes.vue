@@ -140,9 +140,13 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, { emit }) {
-    const addingNotes = ref(true);
+    const addingNotes = ref(props.expanded);
     const addingTime = ref(false);
     const expandedNotes = ref({});
     const showingAllNotes = ref(false);
