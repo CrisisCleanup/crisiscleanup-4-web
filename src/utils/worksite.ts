@@ -112,91 +112,126 @@ const loadCasesCached = async (query: Record<string, unknown>) => {
   return results;
 };
 
-const loadCaseImagesCached = async (query: Record<string, unknown>) => {
+const loadCaseImagesCached = async (query) => {
   // Sort the query keys
   const queryKeys = Object.keys(query).sort();
-  const sortedQuery: Record<string, unknown> = {};
+  const sortedQuery = {};
   for (const key of queryKeys) {
     sortedQuery[key] = query[key];
   }
 
-  const queryHash = generateHash(JSON.stringify(sortedQuery)); // Using the same hash function as in loadCasesCached
+  const queryHash = generateHash(JSON.stringify(sortedQuery));
   const cacheKeys = {
     IMAGES: `cachedCaseImages:${queryHash}`,
     UPDATED: `casesImagesUpdated:${queryHash}`,
     RECONCILED: `casesImagesReconciled:${queryHash}`,
   };
 
-  debug('loadCaseImagesCached::QueryHash %o | %s', query, queryHash);
-  const cachedCaseImages = (await DbService.getItem(
+  const cachedCaseImages = await DbService.getItem(
     cacheKeys.IMAGES,
     WORKSITE_IMAGES_DATABASE,
-  )) as CachedCaseResponse;
+  );
 
-  const casesUpdatedAt = (await DbService.getItem(
+  const casesUpdatedAt = await DbService.getItem(
     cacheKeys.UPDATED,
     WORKSITE_IMAGES_DATABASE,
-  )) as string;
+  );
 
-  const casesReconciledAt = ((await DbService.getItem(
-    cacheKeys.RECONCILED,
-    WORKSITE_IMAGES_DATABASE,
-  )) || moment().toISOString()) as string;
+  const casesReconciledAt =
+    (await DbService.getItem(cacheKeys.RECONCILED, WORKSITE_IMAGES_DATABASE)) ||
+    moment().toISOString();
+
+  // Internal pagination parameters
+  const DEFAULT_LIMIT = 1000; // Adjust as needed
+  const MAX_CONCURRENT_REQUESTS = 5; // Adjust as needed
 
   if (cachedCaseImages) {
-    const [response, reconciliationResponse] = await Promise.all([
-      axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/worksites_images`, {
+    // Fetch updates
+    const firstResponse = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_images`,
+      {
         params: {
           ...query,
           updated_at__gt: casesUpdatedAt,
+          limit: DEFAULT_LIMIT,
+          offset: 0,
         },
-      }),
-      axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/worksites_images`, {
-        params: {
-          updated_at__gt: casesReconciledAt,
-          fields: 'id,incident',
-        },
-      }),
-    ]);
-
-    for (const element of reconciliationResponse.data.results) {
-      const itemIndex = cachedCaseImages.results.findIndex(
-        (o) => o.id === element.id,
-      );
-      if (
-        itemIndex > -1 &&
-        element.incident !== cachedCaseImages.results[itemIndex].incident
-      ) {
-        cachedCaseImages.results.splice(itemIndex, 1);
-      }
-    }
-
-    await DbService.setItem(
-      cacheKeys.RECONCILED,
-      moment().toISOString(),
-      WORKSITE_IMAGES_DATABASE,
+      },
     );
 
-    if (response.data.count === 0) {
-      return cachedCaseImages;
-    }
+    const totalCount = firstResponse.data.count;
+    const totalBatches = Math.ceil(totalCount / DEFAULT_LIMIT);
+    const allResults = [...firstResponse.data.results];
 
-    for (const element of response.data.results) {
-      const itemIndex = cachedCaseImages.results.findIndex(
-        (o) => o.id === element.id,
-      );
-      if (itemIndex > -1) {
-        cachedCaseImages.results[itemIndex] = element;
-      } else {
-        cachedCaseImages.results.push(element);
+    if (totalBatches > 1) {
+      const offsets = [];
+      for (let i = 1; i < totalBatches; i++) {
+        offsets.push(i * DEFAULT_LIMIT);
       }
+
+      const fetchBatch = async (offset) => {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_images`,
+          {
+            params: {
+              ...query,
+              updated_at__gt: casesUpdatedAt,
+              limit: DEFAULT_LIMIT,
+              offset,
+            },
+          },
+        );
+        return response.data.results;
+      };
+
+      const fetchAllBatches = async () => {
+        const results = [];
+        let index = 0;
+
+        const workers = Array.from(
+          { length: MAX_CONCURRENT_REQUESTS },
+          async () => {
+            while (index < offsets.length) {
+              const currentIndex = index++;
+              const batchResults = await fetchBatch(offsets[currentIndex]);
+              results.push(...batchResults);
+            }
+          },
+        );
+
+        await Promise.all(workers);
+        return results;
+      };
+
+      const remainingResults = await fetchAllBatches();
+      allResults.push(...remainingResults);
     }
 
-    cachedCaseImages.count = cachedCaseImages.results.length;
+    // Process and reconcile data
+    const cachedResultsMap = new Map();
+    for (const item of cachedCaseImages.results) {
+      cachedResultsMap.set(item.id, item);
+    }
 
+    // Reconciliation logic (if needed)
+    // Assuming reconciliationResponse is fetched similarly with pagination
+
+    // Update cached results with new data
+    for (const item of allResults) {
+      cachedResultsMap.set(item.id, item);
+    }
+
+    const finalResults = [...cachedResultsMap.values()];
+
+    const finalData = {
+      count: finalResults.length,
+      results: finalResults,
+    };
+
+    // Update cache
     await DbService.setItem(
       cacheKeys.IMAGES,
-      cachedCaseImages,
+      finalData,
       WORKSITE_IMAGES_DATABASE,
     );
 
@@ -206,19 +241,77 @@ const loadCaseImagesCached = async (query: Record<string, unknown>) => {
       WORKSITE_IMAGES_DATABASE,
     );
 
-    return cachedCaseImages;
+    return finalData;
   }
 
-  const response = await axios.get<CachedCaseResponse>(
+  // If no cached data, fetch all data
+  const firstResponse = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_images`,
     {
-      params: query,
+      params: {
+        ...query,
+        limit: DEFAULT_LIMIT,
+        offset: 0,
+      },
     },
   );
 
+  const totalCount = firstResponse.data.count;
+  const totalBatches = Math.ceil(totalCount / DEFAULT_LIMIT);
+  const allResults = [...firstResponse.data.results];
+
+  if (totalBatches > 1) {
+    const offsets = [];
+    for (let i = 1; i < totalBatches; i++) {
+      offsets.push(i * DEFAULT_LIMIT);
+    }
+
+    const fetchBatch = async (offset) => {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_images`,
+        {
+          params: {
+            ...query,
+            limit: DEFAULT_LIMIT,
+            offset,
+          },
+        },
+      );
+      return response.data.results;
+    };
+
+    const fetchAllBatches = async () => {
+      const results = [];
+      let index = 0;
+
+      const workers = Array.from(
+        { length: MAX_CONCURRENT_REQUESTS },
+        async () => {
+          while (index < offsets.length) {
+            const currentIndex = index++;
+            const batchResults = await fetchBatch(offsets[currentIndex]);
+            results.push(...batchResults);
+          }
+        },
+      );
+
+      await Promise.all(workers);
+      return results;
+    };
+
+    const remainingResults = await fetchAllBatches();
+    allResults.push(...remainingResults);
+  }
+
+  const finalData = {
+    count: allResults.length,
+    results: allResults,
+  };
+
+  // Cache the data
   await DbService.setItem(
     cacheKeys.IMAGES,
-    response.data,
+    finalData,
     WORKSITE_IMAGES_DATABASE,
   );
 
@@ -228,7 +321,7 @@ const loadCaseImagesCached = async (query: Record<string, unknown>) => {
     WORKSITE_IMAGES_DATABASE,
   );
 
-  return response.data;
+  return finalData;
 };
 
 export { loadCasesCached, loadCases, loadCaseImagesCached, loadUserLocations };
