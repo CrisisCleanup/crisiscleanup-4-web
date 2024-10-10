@@ -323,6 +323,7 @@
         <WorksiteNotes
           :worksite="worksite"
           data-testid="testSaveNoteInput"
+          expanded
           @save-note="saveNote"
           @input="currentNote = $event"
         />

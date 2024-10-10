@@ -333,6 +333,7 @@
           v-if="survivorToken.notes.length > 0"
           :can-add="false"
           :worksite="survivorToken"
+          :expanded="false"
         />
 
         <textarea
