@@ -1172,36 +1172,43 @@ export default defineComponent({
       }
     }
 
-    async function onGeocodeSelect(value) {
-      const geocode = await GeocoderService.getPlaceDetails(
-        value.description,
-        value.data.place_id,
-      );
-      const { lat, lng } = geocode.location;
-      const isWithinCurrentIncident = checkGeocodeLocation({ lat, lng });
-      if (!isWithinCurrentIncident) {
-        const incidentResult = await getPotentialIncidents({ lat, lng });
+    async function onGeocodeSelect(value: Record<string, any>) {
+      try {
+        const geocode = await GeocoderService.getPlaceDetails(
+          value.description,
+          value.data.place_id,
+        );
+        const { lat, lng } = geocode.location;
+        const isWithinCurrentIncident = checkGeocodeLocation({ lat, lng });
+        if (!isWithinCurrentIncident) {
+          const incidentResult = await getPotentialIncidents({ lat, lng });
 
-        if (incidentResult === 'retry' || incidentResult === 'cancel') {
-          updateWorksite('', 'address');
-          return;
+          if (incidentResult === 'retry' || incidentResult === 'cancel') {
+            updateWorksite('', 'address');
+            return;
+          }
+
+          if (incidentResult === 'switchIncident') {
+            updateWorksite(potentialIncidents.value[0].id, 'incident');
+            await updateWorksiteFields(geocode);
+            await saveWorksite(false);
+            emit('reloadTable');
+            emit('reloadMap', worksite.value.id);
+            emit('switchIncident', {
+              incident: potentialIncidents.value[0].id,
+              worksite: worksite.value,
+            });
+            return;
+          }
         }
 
-        if (incidentResult === 'switchIncident') {
-          updateWorksite(potentialIncidents.value[0].id, 'incident');
-          await updateWorksiteFields(geocode);
-          await saveWorksite(false);
-          emit('reloadTable');
-          emit('reloadMap', worksite.value.id);
-          emit('switchIncident', {
-            incident: potentialIncidents.value[0].id,
-            worksite: worksite.value,
-          });
-          return;
-        }
+        await updateWorksiteFields(geocode);
+      } catch (error) {
+        console.error('Unable to geocode place', error);
+        $toasted.error(
+          `~~Unable to geocode selected place! Error: ${getErrorMessage(error)}`,
+        );
       }
-
-      await updateWorksiteFields(geocode);
     }
 
     async function onWorksiteSelect(value) {
