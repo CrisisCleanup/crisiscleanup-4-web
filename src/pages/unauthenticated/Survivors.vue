@@ -607,27 +607,40 @@ export default defineComponent({
       );
     }
 
-    async function onGeocodeSelect(value) {
-      const geocode = await GeocoderService.getPlaceDetails(
-        value.description,
-        value.data.place_id,
-      );
-      const { lat, lng } = geocode.location;
-      const geocodeKeys = ['address', 'city', 'county', 'state', 'postal_code'];
-      for (const key of geocodeKeys) {
-        state.survivorToken.worksite[key] = geocode.address_components[key];
+    async function onGeocodeSelect(value: Record<string, any>) {
+      try {
+        const geocode = await GeocoderService.getPlaceDetails(
+          value.description,
+          value.data.place_id,
+        );
+        const { lat, lng } = geocode.location;
+        const geocodeKeys = [
+          'address',
+          'city',
+          'county',
+          'state',
+          'postal_code',
+        ];
+        for (const key of geocodeKeys) {
+          state.survivorToken.worksite[key] = geocode.address_components[key];
+        }
+
+        state.survivorToken.worksite.location = {
+          type: 'Point',
+          coordinates: [lng, lat],
+        };
+
+        state.hideDetailedAddressFields = true;
+        state.addressSet = true;
+
+        // this.$log.debug(geocode.location);
+        // await this.updateWorksiteFields(geocode);
+      } catch (error) {
+        console.error('Unable to geocode place', error);
+        $toasted.error(
+          `~~Unable to geocode selected place! Error: ${getErrorMessage(error)}`,
+        );
       }
-
-      state.survivorToken.worksite.location = {
-        type: 'Point',
-        coordinates: [lng, lat],
-      };
-
-      state.hideDetailedAddressFields = true;
-      state.addressSet = true;
-
-      // this.$log.debug(geocode.location);
-      // await this.updateWorksiteFields(geocode);
     }
 
     async function getSurvivorToken(filesOnly = false) {
