@@ -379,6 +379,11 @@ const RANDOM_QUOTES = [
   'spinner.scientists_biblical_prophets_growth_industry',
   'spinner.climate_change_janitorial_staff',
   'spinner.muckers_gonna_muck',
+  'spinner.ants_go_marching_one_by_one',
+  'spinner.one_potato_two_potatoes',
+  'spinner.one_two_buckle_my_shoe',
+  'spinner.yes_we_have_no_bananas',
+  'spinner.service_like_peeing_your_pants',
 ];
 
 export default defineComponent({
