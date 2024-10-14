@@ -62,12 +62,9 @@
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import User from '../../models/User';
-<<<<<<< HEAD
 import { DbService, USER_DATABASE } from '@/services/db.service';
-=======
 import { getUserAvatarLink } from '../../utils/urls';
 import Avatar from '@/components/Avatar.vue';
->>>>>>> feat(detailsTooltip): add image to the side
 
 export default defineComponent({
   name: 'UserDetailsTooltip',
