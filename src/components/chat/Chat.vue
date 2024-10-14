@@ -43,7 +43,9 @@
                   :custom-size="{ width: '40px', height: '40px' }"
                   inner-classes="shadow"
                 />
-                <UserDetailsTooltip :user="user.id" :user-object="user" />
+                <UserDetailsTooltip :user="user.id" :user-object="user">
+                  <div>test</div>
+                </UserDetailsTooltip>
                 <div v-if="mobileOnlineUsers.includes(user.id)">
                   <font-awesome-icon
                     icon="mobile-screen"
