@@ -195,6 +195,7 @@ module.exports = {
         'disaster-icon': 500,
         'map-controls': 500,
         'phone-overlay': 600,
+        'search-dropdown': 650,
         'header': 700,
         'sidebar': 800,
         'modal-mask': 900,

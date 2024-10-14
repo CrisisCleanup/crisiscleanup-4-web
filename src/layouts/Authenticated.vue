@@ -255,6 +255,21 @@ export default defineComponent({
       }
       return next();
     });
+
+    router.onError((error, to) => {
+      if (
+        error?.message?.includes(
+          'Failed to fetch dynamically imported module',
+        ) ||
+        error?.message?.includes('Importing a module script failed')
+      ) {
+        if (to?.fullPath) {
+          window.location = to.fullPath;
+        } else {
+          window.location.reload();
+        }
+      }
+    });
     loadDebug('Loading started...');
     const onPageReadyUnSub = whenever(hasCurrentIncident, () => {
       loadDebug('Loading finished...');
