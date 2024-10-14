@@ -384,6 +384,8 @@ const RANDOM_QUOTES = [
   'spinner.one_two_buckle_my_shoe',
   'spinner.yes_we_have_no_bananas',
   'spinner.service_like_peeing_your_pants',
+  'spinner.two_types_of_fun',
+  'spinner.aaron_titus_h2prep_author',
 ];
 
 export default defineComponent({
