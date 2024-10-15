@@ -5,7 +5,7 @@
         :model-value="globalSearch"
         data-testid="testGlobalSearch"
         icon="search"
-        class="w-full mx-4"
+        class="w-full"
         :placeholder="$t('actions.search_everywhere')"
         @update:model-value="
           (value) => {
