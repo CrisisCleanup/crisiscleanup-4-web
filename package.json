@@ -67,7 +67,7 @@
     "@sentry/integrations": "^7.111.0",
     "@sentry/vue": "^8.27.0",
     "@sipec/vue3-tags-input": "^3.0.4",
-    "@turf/turf": "^6.5.0",
+    "@turf/turf": "^7.0.0",
     "@types/leaflet.gridlayer.googlemutant": "^0.4.7",
     "@types/leaflet.heat": "^0.2.2",
     "@types/leaflet.markercluster": "^1.5.4",
