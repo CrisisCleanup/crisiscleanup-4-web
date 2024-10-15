@@ -4,6 +4,10 @@
     :query="query"
     :body-style="{ height: '300px' }"
     :url="url"
+    enable-search
+    :pagination="{
+      pageSize: 100,
+    }"
     @change="$emit('change', $event)"
     @row-click="showContacts"
   >
@@ -79,6 +83,19 @@
           size="lg"
         />
         <base-button
+          data-testid="testNotifyButton"
+          :text="$t('actions.notify')"
+          :alt="$t('actions.notify')"
+          variant="outline"
+          size="small"
+          class="mx-1"
+          :action="
+            () => {
+              notifyOrganization(slotProps.item.id);
+            }
+          "
+        />
+        <base-button
           v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
           data-testid="testApproveButton"
           :text="$t('actions.approve')"
@@ -147,6 +164,9 @@ import useDialogs from '@/hooks/useDialogs';
 import Organization from '@/models/Organization';
 import Incident from '@/models/Incident';
 import useCurrentUser from '@/hooks/useCurrentUser';
+import { useCurrentIncident } from '@/hooks';
+import { getErrorMessage } from '@/utils/errors';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: 'OrganizationApprovalTable',
@@ -161,8 +181,10 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t } = useI18n();
     const { currentUser } = useCurrentUser();
+    const { currentIncidentId } = useCurrentIncident();
     const { confirm, organizationApproval } = useDialogs();
     const url = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/organizations`;
+    const $toasted = useToast();
 
     async function getOrganizationContacts(organizationId: string) {
       const response = await axios.get(
@@ -223,6 +245,18 @@ export default defineComponent({
       emit('reload');
     }
 
+    async function notifyOrganization(organizationId: string) {
+      try {
+        await Organization.api().notify(
+          organizationId,
+          currentIncidentId.value,
+        );
+        $toasted.success(t('adminOrganization.notification_sent'));
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
+    }
+
     return {
       currentUser,
       getIncidentName,
@@ -230,6 +264,7 @@ export default defineComponent({
       approveOrganization,
       rejectOrganization,
       clearApproval,
+      notifyOrganization,
       moment,
       url,
       columns: [
