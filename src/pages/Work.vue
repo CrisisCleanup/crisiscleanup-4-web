@@ -1888,7 +1888,7 @@ export default defineComponent({
             title: t('info.processing_download'),
             content: t('info.processing_download_d'),
           });
-        } else if (response.includes('400')) {
+        } else if (typeof response === 'string' && response.includes('400')) {
           const result = await confirm({
             title: t('~~Large Data Download'),
             content: t(
