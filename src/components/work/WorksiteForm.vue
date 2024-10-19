@@ -450,7 +450,7 @@ import * as turf from '@turf/turf';
 import * as L from 'leaflet';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import GeocoderService from '../../services/geocoder.service';
 import Worksite from '../../models/Worksite';
 import { StorageService } from '../../services/storage.service';
@@ -468,6 +468,9 @@ import SectionHeading from './SectionHeading.vue';
 import WorksiteNotes from './WorksiteNotes.vue';
 import Language from '@/models/Language';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
+import useConnectFirst from '@/hooks/useConnectFirst';
+import { Store } from 'vuex';
+import PhoneOutbound from '@/models/PhoneOutbound';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -525,6 +528,10 @@ export default defineComponent({
     const updateImage = (formData) => {
       updatedFiles.value.push(formData.id);
     };
+
+    const { call, isInboundCall } = useConnectFirst({
+      emit,
+    });
 
     const contactFrequencyOptions = AUTO_CONTACT_FREQUENCY_OPTIONS.map(
       (key) => {
@@ -977,7 +984,7 @@ export default defineComponent({
       updatedFiles.value = imageList;
     }
 
-    async function saveWorksite(reload = true) {
+    async function saveWorksite(reload = true, isRetry = false) {
       let firstErrorField;
       let firstErrorMessage = '';
 
@@ -1115,14 +1122,35 @@ export default defineComponent({
           if (isFavorite.value) {
             await Worksite.api().favorite(worksite.value.id);
           }
+          return worksite.value.id;
         } else {
-          const savedWorksite = await Worksite.api().post('/worksites', {
+          const response = await Worksite.api().post('/worksites', {
             ...worksite.value,
             incident: props.incidentId,
             skip_duplicate_check: true,
             send_sms: true,
           });
-          const worksiteId = savedWorksite.entities.worksites[0].id;
+
+          if (response.response instanceof AxiosError) {
+            // if error is a 403, save the current details to local storage and reload the page with a query param
+            if ([500, 403].includes(response.response.status) && !isRetry) {
+              StorageService.setItem('currentWorksiteToSave', worksite.value);
+              if (call.value) {
+                StorageService.setItem('callToComplete', {
+                  call: call.value,
+                  type: isInboundCall.value ? 'inbound' : 'outbound',
+                });
+              }
+
+              window.location.href = `${window.location.origin}${window.location.pathname}?continueSaving=true`;
+              return;
+            }
+
+            $toasted.error(getErrorMessage(response.response));
+            return;
+          }
+
+          const worksiteId = response.entities.worksites[0].id;
           StorageService.removeItem('currentWorksite');
           await Promise.all(
             notesToSave.map((n) => Worksite.api().addNote(worksiteId, n)),
@@ -1158,17 +1186,17 @@ export default defineComponent({
           addRecentWorksite(worksite.value as Worksite);
         }
 
-        await $toasted.success(t('caseForm.new_case_success'));
+        $toasted.success(t('caseForm.new_case_success'));
         dirtyFields.value = new Set();
         if (reload) {
           emit('reloadTable');
           emit('reloadMap', worksite.value.id);
           emit('savedWorksite', worksite.value);
         }
-        return true;
+        return worksite.value.id;
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
-        return false;
+        return;
       }
     }
 
@@ -1399,6 +1427,103 @@ export default defineComponent({
         errorString.value = error.message;
       }
     }
+
+    async function updateCallStatus(worksiteId = null) {
+      const callToComplete = StorageService.getItem('callToComplete');
+      if (callToComplete) {
+        StorageService.removeItem('callToComplete');
+
+        try {
+          if (callToComplete.type === 'outbound') {
+            await PhoneOutbound.api().updateStatus(callToComplete.call.id, {
+              statusId: worksiteId ? 1 : 23,
+              worksiteId: worksiteId,
+              notes: worksiteId
+                ? 'Automatically saved case and completed call'
+                : `Automatically completed call case not saved for outbound ${callToComplete.call.id}`,
+            });
+          }
+
+          if (callToComplete.type === 'inbound') {
+            let data = {
+              status: worksiteId ? 1 : 23,
+              notes: worksiteId
+                ? 'Automatically saved case and completed call'
+                : `Automatically completed call case not saved for inbound ${callToComplete.call.id}`,
+              cases: [],
+            };
+            if (worksiteId) {
+              data = { ...data, cases: [worksiteId] };
+            }
+
+            await axios.post(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/phone_inbound/${
+                callToComplete.call.id
+              }/update_status`,
+              data,
+            );
+          }
+        } catch (error) {
+          $toasted.error(getErrorMessage(error));
+        } finally {
+          StorageService.removeItem('callToComplete');
+        }
+      }
+    }
+
+    watch(
+      () => form.value,
+      (newValue) => {
+        if (newValue && route.query.continueSaving) {
+          delete route.query.continueSaving;
+          worksite.value = StorageService.getItem('currentWorksiteToSave');
+          StorageService.removeItem('currentWorksiteToSave');
+
+          const toastId = $toasted.info(
+            t('~~Attempting to save case please wait...'),
+          );
+
+          saveWorksite(true, true)
+            .then(async (worksiteId) => {
+              $toasted.dismiss(toastId);
+              await updateCallStatus(worksiteId);
+
+              if (worksiteId) {
+                StorageService.removeItem('currentWorksite');
+              }
+
+              await (worksiteId
+                ? confirm({
+                    title: t('~~Case saved'),
+                    content: t(
+                      '~~Case saved successfully and call status updated if needed',
+                    ),
+                    actions: {
+                      ok: {
+                        text: t('actions.ok'),
+                        type: 'solid',
+                      },
+                    },
+                  })
+                : confirm({
+                    title: t('~~Case not saved'),
+                    content: t(
+                      '~~Case not saved successfully, please try saving again ',
+                    ),
+                    actions: {
+                      ok: {
+                        text: t('actions.ok'),
+                        type: 'solid',
+                      },
+                    },
+                  }));
+            })
+            .catch(() => {
+              $toasted.dismiss(toastId);
+            });
+        }
+      },
+    );
 
     watch(
       () => props.dataPrefill,
