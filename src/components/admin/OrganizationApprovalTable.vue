@@ -83,19 +83,6 @@
           size="lg"
         />
         <base-button
-          data-testid="testNotifyButton"
-          :text="$t('actions.notify')"
-          :alt="$t('actions.notify')"
-          variant="outline"
-          size="small"
-          class="mx-1"
-          :action="
-            () => {
-              notifyOrganization(slotProps.item.id);
-            }
-          "
-        />
-        <base-button
           v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
           data-testid="testApproveButton"
           :text="$t('actions.approve')"
@@ -120,6 +107,19 @@
           :action="
             () => {
               rejectOrganization(slotProps.item.id);
+            }
+          "
+        />
+        <base-button
+          data-testid="testNotifyButton"
+          :text="$t('actions.notify')"
+          :alt="$t('adminDashboard.notify_content')"
+          variant="outline"
+          size="small"
+          class="mx-1"
+          :action="
+            () => {
+              notifyOrganization(slotProps.item.id);
             }
           "
         />

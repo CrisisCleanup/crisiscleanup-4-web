@@ -465,9 +465,7 @@ export default defineComponent({
     });
 
     const incidentOutdatedWarning = computed(() =>
-      t(
-        '~~You may download old photos from this case, but you may not update or add new photos. If you were affected by a new disaster, please see if we have opened a <a href="https://www.crisiscleanup.org" title="Current Disasters">Crisis Cleanup Hotline</a> for your area and call a relevant phone number to create a NEW case.',
-      ),
+      t('survivorContact.outdated_warning'),
     );
     const isSurvivorIncidentOutdated = computed(() => {
       const startAt = state.survivorIncident?.start_at;
@@ -716,7 +714,7 @@ export default defineComponent({
     async function getSurvivorIncident() {
       const incidentId = state.survivorToken?.worksite?.incident;
       if (!incidentId) {
-        $toasted.error('~~Failed to fetch survivor incident!');
+        $toasted.error('info.cannot_fetch_incident');
         return;
       }
       const response = await axios.get(
