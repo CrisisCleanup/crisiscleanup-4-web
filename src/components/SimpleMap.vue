@@ -96,8 +96,8 @@
         data-testid="testToggleMapTypeButton"
         icon="map"
         icon-size="xs"
-        :title="$t('~~Toggle Map Type')"
-        :alt="$t('~~Toggle Map Type')"
+        :title="$t('worksiteMap.toggle_map_type')"
+        :alt="$t('worksiteMap.toggle_map_type')"
         :action="
           () => {
             $emit('onToggleMapType');

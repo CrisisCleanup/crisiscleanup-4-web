@@ -1890,17 +1890,15 @@ export default defineComponent({
           });
         } else if (response.status === 400) {
           const result = await confirm({
-            title: t('~~Large Data Download'),
-            content: t(
-              '~~The size of the data you are trying to download is too large. You can use the filters to reduce the size of the data to under 5000 records for faster downloads. Do you want to continue?',
-            ),
+            title: t('casesVue.large_data_download_warning_title'),
+            content: t('casesVue.large_data_download_warning_description'),
             actions: {
               yes: {
-                text: t('~~Yes'),
+                text: t('actions.yes'),
                 type: 'solid',
               },
               no: {
-                text: t('No'),
+                text: t('actions.no'),
                 type: 'outline',
               },
             },

@@ -170,7 +170,7 @@
             v-model="asset.share_text_t"
             text-area
             class="mt-3"
-            :placeholder="$t('~~Sharing Text for asset')"
+            :placeholder="$t('incidentAssets.sharing_text')"
           />
           <div class="flex mt-2 items-center justify-between">
             <div class="flex gap-5 items-center">

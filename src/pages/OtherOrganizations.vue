@@ -194,7 +194,7 @@ export default defineComponent({
         width: '50px',
       },
       {
-        title: t('~~Type'),
+        title: t('profileOrg.organization_type'),
         dataIndex: 'type_t',
         key: 'type_t',
         sortable: false,

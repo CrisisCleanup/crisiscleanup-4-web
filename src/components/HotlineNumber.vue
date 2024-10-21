@@ -19,7 +19,7 @@ const { copy, copied } = useClipboard({
 
 async function copyToClipboard(text: string) {
   await copy(text);
-  $toasted.success(t('~~Text copied to clipboard!'), { timeout: 2000 });
+  $toasted.success(t('info.copied_to_clipboard'), { timeout: 2000 });
 }
 </script>
 
@@ -35,7 +35,7 @@ async function copyToClipboard(text: string) {
     </div>
     <div
       v-tooltip="{
-        content: copied ? t('~~Copied') : t('~~Copy to clipboard'),
+        content: copied ? t('actions.copied') : t('actions.copy_to_clipboard'),
         showTriggers: ['hover', 'click'],
         hideTriggers: ['hover'],
         popperClass: 'interactive-tooltip',
