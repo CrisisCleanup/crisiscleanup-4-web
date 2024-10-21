@@ -103,6 +103,7 @@ describe('models > Organization', () => {
         },
         "deleteFile": [Function],
         "model": [Function],
+        "notify": [Function],
         "reject": [Function],
       }
     `);
