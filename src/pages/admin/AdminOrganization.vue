@@ -22,7 +22,7 @@
         <base-button
           data-testid="testNotifyButton"
           :text="$t('actions.notify')"
-          :alt="$t('actions.notify')"
+          :alt="$t('adminDashboard.notify_content')"
           variant="outline"
           size="small"
           class="mr-2"

@@ -1480,7 +1480,7 @@ export default defineComponent({
           StorageService.removeItem('currentWorksiteToSave');
 
           const toastId = $toasted.info(
-            t('~~Attempting to save case please wait...'),
+            t('info.attempting_to_save_case'),
           );
 
           saveWorksite(true, true)
@@ -1494,10 +1494,8 @@ export default defineComponent({
 
               await (worksiteId
                 ? confirm({
-                    title: t('~~Case saved'),
-                    content: t(
-                      '~~Case saved successfully and call status updated if needed',
-                    ),
+                    title: t('caseForm.case_saved'),
+                    content: t('caseForm.case_call_status_saved'),
                     actions: {
                       ok: {
                         text: t('actions.ok'),
@@ -1506,10 +1504,8 @@ export default defineComponent({
                     },
                   })
                 : confirm({
-                    title: t('~~Case not saved'),
-                    content: t(
-                      '~~Case not saved successfully, please try saving again ',
-                    ),
+                    title: t('caseForm.case_not_saved'),
+                    content: t('caseForm.case_not_saved_try_again'),
                     actions: {
                       ok: {
                         text: t('actions.ok'),

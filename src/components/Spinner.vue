@@ -386,6 +386,22 @@ const RANDOM_QUOTES = [
   'spinner.service_like_peeing_your_pants',
   'spinner.two_types_of_fun',
   'spinner.aaron_titus_h2prep_author',
+  'spinner.calm_clarity',
+  'spinner.chaotic_clutter',
+  'spinner.clear_chaos',
+  'spinner.hazardous_heaps',
+  'spinner.hurricane_havoc',
+  'spinner.coastal_communities',
+  'spinner.disaster_debris',
+  'spinner.cat_chase_tail',
+  'spinner.server_tea_party',
+  'spinner.bouncing_balloons',
+  'spinner.fidget_spinner',
+  'spinner.one_bite_doughnut',
+  'spinner.cookie_teensy_bite',
+  'spinner.hamster_dryer_socks',
+  'spinner.use_time_on_novel',
+  'spinner.dedicate_page_to_you',
 ];
 
 export default defineComponent({
