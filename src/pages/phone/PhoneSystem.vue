@@ -431,7 +431,6 @@
           :incident-id="String(currentIncidentId)"
           :worksite-id="worksiteId"
           disable-claim-and-save
-          :data-prefill="prefillData"
           :is-editing="isEditing"
           class="border shadow"
           @jump-to-case="jumpToCase"
@@ -692,7 +691,6 @@
             :incident-id="String(currentIncidentId)"
             :worksite-id="worksiteId"
             disable-claim-and-save
-            :data-prefill="prefillData"
             :is-editing="isEditing"
             class="border shadow"
             @jump-to-case="jumpToCase"

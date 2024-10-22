@@ -71,8 +71,9 @@ axios.interceptors.response.use(
       error instanceof AxiosError &&
       [400, 408, 409, 422, 502].includes(error.response?.status as number)
     ) {
-      return getAndToastWarningMessage(error);
+      getAndToastWarningMessage(error);
     }
+    throw error;
   },
 );
 const buildApp = (app: VueApp) =>

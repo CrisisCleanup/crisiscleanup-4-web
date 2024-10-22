@@ -19,6 +19,15 @@
           class="mr-2"
           :action="saveOrganization"
         />
+        <base-button
+          data-testid="testNotifyButton"
+          :text="$t('actions.notify')"
+          :alt="$t('actions.notify')"
+          variant="outline"
+          size="small"
+          class="mr-2"
+          :action="notifyOrganization"
+        />
         <template v-if="!organization.approved_by && !organization.rejected_by">
           <base-button
             :text="$t('actions.approve')"
@@ -782,6 +791,7 @@ import FloatingInput from '../../components/FloatingInput.vue';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import useDialogs from '../../hooks/useDialogs';
 import useCapabilities from '../../hooks/useCapabilities';
+import { useCurrentIncident } from '@/hooks';
 
 export default defineComponent({
   name: 'AdminOrganization',
@@ -797,6 +807,8 @@ export default defineComponent({
     const route = useRoute();
     const { confirm, selection, component } = useDialogs();
     const { saveCapabilities } = useCapabilities();
+    const { currentIncidentId } = useCurrentIncident();
+
     const mq = useMq();
 
     const state = reactive({
@@ -1460,6 +1472,19 @@ export default defineComponent({
       }
     }
 
+    async function notifyOrganization() {
+      try {
+        await Organization.api().notify(
+          route.params.organization_id,
+          currentIncidentId.value,
+        );
+        $toasted.success(t('adminOrganization.notification_sent'));
+        await loadPageData();
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
+    }
+
     onMounted(async () => {
       stateRefs.loading.value = true;
       await loadPageData();
@@ -1509,6 +1534,7 @@ export default defineComponent({
       generateApiKey,
       $mq: mq.current,
       editLocation,
+      notifyOrganization,
     };
   },
 });

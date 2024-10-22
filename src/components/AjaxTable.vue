@@ -6,7 +6,7 @@
         data-testid="testTableSearchTextInput"
         :model-value="search"
         icon="search"
-        class="w-72 mx-4"
+        class="w-72"
         :placeholder="$t('info.search_items')"
         @update:model-value="
           (value) => {
@@ -152,7 +152,7 @@ export default defineComponent({
       meta.value.pagination = {
         ...pagination,
         total: response.data.count,
-      } as any;
+      };
       meta.value.sorter = {
         ...sorter,
       };

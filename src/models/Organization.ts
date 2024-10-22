@@ -55,6 +55,13 @@ export default class Organization extends CCUModel {
           { save: false },
         );
       },
+      notify(this: Request, id: string, incident: string) {
+        return this.post(
+          `/organizations/${id}/notify`,
+          { incident: incident },
+          { save: false },
+        );
+      },
     },
   };
 
