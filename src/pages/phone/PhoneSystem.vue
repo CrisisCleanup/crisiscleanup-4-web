@@ -542,6 +542,7 @@
               :key="showingMap"
               :map-loading="mapLoading"
               show-zoom-buttons
+              :available-work-types="availableWorkTypes"
               @on-zoom-in="zoomIn"
               @on-zoom-out="zoomOut"
               @on-zoom-incident-center="goToIncidentCenter"
@@ -853,6 +854,7 @@ export default defineComponent({
     const statusTab = ref(null);
     const callTab = ref(null);
     const selectedTableItems = ref(new Set());
+    const availableWorkTypes = ref({});
     const connectFirst = useConnectFirst(context);
     const showingSearchModal = ref(false);
     const mobileSearch = ref('');
@@ -1449,7 +1451,9 @@ export default defineComponent({
         (m) => {
           onSelectMarker(m);
         },
-        () => {},
+        ({ workTypes }) => {
+          availableWorkTypes.value = workTypes;
+        },
         true,
       );
     }
@@ -1587,6 +1591,7 @@ export default defineComponent({
       retryFailedCall,
       onSelectionChanged,
       selectedTableItems,
+      availableWorkTypes,
       showUnclaimModal,
       reloadTable,
       onSaveCase,
