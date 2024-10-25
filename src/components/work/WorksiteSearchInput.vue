@@ -288,7 +288,7 @@ export default defineComponent({
       return axios.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incidentId}`,
+        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=3&search=${search}&incident=${incidentId}`,
       );
     }
 

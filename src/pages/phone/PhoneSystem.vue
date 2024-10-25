@@ -98,7 +98,7 @@
               class="p-2 z-toolbar"
               data-testid="testManualDialerDiv"
               :dialing="dialing"
-              @on-dial="dialManualOutbound"
+              @on-dial="initiateManualOutbound"
             ></ManualDialer>
           </template>
         </PhoneComponentButton>
@@ -863,6 +863,7 @@ export default defineComponent({
       selectedTableItems,
       () => {},
     );
+    const manualOutboundBlock = ref(false);
 
     const {
       isOnCall,
@@ -885,6 +886,14 @@ export default defineComponent({
       setCurrentIncidentId,
       dialManualOutbound,
     } = connectFirst;
+
+    const initiateManualOutbound = async (number: string) => {
+      manualOutboundBlock.value = true;
+      setTimeout(() => {
+        manualOutboundBlock.value = false;
+      }, 60_000);
+      return dialManualOutbound(number);
+    };
 
     const prefillData = computed(() => {
       if (caller.value) {
@@ -1284,7 +1293,7 @@ export default defineComponent({
       return response.results;
     }
 
-    async function onLoggedIn(forceOutbound = false) {
+    async function onLoggedIn() {
       if (
         allowCallType.value === AllowedCallType.BOTH &&
         Number(stats.value.inQueue || stats.value.routing || 0) === 0
@@ -1390,7 +1399,7 @@ export default defineComponent({
         }
 
         await phoneService.changeState('WORKING');
-        await dialManualOutbound(phone_number);
+        await initiateManualOutbound(phone_number);
       }
     }
 
@@ -1511,8 +1520,13 @@ export default defineComponent({
       await init();
 
       setInterval(() => {
-        if (isTakingCalls.value && !isOnCall.value && !isTransitioning.value) {
-          onLoggedIn(true);
+        if (
+          isTakingCalls.value &&
+          !isOnCall.value &&
+          !isTransitioning.value &&
+          !manualOutboundBlock.value
+        ) {
+          onLoggedIn();
         }
       }, 20_000);
     });
