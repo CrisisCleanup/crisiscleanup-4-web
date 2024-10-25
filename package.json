@@ -125,7 +125,7 @@
     "moment-timezone": "^0.5.43",
     "papaparse": "^5.4.1",
     "parse-address": "^1.1.2",
-    "pixi-filters": "^5.2.1",
+    "pixi-filters": "^6.0.0",
     "pixi.js": "^6.5.9",
     "postcss-import": "^16.1.0",
     "pretty-format": "^29.7.0",
