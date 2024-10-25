@@ -1479,9 +1479,7 @@ export default defineComponent({
           worksite.value = StorageService.getItem('currentWorksiteToSave');
           StorageService.removeItem('currentWorksiteToSave');
 
-          const toastId = $toasted.info(
-            t('info.attempting_to_save_case'),
-          );
+          const toastId = $toasted.info(t('info.attempting_to_save_case'));
 
           saveWorksite(true, true)
             .then(async (worksiteId) => {
