@@ -368,7 +368,7 @@ importers:
         version: 3.58.1
       '@types/leaflet':
         specifier: ^1.9.12
-        version: 1.9.12
+        version: 1.9.14
       '@types/lodash':
         specifier: ^4.17.7
         version: 4.17.9
@@ -2500,8 +2500,8 @@ packages:
   '@types/leaflet.markercluster@1.5.4':
     resolution: {integrity: sha512-tfMP8J62+wfsVLDLGh5Zh1JZxijCaBmVsMAX78MkLPwvPitmZZtSin5aWOVRhZrCS+pEOZwNzexbfWXlY+7yjg==}
 
-  '@types/leaflet@1.9.12':
-    resolution: {integrity: sha512-BK7XS+NyRI291HIo0HCfE18Lp8oA30H1gpi1tf0mF3TgiCEzanQjOqNZ4x126SXzzi2oNSZhZ5axJp1k0iM6jg==}
+  '@types/leaflet@1.9.14':
+    resolution: {integrity: sha512-sx2q6MDJaajwhKeVgPSvqXd8rhNJSTA3tMidQGduZn9S6WBYxDkCpSpV5xXEmSg7Cgdk/5vJGhVF1kMYLzauBg==}
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
@@ -9492,17 +9492,17 @@ snapshots:
 
   '@types/leaflet.gridlayer.googlemutant@0.4.9':
     dependencies:
-      '@types/leaflet': 1.9.12
+      '@types/leaflet': 1.9.14
 
   '@types/leaflet.heat@0.2.4':
     dependencies:
-      '@types/leaflet': 1.9.12
+      '@types/leaflet': 1.9.14
 
   '@types/leaflet.markercluster@1.5.4':
     dependencies:
-      '@types/leaflet': 1.9.12
+      '@types/leaflet': 1.9.14
 
-  '@types/leaflet@1.9.12':
+  '@types/leaflet@1.9.14':
     dependencies:
       '@types/geojson': 7946.0.14
 
