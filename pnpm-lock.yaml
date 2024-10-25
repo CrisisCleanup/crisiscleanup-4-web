@@ -346,8 +346,8 @@ importers:
         specifier: ^2.2.242
         version: 2.2.253
       '@playwright/test':
-        specifier: ^1.46.1
-        version: 1.47.2
+        specifier: ^1.47.0
+        version: 1.47.0
       '@sentry/vite-plugin':
         specifier: ^2.22.3
         version: 2.22.4
@@ -1719,8 +1719,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.47.2':
-    resolution: {integrity: sha512-jTXRsoSPONAs8Za9QEQdyjFn+0ZQFjCiIztAIF6bi1HqhBzG9Ma7g1WotyiGqFSBRZjIEqMdT8RUlbk1QVhzCQ==}
+  '@playwright/test@1.47.0':
+    resolution: {integrity: sha512-SgAdlSwYVpToI4e/IH19IHHWvoijAYH5hu2MWSXptRypLSnzj51PcGD+rsOXFayde4P9ZLi+loXVwArg6IUkCA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -5341,8 +5341,8 @@ packages:
   pkg-types@1.2.0:
     resolution: {integrity: sha512-+ifYuSSqOQ8CqP4MbZA5hDpb97n3E8SVWdJe+Wms9kj745lmd3b7EZJiqvmLwAlmRfjrI7Hi5z3kdBJ93lFNPA==}
 
-  playwright-core@1.47.2:
-    resolution: {integrity: sha512-3JvMfF+9LJfe16l7AbSmU555PaTl2tPyQsVInqm3id16pdDfvZ8TTZ/pyzmkbDrZTQefyzU7AIHlZqQnxpqHVQ==}
+  playwright-core@1.47.0:
+    resolution: {integrity: sha512-1DyHT8OqkcfCkYUD9zzUTfg7EfTd+6a8MkD/NWOvjo0u/SCNd5YmY/lJwFvUZOxJbWNds+ei7ic2+R/cRz/PDg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -5350,8 +5350,8 @@ packages:
     resolution: {integrity: sha512-Jl/R0fP3XdGvw693TABt9ttNBsPY41QQBwQaT6E9X01hZ81jA/T5lskwVuGmlfQpf+A5Eqsjg64BpjFg0p762g==}
     hasBin: true
 
-  playwright@1.47.2:
-    resolution: {integrity: sha512-nx1cLMmQWqmA3UsnjaaokyoUpdVaaDhJhMoxX2qj3McpjnsqFHs516QAKYhqHAgOP+oCFTEOCOAaD1RgD/RQfA==}
+  playwright@1.47.0:
+    resolution: {integrity: sha512-jOWiRq2pdNAX/mwLiwFYnPHpEZ4rM+fRSQpRHwEwZlP2PUANvL3+aJOF/bvISMhFD30rqMxUB4RJx9aQbfh4Ww==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -8078,9 +8078,9 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@playwright/test@1.47.2':
+  '@playwright/test@1.47.0':
     dependencies:
-      playwright: 1.47.2
+      playwright: 1.47.0
 
   '@polka/url@1.0.0-next.25': {}
 
@@ -12569,7 +12569,7 @@ snapshots:
       mlly: 1.7.1
       pathe: 1.1.2
 
-  playwright-core@1.47.2: {}
+  playwright-core@1.47.0: {}
 
   playwright-slack-report@1.1.86(@types/node@20.16.9)(debug@4.3.7)(typescript@5.6.2):
     dependencies:
@@ -12587,9 +12587,9 @@ snapshots:
       - supports-color
       - typescript
 
-  playwright@1.47.2:
+  playwright@1.47.0:
     dependencies:
-      playwright-core: 1.47.2
+      playwright-core: 1.47.0
     optionalDependencies:
       fsevents: 2.3.2
 
