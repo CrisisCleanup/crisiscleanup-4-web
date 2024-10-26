@@ -367,7 +367,7 @@ const {
                 />
                 <base-button
                   v-else
-                  class="p-1 text-black text-sm"
+                  class="p-1 text-black text-sm ml-10"
                   variant="solid"
                   :action="showCompleteCall"
                   :alt="$t('phoneDashboard.complete_call')"
