@@ -138,7 +138,7 @@
     "rrule": "^2.8.1",
     "sass": "^1.77.8",
     "unique-names-generator": "^4.7.1",
-    "v-viewer": "^3.0.13",
+    "v-viewer": "^3.0.20",
     "viewerjs": "1.11.6",
     "vite-raw-plugin": "^1.0.2",
     "vue": "^3.4.38",
