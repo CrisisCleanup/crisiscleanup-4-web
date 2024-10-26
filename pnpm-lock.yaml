@@ -467,7 +467,7 @@ importers:
         version: 13.5.5
       playwright-slack-report:
         specifier: ^1.1.86
-        version: 1.1.86(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.2)
+        version: 1.1.88(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.2)
       postcss:
         specifier: ^8.4.41
         version: 8.4.47
@@ -2101,12 +2101,12 @@ packages:
     resolution: {integrity: sha512-Wz7QYfPAlG/DR+DfABddUZeNgoeY7d1J39OCR2jR+v7VBsB8ezulDK5szTnDDPDwLH5IWhLvXIHlCFZV7MSKgA==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
-  '@slack/types@2.12.0':
-    resolution: {integrity: sha512-yFewzUomYZ2BYaGJidPuIgjoYj5wqPDmi7DLSaGIkf+rCi4YZ2Z3DaiYIbz7qb/PL2NmamWjCvB7e9ArI5HkKg==}
+  '@slack/types@2.14.0':
+    resolution: {integrity: sha512-n0EGm7ENQRxlXbgKSrQZL69grzg1gHLAVd+GlRVQJ1NSORo0FrApR7wql/gaKdu2n4TO83Sq/AmeUOqD60aXUA==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.3.4':
-    resolution: {integrity: sha512-KwLK8dlz2lhr3NO7kbYQ7zgPTXPKrhq1JfQc0etJ0K8LSJhYYnf8GbVznvgDT/Uz1/pBXfFQnoXjrQIOKAdSuw==}
+  '@slack/web-api@7.7.0':
+    resolution: {integrity: sha512-DtRyjgQi0mObA2uC6H8nL2OhAISKDhvtOXgRjGRBnBhiaWb6df5vPmKHsOHjpweYALBMHtiqE5ajZFkDW/ag8Q==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@slack/webhook@7.0.3':
@@ -4293,6 +4293,10 @@ packages:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
     engines: {node: '>= 6'}
 
+  form-data@4.0.1:
+    resolution: {integrity: sha512-tzN8e4TX8+kkxGPK8D5u0FNmjPUjw3lwC9lSLxxoB/+GtsJG91CO8bSWy73APlgAZzZbXEYZJuxjkHH2w+Ezhw==}
+    engines: {node: '>= 6'}
+
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
@@ -5519,8 +5523,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-slack-report@1.1.86:
-    resolution: {integrity: sha512-Jl/R0fP3XdGvw693TABt9ttNBsPY41QQBwQaT6E9X01hZ81jA/T5lskwVuGmlfQpf+A5Eqsjg64BpjFg0p762g==}
+  playwright-slack-report@1.1.88:
+    resolution: {integrity: sha512-aog2LgJXM7sG5mpnTVIKkZA8CrL6kub4jJgMVL+p9iCvEmb1KkSVGDzbmWuwPrR4IytDhtDDz6ZGYm0CSl9P6A==}
     hasBin: true
 
   playwright@1.47.0:
@@ -8649,17 +8653,17 @@ snapshots:
     dependencies:
       '@types/node': 20.17.1
 
-  '@slack/types@2.12.0': {}
+  '@slack/types@2.14.0': {}
 
-  '@slack/web-api@7.3.4(debug@4.3.7)':
+  '@slack/web-api@7.7.0(debug@4.3.7)':
     dependencies:
       '@slack/logger': 4.0.0
-      '@slack/types': 2.12.0
+      '@slack/types': 2.14.0
       '@types/node': 20.17.1
       '@types/retry': 0.12.0
       axios: 1.7.7(debug@4.3.7)
       eventemitter3: 5.0.1
-      form-data: 4.0.0
+      form-data: 4.0.1
       is-electron: 2.2.2
       is-stream: 2.0.1
       p-queue: 6.6.2
@@ -8670,7 +8674,7 @@ snapshots:
 
   '@slack/webhook@7.0.3(debug@4.3.7)':
     dependencies:
-      '@slack/types': 2.12.0
+      '@slack/types': 2.14.0
       '@types/node': 20.17.1
       axios: 1.7.7(debug@4.3.7)
     transitivePeerDependencies:
@@ -11653,6 +11657,12 @@ snapshots:
       combined-stream: 1.0.8
       mime-types: 2.1.35
 
+  form-data@4.0.1:
+    dependencies:
+      asynckit: 0.4.0
+      combined-stream: 1.0.8
+      mime-types: 2.1.35
+
   fraction.js@4.3.7: {}
 
   fs-extra@11.2.0:
@@ -12934,9 +12944,9 @@ snapshots:
 
   playwright-core@1.47.0: {}
 
-  playwright-slack-report@1.1.86(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.2):
+  playwright-slack-report@1.1.88(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.2):
     dependencies:
-      '@slack/web-api': 7.3.4(debug@4.3.7)
+      '@slack/web-api': 7.7.0(debug@4.3.7)
       '@slack/webhook': 7.0.3(debug@4.3.7)
       commander: 11.1.0
       https-proxy-agent: 7.0.5
