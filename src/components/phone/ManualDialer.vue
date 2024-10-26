@@ -6,6 +6,9 @@
     <base-text class="my-2" data-testid="testManualDialHiddenCallerIdContent">
       {{ $t('phoneDashboard.manual_dial_hidden_caller_id') }}
     </base-text>
+    <base-text class="" data-testid="testManualDialerNoLateOutboundCalls">
+      {{ $t('phoneDashboard.no_late_outbound_calls') }}
+    </base-text>
     <div class="flex flex-col items-center gap-2 w-full max-w-md">
       <div class="grid grid-cols-6 gap-1">
         <base-select
