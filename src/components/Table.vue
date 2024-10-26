@@ -469,7 +469,6 @@ export default defineComponent({
       const currentGroup = paginationGroups.find((group) =>
         group.includes(currentPage),
       );
-      console.info('paginationTriggers', currentGroup);
       return currentGroup;
     });
 
