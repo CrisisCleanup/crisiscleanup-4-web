@@ -1012,11 +1012,10 @@ export default defineComponent({
         !firstErrorMessage;
 
       if (!isValid) {
-        if (firstErrorMessage) {
-          if (firstErrorField === 'address' && !isAddressValid.value) {
-            $toasted.error(t('caseForm.no_lat_lon_error'));
-            return false;
-          }
+        if (!firstErrorField && !isAddressValid.value) {
+          $toasted.error(t('caseForm.no_lat_lon_error'));
+          return false;
+        } else if (firstErrorMessage) {
           $toasted.error(firstErrorMessage);
           const errorFieldElement = document.querySelector(
             `#${firstErrorField}`,
