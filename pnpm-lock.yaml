@@ -398,7 +398,7 @@ importers:
         version: 5.1.4(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))(vue@3.5.7(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^2.0.5
-        version: 2.1.3(vitest@2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.4(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0))
+        version: 2.1.3(vitest@2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.5(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0))
       '@vue/test-utils':
         specifier: ^2.4.5
         version: 2.4.6
@@ -461,7 +461,7 @@ importers:
         version: 15.2.10
       msw:
         specifier: ^1.3.1
-        version: 1.3.4(typescript@5.6.2)
+        version: 1.3.5(typescript@5.6.2)
       nock:
         specifier: ^13.5.5
         version: 13.5.5
@@ -512,7 +512,7 @@ importers:
         version: 5.2.0(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))
       vitest:
         specifier: ^2.0.5
-        version: 2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.4(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0)
+        version: 2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.5(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0)
       vue-eslint-parser:
         specifier: ^9.4.2
         version: 9.4.3(eslint@9.13.0(jiti@1.21.6))
@@ -3083,8 +3083,8 @@ packages:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
     engines: {node: '>=8'}
 
-  ansi-regex@6.0.1:
-    resolution: {integrity: sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==}
+  ansi-regex@6.1.0:
+    resolution: {integrity: sha512-7HSX4QQb4CspciLpVFwyRe79O3xsIZDDLER21kERQ71oaPodF8jL725AgJMFAYbooIqolJoRLuM81SpeUkpkvA==}
     engines: {node: '>=12'}
 
   ansi-styles@2.2.1:
@@ -5206,8 +5206,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  msw@1.3.4:
-    resolution: {integrity: sha512-XxA/VomMIYLlgpFS00eQanBWIAT9gto4wxrRt9y58WBXJs1I0lQYRIWk7nKcY/7X6DhkKukcDgPcyAvkEc1i7w==}
+  msw@1.3.5:
+    resolution: {integrity: sha512-nG3fpmBXxFbKSIdk6miPuL3KjU6WMxgoW4tG1YgnP1M+TRG3Qn7b7R0euKAHq4vpwARHb18ZyfZljSxsTnMX2w==}
     engines: {node: '>=14'}
     hasBin: true
     peerDependencies:
@@ -6149,8 +6149,8 @@ packages:
   set-blocking@2.0.0:
     resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
-  set-cookie-parser@2.7.0:
-    resolution: {integrity: sha512-lXLOiqpkUumhRdFF3k1osNXCy9akgx/dyPZ5p8qAg9seJzXr5ZrlqZuWIMuY6ejOsVLE6flJ5/h3lsn57fQ/PQ==}
+  set-cookie-parser@2.7.1:
+    resolution: {integrity: sha512-IOc8uWeOZgnb3ptbCURJWNjWUPcO3ZnTTdzsurqERrP6nPyv+paC55vJM0LpOlT2ne+Ix+9+CRG1MNLlyZ4GjQ==}
 
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
@@ -7988,7 +7988,7 @@ snapshots:
   '@mswjs/cookies@0.2.2':
     dependencies:
       '@types/set-cookie-parser': 2.4.10
-      set-cookie-parser: 2.7.0
+      set-cookie-parser: 2.7.1
 
   '@mswjs/interceptors@0.17.10':
     dependencies:
@@ -9850,7 +9850,7 @@ snapshots:
       vite: 5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0)
       vue: 3.5.7(typescript@5.6.2)
 
-  '@vitest/coverage-v8@2.1.3(vitest@2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.4(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0))':
+  '@vitest/coverage-v8@2.1.3(vitest@2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.5(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -9864,7 +9864,7 @@ snapshots:
       std-env: 3.7.0
       test-exclude: 7.0.1
       tinyrainbow: 1.2.0
-      vitest: 2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.4(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0)
+      vitest: 2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.5(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -9875,13 +9875,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.3(@vitest/spy@2.1.3)(msw@1.3.4(typescript@5.6.2))(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))':
+  '@vitest/mocker@2.1.3(@vitest/spy@2.1.3)(msw@1.3.5(typescript@5.6.2))(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))':
     dependencies:
       '@vitest/spy': 2.1.3
       estree-walker: 3.0.3
       magic-string: 0.30.12
     optionalDependencies:
-      msw: 1.3.4(typescript@5.6.2)
+      msw: 1.3.5(typescript@5.6.2)
       vite: 5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0)
 
   '@vitest/pretty-format@2.1.3':
@@ -10308,7 +10308,7 @@ snapshots:
 
   ansi-regex@5.0.1: {}
 
-  ansi-regex@6.0.1: {}
+  ansi-regex@6.1.0: {}
 
   ansi-styles@2.2.1: {}
 
@@ -12562,7 +12562,7 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@1.3.4(typescript@5.6.2):
+  msw@1.3.5(typescript@5.6.2):
     dependencies:
       '@mswjs/cookies': 0.2.2
       '@mswjs/interceptors': 0.17.10
@@ -13581,7 +13581,7 @@ snapshots:
 
   rxjs@7.8.1:
     dependencies:
-      tslib: 2.7.0
+      tslib: 2.8.0
 
   safe-array-concat@1.1.2:
     dependencies:
@@ -13635,7 +13635,7 @@ snapshots:
 
   set-blocking@2.0.0: {}
 
-  set-cookie-parser@2.7.0: {}
+  set-cookie-parser@2.7.1: {}
 
   set-function-length@1.2.2:
     dependencies:
@@ -13835,7 +13835,7 @@ snapshots:
 
   strip-ansi@7.1.0:
     dependencies:
-      ansi-regex: 6.0.1
+      ansi-regex: 6.1.0
 
   strip-bom@3.0.0: {}
 
@@ -14363,10 +14363,10 @@ snapshots:
       sass: 1.80.4
       terser: 5.36.0
 
-  vitest@2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.4(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0):
+  vitest@2.1.3(@types/node@20.17.1)(happy-dom@15.7.4)(msw@1.3.5(typescript@5.6.2))(sass@1.80.4)(terser@5.36.0):
     dependencies:
       '@vitest/expect': 2.1.3
-      '@vitest/mocker': 2.1.3(@vitest/spy@2.1.3)(msw@1.3.4(typescript@5.6.2))(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))
+      '@vitest/mocker': 2.1.3(@vitest/spy@2.1.3)(msw@1.3.5(typescript@5.6.2))(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))
       '@vitest/pretty-format': 2.1.3
       '@vitest/runner': 2.1.3
       '@vitest/snapshot': 2.1.3
