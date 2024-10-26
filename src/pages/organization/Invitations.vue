@@ -6,9 +6,6 @@
           <div class="text-base">
             {{ $t('invitationsVue.current_requests') }}
           </div>
-          <div class="text-xs text-crisiscleanup-dark-300">
-            {{ $t('invitationsVue.sub_sections') }}
-          </div>
         </div>
         <div class="flex">
           <InviteUsers class="mx-1" />
