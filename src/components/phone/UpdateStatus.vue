@@ -160,6 +160,10 @@ export default defineComponent({
             name_t: t('phoneStatus.no-answer_premature-disconnection'),
             value: 23,
           },
+          {
+            name_t: '~~Test Phone',
+            value: 24,
+          },
         ],
         color: '#F0F032',
       },
