@@ -17,7 +17,6 @@ test.describe('UserProfile', () => {
     await userProfileLink.click();
     await page.waitForURL(/.*\/profile.*/);
     await page.waitForLoadState('networkidle');
-    await profileMenuDiv.click(); // close dropdown menu hiding items on page
   });
 
   test(
