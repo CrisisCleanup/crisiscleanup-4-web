@@ -11,6 +11,7 @@ const emit = defineEmits(['setCase']);
 const { getWorktypeSVG } = useWorktypeImages();
 import moment from 'moment';
 import PhoneFaqRAG from '@/components/phone/PhoneFaqRAG.vue';
+const { t } = useI18n();
 
 const { caseId } = defineProps({
   caseId: {
@@ -80,12 +81,13 @@ watch(
   },
 );
 
-const scripts = computed(() => {
-  return useScripts({
+const suggestedScript = computed(() => {
+  const scripts = useScripts({
     callType: callType.value,
     incident: currentIncident,
     recentWorksite: cases.value[0],
   });
+  return t(scripts.currentScript.value);
 });
 </script>
 
@@ -110,7 +112,7 @@ const scripts = computed(() => {
     <div class="grid grid-cols-3 gap-5">
       <div class="prompts">
         <div class="font-bold">{{ $t('phoneDashboard.suggested_script') }}</div>
-        {{ `"${$t(scripts.currentScript.value)}"` }}
+        <span v-html="suggestedScript"></span>
       </div>
       <div class="cases">
         <div class="font-bold">{{ $t('phoneDashboard.existing_cases') }}</div>
