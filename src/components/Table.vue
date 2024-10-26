@@ -448,48 +448,29 @@ export default defineComponent({
     });
 
     const paginationTriggers = computed(() => {
+      const totalPages = pageCount.value;
+      const pagesPerGroup = 4; // Number of pages per group
+      const paginationGroups = [];
+      for (let i = 1; i <= totalPages; i += pagesPerGroup) {
+        const group = [];
+        for (let j = 0; j < pagesPerGroup && i + j <= totalPages; j++) {
+          group.push(i + j);
+        }
+        if (!group.includes(1)) {
+          group.unshift(1); // Always include the first page
+        }
+        if (!group.includes(totalPages)) {
+          group.push(totalPages); // Always include the last page
+        }
+        paginationGroups.push(group);
+      }
+      // Find the group that contains the current page
       const currentPage = props.pagination.current;
-      const visiblePagesThreshold = (visiblePagesCount - 1) / 2;
-      const paginationTriggersArray = Array.from({
-        length: visiblePagesCount - 1,
-      }).fill(0);
-
-      if (pageCount.value < visiblePagesCount) {
-        return Array.from({ length: pageCount.value })
-          .fill(0)
-          .map((_, index) => index + 1);
-      }
-
-      if (currentPage <= visiblePagesThreshold + 1) {
-        paginationTriggersArray[0] = 1;
-        const paginationTriggers = paginationTriggersArray.map(
-          (paginationTrigger, index) => {
-            return paginationTriggersArray[0] + index;
-          },
-        );
-        paginationTriggers.push(pageCount.value);
-        return paginationTriggers;
-      }
-
-      if (currentPage >= pageCount.value - visiblePagesThreshold + 1) {
-        const pagintationTriggers = paginationTriggersArray.map(
-          (paginationTrigger, index) => {
-            return pageCount.value - index;
-          },
-        );
-        pagintationTriggers.reverse().unshift(1);
-        return pagintationTriggers;
-      }
-
-      paginationTriggersArray[0] = currentPage - visiblePagesThreshold + 1;
-      const pagintationTriggers = paginationTriggersArray.map(
-        (paginationTrigger, index) => {
-          return paginationTriggersArray[0] + index;
-        },
+      const currentGroup = paginationGroups.find((group) =>
+        group.includes(currentPage),
       );
-      pagintationTriggers.unshift(1);
-      pagintationTriggers[pagintationTriggers.length - 1] = pageCount.value;
-      return pagintationTriggers;
+      console.info('paginationTriggers', currentGroup);
+      return currentGroup;
     });
 
     const gridTemplate = computed(() => {
@@ -563,14 +544,15 @@ export default defineComponent({
 
     function pageChangeHandle(value: 'next' | 'previous') {
       let newPage;
+      const incrementCount = 4;
       switch (value) {
         case 'next': {
-          newPage = props.pagination.current + 1;
+          newPage = props.pagination.current + incrementCount;
           break;
         }
 
         case 'previous': {
-          newPage = props.pagination.current - 1;
+          newPage = props.pagination.current - incrementCount;
           break;
         }
 
