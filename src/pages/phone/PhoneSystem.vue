@@ -869,6 +869,7 @@ export default defineComponent({
       isOnCall,
       isTakingCalls,
       isTransitioning,
+      isConnecting,
       caller,
       stats,
       currentIncidentId,
@@ -1294,6 +1295,11 @@ export default defineComponent({
     }
 
     async function onLoggedIn() {
+      manualOutboundBlock.value = true;
+      setTimeout(() => {
+        manualOutboundBlock.value = false;
+      }, 60_000);
+
       if (
         allowCallType.value === AllowedCallType.BOTH &&
         Number(stats.value.inQueue || stats.value.routing || 0) === 0
@@ -1524,6 +1530,7 @@ export default defineComponent({
           isTakingCalls.value &&
           !isOnCall.value &&
           !isTransitioning.value &&
+          !isConnecting.value &&
           !manualOutboundBlock.value
         ) {
           onLoggedIn();
