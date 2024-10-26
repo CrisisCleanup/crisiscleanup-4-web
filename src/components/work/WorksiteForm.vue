@@ -20,9 +20,10 @@
           @selected-existing="onWorksiteSelect"
         />
       </section>
-      <div class="form-field">
+      <div class="form-field flex">
         <base-input
           id="phone1"
+          style="width: 100%"
           :model-value="worksite.phone1"
           data-testid="testPhone1TextInput"
           selector="js-worksite-phone1"
@@ -40,10 +41,26 @@
           @update:model-value="(v) => updateWorksite(v, 'phone1')"
           @icon-clicked="() => sendSms(worksite.phone1)"
         />
+        <div
+          v-if="
+            currentIncident.auto_contact &&
+            worksite.id &&
+            $route.path.endsWith('/phone')
+          "
+          class="flex items-center border border-[#DBDBDB] ml-1 px-3 bg-[#F7F7F7] cursor-pointer"
+          @click="emitManualDialer(worksite.phone1)"
+        >
+          <img
+            class="w-8"
+            src="/src/assets/icons/manual-dialer-black.svg"
+            alt="Manual Dialer"
+          />
+        </div>
       </div>
-      <div v-if="worksite.phone2 || addAdditionalPhone" class="form-field">
+      <div v-if="worksite.phone2 || addAdditionalPhone" class="form-field flex">
         <base-input
           id="phone2"
+          style="width: 100%"
           :model-value="worksite.phone2"
           data-testid="testPhone2TextInput"
           selector="js-worksite-phone2"
@@ -60,6 +77,21 @@
           @update:model-value="(v) => updateWorksite(v, 'phone2')"
           @icon-clicked="() => sendSms(worksite.phone2)"
         />
+        <div
+          v-if="
+            currentIncident.auto_contact &&
+            worksite.id &&
+            $route.path.endsWith('/phone')
+          "
+          class="flex items-center border border-[#DBDBDB] ml-1 px-3 bg-[#F7F7F7] cursor-pointer"
+          @click="emitManualDialer(worksite.phone2)"
+        >
+          <img
+            class="w-8"
+            src="/src/assets/icons/manual-dialer-black.svg"
+            alt="Manual Dialer"
+          />
+        </div>
       </div>
       <base-button
         v-else
@@ -471,6 +503,9 @@ import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import useConnectFirst from '@/hooks/useConnectFirst';
 import { Store } from 'vuex';
 import PhoneOutbound from '@/models/PhoneOutbound';
+import CcuIcon from '@/components/BaseIcon.vue';
+import worksite from '@/store/modules/worksite';
+import { formatNationalNumber } from '@/filters';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -481,6 +516,7 @@ const AUTO_CONTACT_FREQUENCY_OPTIONS = [
 export default defineComponent({
   name: 'WorksiteForm',
   components: {
+    CcuIcon,
     BaseSelect,
     WorksiteNotes,
     SectionHeading,
@@ -650,6 +686,16 @@ export default defineComponent({
         !hideDetailedAddressFields.value
       );
     });
+
+    const emitManualDialer = (phone: string) => {
+      emitter.emit('phone_component:close');
+      emitter.emit('phone_component:open', 'dialer');
+      emitter.emit('dialer:set_phone_number', formatNationalNumber(phone));
+      emitter.emit('phone_outbound:click', {
+        incident_id: props.incidentId,
+        phone_number: phone,
+      });
+    };
 
     const showUseMyLocation = computed<boolean>(() => {
       return !['nav.phone', 'nav.phone_no_incident'].includes(route.name);
@@ -1637,6 +1683,7 @@ export default defineComponent({
       onRemoveFile,
       worksiteImageSection,
       supportedLanguages,
+      emitManualDialer,
     };
   },
 });
