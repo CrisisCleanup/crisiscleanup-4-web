@@ -70,24 +70,24 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="icon || tooltip"
-      class="icon-container flex items-center justify-center relative"
-    >
-      <ccu-icon
-        :alt="$t('worksiteSearchInput.search_help')"
-        :type="tooltip ? 'info' : icon"
-        size="small"
-        :action="() => $emit('iconClicked')"
-      />
-      <badge
-        v-if="iconBadge > 0"
-        width="12px"
-        height="12px"
-        class="ml-2 text-black bg-primary-light absolute top-1 right-1 text-xs"
-        >{{ iconBadge }}</badge
-      >
-    </div>
+    <!--    <div-->
+    <!--      v-if="icon || tooltip"-->
+    <!--      class="icon-container flex items-center justify-center relative"-->
+    <!--    >-->
+    <!--      <ccu-icon-->
+    <!--        :alt="$t('worksiteSearchInput.search_help')"-->
+    <!--        :type="tooltip ? 'info' : icon"-->
+    <!--        size="small"-->
+    <!--        :action="() => $emit('iconClicked')"-->
+    <!--      />-->
+    <!--      <badge-->
+    <!--        v-if="iconBadge > 0"-->
+    <!--        width="12px"-->
+    <!--        height="12px"-->
+    <!--        class="ml-2 text-black bg-primary-light absolute top-1 right-1 text-xs"-->
+    <!--        >{{ iconBadge }}</badge-->
+    <!--      >-->
+    <!--    </div>-->
   </div>
 </template>
 
