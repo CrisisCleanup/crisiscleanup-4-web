@@ -395,13 +395,16 @@ const {
               class="bg-white"
               :class="!currentView && caller ? '' : 'h-full'"
             >
-              <Leaderboard
-                v-if="currentView === 'leaderboard'"
-                class="h-full"
-              />
+              <div class="bg-white">
+                <Leaderboard
+                  v-if="currentView === 'leaderboard'"
+                  class="h-full"
+                />
+              </div>
+
               <div
                 v-if="currentView === 'manualDialer'"
-                class="flex items-center justify-center h-[calc(100vh-13rem)]"
+                class="flex items-center justify-center h-[calc(100vh-13rem)] bg-white"
               >
                 <ManualDialer
                   class="p-2 z-phone-component"
@@ -413,7 +416,7 @@ const {
                 ></ManualDialer>
               </div>
 
-              <div v-if="currentView === 'zoom'">
+              <div v-if="currentView === 'zoom'" class="bg-white">
                 <div
                   class="h-[calc(100vh-13rem)]"
                   style="
@@ -457,22 +460,25 @@ const {
               </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2 h-[calc(100vh-13rem)] z-phone-component"
+                class="p-2 h-[calc(100vh-13rem)] z-phone-component bg-white"
                 data-testid="testPhoneCmsItemsDiv"
                 @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
 
-              <CallHistory
-                v-if="currentView === 'callHistory'"
-                class="border-top-4"
-                :calls="callHistory"
-                :table-body-style="{ height: '30rem' }"
-                @row-click="
-                  ({ mobile }) => {
-                    setManualOutbound(mobile);
-                  }
-                "
-              ></CallHistory>
+              <div class="bg-white">
+                <CallHistory
+                  v-if="currentView === 'callHistory'"
+                  class="border-top-4"
+                  :calls="callHistory"
+                  :table-body-style="{ height: '30rem' }"
+                  @row-click="
+                    ({ mobile }) => {
+                      setManualOutbound(mobile);
+                    }
+                  "
+                ></CallHistory>
+              </div>
+
               <div
                 v-if="currentView === 'generalStats'"
                 class="flex items-center justify-center h-full"
@@ -496,7 +502,7 @@ const {
               </template>
               <template v-if="currentView === 'reportBug'">
                 <div
-                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5 w-full"
+                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5 w-full bg-white"
                 >
                   <div class="flex flex-col lg:flex-row">
                     <div class="flex items-center">
