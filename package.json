@@ -12,7 +12,7 @@
     "url": "git://github.com/CrisisCleanup/crisiscleanup-4-web.git"
   },
   "scripts": {
-    "postinstall": "is-ci || husky install",
+    "postinstall": "is-ci || husky",
     "dev": "vite --port 8080",
     "build": "pnpm run typecheck && pnpm run build:app",
     "build:app": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
