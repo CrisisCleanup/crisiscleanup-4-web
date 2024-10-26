@@ -863,7 +863,7 @@ export default defineComponent({
       selectedTableItems,
       () => {},
     );
-    const manualOutboundBlock = ref(false);
+    const callsBlocked = ref(false);
 
     const {
       isOnCall,
@@ -888,11 +888,15 @@ export default defineComponent({
       dialManualOutbound,
     } = connectFirst;
 
-    const initiateManualOutbound = async (number: string) => {
-      manualOutboundBlock.value = true;
+    function blockCalls() {
+      callsBlocked.value = true;
       setTimeout(() => {
-        manualOutboundBlock.value = false;
+        callsBlocked.value = false;
       }, 60_000);
+    }
+
+    const initiateManualOutbound = async (number: string) => {
+      blockCalls();
       return dialManualOutbound(number);
     };
 
@@ -1294,11 +1298,35 @@ export default defineComponent({
       return response.results;
     }
 
+    /**
+     * Handles actions to perform when a user logs in, adjusting call states and managing call types.
+     *
+     * This asynchronous function evaluates the user’s allowed call type (inbound, outbound, or both),
+     * and sets their availability status based on call queue status and remaining call quotas. It:
+     * - Blocks additional calls using `blockCalls`.
+     * - Checks `allowCallType` and updates the user’s status to available, working, or away, depending on:
+     *    - Whether there are calls waiting in the queue or being routed.
+     *    - Whether there are remaining callbacks or calldowns.
+     *
+     * Logic flow:
+     * - If `allowCallType` is set to `BOTH` and there are no calls in the queue or routing:
+     *    - If the sum of `remainingCallbacks` and `remainingCalldowns` is greater than 0, sets the user to "working".
+     *    - Attempts to dial the next outbound call. If unsuccessful, sets the user to "available."
+     * - If `allowCallType` is set to `INBOUND_ONLY`, sets the user to "available."
+     * - If `allowCallType` is set to `OUTBOUND_ONLY`:
+     *    - Sets the user to "working" and attempts to dial the next outbound call.
+     *    - If unsuccessful, sets the user to "away."
+     * - If none of the above conditions are met, defaults to setting the user as "available."
+     *
+     * Extra notes:
+     *  - AVAILABILITY: "available" means the user is ready to take inbound and outbound calls, "working" means they can only take outbound calls, and "away" means they are unavailable.
+     *
+     * @async
+     * @function onLoggedIn
+     * @returns {Promise<void>} No return value.
+     */
     async function onLoggedIn() {
-      manualOutboundBlock.value = true;
-      setTimeout(() => {
-        manualOutboundBlock.value = false;
-      }, 60_000);
+      blockCalls();
 
       if (
         allowCallType.value === AllowedCallType.BOTH &&
@@ -1486,6 +1514,7 @@ export default defineComponent({
       () => isOnCall.value,
       (newValue, oldValue) => {
         if (oldValue && !newValue) {
+          callsBlocked.value = true; // block calls until the agent is ready
           switchToStatusTab();
         }
       },
@@ -1531,7 +1560,7 @@ export default defineComponent({
           !isOnCall.value &&
           !isTransitioning.value &&
           !isConnecting.value &&
-          !manualOutboundBlock.value
+          !callsBlocked.value
         ) {
           onLoggedIn();
         }
@@ -1582,6 +1611,7 @@ export default defineComponent({
       init,
       getIncidentPhoneNumbers,
       completeCall,
+      blockCalls,
       potentialFailedCall,
       setManualOutbound,
       clearCase,
