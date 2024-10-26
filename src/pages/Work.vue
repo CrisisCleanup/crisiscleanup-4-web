@@ -508,7 +508,7 @@
             class="flex justify-center items-center"
           >
             <Slider
-              v-if="allWorksiteCount >= 100 && !portal.attr.hide_svi_slider"
+              v-if="allWorksiteCount >= 100 && !portal?.attr?.hide_svi_slider"
               primary-color="#dadada"
               data-testid="testSviSliderInput"
               secondary-color="white"
