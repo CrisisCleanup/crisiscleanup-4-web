@@ -33,7 +33,7 @@ test.describe('WorkPage', () => {
     'testUseMyLocationButton',
     'testToggleSelectOnMapButton',
     'testSaveNoteInput',
-    'testAddNoteButton',
+    // 'testAddNoteButton', // Note field is on by default so this btn is hidden
     'testAddressProblemsCheckbox',
     'testIsHighPriorityCheckbox',
     'testMemberOfMyOrgCheckbox',
