@@ -42,6 +42,7 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line import/no-unresolved
 import { api as viewerApi } from 'v-viewer';
 import { computed } from 'vue';
 import useDialogs from '@/hooks/useDialogs';

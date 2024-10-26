@@ -190,6 +190,7 @@ import * as turf from '@turf/turf';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { formatNationalNumber } from '@/filters';
 import useWorktypeImages from '@/hooks/worksite/useWorktypeImages';
+// eslint-disable-next-line import/no-unresolved
 import { api as viewerApi } from 'v-viewer';
 import type { Portal } from '@/models/types';
 import User from '@/models/User';
