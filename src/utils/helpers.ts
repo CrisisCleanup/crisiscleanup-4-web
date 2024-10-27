@@ -10,6 +10,7 @@ import axios from 'axios';
 import createDebug from 'debug';
 import type { Moment } from 'moment/moment';
 import moment from 'moment';
+import type Worksite from '@/models/Worksite';
 const debug = createDebug('@ccu:utils:helpers');
 
 /**
@@ -198,4 +199,50 @@ export function formatHotlineClosingDate(date: Moment | Date | string) {
   const formattedDate = moment(date).format('dddd, MMMM D, YYYY');
   const relativeDate = moment(date).fromNow();
   return `${formattedDate} (${relativeDate})`;
+}
+
+export function formatWorksiteAddress(worksite: Worksite) {
+  if (!worksite) {
+    return '';
+  }
+  const { address, city, state, postal_code: postalCode } = worksite;
+  const parts = [address, city, state, postalCode].filter(Boolean);
+  return parts.join(', ');
+}
+
+export function formatWorksiteAddressHtml(worksite: Worksite) {
+  if (!worksite) {
+    return '';
+  }
+  const { address, city, state, postal_code: postalCode, county } = worksite;
+  const addressParts = [
+    address,
+    `${city}, ${state}${county ? `, ${county}` : ''}`,
+    postalCode,
+  ];
+  return addressParts.filter(Boolean).join(' <br> ');
+}
+
+/**
+ * Generate Google Maps link from address
+ * and optional latitude & longitude
+ *
+ * @see https://stackoverflow.com/questions/2660201/what-parameters-should-i-use-in-a-google-maps-url-to-go-to-a-lat-lon
+ * @see https://stackoverflow.com/a/33759316
+ * @see https://dddavemaps.blogspot.com/2015/07/google-maps-url-tricks.html
+ *
+ * @param address
+ * @param latitude
+ * @param longitude
+ */
+export function generateGoogleMapsLink(
+  address: string,
+  latitude?: number,
+  longitude?: number,
+) {
+  const baseUrl = 'https://maps.google.com/maps/place/';
+  const encodedAddress = encodeURIComponent(address);
+  return latitude && longitude
+    ? `${baseUrl}${encodedAddress}/@${latitude},${longitude},15z`
+    : `${baseUrl}${encodedAddress}`;
 }
