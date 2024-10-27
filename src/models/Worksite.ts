@@ -66,6 +66,8 @@ export default class Worksite extends CCUModel {
       reported_by: this.attr(null),
       phone1: this.attr(null),
       phone2: this.attr(null),
+      phone1_notes: this.attr(null),
+      phone2_notes: this.attr(null),
       email: this.attr(null),
       updated_at: this.attr(null),
       favorite: this.attr(null),

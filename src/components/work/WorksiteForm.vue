@@ -56,6 +56,7 @@
               ? $t('caseForm.sms')
               : null
           "
+          :validator="validatePhoneNumber"
           @update:model-value="(v) => updateWorksite(v, 'phone1')"
           @icon-clicked="() => sendSms(worksite.phone1)"
         />
@@ -75,26 +76,41 @@
           />
         </div>
       </div>
-      <div v-if="worksite.phone2 || addAdditionalPhone" class="form-field flex">
+      <div class="form-field flex">
         <base-input
-          id="phone2"
-          style="width: 100%"
-          :model-value="worksite.phone2"
-          data-testid="testPhone2TextInput"
-          selector="js-worksite-phone2"
-          size="large"
-          :placeholder="$t('formLabels.phone2')"
-          :fa-icon="
-            currentIncident.auto_contact && worksite.id ? 'comment-sms' : null
-          "
-          :tooltip="
-            currentIncident.auto_contact && worksite.id
-              ? $t('caseForm.sms')
-              : null
-          "
-          @update:model-value="(v) => updateWorksite(v, 'phone2')"
-          @icon-clicked="() => sendSms(worksite.phone2)"
+          id="phone1_notes"
+          :model-value="worksite.phone1_notes"
+          data-testid="testPhone1NotesTextInput"
+          selector="js-worksite-phone1_notes"
+          size="small"
+          required
+          :placeholder="$t('formLabels.phone1_notes')"
+          text-area
+          @update:model-value="(v) => updateWorksite(v, 'phone1_notes')"
         />
+      </div>
+
+      <template v-if="worksite.phone2 || addAdditionalPhone">
+        <div class="form-field">
+          <base-input
+            id="phone2"
+            style="width: 100%":model-value="worksite.phone2"
+            data-testid="testPhone2TextInput"
+            selector="js-worksite-phone2"
+            size="large"
+            :placeholder="$t('formLabels.phone2')"
+            :fa-icon="
+              currentIncident.auto_contact && worksite.id ? 'comment-sms' : null
+            "
+            :tooltip="
+              currentIncident.auto_contact && worksite.id
+                ? $t('caseForm.sms')
+                : null
+            "
+            :validator="validatePhoneNumber"
+            @update:model-value="(v) => updateWorksite(v, 'phone2')"
+            @icon-clicked="() => sendSms(worksite.phone2)"
+          />
         <div
           v-if="
             currentIncident.auto_contact &&
@@ -111,6 +127,21 @@
           />
         </div>
       </div>
+
+        <div class="form-field">
+          <base-input
+            id="phone2_notes"
+            :model-value="worksite.phone2_notes"
+            data-testid="testPhone2NotesTextInput"
+            selector="js-worksite-phone2_notes"
+            size="small"
+            required
+            :placeholder="$t('formLabels.phone2_notes')"
+            text-area
+            @update:model-value="(v) => updateWorksite(v, 'phone2_notes')"
+          />
+        </div>
+      </template>
       <base-button
         v-else
         data-testid="testAddPhoneLink"
@@ -533,6 +564,7 @@ import {
   formatWorksiteAddress,
   formatWorksiteAddressHtml,
 } from '@/utils/helpers';
+import useValidation from '@/hooks/useValidation';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -597,6 +629,8 @@ export default defineComponent({
     const { call, isInboundCall } = useConnectFirst({
       emit,
     });
+
+    const { validatePhoneNumber } = useValidation();
 
     const contactFrequencyOptions = AUTO_CONTACT_FREQUENCY_OPTIONS.map(
       (key) => {
@@ -1724,6 +1758,7 @@ export default defineComponent({
       hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
+      validatePhoneNumber,
     };
   },
 });
