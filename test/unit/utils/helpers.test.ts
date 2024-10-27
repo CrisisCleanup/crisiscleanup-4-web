@@ -7,6 +7,9 @@ import {
   getApiUrl,
   generateHash,
   getColorContrast,
+  formatWorksiteAddressHtml,
+  generateGoogleMapsLink,
+  formatWorksiteAddress,
 } from '@/utils/helpers';
 
 describe('utils > helpers', () => {
@@ -147,5 +150,60 @@ describe('utils > helpers', () => {
         ],
       ]
     `);
+  });
+
+  test('formatWorksiteAddress', () => {
+    const worksite = {
+      address: '123 Main St',
+      city: 'Anytown',
+      state: 'CA',
+      postal_code: '12345',
+    };
+    const expected = '123 Main St, Anytown, CA, 12345';
+    const result = formatWorksiteAddress(worksite);
+    expect(result).toBe(expected);
+    const emptyWorksite = {};
+    expect(formatWorksiteAddress(emptyWorksite)).toBe('');
+  });
+
+  test('formatWorksiteAddressHtml', () => {
+    const worksite = {
+      address: '123 Main St',
+      city: 'Anytown',
+      state: 'CA',
+      postal_code: '12345',
+      county: 'Anycounty',
+    };
+    const expected = '123 Main St <br> Anytown, CA, Anycounty <br> 12345';
+    const result = formatWorksiteAddressHtml(worksite);
+    expect(result).toBe(expected);
+    const worksiteWithoutCounty = {
+      address: '123 Main St',
+      city: 'Anytown',
+      state: 'CA',
+      postal_code: '12345',
+    };
+    const expectedWithoutCounty = '123 Main St <br> Anytown, CA <br> 12345';
+    expect(formatWorksiteAddressHtml(worksiteWithoutCounty)).toBe(
+      expectedWithoutCounty,
+    );
+    const emptyWorksite = {};
+    expect(formatWorksiteAddressHtml(emptyWorksite)).toBe('');
+  });
+
+  test('generateGoogleMapsLink', () => {
+    const address = '1600 Amphitheatre Parkway, Mountain View, CA';
+    const latitude = 37.422;
+    const longitude = -122.084;
+    const expectedWithLatLng = `https://maps.google.com/maps/place/${encodeURIComponent(address)}/@${latitude},${longitude},15z`;
+    const resultWithLatLng = generateGoogleMapsLink(
+      address,
+      latitude,
+      longitude,
+    );
+    expect(resultWithLatLng).toBe(expectedWithLatLng);
+    const expectedWithoutLatLng = `https://maps.google.com/maps/place/${encodeURIComponent(address)}`;
+    const resultWithoutLatLng = generateGoogleMapsLink(address);
+    expect(resultWithoutLatLng).toBe(expectedWithoutLatLng);
   });
 });
