@@ -60,7 +60,11 @@
             class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
             >{{ $t('formLabels.address') }}</label
           >
-          <div data-testid="testAddressDiv">{{ worksiteAddress }}</div>
+          <AddressDisplay
+            :address="worksiteAddress"
+            :latitude="worksiteLatLng.latitude"
+            :longitude="worksiteLatLng.longitude"
+          />
         </div>
         <WorksiteNotes
           :worksite="worksite"
@@ -471,10 +475,13 @@ import WorksiteReportSection from './WorksiteReportSection.vue';
 import WorksiteImageSection from './WorksiteImageSection.vue';
 import useAcl from '@/hooks/useAcl';
 import { AxiosError } from 'axios';
+import AddressDisplay from '@/components/AddressDisplay.vue';
+import { formatWorksiteAddress } from '@/utils/helpers';
 
 export default defineComponent({
   name: 'WorksiteView',
   components: {
+    AddressDisplay,
     WorksiteNotes,
     WorksiteReportSection,
     WorksiteImageSection,
@@ -609,18 +616,17 @@ export default defineComponent({
       return [];
     });
 
-    const worksiteAddress = computed(() => {
-      if (worksite.value) {
-        const {
-          address,
-          city,
-          state,
-          postal_code: postalCode,
-        } = worksite.value;
-        return `${address}, ${city}, ${state} ${postalCode}`;
-      }
-
-      return '';
+    const worksiteAddress = computed(() =>
+      formatWorksiteAddress(worksite.value),
+    );
+    const worksiteLatLng = computed(() => {
+      // NOTE: We store coordinates in [lng, lon] format
+      const latitude = worksite.value?.location?.coordinates?.[1];
+      const longitude = worksite.value?.location?.coordinates?.[0];
+      return {
+        latitude,
+        longitude,
+      };
     });
 
     const hasFormHeaderContent = computed(() => {
@@ -845,6 +851,7 @@ export default defineComponent({
       workTypesReleaseable,
       workTypesUnclaimed,
       worksiteAddress,
+      worksiteLatLng,
       currentUser,
       worksiteRequests,
       worksiteRequestWorkTypeIds,

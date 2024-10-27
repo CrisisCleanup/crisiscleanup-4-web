@@ -218,7 +218,11 @@
               style="margin-top: 3px"
               :alt="$t('formLabels.location')"
             />
-            <span v-html="worksiteAddress"></span>
+            <AddressDisplay
+              :address="worksiteAddress"
+              :latitude="worksiteLatLng.latitude"
+              :longitude="worksiteLatLng.longitude"
+            />
           </div>
           <div class="flex">
             <ccu-icon
@@ -493,7 +497,6 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
 import { sortBy, uniqueId } from 'lodash';
 import moment from 'moment';
 import * as turf from '@turf/turf';
@@ -525,6 +528,11 @@ import CcuIcon from '@/components/BaseIcon.vue';
 import worksite from '@/store/modules/worksite';
 import { formatNationalNumber } from '@/filters';
 import Flag from '@/components/work/Flag.vue';
+import AddressDisplay from '@/components/AddressDisplay.vue';
+import {
+  formatWorksiteAddress,
+  formatWorksiteAddressHtml,
+} from '@/utils/helpers';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -535,6 +543,7 @@ const AUTO_CONTACT_FREQUENCY_OPTIONS = [
 export default defineComponent({
   name: 'WorksiteForm',
   components: {
+    AddressDisplay,
     Flag,
     CcuIcon,
     BaseSelect,
@@ -666,22 +675,23 @@ export default defineComponent({
       return {};
     });
 
-    const worksiteAddress = computed(() => {
-      if (worksite.value) {
-        const {
-          address,
-          city,
-          state,
-          postal_code: postalCode,
-          county,
-        } = worksite.value;
-        return `${address} <br> ${city}, ${state}, ${
-          county || ''
-        } <br> ${postalCode}`;
-      }
-
-      return '';
+    const worksiteAddress = computed(() =>
+      formatWorksiteAddress(worksite.value),
+    );
+    const worksiteLatLng = computed(() => {
+      // NOTE: We store coordinates in [lng, lon] format
+      const latitude = worksite.value?.location?.coordinates?.[1];
+      const longitude = worksite.value?.location?.coordinates?.[0];
+      return {
+        latitude,
+        longitude,
+      };
     });
+    const worksiteAddressHtml = computed(() =>
+      formatWorksiteAddressHtml(worksite.value),
+    );
+
+    watchEffect(() => console.info('WORKSITE', worksite.value));
 
     const isAddressValid = computed(() => {
       const {
@@ -1651,6 +1661,8 @@ export default defineComponent({
       fieldTree,
       fieldsArray,
       worksiteAddress,
+      worksiteLatLng,
+      worksiteAddressHtml,
       isAddressValid,
       fieldToErrorMsgMap: fieldToErrorMessageMap,
       shouldSelectOnMap,
