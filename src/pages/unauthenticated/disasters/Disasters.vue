@@ -40,7 +40,7 @@
                 :key="ani.id"
                 class="flex flex-wrap items-center gap-2"
               >
-                <HotlineNumber :phone-number="ani.phone_number" />
+                <PhoneNumberDisplay :phone-number="ani.phone_number" />
                 <span class="italic opacity-50 text-sm">
                   {{ $t('disasters.hotline_closes_in') }}
                   {{ formatHotlineClosingDate(getAniClosingDate(ani)) }}
@@ -146,7 +146,7 @@ import Spinner from '@/components/Spinner.vue';
 import type { GroupedAssets } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 import { hash } from '@/utils/promise';
 import { getAssets } from '@/utils/incident_assets';
-import HotlineNumber from '@/components/HotlineNumber.vue';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';

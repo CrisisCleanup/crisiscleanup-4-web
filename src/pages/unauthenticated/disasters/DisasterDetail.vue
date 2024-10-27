@@ -19,7 +19,7 @@ import type {
   IncidentAniAsset,
 } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
-import HotlineNumber from '@/components/HotlineNumber.vue';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import { getErrorMessage } from '@/utils/errors';
 
 const route = useRoute();
@@ -160,7 +160,7 @@ onMounted(async () => {
             :key="phoneNumber"
             class="flex flex-wrap items-center gap-2"
           >
-            <HotlineNumber :phone-number="phoneNumber" />
+            <PhoneNumberDisplay :phone-number="phoneNumber" />
             <span class="italic opacity-50 text-sm">
               {{ $t('disasters.hotline_closes_in') }}
               {{
