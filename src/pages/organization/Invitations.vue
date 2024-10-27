@@ -152,60 +152,62 @@
           </div>
         </template>
       </Table>
+      <br />
+      <br />
 
-      <div class="flex justify-between items-center my-6">
-        <div class="flex items-center">
-          <div class="text-base">
-            {{ $t('invitationsVue.qr_invitations') }}
-          </div>
-        </div>
-        <div class="flex">
-          <base-button
-            size="small"
-            data-testid="testCreateNewPersistentInvitationButton"
-            :text="$t('actions.create_new')"
-            :alt="$t('actions.create_new')"
-            class="table-action-button"
-            :action="createNewPersistentInvitation"
-          />
-        </div>
-      </div>
-      <AjaxTable
-        ref="persistentInvitationsTable"
-        :body-style="{ height: '200px' }"
-        :url="persistentInvitationsUrl"
-        :columns="persistentInvitationColumns"
-        class="border text-xs"
-      >
-        <template #actions="slotProps">
-          <div class="flex mr-2 justify-center w-full">
-            <base-button
-              size="small"
-              :data-testid="`testShowQRCode${slotProps.item}Button`"
-              variant="solid"
-              class="m-1 mx-2 text-black text-xs px-3 py-1"
-              :action="
-                () => {
-                  showQRCode(slotProps.item);
-                }
-              "
-              :text="$t('actions.show_qr_code')"
-              :alt="$t('actions.show_qr_code')"
-            />
-          </div>
-        </template>
-        <template #delete="slotProps">
-          <div class="flex mr-2 justify-center items-center w-full">
-            <ccu-icon
-              :alt="$t('actions.delete_persistent_invitation')"
-              :data-testid="`testDeletePersistentInvitation${slotProps.item}Button`"
-              type="trash"
-              size="small"
-              @click="() => deletePersistentInvitation(slotProps.item)"
-            />
-          </div>
-        </template>
-      </AjaxTable>
+      <!--      <div class="flex justify-between items-center my-6">-->
+      <!--        <div class="flex items-center">-->
+      <!--          <div class="text-base">-->
+      <!--            {{ $t('invitationsVue.qr_invitations') }}-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--        <div class="flex">-->
+      <!--          <base-button-->
+      <!--            size="small"-->
+      <!--            data-testid="testCreateNewPersistentInvitationButton"-->
+      <!--            :text="$t('actions.create_new')"-->
+      <!--            :alt="$t('actions.create_new')"-->
+      <!--            class="table-action-button"-->
+      <!--            :action="createNewPersistentInvitation"-->
+      <!--          />-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <!--      <AjaxTable-->
+      <!--        ref="persistentInvitationsTable"-->
+      <!--        :body-style="{ height: '200px' }"-->
+      <!--        :url="persistentInvitationsUrl"-->
+      <!--        :columns="persistentInvitationColumns"-->
+      <!--        class="border text-xs"-->
+      <!--      >-->
+      <!--        <template #actions="slotProps">-->
+      <!--          <div class="flex mr-2 justify-center w-full">-->
+      <!--            <base-button-->
+      <!--              size="small"-->
+      <!--              :data-testid="`testShowQRCode${slotProps.item}Button`"-->
+      <!--              variant="solid"-->
+      <!--              class="m-1 mx-2 text-black text-xs px-3 py-1"-->
+      <!--              :action="-->
+      <!--                () => {-->
+      <!--                  showQRCode(slotProps.item);-->
+      <!--                }-->
+      <!--              "-->
+      <!--              :text="$t('actions.show_qr_code')"-->
+      <!--              :alt="$t('actions.show_qr_code')"-->
+      <!--            />-->
+      <!--          </div>-->
+      <!--        </template>-->
+      <!--        <template #delete="slotProps">-->
+      <!--          <div class="flex mr-2 justify-center items-center w-full">-->
+      <!--            <ccu-icon-->
+      <!--              :alt="$t('actions.delete_persistent_invitation')"-->
+      <!--              :data-testid="`testDeletePersistentInvitation${slotProps.item}Button`"-->
+      <!--              type="trash"-->
+      <!--              size="small"-->
+      <!--              @click="() => deletePersistentInvitation(slotProps.item)"-->
+      <!--            />-->
+      <!--          </div>-->
+      <!--        </template>-->
+      <!--      </AjaxTable>-->
     </div>
   </div>
 </template>
