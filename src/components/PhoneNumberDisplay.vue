@@ -9,7 +9,7 @@ interface PhoneNumberDisplayProps {
 const props = defineProps<PhoneNumberDisplayProps>();
 
 const formattedPhoneNumber = computed(() =>
-  formatNationalNumber(props.phoneNumber),
+  formatNationalNumber(String(props.phoneNumber)),
 );
 </script>
 
