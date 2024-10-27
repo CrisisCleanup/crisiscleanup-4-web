@@ -874,7 +874,7 @@ export default defineComponent({
 <style scoped lang="postcss">
 .form {
   display: grid;
-  grid-template-rows: 35px 1fr 80px;
+  grid-template-rows: auto 1fr 80px;
   @supports (-webkit-touch-callout: none) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
