@@ -684,26 +684,38 @@
             "
             @clear-case="clearCase"
           ></CaseFlag>
-          <WorksiteForm
-            v-else
-            ref="worksiteForm"
-            :key="worksiteId"
-            data-testid="testWorksiteFormDiv"
-            :incident-id="String(currentIncidentId)"
-            :worksite-id="worksiteId"
-            disable-claim-and-save
-            :is-editing="isEditing"
-            class="border shadow"
-            @jump-to-case="jumpToCase"
-            @saved-worksite="
-              (worksite) => {
-                onSaveCase(worksite);
-              }
-            "
-            @close-worksite="clearCase"
-            @navigate-to-worksite="onSelectExistingWorksite"
-            @geocoded="addMarkerToMap"
-          />
+          <div v-else class="h-full scroll-overflow-y">
+            <div v-if="hasWorksiteFlags" class="flex p-1">
+              <flag
+                v-for="flag in worksite.flags"
+                :key="flag.reason_t"
+                :data-testid="`test${flag.reason_t}Flag`"
+                :flag-reason="flag.reason_t"
+                removable
+                @on-remove="removeFlag(flag)"
+              />
+            </div>
+            <WorksiteForm
+              ref="worksiteForm"
+              :key="worksiteId"
+              data-testid="testWorksiteFormDiv"
+              :incident-id="String(currentIncidentId)"
+              :worksite-id="worksiteId"
+              disable-claim-and-save
+              :is-editing="isEditing"
+              inherit-form-height
+              class="border shadow"
+              @jump-to-case="jumpToCase"
+              @saved-worksite="
+                (worksite) => {
+                  onSaveCase(worksite);
+                }
+              "
+              @close-worksite="clearCase"
+              @navigate-to-worksite="onSelectExistingWorksite"
+              @geocoded="addMarkerToMap"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -750,6 +762,7 @@ import PhoneNews from '../../components/phone/PhoneNews.vue';
 import useDialogs from '../../hooks/useDialogs';
 import useConnectFirst from '../../hooks/useConnectFirst';
 import User from '../../models/User';
+import Flag from '@/components/work/Flag.vue';
 import WorksiteForm from '../../components/work/WorksiteForm.vue';
 import { loadCasesCached } from '@/utils/worksite';
 import { getErrorMessage } from '@/utils/errors';
@@ -785,6 +798,7 @@ export default defineComponent({
   name: 'PhoneSystem',
   components: {
     CaseFlag,
+    Flag,
     PhoneOverlay,
     WorksiteTable,
     PhoneIndicator,
@@ -864,6 +878,7 @@ export default defineComponent({
       () => {},
     );
     const callsBlocked = ref(false);
+    const hasWorksiteFlags = ref(false);
 
     const {
       isOnCall,
@@ -1534,6 +1549,13 @@ export default defineComponent({
       },
     );
 
+    watch(
+      () => worksite?.value,
+      (newValue, oldValue) => {
+        hasWorksiteFlags.value = !!newValue?.flags?.length;
+      },
+    );
+
     onMounted(async () => {
       if (currentUser.value.isAdmin) {
         allowCallType.value = AllowedCallType.INBOUND_ONLY;
@@ -1566,6 +1588,20 @@ export default defineComponent({
         }
       }, 20_000);
     });
+
+    async function removeFlag(flag) {
+      if (worksite.value) {
+        try {
+          await Worksite.api().deleteFlag(worksite.value.id, flag);
+          await Worksite.api().fetch(worksite.value.id);
+        } catch (error) {
+          console.error(error);
+          await $toasted.error(getErrorMessage(error));
+        }
+      } else {
+        console.error('Worksite not found. Cannot remove flag');
+      }
+    }
 
     return {
       switchToStatusTab,
@@ -1654,6 +1690,8 @@ export default defineComponent({
       mobileSearch,
       can: $can,
       allowCallType,
+      hasWorksiteFlags,
+      removeFlag,
     };
   },
 });
@@ -1812,5 +1850,9 @@ export default defineComponent({
       @apply h-1/2;
     }
   }
+}
+
+.scroll-overflow-y {
+  overflow-y: scroll;
 }
 </style>
