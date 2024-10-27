@@ -214,10 +214,16 @@ export function formatWorksiteAddressHtml(worksite: Worksite) {
   if (!worksite) {
     return '';
   }
-  const { address, city, state, postal_code: postalCode, county } = worksite;
+  const {
+    address = '',
+    city = '',
+    state,
+    postal_code: postalCode,
+    county,
+  } = worksite;
   const addressParts = [
     address,
-    `${city}, ${state}${county ? `, ${county}` : ''}`,
+    `${city}${state ? `, ${state}` : ''}${county ? `, ${county}` : ''}`,
     postalCode,
   ];
   return addressParts.filter(Boolean).join(' <br> ');
