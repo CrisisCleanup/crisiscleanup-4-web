@@ -161,7 +161,7 @@ export default defineComponent({
             value: 23,
           },
           {
-            name_t: '~~Test Phone',
+            name_t: t('~~Test Phone'),
             value: 24,
           },
         ],
