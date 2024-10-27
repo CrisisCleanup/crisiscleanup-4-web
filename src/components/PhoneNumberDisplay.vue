@@ -3,11 +3,11 @@ import { useToast } from 'vue-toastification';
 import { useClipboard } from '@vueuse/core';
 import { formatNationalNumber } from '@/filters';
 
-interface HotlineNumberProps {
+interface PhoneNumberDisplayProps {
   phoneNumber: string;
 }
 
-const props = defineProps<HotlineNumberProps>();
+const props = defineProps<PhoneNumberDisplayProps>();
 
 const { t } = useI18n();
 const $toasted = useToast();
@@ -28,7 +28,6 @@ async function copyToClipboard(text: string) {
     <div
       class="flex items-center bg-primary-light bg-opacity-30 py-1 px-3 rounded-l-full text-xs md:text-sm"
     >
-      <span class="pr-1">{{ $t('disasters.hotline') }}</span>
       <a :href="`tel:${phoneNumber}`" @click.stop>
         {{ formatNationalNumber(String(phoneNumber)) }}
       </a>
