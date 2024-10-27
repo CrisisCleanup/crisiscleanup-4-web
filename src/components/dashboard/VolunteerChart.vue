@@ -74,8 +74,8 @@ const chartOptions = ref({
     },
   },
   grid: {
-    show: true, // Make sure grid lines are showing; adjust accordingly
-    borderColor: '#e7e7e7', // Light gray border color for grid lines
+    show: true,
+    borderColor: '#e7e7e7',
     padding: {
       top: 0,
       right: 0,
@@ -92,12 +92,15 @@ const chartOptions = ref({
   },
   xaxis: {
     type: 'datetime',
-    categories: [],
     labels: {
       style: {
-        colors: [], // Adjust text color for readability
         fontSize: '12px',
       },
+    },
+    axisBorder: {
+      show: true,
+      color: '#151515', // Darker gray color for the x-axis baseline
+      height: 0.5, // Increase this to make the line heavier
     },
   },
   yaxis: {
@@ -106,14 +109,15 @@ const chartOptions = ref({
     tickAmount: 2,
     labels: {
       formatter: function (value) {
-        return value.toFixed(1);
+        return (value * 100).toFixed(0) + '%'; // Convert to percentage and round
       },
       style: {
-        color: '#333', // Darker text color for readability
+        color: '#333',
         fontSize: '12px',
       },
     },
   },
+
   tooltip: {
     enabled: true,
     x: {
@@ -121,10 +125,34 @@ const chartOptions = ref({
     },
     y: {
       formatter: function (value) {
-        return value.toFixed(2);
+        return (value * 100).toFixed(2) + '%'; // Tooltip also in percentage format
       },
     },
   },
+  annotations: {
+    yaxis: [
+      {
+        y: 0.1, // 10% in decimal
+        borderColor: 'red',
+        dashArray: 4,
+        strokeWidth: 0,
+        label: {
+          position: 'left',
+          offsetX: 60,
+          borderColor: '',
+          style: {
+            color: 'red',
+            background: 'white',
+            padding: {
+              right: 10, // Adds extra padding on the right side of the label
+            },
+          },
+          text: 'Hotline Closes',
+        },
+      },
+    ],
+  },
+
   responsive: [
     {
       breakpoint: 480,
