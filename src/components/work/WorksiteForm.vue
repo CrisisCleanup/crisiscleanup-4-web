@@ -1,11 +1,5 @@
 <template>
-  <form
-    v-if="ready"
-    ref="form"
-    class="form"
-    :class="{ 'h-full': isFullHeight }"
-    @submit.prevent
-  >
+  <form v-if="ready" ref="form" class="form h-full" @submit.prevent>
     <div class="form-content" data-testid="testIntakeFormDiv">
       <SectionHeading :count="1" class="mb-3">{{
         $t('caseForm.property_information')
@@ -556,9 +550,6 @@ export default defineComponent({
     dataPrefill: {
       type: Object,
       default: () => ({}),
-    },
-    inheritFormHeight: {
-      type: Boolean,
     },
   },
   setup(props, { emit }) {
@@ -1692,7 +1683,6 @@ export default defineComponent({
       worksiteImageSection,
       supportedLanguages,
       emitManualDialer,
-      isFullHeight: !props.inheritFormHeight,
     };
   },
 });
