@@ -988,8 +988,11 @@ export default defineComponent({
     async function updateWorksiteFields(geocode) {
       const { lat, lng } = geocode.location;
       const geocodeKeys = ['address', 'city', 'county', 'state', 'postal_code'];
-      for (const key of geocodeKeys)
-        updateWorksite(geocode.address_components[key], key);
+      for (const key of geocodeKeys) {
+        // Use '' instead of undefined for missing address parts
+        const value = geocode?.address_components?.[key] ?? '';
+        updateWorksite(value, key);
+      }
 
       updateWorksite(
         {
