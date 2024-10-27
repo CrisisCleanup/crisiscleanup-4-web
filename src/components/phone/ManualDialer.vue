@@ -94,12 +94,22 @@ export default defineComponent({
     const selectedCountryCode = ref('+1');
     const countryCodes = ref([{ code: '+1', icon: 'flag-usa' }]);
 
-    const after10pmEastern = moment().isAfter(
-      moment().utcOffset(-4).hour(22).minute(0).second(0).millisecond(0),
-    );
+    const after10pmEastern = ref(false);
+
+    const updateAfter10State = () => {
+      const tenEst = moment()
+        .startOf('day')
+        .utcOffset(-4)
+        .hour(22)
+        .utcOffset(-4);
+      after10pmEastern.value = moment().isAfter(tenEst);
+    };
 
     const handleDial = () => {
-      emit('onDial', `${selectedCountryCode.value}${phone.value}`);
+      updateAfter10State();
+      if (!after10pmEastern.value) {
+        emit('onDial', `${selectedCountryCode.value}${phone.value}`);
+      }
     };
 
     const removeNumberFromQueue = () => {
@@ -107,6 +117,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      updateAfter10State();
       if (props.phoneNumber) {
         phone.value = props.phoneNumber;
       }
