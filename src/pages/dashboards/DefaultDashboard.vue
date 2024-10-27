@@ -43,7 +43,6 @@ const props = defineProps({
 let mapUtils;
 const { currentUser } = useCurrentUser();
 const { currentIncidentId, currentIncident } = useCurrentIncident();
-
 const $toasted = useToast();
 const { component } = useDialogs();
 const { t } = useI18n();
@@ -240,7 +239,7 @@ onMounted(() => {
       </div>
     </div>
     <div>
-      <h2 class="font-bold text-lg mb-3">Volunteer Engagement</h2>
+      <h2 class="font-bold text-lg mb-3">{{ $t('~~Volunteer Engagement') }}</h2>
       <VolunteerChart
         :key="JSON.stringify(engagementData)"
         class="h-84"
