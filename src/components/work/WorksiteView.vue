@@ -3,8 +3,9 @@
     v-if="worksite"
     data-testid="testWorksiteFormContentDiv"
     class="form h-full"
+    :class="{ 'form--noheader': !hasFormHeaderContent }"
   >
-    <div class="form-header">
+    <div v-if="hasFormHeaderContent" class="form-header">
       <div class="flex p-1">
         <flag
           v-for="flag in worksite.flags"
@@ -622,6 +623,11 @@ export default defineComponent({
       return '';
     });
 
+    const hasFormHeaderContent = computed(() => {
+      const wsFlags = worksite.value?.flags ?? [];
+      return wsFlags.length > 0;
+    });
+
     function updateWorkTypesToClaim(value, workTypeToClaim) {
       if (value) {
         workTypesToClaim.value.add(workTypeToClaim.work_type);
@@ -842,6 +848,7 @@ export default defineComponent({
       currentUser,
       worksiteRequests,
       worksiteRequestWorkTypeIds,
+      hasFormHeaderContent,
       updateWorkTypesToClaim,
       isStaleCase,
       getWorksiteRequests,
@@ -870,6 +877,10 @@ export default defineComponent({
   grid-template-rows: 35px 1fr 80px;
   @supports (-webkit-touch-callout: none) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  &--noheader {
+    grid-template-rows: auto 80px;
   }
 }
 
