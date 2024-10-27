@@ -10,7 +10,7 @@
         hideTriggers: ['hover'],
         popperClass: 'interactive-tooltip',
       }"
-      class="flex items-center cursor-pointer pl-1"
+      class="flex items-center cursor-pointer pl-2"
       :class="[iconClass]"
       @click.stop="copyToClipboard(text)"
     >
@@ -20,6 +20,7 @@
             size="sm"
             fa
             :type="copied ? 'fa-solid fa-copy' : 'fa-regular fa-copy'"
+            :alt="t('actions.copy_to_clipboard')"
           />
         </span>
       </slot>
