@@ -1,5 +1,23 @@
 <template>
-  <form v-if="ready" ref="form" class="form h-full" @submit.prevent>
+  <form
+    v-if="ready"
+    ref="form"
+    class="form h-full"
+    :class="{ 'form--noheader': !hasFormHeaderContent }"
+    @submit.prevent
+  >
+    <div v-if="hasFormHeaderContent" class="form-header">
+      <div class="flex p-1">
+        <Flag
+          v-for="flag in worksite.flags"
+          :key="flag.reason_t"
+          :data-testid="`test${flag.reason_t}Flag`"
+          :flag-reason="flag.reason_t"
+          removable
+          @on-remove="removeFlag(flag)"
+        />
+      </div>
+    </div>
     <div class="form-content" data-testid="testIntakeFormDiv">
       <SectionHeading :count="1" class="mb-3">{{
         $t('caseForm.property_information')
@@ -506,6 +524,7 @@ import PhoneOutbound from '@/models/PhoneOutbound';
 import CcuIcon from '@/components/BaseIcon.vue';
 import worksite from '@/store/modules/worksite';
 import { formatNationalNumber } from '@/filters';
+import Flag from '@/components/work/Flag.vue';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -516,6 +535,7 @@ const AUTO_CONTACT_FREQUENCY_OPTIONS = [
 export default defineComponent({
   name: 'WorksiteForm',
   components: {
+    Flag,
     CcuIcon,
     BaseSelect,
     WorksiteNotes,
@@ -685,6 +705,11 @@ export default defineComponent({
         isWrongLocation.value ||
         !hideDetailedAddressFields.value
       );
+    });
+
+    const hasFormHeaderContent = computed(() => {
+      const wsFlags = worksite.value?.flags ?? [];
+      return wsFlags.length > 0;
     });
 
     const emitManualDialer = (phone: string) => {
@@ -1684,6 +1709,7 @@ export default defineComponent({
       form,
       onRemoveFile,
       worksiteImageSection,
+      hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
     };
@@ -1694,9 +1720,13 @@ export default defineComponent({
 <style scoped lang="postcss">
 .form {
   display: grid;
-  grid-template-rows: auto 80px;
+  grid-template-rows: 35px 1fr 80px;
   @supports (-webkit-touch-callout: none) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  &--noheader {
+    grid-template-rows: auto 80px;
   }
 }
 
