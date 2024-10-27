@@ -98,6 +98,7 @@ export default class Incident extends CCUModel {
       'locations',
       'turn_on_release',
       'active_phone_number',
+      'incident_type',
     ];
   }
 
