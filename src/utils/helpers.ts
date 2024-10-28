@@ -205,8 +205,8 @@ export function formatWorksiteAddress(worksite: Worksite) {
   if (!worksite) {
     return '';
   }
-  const { address, city, state, postal_code: postalCode } = worksite;
-  const parts = [address, city, state, postalCode].filter(Boolean);
+  const { address, city, state, postal_code: postalCode, county } = worksite;
+  const parts = [address, city, state, county, postalCode].filter(Boolean);
   return parts.join(', ');
 }
 
