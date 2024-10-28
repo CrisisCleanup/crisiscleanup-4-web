@@ -99,7 +99,7 @@ export const useAuthenticatedRoutes = () => {
       name: 'nav.more',
       key: 'more',
       icon: {
-        type: 'ellipsissolid',
+        type: 'ellipsis',
         invertColor: true,
       },
       text: i18n.global.t('nav.more'),
