@@ -1,5 +1,5 @@
 import { Sprite, Texture } from 'pixi.js';
-// eslint-disable-next-line import/default
+
 import KDBush from 'kdbush';
 import * as turf from '@turf/turf';
 import type * as L from 'leaflet';
@@ -89,10 +89,11 @@ export default (
                 ? fillColor
                 : 'white',
           );
-        let texture = textureMap[fillColor];
+        const svgTextureCacheKey = `${fillColor}_${isFilteredMarker}_${isVisitedMarker}`;
+        let texture = textureMap[svgTextureCacheKey];
         if (!texture) {
-          textureMap[fillColor] = Texture.from(svg);
-          texture = textureMap[fillColor];
+          textureMap[svgTextureCacheKey] = Texture.from(svg);
+          texture = textureMap[svgTextureCacheKey];
         }
 
         sprite.texture = texture;
