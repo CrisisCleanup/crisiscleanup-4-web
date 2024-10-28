@@ -138,7 +138,7 @@ export default class PhoneOutbound extends CCUModel {
           },
           isNil,
         );
-        await this.post(`/phone_outbound/${id}/update_status`, body, {
+        return this.post(`/phone_outbound/${id}/update_status`, body, {
           save: false,
         });
       },

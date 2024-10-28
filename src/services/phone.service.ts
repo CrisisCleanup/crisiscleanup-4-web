@@ -120,12 +120,12 @@ export default class PhoneService {
   }
 
   async onNewCall(info: any) {
-    // Log.debug('callinfo: ', info);
     const currentUserStore = useCurrentUser();
     const { emitter } = useEmitter();
     const currentUser = currentUserStore.currentUser.value;
     this.callInfo = info;
     let state = null;
+    let incomingCall = null;
     if (info.callType === 'INBOUND') {
       state = 'ENGAGED-INBOUND';
       const response = await axios.get(
@@ -134,6 +134,7 @@ export default class PhoneService {
         }/phone_inbound/get_by_session_id?session_id=${info.uii}`,
       );
       this.store.commit('phone/setIncomingCall', response.data);
+      incomingCall = response.data;
 
       const availableIncidentIds = new Set(
         Incident.all().map((incident) => incident.id),
@@ -174,8 +175,23 @@ export default class PhoneService {
         info.ani
       }&sort=-created_at&limit=1`,
     );
+
     const [caller] = dnisResponse.data.results;
     this.store.commit('phone/setCaller', caller);
+
+    const dnisHistoryResponse = await axios.post(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history`,
+      {
+        session_id: info.uii,
+        dnis: caller.id,
+        inbound: incomingCall?.id || null,
+      },
+    );
+    const currentDnisHistoryRecord = dnisHistoryResponse.data;
+    this.store.commit(
+      'phone/setCurrentDnisHistoryRecord',
+      currentDnisHistoryRecord,
+    );
 
     emitter.emit('phone_component:close');
     emitter.emit('phone_component:open', 'caller');

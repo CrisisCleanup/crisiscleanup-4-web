@@ -887,6 +887,9 @@ export default defineComponent({
       clearCall,
       potentialFailedCall,
       setPotentialFailedCall,
+      currentDnisHistoryRecord,
+      incomingCall,
+      outgoingCall,
       loadAgent,
       setWorking,
       setAway,
@@ -987,7 +990,7 @@ export default defineComponent({
 
       try {
         if (phoneService.callInfo.callType === 'OUTBOUND' && status) {
-          await PhoneOutbound.api().updateStatus(
+          const response = await PhoneOutbound.api().updateStatus(
             call?.value?.id || lastCall?.value?.id,
             {
               statusId: status,
@@ -995,6 +998,19 @@ export default defineComponent({
               notes,
             },
           );
+
+          const statusRecord = response.response.data;
+          if (currentDnisHistoryRecord.value && statusRecord) {
+            await axios.patch(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history/${currentDnisHistoryRecord.value.id}`,
+              {
+                status: statusRecord?.id || null,
+                outbound: call?.value?.id || lastCall?.value?.id || null,
+                end_at: moment().toISOString(),
+                incident: currentIncidentId.value,
+              },
+            );
+          }
         }
 
         if (phoneService.callInfo.callType === 'INBOUND') {
@@ -1006,12 +1022,24 @@ export default defineComponent({
             data = { ...data, cases: [worksiteId.value] };
           }
 
-          await axios.post(
+          const response = await axios.post(
             `${import.meta.env.VITE_APP_API_BASE_URL}/phone_inbound/${
               call?.value?.id || lastCall?.value?.id
             }/update_status`,
             data,
           );
+          const statusRecord = response.data;
+          if (currentDnisHistoryRecord.value && statusRecord) {
+            await axios.patch(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history/${currentDnisHistoryRecord.value.id}`,
+              {
+                status: statusRecord?.id || null,
+                inbound: call?.value?.id || lastCall?.value?.id,
+                end_at: moment().toISOString(),
+                incident: currentIncidentId.value,
+              },
+            );
+          }
         }
 
         $toasted.success(t('phoneDashboard.update_success'));

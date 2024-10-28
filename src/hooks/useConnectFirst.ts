@@ -53,6 +53,9 @@ export default function useConnectFirst(context: {
   const potentialFailedCall = computed(
     () => store.getters['phone/potentialFailedCall'],
   );
+  const currentDnisHistoryRecord = computed(
+    () => store.getters['phone/currentDnisHistoryRecord'],
+  );
   const caller = computed<PhoneDnisResult>(() => store.getters['phone/caller']);
   const incomingCall = computed(() => store.getters['phone/incomingCall']);
   const outgoingCall = computed(() => store.getters['phone/outgoingCall']);
@@ -68,6 +71,10 @@ export default function useConnectFirst(context: {
 
   const setPotentialFailedCall = (call: any) => {
     store.commit('phone/setPotentialFailedCall', call);
+  };
+
+  const setCurrentDnisHistoryRecord = (record: any) => {
+    store.commit('phone/setCurrentDnisHistoryRecord', record);
   };
 
   const setCallType = (callType: any) => {
@@ -295,6 +302,7 @@ export default function useConnectFirst(context: {
     call,
     lastCall,
     potentialFailedCall,
+    currentDnisHistoryRecord,
     caller,
     incomingCall,
     outgoingCall,
