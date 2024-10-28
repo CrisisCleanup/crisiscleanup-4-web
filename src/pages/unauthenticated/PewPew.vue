@@ -142,7 +142,15 @@
                     :data-testid="`testIncident${incident.id}Div`"
                   >
                     {{ incident.short_name }}:
-                    {{ getIncidentPhoneNumbers(incident) }}
+                    <div class="inline-block transform scale-70">
+                      <PhoneNumberDisplay
+                        v-for="hotlineNumber in formatIncidentPhoneNumbers(
+                          incident,
+                        )"
+                        :key="hotlineNumber"
+                        :phone-number="hotlineNumber"
+                      />
+                    </div>
                     <span
                       v-if="index < incidentList.length - 1"
                       class="text-base text-primary-light"
@@ -537,7 +545,7 @@ import Slider from '@/components/Slider.vue';
 import DisasterIcon from '@/components/DisasterIcon.vue';
 import UserProfileMenu from '@/components/header/UserProfileMenu.vue';
 import {
-  getIncidentPhoneNumbers,
+  formatIncidentPhoneNumbers,
   getWorkTypeName,
   isValidActiveHotline,
 } from '@/filters';
@@ -552,10 +560,12 @@ import TotalCases from '@/components/live/TotalCases.vue';
 import PewPewNavBar from '@/components/navigation/PewPewNavBar.vue';
 import User from '@/models/User';
 import { useAuthStore } from '@/hooks';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 export default defineComponent({
   name: 'PewPew',
   components: {
+    PhoneNumberDisplay,
     PewPewNavBar,
     TotalCases,
     LightTab,
@@ -862,7 +872,6 @@ export default defineComponent({
       incidents,
       isDarkMode,
       isLoggedIn,
-      getIncidentPhoneNumbers,
       incidentList,
       organizations,
       siteInfoTimerData,
@@ -874,6 +883,7 @@ export default defineComponent({
       barChartData,
       totalCasesChartData,
       mapStatistics,
+      formatIncidentPhoneNumbers,
       pauseGeneratePoints,
       resumeGeneratePoints,
       markersLength,

@@ -20,21 +20,30 @@
       <div
         v-for="incident in incidentsWithActiveHotline"
         :key="incident.id"
-        class="mb-1"
+        class="flex flex-wrap items-center justify-center gap-2 mb-1"
       >
         {{ incident.short_name }}:
-        {{ getIncidentPhoneNumbers(incident) }}
+        <!-- Scale down phone numbers -->
+        <div class="inline-block transform scale-70">
+          <PhoneNumberDisplay
+            v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
+            :key="hotlineNumber"
+            :phone-number="hotlineNumber"
+          />
+        </div>
       </div>
     </div>
     <DownloadAppFooter />
   </footer>
 </template>
-<script setup>
+
+<script setup lang="ts">
 import _ from 'lodash';
 import useNavigation from '@/hooks/useNavigation';
 import DownloadAppFooter from '@/components/dashboard/DownloadAppFooter.vue';
-import { getIncidentPhoneNumbers } from '@/filters';
+import { formatIncidentPhoneNumbers } from '@/filters';
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 const { HomeNavigation, FooterNavigation } = useNavigation();
 
 const publicRoutes = computed(() => {

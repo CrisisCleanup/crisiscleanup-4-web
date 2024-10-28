@@ -511,10 +511,16 @@
               v-for="incident in incidentsWithActivePhones"
               :key="incident.id"
               :data-testid="`testIncidentWithActiveAni${incident.id}Div`"
-              class="ml-2"
+              class="flex flex-wrap items-center gap-2"
             >
               {{ incident.short_name }}:
-              {{ getIncidentPhoneNumbers(incident) }}
+              <div class="inline-block transform scale-70">
+                <PhoneNumberDisplay
+                  v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
+                  :key="hotlineNumber"
+                  :phone-number="hotlineNumber"
+                />
+              </div>
             </div>
           </template>
           <div v-else class="flex-grow">
@@ -723,6 +729,7 @@ import PhoneComponentButton from '../../components/phone/PhoneComponentButton.vu
 import ManualDialer from '../../components/phone/ManualDialer.vue';
 import AjaxTable from '../../components/AjaxTable.vue';
 import {
+  formatIncidentPhoneNumbers,
   formatNationalNumber,
   getColorForStatus,
   getIncidentPhoneNumbers,
@@ -770,6 +777,7 @@ import type { MapUtils } from '@/hooks/worksite/useLiveMap';
 import { useCurrentUser } from '@/hooks';
 import PhoneOverlay from '@/components/phone/PhoneOverlay.vue';
 import useAcl from '@/hooks/useAcl';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 export enum AllowedCallType {
   INBOUND_ONLY = 'INBOUND_ONLY',
@@ -784,6 +792,7 @@ export const PhoneSystemActionQueryParam = {
 export default defineComponent({
   name: 'PhoneSystem',
   components: {
+    PhoneNumberDisplay,
     CaseFlag,
     PhoneOverlay,
     WorksiteTable,
@@ -1656,6 +1665,7 @@ export default defineComponent({
       allowCallType,
     };
   },
+  methods: { formatIncidentPhoneNumbers },
 });
 </script>
 

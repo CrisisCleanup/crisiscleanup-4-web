@@ -16,8 +16,11 @@
           data-testid="testIncidentPhoneDiv"
           class="ml-2"
         >
-          {{ incident.short_name }}:
-          {{ getIncidentPhoneNumbers(incident) }}
+          <PhoneNumberDisplay
+            v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
+            :key="hotlineNumber"
+            :phone-number="hotlineNumber"
+          />
         </div>
       </div>
       <div v-else-if="isLoading">
@@ -32,7 +35,8 @@
 
 <script lang="ts" setup>
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';
-import { getIncidentPhoneNumbers } from '@/filters';
+import { formatIncidentPhoneNumbers, getIncidentPhoneNumbers } from '@/filters';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 const { isLoading, incidentsWithActiveHotline } = useActiveHotlines();
 </script>
