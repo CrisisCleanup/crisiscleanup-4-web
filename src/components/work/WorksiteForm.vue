@@ -94,7 +94,8 @@
         <div class="form-field">
           <base-input
             id="phone2"
-            style="width: 100%":model-value="worksite.phone2"
+            style="width: 100%"
+            :model-value="worksite.phone2"
             data-testid="testPhone2TextInput"
             selector="js-worksite-phone2"
             size="large"
@@ -111,22 +112,22 @@
             @update:model-value="(v) => updateWorksite(v, 'phone2')"
             @icon-clicked="() => sendSms(worksite.phone2)"
           />
-        <div
-          v-if="
-            currentIncident.auto_contact &&
-            worksite.id &&
-            $route.path.endsWith('/phone')
-          "
-          class="flex items-center border border-[#DBDBDB] ml-1 px-3 bg-[#F7F7F7] cursor-pointer"
-          @click="emitManualDialer(worksite.phone2)"
-        >
-          <img
-            class="w-8"
-            src="/src/assets/icons/manual-dialer-black.svg"
-            alt="Manual Dialer"
-          />
+          <div
+            v-if="
+              currentIncident.auto_contact &&
+              worksite.id &&
+              $route.path.endsWith('/phone')
+            "
+            class="flex items-center border border-[#DBDBDB] ml-1 px-3 bg-[#F7F7F7] cursor-pointer"
+            @click="emitManualDialer(worksite.phone2)"
+          >
+            <img
+              class="w-8"
+              src="/src/assets/icons/manual-dialer-black.svg"
+              alt="Manual Dialer"
+            />
+          </div>
         </div>
-      </div>
 
         <div class="form-field">
           <base-input
