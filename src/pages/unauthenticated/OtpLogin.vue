@@ -6,11 +6,10 @@ import { useAuthStore } from '@/hooks/useAuth';
 import Home from '@/layouts/Home.vue';
 import { getAndToastErrorMessage } from '@/utils/errors';
 import useDialogs from '@/hooks/useDialogs';
-import useValidation from '@/hooks/useValidation';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 const { requestOtp, verifyOtp, loginWithOtp, getMe } = useAuthStore();
 const { selection } = useDialogs();
-const { validatePhoneNumber } = useValidation();
 const toast = useToast();
 const router = useRouter();
 const { t } = useI18n();
@@ -85,12 +84,11 @@ const verifyOtpAndLogin = async () => {
           </div>
         </section>
         <form ref="form" class="w-108 flex flex-col gap-4" autocomplete="off">
-          <base-input
+          <PhoneNumberInput
             v-model="phoneNumber"
             data-testid="testPhoneNumberInput"
             size="large"
             :placeholder="$t('loginWithPhone.enter_cell')"
-            :validator="validatePhoneNumber"
             required
           />
           <base-button
