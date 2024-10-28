@@ -529,6 +529,7 @@ import worksite from '@/store/modules/worksite';
 import { formatNationalNumber } from '@/filters';
 import Flag from '@/components/work/Flag.vue';
 import AddressDisplay from '@/components/AddressDisplay.vue';
+import type { Response } from '@vuex-orm/plugin-axios';
 import {
   formatWorksiteAddress,
   formatWorksiteAddressHtml,
@@ -691,8 +692,6 @@ export default defineComponent({
       formatWorksiteAddressHtml(worksite.value),
     );
 
-    watchEffect(() => console.info('WORKSITE', worksite.value));
-
     const isAddressValid = computed(() => {
       const {
         address,
@@ -842,13 +841,24 @@ export default defineComponent({
 
     async function saveNote(n) {
       const notes = [...worksite.value.notes];
-      notes.push({
+      const noteCreate = {
         id: uniqueId(),
         note: n,
         created_at: moment().toISOString(),
         pending: true,
-      });
-
+      };
+      if (worksite.value.id) {
+        // Auto save note when editing worksite
+        const noteSaveResponse: Response = await Worksite.api().addNote(
+          worksite.value.id,
+          noteCreate.note,
+        );
+        const newNote = noteSaveResponse.response.data;
+        console.info('Saving new notes responses', noteSaveResponse, newNote);
+        notes.push(newNote);
+      } else {
+        notes.push(noteCreate);
+      }
       updateWorksite(notes, 'notes');
     }
 
