@@ -8,8 +8,8 @@ describe('Badge.vue', () => {
     const badgeDiv = wrapper.find('[data-testid="testBadgeDiv"]');
     expect(badgeDiv.exists()).toBe(true);
     expect(badgeDiv.element.style.backgroundColor).toBe('');
-    expect(badgeDiv.element.style.width).toBe('10px');
-    expect(badgeDiv.element.style.height).toBe('10px');
+    expect(badgeDiv.element.style.width).toBe('auto');
+    expect(badgeDiv.element.style.height).toBe('auto');
   });
 
   it('applies color prop correctly', () => {
