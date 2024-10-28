@@ -349,7 +349,7 @@
         data-testid="testCaseHeaderDiv"
         :worksite="worksite"
         class="p-2 border-l border-r"
-        can-edit
+        :can-edit="false"
         :is-viewing-worksite="false"
         @on-jump-to-case="jumpToCase"
         @on-download-worksite="() => downloadWorksites([worksite?.id])"
@@ -592,7 +592,7 @@
           data-testid="testCaseHeaderDiv"
           :worksite="worksite"
           class="p-2 border-l border-r"
-          can-edit
+          :can-edit="false"
           :is-viewing-worksite="false"
           @on-jump-to-case="jumpToCase"
           @on-download-worksite="() => downloadWorksites([worksite?.id])"
