@@ -344,7 +344,7 @@ importers:
         version: 8.4.1
       '@iconify/json':
         specifier: ^2.2.242
-        version: 2.2.264
+        version: 2.2.265
       '@playwright/test':
         specifier: ^1.47.0
         version: 1.47.0
@@ -1268,8 +1268,8 @@ packages:
     resolution: {integrity: sha512-DnIVVAiXR4tfWERTiQxr1Prrs/uFEbC1C4gTGORMvbF4k7ENyVQeLcoUfNyhlAj2MB/OeorCrN3wSnYuDOUS6Q==}
     engines: {node: '>=8.0.0'}
 
-  '@iconify/json@2.2.264':
-    resolution: {integrity: sha512-yT8LqVC+WiOaE+UGQAy7Big7On+oCImkcQTIgrocvDezGOtispxfyg1bpT3gUedIsPwMW+Onwhj1awOl+sWrxw==}
+  '@iconify/json@2.2.265':
+    resolution: {integrity: sha512-pTM0S5o1DsNgqdNptL5b82DLA/ez7YM2TuS7D/t6EwTI54n5zUUxaT3hfZ86TEqwTjVBcAD7QaDcXGTWBF1m6Q==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3041,6 +3041,11 @@ packages:
 
   acorn@8.13.0:
     resolution: {integrity: sha512-8zSiw54Oxrdym50NlZ9sUusyO1Z1ZchgRLWRaK6c86XJFClyCgFKetdowBg5bKxyp/u+CDBJG4Mpp0m3HLZl9w==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.14.0:
+    resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -7900,7 +7905,7 @@ snapshots:
       chalk: 2.4.2
       lodash: 4.17.21
 
-  '@iconify/json@2.2.264':
+  '@iconify/json@2.2.265':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -10242,9 +10247,9 @@ snapshots:
 
   abbrev@2.0.0: {}
 
-  acorn-import-attributes@1.9.5(acorn@8.13.0):
+  acorn-import-attributes@1.9.5(acorn@8.14.0):
     dependencies:
-      acorn: 8.13.0
+      acorn: 8.14.0
 
   acorn-jsx-walk@2.0.0: {}
 
@@ -10267,6 +10272,8 @@ snapshots:
   acorn@8.12.1: {}
 
   acorn@8.13.0: {}
+
+  acorn@8.14.0: {}
 
   agent-base@6.0.2:
     dependencies:
@@ -13997,7 +14004,7 @@ snapshots:
   terser@5.36.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.13.0
+      acorn: 8.14.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -14556,8 +14563,8 @@ snapshots:
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.13.0
-      acorn-import-attributes: 1.9.5(acorn@8.13.0)
+      acorn: 8.14.0
+      acorn-import-attributes: 1.9.5(acorn@8.14.0)
       browserslist: 4.24.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.1
