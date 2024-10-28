@@ -131,11 +131,11 @@ export default defineComponent({
         route: '/about',
         label: t('publicNav.about_us'),
       },
-      {
-        key: 'blog',
-        route: '/blog',
-        label: t('publicNav.blog'),
-      },
+      // {
+      //   key: 'blog',
+      //   route: '/blog',
+      //   label: t('publicNav.blog'),
+      // },
       {
         key: 'map',
         route: '/map',
@@ -158,6 +158,11 @@ export default defineComponent({
         external: true,
       },
       {
+        key: 'more',
+        label: t('more.more_title'),
+        route: '/more',
+      },
+      {
         key: 'terms',
         route: '/terms',
         label: t('publicNav.terms'),
@@ -174,11 +179,12 @@ export default defineComponent({
         [
           'home',
           'aboutUs',
-          'blog',
+          // 'blog',
           'map',
           'training',
           'disasters',
           'contact',
+          'more',
         ].includes(r.key),
       );
     });

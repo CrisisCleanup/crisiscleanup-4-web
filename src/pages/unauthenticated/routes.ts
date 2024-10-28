@@ -1,3 +1,4 @@
+const More = () => import('./More.vue');
 const InvitationSignup = () => import('./InvitationSignup.vue');
 const MobileAppUserInvite = () => import('./MobileAppUserInvite.vue');
 const PrintToken = () => import('./PrintToken.vue');
@@ -22,6 +23,12 @@ const MagicLinkLogin = () =>
 const OtpLogin = () => import('@/pages/unauthenticated/OtpLogin.vue');
 
 const routes = [
+  {
+    path: '/more',
+    component: More,
+    name: 'nav.more',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
   {
     path: '/invitation_token/:token',
     component: InvitationSignup,
