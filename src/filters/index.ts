@@ -169,18 +169,24 @@ export function isValidActiveHotline(phone: unknown) {
   return Array.isArray(phone) ? phone.length > 0 : Boolean(phone);
 }
 
+export function formatIncidentPhoneNumbers<
+  T extends { active_phone_number: Incident['active_phone_number'] },
+>(incident: T): string[] {
+  if (Array.isArray(incident.active_phone_number)) {
+    return incident.active_phone_number.map((number) =>
+      formatNationalNumber(String(number)),
+    );
+  }
+  return [formatNationalNumber(String(incident.active_phone_number))];
+}
+
 /**
  * Get phone number from incident object
  * @param incident
  */
 export function getIncidentPhoneNumbers<
   T extends { active_phone_number: Incident['active_phone_number'] },
->(incident: T) {
-  if (Array.isArray(incident.active_phone_number)) {
-    return incident.active_phone_number
-      .map((number) => formatNationalNumber(String(number)))
-      .join(', ');
-  }
-
-  return formatNationalNumber(String(incident.active_phone_number));
+>(incident: T): string {
+  const formattedNumbers = formatIncidentPhoneNumbers(incident);
+  return formattedNumbers.join(', ');
 }
