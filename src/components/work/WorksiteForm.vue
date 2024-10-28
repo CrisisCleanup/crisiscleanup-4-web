@@ -38,8 +38,8 @@
           @selected-existing="onWorksiteSelect"
         />
       </section>
-      <div class="form-field flex">
-        <base-input
+      <div class="form-field flex gap-1">
+        <PhoneNumberInput
           id="phone1"
           style="width: 100%"
           :model-value="worksite.phone1"
@@ -56,7 +56,6 @@
               ? $t('caseForm.sms')
               : null
           "
-          :validator="validatePhoneNumber"
           @update:model-value="(v) => updateWorksite(v, 'phone1')"
           @icon-clicked="() => sendSms(worksite.phone1)"
         />
@@ -66,7 +65,7 @@
             worksite.id &&
             $route.path.endsWith('/phone')
           "
-          class="flex items-center border border-[#DBDBDB] ml-1 px-3 bg-[#F7F7F7] cursor-pointer"
+          class="flex items-center border border-[#DBDBDB] px-2 bg-[#F7F7F7] cursor-pointer"
           @click="emitManualDialer(worksite.phone1)"
         >
           <img
@@ -90,7 +89,7 @@
 
       <template v-if="worksite.phone2 || addAdditionalPhone">
         <div class="form-field">
-          <base-input
+          <PhoneNumberInput
             id="phone2"
             style="width: 100%"
             :model-value="worksite.phone2"
@@ -106,7 +105,6 @@
                 ? $t('caseForm.sms')
                 : null
             "
-            :validator="validatePhoneNumber"
             @update:model-value="(v) => updateWorksite(v, 'phone2')"
             @icon-clicked="() => sendSms(worksite.phone2)"
           />
@@ -562,7 +560,7 @@ import {
   formatWorksiteAddress,
   formatWorksiteAddressHtml,
 } from '@/utils/helpers';
-import useValidation from '@/hooks/useValidation';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -573,6 +571,7 @@ const AUTO_CONTACT_FREQUENCY_OPTIONS = [
 export default defineComponent({
   name: 'WorksiteForm',
   components: {
+    PhoneNumberInput,
     AddressDisplay,
     Flag,
     CcuIcon,
@@ -627,8 +626,6 @@ export default defineComponent({
     const { call, isInboundCall } = useConnectFirst({
       emit,
     });
-
-    const { validatePhoneNumber } = useValidation();
 
     const contactFrequencyOptions = AUTO_CONTACT_FREQUENCY_OPTIONS.map(
       (key) => {
@@ -1765,7 +1762,6 @@ export default defineComponent({
       hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
-      validatePhoneNumber,
     };
   },
 });

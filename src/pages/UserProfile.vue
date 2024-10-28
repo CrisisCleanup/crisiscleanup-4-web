@@ -73,11 +73,10 @@
               data-testid="testEmailInput"
               @update:model-value="(value) => updateUser(value, 'email')"
             />
-            <base-input
+            <PhoneNumberInput
               :model-value="currentUser!.mobile"
               placeholder="profileUser.mobile_placeholder"
               data-testid="testMobileInput"
-              :validator="validatePhoneNumber"
               @update:model-value="(value) => updateUser(value, 'mobile')"
             />
           </div>
@@ -441,7 +440,6 @@ import { useToast } from 'vue-toastification';
 import UserProfileSection from '@/components/UserProfileSection.vue';
 import UserRolesSelect from '@/components/UserRolesSelect.vue';
 import Tag from '@/components/Tag.vue';
-import useValidation from '@/hooks/useValidation';
 import Language from '@/models/Language';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
@@ -451,6 +449,7 @@ import UserEquipmentSelect from '@/components/UserEquipmentSelect.vue';
 import UserEquipment from '@/models/UserEquipment';
 import type { Collection } from '@vuex-orm/core';
 import Equipment from '@/models/Equipment';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 const {
   currentUser,
@@ -463,7 +462,6 @@ const store = useStore();
 const uploading = ref(false);
 const $toasted = useToast();
 const { t } = useI18n();
-const { validatePhoneNumber } = useValidation();
 const { setupLanguage } = useSetupLanguage();
 const { $can } = useAcl();
 
@@ -573,11 +571,11 @@ async function handleProfilePictureUpload(fileList: File[]) {
     );
 
     const oldImages = profilePictures.map((picture) =>
-      User.api().deleteFile(authStore.currentUserId.value!, picture.file),
+      User.api().deleteFile(authStore.currentUserId.value, picture.file),
     );
     await Promise.allSettled([
       ...oldImages,
-      User.api().addFile(authStore.currentUserId.value!, file),
+      User.api().addFile(authStore.currentUserId.value, file),
     ]);
     await authStore.getMe();
   } catch (error) {
