@@ -56,7 +56,6 @@
               ? $t('caseForm.sms')
               : null
           "
-          :validator="validatePhoneNumber"
           @update:model-value="(v) => updateWorksite(v, 'phone1')"
           @icon-clicked="() => sendSms(worksite.phone1)"
         />
@@ -642,8 +641,6 @@ export default defineComponent({
     const { call, isInboundCall } = useConnectFirst({
       emit,
     });
-
-    const { validatePhoneNumber } = useValidation();
 
     const contactFrequencyOptions = AUTO_CONTACT_FREQUENCY_OPTIONS.map(
       (key) => {
@@ -1780,7 +1777,6 @@ export default defineComponent({
       hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
-      validatePhoneNumber,
     };
   },
 });
