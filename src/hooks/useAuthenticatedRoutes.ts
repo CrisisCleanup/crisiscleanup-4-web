@@ -80,13 +80,13 @@ export const useAuthenticatedRoutes = () => {
       },
       to: '/training',
     },
-    {
-      name: 'nav.blog',
-      key: 'blog',
-      icon: 'blog',
-      text: i18n.global.t('nav.blog'),
-      to: '/blog',
-    },
+    // {
+    //   name: 'nav.blog',
+    //   key: 'blog',
+    //   icon: 'blog',
+    //   text: i18n.global.t('nav.blog'),
+    //   to: '/blog',
+    // },
     {
       name: 'nav.admin',
       key: 'admin',
@@ -94,6 +94,16 @@ export const useAuthenticatedRoutes = () => {
       text: i18n.global.t('nav.admin'),
       to: '/admin',
       disabled: !(currentUser.value && currentUser.value.isAdmin),
+    },
+    {
+      name: 'nav.more',
+      key: 'more',
+      icon: {
+        type: 'ellipsissolid',
+        invertColor: true,
+      },
+      text: i18n.global.t('nav.more'),
+      to: '/more',
     },
   ]);
 
