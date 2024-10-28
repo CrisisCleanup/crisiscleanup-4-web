@@ -76,16 +76,14 @@
           />
         </div>
       </div>
-      <div class="form-field flex">
+      <div class="form-field pl-4">
         <base-input
           id="phone1_notes"
           :model-value="worksite.phone1_notes"
           data-testid="testPhone1NotesTextInput"
           selector="js-worksite-phone1_notes"
           size="small"
-          required
           :placeholder="$t('formLabels.phone1_notes')"
-          text-area
           @update:model-value="(v) => updateWorksite(v, 'phone1_notes')"
         />
       </div>
@@ -129,16 +127,14 @@
           </div>
         </div>
 
-        <div class="form-field">
+        <div class="form-field pl-4">
           <base-input
             id="phone2_notes"
             :model-value="worksite.phone2_notes"
             data-testid="testPhone2NotesTextInput"
             selector="js-worksite-phone2_notes"
             size="small"
-            required
             :placeholder="$t('formLabels.phone2_notes')"
-            text-area
             @update:model-value="(v) => updateWorksite(v, 'phone2_notes')"
           />
         </div>
