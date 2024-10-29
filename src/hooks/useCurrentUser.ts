@@ -10,6 +10,7 @@ import { getErrorMessage } from '../utils/errors';
 import { useAuthStore } from './useAuth';
 import Organization from '@/models/Organization';
 import axios from 'axios';
+import Role from '@/models/Role';
 
 const debug = createDebug('@ccu:hooks:useCurrentUser');
 
@@ -105,7 +106,14 @@ const currentStoreStore = () => {
       !currentUser.value.organization.is_active,
   );
   const isAdmin = computedEager(
-    () => currentUser.value && currentUser.value?.active_roles.includes(1),
+    () =>
+      currentUser.value &&
+      currentUser.value?.active_roles.includes(Role.adminRoleId),
+  );
+  const isPhoneAgent = computedEager(
+    () =>
+      currentUser.value &&
+      currentUser.value?.active_roles.includes(Role.phoneAgentRoleId),
   );
 
   // Insert or update the user when the current user is retrieved.
@@ -195,6 +203,14 @@ const currentStoreStore = () => {
     await updateCurrentUserStates(newStates);
   };
 
+  const addUserRole = async (roleId: number) => {
+    await User.api().post('/user_roles', {
+      user_role: roleId,
+      user: currentUser.value.id,
+    });
+    await authStore.getMe();
+  };
+
   const updateCurrentUserDebounced = useDebounceFn(updateCurrentUser, 300);
 
   const updateUserStatesDebounced = useDebounceFn(updateUserStates, 300);
@@ -207,9 +223,11 @@ const currentStoreStore = () => {
     updateCurrentUser,
     updateCurrentUserDebounced,
     updateUserStatesDebounced,
+    addUserRole,
     userStates,
     userPreferences,
     isAdmin,
+    isPhoneAgent,
     isOrganizationInactive,
     isOrphan,
   };
