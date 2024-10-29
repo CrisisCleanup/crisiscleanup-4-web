@@ -45,14 +45,10 @@
           :key="key"
           class="flex items-start gap-x-2 w-1/2"
         >
-          <div class="w-4 h-4">
-            <MaterialSymbolsCircle
-              class="text-xs border border-black rounded-full"
-              :style="{
-                color: value,
-              }"
-            />
-          </div>
+          <ColoredCircle
+            class="shrink-0 w-4 h-4 border border-black rounded-full"
+            :color="value"
+          />
           <div class="flex-grow text-xs">{{ key }}</div>
         </div>
         <div class="flex items-center gap-1 w-1/2">
@@ -94,10 +90,12 @@ import MdiChevronUp from '~icons/mdi/chevron-up';
 import MdiChevronDown from '~icons/mdi/chevron-down';
 import { getWorkTypeName } from '../filters/index';
 import { getErrorMessage } from '@/utils/errors';
+import ColoredCircle from '@/components/ColoredCircle.vue';
 
 export default defineComponent({
   name: 'WorksiteLegend',
   components: {
+    ColoredCircle,
     MaterialSymbolsCircle,
     F7PlusApp,
     MdiChevronUp,

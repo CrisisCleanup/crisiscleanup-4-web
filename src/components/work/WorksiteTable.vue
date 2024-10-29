@@ -25,8 +25,8 @@
           class="badge-holder flex items-center cursor-pointer"
           :title="getStatusName(work_type.status)"
         >
-          <badge
-            class="mx-1"
+          <ColoredCircle
+            class="mx-1 w-4 h-4"
             :title="getStatusName(work_type.status)"
             :color="
               getColorForStatus(work_type.status, Boolean(work_type.claimed_by))
@@ -49,10 +49,11 @@ import {
 } from '../../filters';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { useMq } from 'vue3-mq';
+import ColoredCircle from '@/components/ColoredCircle.vue';
 
 export default defineComponent({
   name: 'WorksiteTable',
-  components: { AjaxTable },
+  components: { ColoredCircle, AjaxTable },
   props: {
     worksiteQuery: { type: Object, default: null, required: false },
   },
