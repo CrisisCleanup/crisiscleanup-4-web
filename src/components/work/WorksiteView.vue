@@ -37,7 +37,10 @@
                   class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
                   >{{ $t('formLabels.phone1') }}</label
                 >
-                <div data-testid="testPhoneDiv">{{ worksite.phone1 }}</div>
+                <PhoneNumberDisplay
+                  :phone-number="worksite.phone1"
+                  data-testid="testPhoneDiv"
+                />
               </div>
             </div>
           </div>
@@ -464,10 +467,12 @@ import useAcl from '@/hooks/useAcl';
 import { AxiosError } from 'axios';
 import AddressDisplay from '@/components/AddressDisplay.vue';
 import { formatWorksiteAddress } from '@/utils/helpers';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 export default defineComponent({
   name: 'WorksiteView',
   components: {
+    PhoneNumberDisplay,
     AddressDisplay,
     WorksiteNotes,
     WorksiteReportSection,
