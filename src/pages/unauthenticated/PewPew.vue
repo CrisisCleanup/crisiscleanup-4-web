@@ -148,6 +148,7 @@
                           incident,
                         )"
                         :key="hotlineNumber"
+                        type="plain"
                         :phone-number="hotlineNumber"
                       />
                     </div>
