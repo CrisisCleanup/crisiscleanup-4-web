@@ -20,6 +20,7 @@
             v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
             :key="hotlineNumber"
             :phone-number="hotlineNumber"
+            type="plain"
           />
         </div>
       </div>
