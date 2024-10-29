@@ -41,7 +41,7 @@ interface RAGSocketAnswerMessageBody
   extends BaseRAGSocketConversationMessageBody {
   messageId: string;
   answer: string;
-  status: 'pending' | 'in_progress' | 'error' | 'finish';
+  status: 'pending' | 'in_progress' | 'error' | 'finish' | 'rejected';
 }
 
 type RAGSocketConversationMessageBody =
@@ -493,7 +493,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
 export const useRAGConversations = (
   collectionId: Ref<string | undefined>,
   currentConversationId: Ref<string | undefined>,
-  options: Partial<UseRAGOptions>,
+  options?: Partial<UseRAGOptions>,
 ) => {
   const client = axios.create(createAxiosCasingTransform());
   const conversationsState = useAxios<ConversationsResponse>(
@@ -566,8 +566,8 @@ export const useRAGConversations = (
       content: message.content,
       actor:
         message.type === 'human'
-          ? (options.userActorName ?? 'user')
-          : (options.aiActorName ?? 'aarongpt'),
+          ? (options?.userActorName ?? 'user')
+          : (options?.aiActorName ?? 'aarongpt'),
       messageId: msgId,
       ...(message.tools ? { tools: message.tools } : {}),
     }));
@@ -648,6 +648,8 @@ export const useRAG = (
   const latestMessage = computed(() => history.value.at(-1));
   const latestMessageId = computed(() => latestMessage.value?.messageId);
   const streamingMessage = ref<boolean>(false);
+  const currentQuestion: ref<RAGSocketConversationMessageBody | null> =
+    ref(null);
   options = defu(options, {
     aiActorName: 'aarongpt',
     userActorName: 'user',
@@ -670,13 +672,23 @@ export const useRAG = (
       conversationId,
       status,
     } = data;
+    if (currentQuestion.value && status !== 'rejected') {
+      // push current question when we know its been validated
+      history.value.push(currentQuestion.value);
+      currentQuestion.value = null;
+    }
+    if (status === 'rejected') {
+      debug('Question rejected: %s', content);
+      currentQuestion.value = null;
+      return;
+    }
     let answer = content;
     const isTool = answer
       .replaceAll('\n', '')
       .toLowerCase()
       .startsWith('invoking:');
     if (latestMessageId.value === messageId) {
-      if (isTool && !(options.showToolMessages ?? true)) {
+      if (isTool && !(options?.showToolMessages ?? true)) {
         debug('Skipping tool message: %s', answer);
         return;
       }
@@ -702,7 +714,7 @@ export const useRAG = (
         messageId,
         collectionId,
         conversationId,
-        actor: options.aiActorName ?? 'aarongpt',
+        actor: options?.aiActorName ?? 'aarongpt',
         content: answer,
       });
     }
@@ -722,13 +734,13 @@ export const useRAG = (
   const submitQuestion = (value: string, fileIds?: number[]) => {
     if (!value) return;
     const convoId = conversationId.value ?? generateUUID();
-    history.value.push({
+    currentQuestion.value = {
       messageId: generateUUID(),
       actor: 'user',
       content: value,
       collectionId: collectionId.value,
       conversationId: convoId,
-    });
+    };
     const payload: RAGSocketConversationMessage = {
       type: 'rag.conversation',
       message: {
