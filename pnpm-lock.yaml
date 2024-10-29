@@ -76,7 +76,7 @@ importers:
         version: 0.2.4
       '@types/leaflet.markercluster':
         specifier: ^1.5.4
-        version: 1.5.4
+        version: 1.5.5
       '@vitejs/plugin-vue-jsx':
         specifier: ^4.0.1
         version: 4.0.1(vite@5.4.10(@types/node@20.17.1)(sass@1.80.4)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))
@@ -2605,8 +2605,8 @@ packages:
   '@types/leaflet.heat@0.2.4':
     resolution: {integrity: sha512-Ocdgf2LUBsPAdQ29KY7QAwe5J5NDq/T2msTsA3OL7eYG3EVjMvkrPqXYJtLbXIauxP9e7bOReDie3GzC7lBLqg==}
 
-  '@types/leaflet.markercluster@1.5.4':
-    resolution: {integrity: sha512-tfMP8J62+wfsVLDLGh5Zh1JZxijCaBmVsMAX78MkLPwvPitmZZtSin5aWOVRhZrCS+pEOZwNzexbfWXlY+7yjg==}
+  '@types/leaflet.markercluster@1.5.5':
+    resolution: {integrity: sha512-TkWOhSHDM1ANxmLi+uK0PjsVcjIKBr8CLV2WoF16dIdeFmC0Cj5P5axkI3C1Xsi4+ht6EU8+BfEbbqEF9icPrg==}
 
   '@types/leaflet@1.9.14':
     resolution: {integrity: sha512-sx2q6MDJaajwhKeVgPSvqXd8rhNJSTA3tMidQGduZn9S6WBYxDkCpSpV5xXEmSg7Cgdk/5vJGhVF1kMYLzauBg==}
@@ -9712,7 +9712,7 @@ snapshots:
     dependencies:
       '@types/leaflet': 1.9.14
 
-  '@types/leaflet.markercluster@1.5.4':
+  '@types/leaflet.markercluster@1.5.5':
     dependencies:
       '@types/leaflet': 1.9.14
 
