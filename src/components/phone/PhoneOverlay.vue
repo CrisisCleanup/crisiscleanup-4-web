@@ -101,6 +101,7 @@ import Badge from '@/components/Badge.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import PhoneOutbound from '@/models/PhoneOutbound';
 import { useToast } from 'vue-toastification';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 const { emitter } = useEmitter();
 const $toasted = useToast();
 
@@ -330,14 +331,11 @@ const {
                   >
                     {{ $t('phoneDashboard.call_ended') }}
                   </div>
-                  <div class="flex gap-1">
-                    <span class="font-bold">{{ caller.dnis }}</span>
-                    <font-awesome-icon
-                      :icon="['fas', 'copy']"
-                      class="cursor-pointer"
-                      @click="() => copy(caller.dnis)"
-                    />
-                  </div>
+                  <PhoneNumberDisplay
+                    class="w-40"
+                    :phone-number="caller.dnis"
+                    type="plain"
+                  />
                 </div>
 
                 <span
