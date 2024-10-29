@@ -467,7 +467,7 @@ importers:
         version: 13.5.5
       playwright-slack-report:
         specifier: ^1.1.86
-        version: 1.1.88(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.3)
+        version: 1.1.89(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.3)
       postcss:
         specifier: ^8.4.41
         version: 8.4.47
@@ -5552,8 +5552,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-slack-report@1.1.88:
-    resolution: {integrity: sha512-aog2LgJXM7sG5mpnTVIKkZA8CrL6kub4jJgMVL+p9iCvEmb1KkSVGDzbmWuwPrR4IytDhtDDz6ZGYm0CSl9P6A==}
+  playwright-slack-report@1.1.89:
+    resolution: {integrity: sha512-h8w6RwSkFRj4fXhSVXqpZBdxanOBCTCUns3DVJwpx0YUfr5w0qEyzcPT3uRozGB8w5qVkbBTvYnOltwU7mJDjQ==}
     hasBin: true
 
   playwright@1.47.0:
@@ -13003,7 +13003,7 @@ snapshots:
 
   playwright-core@1.47.0: {}
 
-  playwright-slack-report@1.1.88(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.3):
+  playwright-slack-report@1.1.89(@types/node@20.17.1)(debug@4.3.7)(typescript@5.6.3):
     dependencies:
       '@slack/web-api': 7.7.0(debug@4.3.7)
       '@slack/webhook': 7.0.3(debug@4.3.7)
@@ -14096,7 +14096,7 @@ snapshots:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
       '@types/node': 20.17.1
-      acorn: 8.13.0
+      acorn: 8.14.0
       acorn-walk: 8.3.4
       arg: 4.1.3
       create-require: 1.1.1
