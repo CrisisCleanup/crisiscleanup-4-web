@@ -102,7 +102,7 @@ type AnyRAGSocketMessageOrError = AnyRAGSocketMessage | RAGSocketErrorMessage;
 
 interface RAGEntry {
   messageId: string;
-  actor: 'user' | 'aarongpt';
+  actor: 'user' | 'aarongpt' | string;
   content: string;
   collectionId: string;
   conversationId: string;
@@ -185,6 +185,12 @@ interface Collection {
 
 type CollectionResponse = PaginatedResponse<Collection>;
 
+interface UseRAGOptions {
+  aiActorName: string;
+  userActorName: string;
+  showToolMessages: boolean;
+}
+
 export type {
   Collection as RAGCollection,
   Document as RAGDocument,
@@ -192,6 +198,7 @@ export type {
   ToolMessage as RAGToolMessage,
   CCUDocumentFileItem,
   DocumentFileBranch as RAGDocumentsFileBranch,
+  UseRAGOptions,
 };
 
 const RAGToastMessage: FunctionalComponent<{
@@ -486,6 +493,7 @@ export const useRAGUpload = (uploadCollectionId?: Ref<string | undefined>) => {
 export const useRAGConversations = (
   collectionId: Ref<string | undefined>,
   currentConversationId: Ref<string | undefined>,
+  options: Partial<UseRAGOptions>,
 ) => {
   const client = axios.create(createAxiosCasingTransform());
   const conversationsState = useAxios<ConversationsResponse>(
@@ -493,6 +501,11 @@ export const useRAGConversations = (
     client,
     { immediate: Boolean(collectionId.value), resetOnExecute: false },
   );
+  options = defu(options, {
+    aiActorName: 'aarongpt',
+    userActorName: 'user',
+    showToolMessages: true,
+  });
 
   whenever(collectionId, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
@@ -551,7 +564,10 @@ export const useRAGConversations = (
       conversationId,
       collectionId,
       content: message.content,
-      actor: message.type === 'human' ? 'user' : 'aarongpt',
+      actor:
+        message.type === 'human'
+          ? (options.userActorName ?? 'user')
+          : (options.aiActorName ?? 'aarongpt'),
       messageId: msgId,
       ...(message.tools ? { tools: message.tools } : {}),
     }));
@@ -626,11 +642,17 @@ export const useRAG = (
   collectionId: Ref<string>,
   conversationId: Ref<string>,
   conversationHistory?: Ref<RAGEntry[]>,
+  options?: UseRAGOptions,
 ) => {
   const history = ref<RAGEntry[]>(conversationHistory?.value ?? []);
   const latestMessage = computed(() => history.value.at(-1));
   const latestMessageId = computed(() => latestMessage.value?.messageId);
   const streamingMessage = ref<boolean>(false);
+  options = defu(options, {
+    aiActorName: 'aarongpt',
+    userActorName: 'user',
+    showToolMessages: true,
+  });
   if (conversationHistory) {
     whenever(conversationHistory, (newValue) => {
       history.value = newValue ?? [];
@@ -649,7 +671,15 @@ export const useRAG = (
       status,
     } = data;
     let answer = content;
+    const isTool = answer
+      .replaceAll('\n', '')
+      .toLowerCase()
+      .startsWith('invoking:');
     if (latestMessageId.value === messageId) {
+      if (isTool && !(options.showToolMessages ?? true)) {
+        debug('Skipping tool message: %s', answer);
+        return;
+      }
       streamingMessage.value = true;
       debug('appending latest message chunk: %s (%s)', messageId, answer);
       const newHistory = history.value.slice(0, -1);
@@ -672,7 +702,7 @@ export const useRAG = (
         messageId,
         collectionId,
         conversationId,
-        actor: 'aarongpt',
+        actor: options.aiActorName ?? 'aarongpt',
         content: answer,
       });
     }
