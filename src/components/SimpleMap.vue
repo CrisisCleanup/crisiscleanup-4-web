@@ -109,7 +109,7 @@
     <WorksiteLegend
       v-if="(showZoomButtons && !removeLegend) || showLegend"
       :key="availableWorkTypes"
-      class="hidden md:block"
+      class="hidden md:block rounded-t-lg absolute bottom-0 left-0 w-72 z-map-controls"
       data-testid="testShowLegendDiv"
       :available-work-types="availableWorkTypes"
     />

@@ -1,79 +1,84 @@
 <template>
-  <div>
-    <div
-      v-if="showingLegend"
-      data-testid="testShowingLegendDiv"
-      class="legend absolute legend-landscape bottom-0 w-72 bg-white border-2 p-2 z-map-controls"
-    >
+  <div class="ws-legend">
+    <div v-if="showingLegend" data-testid="testShowingLegendDiv">
       <div
         class="flex items-center justify-between cursor-pointer"
         @click="() => toggleLegend(false)"
       >
-        <div class="text-base font-bold my-1">
+        <div class="text-base font-bold">
           {{ $t('worksiteMap.legend') }}
         </div>
-        <font-awesome-icon
-          icon="chevron-down"
+        <MdiChevronDown
+          class="toggle-icon"
           data-testid="testHideLegendIcon"
-          size="1x"
           :title="$t('worksiteMap.hide_legend')"
-        ></font-awesome-icon>
+        />
       </div>
-      <div class="flex flex-wrap justify-between">
+      <div class="mt-2 flex flex-wrap justify-between gap-y-1">
         <div
           v-for="entry in displayedWorkTypeSvgs"
           :key="entry.key"
-          class="flex items-center w-1/2 mb-1"
+          class="worktype-svg-item"
         >
-          <div class="map-svg-container" v-html="entry.svg"></div>
-          <span class="text-xs ml-1">{{ getWorkTypeName(entry.key) }}</span>
+          <div class="w-4 h-4">
+            <div class="map-svg-container" v-html="entry.svg"></div>
+          </div>
+          <span class="text-xs">{{ getWorkTypeName(entry.key) }}</span>
         </div>
         <div
           v-for="entry in defaultWorkTypeSvgs"
           :key="entry.name"
-          class="flex items-center w-1/2 mb-1"
+          class="worktype-svg-item"
         >
-          <div class="map-svg-container" v-html="entry.svg"></div>
-          <span class="text-xs ml-1">{{ entry.name }}</span>
+          <div class="w-4 h-4">
+            <div class="map-svg-container" v-html="entry.svg"></div>
+          </div>
+          <span class="text-xs">{{ entry.name }}</span>
         </div>
       </div>
-      <div class="text-base font-bold my-1">
+      <div class="mt-2 text-sm font-bold">
         {{ $t('worksiteMap.case_status') }}
       </div>
-      <div class="flex flex-wrap gap-y-1">
+      <div class="mt-1 flex flex-wrap gap-y-1">
         <div
           v-for="(value, key) in legendColors"
           :key="key"
-          class="flex items-start gap-2 w-1/2"
+          class="flex items-start gap-x-2 w-1/2"
         >
-          <span class="w-2 h-2">
-            <MaterialSymbolsCircle :style="{ color: value }" />
-          </span>
-          <div class="flex-grow text-xs ml-1">{{ key }}</div>
+          <div class="w-4 h-4">
+            <MaterialSymbolsCircle
+              class="text-xs border border-black rounded-full"
+              :style="{
+                color: value,
+              }"
+            />
+          </div>
+          <div class="flex-grow text-xs">{{ key }}</div>
         </div>
-        <div class="flex items-center w-1/2 mb-1">
+        <div class="flex items-center gap-1 w-1/2">
           <div class="w-4 h-4">
             <F7PlusApp class="text-sm" />
           </div>
-          <div class="text-xs ml-1">
+          <div class="text-xs">
             {{ $t('worksiteMap.multiple_work_types') }}
           </div>
         </div>
       </div>
     </div>
-    <div
-      v-else
-      class="cursor-pointer legend absolute legend-landscape bottom-0 w-22 bg-white border-2 p-2 flex justify-center items-center z-map-controls"
-      @click="() => toggleLegend(true)"
-    >
-      <div class="text-base font-bold my-1 mr-2">
-        {{ $t('worksiteMap.legend') }}
+    <div v-else data-testid="testHiddenLegendDiv">
+      <div
+        class="cursor-pointer flex items-center justify-between"
+        @click="() => toggleLegend(true)"
+      >
+        <div class="text-base font-bold">
+          {{ $t('worksiteMap.legend') }}
+        </div>
+        <MdiChevronUp
+          class="toggle-icon"
+          data-testid="testShowLegendIcon"
+          :title="$t('worksiteMap.show_legend')"
+        />
       </div>
-      <font-awesome-icon
-        icon="chevron-up"
-        size="1x"
-        :title="$t('worksiteMap.show_legend')"
-      ></font-awesome-icon>
     </div>
   </div>
 </template>
@@ -83,15 +88,21 @@ import { computed, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { colors, templates } from '../icons/icons_templates';
 import MaterialSymbolsCircle from '~icons/material-symbols/circle';
-import User from '../models/User';
 import useCurrentUser from '../hooks/useCurrentUser';
 import F7PlusApp from '~icons/f7/plus-app';
+import MdiChevronUp from '~icons/mdi/chevron-up';
+import MdiChevronDown from '~icons/mdi/chevron-down';
 import { getWorkTypeName } from '../filters/index';
 import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'WorksiteLegend',
-  components: { MaterialSymbolsCircle, F7PlusApp },
+  components: {
+    MaterialSymbolsCircle,
+    F7PlusApp,
+    MdiChevronUp,
+    MdiChevronDown,
+  },
   props: {
     availableWorkTypes: {
       type: Object,
@@ -173,5 +184,17 @@ export default defineComponent({
 .map-svg-container svg {
   width: 18px;
   height: 18px;
+}
+
+.ws-legend {
+  @apply bg-white border-crisiscleanup-dark-red border-x-2 border-t-2 p-2;
+}
+
+.worktype-svg-item {
+  @apply flex items-center gap-2 w-1/2;
+}
+
+.toggle-icon {
+  @apply text-lg;
 }
 </style>
