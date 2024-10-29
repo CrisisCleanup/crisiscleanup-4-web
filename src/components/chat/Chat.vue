@@ -5,57 +5,100 @@
     </div>
     <div class="flex gap-2 h-full">
       <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
-        <div class="text-lg mb-2">
-          {{ $t('chat.online_now') }} ({{ onlineUsersWithData?.length }})
-        </div>
-        <div class="h-180 overflow-auto">
-          <div
-            v-for="organization in sortedOrganizations"
-            :key="organization.id"
-            class="organization-group"
-          >
-            <div
-              class="organization-header flex items-center cursor-pointer"
-              @click="toggleOrganization(organization.id)"
-            >
-              <span class="arrow" :class="{ open: isOpen(organization.id) }">
-                <ccu-icon fa size="md" type="caret-down"></ccu-icon>
-              </span>
-              <span class="organization-name">
-                {{ organization.name }} ({{ organization.users.length }})
-              </span>
-            </div>
-            <div v-if="isOpen(organization.id)" class="users-list">
+        <Accordion>
+          <AccordionItem name="Online">
+            <template #name>
+              <div>
+                <BaseText variant="h2">
+                  {{ $t('chat.online_now') }} ({{
+                    onlineUsersWithData?.length
+                  }})
+                </BaseText>
+              </div>
+            </template>
+            <div class="h-180 overflow-auto">
               <div
-                v-for="user in organization.users"
-                :key="user.id"
-                class="flex items-center space-x-2 w-full"
+                v-for="organization in sortedOrganizations"
+                :key="organization.id"
+                class="organization-group"
               >
-                <Avatar
-                  v-if="user"
-                  :initials="user.first_name"
-                  :url="
-                    user.profilePictureUrl
-                      ? user.profilePictureUrl
-                      : getUserAvatarLink(user.first_name)
-                  "
-                  data-testid="testAvatarIcon"
-                  :custom-size="{ width: '40px', height: '40px' }"
-                  inner-classes="shadow"
-                />
-                <UserDetailsTooltip :user="user.id" :user-object="user" />
-                <div v-if="mobileOnlineUsers.includes(user.id)">
-                  <font-awesome-icon
-                    icon="mobile-screen"
-                    class="text-green-700"
-                    :title="$t('chat.using_mobile_app')"
-                    :alt="$t('chat.using_mobile_app')"
-                  />
+                <div
+                  class="organization-header flex items-center cursor-pointer"
+                  @click="toggleOrganization(organization.id)"
+                >
+                  <span
+                    class="arrow"
+                    :class="{ open: isOpen(organization.id) }"
+                  >
+                    <ccu-icon fa size="md" type="caret-down"></ccu-icon>
+                  </span>
+                  <span class="organization-name">
+                    {{ organization.name }} ({{ organization.users.length }})
+                  </span>
+                </div>
+                <div v-if="isOpen(organization.id)" class="users-list">
+                  <div
+                    v-for="user in organization.users"
+                    :key="user.id"
+                    class="flex items-center space-x-2 w-full"
+                  >
+                    <Avatar
+                      v-if="user"
+                      :initials="user.first_name"
+                      :url="
+                        user.profilePictureUrl
+                          ? user.profilePictureUrl
+                          : getUserAvatarLink(user.first_name)
+                      "
+                      data-testid="testAvatarIcon"
+                      :custom-size="{ width: '40px', height: '40px' }"
+                      inner-classes="shadow"
+                    />
+                    <UserDetailsTooltip :user="user.id" :user-object="user" />
+                    <div v-if="mobileOnlineUsers.includes(user.id)">
+                      <font-awesome-icon
+                        icon="mobile-screen"
+                        class="text-green-700"
+                        :title="$t('chat.using_mobile_app')"
+                        :alt="$t('chat.using_mobile_app')"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          </AccordionItem>
+          <AccordionItem start-open name="Dynamic FAQ">
+            <template #name>
+              <div>
+                <BaseText variant="h2">
+                  {{ $t('~~Dynamic FAQ') }}
+                </BaseText>
+              </div>
+            </template>
+            <template v-for="h in faqHistory" :key="`${h.actor}:${h.content}`">
+              <template v-if="h.actor === 'user'">
+                <ccu-icon type="help" size="large">
+                  <BaseText variant="h2">
+                    {{ h.content }}
+                  </BaseText>
+                </ccu-icon>
+              </template>
+              <template v-else>
+                <div class="pl-1">
+                  <MarkdownRenderer :source="h.content" />
+                </div>
+              </template>
+            </template>
+            <div v-if="faqHistory.length === 0">
+              <BaseText variant="h4">
+                {{
+                  $t('~~Ask a question in chat for an AI generated response.')
+                }}
+              </BaseText>
+            </div>
+          </AccordionItem>
+        </Accordion>
       </div>
       <tabs tab-details-classes="" class="flex-1">
         <tab :name="$t('chat.chat')">
@@ -230,10 +273,23 @@ import Avatar from '@/components/Avatar.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import _ from 'lodash';
 import { DbService, USER_DATABASE } from '@/services/db.service';
+import MarkdownRenderer from '@/components/MarkdownRender.vue';
+import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
+import { generateUUID } from '@/utils/helpers';
+import Accordion from '@/components/accordion/Accordion.vue';
+import AccordionItem from '@/components/accordion/AccordionItem.vue';
 
 export default defineComponent({
   name: 'Chat',
-  components: { FontAwesomeIcon, Avatar, UserDetailsTooltip, ChatMessage },
+  components: {
+    FontAwesomeIcon,
+    Avatar,
+    UserDetailsTooltip,
+    ChatMessage,
+    Accordion,
+    AccordionItem,
+    MarkdownRenderer,
+  },
   props: {
     chat: {
       type: Object,
@@ -261,6 +317,32 @@ export default defineComponent({
     const messagesBox = ref<HTMLDivElement | null>(null);
     const { currentUser, updateUserStates, userStates } = useCurrentUser();
     const $toasted = useToast();
+
+    const conversationId = ref(generateUUID());
+    const collectionId = computed(
+      () =>
+        collections.value?.find?.((c) => c.name === 'crisiscleanup-faq')?.uuid,
+    );
+    const { collections } = useRAGCollections();
+    const {
+      currentConversationEntries,
+      conversations,
+      fetchConversations,
+      deleteConversation,
+    } = useRAGConversations(collectionId as Ref<string>, conversationId, {
+      aiActorName: 'FAQ AI',
+    });
+    const {
+      history: faqHistory,
+      submitQuestion,
+      latestMessage,
+      isStreamingMessage,
+    } = useRAG(
+      collectionId as Ref<string>,
+      conversationId as Ref<string>,
+      currentConversationEntries,
+      { aiActorName: 'FAQ AI', showToolMessages: false },
+    );
 
     const sortedMessages = computed(() => {
       const currentMessages = [...messages.value];
@@ -483,6 +565,7 @@ export default defineComponent({
     }
 
     async function sendMessage(parentId = null, content = null) {
+      submitQuestion(content || currentMessage.value);
       sendToWebsocket({
         content: content || currentMessage.value,
         is_urgent: urgent.value,
@@ -633,6 +716,7 @@ export default defineComponent({
       toggleOrganization,
       isOpen,
       moment,
+      faqHistory,
     };
   },
   methods: { getUserAvatarLink },
