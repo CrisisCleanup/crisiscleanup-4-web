@@ -73,11 +73,9 @@
       </base-button>
 
       <div class="flex my-1">
-        <badge
-          width="16px"
-          height="16px"
-          class="text-white bg-crisiscleanup-yellow-100 bg-opacity-50 mx-1"
-          :title="$t('adminOrganization.org_verified')"
+        <ColoredCircle
+          class="text-crisiscleanup-yellow-100 text-opacity-50 mx-1 w-4 h-4"
+          color=""
         />
         <div class="text-xs opacity-25">
           {{ $t('formLabels.survivor_notes') }}
@@ -126,9 +124,11 @@ import { computed, ref } from 'vue';
 import moment from 'moment';
 import { useToast } from 'vue-toastification';
 import { momentFromNow } from '../../filters/index';
+import ColoredCircle from '@/components/ColoredCircle.vue';
 
 export default defineComponent({
   name: 'WorksiteNotes',
+  components: { ColoredCircle },
   props: {
     worksite: {
       type: Object,
