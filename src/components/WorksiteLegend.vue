@@ -180,12 +180,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
-.map-svg-container svg {
-  width: 18px;
-  height: 18px;
-}
-
+<style lang="postcss" scoped>
 .ws-legend {
   @apply bg-white border-crisiscleanup-dark-red border-x-2 border-t-2 p-2;
 }
@@ -196,5 +191,17 @@ export default defineComponent({
 
 .toggle-icon {
   @apply text-lg;
+}
+
+.map-svg-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-svg-container svg {
+  width: 100%;
+  height: 100%;
 }
 </style>
