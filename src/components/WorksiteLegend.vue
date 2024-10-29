@@ -1,20 +1,73 @@
+<script setup lang="ts">
+import ColoredCircle from '@/components/ColoredCircle.vue';
+import F7PlusApp from '~icons/f7/plus-app';
+import { colors, templates } from '@/icons/icons_templates';
+import { getWorkTypeName } from '@/filters';
+
+export interface WorksiteMapLegendProps {
+  availableWorkTypes: Record<string, any>[];
+}
+
+const props = withDefaults(defineProps<WorksiteMapLegendProps>(), {
+  availableWorkTypes: () => [],
+});
+
+const { t } = useI18n();
+
+const displayedWorkTypeSvgs = computed(() => {
+  return Object.keys(props.availableWorkTypes).map((workType) => {
+    const template = templates[workType] || templates.unknown;
+    const svg = template
+      .replaceAll('{{fillColor}}', 'black')
+      .replaceAll('{{strokeWidth}}', '0.5')
+      .replaceAll('{{strokeColor}}', 'black')
+      .replaceAll('{{multiple}}', '');
+    return {
+      svg,
+      key: workType,
+    };
+  });
+});
+
+const defaultWorkTypeSvgs = [
+  {
+    svg: templates.important
+      .replaceAll('{{fillColor}}', 'black')
+      .replaceAll('{{strokeWidth}}', '0.5'),
+    name: t(`worksiteMap.high_priority`),
+  },
+  {
+    svg: templates.favorite
+      .replaceAll('{{fillColor}}', 'black')
+      .replaceAll('{{strokeWidth}}', '0.5'),
+    name: t(`worksiteMap.member_of_my_organization`),
+  },
+];
+
+const legendColors = {
+  [t('worksiteMap.unclaimed')]: colors.open_unassigned_unclaimed.fillColor,
+  [t('worksiteMap.claimed_not_started')]:
+    colors.open_unassigned_claimed.fillColor,
+  [t('worksiteMap.in_progress')]: colors.open_assigned_claimed.fillColor,
+  [t('worksiteMap.partially_completed')]:
+    colors['open_partially-completed_claimed'].fillColor,
+  [t('worksiteMap.needs_follow_up')]:
+    colors['open_needs-follow-up_claimed'].fillColor,
+  [t('worksiteMap.completed')]: colors.closed_completed_claimed.fillColor,
+  [t('worksiteMap.done_by_others_no_help_wanted')]:
+    colors['closed_done-by-others_unclaimed'].fillColor,
+  [t('worksiteMap.out_of_scope_duplicate_unresponsive')]:
+    colors.open_unresponsive_unclaimed.fillColor,
+};
+</script>
+
 <template>
   <div class="ws-legend">
-    <div v-if="showingLegend" data-testid="testShowingLegendDiv">
-      <div
-        class="flex items-center justify-between cursor-pointer"
-        @click="() => toggleLegend(false)"
-      >
-        <div class="text-base font-bold">
-          {{ $t('worksiteMap.legend') }}
-        </div>
-        <MdiChevronDown
-          class="toggle-icon"
-          data-testid="testHideLegendIcon"
-          :title="$t('worksiteMap.hide_legend')"
-        />
+    <div class="ws-legend__section">
+      <div class="ws-legend__section-title">
+        {{ $t('~~Work Types') }}
       </div>
-      <div class="mt-2 flex flex-wrap justify-between gap-y-1">
+      <div class="ws-legend__section-content">
         <div
           v-for="entry in displayedWorkTypeSvgs"
           :key="entry.key"
@@ -36,10 +89,12 @@
           <span class="text-xs">{{ entry.name }}</span>
         </div>
       </div>
-      <div class="mt-2 text-sm font-bold">
+    </div>
+    <div class="ws-legend__section">
+      <div class="ws-legend__section-title">
         {{ $t('worksiteMap.case_status') }}
       </div>
-      <div class="mt-1 flex flex-wrap gap-y-1">
+      <div class="ws-legend__section-content">
         <div
           v-for="(value, key) in legendColors"
           :key="key"
@@ -61,134 +116,28 @@
         </div>
       </div>
     </div>
-    <div v-else data-testid="testHiddenLegendDiv">
-      <div
-        class="cursor-pointer flex items-center justify-between"
-        @click="() => toggleLegend(true)"
-      >
-        <div class="text-base font-bold">
-          {{ $t('worksiteMap.legend') }}
-        </div>
-        <MdiChevronUp
-          class="toggle-icon"
-          data-testid="testShowLegendIcon"
-          :title="$t('worksiteMap.show_legend')"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
-<script lang="ts">
-import { computed, ref, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { colors, templates } from '../icons/icons_templates';
-import MaterialSymbolsCircle from '~icons/material-symbols/circle';
-import useCurrentUser from '../hooks/useCurrentUser';
-import F7PlusApp from '~icons/f7/plus-app';
-import MdiChevronUp from '~icons/mdi/chevron-up';
-import MdiChevronDown from '~icons/mdi/chevron-down';
-import { getWorkTypeName } from '../filters/index';
-import { getErrorMessage } from '@/utils/errors';
-import ColoredCircle from '@/components/ColoredCircle.vue';
-
-export default defineComponent({
-  name: 'WorksiteLegend',
-  components: {
-    ColoredCircle,
-    MaterialSymbolsCircle,
-    F7PlusApp,
-    MdiChevronUp,
-    MdiChevronDown,
-  },
-  props: {
-    availableWorkTypes: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-  setup(props) {
-    const { t } = useI18n();
-    const { currentUser, userStates, updateUserStates } = useCurrentUser();
-
-    const showingLegend = ref(userStates.value?.showingLegend ?? true);
-    const displayedWorkTypeSvgs = computed(() => {
-      return Object.keys(props.availableWorkTypes).map((workType) => {
-        const template = templates[workType] || templates.unknown;
-        const svg = template
-          .replaceAll('{{fillColor}}', 'black')
-          .replaceAll('{{strokeWidth}}', '0.5')
-          .replaceAll('{{strokeColor}}', 'black')
-          .replaceAll('{{multiple}}', '');
-        return {
-          svg,
-          key: workType,
-        };
-      });
-    });
-    const defaultWorkTypeSvgs = [
-      {
-        svg: templates.important
-          .replaceAll('{{fillColor}}', 'black')
-          .replaceAll('{{strokeWidth}}', '0.5'),
-        name: t(`worksiteMap.high_priority`),
-      },
-      {
-        svg: templates.favorite
-          .replaceAll('{{fillColor}}', 'black')
-          .replaceAll('{{strokeWidth}}', '0.5'),
-        name: t(`worksiteMap.member_of_my_organization`),
-      },
-    ];
-    const legendColors = {
-      [t('worksiteMap.unclaimed')]: colors.open_unassigned_unclaimed.fillColor,
-      [t('worksiteMap.claimed_not_started')]:
-        colors.open_unassigned_claimed.fillColor,
-      [t('worksiteMap.in_progress')]: colors.open_assigned_claimed.fillColor,
-      [t('worksiteMap.partially_completed')]:
-        colors['open_partially-completed_claimed'].fillColor,
-      [t('worksiteMap.needs_follow_up')]:
-        colors['open_needs-follow-up_claimed'].fillColor,
-      [t('worksiteMap.completed')]: colors.closed_completed_claimed.fillColor,
-      [t('worksiteMap.done_by_others_no_help_wanted')]:
-        colors['closed_done-by-others_unclaimed'].fillColor,
-      [t('worksiteMap.out_of_scope_duplicate_unresponsive')]:
-        colors.open_unresponsive_unclaimed.fillColor,
-    };
-
-    function toggleLegend(status) {
-      showingLegend.value = status;
-      updateUserStates({ showingLegend: status }, {}).catch(getErrorMessage);
-    }
-
-    watch(showingLegend, async (newValue) => {
-      await updateUserStates({ showingLegend: newValue }, {});
-    });
-
-    return {
-      showingLegend,
-      toggleLegend,
-      displayedWorkTypeSvgs,
-      legendColors,
-      defaultWorkTypeSvgs,
-      templates,
-      getWorkTypeName,
-    };
-  },
-});
-</script>
-
 <style lang="postcss" scoped>
 .ws-legend {
-  @apply bg-white border-crisiscleanup-dark-red border-x-2 border-t-2 p-2;
+  @apply bg-white flex flex-col gap-2;
+
+  &__section {
+    @apply flex flex-col gap-1;
+  }
+
+  &__section-title {
+    @apply text-sm font-semibold;
+  }
+
+  &__section-content {
+    @apply flex flex-wrap gap-y-0.5;
+  }
 }
 
 .worktype-svg-item {
   @apply flex items-center gap-2 w-1/2;
-}
-
-.toggle-icon {
-  @apply text-lg;
 }
 
 .map-svg-container {
@@ -198,6 +147,7 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
 }
+
 .map-svg-container svg {
   width: 100%;
   height: 100%;
