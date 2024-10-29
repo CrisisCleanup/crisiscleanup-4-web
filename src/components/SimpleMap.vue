@@ -17,7 +17,6 @@ export interface SimpleMapProps {
 
 export interface SimpleMapEmits {
   (event: 'onZoomIn'): void;
-  (event: 'onZoomIn'): void;
   (event: 'onZoomOut'): void;
   (event: 'onZoomInteractive'): void;
   (event: 'onZoomIncidentCenter'): void;
@@ -35,11 +34,27 @@ const { t } = useI18n();
 const { currentUser, userStates, updateUserStates } = useCurrentUser();
 const showingLegend = ref(userStates.value?.showingLegend ?? true);
 const legendRef = ref<HTMLElement | null>(null);
+const mapRef = ref<HTMLElement | null>(null);
 
-function toggleLegend(status) {
+function toggleLegend(status: boolean) {
   showingLegend.value = status;
   updateUserStates({ showingLegend: status }, {}).catch(getErrorMessage);
 }
+
+function handleAutoCollapseLegend() {
+  if (legendRef.value && mapRef.value) {
+    const legendRect = legendRef.value.getBoundingClientRect();
+    const mapRect = mapRef.value.getBoundingClientRect();
+    if (mapRect.top > legendRect.top) {
+      showingLegend.value = false;
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleAutoCollapseLegend);
+  handleAutoCollapseLegend();
+});
 
 watch(showingLegend, async (newValue) => {
   await updateUserStates({ showingLegend: newValue }, {});
@@ -47,7 +62,11 @@ watch(showingLegend, async (newValue) => {
 </script>
 
 <template>
-  <div id="map" ref="map" class="absolute top-0 left-0 right-0 bottom-0 z-50">
+  <div
+    id="map"
+    ref="mapRef"
+    class="absolute top-0 left-0 right-0 bottom-0 z-50"
+  >
     <div
       v-if="props.mapLoading"
       class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls"
@@ -95,7 +114,6 @@ watch(showingLegend, async (newValue) => {
       <base-button
         v-tooltip="{
           content: $t('worksiteMap.zoom_to_make_interactive'),
-          // show: showInteractivePopover,
           triggers: ['hover'],
           popperClass: 'interactive-tooltip',
           placement: 'right-start',
@@ -118,7 +136,6 @@ watch(showingLegend, async (newValue) => {
       <base-button
         v-tooltip="{
           content: $t('worksiteMap.zoom_to_incident'),
-          // show: showInteractivePopover,
           triggers: ['hover'],
           popperClass: 'interactive-tooltip',
           placement: 'right-start',
@@ -139,7 +156,7 @@ watch(showingLegend, async (newValue) => {
         class="w-8 h-8 border border-crisiscleanup-dark-100 my-1 bg-white shadow-xl text-crisiscleanup-dark-400"
       />
       <base-button
-        v-if="showMapLayerToggle"
+        v-if="props.showMapLayerToggle"
         text=""
         data-testid="testToggleMapTypeButton"
         icon="map"
@@ -157,9 +174,9 @@ watch(showingLegend, async (newValue) => {
 
     <!-- TODO: Extract to Expandable component -->
     <div
-      v-if="(showZoomButtons && !removeLegend) || showLegend"
+      v-if="(props.showZoomButtons && !props.removeLegend) || props.showLegend"
       ref="legendRef"
-      class="worksite-legend pb-6 bg-white border-2 border-crisiscleanup-dark-red"
+      class="worksite-legend pb-6 bg-white border-2 border-crisiscleanup-dark-red bg-opacity-80"
     >
       <div
         v-if="showingLegend"
@@ -178,9 +195,9 @@ watch(showingLegend, async (newValue) => {
           />
         </div>
         <WorksiteLegend
-          :key="availableWorkTypes"
+          :key="props.availableWorkTypes"
           class="px-2"
-          :available-work-types="availableWorkTypes"
+          :available-work-types="props.availableWorkTypes"
         />
       </div>
       <div

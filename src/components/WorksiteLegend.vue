@@ -121,7 +121,7 @@ const legendColors = {
 
 <style lang="postcss" scoped>
 .ws-legend {
-  @apply bg-white flex flex-col gap-2;
+  @apply flex flex-col gap-2;
 
   &__section {
     @apply flex flex-col gap-1;
