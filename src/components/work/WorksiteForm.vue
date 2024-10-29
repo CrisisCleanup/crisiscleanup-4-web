@@ -34,6 +34,7 @@
           required
           skip-validation
           class="w-full"
+          @focus="collapseGreenPhoneSection"
           @input="(e) => updateWorksite(e, 'name')"
           @selected-existing="onWorksiteSelect"
         />
@@ -301,6 +302,7 @@
           use-geocoder
           class="w-full"
           :use-recents="false"
+          @focus="collapseGreenPhoneSection"
           @input="(v) => updateWorksite(v, 'address')"
           @selected-existing="onWorksiteSelect"
           @selected-geocode="onGeocodeSelect"
@@ -1549,6 +1551,12 @@ export default defineComponent({
       }
     }
 
+    // Mainly used to hide green screen details
+    // when user is on call and tries to search
+    function collapseGreenPhoneSection() {
+      emitter.emit('phone_overlay:collapse_details');
+    }
+
     async function updateCallStatus(worksiteId = null) {
       const callToComplete = StorageService.getItem('callToComplete');
       if (callToComplete) {
@@ -1723,6 +1731,7 @@ export default defineComponent({
       updateWorksiteFields,
       unlockLocationFields,
       clearLocationFields,
+      collapseGreenPhoneSection,
       onGeocodeSelect,
       onWorksiteSelect,
       saveWorksite,

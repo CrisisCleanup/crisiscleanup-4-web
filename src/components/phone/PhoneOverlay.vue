@@ -249,6 +249,13 @@ onMounted(() => {
     const { phone_number } = payload;
     setManualOutbound(phone_number);
   });
+
+  emitter.on(
+    'phone_overlay:collapse_details',
+    (payload: Record<string, any>) => {
+      expanded.value = false;
+    },
+  );
 });
 
 const viewToTitleMap = {
