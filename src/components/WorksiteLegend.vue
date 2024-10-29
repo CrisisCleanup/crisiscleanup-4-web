@@ -40,16 +40,16 @@
       <div class="text-base font-bold my-1">
         {{ $t('worksiteMap.case_status') }}
       </div>
-      <div class="flex flex-wrap">
+      <div class="flex flex-wrap gap-y-1">
         <div
           v-for="(value, key) in legendColors"
           :key="key"
-          class="flex items-start w-1/2 mb-1"
+          class="flex items-start gap-2 w-1/2"
         >
-          <span class="w-4 mt-1">
-            <badge class="mx-1" :color="value" />
+          <span class="w-2 h-2">
+            <MaterialSymbolsCircle :style="{ color: value }" />
           </span>
-          <div class="text-xs ml-1">{{ key }}</div>
+          <div class="flex-grow text-xs ml-1">{{ key }}</div>
         </div>
         <div class="flex items-center w-1/2 mb-1">
           <span class="w-5 h-5" v-html="templates.plus" />
@@ -92,6 +92,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { colors, templates } from '../icons/icons_templates';
+import MaterialSymbolsCircle from '~icons/material-symbols/circle';
 import User from '../models/User';
 import useCurrentUser from '../hooks/useCurrentUser';
 import { getWorkTypeName } from '../filters/index';
@@ -99,6 +100,7 @@ import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'WorksiteLegend',
+  components: { MaterialSymbolsCircle },
   props: {
     availableWorkTypes: {
       type: Object,
