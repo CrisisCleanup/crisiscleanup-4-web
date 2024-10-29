@@ -295,6 +295,7 @@
           use-recents
           class="mx-4 py-1 inset-1"
           @selected-existing="onSelectExistingWorksite"
+          @focus="collapseGreenPhoneSection"
           @input="
             (value: string) => {
               mobileSearch = value;
@@ -498,6 +499,7 @@
               class="mx-2 w-full"
               use-recents
               @selected-existing="onSelectExistingWorksite"
+              @focus="collapseGreenPhoneSection"
               @input="
                 (value) => {
                   search = value;
@@ -1523,6 +1525,12 @@ export default defineComponent({
       });
     }
 
+    // Mainly used to hide green screen details
+    // when user is on call and tries to search
+    function collapseGreenPhoneSection() {
+      emitter.emit('phone_overlay:collapse_details');
+    }
+
     async function init() {
       phoneService.apiGetQueueStats().then((response) => {
         setGeneralStats({ ...response.data });
@@ -1704,6 +1712,7 @@ export default defineComponent({
       goToInteractive,
       goToIncidentCenter,
       getWorkTypeName,
+      collapseGreenPhoneSection,
       updateUserState: updateUserStates,
       moment,
       retryFailedCall,
