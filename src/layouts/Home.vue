@@ -64,14 +64,7 @@
     </div>
     <div v-if="!noHotline" class="footer grid">
       <div class="flex flex-col gap-2 m-4 self-end items-center md:items-end">
-        <a
-          class="w-40 block md:self-end"
-          data-testid="testAwsLink"
-          target="_blank"
-          href="https://aws.amazon.com/government-education/nonprofits/disaster-response/"
-        >
-          <img src="@/assets/powered_by_aws.png" data-testid="testAwsImgIcon" />
-        </a>
+        <PoweredByAws class="w-40" type="regular" />
         <div class="flex items-center justify-center md:justify-end gap-5">
           <span v-for="item in footerRoutes" :key="item.key">
             <a
@@ -101,10 +94,11 @@ import { useI18n } from 'vue-i18n';
 import IncidentContact from '@/components/IncidentContact.vue';
 import { useAuthStore } from '@/hooks';
 import { useAuthenticatedRoutes } from '@/hooks/useAuthenticatedRoutes';
+import PoweredByAws from '@/components/PoweredByAws.vue';
 
 export default defineComponent({
   name: 'Home',
-  components: { IncidentContact },
+  components: { PoweredByAws, IncidentContact },
   props: {
     noHotline: {
       type: Boolean,
