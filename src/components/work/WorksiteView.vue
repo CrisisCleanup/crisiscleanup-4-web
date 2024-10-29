@@ -39,19 +39,6 @@
                 >
                 <div data-testid="testPhoneDiv">{{ worksite.phone1 }}</div>
               </div>
-              <div v-if="can && can('phone_agent')" class="flex-1">
-                <base-button
-                  v-tooltip="{ content: 'Call Number', html: true }"
-                  data-testid="testCallNumberButton"
-                  ccu-icon="phone-classic"
-                  icon-size="md"
-                  size="xxs"
-                  variant="outline"
-                  class="worksite__dialer"
-                  :alt="$t('formLabels.call_number')"
-                  :action="() => openDialerTab(worksite.phone1)"
-                />
-              </div>
             </div>
           </div>
         </div>
