@@ -137,21 +137,6 @@
           />
         </div>
       </template>
-
-        <div class="form-field">
-          <base-input
-            id="phone2_notes"
-            :model-value="worksite.phone2_notes"
-            data-testid="testPhone2NotesTextInput"
-            selector="js-worksite-phone2_notes"
-            size="small"
-            required
-            :placeholder="$t('formLabels.phone2_notes')"
-            text-area
-            @update:model-value="(v) => updateWorksite(v, 'phone2_notes')"
-          />
-        </div>
-      </template>
       <base-button
         v-else
         data-testid="testAddPhoneLink"
