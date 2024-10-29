@@ -970,6 +970,7 @@ import {
   onMounted,
   ref,
   watch,
+  onUnmounted,
 } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
@@ -1143,6 +1144,23 @@ export default defineComponent({
       },
     );
     const showingSearchModal = ref(false);
+
+    const handlePrintShortcut = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key === 'p') {
+        if (worksiteId.value !== null) {
+          event.preventDefault(); // Prevent the default print dialog
+          customPrintFunction(); // Call your custom print logic
+        }
+        event.preventDefault(); // Prevent the default print dialog
+      }
+    };
+
+    const customPrintFunction = () => {
+      // Define your custom print functionality here
+      console.log('Intercepted Ctrl + P, triggering custom print function');
+      // Implement the specific print functionality or open a print dialog
+      printWorksite(worksiteId.value);
+    };
 
     function loadStatesForUser() {
       const states = currentUser?.value?.getStatesForIncident(
@@ -2131,7 +2149,13 @@ export default defineComponent({
         showingFeed.value = false;
       }
 
+      document.addEventListener('keydown', handlePrintShortcut);
+
       await init();
+    });
+
+    onUnmounted(() => {
+      document.removeEventListener('keydown', handlePrintShortcut); // Clean up
     });
     function focusNewsTab() {
       emitter.emit('phone_component:close');
