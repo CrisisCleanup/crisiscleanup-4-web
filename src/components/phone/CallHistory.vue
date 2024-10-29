@@ -7,7 +7,7 @@
         :body-style="{ overflow: 'auto', ...tableBodyStyle }"
         :columns="historyCols"
         enable-search
-        :query="{ sort: '-created_at' }"
+        :query="{ sort: '-created_at', user: currentUser.id }"
         data-testid="testAgentHistoryTable"
         @row-click="
           (item) => {
@@ -82,6 +82,7 @@ import AjaxTable from '@/components/AjaxTable.vue';
 import Incident from '@/models/Incident';
 import BasilPhoneOutOutline from '~icons/basil/phone-out-outline';
 import BasilPhoneInOutline from '~icons/basil/phone-in-outline';
+import { useCurrentUser } from '@/hooks';
 export default defineComponent({
   name: 'CallHistory',
   components: {
@@ -107,6 +108,7 @@ export default defineComponent({
   },
   setup() {
     const { t } = useI18n();
+    const { currentUser } = useCurrentUser();
     const callHistoryUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history`;
     const historyCols = [
       {
@@ -161,6 +163,7 @@ export default defineComponent({
       callHistoryUrl,
       getIncident,
       toStartCase,
+      currentUser,
     };
   },
 });
