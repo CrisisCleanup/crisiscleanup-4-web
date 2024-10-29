@@ -777,6 +777,7 @@ import { useCurrentUser } from '@/hooks';
 import PhoneOverlay from '@/components/phone/PhoneOverlay.vue';
 import useAcl from '@/hooks/useAcl';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import Role from '@/models/Role';
 
 export enum AllowedCallType {
   INBOUND_ONLY = 'INBOUND_ONLY',
@@ -822,7 +823,7 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const store = useStore();
-    const { currentUser } = useCurrentUser();
+    const { currentUser, isPhoneAgent, addUserRole } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
     const mq = useMq();
 
@@ -1543,6 +1544,21 @@ export default defineComponent({
       );
     }
 
+    // Make user a phone agent if not already a phone agent
+    async function ensurePhoneAgentRole() {
+      if (!currentUser.value) {
+        return;
+      }
+      if (isPhoneAgent.value) {
+        console.error('User is already a phone agent! Skipping...');
+        return;
+      }
+      await addUserRole(Role.phoneAgentRoleId);
+      // Refresh ACL to show phone on NavBar
+      store.commit('acl/setUserAcl', currentUser?.value?.id);
+      $toasted.success('~~Congrats! You are now a phone agent!');
+    }
+
     watch(
       () => worksiteId.value,
       (newValue, oldValue) => {
@@ -1603,6 +1619,7 @@ export default defineComponent({
 
       await init();
       jumpToCase();
+      await ensurePhoneAgentRole();
 
       setInterval(() => {
         if (
