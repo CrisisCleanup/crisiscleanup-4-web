@@ -28,10 +28,9 @@
             </div>
           </template>
         </base-select>
-        <base-input
+        <PhoneNumberInput
           v-model="phone"
           data-testid="testPhoneNumberTextInput"
-          type="tel"
           size="large"
           class="col-span-4 text-sm"
           :placeholder="$t('phoneDashboard.phone_number')"
@@ -71,10 +70,11 @@ import { useI18n } from 'vue-i18n';
 import useEmitter from '../../hooks/useEmitter';
 import BaseInput from '@/components/BaseInput.vue';
 import moment from 'moment';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 export default defineComponent({
   name: 'EnhancedManualDialer',
-  components: { BaseInput },
+  components: { PhoneNumberInput, BaseInput },
   props: {
     dialing: {
       type: Boolean,
