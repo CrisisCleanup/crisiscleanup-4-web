@@ -717,7 +717,6 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { useStore } from 'vuex';
@@ -1084,20 +1083,21 @@ export default defineComponent({
       }
     }
 
-    function onSelectExistingWorksite(worksite) {
+    async function onSelectExistingWorksite(worksite) {
+      worksiteId.value = worksite.id;
+      isEditing.value = true;
       // only show worksite on map if on map view
+      // eslint-disable-next-line unicorn/prefer-ternary
       if (showingMap.value && !showingTable.value) {
-        router.push({
+        await router.push({
+          path: `/incident/${currentIncidentId.value}/phone/${worksiteId.value}`,
           query: { showOnMap: true },
         });
       } else {
-        router.push({
+        await router.push({
           query: {}, // clear query params
         });
       }
-
-      worksiteId.value = worksite.id;
-      isEditing.value = true;
     }
 
     async function reloadCase() {
@@ -1302,12 +1302,17 @@ export default defineComponent({
 
     async function jumpToCase() {
       toggleView('showingMap');
-      mapUtils.value.jumpToCase(worksite.value, true);
+      mapUtils?.value?.jumpToCase(worksite.value, true);
     }
 
-    function onSelectMarker(marker) {
+    async function onSelectMarker(marker) {
       isEditing.value = true;
       worksiteId.value = marker.id;
+      if (showingMap.value) {
+        await router.push({
+          path: `/incident/${currentIncidentId.value}/phone/${worksiteId.value}/edit`,
+        });
+      }
     }
 
     function handleCallHistoryRowClick(payload: Record<string, any>) {
@@ -1576,6 +1581,13 @@ export default defineComponent({
         allowCallType.value = AllowedCallType.INBOUND_ONLY;
       }
 
+      if (route.params.id) {
+        worksiteId.value = route.params.id;
+        if (route?.meta?.id === 'phone_case_edit') {
+          isEditing.value = true;
+        }
+      }
+
       emitter.on('phone_outbound:click', (payload: Record<string, any>) => {
         const { phone_number, incident_id } = payload;
         const [incidentId = null] = incident_id;
@@ -1590,6 +1602,7 @@ export default defineComponent({
       }
 
       await init();
+      jumpToCase();
 
       setInterval(() => {
         if (
