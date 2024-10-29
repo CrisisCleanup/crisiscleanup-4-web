@@ -963,15 +963,6 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  nextTick,
-  onMounted,
-  ref,
-  watch,
-} from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
@@ -2132,6 +2123,7 @@ export default defineComponent({
       }
 
       await init();
+      jumpToCase();
     });
     function focusNewsTab() {
       emitter.emit('phone_component:close');
