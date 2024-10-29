@@ -56,7 +56,6 @@
               ? $t('caseForm.sms')
               : null
           "
-          :validator="validatePhoneNumber"
           @update:model-value="(v) => updateWorksite(v, 'phone1')"
           @icon-clicked="() => sendSms(worksite.phone1)"
         />
@@ -134,21 +133,6 @@
             selector="js-worksite-phone2_notes"
             size="small"
             :placeholder="$t('formLabels.phone2_notes')"
-            @update:model-value="(v) => updateWorksite(v, 'phone2_notes')"
-          />
-        </div>
-      </template>
-
-        <div class="form-field">
-          <base-input
-            id="phone2_notes"
-            :model-value="worksite.phone2_notes"
-            data-testid="testPhone2NotesTextInput"
-            selector="js-worksite-phone2_notes"
-            size="small"
-            required
-            :placeholder="$t('formLabels.phone2_notes')"
-            text-area
             @update:model-value="(v) => updateWorksite(v, 'phone2_notes')"
           />
         </div>
@@ -642,8 +626,6 @@ export default defineComponent({
     const { call, isInboundCall } = useConnectFirst({
       emit,
     });
-
-    const { validatePhoneNumber } = useValidation();
 
     const contactFrequencyOptions = AUTO_CONTACT_FREQUENCY_OPTIONS.map(
       (key) => {
@@ -1780,7 +1762,6 @@ export default defineComponent({
       hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
-      validatePhoneNumber,
     };
   },
 });
