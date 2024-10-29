@@ -210,6 +210,7 @@ button.solid:hover {
 
 button.solid.disabled {
   @apply bg-crisiscleanup-dark-200 !important;
+  @apply border-crisiscleanup-dark-200 !important;
   @apply text-gray-100;
 }
 
