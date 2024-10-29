@@ -2,27 +2,38 @@
 import CopyText from '@/components/CopyText.vue';
 import { formatNationalNumber } from '@/filters';
 
-interface PhoneNumberDisplayProps {
+export type PhoneNumberDisplayType = 'plain' | 'styled';
+export interface PhoneNumberDisplayProps {
   phoneNumber: string;
+  type?: PhoneNumberDisplayType;
 }
 
-const props = defineProps<PhoneNumberDisplayProps>();
+const props = withDefaults(defineProps<PhoneNumberDisplayProps>(), {
+  type: 'styled',
+});
 
 const formattedPhoneNumber = computed(() =>
   formatNationalNumber(String(props.phoneNumber)),
 );
+
+const iconClass = computed(() => {
+  return props.type === 'styled'
+    ? 'p-2 rounded-r-full text-sm bg-primary-light bg-opacity-80'
+    : '';
+});
+
+const mainClass = computed(() => {
+  return props.type === 'styled'
+    ? 'py-2 px-3 rounded-l-full text-xs md:text-sm bg-primary-light bg-opacity-30 text-black'
+    : '';
+});
 </script>
 
 <template>
-  <CopyText
-    :text="formattedPhoneNumber"
-    icon-class="p-2 rounded-r-full text-sm bg-primary-light bg-opacity-80"
-  >
-    <div
-      class="py-2 px-3 rounded-l-full text-xs md:text-sm bg-primary-light bg-opacity-30"
-    >
+  <CopyText :text="formattedPhoneNumber" :icon-class="iconClass">
+    <div :class="mainClass">
       <a :href="`tel:${props.phoneNumber}`" @click.stop>
-        <span class="text-black underline">
+        <span class="underline">
           {{ formattedPhoneNumber }}
         </span>
       </a>
