@@ -1147,8 +1147,11 @@ export default defineComponent({
 
     const handlePrintShortcut = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === 'p') {
+        if (worksiteId.value !== null) {
+          event.preventDefault(); // Prevent the default print dialog
+          customPrintFunction(); // Call your custom print logic
+        }
         event.preventDefault(); // Prevent the default print dialog
-        customPrintFunction(); // Call your custom print logic
       }
     };
 
