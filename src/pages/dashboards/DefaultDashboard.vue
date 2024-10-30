@@ -239,7 +239,7 @@ onMounted(() => {
       </div>
     </div>
     <div>
-      <h2 class="font-bold text-lg mb-3">{{ $t('~~Volunteer Engagement') }}</h2>
+      <h2 class="font-bold text-lg mb-3">{{ $t('reports.velocity_widget') }}</h2>
       <VolunteerChart
         :key="JSON.stringify(engagementData)"
         class="h-84"

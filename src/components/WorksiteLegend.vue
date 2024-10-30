@@ -65,7 +65,7 @@ const legendColors = {
   <div class="ws-legend">
     <div class="ws-legend__section">
       <div class="ws-legend__section-title">
-        {{ $t('~~Work Types') }}
+        {{ $t('formLabels.work_types') }}
       </div>
       <div class="ws-legend__section-content">
         <div

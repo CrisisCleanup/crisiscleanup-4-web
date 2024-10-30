@@ -1566,7 +1566,7 @@ export default defineComponent({
       await addUserRole(Role.phoneAgentRoleId);
       // Refresh ACL to show phone on NavBar
       store.commit('acl/setUserAcl', currentUser?.value?.id);
-      $toasted.success('~~Congrats! You are now a phone agent!');
+      $toasted.success(t('phoneDashboard.congrats_you_are_phone_agent'));
     }
 
     watch(
