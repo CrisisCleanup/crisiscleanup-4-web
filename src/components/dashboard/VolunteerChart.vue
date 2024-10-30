@@ -147,7 +147,7 @@ const chartOptions = ref({
               right: 10, // Adds extra padding on the right side of the label
             },
           },
-          text: 'Hotline Closes',
+          text: '$t('volunteerChart.hotline_closes')',
         },
       },
     ],

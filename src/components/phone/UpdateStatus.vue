@@ -161,7 +161,7 @@ export default defineComponent({
             value: 23,
           },
           {
-            name_t: t('~~Test Phone'),
+            name_t: t('phoneStatus.answered_test-call'),
             value: 24,
           },
         ],
