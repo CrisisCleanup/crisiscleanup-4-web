@@ -434,6 +434,7 @@
           disable-claim-and-save
           :is-editing="isEditing"
           class="border shadow"
+          :data-prefill="prefillData"
           @jump-to-case="jumpToCase"
           @saved-worksite="
             (worksite) => {
@@ -701,6 +702,7 @@
             :worksite-id="worksiteId"
             disable-claim-and-save
             :is-editing="isEditing"
+            :data-prefill="prefillData"
             class="border shadow"
             @jump-to-case="jumpToCase"
             @saved-worksite="
@@ -917,7 +919,7 @@ export default defineComponent({
     const prefillData = computed(() => {
       if (caller.value) {
         return {
-          phone1: caller.value?.dnis ?? '',
+          phone1: formatNationalNumber(String(caller.value?.dnis ?? '')),
         };
       }
       return {};
@@ -1558,7 +1560,7 @@ export default defineComponent({
         return;
       }
       if (isPhoneAgent.value) {
-        console.error('User is already a phone agent! Skipping...');
+        console.info('User is already a phone agent! Skipping...');
         return;
       }
       await addUserRole(Role.phoneAgentRoleId);
