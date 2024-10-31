@@ -239,7 +239,9 @@ onMounted(() => {
       </div>
     </div>
     <div>
-      <h2 class="font-bold text-lg mb-3">{{ $t('reports.velocity_widget') }}</h2>
+      <h2 class="font-bold text-lg mb-3">
+        {{ $t('reports.velocity_widget') }}
+      </h2>
       <VolunteerChart
         :key="JSON.stringify(engagementData)"
         class="h-84"
@@ -247,6 +249,7 @@ onMounted(() => {
       />
     </div>
   </div>
+
   <div
     v-if="dashboardStatistics"
     class="grid md:grid-cols-4 grid-cols-3 gap-2 mt-10 p-8"
