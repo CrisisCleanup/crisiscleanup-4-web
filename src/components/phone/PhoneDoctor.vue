@@ -515,6 +515,7 @@ const stepsExpanded = ref(
 const newPhoneNumber = ref('');
 
 const updatePhoneNumber = async () => {
+  stepMessages.value.base.phoneNumber = [];
   console.log('Updating phone number to', newPhoneNumber.value);
   const { newValue, valid } = validatePhoneNumber(newPhoneNumber.value);
   if (!valid) {
@@ -536,6 +537,7 @@ const updatePhoneNumber = async () => {
       // Re-run the phone number check
       const phoneNumber = await checkAgentPhoneNumber();
       if (phoneNumber) {
+        errorMessages.value.base.phoneNumber = '';
         stepStatuses.value.base = STEP_STATUS.SUCCESS;
         stepsExpanded.value.base = false;
       }
