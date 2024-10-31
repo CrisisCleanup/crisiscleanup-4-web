@@ -3,6 +3,7 @@
     <div class="flex sm:items-center py-1 border-b border-gray-200">
       <div class="text-lg">{{ chat.name }}</div>
     </div>
+
     <div class="flex gap-2 h-full">
       <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
         <Accordion>
@@ -101,7 +102,7 @@
             </div>
             <div class="flex flex-1">
               <BaseText class="pt-4" variant="h4">
-                {{$t('chat.ask_a_question_ai_disclaimer')}}
+                {{ $t('chat.ask_a_question_ai_disclaimer') }}
               </BaseText>
             </div>
           </AccordionItem>
