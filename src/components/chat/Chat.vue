@@ -588,7 +588,7 @@ export default defineComponent({
         content: content || currentMessage.value,
         is_urgent: urgent.value,
         parent_message_id: parentId,
-      });
+      } as Partial<Message>);
       currentMessage.value = '';
       urgent.value = false;
       await updateUserStates({ [props.stateKey]: moment().toISOString() }, {});

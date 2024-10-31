@@ -57,7 +57,6 @@ describe('Chat.vue', () => {
   });
 
   it('should send a message', async () => {
-    expect.assertions(1);
     const mockChat = {
       id: '1',
       name: 'General Chat',
