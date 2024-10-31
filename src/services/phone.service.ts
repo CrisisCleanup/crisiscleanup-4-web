@@ -96,7 +96,7 @@ export default class PhoneService {
   }
 
   async createAgent() {
-    await axios.post(
+    return axios.post(
       `${import.meta.env.VITE_APP_API_BASE_URL}/connect_first/agents`,
       {},
     );

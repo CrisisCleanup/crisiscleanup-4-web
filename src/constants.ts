@@ -95,6 +95,7 @@ import fieldVolunteerDashboard from './assets/icons/field-volunteer-dashboard.sv
 import commandCenterDashboard from './assets/icons/command-center-dashboard.svg';
 import defaultDashboard from './assets/icons/default-dashboard.svg';
 import ellipsis from './assets/icons/ellipsis-solid.svg';
+import stethoscope from './assets/icons/stethoscope.svg';
 
 // DISASTER ICONS
 import contaminatedWater from './assets/disaster_icons/contaminated-water.svg';
@@ -246,6 +247,7 @@ export const ICON_MAP = {
   flag,
   filters,
   'flag-filled': flagFilled,
+  stethoscope,
   search,
   table,
   map,

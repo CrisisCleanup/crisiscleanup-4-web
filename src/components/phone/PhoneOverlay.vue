@@ -21,63 +21,78 @@ const expanded = ref(false);
 const sideBarExpanded = ref(true);
 const { t } = useI18n();
 const { updateUserStates } = useCurrentUser();
+const { currentUser } = useCurrentUser();
 
-const sections = [
-  {
-    view: 'callHistory',
-    text: t('phoneDashboard.last_10_calls'),
-    icon: 'phone-history',
-    alt: t('phoneDashboard.last_10_calls'),
-  },
-  {
-    view: 'manualDialer',
-    text: t('phoneDashboard.manual_dialer'),
-    icon: 'manual-dialer',
-    alt: t('phoneDashboard.manual_dialer'),
-  },
-  {
-    view: 'leaderboard',
-    text: t('phoneDashboard.volunteer_stats'),
-    icon: 'leaderboard',
-    alt: t('phoneDashboard.volunteer_stats'),
-  },
-  {
-    view: 'zoom',
-    text: t('phoneDashboard.join_zoom'),
-    icon: 'zoom',
-    alt: t('phoneDashboard.join_zoom'),
-  },
-  {
-    view: 'cms',
-    text: t('phoneDashboard.news'),
-    icon: 'news',
-    alt: t('phoneDashboard.news'),
-  },
-  {
-    view: 'generalStats',
-    text: t('phoneDashboard.stats'),
-    icon: 'stats',
-    alt: t('phoneDashboard.stats'),
-  },
-  {
-    view: 'chat',
-    text: t('chat.chat'),
-    icon: 'chat',
-    onOpen: () => {
-      updateUserStates({
-        chat_last_seen: moment().toISOString(),
-      });
-      unreadChatCount.value = 0;
-      unreadUrgentChatCount.value = 0;
+// Sections as a computed property
+const sections = computed(() => {
+  let sectionsToReturn = [
+    {
+      view: 'callHistory',
+      text: t('phoneDashboard.last_10_calls'),
+      icon: 'phone-history',
+      alt: t('phoneDashboard.last_10_calls'),
     },
-  },
-  {
-    view: 'reportBug',
-    text: t('phoneDashboard.report_bug'),
-    icon: 'bug-report',
-    alt: t('phoneDashboard.report_bug'),
-  },
-];
+    {
+      view: 'manualDialer',
+      text: t('phoneDashboard.manual_dialer'),
+      icon: 'manual-dialer',
+      alt: t('phoneDashboard.manual_dialer'),
+    },
+    {
+      view: 'leaderboard',
+      text: t('phoneDashboard.volunteer_stats'),
+      icon: 'leaderboard',
+      alt: t('phoneDashboard.volunteer_stats'),
+    },
+    {
+      view: 'zoom',
+      text: t('phoneDashboard.join_zoom'),
+      icon: 'zoom',
+      alt: t('phoneDashboard.join_zoom'),
+    },
+    {
+      view: 'cms',
+      text: t('phoneDashboard.news'),
+      icon: 'news',
+      alt: t('phoneDashboard.news'),
+    },
+    {
+      view: 'generalStats',
+      text: t('phoneDashboard.stats'),
+      icon: 'stats',
+      alt: t('phoneDashboard.stats'),
+    },
+    {
+      view: 'chat',
+      text: t('chat.chat'),
+      icon: 'chat',
+      onOpen: () => {
+        updateUserStates({
+          chat_last_seen: moment().toISOString(),
+        });
+        unreadChatCount.value = 0;
+        unreadUrgentChatCount.value = 0;
+      },
+    },
+    {
+      view: 'reportBug',
+      text: t('phoneDashboard.report_bug'),
+      icon: 'bug-report',
+      alt: t('phoneDashboard.report_bug'),
+    },
+  ];
+
+  if (currentUser.value.isAdmin) {
+    sectionsToReturn.push({
+      view: 'phoneDoctor',
+      text: t('phoneDashboard.phone_doctor'),
+      icon: 'stethoscope',
+      alt: t('phoneDashboard.phone_doctor'),
+    });
+  }
+
+  return sectionsToReturn;
+});
 
 import { useClipboard } from '@vueuse/core';
 import BaseButton from '@/components/BaseButton.vue';
@@ -102,6 +117,7 @@ import useCurrentUser from '@/hooks/useCurrentUser';
 import PhoneOutbound from '@/models/PhoneOutbound';
 import { useToast } from 'vue-toastification';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 const { emitter } = useEmitter();
 const $toasted = useToast();
 
@@ -591,6 +607,9 @@ const {
                     </div>
                   </div>
                 </div>
+              </template>
+              <template v-if="currentView === 'phoneDoctor'">
+                <PhoneDoctor />
               </template>
             </div>
 

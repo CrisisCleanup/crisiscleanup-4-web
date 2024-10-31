@@ -15,6 +15,7 @@ interface ImportMetaEnv extends Readonly<Record<string, string>> {
   readonly VITE_APP_TITLE: string;
   readonly VITE_APP_STAGE: string;
   readonly VITE_APP_ENTRY?: 'maintenance' | 'main';
+  readonly VITE_APP_PHONE_DOCTOR_NUMBER;
 }
 
 interface ImportMeta {
