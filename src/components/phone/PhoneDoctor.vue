@@ -323,7 +323,11 @@ const checkTestCall = async () => {
     await phoneService.apiLogoutAgent(currentAgent.agent_id);
 
     // Login and initiate the test call
-    await phoneService.login(phoneService.username, phoneService.password);
+    await phoneService.login(
+      phoneService.username,
+      phoneService.password,
+      'WORKING',
+    );
     await phoneService.dial(HOTLINE_PHONE_NUMBER, currentUser.value.mobile);
     stepMessages.value.test.push(t('~~Test call initiated.'));
 
