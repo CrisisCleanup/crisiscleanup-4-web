@@ -94,8 +94,8 @@ describe('PhoneDoctor.vue', () => {
   });
 
   it('should render the component', () => {
-    expect(wrapper.html()).toContain('Phone Doctor');
-    expect(wrapper.html()).toContain('phoneDoctor.run_diagnostic');
+    expect(wrapper.html()).toContain('phoneDoctor.subtitle');
+    expect(wrapper.html()).toContain('phoneDoctor.run_all_tests');
   });
 
   it('should handle phone number update', async () => {
@@ -111,7 +111,7 @@ describe('PhoneDoctor.vue', () => {
     const phoneNumberInput = wrapper.findComponent(BaseInput);
     const updateButton = wrapper
       .findAllComponents(BaseButton)
-      .find((btn) => btn.text().includes('Update Phone Number'));
+      .find((btn) => btn.text().includes('actions.update'));
 
     // Set new phone number
     wrapper.vm.newPhoneNumber = '(784) 767-8269';
