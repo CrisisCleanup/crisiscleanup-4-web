@@ -166,7 +166,7 @@ describe('PhoneDoctor.vue', () => {
     expect(result).toBe(false);
     expect(wrapper.vm.stepStatuses['agent']).toBe('error');
     expect(wrapper.vm.errorMessages['agent']).toBe(
-      '~~Failed to connect agent.',
+      'phoneDoctor.failed_to_connect_agent',
     );
   });
 });

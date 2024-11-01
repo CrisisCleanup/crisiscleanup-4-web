@@ -46,8 +46,7 @@ const callIssuesTroubleshootingChecklist = [
   },
   {
     title: t('phoneDoctor.disable_bit_defender_title'),
-    description: t('phoneDoctor.disable_bit_defender_instructions',
-    ),
+    description: t('phoneDoctor.disable_bit_defender_instructions'),
   },
   {
     title: t('phoneDoctor.check_call_settings_title'),
@@ -95,7 +94,9 @@ const checkAgentRole = async () => {
 
     console.log('Response', response);
     if (response.response instanceof AxiosError) {
-      errorMessages.value.base.role = t('phoneDoctor.failed_to_assign_agent_role');
+      errorMessages.value.base.role = t(
+        'phoneDoctor.failed_to_assign_agent_role',
+      );
       stepsExpanded.value.base = true;
       return false;
     }
@@ -135,7 +136,9 @@ const checkAgentLanguage = async () => {
       stepsExpanded.value.base = true;
       return false;
     }
-    stepMessages.value.base.language.push(t('phoneDoctor.updated_language_english'));
+    stepMessages.value.base.language.push(
+      t('phoneDoctor.updated_language_english'),
+    );
     return true;
   }
   console.log('Already supported language');
@@ -153,7 +156,9 @@ const checkAgentPhoneNumber = async () => {
 
   console.log('Validating phone number', newValue, valid);
   if (!valid) {
-    errorMessages.value.base.phoneNumber = t('phoneDoctor.invalid_phone_format');
+    errorMessages.value.base.phoneNumber = t(
+      'phoneDoctor.invalid_phone_format',
+    );
     stepsExpanded.value.base = true;
     return false;
   }
@@ -208,9 +213,7 @@ const checkWebSocket = async () => {
   try {
     const { result } = await configureAgent();
     const websocketUrl = `wss://c01-con.vacd.biz:8080/?access_token=${result.accessToken}&agent_id=${phoneService.agent_id}`;
-    stepMessages.value.websocket.push(
-      t('phoneDoctor.checking_websocket'),
-    );
+    stepMessages.value.websocket.push(t('phoneDoctor.checking_websocket'));
     await isWebSocketAvailable(websocketUrl);
     stepStatuses.value.websocket = STEP_STATUS.SUCCESS;
     console.log('Websocket is available');
@@ -234,7 +237,9 @@ const checkAgentLogin = async () => {
   stepsExpanded.value.connection = true;
   stepStatuses.value.connection = STEP_STATUS.RUNNING;
   stepMessages.value.connection = [];
-  stepMessages.value.connection.push(t('phoneDoctor.configuring_phone_agent_three_dots'));
+  stepMessages.value.connection.push(
+    t('phoneDoctor.configuring_phone_agent_three_dots'),
+  );
   try {
     const { currentAgent, result } = await configureAgent();
 
@@ -267,7 +272,9 @@ const checkAgentLogin = async () => {
   } catch (error) {
     console.error('Error', error);
     stepStatuses.value.connection = STEP_STATUS.ERROR;
-    errorMessages.value.connection = t('phoneDoctor.phone_service_login_failed');
+    errorMessages.value.connection = t(
+      'phoneDoctor.phone_service_login_failed',
+    );
     stepsExpanded.value.connection = true;
     stepMessages.value.connection.push(t('phoneDoctor.login_failed'));
     return false;
@@ -368,7 +375,9 @@ const checkTestCall = async () => {
             if (Date.now() - startTime >= timeout) {
               clearInterval(intervalId);
               reject(
-                new Error('~~Timeout: User did not interact within 30 seconds.'),
+                new Error(
+                  '~~Timeout: User did not interact within 30 seconds.',
+                ),
               );
             }
           } catch (error) {
@@ -395,9 +404,7 @@ const checkTestCall = async () => {
       // Handle timeout or other errors
       console.warn(error.message);
       stepStatuses.value.test = STEP_STATUS.ERROR;
-      errorMessages.value.test = t(
-        'phoneDoctor.did_not_detect_press_1',
-      );
+      errorMessages.value.test = t('phoneDoctor.did_not_detect_press_1');
       stepsExpanded.value.test = true;
       stepMessages.value.test.push(
         t('phoneDoctor.test_call_failed_no_user_input'),
@@ -553,9 +560,9 @@ const runDiagnostics = async () => {
   isDiagnosticsRunning.value = true;
   showingVoicemailIssues.value = false;
   showingNoCallIssues.value = false;
-  showingNotPlayingNicelyIssues = false;
-  showingPressOneIssues = false;
-  showingPrematureHangupIssues = false;
+  showingNotPlayingNicelyIssues.value = false;
+  showingPressOneIssues.value = false;
+  showingPrematureHangupIssues.value = false;
 
   // Reset step statuses
   for (const step of steps.value) {
@@ -590,9 +597,9 @@ const resetStep = (key) => {
 const resetDiagnostics = () => {
   showingVoicemailIssues.value = false;
   showingNoCallIssues.value = false;
-  showingNotPlayingNicelyIssues = false;
-  showingPressOneIssues = false;
-  showingPrematureHangupIssues = false;
+  showingNotPlayingNicelyIssues.value = false;
+  showingPressOneIssues.value = false;
+  showingPrematureHangupIssues.value = false;
 
   for (const step of steps.value) {
     stepStatuses.value[step.key] = STEP_STATUS.PENDING;
@@ -950,11 +957,7 @@ const resetDiagnostics = () => {
           </base-button>
         </div>
         <div v-if="showingPressOneIssues" class="mt-5">
-          {{
-            $t(
-              '~~You are dumb. Learn how to use a phone.',
-            )
-          }}
+          {{ $t('~~You are dumb. Learn how to use a phone.') }}
           <base-button
             :action="checkTestCall"
             size="small"

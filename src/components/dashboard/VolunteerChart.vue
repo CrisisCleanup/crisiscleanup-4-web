@@ -54,6 +54,8 @@ const props = defineProps({
   data: Array,
 });
 
+const { t } = useI18n();
+
 const chartData = computed(() => {
   return props.data.map((d) => ({
     date: new Date(d.the_date),
@@ -147,7 +149,7 @@ const chartOptions = ref({
               right: 10, // Adds extra padding on the right side of the label
             },
           },
-          text: '$t('volunteerChart.hotline_closes')',
+          text: t('volunteerChart.hotline_closes'),
         },
       },
     ],
