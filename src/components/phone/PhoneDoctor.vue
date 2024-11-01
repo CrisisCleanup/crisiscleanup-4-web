@@ -377,9 +377,7 @@ const checkTestCall = async () => {
             // Check for timeout
             if (Date.now() - startTime >= timeout) {
               clearInterval(intervalId);
-              reject(
-                new Error(t('phoneDoctor.timeout_no_input_30_seconds')),
-              );
+              reject(new Error(t('phoneDoctor.timeout_no_input_30_seconds')));
             }
           } catch (error) {
             clearInterval(intervalId);
@@ -470,9 +468,7 @@ const steps = ref([
   },
   {
     key: 'connection',
-    description: t(
-      'phoneDoctor.checking_connection_from_ccu_to_provider',
-    ),
+    description: t('phoneDoctor.checking_connection_from_ccu_to_provider'),
     action: checkAgentLogin,
   },
   {
@@ -524,7 +520,9 @@ const updatePhoneNumber = async () => {
   console.log('Updating phone number to', newPhoneNumber.value);
   const { newValue, valid } = validatePhoneNumber(newPhoneNumber.value);
   if (!valid) {
-    errorMessages.value.base.phoneNumber = t('phoneDoctor.invalid_phone_format');
+    errorMessages.value.base.phoneNumber = t(
+      'phoneDoctor.invalid_phone_format',
+    );
     return;
   }
   try {
@@ -537,7 +535,9 @@ const updatePhoneNumber = async () => {
         'phoneDoctor.phone_number_update_failed',
       );
     } else {
-      stepMessages.value.base.phoneNumber.push(t('phoneDoctor.phone_number_updated'));
+      stepMessages.value.base.phoneNumber.push(
+        t('phoneDoctor.phone_number_updated'),
+      );
       currentUser.value.mobile = newValue;
       // Re-run the phone number check
       const phoneNumber = await checkAgentPhoneNumber();
@@ -795,7 +795,9 @@ const resetDiagnostics = () => {
                 <!-- Potential solutions or inputs -->
                 <div v-if="errorMessages.base.phoneNumber">
                   <div class="flex items-center justify-between">
-                    <label>{{ $t('phoneDoctor.enter_valid_phone_number') }}</label>
+                    <label>{{
+                      $t('phoneDoctor.enter_valid_phone_number')
+                    }}</label>
                     <base-input
                       v-model="newPhoneNumber"
                       type="text"

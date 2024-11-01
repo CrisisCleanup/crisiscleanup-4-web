@@ -1,5 +1,27 @@
 <script setup lang="ts">
 import PhoneCmsItems from '@/components/phone/PhoneCmsItems.vue';
+import { useClipboard } from '@vueuse/core';
+import BaseButton from '@/components/BaseButton.vue';
+import Leaderboard from '@/components/phone/Leaderboard.vue';
+import useConnectFirst from '@/hooks/useConnectFirst';
+import ManualDialer from '@/components/phone/ManualDialer.vue';
+import CallHistory from '@/components/phone/CallHistory.vue';
+import { formatNationalNumber } from '@/filters';
+import useEmitter from '@/hooks/useEmitter';
+import GeneralStats from '@/components/phone/GeneralStats.vue';
+import UpdateStatus from '@/components/phone/UpdateStatus.vue';
+import CurrentCall from '@/components/phone/CurrentCall.vue';
+import CcuIcon from '@/components/BaseIcon.vue';
+import Chat from '@/components/chat/Chat.vue';
+import { computed, ref } from 'vue';
+import moment from 'moment';
+import BaseText from '@/components/BaseText.vue';
+import Badge from '@/components/Badge.vue';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import PhoneOutbound from '@/models/PhoneOutbound';
+import { useToast } from 'vue-toastification';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 
 const emit = defineEmits([
   'onCompleteCall',
@@ -25,7 +47,7 @@ const { currentUser } = useCurrentUser();
 
 // Sections as a computed property
 const sections = computed(() => {
-  let sectionsToReturn = [
+  return [
     {
       view: 'callHistory',
       text: t('phoneDashboard.last_10_calls'),
@@ -80,44 +102,15 @@ const sections = computed(() => {
       icon: 'bug-report',
       alt: t('phoneDashboard.report_bug'),
     },
-  ];
-
-  if (currentUser.value.isAdmin) {
-    sectionsToReturn.push({
+    {
       view: 'phoneDoctor',
       text: t('phoneDashboard.phone_doctor'),
       icon: 'stethoscope',
       alt: t('phoneDashboard.phone_doctor'),
-    });
-  }
-
-  return sectionsToReturn;
+    },
+  ];
 });
 
-import { useClipboard } from '@vueuse/core';
-import BaseButton from '@/components/BaseButton.vue';
-import Leaderboard from '@/components/phone/Leaderboard.vue';
-import useConnectFirst from '@/hooks/useConnectFirst';
-import ManualDialer from '@/components/phone/ManualDialer.vue';
-import CallHistory from '@/components/phone/CallHistory.vue';
-import { formatNationalNumber } from '@/filters';
-import useEmitter from '@/hooks/useEmitter';
-import GeneralStats from '@/components/phone/GeneralStats.vue';
-import UpdateStatus from '@/components/phone/UpdateStatus.vue';
-import ActiveCall from '@/components/phone/ActiveCall.vue';
-import CurrentCall from '@/components/phone/CurrentCall.vue';
-import CcuIcon from '@/components/BaseIcon.vue';
-import Chat from '@/components/chat/Chat.vue';
-import { computed, reactive, ref } from 'vue';
-import moment from 'moment';
-import usePhoneService from '@/hooks/phone/usePhoneService';
-import BaseText from '@/components/BaseText.vue';
-import Badge from '@/components/Badge.vue';
-import useCurrentUser from '@/hooks/useCurrentUser';
-import PhoneOutbound from '@/models/PhoneOutbound';
-import { useToast } from 'vue-toastification';
-import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
-import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 const { emitter } = useEmitter();
 const $toasted = useToast();
 
