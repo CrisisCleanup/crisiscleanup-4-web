@@ -328,7 +328,10 @@ const checkTestCall = async () => {
       phoneService.password,
       'WORKING',
     );
-    await phoneService.dial(HOTLINE_PHONE_NUMBER, currentUser.value.mobile);
+    await phoneService.dial(
+      HOTLINE_PHONE_NUMBER.value,
+      currentUser.value.mobile,
+    );
     stepMessages.value.test.push(t('phoneDoctor.test_call_initiated'));
 
     // remove +1 from the phone number and non-numeric characters
