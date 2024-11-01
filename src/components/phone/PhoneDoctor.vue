@@ -378,9 +378,7 @@ const checkTestCall = async () => {
             if (Date.now() - startTime >= timeout) {
               clearInterval(intervalId);
               reject(
-                new Error(
-                  '~~Timeout: User did not interact within 30 seconds.',
-                ),
+                new Error(t('phoneDoctor.timeout_no_input_30_seconds')),
               );
             }
           } catch (error) {
@@ -420,9 +418,9 @@ const checkTestCall = async () => {
   } catch (error) {
     console.error('Error during test call', error);
     stepStatuses.value.test = STEP_STATUS.ERROR;
-    errorMessages.value.test = t('~~Failed to make test call.');
+    errorMessages.value.test = t('phoneDoctor.failed_to_make_test_call');
     stepsExpanded.value.test = true;
-    stepMessages.value.test.push(t('~~Test call failed.'));
+    stepMessages.value.test.push(t('phoneDoctor.test_call_failed'));
     return false;
   }
 };
@@ -441,7 +439,7 @@ const isPreviousStepSuccessful = (currentKey) => {
 const steps = ref([
   {
     key: 'base',
-    description: t('~~Check Agent Role, Language, Phone number format'),
+    description: t('phoneDoctor.check_role_language_phone_number_format'),
     action: async () => {
       stepStatuses.value.base = STEP_STATUS.RUNNING;
       stepsExpanded.value.base = true;
@@ -462,24 +460,24 @@ const steps = ref([
   },
   {
     key: 'agent',
-    description: t('~~Check Agent Setup with provider'),
+    description: t('phoneDoctor.check_phone_agent_with_provider'),
     action: checkConnectFirstAgent,
   },
   {
     key: 'websocket',
-    description: t('~~Check for firewall or VPN blocking'),
+    description: t('phoneDoctor.check_firewall_vpn'),
     action: checkWebSocket,
   },
   {
     key: 'connection',
     description: t(
-      '~~Checking connection from Crisis Cleanup to Telephone Provider',
+      'phoneDoctor.checking_connection_from_ccu_to_provider',
     ),
     action: checkAgentLogin,
   },
   {
     key: 'test',
-    description: t('~~Send Test Call'),
+    description: t('phoneDoctor.send_test_call'),
     action: checkTestCall,
   },
 ]);
@@ -526,7 +524,7 @@ const updatePhoneNumber = async () => {
   console.log('Updating phone number to', newPhoneNumber.value);
   const { newValue, valid } = validatePhoneNumber(newPhoneNumber.value);
   if (!valid) {
-    errorMessages.value.base.phoneNumber = t('~~Invalid phone number format.');
+    errorMessages.value.base.phoneNumber = t('phoneDoctor.invalid_phone_format');
     return;
   }
   try {
@@ -536,10 +534,10 @@ const updatePhoneNumber = async () => {
     console.log('Response', response);
     if (response.response instanceof AxiosError) {
       errorMessages.value.base.phoneNumber = t(
-        '~~Failed to update phone number.',
+        'phoneDoctor.phone_number_update_failed',
       );
     } else {
-      stepMessages.value.base.phoneNumber.push(t('~~Phone number updated.'));
+      stepMessages.value.base.phoneNumber.push(t('phoneDoctor.phone_number_updated'));
       currentUser.value.mobile = newValue;
       // Re-run the phone number check
       const phoneNumber = await checkAgentPhoneNumber();
@@ -552,7 +550,7 @@ const updatePhoneNumber = async () => {
   } catch (error) {
     console.error('Error updating phone number', error);
     errorMessages.value.base.phoneNumber = t(
-      '~~Failed to update phone number.',
+      'phoneDoctor.phone_number_update_failed',
     );
   }
 };
@@ -628,11 +626,7 @@ const resetDiagnostics = () => {
       />
       <div>
         <span class="text-lg">
-          {{
-            $t(
-              "~~'Phone Doctor' is a quick tool to check if your phone is ready for our virtual call center. It runs a setup check, ensuring settings and connections are good to go. If there's an issue, the doctor will suggest easy fixes to get you up and running!",
-            )
-          }}
+          {{ $t('phoneDoctor.subtitle') }}
         </span>
         <base-button
           :action="runDiagnostics"
