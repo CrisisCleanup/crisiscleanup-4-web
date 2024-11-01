@@ -636,9 +636,9 @@ const resetDiagnostics = () => {
           variant="solid"
         >
           <span v-if="isDiagnosticsRunning">{{
-            $t('~~Running Diagnostics...')
+            $t('phoneDoctor.running_diagnostics')
           }}</span>
-          <span v-else>{{ $t('~~phoneDoctor.run_diagnostic') }}</span>
+          <span v-else>{{ $t('phoneDoctor.run_all_tests') }}</span>
         </base-button>
       </div>
     </div>
@@ -680,7 +680,7 @@ const resetDiagnostics = () => {
                   v-if="!isPreviousStepSuccessful(step.key)"
                   class="text-sm text-gray-500"
                 >
-                  {{ $t('~~Please complete the previous step first.') }}
+                  {{ $t('phoneDoctor.complete_previous_step_first') }}
                 </span>
               </div>
 
@@ -795,7 +795,7 @@ const resetDiagnostics = () => {
                 <!-- Potential solutions or inputs -->
                 <div v-if="errorMessages.base.phoneNumber">
                   <div class="flex items-center justify-between">
-                    <label>{{ $t('~~Enter a valid phone number:') }}</label>
+                    <label>{{ $t('phoneDoctor.enter_valid_phone_number') }}</label>
                     <base-input
                       v-model="newPhoneNumber"
                       type="text"
@@ -806,7 +806,7 @@ const resetDiagnostics = () => {
                       size="small"
                       variant="solid"
                     >
-                      {{ $t('~~Update Phone Number') }}
+                      {{ $t('actions.update') }}
                     </base-button>
                   </div>
                 </div>
@@ -831,18 +831,7 @@ const resetDiagnostics = () => {
                     stepStatuses[step.key] === STEP_STATUS.ERROR
                   "
                 >
-                  <div>
-                    {{
-                      $t(`~~Are you using a work WIFI/computer or a WIFI/Computer with a VPN? If yes, please try a different computer or WIFI network. You are unable to use a VPN or strong firewall to make or receive calls.
-
-                    To test for this we are going to use your cellphone.
-                    1.  Turn off the wifi on your phone
-                    2.  Go to crisiscleanup.org and log into the phone page
-                    3.  Run the phone doctor there and see if we pass this stage.
-
-                    If it still does not work, please click the help button and create a help ticket to receive further support.`)
-                    }}
-                  </div>
+                  <div v-html="$t(phoneDoctor.wifi_vpn_troubleshooting)"></div>
                   <div class="flex items-center justify-end">
                     <base-button
                       :action="step.action"
@@ -850,7 +839,7 @@ const resetDiagnostics = () => {
                       class="my-2"
                       variant="solid"
                     >
-                      {{ $t('~~Retry') }}
+                      {{ $t('actions.retry') }}
                     </base-button>
                   </div>
                 </div>
@@ -875,7 +864,7 @@ const resetDiagnostics = () => {
             variant="outline"
             size="large"
           >
-            {{ $t('~~Went to VoiceMail') }}
+            {{ $t('phoneDoctor.went_to_voicemail') }}
           </base-button>
           <base-button
             :action="
@@ -890,7 +879,7 @@ const resetDiagnostics = () => {
             variant="outline"
             size="large"
           >
-            {{ $t('~~No Call Received') }}
+            {{ $t('phoneDoctor.no_call_received') }}
           </base-button>
           <base-button
             :action="
@@ -904,7 +893,7 @@ const resetDiagnostics = () => {
             variant="outline"
             size="large"
           >
-            {{ $t('~~Not Playing Nicely') }}
+            {{ $t('phoneDoctor.not_playing_nicely') }}
           </base-button>
           <base-button
             :action="
@@ -919,7 +908,7 @@ const resetDiagnostics = () => {
             variant="outline"
             size="large"
           >
-            {{ $t('~~Press 1 Did Not Work') }}
+            {{ $t('phoneDoctor.press_1_did_not_work') }}
           </base-button>
           <base-button
             :action="
@@ -934,16 +923,12 @@ const resetDiagnostics = () => {
             variant="outline"
             size="large"
           >
-            {{ $t('~~Hung up on Me') }}
+            {{ $t('phoneDoctor.hung_up_on_me') }}
           </base-button>
         </div>
 
         <div v-if="showingNotPlayingNicelyIssues" class="mt-5">
-          {{
-            $t(
-              '~~Something about the system is not working correctly. You can try taking calls, but it may not work. If that happens, run the test again in about four hours. If the problem persists, please click "Help" and create a helpdesk ticket.',
-            )
-          }}
+          {{ $t('phoneDoctor.not_playing_nicely_troubleshooting') }}
           <base-button
             :action="checkTestCall"
             size="small"
@@ -954,7 +939,7 @@ const resetDiagnostics = () => {
           </base-button>
         </div>
         <div v-if="showingPressOneIssues" class="mt-5">
-          {{ $t('~~You are dumb. Learn how to use a phone.') }}
+          {{ $t('phoneDoctor.press_1_did_not_work_troubleshooting') }}
           <base-button
             :action="checkTestCall"
             size="small"
@@ -965,11 +950,7 @@ const resetDiagnostics = () => {
           </base-button>
         </div>
         <div v-if="showingVoicemailIssues" class="mt-5">
-          {{
-            $t(
-              '~~Go into your phone settings and ensure that ‘silence unknown callers,’ ‘silence spam callers,’ and any robo-blockers/spam blockers are turned off.',
-            )
-          }}
+          {{ $t('phoneDoctor.went_to_voicemail_troubleshooting') }}
         </div>
 
         <div v-if="showingNoCallIssues" class="mt-5">
@@ -991,11 +972,7 @@ const resetDiagnostics = () => {
           </div>
         </div>
         <div v-if="showingPrematureHangupIssues" class="mt-5">
-          {{
-            $t(
-              '~~If the system hung up on you without playing a message, then there is likely a problem with the telephone system. Wait 4 hours and try again. You may try taking calls, but you may run into problems. If the problem persists, enter a helpdesk ticket.',
-            )
-          }}
+          {{ $t('phoneDoctor.hung_up_on_me_troubleshooting') }}
           <base-button
             :action="checkTestCall"
             size="small"
@@ -1013,7 +990,7 @@ const resetDiagnostics = () => {
         variant="outline"
         class="mx-auto mt-5"
       >
-        {{ $t('~~Start Over') }}
+        {{ $t('phoneDoctor.start_over') }}
       </base-button>
     </div>
   </div>
