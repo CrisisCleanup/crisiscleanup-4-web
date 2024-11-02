@@ -13,6 +13,8 @@ import { isWebSocketAvailable } from '@/utils/websocket';
 import PhoneTestService from '@/services/phone.test.service';
 import BaseInput from '@/components/BaseInput.vue';
 import User from '@/models/User';
+import BaseSelect from '@/components/BaseSelect.vue';
+import { formatCmsItem } from '@/utils/helpers';
 
 const { t } = useI18n();
 const { currentUser } = useCurrentUser();
@@ -61,12 +63,33 @@ const showingNoCallIssues = ref(false);
 const showingNotPlayingNicelyIssues = ref(false);
 const showingPressOneIssues = ref(false);
 const showingPrematureHangupIssues = ref(false);
+const nothingWorked = ref(false);
+
+const selectedCarrier = ref(null);
+const carrierRemediation = computed(() => {
+  if (selectedCarrier.value) {
+    return dropdownItems.value.find((item) => item.id === selectedCarrier.value)
+      ?.content;
+  }
+  return '';
+});
+const dropdownItems = ref([]);
 
 const supportedPhoneLanguages = computed(() => {
   const languages = Language.all();
   const ids = new Set([2, 7]);
   return languages.filter((l) => ids.has(Number(l.id)));
 });
+
+async function getCarrierDropdownItems() {
+  const response = await axios.get(
+    `${import.meta.env.VITE_APP_API_BASE_URL}/cms?tags=phone-doctor`,
+  );
+  if (response && response.data && response.data.results)
+    dropdownItems.value = response.data.results.filter((item) =>
+      item.tags.includes('dropdown'),
+    );
+}
 
 async function configureAgent() {
   const { data: currentAgent } = await axios.get(
@@ -617,6 +640,10 @@ const resetDiagnostics = () => {
   }
   isDiagnosticsRunning.value = false;
 };
+
+onMounted(() => {
+  getCarrierDropdownItems();
+});
 </script>
 
 <template>
@@ -853,7 +880,7 @@ const resetDiagnostics = () => {
       </template>
 
       <div v-if="stepStatuses['test'] === STEP_STATUS.ERROR">
-        <div class="flex gap-3 mt-5">
+        <div class="grid gap-3 mt-5 grid-cols-3">
           <base-button
             :action="
               () => {
@@ -892,7 +919,6 @@ const resetDiagnostics = () => {
                 showingNotPlayingNicelyIssues = true;
                 showingNoCallIssues = false;
                 showingVoicemailIssues = false;
-                showingNotPlayingNicelyIssues = false;
                 showingPressOneIssues = false;
                 showingPrematureHangupIssues = false;
                 nothingWorked = false;
@@ -1001,18 +1027,18 @@ const resetDiagnostics = () => {
             >
               {{ $t('phoneDashboard.try_again') }}
             </base-button>
-            <base-button
-              :action="
-                () => {
-                  nothingWorked = true;
-                }
-              "
-              variant="outline"
-              size="large"
-            >
-              {{ $t('phoneDoctor.nothing_worked') }}
-            </base-button>
           </div>
+          <base-button
+            :action="
+              () => {
+                nothingWorked = true;
+              }
+            "
+            variant="outline"
+            size="large"
+          >
+            {{ $t('phoneDoctor.nothing_worked') }}
+          </base-button>
         </div>
         <div v-if="showingPrematureHangupIssues" class="mt-5">
           {{ $t('phoneDoctor.hung_up_on_me_troubleshooting') }}
@@ -1039,7 +1065,22 @@ const resetDiagnostics = () => {
       </div>
       <div v-if="nothingWorked" class="mt-5">
         {{ $t('phoneDoctor.google_voice_instructions') }}
-        ***Insert Carrier dropdown here from the CMS. pull from CMS items tagged with `phone-doctor` and `dropdown`. The subject should be the dropdown selector. Then when they select it, the body of the CMS should appear. The body will have html, so make sure that v-html renders.
+        <base-select
+          v-model="selectedCarrier"
+          :options="dropdownItems"
+          select-classes="bg-white border w-64 mx-2 z-toolbar"
+          item-key="id"
+          label="title"
+          class="my-2"
+        >
+          <template #selected-option="{ option }">
+            <div class="w-full px-2">{{ $t(formatCmsItem(option.title)) }}</div>
+          </template>
+          <template #option="{ option }">
+            {{ $t(formatCmsItem(option.title)) }}
+          </template>
+        </base-select>
+        {{ $t(formatCmsItem(carrierRemediation)) }}
       </div>
 
       <base-button
