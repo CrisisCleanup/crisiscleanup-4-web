@@ -596,6 +596,7 @@ const resetStep = (key) => {
 };
 
 const resetDiagnostics = () => {
+  nothingWorked.value = false;
   showingVoicemailIssues.value = false;
   showingNoCallIssues.value = false;
   showingNotPlayingNicelyIssues.value = false;
@@ -861,6 +862,7 @@ const resetDiagnostics = () => {
                 showingNotPlayingNicelyIssues = false;
                 showingPressOneIssues = false;
                 showingPrematureHangupIssues = false;
+                nothingWorked = false;
               }
             "
             variant="outline"
@@ -876,6 +878,7 @@ const resetDiagnostics = () => {
                 showingNotPlayingNicelyIssues = false;
                 showingPressOneIssues = false;
                 showingPrematureHangupIssues = false;
+                nothingWorked = false;
               }
             "
             variant="outline"
@@ -889,7 +892,10 @@ const resetDiagnostics = () => {
                 showingNotPlayingNicelyIssues = true;
                 showingNoCallIssues = false;
                 showingVoicemailIssues = false;
+                showingNotPlayingNicelyIssues = false;
                 showingPressOneIssues = false;
+                showingPrematureHangupIssues = false;
+                nothingWorked = false;
               }
             "
             variant="outline"
@@ -905,6 +911,7 @@ const resetDiagnostics = () => {
                 showingNoCallIssues = false;
                 showingVoicemailIssues = false;
                 showingPrematureHangupIssues = false;
+                nothingWorked = false;
               }
             "
             variant="outline"
@@ -920,6 +927,7 @@ const resetDiagnostics = () => {
                 showingNotPlayingNicelyIssues = false;
                 showingNoCallIssues = false;
                 showingVoicemailIssues = false;
+                nothingWorked = false;
               }
             "
             variant="outline"
@@ -939,6 +947,17 @@ const resetDiagnostics = () => {
           >
             {{ $t('phoneDashboard.try_again') }}
           </base-button>
+          <base-button
+            :action="
+              () => {
+                nothingWorked = true;
+              }
+            "
+            variant="outline"
+            size="large"
+          >
+            {{ $t('phoneDoctor.nothing_worked') }}
+          </base-button>
         </div>
         <div v-if="showingPressOneIssues" class="mt-5">
           {{ $t('phoneDoctor.press_1_did_not_work_troubleshooting') }}
@@ -949,6 +968,17 @@ const resetDiagnostics = () => {
             class="my-3"
           >
             {{ $t('phoneDashboard.try_again') }}
+          </base-button>
+          <base-button
+            :action="
+              () => {
+                nothingWorked = true;
+              }
+            "
+            variant="outline"
+            size="large"
+          >
+            {{ $t('phoneDoctor.nothing_worked') }}
           </base-button>
         </div>
         <div v-if="showingVoicemailIssues" class="mt-5">
@@ -971,6 +1001,17 @@ const resetDiagnostics = () => {
             >
               {{ $t('phoneDashboard.try_again') }}
             </base-button>
+            <base-button
+              :action="
+                () => {
+                  nothingWorked = true;
+                }
+              "
+              variant="outline"
+              size="large"
+            >
+              {{ $t('phoneDoctor.nothing_worked') }}
+            </base-button>
           </div>
         </div>
         <div v-if="showingPrematureHangupIssues" class="mt-5">
@@ -983,7 +1024,22 @@ const resetDiagnostics = () => {
           >
             {{ $t('phoneDashboard.try_again') }}
           </base-button>
+          <base-button
+            :action="
+              () => {
+                nothingWorked = true;
+              }
+            "
+            variant="outline"
+            size="large"
+          >
+            {{ $t('phoneDoctor.nothing_worked') }}
+          </base-button>
         </div>
+      </div>
+      <div v-if="nothingWorked" class="mt-5">
+        {{ $t('phoneDoctor.google_voice_instructions') }}
+        ***Insert Carrier dropdown here from the CMS. pull from CMS items tagged with `phone-doctor` and `dropdown`. The subject should be the dropdown selector. Then when they select it, the body of the CMS should appear. The body will have html, so make sure that v-html renders.
       </div>
 
       <base-button
