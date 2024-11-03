@@ -1080,7 +1080,7 @@ onMounted(() => {
             {{ $t(formatCmsItem(option.title)) }}
           </template>
         </base-select>
-        {{ $t(formatCmsItem(carrierRemediation)) }}
+        <span v-html="$t(formatCmsItem(carrierRemediation))"> </span>
       </div>
 
       <base-button
