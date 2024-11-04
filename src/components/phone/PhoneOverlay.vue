@@ -486,8 +486,8 @@ const {
                   :calls="callHistory"
                   :table-body-style="{ height: '30rem' }"
                   @row-click="
-                    ({ mobile }) => {
-                      setManualOutbound(mobile);
+                    ({ phone_number }) => {
+                      setManualOutbound(phone_number);
                     }
                   "
                 ></CallHistory>

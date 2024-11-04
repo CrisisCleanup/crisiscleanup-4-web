@@ -241,6 +241,22 @@ export default function useConnectFirst(context: {
   }
 
   async function dialManualOutbound(number: string) {
+    const portalResponse = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/portals/current`,
+      {
+        headers: {
+          Authorization: null,
+        },
+      },
+    );
+
+    const portal = portalResponse?.data;
+
+    if (portal?.attr?.disable_outbound_calls) {
+      $toasted.warning(t('~~Outbound Calls are currently disabled'));
+      return;
+    }
+
     await loginPhone(true, 'WORKING');
     dialing.value = true;
     try {
@@ -261,6 +277,21 @@ export default function useConnectFirst(context: {
   }
 
   async function dialNextOutbound() {
+    const portalResponse = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/portals/current`,
+      {
+        headers: {
+          Authorization: null,
+        },
+      },
+    );
+
+    const portal = portalResponse?.data;
+
+    if (portal?.attr?.disable_outbound_calls) {
+      throw new Error(t('~~Outbound Calls are currently disabled'));
+    }
+
     dialing.value = true;
     try {
       const outbound = await PhoneOutbound.api().getNextOutbound({
