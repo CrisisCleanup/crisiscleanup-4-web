@@ -1067,6 +1067,10 @@ export default defineComponent({
     function clearCase() {
       worksiteId.value = null;
       isEditing.value = false;
+      router.push({
+        path: `/incident/${currentIncidentId.value}/phone`,
+        query: {},
+      });
     }
 
     function setTabs(t) {
