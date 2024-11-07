@@ -1,8 +1,7 @@
 <template>
   <modal
     v-if="show"
-    modal-classes="bg-white max-w-2xl shadow"
-    modal-style="min-height: 60%"
+    modal-classes="bg-white max-w-5xl shadow min-h-2/3"
     data-testid="testFiltersModal"
   >
     <div class="flex flex-col h-full">
@@ -517,6 +516,62 @@
                   {{ $t('worksiteFilters.in_secondary_response_area') }}
                 </base-checkbox>
               </div>
+              <div>
+                <div class="my-1 text-base">
+                  {{ $t('~~Search Locations') }}
+                </div>
+                <div class="grid grid-cols-2 gap-2 pr-2">
+                  <base-select
+                    class="flex-1"
+                    :placeholder="$t('~~Select Location')"
+                    data-testid="testLocationSelect"
+                    searchable
+                    multiple
+                    :v-model="filters.locations.data.search_locations"
+                    item-key="id"
+                    label="name"
+                    :options="onLocationSearch"
+                    @update:model-value="
+                      (value) => {
+                        filters.locations.data = {
+                          ...filters.locations.data,
+                          search_locations: value,
+                        };
+                      }
+                    "
+                  >
+                    <template #option="{ option }">
+                      <div
+                        class="flex justify-between text-sm p-2 cursor-pointer w-full"
+                      >
+                        <span class="mr-1">{{ option.name }}</span>
+                        <span class="text-crisiscleanup-grey-700">{{
+                          option.location_type &&
+                          $t(option.location_type.name_t)
+                        }}</span>
+                      </div>
+                    </template>
+                  </base-select>
+                  <base-select
+                    :model-value="currentLocationType"
+                    :options="
+                      locationTypes.map((l) => {
+                        return { ...l, name_t: $t(l.name_t) };
+                      })
+                    "
+                    data-testid="testLocationTypesSelect"
+                    item-key="id"
+                    label="name_t"
+                    searchable
+                    :placeholder="$t('~~Location type for search')"
+                    @update:model-value="
+                      (type: string) => {
+                        currentLocationType = type;
+                      }
+                    "
+                  />
+                </div>
+              </div>
               <div class="mb-2">
                 <div class="my-1 text-base" data-testid="testMyLocationsDiv">
                   {{ $t('worksiteFilters.my_locations') }}
@@ -680,6 +735,7 @@
 import { useStore } from 'vuex';
 import { computed, onMounted, ref, watch } from 'vue';
 import Team from '@/models/Team';
+import Location from '@/models/Location';
 import WorksiteFieldsFilter from '@/utils/data_filters/WorksiteFieldsFilter';
 import WorksiteFlagsFilter from '@/utils/data_filters/WorksiteFlagsFilter';
 import FormDataFilter from '@/utils/data_filters/FormDataFilter';
@@ -696,6 +752,7 @@ import { getStatusName } from '@/filters/index';
 import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
 import moment from 'moment';
+import { getQueryString } from '@/utils/urls';
 
 export default defineComponent({
   name: 'WorksiteFilters',
@@ -760,8 +817,9 @@ export default defineComponent({
       'flag.worksite_wrong_location',
       'flag.worksite_wrong_incident',
     ];
-
+    const locationTypes = computed(() => store.getters['enums/locationTypes']);
     const lists = ref([]);
+    const currentLocationType = ref(null);
 
     const incidentTypes = computed(() => {
       if (props.incident && props.incident.form_fields) {
@@ -1064,7 +1122,22 @@ export default defineComponent({
         };
       });
     }
+    async function onLocationSearch(value: string) {
+      const parameters = {
+        search: value,
+        limit: 10,
+        fields: 'id,name,type',
+      } as Record<string, any>;
+      if (currentLocationType.value) {
+        parameters.type = currentLocationType.value;
+      }
 
+      const queryString = getQueryString(parameters);
+      const results = await Location.api().get(`/locations?${queryString}`, {
+        dataKey: 'results',
+      });
+      return results.entities?.locations;
+    }
     return {
       filters,
       currentSection,
@@ -1095,6 +1168,9 @@ export default defineComponent({
       filterLabels,
       datePickerDefaultProps,
       lists,
+      onLocationSearch,
+      currentLocationType,
+      locationTypes,
     };
   },
 });

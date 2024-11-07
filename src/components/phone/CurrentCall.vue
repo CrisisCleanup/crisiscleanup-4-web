@@ -48,8 +48,10 @@ watch(
   () => call.value,
   (newValue) => {
     if (newValue && newValue.dnis1) {
+      // Get the worksites for the phone number within the last 60 days
       const params = {
         phone1_dnis: newValue.dnis1,
+        created_at__gte: moment().subtract(60, 'days').toISOString(),
       };
       Worksite.api()
         .get(`/worksites?${getQueryString(params)}`, {

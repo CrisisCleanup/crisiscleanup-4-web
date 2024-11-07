@@ -7,6 +7,8 @@ vi.mock('@/hooks', () => ({
       value: {
         organization: {
           id: 'organization_id',
+          primary_location: 'primary_location',
+          secondary_location: 'secondary_location',
         },
       },
     },
@@ -23,9 +25,7 @@ describe('UserLocationsFilter', () => {
     });
     const packed = userLocationsFilter.packFunction();
     expect(packed).toEqual({
-      organization_primary_location: 'organization_id',
-      organization_secondary_location: 'organization_id',
-      locations: 'location1',
+      locations: 'primary_location,secondary_location,location1',
     });
   });
 

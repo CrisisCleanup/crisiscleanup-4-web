@@ -1,6 +1,4 @@
 import { i18n } from '@/modules/i18n';
-import User from '../../models/User';
-import { store } from '../../store';
 import Filter from './Filter';
 import { useCurrentUser } from '@/hooks';
 
@@ -10,11 +8,19 @@ export default class UserLocationsFilter extends Filter {
     const currentUser = currentUserStore.currentUser.value;
     const packed: Record<string, any> = {};
     if (this.data.organization_primary_location) {
-      packed.organization_primary_location = currentUser.organization.id;
+      if (packed.locations) {
+        packed.locations += `,${currentUser.organization.primary_location}`;
+      } else {
+        packed.locations = currentUser.organization.primary_location;
+      }
     }
 
     if (this.data.organization_secondary_location) {
-      packed.organization_secondary_location = currentUser.organization.id;
+      if (packed.locations) {
+        packed.locations += `,${currentUser.organization.secondary_location}`;
+      } else {
+        packed.locations = currentUser.organization.secondary_location;
+      }
     }
 
     const locationEntries = Object.entries(this.data).filter(([key, value]) => {
@@ -23,11 +29,28 @@ export default class UserLocationsFilter extends Filter {
         ![
           'organization_primary_location',
           'organization_secondary_location',
+          'search_locations',
         ].includes(key)
       );
     });
     if (locationEntries.length > 0) {
-      packed.locations = locationEntries.map(([id]) => id).join(',');
+      const locations = locationEntries.map(([id]) => {
+        return id;
+      });
+      if (packed.locations) {
+        packed.locations += `,${locations.join(',')}`;
+      } else {
+        packed.locations = locations.join(',');
+      }
+    }
+
+    const searchLocationIds = this.data.search_locations || [];
+    if (searchLocationIds.length > 0) {
+      if (packed.locations) {
+        packed.locations += `,${searchLocationIds.join(',')}`;
+      } else {
+        packed.locations = searchLocationIds.join(',');
+      }
     }
 
     return packed;
@@ -54,6 +77,11 @@ export default class UserLocationsFilter extends Filter {
         labels[key] = i18n.global.t(
           'worksiteFilters.in_secondary_response_area',
         );
+      }
+
+      if (key === 'search_locations') {
+        labels[key] =
+          `Search Locations: ${this.data.search_locations.join(',')}`;
       }
     }
 
