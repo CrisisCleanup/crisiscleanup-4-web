@@ -37,6 +37,13 @@
             () => $router.push(`/admin/incident_wizard/${currentIncidentId}`)
           "
         />
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('~~Show God Mode')"
+          :alt="$t('~~Show God Mode')"
+          :action="() => $router.push('/admin/god_mode')"
+        ></base-button>
       </div>
     </div>
     <div class="flex" data-testid="testPendingOrganizationsDiv">
@@ -425,10 +432,12 @@ import useAcl from '../../hooks/useAcl';
 import useDialogs from '../../hooks/useDialogs';
 import ArcGisUploader from '@/components/admin/ArcGisUploader.vue';
 import MessagesTable from '@/components/admin/MessagesTable.vue';
+import BaseInput from '@/components/BaseInput.vue';
 
 export default defineComponent({
   name: 'AdminDashboard',
   components: {
+    BaseInput,
     MessagesTable,
     DatabaseAccess,
     MergeOrganizations,
