@@ -232,7 +232,7 @@
           </div>
         </div>
       </div>
-      <div id="map" class="h-full"></div>
+      <div id="location-tool-map" class="h-full"></div>
     </div>
     <div
       v-show="showingPopup"
@@ -812,6 +812,9 @@ export default defineComponent({
         () => {
           return;
         },
+        false,
+        null,
+        'location-tool-map',
       );
       const leafletMap = mapUtils.getMap();
       leafletMap.setView([35.746_512_259_918_5, -96.411_509_631_256_56], 5);

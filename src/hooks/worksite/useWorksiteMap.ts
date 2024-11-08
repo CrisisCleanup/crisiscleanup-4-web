@@ -55,6 +55,7 @@ export default (
   onLoadMarkers: (fn: { workTypes: Record<string, any> }, map: L.Map) => void,
   useGoogleMaps = false,
   mapBounds = null,
+  mapId = 'map',
 ) => {
   const addToVisited = (wId: number) =>
     store.commit('worksite/addVisitedWorksite', wId);
@@ -66,7 +67,7 @@ export default (
 
   let currentTileLayer: L.Layer | null = null;
 
-  const map = L.map('map', {
+  const map = new L.Map(mapId, {
     zoomControl: false,
   }).fitBounds(
     mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
