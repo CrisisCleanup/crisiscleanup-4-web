@@ -520,9 +520,9 @@
                 <div class="my-1 text-base">
                   {{ $t('~~Search Locations') }}
                 </div>
-                <div class="grid grid-cols-2 gap-2 pr-2">
+                <div class="grid grid-cols-12 gap-2 pr-2">
                   <base-select
-                    class="flex-1"
+                    class="col-span-6"
                     :placeholder="$t('~~Select Location')"
                     data-testid="testLocationSelect"
                     searchable
@@ -554,6 +554,7 @@
                   </base-select>
                   <base-select
                     :model-value="currentLocationType"
+                    class="col-span-5"
                     :options="
                       locationTypes.map((l) => {
                         return { ...l, name_t: $t(l.name_t) };
@@ -570,6 +571,16 @@
                       }
                     "
                   />
+                  <base-button
+                    :action="createNewLocation"
+                    class="col-span-1"
+                    icon="draw-polygon"
+                    variant="solid"
+                    data-testid="testCreateLocationButton"
+                    :title="$t('~~Draw Location on map')"
+                    :alt="$t('~~Draw Location on map')"
+                  >
+                  </base-button>
                 </div>
               </div>
               <div class="mb-2">
@@ -753,6 +764,11 @@ import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
 import moment from 'moment';
 import { getQueryString } from '@/utils/urls';
+import LocationTool from '@/components/locations/LocationTool.vue';
+import useDialogs from '@/hooks/useDialogs';
+import LocationType from '@/models/LocationType';
+import Organization from '@/models/Organization';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'WorksiteFilters',
@@ -784,6 +800,8 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const store = useStore();
+    const { currentUser } = useCurrentUser();
+    const { t } = useI18n();
     const filters = ref({
       fields: new WorksiteFieldsFilter('fields', {}),
       statusGroups: new WorksiteStatusGroupFilter('statusGroups', {}),
@@ -1138,6 +1156,72 @@ export default defineComponent({
       });
       return results.entities?.locations;
     }
+
+    async function createNewLocation() {
+      const { component } = useDialogs();
+      let currentPolygon = null;
+      const classes = 'h-168 p-3';
+      const response = await component({
+        title: t('~~Select Location'),
+        component: LocationTool,
+        modalClasses: `max-w-5xl`,
+        props: {
+          class: classes,
+        },
+        listeners: {
+          changed(payload) {
+            currentPolygon = payload;
+          },
+        },
+      });
+
+      if (response !== 'cancel' && currentPolygon) {
+        let { geometry } = currentPolygon.toGeoJSON();
+        const { type, features } = currentPolygon.toGeoJSON();
+        let locationTypeKey = 'org_primary_response_area';
+
+        const locationType = LocationType.query()
+          .where('key', locationTypeKey)
+          .get()[0];
+        const location = {
+          name: `Temporary Location Filter for User: ${currentUser.value.id} ${moment().format(
+            'YYYY-MM-DD HH:mm:ss',
+          )}`,
+          type: locationType.id,
+          shared: 'hidden',
+        };
+        if (type === 'FeatureCollection') {
+          const [feature] = features;
+          geometry = feature.geometry;
+        }
+
+        switch (geometry.type) {
+          case 'Point': {
+            location.point = geometry;
+            break;
+          }
+
+          case 'Polygon': {
+            location.poly = geometry;
+            break;
+          }
+
+          case 'MultiPolygon': {
+            location.geom = geometry;
+            break;
+          }
+        }
+
+        try {
+          const response = await Location.api().post('/locations', location);
+          const locationId = response.response.data.id;
+          filters.value.locations.data[locationId] = true;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+
     return {
       filters,
       currentSection,
@@ -1171,6 +1255,7 @@ export default defineComponent({
       onLocationSearch,
       currentLocationType,
       locationTypes,
+      createNewLocation,
     };
   },
 });
