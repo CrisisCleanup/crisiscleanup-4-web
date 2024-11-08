@@ -14,6 +14,7 @@ const AdminLocalizations = () => import('@/pages/admin/AdminLocalizations.vue');
 const AdminIncidentWizard = () => import('./AdminIncidentWizard.vue');
 const AdminRAG = () => import('./AdminRAG.vue');
 const AdminReportGenerator = () => import('./AdminReportGenerator.vue');
+const AdminGodMode = () => import('./AdminGodMode.vue');
 
 const routes = [
   {
@@ -90,6 +91,11 @@ const routes = [
         path: 'reports',
         name: 'nav.reports',
         component: AdminReportGenerator,
+      },
+      {
+        path: 'god_mode',
+        name: 'nav.god_mode',
+        component: AdminGodMode,
       },
     ],
   },
