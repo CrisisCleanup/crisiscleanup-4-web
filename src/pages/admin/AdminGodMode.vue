@@ -33,11 +33,24 @@ const getAllUserLocations = async () => {
   const transformedData = data.results.map(
     ({ user, point, updated_at }: UserGeoLocation) => ({
       user_id: user,
-      location: point.coordinates,
-      timestamp: new Date(updated_at).toISOString(),
+      location: point?.coordinates,
+      timestamp: updated_at ? new Date(updated_at) : null,
     }),
   );
-  return transformedData as UserLocation[];
+
+  // only keep the latest location for each user
+  const userLocationMap = new Map<number, UserLocation>();
+  transformedData.forEach((location: UserLocation) => {
+    const existingLocation = userLocationMap.get(location.user_id);
+    if (
+      !existingLocation ||
+      new Date(location.timestamp) > new Date(existingLocation.timestamp)
+    ) {
+      userLocationMap.set(location.user_id, location);
+    }
+  });
+
+  return [...userLocationMap.values()];
 };
 
 function showUserLocations() {
