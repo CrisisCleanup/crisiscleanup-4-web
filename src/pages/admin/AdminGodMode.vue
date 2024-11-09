@@ -97,9 +97,20 @@ onMounted(async () => {
   const userIds = userLocations.value.map(
     (location: UserLocation) => location.user_id,
   );
-  await User.api().get(`/users?id__in=${userIds.join(',')}`, {
-    dataKey: 'results',
-  });
+  // get users in chunks using promise all
+  const chunkSize = 100;
+  const promises = [];
+  for (let i = 0; i < userIds.length; i += chunkSize) {
+    promises.push(
+      User.api().get(
+        `/users?id__in=${userIds.slice(i, i + chunkSize).join(',')}`,
+        {
+          dataKey: 'results',
+        },
+      ),
+    );
+  }
+  await Promise.all(promises);
 
   map.value = L.map('godModeMap', {
     zoomControl: true,
