@@ -103,7 +103,7 @@ onMounted(async () => {
   for (let i = 0; i < userIds.length; i += chunkSize) {
     promises.push(
       User.api().get(
-        `/users?id__in=${userIds.slice(i, i + chunkSize).join(',')}`,
+        `/users?id__in=${userIds.slice(i, i + chunkSize).join(',')}&fields=id,first_name,last_name,email,mobile`,
         {
           dataKey: 'results',
         },
