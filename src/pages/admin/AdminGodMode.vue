@@ -5,6 +5,7 @@ import { getUserLocationLayer, mapTileLayer } from '@/utils/map';
 import User from '@/models/User';
 import * as L from 'leaflet';
 import { momentFromNow } from '@/filters';
+import moment from 'moment';
 
 interface UserGeoLocation {
   user: string;
@@ -27,6 +28,8 @@ const getAllUserLocations = async () => {
     {
       params: {
         limit: 1000,
+        // only in the last 30 days
+        updated_at__gte: moment().subtract(30, 'days').toISOString(),
       },
     },
   );
@@ -103,7 +106,7 @@ onMounted(async () => {
   for (let i = 0; i < userIds.length; i += chunkSize) {
     promises.push(
       User.api().get(
-        `/users?id__in=${userIds.slice(i, i + chunkSize).join(',')}&fields=id,first_name,last_name,email,mobile`,
+        `/users?id__in=${userIds.slice(i, i + chunkSize).join(',')}&fields=id,first_name,last_name,email,mobile,organization,files`,
         {
           dataKey: 'results',
         },
