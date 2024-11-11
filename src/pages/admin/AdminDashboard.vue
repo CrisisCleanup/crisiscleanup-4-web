@@ -43,7 +43,22 @@
           :text="$t('~~Show God Mode')"
           :alt="$t('~~Show God Mode')"
           :action="() => $router.push('/admin/god_mode')"
-        ></base-button>
+        />
+
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('~~Send Bulk Sms')"
+          :alt="$t('~~Send Bulk Sms')"
+          :action="() => $router.push('/admin/send_bulk_sms')"
+        />
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('~~Send Bulk Email')"
+          :alt="$t('~~Send Bulk Email')"
+          :action="() => $router.push('/admin/send_bulk_email')"
+        />
       </div>
     </div>
     <div class="flex" data-testid="testPendingOrganizationsDiv">
