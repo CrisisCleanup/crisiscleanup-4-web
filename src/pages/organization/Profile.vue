@@ -105,13 +105,13 @@
             />
           </div>
           <div class="form-row">
-            <FloatingInput
-              class="mr-2 w-full sm:w-84"
+            <PhoneNumberInput
+              class="sm:w-84"
               data-testid="testPhoneTextInput"
               :placeholder="$t('profileOrg.phone')"
-              :value="currentOrganization.phone1"
+              :model-value="currentOrganization.phone1"
               required
-              @input="(e) => updateOrganization(e.target.value, 'phone1')"
+              @update:model-value="(v) => updateOrganization(v, 'phone1')"
             />
           </div>
           <div class="form-row">
@@ -634,10 +634,12 @@ import CapabilityGrid from '@/components/CapabilityGrid.vue';
 import RequestRedeploy from '@/components/RequestRedeploy.vue';
 import useCapabilities from '@/hooks/useCapabilities';
 import { useCurrentUser } from '@/hooks';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 export default defineComponent({
   name: 'Profile',
   components: {
+    PhoneNumberInput,
     RequestRedeploy,
     CapabilityGrid,
     Card,

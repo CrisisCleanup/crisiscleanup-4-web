@@ -33,11 +33,15 @@ declare module 'vue-router' {
 const Dashboard = () => import('./pages/Dashboard.vue');
 
 const DashboardPage = () => import('./pages/dashboards/DashboardPage.vue');
+const DashboardSelector = () =>
+  import('./pages/dashboards/DashboardSelector.vue');
 const DefaultDashboard = () =>
   import('./pages/dashboards/DefaultDashboard.vue');
 
 const PhoneVolunteerDashboard = () =>
   import('./pages/dashboards/PhoneVolunteerDashboard.vue');
+const CommandCenterDashboard = () =>
+  import('./pages/dashboards/CommandCenterDashboard.vue');
 const Work = () => import('./pages/Work.vue');
 const AppDownload = () => import('./pages/AppDownload.vue');
 const OtherOrganizations = () => import('@/pages/OtherOrganizations.vue');
@@ -45,7 +49,7 @@ const Reports = () => import('@/pages/admin/Reports.vue');
 const Report = () => import('@/pages/admin/Report.vue');
 const NotFound = () => import('@/pages/NotFound.vue');
 const Location = () => import('@/pages/Location.vue');
-const Profile = () => import('@/pages/Profile.vue');
+const Profile = () => import('@/pages/UserProfile.vue');
 const Downloads = () => import('@/pages/Downloads.vue');
 
 const Lists = () => import('@/pages/lists/Lists.vue');
@@ -54,19 +58,19 @@ const List = () => import('@/pages/lists/List.vue');
 const routes = [
   {
     path: '/',
-    component: Dashboard,
+    component: DashboardSelector,
     name: 'nav.dashboard_home',
     meta: { layout: 'authenticated' },
   },
   {
     path: '/dashboard',
-    component: Dashboard,
+    component: DashboardSelector,
     name: 'nav.dashboard_no_incident',
     meta: { layout: 'authenticated' },
   },
   {
     path: '/incident/:incident_id/dashboard',
-    component: Dashboard,
+    component: DashboardSelector,
     name: 'nav.dashboard',
     meta: { layout: 'authenticated' },
   },
@@ -78,15 +82,26 @@ const routes = [
     children: [
       {
         path: 'default',
-        name: 'nav.default_dashboard',
+        name: 'nav.dashboard_default',
         component: DefaultDashboard,
       },
       {
         path: 'phone_volunteer',
-        name: 'nav.phone_volunteer_dashboard',
+        name: 'nav.dashboard_phone_volunteer',
         component: PhoneVolunteerDashboard,
       },
+      {
+        path: 'command_center',
+        name: 'nav.dashboard_command_center',
+        component: CommandCenterDashboard,
+      },
     ],
+  },
+  {
+    path: '/select_dashboard',
+    component: DashboardSelector,
+    name: 'nav.dashboard_selector',
+    meta: { layout: 'authenticated' },
   },
   {
     path: '/profile',

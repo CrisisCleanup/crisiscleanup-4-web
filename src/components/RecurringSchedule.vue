@@ -2,7 +2,6 @@
   <div>
     <form
       v-if="showSchedule"
-      style="z-index: 1001"
       class="p-2 border"
       :class="containerClass"
       @change="logChange"
@@ -123,6 +122,7 @@ import { isEqual } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { ref, defineComponent, onMounted } from 'vue';
 import moment from 'moment';
+// eslint-disable-next-line import/default
 import LitepieDatepicker from 'litepie-datepicker';
 
 export default defineComponent({
@@ -252,7 +252,6 @@ export default defineComponent({
 
 <style>
 .cron-popover {
-  @apply bg-white text-black outline-none w-full border shadow w-84;
-  z-index: 100;
+  @apply bg-white text-black outline-none w-full border shadow w-84 z-50;
 }
 </style>

@@ -1,18 +1,21 @@
 import { version } from '@/../package.json';
 import { createApp, type App as VueApp } from 'vue';
 import './style.css';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import VueTagsInput from '@sipec/vue3-tags-input';
+
 import Datepicker from '@vuepic/vue-datepicker';
 import * as Sentry from '@sentry/vue';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
 import { i18n } from '@/modules/i18n';
+
 import vSelect from 'vue-select';
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';
@@ -54,12 +57,26 @@ import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
+import { getAndToastWarningMessage } from '@/utils/errors';
 
 library.add(fas);
 library.add(far);
+library.add(fab);
 
 axios.defaults.withCredentials = true;
-
+axios.defaults.baseURL = import.meta.env.VITE_APP_API_BASE_URL;
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error instanceof AxiosError &&
+      [400, 408, 409, 422, 502].includes(error.response?.status as number)
+    ) {
+      getAndToastWarningMessage(error);
+    }
+    throw error;
+  },
+);
 const buildApp = (app: VueApp) =>
   app
     .component('FontAwesomeIcon', FontAwesomeIcon as any)
@@ -116,10 +133,8 @@ const initSentry = (vueApp: VueApp) =>
     replaysOnErrorSampleRate: 0.2,
     trackComponents: true,
     integrations: [
-      new Sentry.BrowserTracing({
-        routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-      }),
-      new Sentry.Replay(),
+      Sentry.browserTracingIntegration({ router }),
+      Sentry.replayIntegration(),
     ],
   });
 

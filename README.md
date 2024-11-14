@@ -34,18 +34,18 @@ Crisis Cleanup is a collaboratative disaster relief platform that connects relie
 
 Crisis Cleanup works best in a collaborative environment where multiple voluntary organizations and agencies work together and coordinate efforts. Because these organizations do not take orders from one another, Crisis Cleanup is designed to facilitate Collaborative Accountability models of inter-agency interaction, rather than command-and-control operations, or or heirarchical accountability models of interaction.
 
-## Other Project Stats (As of 2023-03-13)
+## Other Project Stats (As of 2024-09-25)
 
 - 25%: Increase in volunteer efficiency through re-engagement and elimination of time spent on travel, coordination, collaboration, and management.
 - 35,000+: Households that could not have been helped without Crisis Cleanup.
-- 5.6 Million: Number of volunteer hours facilitated.
-- 1.4 Million: Volunteer hours that would have otherwise been wasted in management, travel, and overhead without Crisis Cleanup.
-- $1.695 Billion: Minimum total market value of services to survivors.
-- $1,741: Value of each cleanup volunteer to his/her community.
+- 6.2 Million: Number of volunteer hours facilitated.
+- 1.6 Million: Volunteer hours that would have otherwise been wasted in management, travel, and overhead without Crisis Cleanup.
+- $1.862 Billion: Minimum total market value of services to survivors.
+- $1,581: Value of each cleanup volunteer to his/her community.
 - $183.3 Million: Market value of services to survivors that would have otherwise been wasted in travel, management, overhead, and standing in lines.
 - $60,839: Money Crisis Cleanup has saved survivors every single day since July 18, 2012.
 - $9,052: Average commercial value of service to each homeowner.
-  How we calculate these statistics: http://blog.crisiscleanup.org/2017/10/how-we-calculate-value-of-services.html
+  How we calculate these statistics: https://www.crisiscleanup.org/blog/post/how-we-calculate-value-of-services
 
 # Contributing
 

@@ -1,6 +1,12 @@
 <template>
   <Home no-hotline>
-    <div>
+    <div
+      v-if="loading"
+      class="flex justify-center items-center h-full bg-crisiscleanup-light-smoke"
+    >
+      <spinner />
+    </div>
+    <div v-else class="bg-crisiscleanup-light-smoke p-6 h-full">
       <div
         class="flex items-center gap-0.5 text-base text-crisiscleanup-dark-blue mb-3 underline"
       >
@@ -19,7 +25,7 @@
         {{ $t('disasters.archived_disasters') }}
       </div>
       <div
-        v-for="[year, incidents] in Object.entries(groupedIncidents)"
+        v-for="[year, incidents] in sortByRecentIncidentEntries"
         :key="year"
         class="mb-5"
       >
@@ -27,7 +33,7 @@
         <div
           v-for="incident in incidents"
           :key="incident.id"
-          class="mb-5 border rounded cursor-pointer"
+          class="mb-5 border rounded cursor-pointer bg-white"
           @click="$router.push('/disasters/' + incident.id)"
         >
           <div :id="camelCase(incident.short_name)" class="p-5 my-3 block">
@@ -71,7 +77,6 @@
 
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
-import { ref, onMounted } from 'vue';
 import moment from 'moment/moment';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
@@ -79,20 +84,33 @@ import axios from 'axios';
 import useDialogs from '@/hooks/useDialogs';
 import { formatNationalNumber } from '@/filters';
 import camelCase from 'lodash/camelCase';
+import Spinner from '@/components/Spinner.vue';
 
 const { component } = useDialogs();
 const route = useRoute();
 const incidents = ref<Incident>([]);
 const groupedIncidents = ref<Record<string, Incident[]>>({});
-const sixtyDaysAgo = moment().subtract(60, 'days');
+const loading = ref(true);
+
+const sortByRecentIncidentEntries = computed(() => {
+  return Object.entries(groupedIncidents.value).sort(([yearA], [yearB]) => {
+    return Number.parseInt(yearB) - Number.parseInt(yearA);
+  });
+});
 
 onMounted(async () => {
+  loading.value = true;
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
-    }/incidents?fields=id,name,short_name,active_phone_number,start_at&start_at__lt=${sixtyDaysAgo.toISOString()}`,
+    }/incidents?fields=id,name,short_name,active_phone_number,start_at&limit=500&sort=-start_at`,
   );
-  incidents.value = response.data.results;
+  // incidents older than 2 months are considered archived
+  const twoMonthsAgo = moment().subtract(2, 'months');
+  incidents.value = response.data.results.filter(
+    (incident) =>
+      incident.start_at && moment(incident.start_at).isBefore(twoMonthsAgo),
+  );
 
   // group incidents by year
   groupedIncidents.value = incidents.value.reduce((acc, incident) => {
@@ -103,6 +121,7 @@ onMounted(async () => {
     acc[year].push(incident);
     return acc;
   }, {});
+  loading.value = false;
 });
 </script>
 

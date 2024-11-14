@@ -53,6 +53,7 @@ import User from '@/models/User';
 import Organization from '@/models/Organization';
 import { groupBy } from '@/utils/array';
 import Worksite from '@/models/Worksite';
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'CaseHistory',
@@ -104,10 +105,9 @@ export default defineComponent({
 
         const result = await Worksite.api().getHistory(props.worksiteId);
         worksiteHistory.value = result.response.data;
-      } catch {
-        await router.push(
-          `/incident/${props.incidentId || route.params.incident_id}/cases/new`,
-        );
+      } catch (error) {
+        console.error(error);
+        getErrorMessage(error);
       } finally {
         ready.value = true;
       }

@@ -85,6 +85,7 @@
         :action="addItemFromLibrary"
         variant="solid"
         class="cursor-pointer px-3 py-1"
+        :alt="$t('adminCMS.add_from_library')"
       >
         {{ $t('adminCMS.add_from_library') }}
       </base-button>

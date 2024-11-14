@@ -160,6 +160,10 @@ export default {
     const streetName =
       this.extractFromAddress(address_components, 'route') ||
       `${parsedAddress.prefix} ${parsedAddress.street}`;
+    const subpremise = this.extractFromAddress(
+      address_components,
+      'subpremise',
+    );
     const city =
       this.extractFromAddress(address_components, 'locality') ||
       this.extractFromAddress(address_components, 'sublocality_level_1') ||
@@ -178,7 +182,7 @@ export default {
 
     return {
       address_components: {
-        address: `${streetNumber} ${streetName}`,
+        address: `${streetNumber} ${streetName}${subpremise ? ` ${subpremise}` : ''}`,
         city,
         county: `${this.extractFromAddress(
           address_components,
@@ -200,7 +204,7 @@ export default {
           this.getGooglePlaceDetails(placeId).then((place) => {
             const { address_components } = place;
             if (!address_components) {
-              reject('No address_components');
+              reject(new Error('No address_components'));
               return;
             }
 
@@ -212,7 +216,7 @@ export default {
             if (status === google.maps.GeocoderStatus.OK) {
               if (!results || results.length === 0) {
                 console.error("getPlaceDetails: Can't find address", address);
-                reject(`Can't find address: ${status}`);
+                reject(new Error(`Can't find address: ${status}`));
                 return;
               }
 
@@ -220,7 +224,7 @@ export default {
               const { address_components } = location;
               resolve(this.getAddress(address_components, location, address));
             } else {
-              reject(`Can't find address: ${status}`);
+              reject(new Error(`Can't find address: ${status}`));
             }
           });
           store.commit('map/setAutocompleteToken', null);
@@ -260,7 +264,7 @@ export default {
           if (status === google.maps.GeocoderStatus.OK) {
             if (!results || results.length === 0) {
               console.error('getLocationDetails: No results', results);
-              reject(`No results: ${status}`);
+              reject(new Error(`No results: ${status}`));
               return;
             }
 
@@ -271,7 +275,7 @@ export default {
                 address: `${this.extractFromAddress(
                   address_components,
                   'street_number',
-                )} ${this.extractFromAddress(address_components, 'route')}`,
+                )} ${this.extractFromAddress(address_components, 'route')}${this.extractFromAddress(address_components, 'subpremise') ? ` ${this.extractFromAddress(address_components, 'subpremise')}` : ''}`,
                 city: `${
                   this.extractFromAddress(address_components, 'locality') ||
                   this.extractFromAddress(
@@ -298,7 +302,7 @@ export default {
               },
             });
           } else {
-            reject(`Can't find location: ${status}`);
+            reject(new Error(`Can't find location: ${status}`));
           }
         });
       });

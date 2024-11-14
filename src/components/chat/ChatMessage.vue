@@ -9,7 +9,7 @@
       :initials="message.full_name"
       :url="getUserAvatarLink(message?.full_name ?? '')"
       data-testid="testAvatarIcon"
-      size="xsmall"
+      :custom-size="{ width: '40px', height: '40px' }"
       inner-classes="shadow"
     />
     <div class="relative flex justify-between w-full">
@@ -22,6 +22,7 @@
               :name-class="'text-h3 font-h3 text-crisiscleanup-dark-500 name-tooltip'"
               :user="message.created_by"
               data-testid="testCreatedByTooltip"
+              :user-object="userObject"
             />
           </div>
           <div class="text-gray-500 text-sm">
@@ -32,7 +33,9 @@
             {{ formatDateString(message.created_at, 'h:mm A') }}
           </div>
         </div>
-        <div class="text-gray-700 mt-1 w-11/12">{{ message.content }}</div>
+        <div class="text-gray-700 mt-1 w-11/12">
+          <span v-html="message.content"></span>
+        </div>
       </div>
       <!-- Existing message content -->
       <div
@@ -131,6 +134,7 @@ import BaseButton from '@/components/BaseButton.vue';
 import Avatar from '@/components/Avatar.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import { getUserAvatarLink } from '@/utils/urls';
+import { DbService, USER_DATABASE } from '@/services/db.service';
 
 export default defineComponent({
   name: 'ChatMessage',
@@ -150,6 +154,7 @@ export default defineComponent({
     const replyContent = ref('');
     const showReplies = ref(false);
     const showReplyBox = ref(false);
+    const userObject = ref(null);
 
     const getUserInitials = (id: number) => {
       const user = User.find(id);
@@ -168,6 +173,13 @@ export default defineComponent({
       replyContent.value = '';
     };
 
+    onMounted(async () => {
+      userObject.value = await DbService.getItem(
+        `user_${props.message.created_by}`,
+        USER_DATABASE,
+      );
+    });
+
     return {
       getUserAvatarLink,
       showActions,
@@ -179,6 +191,7 @@ export default defineComponent({
       showReplyBox,
       isToday,
       replyContent,
+      userObject,
     };
   },
 });

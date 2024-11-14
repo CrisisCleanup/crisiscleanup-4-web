@@ -2,8 +2,9 @@ import { openDB } from 'idb';
 
 const WORKSITES_DATABASE = 'worksites';
 const WORKSITE_IMAGES_DATABASE = 'worksite_images';
+const USER_DATABASE = 'user';
 
-const dbPromise = openDB('crisiscleanup', 6, {
+const dbPromise = openDB('crisiscleanup', 7, {
   upgrade(db, oldVersion) {
     if (oldVersion > 0) {
       try {
@@ -16,10 +17,16 @@ const dbPromise = openDB('crisiscleanup', 6, {
       } catch {
         // Ignore
       }
+      try {
+        db.deleteObjectStore(USER_DATABASE);
+      } catch {
+        // Ignore
+      }
     }
 
     db.createObjectStore(WORKSITES_DATABASE);
     db.createObjectStore(WORKSITE_IMAGES_DATABASE);
+    db.createObjectStore(USER_DATABASE);
   },
 });
 
@@ -47,4 +54,9 @@ const DbService = {
   },
 };
 
-export { DbService, WORKSITES_DATABASE, WORKSITE_IMAGES_DATABASE };
+export {
+  DbService,
+  WORKSITES_DATABASE,
+  WORKSITE_IMAGES_DATABASE,
+  USER_DATABASE,
+};

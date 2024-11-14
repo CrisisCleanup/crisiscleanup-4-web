@@ -76,6 +76,7 @@
             size="small"
             class="px-2 py-1 mx-2 bg-crisiscleanup-green-700 text-white"
             :text="$t('actions.resolve')"
+            :alt="$t('actions.resolve')"
             :action="() => resolveBug(slotProps.item.id)"
           />
         </div>

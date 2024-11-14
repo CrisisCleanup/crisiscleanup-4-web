@@ -4,7 +4,6 @@ const Login = () => import('./Login.vue');
 const RequestAccess = () => import('@/pages/home/RequestAccess.vue');
 const About = () => import('@/pages/home/About.vue');
 const Training = () => import('@/pages/home/Training.vue');
-const Survivor = () => import('@/pages/home/Survivor.vue');
 const Map = () => import('@/pages/home/Map.vue');
 const RequestPasswordReset = () =>
   import('@/pages/home/RequestPasswordReset.vue');
@@ -45,12 +44,6 @@ export default [
     path: '/training',
     component: Training,
     name: 'nav.training',
-    meta: { layout: 'unauthenticated', noAuth: true },
-  },
-  {
-    path: '/survivor',
-    component: Survivor,
-    name: 'nav.survivor',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {

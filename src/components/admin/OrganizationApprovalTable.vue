@@ -1,19 +1,22 @@
 <template>
-  <Table
+  <AjaxTable
     :columns="columns"
-    :data="organizations"
+    :query="query"
     :body-style="{ height: '300px' }"
-    :pagination="meta.pagination"
-    :loading="loading"
+    :url="url"
+    enable-search
+    :pagination="{
+      pageSize: 100,
+    }"
     @change="$emit('change', $event)"
     @row-click="showContacts"
   >
     <template #statuses="slotProps">
-      <div class="w-full flex items-center text-primary-dark">
+      <div class="w-full flex items-center">
         <font-awesome-icon
           v-if="slotProps.item.profile_completed"
           :title="$t('adminOrganization.profile_completed')"
-          class="mx-1"
+          class="mx-1 text-primary-dark"
           size="lg"
           icon="check-circle"
         />
@@ -35,14 +38,16 @@
         >
       </div>
     </template>
+
     <template #incidents="slotProps">
       <div
-        v-if="slotProps.item.incidents.length > 0"
+        v-if="slotProps.item.incidents && slotProps.item.incidents.length > 0"
         class="w-full flex items-center"
       >
         {{ getIncidentName(slotProps.item.incidents[0]) }}
       </div>
     </template>
+
     <template #actions="slotProps">
       <div class="flex mr-2 justify-end w-full items-center">
         <ccu-icon
@@ -105,6 +110,37 @@
             }
           "
         />
+        <base-button
+          data-testid="testNotifyButton"
+          :text="$t('actions.notify')"
+          :alt="$t('adminDashboard.notify_content')"
+          variant="outline"
+          size="small"
+          class="mx-1"
+          :action="
+            () => {
+              notifyOrganization(slotProps.item.id);
+            }
+          "
+        />
+        <base-button
+          v-if="
+            currentUser &&
+            currentUser.isAdmin &&
+            (slotProps.item.approved_by || slotProps.item.rejected_by)
+          "
+          data-testid="testClearApprovalButton"
+          :text="$t('actions.undo')"
+          :alt="$t('actions.undo')"
+          variant="outline"
+          size="small"
+          class="mx-1"
+          :action="
+            () => {
+              clearApproval(slotProps.item.id);
+            }
+          "
+        />
         <base-link
           v-if="currentUser && currentUser.isAdmin"
           data-testid="testOrganizationLink"
@@ -115,40 +151,40 @@
         >
       </div>
     </template>
-  </Table>
+  </AjaxTable>
 </template>
 
 <script lang="ts">
-import { useI18n } from 'vue-i18n';
 import axios from 'axios';
-import moment from 'moment/moment';
-import Table from '../Table.vue';
-import Organization from '../../models/Organization';
-import Incident from '../../models/Incident';
-import useCurrentUser from '@/hooks/useCurrentUser';
+import { useI18n } from 'vue-i18n';
+import moment from 'moment';
+import { defineComponent } from 'vue';
+import AjaxTable from '@/components/AjaxTable.vue';
 import useDialogs from '@/hooks/useDialogs';
+import Organization from '@/models/Organization';
+import Incident from '@/models/Incident';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { useCurrentIncident } from '@/hooks';
+import { getErrorMessage } from '@/utils/errors';
+import { useToast } from 'vue-toastification';
 
 export default defineComponent({
   name: 'OrganizationApprovalTable',
-  components: { Table },
+  components: { AjaxTable },
   props: {
-    organizations: {
-      type: Array,
-      default: () => [],
-    },
-    meta: {
+    query: {
       type: Object,
-      default() {
-        return {};
-      },
+      default: () => ({}),
     },
-    loading: Boolean,
   },
   emits: ['reload'],
   setup(props, { emit }) {
     const { t } = useI18n();
     const { currentUser } = useCurrentUser();
+    const { currentIncidentId } = useCurrentIncident();
     const { confirm, organizationApproval } = useDialogs();
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/organizations`;
+    const $toasted = useToast();
 
     async function getOrganizationContacts(organizationId: string) {
       const response = await axios.get(
@@ -174,7 +210,6 @@ export default defineComponent({
           <div>${contact.title ?? ''}</div>
           <div>${contact.email}</div>
           <div>${contact.mobile}</div>
-          </p>
         `,
       });
     }
@@ -205,13 +240,33 @@ export default defineComponent({
       }
     }
 
+    async function clearApproval(organizationId: string) {
+      await Organization.api().clearApproval(organizationId);
+      emit('reload');
+    }
+
+    async function notifyOrganization(organizationId: string) {
+      try {
+        await Organization.api().notify(
+          organizationId,
+          currentIncidentId.value,
+        );
+        $toasted.success(t('adminOrganization.notification_sent'));
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
+    }
+
     return {
       currentUser,
       getIncidentName,
       showContacts,
       approveOrganization,
       rejectOrganization,
+      clearApproval,
+      notifyOrganization,
       moment,
+      url,
       columns: [
         {
           title: t('ID'),

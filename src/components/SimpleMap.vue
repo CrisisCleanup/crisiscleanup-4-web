@@ -1,17 +1,83 @@
+<script lang="ts" setup>
+import WorksiteLegend from '@/components/WorksiteLegend.vue';
+import MdiChevronUp from '~icons/mdi/chevron-up';
+import MdiChevronDown from '~icons/mdi/chevron-down';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { getErrorMessage } from '@/utils/errors';
+
+export interface SimpleMapProps {
+  mapLoading?: boolean;
+  zoomButtonsClass?: string;
+  showZoomButtons?: boolean;
+  showLegend?: boolean;
+  removeLegend?: boolean;
+  availableWorkTypes?: Record<string, unknown>[];
+  showMapLayerToggle?: boolean;
+}
+
+export interface SimpleMapEmits {
+  (event: 'onZoomIn'): void;
+  (event: 'onZoomOut'): void;
+  (event: 'onZoomInteractive'): void;
+  (event: 'onZoomIncidentCenter'): void;
+  (event: 'onToggleMapType'): void;
+}
+
+const props = withDefaults(defineProps<SimpleMapProps>(), {
+  zoomButtonsClass: '',
+  availableWorkTypes: () => [],
+});
+
+const emit = defineEmits<SimpleMapEmits>();
+
+const { t } = useI18n();
+const { currentUser, userStates, updateUserStates } = useCurrentUser();
+const showingLegend = ref(userStates.value?.showingLegend ?? true);
+const legendRef = ref<HTMLElement | null>(null);
+const mapRef = ref<HTMLElement | null>(null);
+
+function toggleLegend(status: boolean) {
+  showingLegend.value = status;
+  updateUserStates({ showingLegend: status }, {}).catch(getErrorMessage);
+}
+
+function handleAutoCollapseLegend() {
+  if (legendRef.value && mapRef.value) {
+    const legendRect = legendRef.value.getBoundingClientRect();
+    const mapRect = mapRef.value.getBoundingClientRect();
+    if (mapRect.top > legendRect.top) {
+      showingLegend.value = false;
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleAutoCollapseLegend);
+  handleAutoCollapseLegend();
+});
+
+watch(showingLegend, async (newValue) => {
+  await updateUserStates({ showingLegend: newValue }, {});
+});
+</script>
+
 <template>
-  <div id="map" ref="map" class="absolute top-0 left-0 right-0 bottom-0">
+  <div
+    id="map"
+    ref="mapRef"
+    class="absolute top-0 left-0 right-0 bottom-0 z-50"
+  >
     <div
-      v-if="mapLoading"
-      style="z-index: 1001"
-      class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+      v-if="props.mapLoading"
+      class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls"
     >
       <spinner show-quote />
     </div>
     <div
-      v-if="showZoomButtons"
-      class="flex flex-col absolute zoom-control-container"
-      style="z-index: 1001; top: 10px; left: 10px"
-      :class="zoomButtonsClass"
+      v-if="props.showZoomButtons"
+      class="flex flex-col absolute zoom-control-container z-map-controls"
+      style="top: 10px; left: 10px"
+      :class="props.zoomButtonsClass"
     >
       <div class="zoom-control flex flex-col mb-5">
         <base-button
@@ -24,7 +90,7 @@
           :alt="$t('worksiteMap.zoom_in')"
           :action="
             () => {
-              $emit('onZoomIn');
+              emit('onZoomIn');
             }
           "
           class="my-2 w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
@@ -39,7 +105,7 @@
           :alt="$t('worksiteMap.zoom_out')"
           :action="
             () => {
-              $emit('onZoomOut');
+              emit('onZoomOut');
             }
           "
           class="w-12 h-12 border border-crisiscleanup-dark-100 bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
@@ -48,7 +114,6 @@
       <base-button
         v-tooltip="{
           content: $t('worksiteMap.zoom_to_make_interactive'),
-          // show: showInteractivePopover,
           triggers: ['hover'],
           popperClass: 'interactive-tooltip',
           placement: 'right-start',
@@ -61,7 +126,7 @@
         ccu-event="user_ui-zoom-details"
         :action="
           () => {
-            $emit('onZoomInteractive');
+            emit('onZoomInteractive');
           }
         "
         icon="tree"
@@ -71,7 +136,6 @@
       <base-button
         v-tooltip="{
           content: $t('worksiteMap.zoom_to_incident'),
-          // show: showInteractivePopover,
           triggers: ['hover'],
           popperClass: 'interactive-tooltip',
           placement: 'right-start',
@@ -86,46 +150,81 @@
         icon-size="lg"
         :action="
           () => {
-            $emit('onZoomIncidentCenter');
+            emit('onZoomIncidentCenter');
           }
         "
         class="w-12 h-12 border border-crisiscleanup-dark-100 my-1 bg-white shadow-xl text-crisiscleanup-dark-400"
       />
+      <base-button
+        v-if="props.showMapLayerToggle"
+        text=""
+        data-testid="testToggleMapTypeButton"
+        icon="map"
+        icon-size="xs"
+        :title="$t('worksiteMap.toggle_map_type')"
+        :alt="$t('worksiteMap.toggle_map_type')"
+        :action="
+          () => {
+            emit('onToggleMapType');
+          }
+        "
+        class="w-8 h-8 border-crisiscleanup-dark-100 border-t border-l border-r border-b bg-white shadow-xl text-xl text-crisiscleanup-dark-400 mt-4"
+      />
     </div>
-    <WorksiteLegend
-      v-if="showZoomButtons || showLegend"
-      :key="availableWorkTypes"
-      class="hidden md:block"
-      data-testid="testShowLegendDiv"
-      :available-work-types="availableWorkTypes"
-    />
+
+    <!-- TODO: Extract to Expandable component -->
+    <div
+      v-if="(props.showZoomButtons && !props.removeLegend) || props.showLegend"
+      ref="legendRef"
+      class="worksite-legend pb-6 bg-white border-2 border-crisiscleanup-dark-red bg-opacity-80"
+    >
+      <div
+        v-if="showingLegend"
+        data-testid="testShowingLegendDiv"
+        class="flex flex-col"
+        @click="toggleLegend(false)"
+      >
+        <div class="expandable-header">
+          <div class="text-base font-bold">
+            {{ $t('worksiteMap.legend') }}
+          </div>
+          <MdiChevronDown
+            class="text-lg"
+            data-testid="testHideLegendIcon"
+            :title="$t('worksiteMap.hide_legend')"
+          />
+        </div>
+        <WorksiteLegend
+          :key="props.availableWorkTypes"
+          class="px-2"
+          :available-work-types="props.availableWorkTypes"
+        />
+      </div>
+      <div
+        v-else
+        data-testid="testHiddenLegendDiv"
+        class="expandable-header"
+        @click="toggleLegend(true)"
+      >
+        <div class="text-base font-bold">
+          {{ $t('worksiteMap.legend') }}
+        </div>
+        <MdiChevronUp
+          class="text-lg"
+          data-testid="testShowLegendIcon"
+          :title="$t('worksiteMap.show_legend')"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-import WorksiteLegend from './WorksiteLegend.vue';
+<style lang="postcss" scoped>
+.worksite-legend {
+  @apply hidden md:block rounded-t-lg absolute bottom-0 left-0 w-72 z-map-controls;
+}
 
-export default defineComponent({
-  name: 'SimpleMap',
-  components: { WorksiteLegend },
-  props: {
-    mapLoading: {
-      type: Boolean,
-    },
-    zoomButtonsClass: {
-      type: String,
-      default: '',
-    },
-    showZoomButtons: {
-      type: Boolean,
-    },
-    showLegend: {
-      type: Boolean,
-    },
-    availableWorkTypes: {
-      type: Object,
-      default: () => ({}),
-    },
-  },
-});
-</script>
+.expandable-header {
+  @apply p-2 cursor-pointer flex items-center justify-between;
+}
+</style>

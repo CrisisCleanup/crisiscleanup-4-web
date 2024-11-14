@@ -38,6 +38,16 @@ test.describe('PhonePage', () => {
     'testPhoneComponentLeaderboardButton',
     'testPhoneComponentResetButton',
   ];
+  const phoneOverlayActionsTestIds = [
+    'testPhoneOverlay_callHistory',
+    'testPhoneOverlay_manualDialer',
+    'testPhoneOverlay_leaderboard',
+    'testPhoneOverlay_zoom',
+    'testPhoneOverlay_cms',
+    'testPhoneOverlay_generalStats',
+    'testPhoneOverlay_chat',
+    'testPhoneOverlay_reportBug',
+  ];
   const worksiteFormTestIds = [
     // intake form
     'testIntakeFormDiv',
@@ -51,10 +61,10 @@ test.describe('PhonePage', () => {
     'testAutoContactFrequencySelect',
     'testWorksiteSearchInputInput',
     'testWhat3WordsTextInput',
-    'testUseMyLocationButton',
+    // 'testUseMyLocationButton', // We hide this on phone page
     'testToggleSelectOnMapButton',
     'testSaveNoteInput',
-    'testAddNoteButton',
+    // 'testAddNoteButton', // Note field is on by default so this btn is hidden
     'testAddressProblemsCheckbox',
     'testIsHighPriorityCheckbox',
     'testMemberOfMyOrgCheckbox',
@@ -86,7 +96,7 @@ test.describe('PhonePage', () => {
       const dataTestIds = [
         ...utilityBarTestIds,
         ...mapZoomControlsTestIds,
-        ...phoneSystemActionsTestIds,
+        ...phoneOverlayActionsTestIds,
         'testNewCaseIcon',
         ...worksiteFormTestIds,
       ];

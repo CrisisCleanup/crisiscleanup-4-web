@@ -1,15 +1,20 @@
 <template>
   <div
+    v-if="user"
     class="max-w-sm mx-auto bg-white flex flex-col items-center space-y-4 border rounded-md"
   >
     <div class="flex flex-col items-center p-3">
       <img
         class="h-32 w-32 rounded-full my-5"
         :src="user.profilePictureUrl"
-        alt="User photo"
+        alt="profileUser.profile_picture"
       />
       <h1 class="text-lg font-semibold">{{ user.full_name }}</h1>
-      <p class="text-gray-500">{{ user.highestRole.name_t }}</p>
+      <div class="text-gray-500 text-center">
+        <div v-for="role in user.allRoles" :key="role.id">
+          {{ $t(role.name_t) }}
+        </div>
+      </div>
     </div>
     <div class="space-y-1 text-crisiscleanup-grey-900">
       <div class="flex items-center space-x-1">
@@ -24,15 +29,15 @@
     <a
       href="/profile"
       class="text-blue-500 hover:text-blue-700 transition duration-300 ease-in-out text-lg"
-      >{{ $t('~~View Profile →') }}</a
+      >{{ $t('actions.view_profile') }}</a
     >
     <div class="border-t py-4 w-full bg-crisiscleanup-light-smoke text-center">
-      <p class="">
-        <span class="font-bold">{{ $t('~~Organization') }}</span>
+      <p class="mx-2">
+        <span class="font-bold">{{ $t('profileUser.your_organization') }}</span>
         {{ user.organization.name }}
       </p>
-      <p class="">
-        <span class="font-bold">{{ $t('~~Languages') }}</span>
+      <p class="mx-2">
+        <span class="font-bold">{{ $t('profileUser.languages') }}</span>
         {{ user.languageNames }}
       </p>
     </div>
@@ -40,11 +45,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import type User from '@/models/User';
 
-const props = defineProps<{
+defineProps<{
   user: User;
 }>();
 </script>

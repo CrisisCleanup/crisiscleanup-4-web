@@ -18,7 +18,7 @@ import {
   momentFromNow,
   capitalize,
   isValidActiveHotline,
-  getIncidentPhoneNumbers,
+  formatIncidentPhoneNumbers,
 } from '@/filters';
 import type User from '@/models/User';
 import useEmitter from '@/hooks/useEmitter';
@@ -28,6 +28,7 @@ import androidIcon from '@/assets/icons/android.svg';
 import { useToast } from 'vue-toastification';
 import type { CCUApiListResponse } from '@/models/types';
 import type Incident from '@/models/Incident';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 const mq = useMq();
 const { emitter } = useEmitter();
@@ -242,7 +243,7 @@ const getUsersRelatedToTickets = () => {
       getTicketStats();
     })
     .catch((error: Error) => {
-      console.error('Error fetching tickets:', error);
+      console.error('Error fetching Tickets:', error);
     });
 };
 
@@ -414,7 +415,7 @@ const fetchTickets = () => {
       getUsersRelatedToTickets();
     })
     .catch((error: Error) => {
-      console.error('Error fetching tickets:', error);
+      console.error('Error fetching Tickets:', error);
     });
 };
 
@@ -488,23 +489,6 @@ const isFullscreen = computed(() => {
   // Assuming md breakpoint is 768px
   return screenWidth < 768;
 });
-
-const IncidentNumbers = ref([
-  { shortName: 'TN Storms:', number: '(865) 351-0552' },
-  { shortName: 'HI Fires:', number: '(808) 451-3102' },
-  { shortName: 'Hilary:', number: '(844) 965-1386' },
-  { shortName: 'Idalia:', number: '(800) 451-1954' },
-  { shortName: 'WV Floods:', number: '(304) 606-3452' },
-]);
-const copyToClipboard = (text) => {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  document.body.append(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  textarea.remove();
-  toast.info(t('helpdesk.phone_copied_clipboard' + text));
-};
 
 onMounted(() => {
   isLoading.value = true;
@@ -749,18 +733,17 @@ onMounted(() => {
           class="title flex p-3 justify-between"
           :class="mq.mdPlus ? 'flex-row items-center' : 'flex-col'"
         >
-          <!--          <div class="px-2" v-for="item in IncidentNumbers">{{item.shortName }} <span class="text-[#2c9ffe]" @click="copyToClipboard(item.number)">{{ item.number }}</span></div>-->
           <div
             v-for="incident in incidentsWithActiveHotline"
             :key="incident.id"
             class="px-2"
           >
             {{ incident.short_name }}
-            <span
-              class="text-[#2c9ffe]"
-              @click="copyToClipboard(getIncidentPhoneNumbers(incident))"
-              >{{ getIncidentPhoneNumbers(incident) }}</span
-            >
+            <PhoneNumberDisplay
+              v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
+              :key="hotlineNumber"
+              :phone-number="hotlineNumber"
+            />
           </div>
         </div>
         <div

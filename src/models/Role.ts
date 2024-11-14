@@ -2,6 +2,8 @@ import CCUModel from '@/models/base';
 
 export default class Role extends CCUModel {
   static entity = 'roles';
+  static adminRoleId = 1;
+  static phoneAgentRoleId = 7;
 
   id!: number;
   name_t!: string;
@@ -13,6 +15,10 @@ export default class Role extends CCUModel {
   list_order!: number;
   is_public!: boolean;
   history!: any;
+
+  get isPhoneAgentRole() {
+    return this.id === Role.phoneAgentRoleId;
+  }
 
   static fields() {
     return {

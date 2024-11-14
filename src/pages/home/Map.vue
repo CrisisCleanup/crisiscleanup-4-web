@@ -12,7 +12,8 @@
         :model-value="selectedIncident"
         data-testid="testIncidentSelect"
         :options="incidents"
-        style="z-index: 10000; position: relative"
+        style="position: relative"
+        class="z-modal"
         searchable
         item-key="id"
         label="name"

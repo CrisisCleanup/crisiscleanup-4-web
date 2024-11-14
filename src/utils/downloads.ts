@@ -1,19 +1,22 @@
 import { type AxiosResponse } from 'axios';
 
-export function forceFileDownload(response: AxiosResponse) {
+export function forceFileDownload(
+  response: AxiosResponse,
+  fileName = 'unknown',
+) {
   const url = window.URL.createObjectURL(response.data);
   const link = document.createElement('a');
   link.href = url;
   const contentDisposition = response.headers['content-disposition'];
-  let fileName = 'unknown';
+  let name = fileName ?? 'unknown';
   if (contentDisposition) {
     const fileNameMatch = /filename=(.+)/.exec(contentDisposition);
     if (fileNameMatch?.length === 2) {
-      [, fileName] = fileNameMatch;
+      [, name] = fileNameMatch;
     }
   }
 
-  link.setAttribute('download', fileName);
+  link.setAttribute('download', name);
   document.body.append(link);
   link.href = url;
   link.target = '_blank';
@@ -54,19 +57,18 @@ export function exportCSVFile(
 
   const csv = convertToCSV(jsonObject);
 
-  const exportedFilename = `${fileTitle}.csv` || 'export.csv';
+  const exportedFilename = `${fileTitle ?? 'export'}.csv`;
+  downloadCSVFile(csv, exportedFilename);
+}
 
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+export function downloadCSVFile(csvContent: string, fileName: string) {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
-  if (link.download !== undefined) {
-    // Feature detection
-    // Browsers that support HTML5 download attribute
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', exportedFilename);
-    link.style.visibility = 'hidden';
-    document.body.append(link);
-    link.click();
-    link.remove();
-  }
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', fileName);
+  link.style.visibility = 'hidden';
+  document.body.append(link);
+  link.click();
+  link.remove();
 }

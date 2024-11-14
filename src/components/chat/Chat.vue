@@ -3,28 +3,110 @@
     <div class="flex sm:items-center py-1 border-b border-gray-200">
       <div class="text-lg">{{ chat.name }}</div>
     </div>
+
     <div class="flex gap-2 h-full">
       <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
-        <div class="flex flex-col">
-          <div class="text-lg mb-2">{{ $t('chat.online_now') }}</div>
-          <div class="flex flex-col space-y-1">
-            <div
-              v-for="user in onlineUsers"
-              :key="user"
-              class="flex items-center space-x-2 w-full"
-            >
-              <Avatar
-                v-if="getUser(user)"
-                :initials="getUser(user).first_name"
-                :url="getUserAvatarLink(getUser(user)?.first_name ?? '')"
-                data-testid="testAvatarIcon"
-                size="xsmall"
-                inner-classes="shadow"
-              />
-              <UserDetailsTooltip :user="user" />
+        <Accordion>
+          <AccordionItem name="Online">
+            <template #name>
+              <div>
+                <BaseText variant="h2">
+                  {{ $t('chat.online_now') }} ({{
+                    onlineUsersWithData?.length
+                  }})
+                </BaseText>
+              </div>
+            </template>
+            <div class="h-180 overflow-auto">
+              <div
+                v-for="organization in sortedOrganizations"
+                :key="organization.id"
+                class="organization-group"
+              >
+                <div
+                  class="organization-header flex items-center cursor-pointer"
+                  @click="toggleOrganization(organization.id)"
+                >
+                  <span
+                    class="arrow"
+                    :class="{ open: isOpen(organization.id) }"
+                  >
+                    <ccu-icon fa size="md" type="caret-down"></ccu-icon>
+                  </span>
+                  <span class="organization-name">
+                    {{ organization.name }} ({{ organization.users.length }})
+                  </span>
+                </div>
+                <div v-if="isOpen(organization.id)" class="users-list">
+                  <div
+                    v-for="user in organization.users"
+                    :key="user.id"
+                    class="flex items-center space-x-2 w-full"
+                  >
+                    <Avatar
+                      v-if="user"
+                      :initials="user.first_name"
+                      :url="
+                        user.profilePictureUrl
+                          ? user.profilePictureUrl
+                          : getUserAvatarLink(user.first_name)
+                      "
+                      data-testid="testAvatarIcon"
+                      :custom-size="{ width: '40px', height: '40px' }"
+                      inner-classes="shadow"
+                    />
+                    <UserDetailsTooltip :user="user.id" :user-object="user" />
+                    <div v-if="mobileOnlineUsers.includes(user.id)">
+                      <font-awesome-icon
+                        icon="mobile-screen"
+                        class="text-green-700"
+                        :title="$t('chat.using_mobile_app')"
+                        :alt="$t('chat.using_mobile_app')"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </AccordionItem>
+          <AccordionItem
+            body-classes="flex flex-col overflow-hidden max-h-144"
+            start-open
+            name="Dynamic FAQ"
+          >
+            <template #name>
+              <div class="flex flex-1">
+                <BaseText variant="h2">
+                  {{ $t('chat.spinny_the_sage') }}
+                </BaseText>
+              </div>
+            </template>
+            <div class="flex flex-col overflow-y-scroll flex-1">
+              <template
+                v-for="h in faqHistory"
+                :key="`${h.actor}:${h.content}`"
+              >
+                <template v-if="h.actor === 'user'">
+                  <ccu-icon class="pt-3 pb-1" type="help" size="large">
+                    <BaseText variant="h2">
+                      {{ h.content }}
+                    </BaseText>
+                  </ccu-icon>
+                </template>
+                <template v-else>
+                  <div class="pl-1">
+                    <MarkdownRenderer :source="h.content" />
+                  </div>
+                </template>
+              </template>
+            </div>
+            <div class="flex flex-1">
+              <BaseText class="pt-4" variant="h4">
+                {{ $t('chat.ask_a_question_ai_disclaimer') }}
+              </BaseText>
+            </div>
+          </AccordionItem>
+        </Accordion>
       </div>
       <tabs tab-details-classes="" class="flex-1">
         <tab :name="$t('chat.chat')">
@@ -38,16 +120,39 @@
               @ontouchmove="handleWheel"
             >
               <font-awesome-icon v-if="loadingMessages" icon="spinner" spin />
-              <ChatMessage
-                v-for="message in sortedMessages"
+              <template
+                v-for="(message, index) in sortedMessages"
                 :key="message.id"
-                :message="message"
-                @on-favorite="(message: any) => toggleFavorite(message, true)"
-                @on-unfavorite="
-                  (message: any) => toggleFavorite(message, false)
-                "
-                @on-reply="(content) => sendMessage(message.id, content)"
-              />
+              >
+                <!-- Date Divider -->
+                <div
+                  v-if="
+                    index === 0 ||
+                    !moment(message.created_at).isSame(
+                      sortedMessages[index - 1].created_at,
+                      'day',
+                    )
+                  "
+                  class="flex items-center justify-center relative text-center my-5 w-full"
+                >
+                  <div class="flex-grow bg-gray-300 h-px"></div>
+                  <span
+                    class="px-3 py-1 bg-white text-gray-800 border border-gray-300 rounded-full text-sm"
+                  >
+                    {{ moment(message.created_at).format('dddd, MMMM Do') }}
+                  </span>
+                  <div class="flex-grow bg-gray-300 h-px"></div>
+                </div>
+                <!-- Chat Message -->
+                <ChatMessage
+                  :message="message"
+                  @on-favorite="(message: any) => toggleFavorite(message, true)"
+                  @on-unfavorite="
+                    (message: any) => toggleFavorite(message, false)
+                  "
+                  @on-reply="(content) => sendMessage(message.id, content)"
+                />
+              </template>
             </div>
             <div
               class="border-t-2 pt-1 sm:mb-0"
@@ -151,7 +256,6 @@
 </template>
 
 <script lang="ts">
-import _, { throttle } from 'lodash';
 import {
   computed,
   nextTick,
@@ -166,17 +270,34 @@ import { useToast } from 'vue-toastification';
 import { getQueryString, getUserAvatarLink } from '../../utils/urls';
 import { getErrorMessage } from '../../utils/errors';
 import useCurrentUser from '../../hooks/useCurrentUser';
-import User from '../../models/User';
+import type User from '../../models/User';
 import { useWebSockets } from '../../hooks/useWebSockets';
 import ChatMessage from './ChatMessage.vue';
 import type { Message } from '@/models/types';
 import debounce from 'lodash/debounce';
+import throttle from 'lodash/throttle';
 import UserDetailsTooltip from '@/components/user/DetailsTooltip.vue';
 import Avatar from '@/components/Avatar.vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import _ from 'lodash';
+import { DbService, USER_DATABASE } from '@/services/db.service';
+import MarkdownRenderer from '@/components/MarkdownRender.vue';
+import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
+import { generateUUID } from '@/utils/helpers';
+import Accordion from '@/components/accordion/Accordion.vue';
+import AccordionItem from '@/components/accordion/AccordionItem.vue';
 
 export default defineComponent({
   name: 'Chat',
-  components: { Avatar, UserDetailsTooltip, ChatMessage },
+  components: {
+    FontAwesomeIcon,
+    Avatar,
+    UserDetailsTooltip,
+    ChatMessage,
+    Accordion,
+    AccordionItem,
+    MarkdownRenderer,
+  },
   props: {
     chat: {
       type: Object,
@@ -195,7 +316,8 @@ export default defineComponent({
     const messages = ref<Message[]>([]);
     const favorites = ref<Message[]>([]);
     const searchResults = ref<Message[]>([]);
-    const onlineUsers = ref<number[]>([]);
+    const allOnlineUsers = ref<number[]>([]);
+    const mobileOnlineUsers = ref<number[]>([]);
     const urgent = ref(false);
     const loadingMessages = ref(false);
     const searchLoading = ref(false);
@@ -204,30 +326,153 @@ export default defineComponent({
     const { currentUser, updateUserStates, userStates } = useCurrentUser();
     const $toasted = useToast();
 
+    const conversationId = ref(generateUUID());
+    const collectionId = computed(
+      () =>
+        collections.value?.find?.((c) => c.name === 'crisiscleanup-faq')?.uuid,
+    );
+    const { collections } = useRAGCollections();
+    const {
+      currentConversationEntries,
+      conversations,
+      fetchConversations,
+      deleteConversation,
+    } = useRAGConversations(collectionId as Ref<string>, conversationId, {
+      aiActorName: 'FAQ AI',
+    });
+    const {
+      history: faqHistory,
+      submitQuestion,
+      latestMessage,
+      isStreamingMessage,
+    } = useRAG(
+      collectionId as Ref<string>,
+      conversationId as Ref<string>,
+      currentConversationEntries,
+      { aiActorName: 'FAQ AI', showToolMessages: false },
+    );
+
     const sortedMessages = computed(() => {
       const currentMessages = [...messages.value];
       currentMessages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
       return _.uniqWith(currentMessages, _.isEqual);
     });
 
+    const expandedOrganizations = ref<{ [key: number]: boolean }>({});
+
+    const onlineUsersWithData = computed(() => {
+      return userCache.value
+        ? allOnlineUsers.value.map((id) => userCache.value[id])
+        : [];
+    });
+
+    const userCache = ref<{ [key: number]: User }>({});
+
+    let requestInProgress = false; // Add a flag to track ongoing requests
+    let pendingRequests: number[] = []; // Queue to hold subsequent requests
+
+    const getUsersById = async (ids: number[]) => {
+      // Initialize arrays to track missing IDs
+      const missingIdsFromCache = ids.filter((id) => !userCache.value[id]);
+      const missingIdsFromDb: number[] = [];
+
+      // Try to retrieve missing users from the DbService
+      for (const id of missingIdsFromCache) {
+        const user = await DbService.getItem(`user_${id}`, USER_DATABASE);
+        if (user) {
+          userCache.value[id] = user as User;
+        } else {
+          missingIdsFromDb.push(id);
+        }
+      }
+
+      // Fetch remaining missing users from the API
+      // if (missingIdsFromDb.length > 0) {
+      //   const response = await axios.get(
+      //     `${import.meta.env.VITE_APP_API_BASE_URL}/users?id__in=${missingIdsFromDb.join(
+      //       ',',
+      //     )}&limit=1000&fields=id,first_name,last_name,organization,email,mobile`,
+      //   );
+      //   const userList = response.data.results;
+      //   for (const user of userList) {
+      //     userCache.value[user.id] = user;
+      //     // Store the user in the DbService for future use
+      //     await DbService.setItem(`user_${user.id}`, user, USER_DATABASE);
+      //   }
+      // }
+
+      // Return the users in the order of the original IDs array
+      return ids.map((id) => userCache.value[id]);
+    };
+
+    const groupedByOrganization = computed(() => {
+      const grouped: { [key: number]: any } = {};
+      for (const user of onlineUsersWithData.value) {
+        if (user?.organization) {
+          const orgId = user.organization.id;
+          if (!grouped[orgId]) {
+            grouped[orgId] = {
+              id: orgId,
+              name: user.organization.name,
+              users: [],
+            };
+          }
+          grouped[orgId].users.push(user);
+        }
+      }
+      return Object.values(grouped);
+    });
+
+    const sortedOrganizations = computed(() => {
+      return [...groupedByOrganization.value]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((org) => {
+          org.users.sort((a, b) => a.last_name.localeCompare(b.last_name));
+          return org;
+        });
+    });
+
+    watch(sortedOrganizations, (sortedOrgs) => {
+      for (const org of sortedOrgs) {
+        // Automatically expand groups with 3 or fewer users
+        if (org.users.length <= 3) {
+          expandedOrganizations.value[org.id] = true;
+        }
+      }
+    });
+
+    const toggleOrganization = (orgId: number) => {
+      expandedOrganizations.value[orgId] = !expandedOrganizations.value[orgId];
+    };
+
+    const isOpen = (orgId: number) => {
+      return expandedOrganizations.value[orgId];
+    };
+
     async function searchMessages() {
-      searchLoading.value = false;
+      if (!search.value) {
+        searchResults.value = [];
+        return;
+      }
+      searchLoading.value = true;
       const parameters = {
         message_group: props.chat.id,
         limit: 30,
         search: search.value,
       } as Record<string, any>;
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      searchResults.value = response.data.results;
-      searchLoading.value = false;
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        searchResults.value = response.data.results;
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        searchLoading.value = false;
+      }
     }
 
-    function getUser(id) {
-      return User.find(id);
-    }
     const handleWheel = debounce(function () {
       if (
         messagesBox?.value?.scrollTop === 0 &&
@@ -242,35 +487,41 @@ export default defineComponent({
       loadingMessages.value = true;
       const parameters = {
         message_group: props.chat.id,
-        limit: 5,
+        limit: 50,
       } as Record<string, any>;
       if (before && messages.value.length > 0) {
         parameters.created_at__lte = before;
       }
 
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      messages.value = [...messages.value, ...response.data.results];
-      if (scroll) {
-        nextTick(() => {
-          if (messagesBox.value) {
-            messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
-          }
-        });
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        messages.value = [...messages.value, ...response.data.results];
+        if (scroll) {
+          nextTick(() => {
+            if (messagesBox.value) {
+              messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
+            }
+          });
+        }
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        loadingMessages.value = false;
       }
-
-      loadingMessages.value = false;
     }
 
     async function getFavorites() {
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_groups/${
-          props.chat.id
-        }/my_favorites`,
-      );
-      favorites.value = response.data;
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_groups/${props.chat.id}/my_favorites`,
+        );
+        favorites.value = response.data;
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
     }
 
     async function getUnreadMessagesCount() {
@@ -285,11 +536,18 @@ export default defineComponent({
       }
 
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      emit('unreadCount', response.data.count);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        emit('unreadCount', response?.data?.count || 0);
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        loadingMessages.value = false;
+      }
     }
+
     async function getUnreadUrgentMessagesCount() {
       loadingMessages.value = true;
       const parameters = {
@@ -302,18 +560,25 @@ export default defineComponent({
       }
 
       const queryString = getQueryString(parameters);
-      const response = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
-      );
-      emit('unreadUrgentCount', response.data.count);
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
+        );
+        emit('unreadUrgentCount', response?.data?.count || 0);
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      } finally {
+        loadingMessages.value = false;
+      }
     }
 
     async function sendMessage(parentId = null, content = null) {
+      submitQuestion(content || currentMessage.value);
       sendToWebsocket({
         content: content || currentMessage.value,
         is_urgent: urgent.value,
         parent_message_id: parentId,
-      });
+      } as Partial<Message>);
       currentMessage.value = '';
       urgent.value = false;
       await updateUserStates({ [props.stateKey]: moment().toISOString() }, {});
@@ -326,29 +591,59 @@ export default defineComponent({
       try {
         if (state) {
           await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${
-              message.id
-            }/favorite`,
+            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${message.id}/favorite`,
           );
           message.is_favorite = true;
         } else {
           await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${
-              message.id
-            }/unfavorite`,
+            `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages/${message.id}/unfavorite`,
           );
           message.is_favorite = false;
         }
 
         await getFavorites();
       } catch (error) {
-        await $toasted.error(getErrorMessage(error));
+        $toasted.error(getErrorMessage(error));
       }
     }
 
     function focusNewsTab() {
       emit('focusNewsTab');
     }
+
+    // Throttle the online users handler to prevent UI freezes
+    const handleOnlineUsersUpdate = throttle(async (data) => {
+      let updatedAllOnlineUsers: number[] = [];
+      let updatedMobileOnlineUsers: number[] = [];
+
+      if (Array.isArray(data)) {
+        updatedAllOnlineUsers = data as number[];
+      } else if (data.online_users) {
+        updatedAllOnlineUsers = [
+          ...new Set([
+            ...(data.online_users as number[]),
+            ...(data.online_mobile_users as number[]),
+          ]),
+        ];
+        updatedMobileOnlineUsers = data.online_mobile_users as number[];
+      } else {
+        const users = Object.keys(data)
+          .map((key) => JSON.parse(data[key]))
+          .filter(
+            (user) => moment().diff(moment(user.last_seen_at), 'minutes') < 5,
+          );
+
+        updatedAllOnlineUsers = users.map((u) => u.user_id);
+        updatedMobileOnlineUsers = users
+          .filter((u) => u.is_mobile)
+          .map((u) => u.user_id);
+      }
+
+      await getUsersById(updatedAllOnlineUsers);
+
+      allOnlineUsers.value = updatedAllOnlineUsers;
+      mobileOnlineUsers.value = updatedMobileOnlineUsers;
+    }, 10_000);
 
     onBeforeMount(() => {
       const { socket: s, send } = useWebSockets<Message>(
@@ -385,10 +680,9 @@ export default defineComponent({
       const { socket: online_users_s } = useWebSockets(
         '/ws/online_chat_users',
         'phone_stats',
-        (data) => {
-          onlineUsers.value = data;
-        },
+        handleOnlineUsersUpdate,
       );
+
       online_users_socket.value = online_users_s;
       socket.value = s;
       sendToWebsocket = send;
@@ -423,8 +717,14 @@ export default defineComponent({
       searchMessages,
       search,
       searchResults,
-      onlineUsers,
-      getUser,
+      allOnlineUsers,
+      mobileOnlineUsers,
+      onlineUsersWithData,
+      sortedOrganizations,
+      toggleOrganization,
+      isOpen,
+      moment,
+      faqHistory,
     };
   },
   methods: { getUserAvatarLink },
@@ -432,6 +732,32 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.organization-group {
+  margin-bottom: 1rem;
+}
+
+.organization-header {
+  display: flex;
+  align-items: center;
+}
+
+.organization-name {
+  margin-left: 0.5rem;
+}
+
+.arrow {
+  transition: transform 0.3s;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.users-list {
+  margin-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
 .scrollbar-w-2::-webkit-scrollbar {
   width: 0.25rem;
   height: 0.25rem;

@@ -13,6 +13,10 @@ export default class Filter {
     throw new Error(i18n.global.t('info.error_pack_function'));
   }
 
+  unpackFunction(data: Record<string, unknown>) {
+    throw new Error(i18n.global.t('info.error_unpack_function'));
+  }
+
   getCount() {
     throw new Error(i18n.global.t('info.error_get_count'));
   }
@@ -26,10 +30,10 @@ export default class Filter {
   }
 
   get count() {
-    this.getCount();
+    return this.getCount();
   }
 
   get labels() {
-    this.getFilterLabels();
+    return this.getFilterLabels();
   }
 }

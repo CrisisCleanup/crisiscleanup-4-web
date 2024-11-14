@@ -10,15 +10,16 @@
       class="my-3 flex flex-col items-center justify-center"
     >
       <div>
-        {{ $t('~~Stuck?') }}
+        {{ $t('spinner.stuck_refresh') }}
       </div>
       <base-button
         data-testid="testSpinnerResetButton"
         variant="outline"
         :action="resetStates"
         class="p-1"
+        :alt="$t('actions.reset_user_states')"
       >
-        {{ $t('~~Reset User States') }}
+        {{ $t('actions.reset_user_states') }}
       </base-button>
     </div>
   </div>
@@ -343,6 +344,64 @@ const RANDOM_QUOTES = [
   'spinner.load_so_fast_cant_read',
   'spinner.pi',
   'spinner.marvelous_magnetic_marbles',
+  'spinner.normal_person_abnormal_situation',
+  'spinner.we_got_this_together',
+  'spinner.volunteers_favorite_people',
+  'spinner.minutes_and_minutes_sleep',
+  'spinner.netflix_binge',
+  'spinner.better_than_you_feel',
+  'spinner.top_prize_muddiest_shirt',
+  'spinner.perspiration_inspiration',
+  'spinner.stand_upright_half_sentence',
+  'spinner.three_brain_cells',
+  'spinner.happy_know_it_shower',
+  'spinner.happy_know_it_nap',
+  'spinner.restoring_hope_doing_it_right',
+  'spinner.spinner_seasick',
+  'spinner.deja_vu',
+  'spinner.knick_knack_paddy_whack',
+  'spinner.hotdog_sandwich',
+  'spinner.androids_are_better',
+  'spinner.time_travel_future_tourists',
+  'spinner.phone_buzz_275_times_today',
+  'spinner.thank_you_dashing_too',
+  'spinner.look_all_those_chickens',
+  'spinner.brought_to_you_series_tubes',
+  'spinner.ccu_waging_war_on_paper',
+  'spinner.fifth_c_competition',
+  'spinner.download_app_cool',
+  'spinner.with_pickles',
+  'spinner.not_spinner_steam_roller',
+  'spinner.be_sure_drink_ovaltine',
+  'spinner.hey_sawing_here',
+  'spinner.waiting_keep_company',
+  'spinner.nobody_likes_know_it_all',
+  'spinner.scientists_biblical_prophets_growth_industry',
+  'spinner.climate_change_janitorial_staff',
+  'spinner.muckers_gonna_muck',
+  'spinner.ants_go_marching_one_by_one',
+  'spinner.one_potato_two_potatoes',
+  'spinner.one_two_buckle_my_shoe',
+  'spinner.yes_we_have_no_bananas',
+  'spinner.service_like_peeing_your_pants',
+  'spinner.two_types_of_fun',
+  'spinner.aaron_titus_h2prep_author',
+  'spinner.calm_clarity',
+  'spinner.chaotic_clutter',
+  'spinner.clear_chaos',
+  'spinner.hazardous_heaps',
+  'spinner.hurricane_havoc',
+  'spinner.coastal_communities',
+  'spinner.disaster_debris',
+  'spinner.cat_chase_tail',
+  'spinner.server_tea_party',
+  'spinner.bouncing_balloons',
+  'spinner.fidget_spinner',
+  'spinner.one_bite_doughnut',
+  'spinner.cookie_teensy_bite',
+  'spinner.hamster_dryer_socks',
+  'spinner.use_time_on_novel',
+  'spinner.dedicate_page_to_you',
 ];
 
 export default defineComponent({

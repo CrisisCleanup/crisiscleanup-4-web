@@ -4,8 +4,10 @@
     data-testid="testBadgeDiv"
     :style="{
       backgroundColor: color,
-      width: width || '10px',
-      height: height || '10px',
+      width: width || 'auto',
+      height: height || 'auto',
+      minWidth: '20px', // Minimum width for small numbers
+      padding: '0 6px', // Horizontal padding for larger numbers
     }"
   >
     <div>
@@ -38,7 +40,10 @@ export default defineComponent({
 
 <style scoped>
 .badge {
-  width: 10px;
-  height: 10px;
+  height: 20px; /* Set a fixed height for consistency */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 </style>

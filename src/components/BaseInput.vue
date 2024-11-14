@@ -11,6 +11,7 @@
     </label>
     <component
       :is="textArea ? 'textarea' : 'input'"
+      v-bind="$attrs"
       ref="input"
       :class="[inputClasses, defaultInputClasses, selector]"
       :style="[cssVars, inputStyle]"
@@ -101,6 +102,43 @@
 
 <script lang="ts">
 import { ref, computed, defineComponent } from 'vue';
+
+export interface BaseInputProps {
+  textAreaAutoResize?: boolean;
+  size?: string;
+  icon?: string;
+  faIcon?: string;
+  iconSize?: string;
+  modelValue?: any;
+  disabled?: boolean;
+  hidden?: boolean;
+  placeholder?: string;
+  pattern?: string;
+  required?: boolean;
+  tooltip?: string;
+  topLabel?: string;
+  type?: string;
+  inputStyle?: string;
+  inputClasses?: string;
+  breakGlass?: boolean;
+  readonly?: boolean;
+  selector?: string;
+  autocomplete?: string;
+  textArea?: boolean;
+  rows?: number;
+  validator?: ((value: any) => { newValue: any; valid: boolean }) | boolean;
+  width?: string;
+  height?: string;
+}
+
+export interface BaseInputEmits {
+  (event: 'update:modelValue', value: any): void;
+  (event: 'iconClicked'): void;
+  (event: 'change'): void;
+  (event: 'blur'): void;
+  (event: 'focus'): void;
+  (event: 'enter'): void;
+}
 
 export default defineComponent({
   name: 'BaseInput',
@@ -206,7 +244,14 @@ export default defineComponent({
       default: '40',
     },
   },
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'change',
+    'blur',
+    'focus',
+    'enter',
+    'iconClicked',
+  ],
 
   setup(props, context) {
     const id = ref(null);

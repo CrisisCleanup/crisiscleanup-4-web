@@ -26,6 +26,11 @@
         {{ $t('survivorContact.case_number') }}:
         {{ survivorToken.worksite.case_number }}
       </div>
+      <div
+        v-if="isSurvivorIncidentOutdated"
+        class="text-lg text-center p-2 mb-4 border border-primary-light bg-primary-light bg-opacity-25"
+        v-html="incidentOutdatedWarning"
+      ></div>
       <div class="text-lg mb-1" data-testid="testNameDiv">
         {{ survivorToken.worksite.name }}:
       </div>
@@ -239,6 +244,7 @@
           :key="JSON.stringify(survivorToken)"
           :worksite="survivorToken"
           :is-survivor-token="true"
+          :disable-image-upload="isSurvivorIncidentOutdated"
           data-testid="testUploadPhotosFile"
           @photos-changed="() => getSurvivorToken(true)"
           @image-click="showImage"
@@ -327,6 +333,7 @@
           v-if="survivorToken.notes.length > 0"
           :can-add="false"
           :worksite="survivorToken"
+          :expanded="false"
         />
 
         <textarea
@@ -393,6 +400,7 @@ import GeocoderService from '@/services/geocoder.service';
 import LocationViewer from '@/components/locations/LocationViewer.vue';
 import WorksiteImageSection from '@/components/work/WorksiteImageSection.vue';
 import WorksiteNotes from '@/components/work/WorksiteNotes.vue';
+import moment from 'moment';
 import { getWorkTypeImage, getWorkTypeName } from '@/filters';
 import { formatCmsItem } from '@/utils/helpers';
 import survivor from '@/pages/home/Survivor.vue';
@@ -431,7 +439,6 @@ export default defineComponent({
     );
 
     const sToken = computed(() => {
-      console.info('asdfsdf', route.params?.token);
       if (route.params?.token) {
         return sanitizeToken(route.params.token);
       }
@@ -448,12 +455,26 @@ export default defineComponent({
       addressSet: true,
       hideDetailedAddressFields: true,
       survivorToken: null,
+      survivorIncident: null,
       geocoderResults: [],
       faqs: [],
       workTypeHelpNeeded: new Set(),
       currentNote: '',
       getWorkTypeImage,
       formatCmsItem,
+    });
+
+    const incidentOutdatedWarning = computed(() =>
+      t('survivorContact.outdated_warning'),
+    );
+    const isSurvivorIncidentOutdated = computed(() => {
+      const startAt = state.survivorIncident?.start_at;
+      if (!startAt) {
+        return false;
+      }
+      const incidentDate = moment(startAt);
+      const sixMonthsAgo = moment().subtract(6, 'months');
+      return incidentDate.isBefore(sixMonthsAgo);
     });
 
     const worksiteAddress = computed(() => {
@@ -569,8 +590,9 @@ export default defineComponent({
           (pos) => {
             resolve(pos);
           },
-          (err) => {
-            reject(err);
+          (error) => {
+            getErrorMessage(error);
+            reject(new Error(error.message));
           },
         );
       });
@@ -583,27 +605,40 @@ export default defineComponent({
       );
     }
 
-    async function onGeocodeSelect(value) {
-      const geocode = await GeocoderService.getPlaceDetails(
-        value.description,
-        value.data.place_id,
-      );
-      const { lat, lng } = geocode.location;
-      const geocodeKeys = ['address', 'city', 'county', 'state', 'postal_code'];
-      for (const key of geocodeKeys) {
-        state.survivorToken.worksite[key] = geocode.address_components[key];
+    async function onGeocodeSelect(value: Record<string, any>) {
+      try {
+        const geocode = await GeocoderService.getPlaceDetails(
+          value.description,
+          value.data.place_id,
+        );
+        const { lat, lng } = geocode.location;
+        const geocodeKeys = [
+          'address',
+          'city',
+          'county',
+          'state',
+          'postal_code',
+        ];
+        for (const key of geocodeKeys) {
+          state.survivorToken.worksite[key] = geocode.address_components[key];
+        }
+
+        state.survivorToken.worksite.location = {
+          type: 'Point',
+          coordinates: [lng, lat],
+        };
+
+        state.hideDetailedAddressFields = true;
+        state.addressSet = true;
+
+        // this.$log.debug(geocode.location);
+        // await this.updateWorksiteFields(geocode);
+      } catch (error) {
+        console.error('Unable to geocode place', error);
+        $toasted.error(
+          `~~Unable to geocode selected place! Error: ${getErrorMessage(error)}`,
+        );
       }
-
-      state.survivorToken.worksite.location = {
-        type: 'Point',
-        coordinates: [lng, lat],
-      };
-
-      state.hideDetailedAddressFields = true;
-      state.addressSet = true;
-
-      // this.$log.debug(geocode.location);
-      // await this.updateWorksiteFields(geocode);
     }
 
     async function getSurvivorToken(filesOnly = false) {
@@ -619,9 +654,6 @@ export default defineComponent({
             },
           },
         );
-        if (result instanceof AxiosError && result.response.status === 404) {
-          $toasted.error(t('survivorContact.invalid_expired_token'));
-        }
         if (filesOnly) {
           state.survivorToken.files = result.data.files;
         } else {
@@ -632,7 +664,7 @@ export default defineComponent({
           }
         }
       } catch (error) {
-        await $toasted.error(getErrorMessage(error));
+        $toasted.error(getErrorMessage(error));
         // this.$log.debug(error);
       } finally {
         state.loading = false;
@@ -679,9 +711,23 @@ export default defineComponent({
       if (response && response.data) state.faqs = response.data.results;
     }
 
+    async function getSurvivorIncident() {
+      const incidentId = state.survivorToken?.worksite?.incident;
+      if (!incidentId) {
+        $toasted.error('info.cannot_fetch_incident');
+        return;
+      }
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${incidentId}?fields=id,name,short_name,start_at`,
+      );
+      state.survivorIncident = response.data;
+      console.info('Response', response);
+    }
+
     onMounted(async () => {
       await getFaqs();
       await getSurvivorToken();
+      await getSurvivorIncident();
     });
 
     return {
@@ -689,6 +735,8 @@ export default defineComponent({
       worksiteAddress,
       closedWorkTypes,
       openWorkTypes,
+      isSurvivorIncidentOutdated,
+      incidentOutdatedWarning,
       showImage,
       updateWorkTypesHelpNeeded,
       unlockLocationFields,
@@ -720,8 +768,7 @@ export default defineComponent({
   height: 26px !important;
 }
 .modal {
-  @apply relative;
-  z-index: 10001;
+  @apply relative z-modal;
   position: absolute;
   left: 0;
   top: 0;

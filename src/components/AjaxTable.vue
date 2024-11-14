@@ -6,7 +6,7 @@
         data-testid="testTableSearchTextInput"
         :model-value="search"
         icon="search"
-        class="w-72 mx-4"
+        class="w-72"
         :placeholder="$t('info.search_items')"
         @update:model-value="
           (value) => {
@@ -47,6 +47,7 @@ import { defineComponent, onMounted, ref, watch } from 'vue';
 import axios from 'axios';
 import { getQueryString } from '../utils/urls';
 import Table from './Table.vue';
+import useEmitter from '@/hooks/useEmitter';
 
 interface TablePagination {
   pageSize: number;
@@ -105,8 +106,14 @@ export default defineComponent({
         return { height: '300px' };
       },
     },
+    tableId: {
+      type: String,
+      default: '',
+    },
   },
   setup(props) {
+    const { emitter } = useEmitter();
+
     const defaultColumns = ref<any[]>([]);
     const data = ref<any[]>([]);
     const search = ref<string>('');
@@ -145,7 +152,7 @@ export default defineComponent({
       meta.value.pagination = {
         ...pagination,
         total: response.data.count,
-      } as any;
+      };
       meta.value.sorter = {
         ...sorter,
       };
@@ -162,6 +169,12 @@ export default defineComponent({
         throttle(getData, 1000)();
       },
     );
+
+    onBeforeMount(() => {
+      emitter.on(`refreshTable-${props.tableId}`, async () => {
+        await getData();
+      });
+    });
 
     return {
       defaultColumns,

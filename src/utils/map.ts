@@ -1,19 +1,25 @@
 import type { Sprite } from 'pixi.js';
 import {
+  Texture,
   Container,
   settings as PixiSettings,
   utils as pixiUtils,
 } from 'pixi.js';
 import * as L from 'leaflet';
 import 'leaflet-loading';
-// Import 'leaflet.gridlayer.googlemutant';
 import 'leaflet-pixi-overlay';
 import 'leaflet.heat';
 import 'leaflet/dist/leaflet.css';
 import type Worksite from '../models/Worksite';
-import { type PixiDisplayObjectWithCachedProps } from '@/utils/types/map';
+import type {
+  LayerGroup,
+  type PixiDisplayObjectWithCachedProps,
+} from '@/utils/types/map';
+import User from '@/models/User';
+import type { UserLocation } from '@/models/types';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
+const ICON_SIZE = 40;
 
 export const mapTileLayer =
   'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
@@ -440,4 +446,41 @@ export function findBezierPoints(b: any[]) {
 
 export function randomIntFromInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export function getUserLocationLayer(
+  userLocations: UserLocation[],
+  onUserSelected: (location: UserLocation) => void,
+) {
+  const userLayer = L.layerGroup() as LayerGroup & L.LayerGroup;
+  userLayer.key = 'user_location_layer';
+  const userMarkers: Record<number, L.Marker[]> = {};
+
+  for (const location of userLocations) {
+    const user = User.find(location.user_id);
+    if (!user || !user.profilePictureUrl) continue;
+
+    const createIcon = (iconSize: number) =>
+      L.icon({
+        iconUrl: user.profilePictureUrl,
+        iconSize: [iconSize, iconSize],
+        className: 'rounded-full border-2 border-black bg-white p-1',
+      });
+
+    const marker = L.marker([location.location[1], location.location[0]], {
+      icon: createIcon(ICON_SIZE),
+    });
+
+    if (!userMarkers[location.user_id]) {
+      userMarkers[location.user_id] = [];
+    }
+
+    userMarkers[location.user_id].push(marker);
+    userLayer.addLayer(marker);
+
+    marker.on('click', () => {
+      onUserSelected(location);
+    });
+  }
+  return userLayer;
 }

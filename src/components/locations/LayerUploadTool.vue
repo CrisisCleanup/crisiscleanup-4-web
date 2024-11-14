@@ -309,9 +309,6 @@ export default defineComponent({
             },
           },
         );
-        if (result instanceof AxiosError) {
-          return $toasted.error(getErrorMessage(result));
-        }
         emit('addedLayer', result.data);
         $toasted.success(t('layersVue.successful_upload'));
       } catch (error) {

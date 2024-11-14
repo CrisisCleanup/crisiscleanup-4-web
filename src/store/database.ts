@@ -20,6 +20,8 @@ import PasswordResetRequest from '../models/PasswordResetRequest';
 import UserRole from '@/models/UserRole';
 import Affiliate from '@/models/Affiliate';
 import WorkType from '@/models/WorkType';
+import Equipment from '@/models/Equipment';
+import UserEquipment from '@/models/UserEquipment';
 
 const database = new Database();
 database.register(User, {});
@@ -43,5 +45,7 @@ database.register(UserRole, {});
 database.register(Affiliate, {});
 database.register(PasswordResetRequest, {});
 database.register(EventLog, {});
+database.register(Equipment, {});
+database.register(UserEquipment, {});
 
 export default database;

@@ -14,6 +14,9 @@ import useDialogs from '@/hooks/useDialogs';
 import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
 import { useI18n } from 'vue-i18n';
+import { throttle } from 'lodash';
+import TrainingBanner from '@/components/dashboard/TrainingBanner.vue';
+import GeneralStats from '@/components/phone/GeneralStats.vue';
 
 const emit = defineEmits(['setCase']);
 const { apiGetQueueStats, languages } = useConnectFirst({
@@ -28,6 +31,7 @@ const unreadNewsCount = ref(0);
 const stats = ref({ inQueue: 0, active: 0, staffed: 0 });
 const remainingCallbacks = ref(0);
 const remainingCalldowns = ref(0);
+const search = ref('');
 async function updateCallbacks() {
   remainingCallbacks.value =
     await PhoneOutbound.api().getRemainingCallbackCount('');
@@ -47,10 +51,9 @@ const callsWaiting = computed(function () {
 const recentUsers = ref<User[]>([]);
 const persistentInvitations = ref([]);
 
-async function getRecentUsers() {
-  const oneDayAgo = moment().subtract(1, 'day').toISOString();
+async function getRecentPhoneUsers() {
   const _results = await User.api().get(
-    `/users?current_sign_in_at__gte=${oneDayAgo}&limit=10&&organization=${currentUser?.value?.organization.id}`,
+    `/users?recent_phone_users=7&limit=10&&organization=${currentUser?.value?.organization.id}&search=${search.value}`,
     { dataKey: 'results' },
   );
 
@@ -107,11 +110,9 @@ function showQRCode(persistentInvitation) {
   });
 }
 
-const requestHelp = () => {};
-
 onMounted(async () => {
   await updateCallbacks();
-  await getRecentUsers();
+  await getRecentPhoneUsers();
   await getPersistentInvitations();
   const queueStatsResponse = await apiGetQueueStats();
   stats.value = queueStatsResponse.data;
@@ -119,21 +120,22 @@ onMounted(async () => {
 </script>
 
 <template>
+  <TrainingBanner />
   <div class="flex flex-col items-center justify-center">
     <div
-      class="flex w-full p-2 items-center justify-center margin-auto bg-crisiscleanup-light-smoke my-4 max-w-6xl"
+      class="flex md:flex-row flex-col w-full p-2 items-center justify-center margin-auto bg-crisiscleanup-light-smoke my-4 max-w-6xl"
     >
       <base-button
         data-testid="testIsNotTakingCallsButton"
         variant="solid"
-        size="medium"
+        class="py-1 px-4"
         :action="
           () => {
             $router.push('/phone?start=true');
           }
         "
-        :text="$t('~~Start taking calls →')"
-        :alt="$t('~~Start taking calls →')"
+        :text="$t('phoneDashboard.go_to_calls')"
+        :alt="$t('phoneDashboard.go_to_calls')"
       ></base-button>
       <div class="flex items-center justify-between mr-3">
         <div class="flex items-start justify-start">
@@ -142,14 +144,15 @@ onMounted(async () => {
               v-if="currentUser"
               data-testid="testCurrentUserMobileContent"
               variant="bodysm"
+              class="w-max"
             >
               {{ currentUser.mobile }}
             </base-text>
           </div>
         </div>
-        <div class="py-3">
+        <div class="py-3 w-full">
           <div
-            class="flex flex-row tags items-center"
+            class="flex flex-wrap items-center"
             data-testid="testPhoneDashboardLanguagesDiv"
           >
             <div class="mx-2 text-crisiscleanup-dark-200 hidden md:block">
@@ -175,85 +178,100 @@ onMounted(async () => {
         <EditAgentModal v-if="editingAgent" @cancel="editingAgent = false" />
       </div>
     </div>
-    <div class="grid md:grid-cols-2 gap-4 max-w-6xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl w-full">
       <div>
-        <div class="text-lg font-semibold px-4">{{ $t('~~News') }}</div>
+        <div class="text-lg font-semibold px-4">
+          {{ $t('phoneDashboard.news') }}
+        </div>
         <PhoneCmsItems
-          class="p-2 h-120"
+          class="p-2 max-h-none"
           data-testid="testPhoneCmsItemsDiv"
-          style="z-index: 1002"
           @unread-count="unreadNewsCount = $event"
         ></PhoneCmsItems>
       </div>
       <div>
         <div>
           <div class="text-lg font-semibold px-4">
-            {{ $t('~~Phone Call Stats (stats delayed)') }}
+            {{ $t('phoneDashboard.stats') }}
           </div>
-          <div class="m-2">
-            <div
-              class="stats-card flex items-center justify-center flex-col mb-2"
-            >
-              <div class="text-4xl">{{ callsWaiting }}</div>
-              <div>{{ $t('~~Remaining Calls') }}</div>
-            </div>
-            <div class="flex gap-2">
-              <div class="stats-card">
-                <p>{{ $t('~~Volunteers Talking') }}</p>
-                <p>{{ stats.active || 0 }}</p>
-              </div>
-              <div class="stats-card">
-                <p>{{ $t('~~Volunteers Online') }}</p>
-                <p>{{ stats.staffed || 0 }}</p>
-              </div>
-            </div>
-          </div>
+          <GeneralStats
+            class="mx-4"
+            @on-remaining-callbacks="remainingCallbacks = $event"
+            @on-remaining-calldowns="remainingCalldowns = $event"
+          />
         </div>
         <div>
           <div class="flex items-center justify-between mt-8 px-4">
             <div class="text-lg font-semibold">
-              {{ $t('~~Invite Team Members') }}
+              {{ $t('usersVue.invite_new_user') }}
             </div>
             <base-button
               :action="showInvitationQrCode"
-              :text="$t('~~Show QR Code')"
+              :text="$t('actions.show_qr_code')"
+              :alt="$t('actions.show_qr_code')"
               icon="qrcode"
               class="text-crisiscleanup-dark-blue"
             />
           </div>
           <div>
-            {{ $t('~~Recently Active Users') }}
-            <div
-              v-for="user in recentUsers"
-              :key="user.id"
-              class="flex gap-2 mb-3 shadow-sm p-5"
-            >
-              <Avatar
-                :initials="user.first_name"
-                :url="user.profilePictureUrl"
-                class="mb-4 mr-2"
-                size="xsmall"
-              />
-              <div class="flex justify-between items-center flex-grow">
-                <div>
-                  {{ user.full_name }}
-                  <div class="opacity-50">
-                    {{ user.allRolesNames }}
-                  </div>
-                  <div class="opacity-50">
-                    {{ user.organization.name }}
-                  </div>
-                  <div class="opacity-50">
-                    {{ momentFromNow(user.current_sign_in_at) }}
+            <base-input
+              :model-value="search"
+              icon="search"
+              class="m-2"
+              :placeholder="$t('actions.search_users')"
+              @update:model-value="
+                (value) => {
+                  search = value;
+                  throttle(getRecentPhoneUsers, 1000)();
+                }
+              "
+            ></base-input>
+
+            {{ $t('phoneDashboard.recently_active_users') }}
+            <div class="max-h-156 overflow-auto">
+              <div
+                v-for="user in recentUsers"
+                :key="user.id"
+                class="flex gap-2 mb-3 shadow-sm px-4 py-2"
+              >
+                <Avatar
+                  :initials="user.first_name"
+                  :url="user.profilePictureUrl"
+                  class="mb-4 mr-2"
+                  size="xsmall"
+                />
+                <div class="flex justify-between items-center flex-grow">
+                  <div>
+                    {{ user.full_name }}
+                    <div class="text-sm">
+                      <font-awesome-icon
+                        icon="envelope"
+                        :alt="$t('actions.email')"
+                      />
+                      <a :href="`mailto:${user.email}`" class="ml-1">{{
+                        user.email
+                      }}</a>
+                    </div>
+                    <div v-if="user.mobile" class="text-sm">
+                      <font-awesome-icon
+                        icon="phone"
+                        :alt="$t('actions.call')"
+                      />
+                      <a :href="`tel:${user.mobile}`" class="ml-1">{{
+                        user.mobile
+                      }}</a>
+                    </div>
+                    <div class="opacity-50 mt-2">
+                      {{ user.allRolesNames }}
+                    </div>
+                    <div class="opacity-50">
+                      {{ user.organization.name }}
+                    </div>
+                    <div class="opacity-50">
+                      {{ momentFromNow(user.current_sign_in_at) }}
+                    </div>
                   </div>
                 </div>
-                <base-button
-                  class="p-1"
-                  size="small"
-                  :action="() => requestHelp(user)"
-                  :text="$t('~~Request Help')"
-                  variant="solid"
-                />
               </div>
             </div>
           </div>
@@ -263,4 +281,14 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.stats-card {
+  @apply bg-white rounded-lg p-4 shadow-md;
+}
+
+@media (max-width: 768px) {
+  .stats-card {
+    @apply w-full;
+  }
+}
+</style>

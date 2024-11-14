@@ -132,6 +132,7 @@ export interface CCUFileItem {
   url: string;
   full_url: string;
   blog_url: string;
+  general_file_url: string;
   large_thumbnail_url: string;
   small_thumbnail_url: string;
   filename_original: string;
@@ -165,6 +166,7 @@ export interface Ani {
   ani?: number;
   incident?: number;
   phone_number?: string;
+  end_at?: string;
 }
 
 export interface CmsItem {
@@ -174,7 +176,7 @@ export interface CmsItem {
   content: string;
   publish_at: string;
   created_by: number;
-  thumbnail_file?: { blog_url: string };
+  thumbnail_file?: CCUFileItem;
 }
 
 export type PhoneDnisResponse = CCUApiListResponse<PhoneDnisResult>;
@@ -219,3 +221,16 @@ export interface UserTransferResult {
 }
 
 export type UserTransfersResponse = CCUApiListResponse<UserTransferResult>;
+
+export interface BetaFeature {
+  id: string;
+  name: string;
+  description: string;
+  opt_in: boolean;
+}
+
+export interface UserLocation {
+  user_id: number;
+  location: [number, number];
+  timestamp: string;
+}

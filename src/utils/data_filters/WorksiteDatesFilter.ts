@@ -10,21 +10,37 @@ interface WorksiteDatesFilterPacked {
   updated_at__lt?: string;
 }
 export default class WorksiteDatesFilter extends Filter {
+  get isCreatedAtGtValid() {
+    return this.data?.created?.[0] && moment(this.data?.created?.[0]).isValid();
+  }
+
+  get isCreatedAtLtValid() {
+    return this.data?.created?.[1] && moment(this.data?.created?.[1]).isValid();
+  }
+
+  get isUpdatedAtGtValid() {
+    return this.data?.updated?.[0] && moment(this.data?.updated?.[0]).isValid();
+  }
+
+  get isUpdatedAtLtValid() {
+    return this.data?.updated?.[1] && moment(this.data?.updated?.[1]).isValid();
+  }
+
   packFunction() {
     const packed: WorksiteDatesFilterPacked = {};
-    if (this.data.created) {
+    if (this.isCreatedAtGtValid) {
       packed.created_at__gt = moment(this.data.created[0]).format('YYYY-MM-DD');
     }
 
-    if (this.data.created) {
+    if (this.isCreatedAtLtValid) {
       packed.created_at__lt = moment(this.data.created[1]).format('YYYY-MM-DD');
     }
 
-    if (this.data.updated) {
+    if (this.isUpdatedAtGtValid) {
       packed.updated_at__gt = moment(this.data.updated[0]).format('YYYY-MM-DD');
     }
 
-    if (this.data.updated) {
+    if (this.isUpdatedAtLtValid) {
       packed.updated_at__lt = moment(this.data.updated[1]).format('YYYY-MM-DD');
     }
 
@@ -42,30 +58,26 @@ export default class WorksiteDatesFilter extends Filter {
 
     return omitBy(
       {
-        created_start:
-          this.data.created && moment(this.data.created[0]).isValid()
-            ? `${i18n.global.t('worksiteFilters.from')}: ${moment(
-                this.data.created[0],
-              ).format('YYYY-MM-DD')}`
-            : null,
-        created_end:
-          this.data.created && moment(this.data.created[1]).isValid()
-            ? `${i18n.global.t('worksiteFilters.to')}: ${moment(
-                this.data.created[1],
-              ).format('YYYY-MM-DD')}`
-            : null,
-        updated_start:
-          this.data.updated && moment(this.data.updated[0]).isValid()
-            ? `${i18n.global.t('worksiteFilters.from')}: ${moment(
-                this.data.updated[0],
-              ).format('YYYY-MM-DD')}`
-            : null,
-        updated_end:
-          this.data.updated && moment(this.data.updated[1]).isValid()
-            ? `${i18n.global.t('worksiteFilters.to')}: ${moment(
-                this.data.updated[1],
-              ).format('YYYY-MM-DD')}`
-            : null,
+        created_start: this.isCreatedAtGtValid
+          ? `${i18n.global.t('worksiteFilters.from')}: ${moment(
+              this.data.created[0],
+            ).format('YYYY-MM-DD')}`
+          : null,
+        created_end: this.isCreatedAtLtValid
+          ? `${i18n.global.t('worksiteFilters.to')}: ${moment(
+              this.data.created[1],
+            ).format('YYYY-MM-DD')}`
+          : null,
+        updated_start: this.isUpdatedAtGtValid
+          ? `${i18n.global.t('worksiteFilters.from')}: ${moment(
+              this.data.updated[0],
+            ).format('YYYY-MM-DD')}`
+          : null,
+        updated_end: this.isUpdatedAtLtValid
+          ? `${i18n.global.t('worksiteFilters.to')}: ${moment(
+              this.data.updated[1],
+            ).format('YYYY-MM-DD')}`
+          : null,
       },
       isNull,
     );

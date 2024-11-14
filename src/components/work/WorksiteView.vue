@@ -3,8 +3,9 @@
     v-if="worksite"
     data-testid="testWorksiteFormContentDiv"
     class="form h-full"
+    :class="{ 'form--noheader': !hasFormHeaderContent }"
   >
-    <div class="form-header">
+    <div v-if="hasFormHeaderContent" class="form-header">
       <div class="flex p-1">
         <flag
           v-for="flag in worksite.flags"
@@ -36,19 +37,9 @@
                   class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
                   >{{ $t('formLabels.phone1') }}</label
                 >
-                <div data-testid="testPhoneDiv">{{ worksite.phone1 }}</div>
-              </div>
-              <div v-if="can && can('phone_agent')" class="flex-1">
-                <base-button
-                  v-tooltip="{ content: 'Call Number', html: true }"
-                  data-testid="testCallNumberButton"
-                  ccu-icon="phone-classic"
-                  icon-size="md"
-                  size="xxs"
-                  variant="outline"
-                  class="worksite__dialer"
-                  :alt="$t('formLabels.call_number')"
-                  :action="() => openDialerTab(worksite.phone1)"
+                <PhoneNumberDisplay
+                  :phone-number="worksite.phone1"
+                  data-testid="testPhoneDiv"
                 />
               </div>
             </div>
@@ -59,11 +50,16 @@
             class="my-1 text-xs font-bold text-crisiscleanup-grey-700 block"
             >{{ $t('formLabels.address') }}</label
           >
-          <div data-testid="testAddressDiv">{{ worksiteAddress }}</div>
+          <AddressDisplay
+            :address="worksiteAddress"
+            :latitude="worksiteLatLng.latitude"
+            :longitude="worksiteLatLng.longitude"
+          />
         </div>
         <WorksiteNotes
           :worksite="worksite"
           data-testid="testWorksiteNotesContent"
+          :expanded="false"
           @save-note="saveNote"
         />
         <div v-if="incident">
@@ -468,10 +464,16 @@ import SectionHeading from './SectionHeading.vue';
 import WorksiteReportSection from './WorksiteReportSection.vue';
 import WorksiteImageSection from './WorksiteImageSection.vue';
 import useAcl from '@/hooks/useAcl';
+import { AxiosError } from 'axios';
+import AddressDisplay from '@/components/AddressDisplay.vue';
+import { formatWorksiteAddress } from '@/utils/helpers';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 export default defineComponent({
   name: 'WorksiteView',
   components: {
+    PhoneNumberDisplay,
+    AddressDisplay,
     WorksiteNotes,
     WorksiteReportSection,
     WorksiteImageSection,
@@ -542,8 +544,11 @@ export default defineComponent({
 
     const workTypesClaimedByOrganization = computed(() => {
       if (worksite.value) {
-        return worksite.value.work_types.filter((type) =>
-          currentUser.value.organization.affiliates.includes(type.claimed_by),
+        return worksite.value.work_types.filter(
+          (type) =>
+            currentUser.value.organization.affiliates.includes(
+              type.claimed_by,
+            ) || type.claimed_by === currentUser.value.organization.id,
         );
       }
 
@@ -557,7 +562,8 @@ export default defineComponent({
             type.claimed_by &&
             !currentUser.value.organization.affiliates.includes(
               type.claimed_by,
-            ),
+            ) &&
+            type.claimed_by !== currentUser.value.organization.id,
         );
         return groupBy(list, 'claimed_by');
       }
@@ -602,18 +608,22 @@ export default defineComponent({
       return [];
     });
 
-    const worksiteAddress = computed(() => {
-      if (worksite.value) {
-        const {
-          address,
-          city,
-          state,
-          postal_code: postalCode,
-        } = worksite.value;
-        return `${address}, ${city}, ${state} ${postalCode}`;
-      }
+    const worksiteAddress = computed(() =>
+      formatWorksiteAddress(worksite.value),
+    );
+    const worksiteLatLng = computed(() => {
+      // NOTE: We store coordinates in [lng, lon] format
+      const latitude = worksite.value?.location?.coordinates?.[1];
+      const longitude = worksite.value?.location?.coordinates?.[0];
+      return {
+        latitude,
+        longitude,
+      };
+    });
 
-      return '';
+    const hasFormHeaderContent = computed(() => {
+      const wsFlags = worksite.value?.flags ?? [];
+      return wsFlags.length > 0;
     });
 
     function updateWorkTypesToClaim(value, workTypeToClaim) {
@@ -692,7 +702,7 @@ export default defineComponent({
     async function requestWorkTypes({ workTypes, reason }) {
       try {
         requestingWorkTypes.value = false;
-        await Worksite.api().requestWorksite(
+        const result = await Worksite.api().requestWorksite(
           props.worksiteId,
           workTypes,
           reason,
@@ -833,9 +843,11 @@ export default defineComponent({
       workTypesReleaseable,
       workTypesUnclaimed,
       worksiteAddress,
+      worksiteLatLng,
       currentUser,
       worksiteRequests,
       worksiteRequestWorkTypeIds,
+      hasFormHeaderContent,
       updateWorkTypesToClaim,
       isStaleCase,
       getWorksiteRequests,
@@ -861,9 +873,13 @@ export default defineComponent({
 <style scoped lang="postcss">
 .form {
   display: grid;
-  grid-template-rows: 35px 1fr 80px;
+  grid-template-rows: auto 1fr 80px;
   @supports (-webkit-touch-callout: none) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  &--noheader {
+    grid-template-rows: auto 80px;
   }
 }
 

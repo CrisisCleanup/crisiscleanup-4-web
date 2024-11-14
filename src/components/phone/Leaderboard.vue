@@ -5,7 +5,7 @@
     data-testid="testLeaderboardDiv"
     @update:dropdown="onDropdownUpdate"
   >
-    <div class="h-full overflow-y-scroll">
+    <div class="max-h-120 overflow-y-auto">
       <div
         v-for="rank in leaderboard"
         :key="rank.user"

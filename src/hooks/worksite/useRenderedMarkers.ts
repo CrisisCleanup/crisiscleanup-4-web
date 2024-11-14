@@ -1,4 +1,5 @@
 import { Sprite, Texture } from 'pixi.js';
+
 import KDBush from 'kdbush';
 import * as turf from '@turf/turf';
 import type * as L from 'leaflet';
@@ -29,7 +30,7 @@ export default (
   const textureMap: Record<string, Texture> = {};
   let workTypes: Record<string, any> = {};
   let points: KDBushPoint[] = [];
-  let kdBushIndex: any = null;
+  let kdBushIndex: KDBush;
 
   function renderMarkerSprite(marker: Sprite & Worksite, index: number) {
     const visitedWorksiteIds = store.getters['worksite/visitedWorksiteIds'];
@@ -88,10 +89,11 @@ export default (
                 ? fillColor
                 : 'white',
           );
-        let texture = textureMap[fillColor];
+        const svgTextureCacheKey = `${fillColor}_${isFilteredMarker}_${isVisitedMarker}`;
+        let texture = textureMap[svgTextureCacheKey];
         if (!texture) {
-          textureMap[fillColor] = Texture.from(svg);
-          texture = textureMap[fillColor];
+          textureMap[svgTextureCacheKey] = Texture.from(svg);
+          texture = textureMap[svgTextureCacheKey];
         }
 
         sprite.texture = texture;
@@ -157,17 +159,11 @@ export default (
       };
     });
 
-    kdBushIndex = new KDBush(
-      points,
-      function (p: KDBushPoint) {
-        return p.x;
-      },
-      function (p: KDBushPoint) {
-        return p.y;
-      },
-      64,
-      Float64Array,
-    );
+    kdBushIndex = new KDBush(points.length, 64, Float64Array);
+    for (const { x, y } of points) {
+      kdBushIndex.add(x, y);
+    }
+    kdBushIndex.finish();
   }
 
   function calcDist(a: Feature<Point>, b: Feature<Point>) {

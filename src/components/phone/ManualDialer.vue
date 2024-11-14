@@ -6,6 +6,9 @@
     <base-text class="my-2" data-testid="testManualDialHiddenCallerIdContent">
       {{ $t('phoneDashboard.manual_dial_hidden_caller_id') }}
     </base-text>
+    <base-text class="" data-testid="testManualDialerNoLateOutboundCalls">
+      {{ $t('phoneDashboard.no_late_outbound_calls') }}
+    </base-text>
     <div class="flex flex-col items-center gap-2 w-full max-w-md">
       <div class="grid grid-cols-6 gap-1">
         <base-select
@@ -25,10 +28,9 @@
             </div>
           </template>
         </base-select>
-        <base-input
+        <PhoneNumberInput
           v-model="phone"
           data-testid="testPhoneNumberTextInput"
-          type="tel"
           size="large"
           class="col-span-4 text-sm"
           :placeholder="$t('phoneDashboard.phone_number')"
@@ -44,9 +46,20 @@
         :alt="
           dialing ? $t('phoneDashboard.dialing') : $t('phoneDashboard.dial')
         "
-        :disabled="dialing || !phone"
+        :disabled="dialing || !phone || after10pmEastern"
         @click="handleDial"
       ></base-button>
+
+      <div>{{ $t('phoneDashboard.or') }}</div>
+
+      <base-button
+        variant="outline"
+        data-testid="testDialHiddenCallerIdButton"
+        class="px-5 py-2 my-3 w-full"
+        :text="$t('phoneDashboard.remove_from_queue')"
+        :alt="$t('phoneDashboard.remove_from_queue')"
+        @click="removeNumberFromQueue"
+      />
     </div>
   </div>
 </template>
@@ -56,10 +69,12 @@ import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useEmitter from '../../hooks/useEmitter';
 import BaseInput from '@/components/BaseInput.vue';
+import moment from 'moment';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 export default defineComponent({
   name: 'EnhancedManualDialer',
-  components: { BaseInput },
+  components: { PhoneNumberInput, BaseInput },
   props: {
     dialing: {
       type: Boolean,
@@ -70,6 +85,7 @@ export default defineComponent({
       default: '',
     },
   },
+  emits: ['onDial', 'onRemoveNumberFromQueue'],
   setup(props, { emit }) {
     const { t } = useI18n();
     const { emitter } = useEmitter();
@@ -78,10 +94,30 @@ export default defineComponent({
     const selectedCountryCode = ref('+1');
     const countryCodes = ref([{ code: '+1', icon: 'flag-usa' }]);
 
-    const handleDial = () => {
-      emit('onDial', `${selectedCountryCode.value}${phone.value}`);
+    const after10pmEastern = ref(false);
+
+    const updateAfter10State = () => {
+      const tenEst = moment()
+        .startOf('day')
+        .utcOffset(-4)
+        .hour(22)
+        .utcOffset(-4);
+      after10pmEastern.value = moment().isAfter(tenEst);
     };
+
+    const handleDial = () => {
+      updateAfter10State();
+      if (!after10pmEastern.value) {
+        emit('onDial', `${selectedCountryCode.value}${phone.value}`);
+      }
+    };
+
+    const removeNumberFromQueue = () => {
+      emit('onRemoveNumberFromQueue', phone.value);
+    };
+
     onMounted(() => {
+      updateAfter10State();
       if (props.phoneNumber) {
         phone.value = props.phoneNumber;
       }
@@ -91,6 +127,8 @@ export default defineComponent({
       phone,
       countryCodes,
       handleDial,
+      removeNumberFromQueue,
+      after10pmEastern,
     };
   },
 });

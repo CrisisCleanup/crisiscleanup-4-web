@@ -27,7 +27,7 @@ describe('BaseInput', () => {
     const wrapper = mount(BaseInput);
     const el = wrapper.find('input');
     await el.trigger('change');
-    expect(wrapper.emitted().change.length).toBe(2);
+    expect(wrapper.emitted().change.length).toBe(1);
   });
 
   it('should render correctly and match snapshot', () => {

@@ -42,6 +42,7 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line import/no-unresolved
 import { api as viewerApi } from 'v-viewer';
 import { computed } from 'vue';
 import useDialogs from '@/hooks/useDialogs';
@@ -108,12 +109,9 @@ export default defineComponent({
 .image-container:hover .image-close {
   display: flex;
 }
-.image-close {
-  display: none;
-}
+
 .modal {
-  @apply relative;
-  z-index: 10000;
+  @apply relative z-modal;
   position: absolute;
   left: 0;
   top: 0;

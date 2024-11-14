@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line import/default
 import Quill from 'quill';
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
@@ -20,6 +21,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
 import { getErrorMessage } from '../utils/errors';
+// eslint-disable-next-line import/default
 import ImageResize from 'quill-image-resize-vue';
 
 Quill.register('modules/imageResize', ImageResize);

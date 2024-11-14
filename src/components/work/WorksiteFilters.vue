@@ -1,8 +1,7 @@
 <template>
   <modal
     v-if="show"
-    modal-classes="bg-white max-w-2xl shadow"
-    modal-style="min-height: 60%"
+    modal-classes="bg-white max-w-5xl shadow min-h-2/3"
     data-testid="testFiltersModal"
   >
     <div class="flex flex-col h-full">
@@ -379,10 +378,10 @@
                   v-for="field in getFieldsForType(f.key)"
                   :key="field.field_key"
                 >
-                  <div class="border-b py-3">
+                  <div class="py-1">
                     <template v-if="field.html_type === 'select'">
                       <div class="font-bold">
-                        {{ field.label_t }}
+                        {{ $t(field.label_t) }}
                       </div>
                       <div>
                         <div>
@@ -393,28 +392,35 @@
                             :key="option.value"
                             :span="8"
                           >
-                            <base-checkbox :model-value="option.value">
-                              {{ option.name_t }}
-                            </base-checkbox>
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-                    <template v-if="field.html_type === 'multiselect'">
-                      <div class="font-bold">
-                        {{ field.label_t }}
-                      </div>
-                      <div>
-                        <div>
-                          <div
-                            v-for="option in field.values.filter((option) =>
-                              Boolean(option.value),
-                            )"
-                            :key="option.value"
-                            :span="8"
-                          >
-                            <base-checkbox :model-value="option.value">
-                              {{ option.name_t }}
+                            <base-checkbox
+                              :model-value="
+                                filters.form_data.data[field.field_key] &&
+                                filters.form_data.data[
+                                  field.field_key
+                                ].includes(option.value)
+                              "
+                              @update:model-value="
+                                (value) => {
+                                  filters.form_data.data[field.field_key] =
+                                    value
+                                      ? [
+                                          ...(filters.form_data.data[
+                                            field.field_key
+                                          ] || []),
+                                          option.value,
+                                        ]
+                                      : filters.form_data.data[
+                                          field.field_key
+                                        ].filter(
+                                          (item) => item !== option.value,
+                                        );
+                                  filters.form_data.data = {
+                                    ...filters.form_data.data,
+                                  };
+                                }
+                              "
+                            >
+                              {{ $t(option.name_t) }}
                             </base-checkbox>
                           </div>
                         </div>
@@ -422,19 +428,26 @@
                     </template>
                     <template v-if="field.html_type === 'checkbox'">
                       <div class="flex">
-                        <span class="font-bold w-1/2">
-                          {{ field.label_t }}
-                        </span>
-                        <div class="flex justify-around w-1/2">
-                          <base-checkbox>{{
-                            $t('worksiteFilters.yes')
-                          }}</base-checkbox>
-                          <base-checkbox>{{
-                            $t('worksiteFilters.no')
-                          }}</base-checkbox>
-                          <base-checkbox>{{
-                            $t('worksiteFilters.maybe')
-                          }}</base-checkbox>
+                        <div>
+                          <base-checkbox
+                            :model-value="
+                              filters.form_data.data[field.field_key]
+                            "
+                            @update:model-value="
+                              (value: Boolean) => {
+                                if (value) {
+                                  filters.form_data.data[field.field_key] =
+                                    true;
+                                } else {
+                                  delete filters.form_data.data[
+                                    field.field_key
+                                  ];
+                                }
+                              }
+                            "
+                          >
+                            {{ $t(field.label_t) }}
+                          </base-checkbox>
                         </div>
                       </div>
                     </template>
@@ -502,6 +515,73 @@
                 >
                   {{ $t('worksiteFilters.in_secondary_response_area') }}
                 </base-checkbox>
+              </div>
+              <div>
+                <div class="my-1 text-base">
+                  {{ $t('~~Search Locations') }}
+                </div>
+                <div class="grid grid-cols-12 gap-2 pr-2">
+                  <base-select
+                    class="col-span-6"
+                    :placeholder="$t('~~Select Location')"
+                    data-testid="testLocationSelect"
+                    searchable
+                    multiple
+                    :v-model="filters.locations.data.search_locations"
+                    item-key="id"
+                    label="name"
+                    :options="onLocationSearch"
+                    @update:model-value="
+                      (value) => {
+                        filters.locations.data = {
+                          ...filters.locations.data,
+                          search_locations: value,
+                        };
+                      }
+                    "
+                  >
+                    <template #option="{ option }">
+                      <div
+                        class="flex justify-between text-sm p-2 cursor-pointer w-full"
+                      >
+                        <span class="mr-1">{{ option.name }}</span>
+                        <span class="text-crisiscleanup-grey-700">{{
+                          option.location_type &&
+                          $t(option.location_type.name_t)
+                        }}</span>
+                      </div>
+                    </template>
+                  </base-select>
+                  <base-select
+                    :model-value="currentLocationType"
+                    class="col-span-5"
+                    :options="
+                      locationTypes.map((l) => {
+                        return { ...l, name_t: $t(l.name_t) };
+                      })
+                    "
+                    data-testid="testLocationTypesSelect"
+                    item-key="id"
+                    label="name_t"
+                    searchable
+                    :placeholder="$t('~~Location type for search')"
+                    @update:model-value="
+                      (type: string) => {
+                        currentLocationType = type;
+                      }
+                    "
+                  />
+                  <base-button
+                    :action="createNewLocation"
+                    class="col-span-1"
+                    icon="draw-polygon"
+                    variant="solid"
+                    data-testid="testCreateLocationButton"
+                    :title="$t('~~Draw Location on map')"
+                    :alt="$t('~~Draw Location on map')"
+                  >
+                  </base-button>
+                </div>
               </div>
               <div class="mb-2">
                 <div class="my-1 text-base" data-testid="testMyLocationsDiv">
@@ -592,6 +672,7 @@
                       }
                     "
                     :text="$t('actions.subtract')"
+                    :alt="$t('actions.subtract')"
                   />
                   <base-button
                     :class="[
@@ -623,6 +704,7 @@
                       }
                     "
                     :text="$t('actions.add')"
+                    :alt="$t('actions.add')"
                   />
                 </template>
               </div>
@@ -664,6 +746,7 @@
 import { useStore } from 'vuex';
 import { computed, onMounted, ref, watch } from 'vue';
 import Team from '@/models/Team';
+import Location from '@/models/Location';
 import WorksiteFieldsFilter from '@/utils/data_filters/WorksiteFieldsFilter';
 import WorksiteFlagsFilter from '@/utils/data_filters/WorksiteFlagsFilter';
 import FormDataFilter from '@/utils/data_filters/FormDataFilter';
@@ -680,6 +763,12 @@ import { getStatusName } from '@/filters/index';
 import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
 import moment from 'moment';
+import { getQueryString } from '@/utils/urls';
+import LocationTool from '@/components/locations/LocationTool.vue';
+import useDialogs from '@/hooks/useDialogs';
+import LocationType from '@/models/LocationType';
+import Organization from '@/models/Organization';
+import { useCurrentUser } from '@/hooks';
 
 export default defineComponent({
   name: 'WorksiteFilters',
@@ -711,6 +800,8 @@ export default defineComponent({
 
   setup(props, { emit }) {
     const store = useStore();
+    const { currentUser } = useCurrentUser();
+    const { t } = useI18n();
     const filters = ref({
       fields: new WorksiteFieldsFilter('fields', {}),
       statusGroups: new WorksiteStatusGroupFilter('statusGroups', {}),
@@ -731,6 +822,7 @@ export default defineComponent({
     const datePickerDefaultProps = reactive({
       format: 'yyyy-MM-dd',
       autoApply: true,
+      weekStart: 0,
     });
     const currentSection = ref('general');
     const expanded = ref({});
@@ -743,8 +835,9 @@ export default defineComponent({
       'flag.worksite_wrong_location',
       'flag.worksite_wrong_incident',
     ];
-
+    const locationTypes = computed(() => store.getters['enums/locationTypes']);
     const lists = ref([]);
+    const currentLocationType = ref(null);
 
     const incidentTypes = computed(() => {
       if (props.incident && props.incident.form_fields) {
@@ -1047,6 +1140,87 @@ export default defineComponent({
         };
       });
     }
+    async function onLocationSearch(value: string) {
+      const parameters = {
+        search: value,
+        limit: 10,
+        fields: 'id,name,type',
+      } as Record<string, any>;
+      if (currentLocationType.value) {
+        parameters.type = currentLocationType.value;
+      }
+
+      const queryString = getQueryString(parameters);
+      const results = await Location.api().get(`/locations?${queryString}`, {
+        dataKey: 'results',
+      });
+      return results.entities?.locations;
+    }
+
+    async function createNewLocation() {
+      const { component } = useDialogs();
+      let currentPolygon = null;
+      const classes = 'h-168 p-3';
+      const response = await component({
+        title: t('~~Select Location'),
+        component: LocationTool,
+        modalClasses: `max-w-5xl`,
+        props: {
+          class: classes,
+        },
+        listeners: {
+          changed(payload) {
+            currentPolygon = payload;
+          },
+        },
+      });
+
+      if (response !== 'cancel' && currentPolygon) {
+        let { geometry } = currentPolygon.toGeoJSON();
+        const { type, features } = currentPolygon.toGeoJSON();
+        let locationTypeKey = 'org_primary_response_area';
+
+        const locationType = LocationType.query()
+          .where('key', locationTypeKey)
+          .get()[0];
+        const location = {
+          name: `Temporary Location Filter for User: ${currentUser.value.id} ${moment().format(
+            'YYYY-MM-DD HH:mm:ss',
+          )}`,
+          type: locationType.id,
+          shared: 'hidden',
+        };
+        if (type === 'FeatureCollection') {
+          const [feature] = features;
+          geometry = feature.geometry;
+        }
+
+        switch (geometry.type) {
+          case 'Point': {
+            location.point = geometry;
+            break;
+          }
+
+          case 'Polygon': {
+            location.poly = geometry;
+            break;
+          }
+
+          case 'MultiPolygon': {
+            location.geom = geometry;
+            break;
+          }
+        }
+
+        try {
+          const response = await Location.api().post('/locations', location);
+          const locationId = response.response.data.id;
+          filters.value.locations.data[locationId] = true;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
 
     return {
       filters,
@@ -1078,6 +1252,10 @@ export default defineComponent({
       filterLabels,
       datePickerDefaultProps,
       lists,
+      onLocationSearch,
+      currentLocationType,
+      locationTypes,
+      createNewLocation,
     };
   },
 });

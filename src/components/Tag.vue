@@ -1,5 +1,5 @@
 <template>
-  <div class="tag flex items-center px-1 justify-center text-xs">
+  <div :class="classes">
     <ccu-icon
       v-if="closeable"
       data-testid="testCancelIcon"
@@ -21,13 +21,17 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    classes: {
+      type: String,
+      default:
+        'tag flex items-center px-1 justify-center text-xs border bg-white',
+    },
   },
 });
 </script>
 
 <style scoped>
 .tag {
-  @apply border bg-white;
   font-weight: lighter;
 }
 

@@ -45,7 +45,11 @@
               }
             "
           >
-            <badge class="mx-1" :color="getColorForStatus(status.status)" />
+            <ColoredCircle
+              class="mx-1 w-4 h-4"
+              :title="getStatusName(status.status)"
+              :color="getColorForStatus(status.status)"
+            />
             <div>{{ $t(status.status_name_t) }}</div>
           </div>
         </div>
@@ -59,9 +63,11 @@ import { useStore } from 'vuex';
 import { computed, ref, nextTick, onMounted } from 'vue';
 import { getColorForStatus, getStatusName, getWorkTypeImage } from '../filters';
 import useWorktypeImages from '../hooks/worksite/useWorktypeImages';
+import ColoredCircle from '@/components/ColoredCircle.vue';
 
 export default defineComponent({
   name: 'WorksiteStatusDropdown',
+  components: { ColoredCircle },
   props: {
     currentWorkType: {
       type: Object,

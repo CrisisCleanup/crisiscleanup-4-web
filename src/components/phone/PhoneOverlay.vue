@@ -1,5 +1,27 @@
 <script setup lang="ts">
 import PhoneCmsItems from '@/components/phone/PhoneCmsItems.vue';
+import { useClipboard } from '@vueuse/core';
+import BaseButton from '@/components/BaseButton.vue';
+import Leaderboard from '@/components/phone/Leaderboard.vue';
+import useConnectFirst from '@/hooks/useConnectFirst';
+import ManualDialer from '@/components/phone/ManualDialer.vue';
+import CallHistory from '@/components/phone/CallHistory.vue';
+import { formatNationalNumber } from '@/filters';
+import useEmitter from '@/hooks/useEmitter';
+import GeneralStats from '@/components/phone/GeneralStats.vue';
+import UpdateStatus from '@/components/phone/UpdateStatus.vue';
+import CurrentCall from '@/components/phone/CurrentCall.vue';
+import CcuIcon from '@/components/BaseIcon.vue';
+import Chat from '@/components/chat/Chat.vue';
+import { computed, ref } from 'vue';
+import moment from 'moment';
+import BaseText from '@/components/BaseText.vue';
+import Badge from '@/components/Badge.vue';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import PhoneOutbound from '@/models/PhoneOutbound';
+import { useToast } from 'vue-toastification';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 
 const emit = defineEmits([
   'onCompleteCall',
@@ -21,86 +43,76 @@ const expanded = ref(false);
 const sideBarExpanded = ref(true);
 const { t } = useI18n();
 const { updateUserStates } = useCurrentUser();
+const { currentUser } = useCurrentUser();
 
-const sections = [
-  {
-    view: 'callHistory',
-    text: t('phoneDashboard.last_10_calls'),
-    icon: 'phone-history',
-    alt: t('phoneDashboard.last_10_calls'),
-  },
-  {
-    view: 'manualDialer',
-    text: t('phoneDashboard.manual_dialer'),
-    icon: 'manual-dialer',
-    alt: t('phoneDashboard.manual_dialer'),
-  },
-  {
-    view: 'leaderboard',
-    text: t('phoneDashboard.volunteer_stats'),
-    icon: 'leaderboard',
-    alt: t('phoneDashboard.volunteer_stats'),
-  },
-  {
-    view: 'zoom',
-    text: t('phoneDashboard.join_zoom'),
-    icon: 'zoom',
-    alt: t('phoneDashboard.join_zoom'),
-  },
-  {
-    view: 'cms',
-    text: t('phoneDashboard.news'),
-    icon: 'news',
-    alt: t('phoneDashboard.news'),
-  },
-  {
-    view: 'generalStats',
-    text: t('phoneDashboard.stats'),
-    icon: 'stats',
-    alt: t('phoneDashboard.stats'),
-  },
-  {
-    view: 'chat',
-    text: t('chat.chat'),
-    icon: 'chat',
-    onOpen: () => {
-      updateUserStates({
-        chat_last_seen: moment().toISOString(),
-      });
-      unreadChatCount.value = 0;
-      unreadUrgentChatCount.value = 0;
+// Sections as a computed property
+const sections = computed(() => {
+  return [
+    {
+      view: 'callHistory',
+      text: t('phoneDashboard.last_10_calls'),
+      icon: 'phone-history',
+      alt: t('phoneDashboard.last_10_calls'),
     },
-  },
-  {
-    view: 'reportBug',
-    text: t('phoneDashboard.report_bug'),
-    icon: 'bug-report',
-    alt: t('phoneDashboard.report_bug'),
-  },
-];
+    {
+      view: 'manualDialer',
+      text: t('phoneDashboard.manual_dialer'),
+      icon: 'manual-dialer',
+      alt: t('phoneDashboard.manual_dialer'),
+    },
+    {
+      view: 'leaderboard',
+      text: t('phoneDashboard.volunteer_stats'),
+      icon: 'leaderboard',
+      alt: t('phoneDashboard.volunteer_stats'),
+    },
+    {
+      view: 'zoom',
+      text: t('phoneDashboard.join_zoom'),
+      icon: 'zoom',
+      alt: t('phoneDashboard.join_zoom'),
+    },
+    {
+      view: 'cms',
+      text: t('phoneDashboard.news'),
+      icon: 'news',
+      alt: t('phoneDashboard.news'),
+    },
+    {
+      view: 'generalStats',
+      text: t('phoneDashboard.stats'),
+      icon: 'stats',
+      alt: t('phoneDashboard.stats'),
+    },
+    {
+      view: 'chat',
+      text: t('chat.chat'),
+      icon: 'chat',
+      onOpen: () => {
+        updateUserStates({
+          chat_last_seen: moment().toISOString(),
+        });
+        unreadChatCount.value = 0;
+        unreadUrgentChatCount.value = 0;
+      },
+    },
+    {
+      view: 'reportBug',
+      text: t('phoneDashboard.report_bug'),
+      icon: 'bug-report',
+      alt: t('phoneDashboard.report_bug'),
+    },
+    {
+      view: 'phoneDoctor',
+      text: t('phoneDashboard.phone_doctor'),
+      icon: 'stethoscope',
+      alt: t('phoneDashboard.phone_doctor'),
+    },
+  ];
+});
 
-import { useClipboard } from '@vueuse/core';
-import BaseButton from '@/components/BaseButton.vue';
-import Leaderboard from '@/components/phone/Leaderboard.vue';
-import useConnectFirst from '@/hooks/useConnectFirst';
-import ManualDialer from '@/components/phone/ManualDialer.vue';
-import CallHistory from '@/components/phone/CallHistory.vue';
-import { formatNationalNumber } from '@/filters';
-import useEmitter from '@/hooks/useEmitter';
-import GeneralStats from '@/components/phone/GeneralStats.vue';
-import UpdateStatus from '@/components/phone/UpdateStatus.vue';
-import ActiveCall from '@/components/phone/ActiveCall.vue';
-import CurrentCall from '@/components/phone/CurrentCall.vue';
-import CcuIcon from '@/components/BaseIcon.vue';
-import Chat from '@/components/chat/Chat.vue';
-import { computed, reactive, ref } from 'vue';
-import moment from 'moment';
-import usePhoneService from '@/hooks/phone/usePhoneService';
-import BaseText from '@/components/BaseText.vue';
-import Badge from '@/components/Badge.vue';
-import useCurrentUser from '@/hooks/useCurrentUser';
-import PhoneOutbound from '@/models/PhoneOutbound';
 const { emitter } = useEmitter();
+const $toasted = useToast();
 
 const { text, copy } = useClipboard({
   source: '',
@@ -116,6 +128,8 @@ const phoneNumberToDial = ref('');
 const endCall = () => {
   hangUp();
 };
+const currentCallStart = ref<Date | null>(null);
+const hasCallEnded = ref(false);
 
 const showCompleteCall = () => {
   showCompleteCallScreen.value = true;
@@ -128,6 +142,7 @@ const completeCall = (payload) => {
   showCompleteCallScreen.value = false;
   expanded.value = false;
   currentView.value = '';
+  hasCallEnded.value = false;
 };
 
 const onCancelCompleteCall = () => {
@@ -162,6 +177,19 @@ watch(
   (newValue) => {
     if (newValue) {
       currentView.value = '';
+      expanded.value = true;
+    }
+  },
+);
+
+watch(
+  () => connectFirst.isOnCall.value,
+  (newValue) => {
+    if (newValue) {
+      currentCallStart.value = new Date();
+    } else {
+      currentCallStart.value = null;
+      hasCallEnded.value = true;
     }
   },
 );
@@ -176,17 +204,13 @@ function pad(number) {
 
 // Define a function to update the elapsed time
 const updateElapsedTime = () => {
-  if (!isOnCall.value || !call.value) {
+  if (!isOnCall.value || !call.value || !currentCallStart.value) {
     return;
   }
 
-  // Remove the 'Z' to prevent automatic conversion to UTC and parse as local time
-  const localTimeStr = call.value.call_at.slice(0, -1);
-  const callAtLocal = new Date(localTimeStr);
-
   // Calculate the difference in milliseconds
   const nowLocal = new Date();
-  const diff = nowLocal - callAtLocal;
+  const diff = nowLocal - currentCallStart.value;
 
   // Convert milliseconds into hours, minutes, and seconds
   const diffSeconds = Math.floor(diff / 1000);
@@ -213,6 +237,14 @@ const callsWaiting = computed(function () {
   );
 });
 
+const reset = async () => {
+  await resetPhoneSystem();
+  await updateCallbacks();
+  currentView.value = '';
+  expanded.value = false;
+  $toasted.success(t('phoneDashboard.reset_phone_system_success'));
+};
+
 onMounted(() => {
   // Immediately update once in case component mounts after call has started
   updateElapsedTime();
@@ -226,7 +258,25 @@ onMounted(() => {
     const { phone_number } = payload;
     setManualOutbound(phone_number);
   });
+
+  emitter.on(
+    'phone_overlay:collapse_details',
+    (payload: Record<string, any>) => {
+      expanded.value = false;
+    },
+  );
 });
+
+const viewToTitleMap = {
+  callHistory: t('phoneDashboard.last_10_calls'),
+  manualDialer: t('phoneDashboard.manual_dialer'),
+  leaderboard: t('phoneDashboard.volunteer_stats'),
+  zoom: t('phoneDashboard.join_zoom'),
+  cms: t('phoneDashboard.news'),
+  generalStats: t('phoneDashboard.stats'),
+  chat: t('chat.chat'),
+  reportBug: t('phoneDashboard.report_bug'),
+};
 
 onBeforeUnmount(() => {
   if (intervalId) {
@@ -238,17 +288,15 @@ const {
   isOnCall,
   caller,
   stats,
-  currentIncidentId,
   call,
-  potentialFailedCall,
-  setPotentialFailedCall,
-  setCurrentIncidentId,
   isConnecting,
   isInboundCall,
   isOutboundCall,
   callHistory,
   dialManualOutbound,
+  removeNumberFromQueue,
   hangUp,
+  resetPhoneSystem,
 } = connectFirst;
 </script>
 
@@ -261,10 +309,7 @@ const {
       'h-0': !expanded && !caller,
     }"
   >
-    <div
-      class="top-0 flex absolute right-0 left-0 bottom-0"
-      style="z-index: 4998"
-    >
+    <div class="top-0 flex absolute right-0 left-0 bottom-0 z-phone-overlay">
       <!-- Container for the expand/collapse component -->
       <div class="flex-1 h-full">
         <div
@@ -278,53 +323,68 @@ const {
           >
             <div class="flex justify-between items-center">
               <div class="flex gap-3 items-center">
-                <div v-if="isConnecting" data-testid="testIsConnectingDiv">
-                  {{ $t('phoneDashboard.connecting') }}
-                </div>
-                <div v-else-if="isOnCall" data-testid="testIsOnCallDiv">
-                  <div v-if="isInboundCall" data-testid="testIsInboundCallDiv">
-                    {{ $t('phoneDashboard.inbound_call') }}
+                <div class="flex flex-col item-center">
+                  <div v-if="isConnecting" data-testid="testIsConnectingDiv">
+                    {{ $t('phoneDashboard.connecting') }}
+                  </div>
+                  <div v-else-if="isOnCall" data-testid="testIsOnCallDiv">
+                    <div
+                      v-if="isInboundCall"
+                      data-testid="testIsInboundCallDiv"
+                    >
+                      {{ $t('phoneDashboard.inbound_call') }}
+                    </div>
+                    <div
+                      v-if="isOutboundCall"
+                      data-testid="testIsOutboundCallDiv"
+                    >
+                      {{ $t('phoneDashboard.outbound_call') }}
+                    </div>
                   </div>
                   <div
-                    v-if="isOutboundCall"
-                    data-testid="testIsOutboundCallDiv"
+                    v-else-if="hasCallEnded"
+                    data-testid="testIsCompletedDiv"
                   >
-                    {{ $t('phoneDashboard.outbound_call') }}
+                    {{ $t('phoneDashboard.call_ended') }}
                   </div>
+                  <PhoneNumberDisplay
+                    class="w-40"
+                    :phone-number="caller.dnis"
+                    type="plain"
+                  />
                 </div>
-                <div v-else data-testid="testIsCompletedDiv">
-                  {{ $t('phoneDashboard.call_ended') }}
-                </div>
-                <span class="font-bold">{{ caller.dnis }}</span>
-                <font-awesome-icon
-                  :icon="['fas', 'copy']"
-                  class="ml-3 cursor-pointer"
-                  @click="() => copy(caller.dnis)"
-                />
-                <span class="ml-3 font-light">
+
+                <span
+                  class="ml-3 font-light break-words text-xs sm:text-sm lg:text-base"
+                >
                   {{ caller.location_name }} {{ caller.state_name }}
                 </span>
+
                 <span class="ml-6 font-light">{{ formattedElapsedTime }}</span>
               </div>
-              <div class="flex items-center gap-4">
+
+              <div class="flex items-center">
                 <base-button
                   class="p-1"
                   :action="() => (expanded = !expanded)"
                   :text="$t('actions.show_details')"
+                  :alt="$t('actions.show_details')"
                   :suffix-icon="expanded ? 'chevron-up' : 'chevron-down'"
                 />
                 <base-button
                   v-if="isOnCall"
-                  class="p-1 text-black"
+                  class="p-1 text-black text-sm"
                   variant="solid"
                   :action="endCall"
                   :text="$t('actions.end_call')"
+                  :alt="$t('actions.end_call')"
                 />
                 <base-button
                   v-else
-                  class="p-1 text-black"
+                  class="p-1 text-black text-sm ml-10"
                   variant="solid"
                   :action="showCompleteCall"
+                  :alt="$t('phoneDashboard.complete_call')"
                 >
                   {{ $t('phoneDashboard.complete_call') }}
                 </base-button>
@@ -337,34 +397,40 @@ const {
               v-if="currentView"
               class="flex items-center justify-between px-3 py-[11px] border-b-4"
             >
-              <h1></h1>
-              <base-button :action="closeTab" variant="">
-                {{ $t('Close Tab') }}
+              <h1>{{ viewToTitleMap[currentView] }}</h1>
+              <base-button
+                :action="closeTab"
+                :alt="$t('phoneDashboard.close_tab')"
+              >
+                {{ $t('phoneDashboard.close_tab') }}
               </base-button>
             </div>
             <div
               class="bg-white"
               :class="!currentView && caller ? '' : 'h-full'"
             >
-              <Leaderboard
-                v-if="currentView === 'leaderboard'"
-                class="h-full"
-              />
+              <div class="bg-white">
+                <Leaderboard
+                  v-if="currentView === 'leaderboard'"
+                  class="h-full"
+                />
+              </div>
+
               <div
                 v-if="currentView === 'manualDialer'"
-                class="flex items-center justify-center h-[calc(100vh-13rem)]"
+                class="flex items-center justify-center h-[calc(100vh-13rem)] bg-white"
               >
                 <ManualDialer
-                  class="p-2"
+                  class="p-2 z-phone-component"
                   data-testid="testManualDialerDiv"
-                  style="z-index: 1002"
                   :dialing="false"
                   :phone-number="phoneNumberToDial"
                   @on-dial="dialManualOutbound"
+                  @on-remove-number-from-queue="removeNumberFromQueue"
                 ></ManualDialer>
               </div>
 
-              <zoom v-if="currentView === 'zoom'">
+              <div v-if="currentView === 'zoom'" class="bg-white">
                 <div
                   class="h-[calc(100vh-13rem)]"
                   style="
@@ -405,31 +471,33 @@ const {
                     </div>
                   </main>
                 </div>
-              </zoom>
+              </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2 h-[calc(100vh-13rem)]"
+                class="p-2 h-[calc(100vh-13rem)] z-phone-component bg-white"
                 data-testid="testPhoneCmsItemsDiv"
-                style="z-index: 1002"
                 @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
 
-              <CallHistory
-                v-if="currentView === 'callHistory'"
-                class="border-top-4"
-                :calls="callHistory"
-                :table-body-style="{ height: '30rem' }"
-                @row-click="
-                  ({ mobile }) => {
-                    setManualOutbound(mobile);
-                  }
-                "
-              ></CallHistory>
+              <div class="bg-white">
+                <CallHistory
+                  v-if="currentView === 'callHistory'"
+                  class="border-top-4"
+                  :calls="callHistory"
+                  :table-body-style="{ height: '30rem' }"
+                  @row-click="
+                    ({ phone_number }) => {
+                      setManualOutbound(phone_number);
+                    }
+                  "
+                ></CallHistory>
+              </div>
+
               <div
                 v-if="currentView === 'generalStats'"
                 class="flex items-center justify-center h-full"
               >
-                <div class="w-1/2 border rounded">
+                <div class="h-full flex flex-col items-center justify-center">
                   <GeneralStats
                     @on-remaining-callbacks="remainingCallbacks = $event"
                     @on-remaining-calldowns="remainingCalldowns = $event"
@@ -448,7 +516,7 @@ const {
               </template>
               <template v-if="currentView === 'reportBug'">
                 <div
-                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5"
+                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5 w-full bg-white"
                 >
                   <div class="flex flex-col lg:flex-row">
                     <div class="flex items-center">
@@ -518,9 +586,23 @@ const {
                       >
                         {{ $t('phoneDashboard.report_bug') }}
                       </base-button>
+
+                      <base-button
+                        :action="reset"
+                        class="text-white bg-crisiscleanup-red-200 my-2"
+                        :text="$t('phoneDashboard.reset_phone_system')"
+                        :alt="$t('phoneDashboard.reset_phone_system')"
+                        data-testid="testResetPhoneSystemButton"
+                        size="large"
+                      >
+                        {{ $t('phoneDashboard.reset_phone_system') }}
+                      </base-button>
                     </div>
                   </div>
                 </div>
+              </template>
+              <template v-if="currentView === 'phoneDoctor'">
+                <PhoneDoctor />
               </template>
             </div>
 
@@ -546,6 +628,7 @@ const {
                       class="p-1 w-full bg-white"
                       :action="() => (showCompleteCallScreen = false)"
                       :text="$t('actions.hide')"
+                      :alt="$t('actions.hide')"
                     />
                   </div>
                 </div>
@@ -570,7 +653,8 @@ const {
             <div v-if="isOnCall" class="bg-blue">
               <div
                 :class="isOnCall"
-                class="h-12 flex items-center justify-center pulse bg-crisiscleanup-green-900"
+                class="h-12 flex items-center justify-center"
+                style="background: #358816"
               >
                 <BaseText class="font-bold text-white">
                   {{ $t('phoneDashboard.current_call') }} 00:00:00
@@ -582,6 +666,7 @@ const {
               <div
                 v-for="section in sections"
                 :key="section.view"
+                :data-testid="`testPhoneOverlay_${section.view}`"
                 class="p-2 bg-white flex items-center gap-2 justify-between cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b-4"
                 :class="{
                   'border-l-4 border-l-primary-light font-bold':
@@ -633,17 +718,29 @@ const {
                     >{{ unreadNewsCount }}</badge
                   >
                 </div>
-                <div v-if="section.view === 'chat'" class="relative">
+                <div v-if="section.view === 'chat'" class="flex gap-1 relative">
                   <badge
                     v-if="unreadChatCount > 0"
-                    class="ml-2 text-black bg-primary-light text-base"
+                    class="text-black bg-primary-light text-base"
                     :class="
                       sideBarExpanded
                         ? 'relative p-3'
                         : 'absolute top-0 right-0 p-2'
                     "
-                    >{{ unreadChatCount }}</badge
                   >
+                    {{ unreadChatCount }}
+                  </badge>
+                  <badge
+                    v-if="unreadUrgentChatCount > 0"
+                    class="text-white bg-red-500 text-base"
+                    :class="
+                      sideBarExpanded
+                        ? 'relative p-3'
+                        : 'absolute top-0 right-0 p-2'
+                    "
+                  >
+                    {{ unreadUrgentChatCount }}
+                  </badge>
                 </div>
               </div>
             </div>

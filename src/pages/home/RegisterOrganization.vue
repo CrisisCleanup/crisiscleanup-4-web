@@ -3,7 +3,7 @@
     <div class="grid--main m-10">
       <div class="text-4xl">{{ $t('registerOrg.register_org') }}</div>
       <div class="text-2xl w-3/4">
-        {{ $t('registerOrg.please_create_profile') }}
+        <span v-html="$t('registerOrg.please_create_profile')"></span>
       </div>
       <form
         ref="form"
@@ -121,12 +121,11 @@
                 :placeholder="$t('registerOrg.email')"
                 required
               />
-              <base-input
+              <PhoneNumberInput
                 v-model="user.mobile"
                 data-testid="testPrimaryContactMobileTextInput"
                 class="form-field"
                 size="large"
-                :validator="validatePhoneNumber"
                 :placeholder="$t('registerOrg.cell_phone_number')"
                 required
               />
@@ -202,10 +201,12 @@ import Home from '@/layouts/Home.vue';
 import CapabilityGrid from '@/components/CapabilityGrid.vue';
 import useCapabilities from '@/hooks/useCapabilities';
 import BaseInput from '@/components/BaseInput.vue';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 export default defineComponent({
   name: 'Register',
   components: {
+    PhoneNumberInput,
     BaseInput,
     Home,
     CapabilityGrid,

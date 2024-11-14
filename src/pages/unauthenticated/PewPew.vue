@@ -128,19 +128,37 @@
             </tabs>
           </div>
           <div class="h-full col-span-5 flex flex-col">
-            <div class="h-12 grid grid-cols-10">
+            <div class="min-h-12 grid grid-cols-10">
               <div
-                class="my-2 col-span-8 flex justify-center items-center text-black font-bold ribbon-gradient"
+                class="col-span-8 flex justify-center items-center text-black font-bold ribbon-gradient"
               >
-                <div v-if="incidentList.length > 0">
-                  <div
-                    v-for="incident in incidentList"
+                <div
+                  v-if="incidentList.length > 0"
+                  class="text-[0.7rem] sm:text-sm text-center md:py-1 px-8 md:px-32"
+                >
+                  <span
+                    v-for="(incident, index) in incidentList"
                     :key="incident.id"
                     :data-testid="`testIncident${incident.id}Div`"
                   >
                     {{ incident.short_name }}:
-                    {{ getIncidentPhoneNumbers(incident) }}
-                  </div>
+                    <div class="inline-block transform scale-70">
+                      <PhoneNumberDisplay
+                        v-for="hotlineNumber in formatIncidentPhoneNumbers(
+                          incident,
+                        )"
+                        :key="hotlineNumber"
+                        type="plain"
+                        :phone-number="hotlineNumber"
+                      />
+                    </div>
+                    <span
+                      v-if="index < incidentList.length - 1"
+                      class="text-base text-primary-light"
+                    >
+                      &nbsp; | &nbsp;
+                    </span>
+                  </span>
                 </div>
                 <div v-else data-testid="testPewPewBannerDiv">
                   {{ $t('homeVue.pew_pew_banner') }}
@@ -225,14 +243,12 @@
                 <div
                   v-if="mapLoading"
                   data-testid="testMapLoadingDiv"
-                  style="z-index: 1001"
-                  class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center"
+                  class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls"
                 >
                   <spinner />
                 </div>
                 <div
-                  style="z-index: 1001"
-                  class="absolute top-0 left-0 m-2 p-2 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md"
+                  class="absolute top-0 left-0 m-2 p-2 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md z-map-controls"
                 >
                   <Slider
                     primary-color="#FECE09"
@@ -248,8 +264,7 @@
                   ></Slider>
                 </div>
                 <div
-                  style="z-index: 1001"
-                  class="absolute top-0 left-0 m-2 p-2 rounded-md mt-12 flex flex-col absolute"
+                  class="absolute top-0 left-0 m-2 p-2 rounded-md mt-12 flex flex-col z-map-controls"
                 >
                   <div class="zoom-control flex flex-col mb-5">
                     <base-button
@@ -278,8 +293,7 @@
                 </div>
                 <div
                   :key="incidentId"
-                  style="z-index: 1001"
-                  class="absolute top-0 right-0 h-48 w-auto overflow-hidden mt-3 mr-3"
+                  class="absolute top-0 right-0 h-48 w-auto overflow-hidden mt-3 mr-3 z-map-controls"
                 >
                   <transition-group
                     ref="incidentScroll"
@@ -298,8 +312,8 @@
                 </div>
                 <div
                   v-if="displayedWorkTypeSvgs.length > 0"
-                  class="absolute bottom-0 left-0 w-1/3 h-auto bg-crisiscleanup-dark-400 p-2 ml-3 bg-opacity-25"
-                  style="z-index: 1001; bottom: 25%"
+                  class="absolute bottom-0 left-0 w-1/3 h-auto bg-crisiscleanup-dark-400 p-2 ml-3 bg-opacity-25 z-map-controls"
+                  style="bottom: 25%"
                 >
                   <div
                     class="flex justify-between font-bold my-1 text-white text-sm"
@@ -356,10 +370,7 @@
                     </div>
                   </transition>
                 </div>
-                <div
-                  style="z-index: 1001"
-                  class="absolute left-0 bottom-0 right-0"
-                >
+                <div class="absolute left-0 bottom-0 right-0 z-map-controls">
                   <div class="relative">
                     <img
                       src="@/assets/cc-logo.svg"
@@ -535,7 +546,7 @@ import Slider from '@/components/Slider.vue';
 import DisasterIcon from '@/components/DisasterIcon.vue';
 import UserProfileMenu from '@/components/header/UserProfileMenu.vue';
 import {
-  getIncidentPhoneNumbers,
+  formatIncidentPhoneNumbers,
   getWorkTypeName,
   isValidActiveHotline,
 } from '@/filters';
@@ -550,10 +561,12 @@ import TotalCases from '@/components/live/TotalCases.vue';
 import PewPewNavBar from '@/components/navigation/PewPewNavBar.vue';
 import User from '@/models/User';
 import { useAuthStore } from '@/hooks';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 export default defineComponent({
   name: 'PewPew',
   components: {
+    PhoneNumberDisplay,
     PewPewNavBar,
     TotalCases,
     LightTab,
@@ -568,6 +581,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const { t } = useI18n();
     const authStore = useAuthStore();
 
     const queryFilter = ref({
@@ -859,7 +873,6 @@ export default defineComponent({
       incidents,
       isDarkMode,
       isLoggedIn,
-      getIncidentPhoneNumbers,
       incidentList,
       organizations,
       siteInfoTimerData,
@@ -871,6 +884,7 @@ export default defineComponent({
       barChartData,
       totalCasesChartData,
       mapStatistics,
+      formatIncidentPhoneNumbers,
       pauseGeneratePoints,
       resumeGeneratePoints,
       markersLength,
@@ -886,6 +900,7 @@ export default defineComponent({
       displayedWorkTypeSvgs,
       getWorkTypeName,
       logout: () => authStore.logout(),
+      $t: (text: string) => (text ? t(text) : undefined),
     };
   },
 });

@@ -7,6 +7,7 @@
         :map-loading="mapLoading"
         data-testid="testSimpleMapdiv"
         show-zoom-buttons
+        show-map-layer-toggle
         :available-work-types="availableWorkTypes"
         class="mb-16"
         zoom-buttons-class="mt-20"
@@ -14,6 +15,7 @@
         @on-zoom-out="zoomOut"
         @on-zoom-incident-center="goToIncidentCenter"
         @on-zoom-interactive="goToInteractive"
+        @on-toggle-map-type="toggleMapType"
       />
       <WorksitePhotoMap
         v-else-if="showingPhotoMap && caseImages.length > 0"
@@ -41,8 +43,7 @@
       </div>
       <span
         v-if="allWorksiteCount && !showingFeed"
-        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6"
-        style="z-index: 1002"
+        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6 z-toolbar"
       >
         <span class="bg-black rounded p-2 text-white">
           <span
@@ -59,10 +60,7 @@
           </span>
         </span>
       </span>
-      <div
-        style="z-index: 1002"
-        class="absolute top-4 right-4 flex items-center"
-      >
+      <div class="absolute top-4 right-4 flex items-center z-toolbar">
         <WorksiteActions
           v-if="currentIncidentId"
           :key="currentIncidentId"
@@ -78,9 +76,10 @@
           @toggle-heat-map="toggleHeatMap"
           @selected-existing="handleSelectedExisting"
           @toggle-search="showingSearchModal = !showingSearchModal"
+          @toggle-user-locations="toggleUserLocations"
         />
       </div>
-      <div style="z-index: 1002" class="absolute top-20 left-12 mt-2">
+      <div class="absolute top-20 left-12 mt-2 z-toolbar">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"
@@ -99,10 +98,7 @@
           "
         />
       </div>
-      <div
-        style="z-index: 1002"
-        class="fixed bottom-20 gap-2 right-4 flex flex-col"
-      >
+      <div class="fixed bottom-20 gap-2 right-4 flex flex-col z-toolbar">
         <base-button
           data-testid="testAddCaseButton"
           icon="plus"
@@ -406,7 +402,7 @@
               </span>
               <WorksiteSearchAndFilters
                 :key="currentIncidentId"
-                :current-incident="String(currentIncidentId)"
+                :current-incident="currentIncident"
                 :initial-filters="filters"
                 @selected-existing="handleSelectedExisting"
                 @updated-query="onUpdateQuery"
@@ -426,6 +422,7 @@
                 @apply-team-geo-json="applyTeamGeoJson"
                 @download-csv="downloadWorksites"
                 @toggle-heat-map="toggleHeatMap"
+                @toggle-user-locations="toggleUserLocations"
               />
             </div>
             <div
@@ -446,6 +443,28 @@
               />
             </div>
           </div>
+          <tag
+            v-if="overDueFilterLabel"
+            data-testid="testOverDueFilterLabelDiv"
+            closeable
+            class="p-1.5 my-1 w-max mx-2"
+            :style="{
+              fontSize: '0.85rem',
+            }"
+            @closed="clearQuery"
+            >{{ overDueFilterLabel }}</tag
+          >
+          <tag
+            v-if="queryFilterLabel"
+            data-testid="testQueryFilterLabelDiv"
+            closeable
+            class="p-1.5 my-1 w-max mx-2"
+            :style="{
+              fontSize: '0.85rem',
+            }"
+            @closed="clearQuery"
+            >{{ queryFilterLabel }}</tag
+          >
           <div v-if="filterLabels.length > 0" class="mx-4">
             <div class="flex gap-3">
               <span class="font-bold">{{
@@ -455,6 +474,7 @@
                 class="underline"
                 type="link"
                 :action="() => (filters = {})"
+                :alt="$t('actions.clear_all')"
               >
                 {{ $t('actions.clear_all') }}
               </base-button>
@@ -478,15 +498,6 @@
               </template>
             </div>
           </div>
-
-          <tag
-            v-if="overDueFilterLabel"
-            data-testid="testOverDueFilterLabelDiv"
-            closeable
-            class="m-1 p-1 w-max"
-            @closed="clearQuery"
-            >{{ overDueFilterLabel }}</tag
-          >
           <div
             v-if="
               !collapsedUtilityBar &&
@@ -497,7 +508,7 @@
             class="flex justify-center items-center"
           >
             <Slider
-              v-if="allWorksiteCount >= 100 && !portal.attr.hide_svi_slider"
+              v-if="allWorksiteCount >= 100 && !portal?.attr?.hide_svi_slider"
               primary-color="#dadada"
               data-testid="testSviSliderInput"
               secondary-color="white"
@@ -540,11 +551,13 @@
               :map-loading="mapLoading"
               data-testid="testSimpleMapdiv"
               show-zoom-buttons
+              show-map-layer-toggle
               :available-work-types="availableWorkTypes"
               @on-zoom-in="zoomIn"
               @on-zoom-out="zoomOut"
               @on-zoom-incident-center="goToIncidentCenter"
               @on-zoom-interactive="goToInteractive"
+              @on-toggle-map-type="toggleMapType"
             />
             <WorksitePhotoMap
               v-else-if="showingPhotoMap && caseImages.length > 0"
@@ -694,6 +707,7 @@
                 :selected-table-items="selectedTableItems"
                 model-type="worksite_worksites"
                 :title="$t('list.worksite_lists')"
+                :alt="$t('list.worksite_lists')"
                 :incident="currentIncidentId"
               />
               <base-button
@@ -794,6 +808,15 @@
               isEditing = true;
               router.push(
                 `/incident/${currentIncidentId}/work/${worksite?.id}/edit`,
+              );
+            }
+          "
+          @on-exit-edit-case="
+            () => {
+              isViewing = true;
+              isEditing = false;
+              router.push(
+                `/incident/${currentIncidentId}/work/${worksite?.id}`,
               );
             }
           "
@@ -940,15 +963,6 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  nextTick,
-  onMounted,
-  ref,
-  watch,
-} from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
@@ -966,8 +980,12 @@ import WorksiteTable from '../components/work/WorksiteTable.vue';
 import CaseHeader from '../components/work/CaseHeader.vue';
 import Worksite from '../models/Worksite';
 import CaseHistory from '../components/work/CaseHistory.vue';
-import { loadCaseImagesCached, loadCasesCached } from '../utils/worksite';
-import { averageGeolocation } from '../utils/map';
+import {
+  loadCaseImagesCached,
+  loadCasesCached,
+  loadUserLocations,
+} from '../utils/worksite';
+import { averageGeolocation, getUserLocationLayer } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import { forceFileDownload } from '../utils/downloads';
 import { getErrorMessage } from '../utils/errors';
@@ -990,8 +1008,8 @@ import Organization from '@/models/Organization';
 import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
-import { useCurrentUser } from '@/hooks';
-import type { Portal } from '@/models/types';
+import { useCurrentIncident, useCurrentUser } from '@/hooks';
+import type { Portal, UserLocation } from '@/models/types';
 import WorksiteFeed from '@/components/WorksiteFeed.vue';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
 import useAcl from '@/hooks/useAcl';
@@ -999,6 +1017,9 @@ import ListDropdown from '@/pages/lists/ListDropdown.vue';
 import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
+import { momentFromNow } from '@/filters';
+import User from '@/models/User';
+import { string } from 'zod';
 
 export default defineComponent({
   name: 'Work',
@@ -1034,15 +1055,10 @@ export default defineComponent({
     const mq = useMq();
     const { $can } = useAcl();
 
-    const currentIncidentId = computed(
-      () => store.getters['incident/currentIncidentId'],
-    );
+    const { currentIncidentId, currentIncident } = useCurrentIncident();
     const portal = store.getters['enums/portal'] as Portal;
 
-    const incidentName = computed(() => {
-      const { name } = Incident.find(currentIncidentId.value) as Incident;
-      return name;
-    });
+    const incidentName = computed(() => currentIncident.name);
 
     const { currentUser, updateUserStates } = useCurrentUser();
     const { recentWorksites } = useRecentWorksites();
@@ -1085,6 +1101,7 @@ export default defineComponent({
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
     const caseImages = ref<Record<string, any>[]>([]);
+    const userLocations = ref<Record<string, any>[]>([]);
     const mapLoading = ref<boolean>(false);
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
@@ -1188,6 +1205,32 @@ export default defineComponent({
       );
     });
 
+    const hasQueryFilter = computed(() => {
+      return (
+        'work_type__claimed_by' in route.query ||
+        'work_type__claimed_by__isnull' in route.query ||
+        'work_type__status__primary_state' in route.query
+      );
+    });
+
+    const queryFilterLabel = computed(() => {
+      if (hasQueryFilter.value) {
+        if ('work_type__claimed_by' in route.query) {
+          return `${getOrganizationName(
+            route.query.work_type__claimed_by as string,
+          )} ${t('casesVue.claimed_cases')}`;
+        } else if ('work_type__claimed_by__isnull' in route.query) {
+          return t('casesVue.unclaimed_cases');
+        } else if ('work_type__status__primary_state' in route.query) {
+          return t(
+            `casesVue.${route.query.work_type__status__primary_state}_cases`,
+          );
+        }
+      }
+
+      return '';
+    });
+
     const overDueFilterLabel = computed(() => {
       if (hasOverdueFilter.value) {
         return `${getOrganizationName(
@@ -1219,11 +1262,13 @@ export default defineComponent({
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
 
-      loadCaseImagesCached({
-        ...worksiteQuery.value,
-      }).then((response) => {
-        caseImages.value = response.results;
-      });
+      if ($can('beta_feature.enable_feed')) {
+        loadCaseImagesCached({
+          ...worksiteQuery.value,
+        }).then((response) => {
+          caseImages.value = response.results;
+        });
+      }
       return response.results;
     }
 
@@ -1397,6 +1442,47 @@ export default defineComponent({
       }
     }
 
+    function toggleUserLocations(value: boolean) {
+      if (value) {
+        const locationLayer = getUserLocationLayer(
+          userLocations.value,
+          (location: UserLocation) => {
+            const user = User.find(location.user_id);
+            if (user) {
+              const emailSection = user.email
+                ? `<div class="text-sm"><a href="mailto:${user.email}" class="ml-1">${user.email}</a></div>`
+                : '';
+              const mobileSection = user.mobile
+                ? `<div class="text-sm"><a href="tel:${user.mobile}" class="ml-1">${user.mobile}</a></div>`
+                : '';
+
+              const popup = L.popup({
+                closeButton: true,
+                closeOnClick: true,
+                autoClose: false,
+                closeOnEscapeKey: true,
+              }).setContent(
+                `<div class="flex flex-col items-center">
+          <div class="text-sm font-bold">${user.full_name}</div>
+          ${emailSection}
+          ${mobileSection}
+          <div class="text-sm">${user.organization.name}</div>
+          <div class="text-xs italic">${t('casesVue.last_seen')} ${momentFromNow(location.timestamp)}</div>
+        </div>`,
+              );
+
+              popup.setLatLng([location.location[1], location.location[0]]);
+              popup.openOn(mapUtils?.getMap());
+            }
+          },
+        );
+
+        locationLayer.addTo(mapUtils?.getMap());
+      } else {
+        mapUtils?.removeLayer('user_location_layer');
+      }
+    }
+
     const getSviList = useMemoize((_) => {
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
@@ -1564,6 +1650,10 @@ export default defineComponent({
 
     function goToInteractive() {
       mapUtils?.getMap().setView(getIncidentCenter(), INTERACTIVE_ZOOM_LEVEL);
+    }
+
+    function toggleMapType() {
+      mapUtils?.switchTileLayer();
     }
 
     function onSelectionChanged(selectedItems: Set<number>) {
@@ -1757,7 +1847,7 @@ export default defineComponent({
       }
     }
 
-    async function downloadWorksites(ids: any[]) {
+    async function downloadWorksites(ids: any[], skipSizeCheck = false) {
       loading.value = true;
       try {
         let params;
@@ -1769,6 +1859,10 @@ export default defineComponent({
           : {
               ...worksiteQuery.value,
             };
+
+        if (skipSizeCheck) {
+          params.skip_size_warning = true;
+        }
 
         const response = await axios.get(
           `${
@@ -1785,6 +1879,24 @@ export default defineComponent({
             title: t('info.processing_download'),
             content: t('info.processing_download_d'),
           });
+        } else if (response.status === 400) {
+          const result = await confirm({
+            title: t('casesVue.large_data_download_warning_title'),
+            content: t('casesVue.large_data_download_warning_description'),
+            actions: {
+              yes: {
+                text: t('actions.yes'),
+                type: 'solid',
+              },
+              no: {
+                text: t('actions.no'),
+                type: 'outline',
+              },
+            },
+          });
+          if (result === 'yes') {
+            return downloadWorksites(ids, true);
+          }
         } else {
           forceFileDownload(response);
         }
@@ -1918,6 +2030,10 @@ export default defineComponent({
               ]);
             }
 
+            loadUserLocations({}).then((response) => {
+              userLocations.value = response;
+            });
+
             filterSvi(sviSliderValue.value);
             nextTick(() => {
               // Used to trigger calculation of labels ofr updated slider
@@ -2007,6 +2123,7 @@ export default defineComponent({
       }
 
       await init();
+      jumpToCase();
     });
     function focusNewsTab() {
       emitter.emit('phone_component:close');
@@ -2073,6 +2190,7 @@ export default defineComponent({
       collapsedUtilityBar,
       goToIncidentCenter,
       goToInteractive,
+      toggleMapType,
       reloadCase,
       availableWorkTypes,
       applyLocation,
@@ -2106,6 +2224,7 @@ export default defineComponent({
       handleWorksiteSave,
       handleWorksiteNavigation,
       overDueFilterLabel,
+      queryFilterLabel,
       getOrganizationName,
       clearQuery,
       mq,
@@ -2117,6 +2236,9 @@ export default defineComponent({
       can: $can,
       updateFilterLabels,
       filterLabels,
+      currentIncident,
+      userLocations,
+      toggleUserLocations,
     };
   },
 });
@@ -2198,8 +2320,7 @@ export default defineComponent({
   grid-template-columns: minmax(0, auto) minmax(auto, 400px);
 
   &__actions {
-    @apply absolute top-0 right-0 flex flex-col select-text;
-    z-index: 1004;
+    @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;
   }
 
   &__action {

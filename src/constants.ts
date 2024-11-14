@@ -72,6 +72,7 @@ import mapRedo from './assets/icons/map-redo.svg';
 import otherorg from './assets/icons/other-org.svg';
 import dialer from './assets/icons/dialer.svg';
 import hangup from './assets/icons/hangup.svg';
+import blog from './assets/icons/blog.svg';
 import time from './assets/icons/time.svg';
 import logout from './assets/icons/logout.svg';
 import plane from './assets/icons/plane.svg';
@@ -88,6 +89,14 @@ import bugReport from './assets/icons/bug-report.svg';
 import manualDialer from './assets/icons/manual-dialer.svg';
 import stats from './assets/icons/stats.svg';
 import qrcode from './assets/icons/qrcode.svg';
+import phoneVolunteerDashboard from './assets/icons/phone-volunteer-dashboard.svg';
+import governmentDashboard from './assets/icons/government-dashboard.svg';
+import fieldVolunteerDashboard from './assets/icons/field-volunteer-dashboard.svg';
+import commandCenterDashboard from './assets/icons/command-center-dashboard.svg';
+import defaultDashboard from './assets/icons/default-dashboard.svg';
+import ellipsis from './assets/icons/ellipsis-solid.svg';
+import stethoscope from './assets/icons/stethoscope.svg';
+
 // DISASTER ICONS
 import contaminatedWater from './assets/disaster_icons/contaminated-water.svg';
 import earthquake from './assets/disaster_icons/earthquake.svg';
@@ -196,6 +205,7 @@ export const TEXT_VARIANTS = [
   'bodyxsm',
 ] as const;
 export const ICON_MAP = {
+  ellipsis,
   'attention-red': attentionRed,
   about,
   'arrow-left': arrowLeft,
@@ -220,6 +230,7 @@ export const ICON_MAP = {
   print,
   pin,
   phone,
+  blog,
   'phone-classic': phoneClassic,
   'phone-user': phoneUser,
   'phone-hangup': phoneHangup,
@@ -236,6 +247,7 @@ export const ICON_MAP = {
   flag,
   filters,
   'flag-filled': flagFilled,
+  stethoscope,
   search,
   table,
   map,
@@ -279,6 +291,11 @@ export const ICON_MAP = {
   'manual-dialer': manualDialer,
   stats: stats,
   qrcode: qrcode,
+  'phone-volunteer-dashboard': phoneVolunteerDashboard,
+  'government-dashboard': governmentDashboard,
+  'field-volunteer-dashboard': fieldVolunteerDashboard,
+  'command-center-dashboard': commandCenterDashboard,
+  'default-dashboard': defaultDashboard,
 };
 
 export const ICONS = Object.fromEntries(

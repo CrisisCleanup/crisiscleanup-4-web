@@ -31,7 +31,7 @@
           </span>
         </base-text>
       </div>
-      <template #popper>
+      <template #popper="{ hide: hidePopover }">
         <div class="flex flex-col">
           <base-button
             data-testid="testUserprofileProfileLink"
@@ -41,6 +41,7 @@
             :action="
               () => {
                 $router.push(`/profile`);
+                hidePopover();
               }
             "
           />
@@ -52,6 +53,7 @@
             :action="
               () => {
                 $router.push(`/downloads`);
+                hidePopover();
               }
             "
           />
@@ -63,6 +65,7 @@
             :action="
               () => {
                 $router.push(`/lists`);
+                hidePopover();
               }
             "
           />
@@ -71,7 +74,12 @@
             class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
             :text="$t('actions.logout')"
             :alt="$t('actions.logout')"
-            :action="() => $emit('auth:logout')"
+            :action="
+              () => {
+                $emit('auth:logout');
+                hidePopover();
+              }
+            "
           />
         </div>
       </template>

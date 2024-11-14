@@ -151,9 +151,9 @@
                           }
                         "
                       >
-                        <div class="badge-holder flex items-center">
-                          <badge
-                            class="ml-1 mr-3"
+                        <div class="flex items-center">
+                          <ColoredCircle
+                            class="ml-1 mr-3 w-4 h-4"
                             :color="
                               getColorForStatus(
                                 work_type.status,
@@ -258,10 +258,11 @@ import type Incident from '@/models/Incident';
 import type { WorkType } from '@/models/types';
 import { useI18n } from 'vue-i18n';
 import useDialogs from '@/hooks/useDialogs';
+import ColoredCircle from '@/components/ColoredCircle.vue';
 
 export default defineComponent({
   name: 'ChangeOrganizationModal',
-  components: { OrganizationSearchInput },
+  components: { ColoredCircle, OrganizationSearchInput },
   emits: ['cancel'],
 
   setup(props, context) {

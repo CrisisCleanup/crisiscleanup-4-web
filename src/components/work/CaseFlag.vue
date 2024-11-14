@@ -397,6 +397,7 @@ import { What3wordsService } from '../../services/what3words.service';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import type { CaseFlag } from '@/models/types';
 import type Incident from '@/models/Incident';
+import { getErrorMessage } from '@/utils/errors';
 
 export default defineComponent({
   name: 'CaseFlag',
@@ -420,13 +421,13 @@ export default defineComponent({
     const $toasted = useToast();
 
     const flagTypes = [
-      'flag.worksite_high_priority',
-      'flag.worksite_upset_client',
-      'flag.worksite_mark_for_deletion',
-      'flag.worksite_abuse',
-      'flag.duplicate',
-      'flag.worksite_wrong_location',
       'flag.worksite_wrong_incident',
+      'flag.worksite_wrong_location',
+      'flag.worksite_high_priority',
+      'flag.duplicate',
+      'flag.worksite_mark_for_deletion',
+      'flag.worksite_upset_client',
+      'flag.worksite_abuse',
     ].map((key) => {
       return { key, label: t(key) };
     });
@@ -464,8 +465,6 @@ export default defineComponent({
         emit('reloadMap', props.worksiteId || route.params.id);
         if (props.incidentId) {
           emit('clearCase');
-        } else {
-          await router.push(`/incident/${route.params.incident_id}/cases/new`);
         }
 
         return;
@@ -529,26 +528,19 @@ export default defineComponent({
       }
     }
 
-    onMounted(async () => {
-      ready.value = false;
-      try {
-        await Worksite.api().fetch(
-          props.worksiteId || route.params.id,
-          props.incidentId || route.params.incident_id,
-        );
-      } catch {
-        await router.push(
-          `/incident/${props.incidentId || route.params.incident_id}/cases/new`,
-        );
-      } finally {
-        ready.value = true;
-      }
+    async function loadIncidents() {
+      const response = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/incidents?fields=id,name,start_at&move_case=true&limit=200&sort=-start_at`,
+        {
+          save: false,
+        },
+      );
+      incidents.value = orderBy(response.data.results, ['start_at'], ['desc']);
+    }
 
-      worksite.value = Worksite.find(props.worksiteId || route.params.id);
-      if (route.query.showOnMap) {
-        emit('jumpToCase', props.worksiteId || route.params.id);
-      }
-
+    async function loadOrganizations() {
       const organizationResults = await Organization.api().get(
         `/organizations?nearby_claimed=${worksite.value.longitude},${worksite.value.latitude}`,
         {
@@ -557,16 +549,31 @@ export default defineComponent({
       );
       organizationsWithClaimsInArea.value =
         organizationResults.entities.organizations;
+    }
 
-      const response = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/incidents?fields=id,name,start_at&move_case=true&limit=200&ordering=-start_at`,
-        {
-          save: false,
-        },
-      );
-      incidents.value = orderBy(response.data.results, ['start_at'], ['desc']);
+    onMounted(async () => {
+      ready.value = false;
+      try {
+        await Worksite.api().fetch(
+          props.worksiteId || route.params.id,
+          props.incidentId || route.params.incident_id,
+        );
+      } catch (error) {
+        console.error(error);
+        getErrorMessage(error);
+      } finally {
+        ready.value = true;
+      }
+
+      worksite.value = Worksite.find(props.worksiteId || route.params.id);
+      if (route.query.showOnMap) {
+        emit('jumpToCase', props.worksiteId || route.params.id);
+      }
+      Promise.all([loadIncidents(), loadOrganizations()])
+        .then(() => {
+          console.info('lazy loaded incidents and orgs');
+        })
+        .catch((error) => console.error('Error fetching', error));
     });
 
     return {
@@ -592,10 +599,9 @@ export default defineComponent({
 
 <style>
 .contact-popover {
-  @apply bg-black text-white p-3 outline-none;
+  @apply bg-black text-white p-3 outline-none z-popover;
   width: 300px;
   left: 0.75rem !important;
-  z-index: 1000;
   height: 200px;
   overflow: auto;
 }

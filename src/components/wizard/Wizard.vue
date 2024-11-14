@@ -112,10 +112,14 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['done'],
 
-  setup(_, { slots, emit }) {
+  setup(props, { slots, emit }) {
     const $toasted = useToast();
 
     const state = reactive({
@@ -133,7 +137,11 @@ export default defineComponent({
     };
 
     function goToStep(index: number) {
-      if (state.selectedIndex >= index || state.completedSteps.has(index)) {
+      if (
+        state.selectedIndex >= index ||
+        state.completedSteps.has(index) ||
+        props.isCompleted
+      ) {
         selectStep(index);
       }
     }

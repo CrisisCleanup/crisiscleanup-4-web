@@ -16,6 +16,7 @@ import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 import { useAxiosRetry } from '@/hooks/useAxiosRetry';
 import { useToast } from 'vue-toastification';
+import { i18n } from '@/modules/i18n';
 
 const debug = createDebug('@ccu:hooks:useAuth');
 
@@ -44,6 +45,11 @@ export interface TokenResponse {
   scope: string;
 }
 
+export interface CodeResponse {
+  authorization_code: string;
+  expires_in: number;
+}
+
 interface AuthorizeProps {
   challenge: string;
   challengeMethod?: string;
@@ -60,6 +66,19 @@ interface AuthorizedToken {
   created: string;
   user: number;
   application: number;
+}
+
+interface OtpRequestResponse {
+  message: string;
+}
+
+interface OtpVerificationResponse {
+  accounts: Array<{
+    id: number;
+    email: string;
+    organization: string;
+  }>;
+  otp_id: number;
 }
 
 /**
@@ -268,7 +287,7 @@ const authStore = () => {
 
       if (invalidMagicLink) {
         const $toasted = useToast();
-        $toasted.error(t('magicLink.invalid_expired_magic_link'));
+        $toasted.error(i18n.global.t('magicLink.invalid_expired_magic_link'));
         return router.push('/magic-link');
       }
 
@@ -550,6 +569,51 @@ const authStore = () => {
     authState.status = AuthStatus.LOGOUT;
   };
 
+  const requestOtp = async (phoneNumber: string) => {
+    const response = await authInstance.post('/otp', {
+      phone_number: phoneNumber,
+    });
+    return response.data as OtpRequestResponse;
+  };
+
+  const verifyOtp = async (phoneNumber: string, otp: string) => {
+    const response = await authInstance.post('/otp/verify', {
+      phone_number: phoneNumber,
+      otp: otp,
+    });
+    return response.data as OtpVerificationResponse;
+  };
+
+  const generateAuthCodeWithOtp = async (userId: number, otpId: number) => {
+    const response = await authInstance.post('/otp/generate_code', {
+      user: userId,
+      otp_id: otpId,
+    });
+    return response.data as CodeResponse;
+  };
+
+  const loginWithOtp = async (userId: number, otpId: number) => {
+    const codeResponse = await generateAuthCodeWithOtp(userId, otpId);
+    if (!codeResponse.authorization_code) {
+      throw new Error('Failed to generate code with OTP.');
+    }
+    const params = new URLSearchParams({
+      client_id: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
+      grant_type: 'authorization_code',
+      code: codeResponse.authorization_code,
+      redirect_uri: `${window.location.origin}/o/callback`,
+      // code_verifier: verifierStorage.value,
+    });
+
+    await exchangeState.execute('/o/token/', {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      data: params.toString(),
+    });
+  };
+
   const loginWithMagicLinkToken = async (token: string, logout = false) => {
     if (logout) {
       await authInstance.post('/logout/', undefined, {
@@ -578,6 +642,9 @@ const authStore = () => {
     currentUserId,
     currentAccessToken,
     loginWithMagicLinkToken,
+    requestOtp,
+    verifyOtp,
+    loginWithOtp,
   };
 };
 

@@ -6,6 +6,8 @@ import Worksite from '@/models/Worksite';
 import { getQueryString } from '@/utils/urls';
 import InvitationRequest from '@/models/InvitationRequest';
 import { loadCasesCached } from '@/utils/worksite';
+import User from '@/models/User';
+import Organization from '@/models/Organization';
 
 interface DashboardStatisticsFilter {
   incidentId: number;
@@ -14,20 +16,19 @@ interface DashboardStatisticsFilter {
 interface DashboardStatisticsResponse {
   total_commercial_value: number;
   total_value_completed: number;
+  total_cases: number;
   total_claimed_cases: number;
+  total_unclaimed_cases: number;
   total_closed_cases: number;
   total_open_cases: number;
   members_served: number;
   active_users_today: number;
 }
-async function getWorksiteRequests(incident) {
+async function getWorksiteRequests() {
   await WorksiteRequest.deleteAll();
-  const results = await WorksiteRequest.api().get(
-    `/worksite_requests?worksite_work_type__incident=${incident}`,
-    {
-      dataKey: 'results',
-    },
-  );
+  const results = await WorksiteRequest.api().get(`/worksite_requests`, {
+    dataKey: 'results',
+  });
   return results.entities.worksite_requests || [];
 }
 
@@ -35,6 +36,14 @@ async function getUserTransferRequests() {
   const response = await axios.get<UserTransfersResponse>(
     getApiUrl('/transfer_requests'),
   );
+  const userIds = response.data.results.map((r) => r.user);
+  const organizationIds = [
+    ...response.data.results.map((r) => r.origin_organization),
+    ...response.data.results.map((r) => r.target_organization),
+  ];
+  await User.fetchOrFindId(userIds);
+  await Organization.fetchOrFindId(organizationIds);
+
   return response.data.results;
 }
 

@@ -12,8 +12,8 @@
     >
       <template #selected-option="{ option }">
         <div class="flex items-center justify-start absolute left-0 top-0 px-2">
-          <badge
-            class="ml-1 mr-3"
+          <ColoredCircle
+            class="ml-1 mr-3 w-4 h-4"
             :title="getStatusName(option.status)"
             :color="getColorForStatus(option.status, true)"
           />
@@ -22,8 +22,8 @@
       </template>
       <template #option="{ option }">
         <div class="flex items-center justify-start">
-          <badge
-            class="ml-1 mr-3"
+          <ColoredCircle
+            class="ml-1 mr-3 w-4 h-4"
             :title="getStatusName(option.status)"
             :color="getColorForStatus(option.status, true)"
           />
@@ -38,9 +38,11 @@
 import { computed, defineComponent } from 'vue';
 import Incident from '@/models/Incident';
 import { getColorForStatus, getStatusName } from '@/filters';
+import ColoredCircle from '@/components/ColoredCircle.vue';
 
 export default defineComponent({
   name: 'UpdateCaseStatus',
+  components: { ColoredCircle },
   emits: ['updatedStatus'],
   setup() {
     const store = useStore();

@@ -1,5 +1,7 @@
 import { isArray, isNil, omitBy } from 'lodash';
 import CCUModel from '@/models/base';
+import { AxiosError } from 'axios';
+import { getErrorMessage } from '@/utils/errors';
 
 export default class PhoneOutbound extends CCUModel {
   static entity = 'phone_outbound';
@@ -61,6 +63,15 @@ export default class PhoneOutbound extends CCUModel {
       async skipCall(id: string) {
         await this.post(`/phone_outbound/${id}/skip`, { save: false });
       },
+      async completeCallsForPhoneNumber(phoneNumber: string) {
+        await this.post(
+          `/phone_outbound/update_phone_number_completion`,
+          {
+            phone_number: phoneNumber,
+          },
+          { save: false },
+        );
+      },
       async getNextOutbound({
         incidentId = 199,
         agentId = '',
@@ -94,7 +105,7 @@ export default class PhoneOutbound extends CCUModel {
           const {
             response: { data },
           } = phoneOutbound;
-          return data.count;
+          return Number(data.count);
         } catch (error) {
           console.log(error);
         }
@@ -107,7 +118,7 @@ export default class PhoneOutbound extends CCUModel {
           const {
             response: { data },
           } = phoneOutbound;
-          return data.count;
+          return Number(data.count);
         } catch (error) {
           console.log(error);
         }
@@ -127,7 +138,7 @@ export default class PhoneOutbound extends CCUModel {
           },
           isNil,
         );
-        await this.post(`/phone_outbound/${id}/update_status`, body, {
+        return this.post(`/phone_outbound/${id}/update_status`, body, {
           save: false,
         });
       },
@@ -142,11 +153,14 @@ export default class PhoneOutbound extends CCUModel {
               language,
               locked_by: userId,
               completion: 1,
+              call_type: 'manual',
             },
             isNil,
           ),
         );
-        const [outbound] = resp.entities.phone_outbound || [];
+
+        console.info('createManual response', resp);
+        const [outbound] = resp?.entities?.phone_outbound || [];
         return outbound;
       },
     } as any,

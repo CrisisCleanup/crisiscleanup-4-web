@@ -60,7 +60,7 @@
                   icon="times"
                   :alt="$t('actions.clear')"
                   :data-testid="`testWorksiteSearchRecentWorksiteClearBtn_${option.id}`"
-                  class="p-1 w-4 ml-auto"
+                  class="p-1 w-4 ml-auto cursor-pointer"
                   size="medium"
                   @click="(e) => deleteRecent(e, option.id)"
                 />
@@ -70,24 +70,24 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="icon || tooltip"
-      class="icon-container flex items-center justify-center relative"
-    >
-      <ccu-icon
-        :alt="$t('worksiteSearchInput.search_help')"
-        :type="tooltip ? 'info' : icon"
-        size="small"
-        :action="() => $emit('iconClicked')"
-      />
-      <badge
-        v-if="iconBadge > 0"
-        width="12px"
-        height="12px"
-        class="ml-2 text-black bg-primary-light absolute top-1 right-1 text-xs"
-        >{{ iconBadge }}</badge
-      >
-    </div>
+    <!--    <div-->
+    <!--      v-if="icon || tooltip"-->
+    <!--      class="icon-container flex items-center justify-center relative"-->
+    <!--    >-->
+    <!--      <ccu-icon-->
+    <!--        :alt="$t('worksiteSearchInput.search_help')"-->
+    <!--        :type="tooltip ? 'info' : icon"-->
+    <!--        size="small"-->
+    <!--        :action="() => $emit('iconClicked')"-->
+    <!--      />-->
+    <!--      <badge-->
+    <!--        v-if="iconBadge > 0"-->
+    <!--        width="12px"-->
+    <!--        height="12px"-->
+    <!--        class="ml-2 text-black bg-primary-light absolute top-1 right-1 text-xs"-->
+    <!--        >{{ iconBadge }}</badge-->
+    <!--      >-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -176,6 +176,7 @@ export default defineComponent({
     'selectedExisting',
     'clearSuggestions',
     'iconClicked',
+    'onWorksiteSearch',
   ],
   setup(props, { emit }) {
     const { currentUser } = useCurrentUser();
@@ -275,6 +276,7 @@ export default defineComponent({
       if (props.useWorksites) {
         const sites = await searchWorksites(value, currentIncidentId.value);
         worksites.value = sites.data.results;
+        emit('onWorksiteSearch', worksites.value);
       }
 
       if (props.useGeocoder) {
@@ -286,7 +288,7 @@ export default defineComponent({
       return axios.get(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
-        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incidentId}`,
+        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=3&search=${search}&incident=${incidentId}`,
       );
     }
 
@@ -357,7 +359,7 @@ export default defineComponent({
 
 <style>
 .autocomplete {
-  z-index: 1000;
+  @apply z-search-dropdown;
 }
 
 .case-svg-container svg {
@@ -407,7 +409,7 @@ export default defineComponent({
   min-width: 10vw;
   max-width: 100vw;
   position: absolute;
-  z-index: 10000001;
+  @apply z-search-dropdown;
   border: 1px solid #e0e0e0;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;

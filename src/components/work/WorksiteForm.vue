@@ -1,5 +1,23 @@
 <template>
-  <form v-if="ready" ref="form" class="form h-full" @submit.prevent>
+  <form
+    v-if="ready"
+    ref="form"
+    class="form h-full"
+    :class="{ 'form--noheader': !hasFormHeaderContent }"
+    @submit.prevent
+  >
+    <div v-if="hasFormHeaderContent" class="form-header">
+      <div class="flex p-1">
+        <Flag
+          v-for="flag in worksite.flags"
+          :key="flag.reason_t"
+          :data-testid="`test${flag.reason_t}Flag`"
+          :flag-reason="flag.reason_t"
+          removable
+          @on-remove="removeFlag(flag)"
+        />
+      </div>
+    </div>
     <div class="form-content" data-testid="testIntakeFormDiv">
       <SectionHeading :count="1" class="mb-3">{{
         $t('caseForm.property_information')
@@ -16,13 +34,15 @@
           required
           skip-validation
           class="w-full"
+          @focus="collapseGreenPhoneSection"
           @input="(e) => updateWorksite(e, 'name')"
           @selected-existing="onWorksiteSelect"
         />
       </section>
-      <div class="form-field">
-        <base-input
+      <div class="form-field flex gap-1">
+        <PhoneNumberInput
           id="phone1"
+          style="width: 100%"
           :model-value="worksite.phone1"
           data-testid="testPhone1TextInput"
           selector="js-worksite-phone1"
@@ -40,27 +60,84 @@
           @update:model-value="(v) => updateWorksite(v, 'phone1')"
           @icon-clicked="() => sendSms(worksite.phone1)"
         />
+        <div
+          v-if="
+            currentIncident.auto_contact &&
+            worksite.id &&
+            $route.path.endsWith('/phone')
+          "
+          class="flex items-center border border-[#DBDBDB] px-2 bg-[#F7F7F7] cursor-pointer"
+          @click="emitManualDialer(worksite.phone1)"
+        >
+          <img
+            class="w-8"
+            src="/src/assets/icons/manual-dialer-black.svg"
+            alt="Manual Dialer"
+          />
+        </div>
       </div>
-      <div v-if="worksite.phone2 || addAdditionalPhone" class="form-field">
+      <div class="form-field pl-4">
         <base-input
-          id="phone2"
-          :model-value="worksite.phone2"
-          data-testid="testPhone2TextInput"
-          selector="js-worksite-phone2"
-          size="large"
-          :placeholder="$t('formLabels.phone2')"
-          :fa-icon="
-            currentIncident.auto_contact && worksite.id ? 'comment-sms' : null
-          "
-          :tooltip="
-            currentIncident.auto_contact && worksite.id
-              ? $t('caseForm.sms')
-              : null
-          "
-          @update:model-value="(v) => updateWorksite(v, 'phone2')"
-          @icon-clicked="() => sendSms(worksite.phone2)"
+          id="phone1_notes"
+          :model-value="worksite.phone1_notes"
+          data-testid="testPhone1NotesTextInput"
+          selector="js-worksite-phone1_notes"
+          size="small"
+          :placeholder="$t('formLabels.phone1_notes')"
+          @update:model-value="(v) => updateWorksite(v, 'phone1_notes')"
         />
       </div>
+
+      <template v-if="worksite.phone2 || addAdditionalPhone">
+        <div class="form-field">
+          <PhoneNumberInput
+            id="phone2"
+            style="width: 100%"
+            :model-value="worksite.phone2"
+            data-testid="testPhone2TextInput"
+            selector="js-worksite-phone2"
+            size="large"
+            :placeholder="$t('formLabels.phone2')"
+            :fa-icon="
+              currentIncident.auto_contact && worksite.id ? 'comment-sms' : null
+            "
+            :tooltip="
+              currentIncident.auto_contact && worksite.id
+                ? $t('caseForm.sms')
+                : null
+            "
+            @update:model-value="(v) => updateWorksite(v, 'phone2')"
+            @icon-clicked="() => sendSms(worksite.phone2)"
+          />
+          <div
+            v-if="
+              currentIncident.auto_contact &&
+              worksite.id &&
+              $route.path.endsWith('/phone')
+            "
+            class="flex items-center border border-[#DBDBDB] ml-1 px-3 bg-[#F7F7F7] cursor-pointer"
+            @click="emitManualDialer(worksite.phone2)"
+          >
+            <img
+              class="w-8"
+              src="/src/assets/icons/manual-dialer-black.svg"
+              alt="Manual Dialer"
+            />
+          </div>
+        </div>
+
+        <div class="form-field pl-4">
+          <base-input
+            id="phone2_notes"
+            :model-value="worksite.phone2_notes"
+            data-testid="testPhone2NotesTextInput"
+            selector="js-worksite-phone2_notes"
+            size="small"
+            :placeholder="$t('formLabels.phone2_notes')"
+            @update:model-value="(v) => updateWorksite(v, 'phone2_notes')"
+          />
+        </div>
+      </template>
       <base-button
         v-else
         data-testid="testAddPhoneLink"
@@ -168,7 +245,11 @@
               style="margin-top: 3px"
               :alt="$t('formLabels.location')"
             />
-            <span v-html="worksiteAddress"></span>
+            <AddressDisplay
+              :address="worksiteAddress"
+              :latitude="worksiteLatLng.latitude"
+              :longitude="worksiteLatLng.longitude"
+            />
           </div>
           <div class="flex">
             <ccu-icon
@@ -221,6 +302,7 @@
           use-geocoder
           class="w-full"
           :use-recents="false"
+          @focus="collapseGreenPhoneSection"
           @input="(v) => updateWorksite(v, 'address')"
           @selected-existing="onWorksiteSelect"
           @selected-geocode="onGeocodeSelect"
@@ -292,12 +374,14 @@
 
         <div class="flex justify-around items-center p-2 text-gray-700">
           <base-button
+            v-if="showUseMyLocation"
             type="bare"
             data-testid="testUseMyLocationButton"
             icon="street-view"
             class=""
             :action="locateMe"
             :text="$t('caseForm.use_my_location')"
+            :alt="$t('caseForm.use_my_location')"
           />
           <span
             class="p-1"
@@ -314,12 +398,14 @@
               class=""
               :action="toggleSelectOnMap"
               :text="$t('caseForm.select_on_map')"
+              :alt="$t('caseForm.select_on_map')"
             />
           </span>
         </div>
         <WorksiteNotes
           :worksite="worksite"
           data-testid="testSaveNoteInput"
+          expanded
           @save-note="saveNote"
           @input="currentNote = $event"
         />
@@ -405,10 +491,12 @@
         :action="
           () => {
             clearWorksiteStorage();
+            clearLocationFields();
             $emit('closeWorksite');
           }
         "
-        :text="$t('actions.cancel')"
+        :text="$t('casesVue.new_case')"
+        :alt="$t('casesVue.new_case')"
       />
       <base-button
         size="large"
@@ -417,6 +505,7 @@
         class="flex-grow"
         :action="saveWorksite"
         :text="$t('actions.save')"
+        :alt="$t('actions.save')"
       />
       <base-button
         v-if="!disableClaimAndSave"
@@ -426,6 +515,7 @@
         class="flex-grow"
         :action="claimAndSaveWorksite"
         :text="$t('actions.save_claim')"
+        :alt="$t('actions.save_claim')"
       />
     </div>
   </form>
@@ -435,14 +525,13 @@
 </template>
 
 <script lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
 import { sortBy, uniqueId } from 'lodash';
 import moment from 'moment';
 import * as turf from '@turf/turf';
 import * as L from 'leaflet';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import GeocoderService from '../../services/geocoder.service';
 import Worksite from '../../models/Worksite';
 import { StorageService } from '../../services/storage.service';
@@ -460,6 +549,20 @@ import SectionHeading from './SectionHeading.vue';
 import WorksiteNotes from './WorksiteNotes.vue';
 import Language from '@/models/Language';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
+import useConnectFirst from '@/hooks/useConnectFirst';
+import { Store } from 'vuex';
+import PhoneOutbound from '@/models/PhoneOutbound';
+import CcuIcon from '@/components/BaseIcon.vue';
+import worksite from '@/store/modules/worksite';
+import { formatNationalNumber } from '@/filters';
+import Flag from '@/components/work/Flag.vue';
+import AddressDisplay from '@/components/AddressDisplay.vue';
+import type { Response } from '@vuex-orm/plugin-axios';
+import {
+  formatWorksiteAddress,
+  formatWorksiteAddressHtml,
+} from '@/utils/helpers';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -470,6 +573,10 @@ const AUTO_CONTACT_FREQUENCY_OPTIONS = [
 export default defineComponent({
   name: 'WorksiteForm',
   components: {
+    PhoneNumberInput,
+    AddressDisplay,
+    Flag,
+    CcuIcon,
     BaseSelect,
     WorksiteNotes,
     SectionHeading,
@@ -517,6 +624,10 @@ export default defineComponent({
     const updateImage = (formData) => {
       updatedFiles.value.push(formData.id);
     };
+
+    const { call, isInboundCall } = useConnectFirst({
+      emit,
+    });
 
     const contactFrequencyOptions = AUTO_CONTACT_FREQUENCY_OPTIONS.map(
       (key) => {
@@ -595,22 +706,21 @@ export default defineComponent({
       return {};
     });
 
-    const worksiteAddress = computed(() => {
-      if (worksite.value) {
-        const {
-          address,
-          city,
-          state,
-          postal_code: postalCode,
-          county,
-        } = worksite.value;
-        return `${address} <br> ${city}, ${state}, ${
-          county || ''
-        } <br> ${postalCode}`;
-      }
-
-      return '';
+    const worksiteAddress = computed(() =>
+      formatWorksiteAddress(worksite.value),
+    );
+    const worksiteLatLng = computed(() => {
+      // NOTE: We store coordinates in [lng, lon] format
+      const latitude = worksite.value?.location?.coordinates?.[1];
+      const longitude = worksite.value?.location?.coordinates?.[0];
+      return {
+        latitude,
+        longitude,
+      };
     });
+    const worksiteAddressHtml = computed(() =>
+      formatWorksiteAddressHtml(worksite.value),
+    );
 
     const isAddressValid = computed(() => {
       const {
@@ -634,6 +744,25 @@ export default defineComponent({
         isWrongLocation.value ||
         !hideDetailedAddressFields.value
       );
+    });
+
+    const hasFormHeaderContent = computed(() => {
+      const wsFlags = worksite.value?.flags ?? [];
+      return wsFlags.length > 0;
+    });
+
+    const emitManualDialer = (phone: string) => {
+      emitter.emit('phone_component:close');
+      emitter.emit('phone_component:open', 'dialer');
+      emitter.emit('dialer:set_phone_number', formatNationalNumber(phone));
+      emitter.emit('phone_outbound:click', {
+        incident_id: props.incidentId,
+        phone_number: phone,
+      });
+    };
+
+    const showUseMyLocation = computed<boolean>(() => {
+      return !['nav.phone', 'nav.phone_no_incident'].includes(route.name);
     });
 
     function updateDirtyFields(key) {
@@ -742,13 +871,24 @@ export default defineComponent({
 
     async function saveNote(n) {
       const notes = [...worksite.value.notes];
-      notes.push({
+      const noteCreate = {
         id: uniqueId(),
         note: n,
         created_at: moment().toISOString(),
         pending: true,
-      });
-
+      };
+      if (worksite.value.id) {
+        // Auto save note when editing worksite
+        const noteSaveResponse: Response = await Worksite.api().addNote(
+          worksite.value.id,
+          noteCreate.note,
+        );
+        const newNote = noteSaveResponse.response.data;
+        console.info('Saving new notes responses', noteSaveResponse, newNote);
+        notes.push(newNote);
+      } else {
+        notes.push(noteCreate);
+      }
       updateWorksite(notes, 'notes');
     }
 
@@ -923,8 +1063,11 @@ export default defineComponent({
     async function updateWorksiteFields(geocode) {
       const { lat, lng } = geocode.location;
       const geocodeKeys = ['address', 'city', 'county', 'state', 'postal_code'];
-      for (const key of geocodeKeys)
-        updateWorksite(geocode.address_components[key], key);
+      for (const key of geocodeKeys) {
+        // Use '' instead of undefined for missing address parts
+        const value = geocode?.address_components?.[key] ?? '';
+        updateWorksite(value, key);
+      }
 
       updateWorksite(
         {
@@ -965,7 +1108,7 @@ export default defineComponent({
       updatedFiles.value = imageList;
     }
 
-    async function saveWorksite(reload = true) {
+    async function saveWorksite(reload = true, isRetry = false) {
       let firstErrorField;
       let firstErrorMessage = '';
 
@@ -993,11 +1136,10 @@ export default defineComponent({
         !firstErrorMessage;
 
       if (!isValid) {
-        if (firstErrorMessage) {
-          if (firstErrorField === 'address' && !isAddressValid.value) {
-            $toasted.error(t('caseForm.no_lat_lon_error'));
-            return;
-          }
+        if (!firstErrorField && !isAddressValid.value) {
+          $toasted.error(t('caseForm.no_lat_lon_error'));
+          return false;
+        } else if (firstErrorMessage) {
           $toasted.error(firstErrorMessage);
           const errorFieldElement = document.querySelector(
             `#${firstErrorField}`,
@@ -1008,13 +1150,13 @@ export default defineComponent({
           }
         }
 
-        return;
+        return false;
       }
 
       if (props.beforeSave) {
         const beforeSaveCheck = await props.beforeSave();
         if (!beforeSaveCheck) {
-          return;
+          return false;
         }
       }
 
@@ -1064,11 +1206,12 @@ export default defineComponent({
           element.scrollIntoView({ behavior: 'smooth' });
         }
 
-        return;
+        return false;
       }
 
       try {
-        const notesToSave = worksite.value.notes
+        console.info('worksite notesToSave', worksite.value);
+        const notesToSave = (worksite.value?.notes ?? [])
           .filter((n) => Boolean(n.pending))
           .map((n) => n.note);
 
@@ -1102,14 +1245,35 @@ export default defineComponent({
           if (isFavorite.value) {
             await Worksite.api().favorite(worksite.value.id);
           }
+          return worksite.value.id;
         } else {
-          const savedWorksite = await Worksite.api().post('/worksites', {
+          const response = await Worksite.api().post('/worksites', {
             ...worksite.value,
             incident: props.incidentId,
             skip_duplicate_check: true,
             send_sms: true,
           });
-          const worksiteId = savedWorksite.entities.worksites[0].id;
+
+          if (response.response instanceof AxiosError) {
+            // if error is a 403, save the current details to local storage and reload the page with a query param
+            if ([500, 403].includes(response.response.status) && !isRetry) {
+              StorageService.setItem('currentWorksiteToSave', worksite.value);
+              if (call.value) {
+                StorageService.setItem('callToComplete', {
+                  call: call.value,
+                  type: isInboundCall.value ? 'inbound' : 'outbound',
+                });
+              }
+
+              window.location.href = `${window.location.origin}${window.location.pathname}?continueSaving=true`;
+              return;
+            }
+
+            $toasted.error(getErrorMessage(response.response));
+            return;
+          }
+
+          const worksiteId = response.entities.worksites[0].id;
           StorageService.removeItem('currentWorksite');
           await Promise.all(
             notesToSave.map((n) => Worksite.api().addNote(worksiteId, n)),
@@ -1145,48 +1309,57 @@ export default defineComponent({
           addRecentWorksite(worksite.value as Worksite);
         }
 
-        await $toasted.success(t('caseForm.new_case_success'));
+        $toasted.success(t('caseForm.new_case_success'));
         dirtyFields.value = new Set();
         if (reload) {
           emit('reloadTable');
           emit('reloadMap', worksite.value.id);
           emit('savedWorksite', worksite.value);
         }
+        return worksite.value.id;
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
+        return;
       }
     }
 
-    async function onGeocodeSelect(value) {
-      const geocode = await GeocoderService.getPlaceDetails(
-        value.description,
-        value.data.place_id,
-      );
-      const { lat, lng } = geocode.location;
-      const isWithinCurrentIncident = checkGeocodeLocation({ lat, lng });
-      if (!isWithinCurrentIncident) {
-        const incidentResult = await getPotentialIncidents({ lat, lng });
+    async function onGeocodeSelect(value: Record<string, any>) {
+      try {
+        const geocode = await GeocoderService.getPlaceDetails(
+          value.description,
+          value.data.place_id,
+        );
+        const { lat, lng } = geocode.location;
+        const isWithinCurrentIncident = checkGeocodeLocation({ lat, lng });
+        if (!isWithinCurrentIncident) {
+          const incidentResult = await getPotentialIncidents({ lat, lng });
 
-        if (incidentResult === 'retry' || incidentResult === 'cancel') {
-          updateWorksite('', 'address');
-          return;
+          if (incidentResult === 'retry' || incidentResult === 'cancel') {
+            updateWorksite('', 'address');
+            return;
+          }
+
+          if (incidentResult === 'switchIncident') {
+            updateWorksite(potentialIncidents.value[0].id, 'incident');
+            await updateWorksiteFields(geocode);
+            await saveWorksite(false);
+            emit('reloadTable');
+            emit('reloadMap', worksite.value.id);
+            emit('switchIncident', {
+              incident: potentialIncidents.value[0].id,
+              worksite: worksite.value,
+            });
+            return;
+          }
         }
 
-        if (incidentResult === 'switchIncident') {
-          updateWorksite(potentialIncidents.value[0].id, 'incident');
-          await updateWorksiteFields(geocode);
-          await saveWorksite(false);
-          emit('reloadTable');
-          emit('reloadMap', worksite.value.id);
-          emit('switchIncident', {
-            incident: potentialIncidents.value[0].id,
-            worksite: worksite.value,
-          });
-          return;
-        }
+        await updateWorksiteFields(geocode);
+      } catch (error) {
+        console.error('Unable to geocode place', error);
+        $toasted.error(
+          `~~Unable to geocode selected place! Error: ${getErrorMessage(error)}`,
+        );
       }
-
-      await updateWorksiteFields(geocode);
     }
 
     async function onWorksiteSelect(value) {
@@ -1342,7 +1515,8 @@ export default defineComponent({
             resolve(pos);
           },
           (error) => {
-            reject(error);
+            getErrorMessage(error);
+            reject(new Error(error.message));
           },
         );
       });
@@ -1377,6 +1551,103 @@ export default defineComponent({
       }
     }
 
+    // Mainly used to hide green screen details
+    // when user is on call and tries to search
+    function collapseGreenPhoneSection() {
+      emitter.emit('phone_overlay:collapse_details');
+    }
+
+    async function updateCallStatus(worksiteId = null) {
+      const callToComplete = StorageService.getItem('callToComplete');
+      if (callToComplete) {
+        StorageService.removeItem('callToComplete');
+
+        try {
+          if (callToComplete.type === 'outbound') {
+            await PhoneOutbound.api().updateStatus(callToComplete.call.id, {
+              statusId: worksiteId ? 1 : 23,
+              worksiteId: worksiteId,
+              notes: worksiteId
+                ? 'Automatically saved case and completed call'
+                : `Automatically completed call case not saved for outbound ${callToComplete.call.id}`,
+            });
+          }
+
+          if (callToComplete.type === 'inbound') {
+            let data = {
+              status: worksiteId ? 1 : 23,
+              notes: worksiteId
+                ? 'Automatically saved case and completed call'
+                : `Automatically completed call case not saved for inbound ${callToComplete.call.id}`,
+              cases: [],
+            };
+            if (worksiteId) {
+              data = { ...data, cases: [worksiteId] };
+            }
+
+            await axios.post(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/phone_inbound/${
+                callToComplete.call.id
+              }/update_status`,
+              data,
+            );
+          }
+        } catch (error) {
+          $toasted.error(getErrorMessage(error));
+        } finally {
+          StorageService.removeItem('callToComplete');
+        }
+      }
+    }
+
+    watch(
+      () => form.value,
+      (newValue) => {
+        if (newValue && route.query.continueSaving) {
+          delete route.query.continueSaving;
+          worksite.value = StorageService.getItem('currentWorksiteToSave');
+          StorageService.removeItem('currentWorksiteToSave');
+
+          const toastId = $toasted.info(t('info.attempting_to_save_case'));
+
+          saveWorksite(true, true)
+            .then(async (worksiteId) => {
+              $toasted.dismiss(toastId);
+              await updateCallStatus(worksiteId);
+
+              if (worksiteId) {
+                StorageService.removeItem('currentWorksite');
+              }
+
+              await (worksiteId
+                ? confirm({
+                    title: t('caseForm.case_saved'),
+                    content: t('caseForm.case_call_status_saved'),
+                    actions: {
+                      ok: {
+                        text: t('actions.ok'),
+                        type: 'solid',
+                      },
+                    },
+                  })
+                : confirm({
+                    title: t('caseForm.case_not_saved'),
+                    content: t('caseForm.case_not_saved_try_again'),
+                    actions: {
+                      ok: {
+                        text: t('actions.ok'),
+                        type: 'solid',
+                      },
+                    },
+                  }));
+            })
+            .catch(() => {
+              $toasted.dismiss(toastId);
+            });
+        }
+      },
+    );
+
     watch(
       () => props.dataPrefill,
       (newValue) => {
@@ -1409,11 +1680,13 @@ export default defineComponent({
       worksite.value = {
         incident: props.incidentId,
         form_data: [],
+        notes: [],
         formFields: {},
         auto_contact_frequency_t: currentIncident.value.auto_contact
           ? 'formOptions.not_often'
           : 'formOptions.never',
       };
+      clearLocationFields();
     });
 
     onMounted(async () => {
@@ -1434,12 +1707,15 @@ export default defineComponent({
       fieldTree,
       fieldsArray,
       worksiteAddress,
+      worksiteLatLng,
+      worksiteAddressHtml,
       isAddressValid,
       fieldToErrorMsgMap: fieldToErrorMessageMap,
       shouldSelectOnMap,
       isWrongLocation,
       hideDetailedAddressFields,
       showAddressDetails,
+      showUseMyLocation,
       ready,
       dynamicFields,
       saveNote,
@@ -1455,6 +1731,7 @@ export default defineComponent({
       updateWorksiteFields,
       unlockLocationFields,
       clearLocationFields,
+      collapseGreenPhoneSection,
       onGeocodeSelect,
       onWorksiteSelect,
       saveWorksite,
@@ -1491,7 +1768,9 @@ export default defineComponent({
       form,
       onRemoveFile,
       worksiteImageSection,
+      hasFormHeaderContent,
       supportedLanguages,
+      emitManualDialer,
     };
   },
 });
@@ -1500,9 +1779,13 @@ export default defineComponent({
 <style scoped lang="postcss">
 .form {
   display: grid;
-  grid-template-rows: auto 80px;
+  grid-template-rows: auto 1fr 80px;
   @supports (-webkit-touch-callout: none) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+
+  &--noheader {
+    grid-template-rows: auto 80px;
   }
 }
 

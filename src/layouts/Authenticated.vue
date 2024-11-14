@@ -7,8 +7,7 @@
           v-if="currentIncident && currentIncident.incidentImage"
           :current-incident="currentIncident"
           data-testid="testDisasterIcon"
-          class="fixed left-4 top-4"
-          style="z-index: 1003"
+          class="fixed left-4 top-4 z-disaster-icon"
           @click="showIncidentSelectionModal"
         />
         <main>
@@ -177,6 +176,8 @@ import { isLandscape } from '@/utils/helpers';
 import createDebug from 'debug';
 import type { Portal } from '@/models/types';
 import { VERSION_3_LAUNCH_DATE } from '@/constants';
+import { useAuthenticatedRoutes } from '@/hooks/useAuthenticatedRoutes';
+import axios from 'axios';
 
 const debug = createDebug('@ccu:layouts:Authed');
 const loadDebug = debug.extend('loading');
@@ -199,7 +200,6 @@ export default defineComponent({
       currentUser,
       hasCurrentUser,
       updateCurrentUser,
-      updateUserStates,
       isOrganizationInactive,
       isOrphan,
     } = useCurrentUser();
@@ -221,6 +221,7 @@ export default defineComponent({
     const zendesk = useZendesk()!;
     const { selection } = useDialogs();
     const { emitter } = useEmitter();
+    const { routes } = useAuthenticatedRoutes();
 
     const slideOverVisible = ref(false);
     const showAcceptTermsModal = ref(false);
@@ -235,6 +236,15 @@ export default defineComponent({
         },
       });
 
+      // Orphaned Users can't really login this will navigate to a public landing page once it is built
+      if (isOrphan.value && to.name !== 'nav.request_access') {
+        const requestAccessLocation: RouteLocationRaw = {
+          name: 'nav.request_access',
+          query: { orphan: String(true) },
+        };
+        return next(requestAccessLocation);
+      }
+
       // route guard for inactive organizations.
       if (isOrganizationInactive.value) {
         authStore.logout();
@@ -243,15 +253,22 @@ export default defineComponent({
       if (to.meta.admin && currentUser.value && !currentUser.value.isAdmin) {
         return next({ name: 'nav.dashboard' });
       }
-      // Orphaned Users can't really login this will navigate to a public landing page once it is built
-      if (isOrphan.value) {
-        const requestAccessLocation: RouteLocationRaw = {
-          name: 'nav.request_access',
-          query: { orphan: String(true) },
-        };
-        next(requestAccessLocation);
+      return next();
+    });
+
+    router.onError((error, to) => {
+      if (
+        error?.message?.includes(
+          'Failed to fetch dynamically imported module',
+        ) ||
+        error?.message?.includes('Importing a module script failed')
+      ) {
+        if (to?.fullPath) {
+          window.location = to.fullPath;
+        } else {
+          window.location.reload();
+        }
       }
-      next();
     });
     loadDebug('Loading started...');
     const onPageReadyUnSub = whenever(hasCurrentIncident, () => {
@@ -286,110 +303,39 @@ export default defineComponent({
       to: '/pew-pew',
     }));
 
-    const routes = computed(() => [
-      {
-        name: 'nav.dashboard',
-        key: 'dashboard',
-        text: t('nav.dashboard'),
-        to: `/incident/${currentIncidentId.value}/dashboard`,
-      },
-      {
-        name: 'nav.work',
-        key: 'work',
-        to: `/incident/${currentIncidentId.value}/work`,
-        icon: 'cases',
-        text: t('nav.work'),
-      },
-      {
-        name: 'nav.phone',
-        key: 'phone',
-        icon: 'phone',
-        text: t('nav.phone'),
-        to: `/incident/${currentIncidentId.value}/phone`,
-        disabled: !$can || !$can('phone_agent'),
-      },
-      {
-        name: 'nav.organization',
-        key: 'my_organization',
-        icon: 'organization',
-        iconSize: 'large',
-        to: '/organization/invitations',
-      },
-      {
-        name: 'nav.other_organizations',
-        key: 'other_organizations',
-        icon: 'otherorg',
-        iconSize: 'xl',
-        to: `/incident/${currentIncidentId.value}/other_organizations`,
-      },
-      {
-        name: 'nav.reports',
-        key: 'reports',
-        icon: 'reports',
-        text: t('nav.reports'),
-        to: `/incident/${currentIncidentId.value}/reports`,
-        // newBadge: Report.query()
-        //     .where('created_at', (created_at: string) => {
-        //       const reportsAccessed =
-        //           currentUser?.value?.states &&
-        //           currentUser.value.states.reports_last_accessed;
-        //       return reportsAccessed
-        //           ? moment(created_at).isAfter(moment(reportsAccessed))
-        //           : true;
-        //     })
-        //     .exists(),
-      },
-      {
-        name: 'nav.training',
-        key: 'training',
-        text: t('nav.training'),
-        icon: {
-          type: 'info',
-          invertColor: true,
+    const mobileRoutes = computed(() =>
+      [
+        {
+          name: 'nav.dashboard',
+          key: 'dashboard',
+          text: t('nav.dashboard'),
+          to: `/incident/${currentIncidentId.value}/dashboard`,
+          icon: 'dashboard',
         },
-        to: '/training',
-      },
-      {
-        name: 'nav.admin',
-        key: 'admin',
-        icon: 'admin',
-        text: t('nav.admin'),
-        to: '/admin',
-        disabled: !(currentUser.value && currentUser.value.isAdmin),
-      },
-    ]);
-
-    const mobileRoutes = computed(() => [
-      {
-        name: 'nav.dashboard',
-        key: 'dashboard',
-        text: t('nav.dashboard'),
-        to: `/incident/${currentIncidentId.value}/dashboard`,
-        icon: 'dashboard',
-      },
-      {
-        name: 'nav.work',
-        key: 'work',
-        to: `/incident/${currentIncidentId.value}/work`,
-        icon: 'briefcase',
-        text: t('nav.work'),
-      },
-      {
-        name: 'nav.phone',
-        key: 'phone',
-        icon: 'phone',
-        text: t('nav.phone'),
-        to: `/incident/${currentIncidentId.value}/phone`,
-        disabled: !$can || !$can('phone_agent'),
-      },
-      {
-        name: 'nav.profile',
-        key: 'profile',
-        icon: 'user',
-        text: t('nav.profile'),
-        to: '/profile',
-      },
-    ]);
+        {
+          name: 'nav.work',
+          key: 'work',
+          to: `/incident/${currentIncidentId.value}/work`,
+          icon: 'briefcase',
+          text: t('nav.work'),
+        },
+        {
+          name: 'nav.phone',
+          key: 'phone',
+          icon: 'phone',
+          text: t('nav.phone'),
+          to: `/incident/${currentIncidentId.value}/phone`,
+          disabled: !$can || !$can('phone_agent'),
+        },
+        {
+          name: 'nav.profile',
+          key: 'profile',
+          icon: 'user',
+          text: t('nav.profile'),
+          to: '/profile',
+        },
+      ].filter((r) => !r.disabled),
+    );
 
     const hasAcceptedTaC = computed(() => {
       if (!currentUser.value) return false;
@@ -416,6 +362,36 @@ export default defineComponent({
         accepted_terms_timestamp: moment().toISOString(),
       });
       showAcceptTermsModal.value = false;
+    };
+
+    const checkUserLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            axios
+              .post(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/user_geo_locations`,
+                {
+                  point: {
+                    coordinates: [
+                      position.coords.longitude,
+                      position.coords.latitude,
+                    ],
+                    type: 'Point',
+                  },
+                },
+              )
+              .then(() => {
+                debug('User location updated');
+              });
+          },
+          (error) => {
+            console.error(`Error Code = ${error.code} - ${error.message}`);
+          },
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
     };
 
     const handleChange = async (value: number) => {
@@ -503,7 +479,7 @@ export default defineComponent({
     }
 
     const loadState = useAsyncState(
-      () => Promise.all([setupLanguage(), loadPageData()]),
+      () => Promise.all([setupLanguage(), loadPageData(), checkUserLocation()]),
       undefined,
       {
         immediate: false,
@@ -589,10 +565,9 @@ export default defineComponent({
 }
 
 .sidebar {
-  @apply bg-crisiscleanup-dark-500;
+  @apply bg-crisiscleanup-dark-500 z-sidebar;
   grid-area: sidebar;
   display: none;
-  z-index: 5000;
 }
 
 .sidebar.slide-over {
@@ -617,7 +592,7 @@ export default defineComponent({
 @media (min-width: 768px) {
   .layout {
     display: grid;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 125px 1fr;
     grid-template-rows: 65px 1fr;
     grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;

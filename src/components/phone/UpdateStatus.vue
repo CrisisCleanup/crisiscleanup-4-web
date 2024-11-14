@@ -50,6 +50,7 @@
       <base-button
         v-if="allowCancel"
         class="p-0.5 rounded"
+        :alt="$t('actions.cancel')"
         :action="
           () =>
             $emit('onCancel', {
@@ -60,7 +61,7 @@
         size="small"
         variant="outline"
       >
-        {{ $t('phoneDashboard.cancel') }}
+        {{ $t('actions.cancel') }}
       </base-button>
     </div>
   </form>
@@ -158,6 +159,10 @@ export default defineComponent({
           {
             name_t: t('phoneStatus.no-answer_premature-disconnection'),
             value: 23,
+          },
+          {
+            name_t: t('phoneStatus.answered_test-call'),
+            value: 24,
           },
         ],
         color: '#F0F032',

@@ -247,6 +247,7 @@ export default defineComponent({
       format: 'yyyy-MM-dd HH:mm:ss',
       autoApply: true,
       enableSeconds: true,
+      weekStart: 0,
     });
     const incidentTypeOptions = INCIDENT_TYPES.map((key) => {
       return {

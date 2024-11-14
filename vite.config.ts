@@ -128,6 +128,8 @@ export default defineConfig(async ({ command }) => {
         },
         coverage: {
           provider: 'v8',
+          include: ['src/**'],
+          exclude: ['src/external/**', 'src/assets/vendor/js/**'],
           reporter: ['text', 'json', 'html'],
         },
         globalSetup: './test/globalSetup.ts',

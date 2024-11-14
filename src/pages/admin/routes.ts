@@ -13,6 +13,10 @@ const AdminCms = () => import('./AdminCms.vue');
 const AdminLocalizations = () => import('@/pages/admin/AdminLocalizations.vue');
 const AdminIncidentWizard = () => import('./AdminIncidentWizard.vue');
 const AdminRAG = () => import('./AdminRAG.vue');
+const AdminReportGenerator = () => import('./AdminReportGenerator.vue');
+const AdminGodMode = () => import('./AdminGodMode.vue');
+const AdminSendBulkSms = () => import('./AdminSendBulkSms.vue');
+const AdminSendBulkEmail = () => import('./AdminSendBulkEmail.vue');
 
 const routes = [
   {
@@ -84,6 +88,26 @@ const routes = [
         path: 'rag',
         name: 'nav.rag',
         component: AdminRAG,
+      },
+      {
+        path: 'reports',
+        name: 'nav.reports',
+        component: AdminReportGenerator,
+      },
+      {
+        path: 'god_mode',
+        name: 'nav.god_mode',
+        component: AdminGodMode,
+      },
+      {
+        path: 'send_bulk_sms',
+        name: 'nav.send_bulk_sms',
+        component: AdminSendBulkSms,
+      },
+      {
+        path: 'send_bulk_email',
+        name: 'nav.send_bulk_email',
+        component: AdminSendBulkEmail,
       },
     ],
   },

@@ -33,10 +33,17 @@ export default class CCUModel extends Model {
       return this.api().get(`/${this.entity}/${id}`, { save });
     }
 
+    // Filter out any empty strings
+    const _id = _.filter(id, (i) => i !== '') as number[];
+
+    if (_.isEmpty(_id)) {
+      return [];
+    }
+
     return this.api().get(`/${this.entity}`, {
       params: {
-        id__in: id.join(','),
-        limit: id.length,
+        id__in: _id.join(','),
+        limit: _id.length,
       },
       dataKey: 'results',
       save,

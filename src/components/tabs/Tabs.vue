@@ -15,7 +15,7 @@
         class="tab cursor-pointer"
         @click="selectTab(index)"
       >
-        {{ tab.props.name }}
+        {{ $t(tab.props.name) }}
       </li>
     </ul>
     <slot></slot>

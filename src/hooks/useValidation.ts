@@ -9,15 +9,21 @@ export default function useValidation() {
       return { newValue: value, valid: false };
     }
 
+    let phoneNumber;
     try {
-      parsePhoneNumber(newValue, 'US');
+      phoneNumber = parsePhoneNumber(newValue, 'US');
     } catch (error) {
       if (error instanceof ParseError) {
         return { newValue, valid: false };
       }
+      // Handle other potential errors if necessary
+      return { newValue, valid: false };
     }
 
-    return { newValue, valid: true };
+    // Check if the parsed phone number is valid
+    return phoneNumber && phoneNumber.isValid()
+      ? { newValue, valid: true }
+      : { newValue, valid: false };
   }
 
   return {

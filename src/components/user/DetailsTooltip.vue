@@ -9,13 +9,15 @@
         v-if="userItem"
         data-testid="testUserFullNameContent"
         :class="`${nameClass} tooltip-target cursor-pointer hover:text-primary-dark`"
-        >{{ userItem.full_name }}</span
+        >{{ `${userItem.first_name} ${userItem.last_name}` }}</span
       >
       <slot
     /></base-text>
     <template #popper>
       <div class="tooltip-content p-2">
-        <div v-if="userItem" class="text-base">{{ userItem.full_name }}</div>
+        <div v-if="userItem" class="text-base">
+          {{ `${userItem.first_name} ${userItem.last_name}` }}
+        </div>
         <div
           v-if="userItem"
           class="text-xs"
@@ -43,6 +45,7 @@
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import User from '../../models/User';
+import { DbService, USER_DATABASE } from '@/services/db.service';
 
 export default defineComponent({
   name: 'UserDetailsTooltip',
@@ -62,16 +65,38 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    userObject: {
+      type: Object,
+      default: null,
+    },
   },
   setup(props) {
+    const userFromCache = ref(null);
+
     const asyncUser = ref(null);
     const userItem = computed(() => {
-      return User.find(props.user);
+      return props.userObject || userFromCache.value || User.find(props.user);
     });
-    onMounted(() => {
-      const user = User.find(props.user);
+    onMounted(async () => {
+      const user = props.userObject || User.find(props.user);
+
       if (!user) {
-        User.api().get(`/users/${props.user}`, {});
+        userFromCache.value = await DbService.getItem(
+          `user_${props.user}`,
+          USER_DATABASE,
+        );
+      }
+
+      if (!user && !userFromCache.value) {
+        User.api()
+          .get(`/users/${props.user}`, {})
+          .then((response) => {
+            DbService.setItem(
+              `user_${props.user}`,
+              User.find(props.user)?.$toJson(),
+              USER_DATABASE,
+            );
+          });
       }
     });
     return {

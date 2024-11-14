@@ -39,8 +39,6 @@
 import { ref } from 'vue';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseSelect from '@/components/BaseSelect.vue';
-import Incident from '@/models/Incident';
-import BaseCheckbox from '@/components/BaseCheckbox.vue';
 import { useCurrentIncident } from '@/hooks';
 
 interface NewList {
@@ -91,7 +89,7 @@ const sharedOptions = {
 watch(
   newList,
   () => {
-    emit('onNewList', JSON.parse(JSON.stringify(newList.value)));
+    emit('onNewList', { ...newList.value });
   },
   {
     deep: true,

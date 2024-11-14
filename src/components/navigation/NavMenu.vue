@@ -21,6 +21,7 @@
         :route="r"
       />
     </div>
+    <PoweredByAws class="pt-4 pb-12 px-4" type="square" />
   </div>
 </template>
 
@@ -29,10 +30,11 @@ import type { PropType } from 'vue';
 import NavButton from './NavButton.vue';
 import type { Portal } from '@/models/types';
 import logo from '@/assets/crisiscleanup_logo.png';
+import PoweredByAws from '@/components/PoweredByAws.vue';
 
 export default defineComponent({
   name: 'NavMenu',
-  components: { NavButton },
+  components: { PoweredByAws, NavButton },
   props: {
     routes: {
       type: Array as PropType<Record<string, any>[]>,

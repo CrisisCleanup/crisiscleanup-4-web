@@ -1,10 +1,9 @@
 <template>
-  <Table
+  <AjaxTable
     :columns="columns"
-    :data="requests"
+    :query="query"
     :body-style="{ height: '300px' }"
-    :pagination="meta.pagination"
-    :loading="loading"
+    :url="url"
     @change="$emit('change', $event)"
     @row-click="showContacts"
   >
@@ -118,6 +117,23 @@
             }
           "
         />
+        <base-button
+          v-if="
+            slotProps.item.is_verified &&
+            (slotProps.item.approved_by || slotProps.item.rejected_by)
+          "
+          data-testid="testClearApprovalButton"
+          :text="$t('actions.undo')"
+          :alt="$t('actions.undo')"
+          variant="outline"
+          size="small"
+          class="mx-2"
+          :action="
+            () => {
+              clearApproval(slotProps.item.id);
+            }
+          "
+        />
         <base-link
           :href="`/admin/organization/${slotProps.item.organization}`"
           data-testid="testEditOrganizationLink"
@@ -127,7 +143,7 @@
         </base-link>
       </div>
     </template>
-  </Table>
+  </AjaxTable>
 </template>
 
 <script lang="ts">
@@ -138,26 +154,22 @@ import Table from '../Table.vue';
 import useDialogs from '../../hooks/useDialogs';
 import { momentFromNow } from '../../filters';
 import type { IncidentRequest } from '@/models/types';
+import AjaxTable from '@/components/AjaxTable.vue';
 
 export default defineComponent({
   name: 'IncidentApprovalTable',
-  components: { Table },
+  components: { AjaxTable, Table },
   props: {
-    requests: {
-      type: Array,
-      default: () => [],
-    },
-    meta: {
+    query: {
       type: Object,
-      default() {
-        return {};
-      },
+      default: () => ({}),
     },
-    loading: Boolean,
   },
+  emits: ['reload'],
   setup(props, { emit }) {
     const { t } = useI18n();
     const { confirm } = useDialogs();
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/incident_requests`;
 
     async function showContacts(request: IncidentRequest) {
       const contact = request.requested_by_contact;
@@ -196,12 +208,23 @@ export default defineComponent({
       emit('reload');
     }
 
+    async function clearApproval(requestId: string) {
+      await axios.post(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/incident_requests/${requestId}/clear_approval`,
+      );
+      emit('reload');
+    }
+
     return {
       showContacts,
       approveRequest,
       rejectRequest,
+      clearApproval,
       momentFromNow,
       moment,
+      url,
       columns: [
         {
           title: t('incidentApprovalTable.organization_name'),

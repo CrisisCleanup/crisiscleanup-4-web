@@ -3,8 +3,7 @@
     <div
       v-if="!isOrgActivityModalHidden"
       :class="isOrgActivityModalHidden ? 'translate-x-full' : 'translate-x-0'"
-      class="w-full absolute top-0 right-0 flex justify-center transform transition duration-500"
-      style="z-index: 1002"
+      class="w-full absolute top-0 right-0 flex justify-center transform transition duration-500 z-modal"
     >
       <OrganizationActivityModal
         :is-loading="isOrgActivityModalLoading"

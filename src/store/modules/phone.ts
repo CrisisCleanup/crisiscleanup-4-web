@@ -17,6 +17,7 @@ const AppState = {
   languages: [],
   callHistory: [],
   potentialFailedCall: null,
+  currentDnisHistoryRecord: null,
 };
 
 // Getters
@@ -26,6 +27,7 @@ const getters = {
   call: (state: State) => state.call,
   lastCall: (state: State) => state.lastCall,
   potentialFailedCall: (state: State) => state.potentialFailedCall,
+  currentDnisHistoryRecord: (state: State) => state.currentDnisHistoryRecord,
   caller: (state: State) => state.caller,
   incomingCall: (state: State) => state.incomingCall,
   outgoingCall: (state: State) => state.outgoingCall,
@@ -104,6 +106,7 @@ const mutations = {
     state.outgoingCall = null;
     state.caller = null;
     state.callType = null;
+    state.currentDnisHistoryRecord = null;
   },
   setGeneralStats(state: State, stats: any) {
     state.stats = stats;
@@ -123,6 +126,9 @@ const mutations = {
   setPotentialFailedCall(state: State, call: any) {
     state.potentialFailedCall = call;
   },
+  setCurrentDnisHistoryRecord(state: State, record: any) {
+    state.currentDnisHistoryRecord = record;
+  },
   resetState(state: State) {
     Object.assign(state, {
       user: {},
@@ -140,6 +146,7 @@ const mutations = {
       languages: [],
       callHistory: [],
       potentialFailedCall: null,
+      currentDnisHistoryRecord: null,
     });
   },
 };

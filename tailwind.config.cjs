@@ -162,6 +162,7 @@ module.exports = {
         'crisiscleanup-grid-yellow': '#FECE09',
         'crisiscleanup-phone-green': '#2D830C',
         'crisiscleanup-link-blue': '#59D9F6',
+        'crisiscleanup-dashboard-blue': '#0054BB',
       },
       spacing: {
         18: '4.5rem',
@@ -187,6 +188,20 @@ module.exports = {
         12: 'repeat(12, minmax(0, 1fr))',
         30: 'repeat(30, 1fr)',
       },
+      zIndex: {
+        'popover': 100,
+        'toolbar': 300,
+        'phone-component': 400,
+        'disaster-icon': 500,
+        'map-controls': 500,
+        'phone-overlay': 600,
+        'search-dropdown': 650,
+        'header': 700,
+        'sidebar': 800,
+        'modal-mask': 900,
+        'modal': 1000,
+        'max': 10000,
+      }
     },
   },
   variants: {

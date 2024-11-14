@@ -20,12 +20,11 @@
         >
           {{ $t('editAgentModal.phone_number') }}
         </base-text>
-        <base-input
+        <PhoneNumberInput
           :model-value="phoneNumber"
           data-testid="testPhoneNumberTextInput"
           size="medium"
           placeholder="+1 (000) 000-0000"
-          :validator="validatePhoneNumber"
           @update:model-value="(value: string) => (phoneNumber = value)"
         />
       </div>
@@ -70,20 +69,20 @@
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useToast } from 'vue-toastification';
+import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 import Language from '../../models/Language';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import useConnectFirst from '../../hooks/useConnectFirst';
-import useValidation from '../../hooks/useValidation';
 
 export default defineComponent({
   name: 'EditAgentModal',
+  components: { PhoneNumberInput },
   setup(props, context) {
     const number = ref('');
     const languages = ref<string[]>([]);
     const phoneNumber = ref('');
     const { currentUser, updateCurrentUser } = useCurrentUser();
     const { loadAgent } = useConnectFirst(context);
-    const { validatePhoneNumber } = useValidation();
     const $toasted = useToast();
     const { t } = useI18n();
 
@@ -130,7 +129,6 @@ export default defineComponent({
       languages,
       phoneNumber,
       updateUserNeeded,
-      validatePhoneNumber,
       supportedLanguages,
     };
   },

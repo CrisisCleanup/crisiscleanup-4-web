@@ -88,11 +88,14 @@ export default defineComponent({
           // `portal:${locale.value}`,
         ),
       });
-      store.commit('enums/setStatuses', enums.statuses.data.results);
-      store.commit('enums/setWorkTypes', enums.workTypes.data.results);
-      store.commit('enums/setLocationTypes', enums.locationTypes.data.results);
-      store.commit('enums/setPhases', enums.phases.data.results);
-      store.commit('enums/setPortal', enums.portal.data);
+      store.commit('enums/setStatuses', enums?.statuses?.data?.results);
+      store.commit('enums/setWorkTypes', enums?.workTypes?.data?.results);
+      store.commit(
+        'enums/setLocationTypes',
+        enums?.locationTypes?.data?.results,
+      );
+      store.commit('enums/setPhases', enums?.phases?.data?.results);
+      store.commit('enums/setPortal', enums?.portal?.data);
     }
 
     axios.defaults.headers.CCU_PORTAL_KEY = import.meta.env.VITE_APP_PORTAL_KEY;
@@ -156,7 +159,7 @@ export default defineComponent({
 
 <style lang="scss">
 $dp__input_padding: 11px 12px !default;
-@import '@vuepic/vue-datepicker/src/VueDatePicker/style/main.scss';
+@import '@vuepic/vue-datepicker/dist/main.css';
 
 .crisiscleanup-map-marker svg {
   width: 40px;
@@ -191,6 +194,9 @@ $dp__input_padding: 11px 12px !default;
 .filter-yellow {
   filter: invert(92%) sepia(21%) saturate(3995%) hue-rotate(346deg)
     brightness(98%) contrast(106%);
+}
+.filter-black {
+  filter: invert(100%) saturate(0%);
 }
 
 /*

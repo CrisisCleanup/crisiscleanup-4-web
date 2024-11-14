@@ -22,7 +22,7 @@
           >
         </div>
         <div v-else>
-          {{ $t('info.processing') }}
+          {{ item.status }}
         </div>
       </template>
     </AjaxTable>

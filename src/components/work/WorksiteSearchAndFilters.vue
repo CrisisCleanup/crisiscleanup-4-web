@@ -11,6 +11,7 @@
     use-recents
     class="mx-4 py-1"
     @selected-existing="$emit('selected-existing', $event)"
+    @on-worksite-search="$emit('onWorksiteSearch', $event)"
     @input="
       (value: string) => {
         currentSearch = value;
@@ -35,26 +36,28 @@
 import WorksiteSearchInput from '@/components/work/WorksiteSearchInput.vue';
 import WorksiteFilters from '@/components/work/WorksiteFilters.vue';
 import { ref } from 'vue';
+import Incident from '@/models/Incident';
 
 defineProps({
   initialFilters: {
-    type: Number,
+    type: Object,
     required: true,
   },
   currentIncident: {
-    type: Number,
+    type: Incident,
     required: true,
   },
 });
 
-const emit = defineEmits(
+const emit = defineEmits([
   'selected-existing',
   'updatedQuery',
   'updatedFilters',
   'closed-filters',
   'update-filters-count',
   'updatedFilterLabels',
-);
+  'onWorksiteSearch',
+]);
 
 const currentSearch = ref('');
 const showingFilters = ref(false);
@@ -66,7 +69,7 @@ const organizationLocations = ref([]);
 const showFilters = () => {
   showingFilters.value = true;
 };
-function handleFilters(f) {
+function handleFilters(f: Record<string, any>) {
   appliedFilters.value = {};
   filters.value = f.filters;
   Object.values(f.filters).forEach((filter: any) => {

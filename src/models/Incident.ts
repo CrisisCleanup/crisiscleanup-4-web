@@ -93,13 +93,16 @@ export default class Incident extends CCUModel {
       'start_at',
       'name',
       'short_name',
+      'case_label',
       'geofence',
       'locations',
       'turn_on_release',
       'active_phone_number',
+      'incident_type',
     ];
   }
 
+  id!: number;
   case_label!: string;
   timezone!: string;
   form_fields!: FormField[];

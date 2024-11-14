@@ -16,83 +16,32 @@
       v-if="showInviteModal"
       data-testid="testInviteUserModal"
       modal-classes="bg-white max-w-2xl shadow"
+      modal-body-classes="h-120 overflow-auto"
       :title="$t('usersVue.invite_user')"
       closeable
       @close="
         () => {
           emails = '';
+          organizationDoesNotExist = false;
+          selectedOrganization = null;
           showInviteModal = false;
+          usersToInvite = [];
         }
       "
     >
-      <div class="text-justify flex flex-col p-3 justify-center">
-        <div class="my-3" data-testid="testInviteTeammatesInstructionsDiv">
-          {{ $t('inviteTeammates.invite_teammates_instructions') }}
-        </div>
-        <base-radio
-          class="m-1 mb-3"
-          data-testid="testCurrentLocationSharedRadio"
-          label="Member"
-          :name="
-            $t('inviteTeammates.member_of_organization', {
-              organizationName: currentUser?.organization?.name || '',
-            })
-          "
-          :model-value="memberOfMyOrg"
-          @update:model-value="memberOfMyOrg = $event"
-        />
-        <base-radio
-          class="m-1 mb-3"
-          :name="
-            $t('inviteTeammates.not_member_of_organization', {
-              organizationName: currentUser?.organization?.name || '',
-            })
-          "
-          label="Not Member"
-          data-testid="testCurrentLocationPrivateRadio"
-          :model-value="memberOfMyOrg"
-          @update:model-value="memberOfMyOrg = $event"
-        />
-        <div class="mb-1">
-          <tag-input
-            v-model="emails"
-            v-model:tags="usersToInvite"
-            data-testid="testUserEmailsToInviteTextInput"
-            :placeholder="$t('usersVue.emails')"
-            :validation="validation"
-            :add-on-key="[13, 32, ',']"
-            :separators="[';', ',', ', ']"
-            @tags-changed="(newTags: any) => (usersToInvite = newTags)"
-          />
-        </div>
-        <div
-          v-if="
-            isAdmin ||
-            (currentOrganization &&
-              currentOrganization.affiliates.length > 1) ||
-            memberOfMyOrg === 'Not Member'
-          "
-        >
-          <OrganizationSearchInput
-            class="w-108"
-            data-testid="testOrganizationSearchTextInput"
-            :is-admin="isAdmin"
-            @selected-organization="
-              (organization) => (selectedOrganization = organization.id)
-            "
-          />
-          <base-checkbox
-            v-if="memberOfMyOrg === 'Not Member'"
-            class="m-1 mt-3"
-            data-testid="testOrganizationDoesNotExistCheckbox"
-            label="Organization is not listed"
-            :model-value="organizationDoesNotExist"
-            @update:model-value="organizationDoesNotExist = $event"
-          >
-            {{ $t('inviteTeammates.org_not_listed') }}
-          </base-checkbox>
-        </div>
-      </div>
+      <Invite
+        :is-admin="isAdmin"
+        @tags-changed="
+          usersToInvite = $event.tags;
+          emails = $event.emails;
+        "
+        @selected-organization="selectedOrganization = $event"
+        @on-set-organization-does-not-exist="
+          (value) => {
+            organizationDoesNotExist = value;
+          }
+        "
+      />
       <template #footer>
         <div class="p-3 flex justify-end">
           <base-button
@@ -109,7 +58,7 @@
           <base-button
             variant="solid"
             data-testid="testSubmitInvitesButton"
-            :action="() => inviteUsers()"
+            :action="() => sendInvitations()"
             :text="$t('actions.submit_invites')"
             :alt="$t('actions.submit_invites')"
             class="ml-2 p-3 px-6 text-xs"
@@ -120,25 +69,21 @@
   </div>
 </template>
 <script lang="ts">
-import _ from 'lodash';
-import Multiselect from '@vueform/multiselect';
 import { computed, ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import type { TagInputData } from '@sipec/vue3-tags-input';
-import { createTags } from '@sipec/vue3-tags-input';
-import User from '../../models/User';
 import Organization from '../../models/Organization';
 import OrganizationSearchInput from '../OrganizationSearchInput.vue';
 import { getErrorMessage } from '../../utils/errors';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
-
-const EMAIL_REGEX = /[^\t\n\r @]+@[^\t\n\r @]+\.[^\t\n\r @]+/;
+import Invite from '@/components/Invite.vue';
+import useInviteUsers from '@/hooks/useInviteUsers';
 
 export default defineComponent({
   name: 'InviteUsers',
-  components: { BaseCheckbox, OrganizationSearchInput },
+  components: { Invite, BaseCheckbox, OrganizationSearchInput },
   props: {
     isAdmin: {
       type: Boolean,
@@ -158,7 +103,6 @@ export default defineComponent({
     ];
     const emails = ref('');
     const usersToInvite = ref<TagInputData[]>([]);
-    const multiselect = ref(null);
     const showInviteModal = ref(false);
     const selectedOrganization = ref(null);
     const organizationResults = ref<Organization[]>([]);
@@ -168,6 +112,7 @@ export default defineComponent({
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
     );
+    const { inviteUsers } = useInviteUsers();
 
     async function onOrganizationSearch(value: string) {
       const results = await Organization.api().get(
@@ -180,40 +125,21 @@ export default defineComponent({
         []) as Organization[];
     }
 
-    const inviteUsers = async () => {
-      let tags = _.defaultTo([...usersToInvite.value], []) as TagInputData[];
-      try {
-        if (emails.value) {
-          const emailList = emails.value.match(EMAIL_REGEX);
-          let extTags = _.attempt(createTags, emailList);
-          if (_.isError(extTags)) {
-            extTags = [];
-          }
-
-          tags = _.uniqBy([...tags, ...extTags], 'text');
-        }
-
-        if (_.isEmpty(tags)) {
-          await $toasted.error(t('inviteTeammates.provide_valid_email'));
-          return;
-        }
-
-        const emailsGroup = tags.map((value) => value.text);
-        await Promise.all(
-          emailsGroup.map((email) =>
-            User.api().inviteUser(
-              email,
-              selectedOrganization.value,
-              organizationDoesNotExist.value,
-            ),
-          ),
-        );
-        await $toasted.success(t('inviteTeammates.invites_sent_success'));
-        showInviteModal.value = false;
-        usersToInvite.value = [];
-      } catch (error) {
-        await $toasted.error(getErrorMessage(error));
-      }
+    const sendInvitations = async () => {
+      return inviteUsers({
+        usersToInvite: usersToInvite.value,
+        emails: emails.value,
+        selectedOrganization: selectedOrganization.value,
+        organizationDoesNotExist: organizationDoesNotExist.value,
+        onSuccess: () => {
+          $toasted.success(t('inviteTeammates.invites_sent_success'));
+          showInviteModal.value = false;
+          usersToInvite.value = [];
+        },
+        onError: (error: unknown) => {
+          $toasted.error(getErrorMessage(error));
+        },
+      });
     };
 
     return {
@@ -225,8 +151,7 @@ export default defineComponent({
       onOrganizationSearch,
       selectedOrganization,
       organizationResults,
-      inviteUsers,
-      multiselect,
+      sendInvitations,
       usersToInvite,
       memberOfMyOrg,
       organizationDoesNotExist,

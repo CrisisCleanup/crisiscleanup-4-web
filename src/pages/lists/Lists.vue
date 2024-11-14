@@ -137,7 +137,12 @@ onMounted(async () => {
 <template>
   <div class="mx-auto p-3 rounded-lg">
     <div class="flex justify-end">
-      <base-button variant="solid" class="p-1" :action="addNewList" icon="plus"
+      <base-button
+        variant="solid"
+        class="p-1"
+        :action="addNewList"
+        icon="plus"
+        :alt="$t('actions.new')"
         >{{ $t('actions.new') }}
       </base-button>
     </div>
@@ -168,12 +173,14 @@ onMounted(async () => {
         <base-button
           :action="() => editList(list.id)"
           class="w-20 bg-crisiscleanup-dark-100"
+          :alt="$t('actions.edit')"
         >
           {{ $t('actions.edit') }}
         </base-button>
         <base-button
           class="w-20 bg-crisiscleanup-dark-100"
           :action="() => deleteList(list.id)"
+          :alt="$t('actions.delete')"
         >
           {{ $t('actions.delete') }}
         </base-button>

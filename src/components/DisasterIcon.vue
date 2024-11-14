@@ -27,7 +27,6 @@ import _ from 'lodash';
 import type Incident from '@/models/Incident';
 import type { DisasterIcons } from '@/icons';
 import { DISASTER_ICONS, EASTER_EGG_DISASTER_ICONS } from '@/icons';
-import { extractIconNameFromPath } from '@/utils/helpers';
 
 export interface DisasterIconProps {
   currentIncident: Incident;
@@ -41,7 +40,8 @@ const iconRef = templateRef('disaster-icon');
 const incidentIconComp = computed(() => {
   const incidentType = props.currentIncident.incident_type as DisasterIcons;
   if (!incidentType) return;
-  return DISASTER_ICONS[incidentType];
+  const incidentKey = incidentType.replace('_', '-') as DisasterIcons;
+  return DISASTER_ICONS[incidentKey];
 });
 
 const svgDocument = computed(() => iconRef?.value?.$el);

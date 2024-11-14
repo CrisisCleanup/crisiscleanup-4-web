@@ -10,8 +10,21 @@ const routes = [
       layout: 'authenticated',
       noscroll: true,
     },
-    // TODO: add children routes to handle currently viewing/editing worksite id. To be done on work & phone page refactor/unification
-    // children: [],
+    children: [
+      {
+        path: ':id',
+        redirect: (to) => {
+          return {
+            path: `/incident/${to.params.incident_id}/phone/${to.params.id}/edit`,
+          };
+        },
+      },
+      {
+        path: ':id/edit',
+        name: 'nav.phone_edit_case',
+        meta: { id: 'phone_case_edit', noscroll: true },
+      },
+    ],
   },
   {
     path: '/phone',

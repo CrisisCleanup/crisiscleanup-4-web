@@ -5,7 +5,7 @@
         :model-value="globalSearch"
         data-testid="testGlobalSearch"
         icon="search"
-        class="w-full mx-4"
+        class="w-full"
         :placeholder="$t('actions.search_everywhere')"
         @update:model-value="
           (value) => {
@@ -37,6 +37,28 @@
             () => $router.push(`/admin/incident_wizard/${currentIncidentId}`)
           "
         />
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('~~Show God Mode')"
+          :alt="$t('~~Show God Mode')"
+          :action="() => $router.push('/admin/god_mode')"
+        />
+
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('~~Send Bulk Sms')"
+          :alt="$t('~~Send Bulk Sms')"
+          :action="() => $router.push('/admin/send_bulk_sms')"
+        />
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('~~Send Bulk Email')"
+          :alt="$t('~~Send Bulk Email')"
+          :action="() => $router.push('/admin/send_bulk_email')"
+        />
       </div>
     </div>
     <div class="flex" data-testid="testPendingOrganizationsDiv">
@@ -47,7 +69,7 @@
           </div>
           <base-button
             icon="sync"
-            :action="getOrganizationsForApproval"
+            :action="setOrganizationApprovalQuery"
             :alt="$t('adminDashboard.refresh_pending_organizations')"
             data-testid="testRefreshPendingOrganizationsButton"
           />
@@ -101,8 +123,8 @@
 
         <div class="p-4">
           <OrganizationApprovalTable
-            :organizations="organizationsForApproval"
-            @reload="getOrganizationsForApproval"
+            :query="organizationApprovalQuery"
+            @reload="setOrganizationApprovalQuery"
           ></OrganizationApprovalTable>
         </div>
       </div>
@@ -116,7 +138,7 @@
           <base-button
             icon="sync"
             data-testid="testRefreshRedeployRequestsButton"
-            :action="getIncidentRequests"
+            :action="setIncidentApprovalQuery"
             :alt="$t('adminDashboard.refresh_incident_redeploy_requests')"
           />
         </div>
@@ -158,8 +180,8 @@
         </div>
         <div class="p-4">
           <IncidentApprovalTable
-            :requests="incident_requests"
-            @reload="getIncidentRequests"
+            :query="incidentApprovalQuery"
+            @reload="setIncidentApprovalQuery"
           ></IncidentApprovalTable>
         </div>
       </div>
@@ -425,10 +447,12 @@ import useAcl from '../../hooks/useAcl';
 import useDialogs from '../../hooks/useDialogs';
 import ArcGisUploader from '@/components/admin/ArcGisUploader.vue';
 import MessagesTable from '@/components/admin/MessagesTable.vue';
+import BaseInput from '@/components/BaseInput.vue';
 
 export default defineComponent({
   name: 'AdminDashboard',
   components: {
+    BaseInput,
     MessagesTable,
     DatabaseAccess,
     MergeOrganizations,
@@ -516,10 +540,19 @@ export default defineComponent({
       search: '',
       visible: true,
     });
-    const organizationsForApproval = ref([]);
+    const organizationApprovalQuery = ref({
+      approved_by__isnull: true,
+      rejected_by__isnull: true,
+      sort: '-created_at',
+    });
     const organizationApprovalView = ref('default');
     const redeployView = ref('default');
-    const incident_requests = ref([]);
+    const incidentApprovalQuery = ref({
+      approved_by__isnull: true,
+      rejected_by__isnull: true,
+      organization__is_verified: true,
+      sort: '-updated_at',
+    });
     const loading = ref(false);
     const defaultPagination = ref({
       pageSize: 20,
@@ -534,50 +567,12 @@ export default defineComponent({
 
     async function setApprovalView(view) {
       organizationApprovalView.value = view;
-      return getOrganizationsForApproval();
+      setOrganizationApprovalQuery();
     }
 
     async function setRedeployViewView(view) {
       redeployView.value = view;
-      return getIncidentRequests();
-    }
-
-    async function getOrganizationsForApproval() {
-      if ($can('approve_orgs_full')) {
-        const parametersDict = {
-          default: {
-            approved_by__isnull: true,
-            rejected_by__isnull: true,
-          },
-          approved: {
-            approved_by__isnull: false,
-            sort: '-approved_at',
-            limit: 10,
-          },
-          rejected: {
-            rejected_by__isnull: false,
-            sort: '-rejected_at',
-            limit: 10,
-          },
-        };
-
-        const parameters = {
-          ...parametersDict[organizationApprovalView.value],
-        };
-
-        if (globalSearch.value) {
-          parameters.search = globalSearch.value;
-        }
-
-        const queryString = getQueryString(parameters);
-
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/admins/organizations?${queryString}`,
-        );
-        organizationsForApproval.value = response.data.results;
-      }
+      setIncidentApprovalQuery();
     }
 
     async function getOrganizations(data = {}) {
@@ -721,7 +716,7 @@ export default defineComponent({
       };
     }
 
-    async function getIncidentRequests() {
+    function setIncidentApprovalQuery() {
       if ($can('move_orgs')) {
         const parametersDict = {
           default: {
@@ -733,32 +728,47 @@ export default defineComponent({
           approved: {
             approved_by__isnull: false,
             sort: '-approved_at',
-            limit: 10,
+            limit: 50,
           },
           rejected: {
             rejected_by__isnull: false,
             sort: '-rejected_at',
-            limit: 10,
+            limit: 50,
           },
         };
 
         const parameters = {
           ...parametersDict[redeployView.value],
         };
+        incidentApprovalQuery.value = { ...parameters };
+      }
+    }
 
-        const queryString = getQueryString(parameters);
-        try {
-          const response = await axios.get(
-            `${
-              import.meta.env.VITE_APP_API_BASE_URL
-            }/admins/incident_requests?${queryString}`,
-          );
-          if (response.data) {
-            incident_requests.value = [...response.data.results];
-          }
-        } catch {
-          // this.$log.debug(error);
+    function setOrganizationApprovalQuery() {
+      if ($can('approve_orgs_full')) {
+        const parametersDict = {
+          default: {
+            approved_by__isnull: true,
+            rejected_by__isnull: true,
+            sort: '-created_at',
+          },
+          approved: {
+            approved_by__isnull: false,
+            sort: '-approved_at',
+          },
+          rejected: {
+            rejected_by__isnull: false,
+            sort: '-rejected_at',
+          },
+        };
+
+        const parameters = {
+          ...parametersDict[organizationApprovalView.value],
+        };
+        if (globalSearch.value) {
+          parameters.search = globalSearch.value;
         }
+        organizationApprovalQuery.value = { ...parameters };
       }
     }
 
@@ -774,8 +784,8 @@ export default defineComponent({
 
     async function reloadDashBoard() {
       await Promise.all([
-        getOrganizationsForApproval(),
-        getIncidentRequests(),
+        setOrganizationApprovalQuery(),
+        setIncidentApprovalQuery(),
         getOrganizations({ pagination: defaultPagination.value }),
         getUsers({ pagination: defaultPagination.value }),
         getGhostUsers({ pagination: defaultPagination.value }),
@@ -799,12 +809,12 @@ export default defineComponent({
     });
 
     return {
-      getOrganizationsForApproval,
       getOrganizations,
       getUsers,
       getGhostUsers,
       getInvitationRequests,
-      getIncidentRequests,
+      setIncidentApprovalQuery,
+      incidentApprovalQuery,
       inviteUsers,
       reloadDashBoard,
       showArcGisUploader,
@@ -816,8 +826,8 @@ export default defineComponent({
       ghostUsers,
       invitationRequests,
       invitations,
-      organizationsForApproval,
-      incident_requests,
+      organizationApprovalQuery,
+      setOrganizationApprovalQuery,
       messages,
       loading,
       defaultPagination,

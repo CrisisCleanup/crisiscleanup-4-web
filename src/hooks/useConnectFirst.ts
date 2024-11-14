@@ -26,7 +26,6 @@ export default function useConnectFirst(context: {
   const { currentUser } = useCurrentUser();
 
   const languages = computed(() => currentUser?.value?.languages);
-  const statuses = computed(() => PhoneStatus.all());
   const currentIncident = computed(() => {
     return Incident.find(currentIncidentId.value);
   });
@@ -44,13 +43,18 @@ export default function useConnectFirst(context: {
   );
   const isInboundCall = computed(() => store.getters['phone/isInboundCall']);
   const isOutboundCall = computed(() => store.getters['phone/isOutboundCall']);
-
+  const isConnecting = computed(() => {
+    return isTransitioning.value || (isTakingCalls.value && !isOnCall.value);
+  });
   const callState = computed(() => store.getters['phone/callState']);
   const callType = computed(() => store.getters['phone/callType']);
   const call = computed(() => store.getters['phone/call']);
   const lastCall = computed(() => store.getters['phone/lastCall']);
   const potentialFailedCall = computed(
     () => store.getters['phone/potentialFailedCall'],
+  );
+  const currentDnisHistoryRecord = computed(
+    () => store.getters['phone/currentDnisHistoryRecord'],
   );
   const caller = computed<PhoneDnisResult>(() => store.getters['phone/caller']);
   const incomingCall = computed(() => store.getters['phone/incomingCall']);
@@ -67,6 +71,10 @@ export default function useConnectFirst(context: {
 
   const setPotentialFailedCall = (call: any) => {
     store.commit('phone/setPotentialFailedCall', call);
+  };
+
+  const setCurrentDnisHistoryRecord = (record: any) => {
+    store.commit('phone/setCurrentDnisHistoryRecord', record);
   };
 
   const setCallType = (callType: any) => {
@@ -95,6 +103,10 @@ export default function useConnectFirst(context: {
 
   async function hangUp() {
     return phoneService.hangup();
+  }
+
+  async function resetPhoneSystem() {
+    return phoneService.resetPhoneSystem();
   }
 
   async function setAway() {
@@ -222,11 +234,29 @@ export default function useConnectFirst(context: {
     setCaller(caller);
     await phoneService.dial(
       number,
-      currentIncident?.value?.active_phone_number,
+      Array.isArray(currentIncident?.value?.active_phone_number)
+        ? currentIncident?.value?.active_phone_number[0]
+        : currentIncident?.value?.active_phone_number,
     );
   }
 
   async function dialManualOutbound(number: string) {
+    const portalResponse = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/portals/current`,
+      {
+        headers: {
+          Authorization: null,
+        },
+      },
+    );
+
+    const portal = portalResponse?.data;
+
+    if (portal?.attr?.disable_outbound_calls) {
+      $toasted.warning(t('~~Outbound Calls are currently disabled'));
+      return;
+    }
+
     await loginPhone(true, 'WORKING');
     dialing.value = true;
     try {
@@ -236,15 +266,32 @@ export default function useConnectFirst(context: {
         userId: currentUser?.value?.id,
         language: currentUser?.value?.primary_language,
       });
-      await createOutboundCall(outbound, number);
+      if (outbound) {
+        await createOutboundCall(outbound, number);
+      }
     } catch (error) {
-      await $toasted.error(getErrorMessage(error));
+      $toasted.error(getErrorMessage(error));
     } finally {
       dialing.value = false;
     }
   }
 
   async function dialNextOutbound() {
+    const portalResponse = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/portals/current`,
+      {
+        headers: {
+          Authorization: null,
+        },
+      },
+    );
+
+    const portal = portalResponse?.data;
+
+    if (portal?.attr?.disable_outbound_calls) {
+      throw new Error(t('~~Outbound Calls are currently disabled'));
+    }
+
     dialing.value = true;
     try {
       const outbound = await PhoneOutbound.api().getNextOutbound({
@@ -260,6 +307,11 @@ export default function useConnectFirst(context: {
     }
   }
 
+  async function removeNumberFromQueue(number: string) {
+    await PhoneOutbound.api().completeCallsForPhoneNumber(number);
+    $toasted.success(t('info.dnis_removed_from_queue'));
+  }
+
   onMounted(async () => {
     const { data } = await axios.get(
       `${import.meta.env.VITE_APP_API_BASE_URL}/phone_agents/call_history`,
@@ -271,6 +323,7 @@ export default function useConnectFirst(context: {
     currentAgent,
     dialing,
     currentIncidentId,
+    currentIncident,
     loadAgent,
     setAvailable,
     setWorking,
@@ -280,6 +333,7 @@ export default function useConnectFirst(context: {
     call,
     lastCall,
     potentialFailedCall,
+    currentDnisHistoryRecord,
     caller,
     incomingCall,
     outgoingCall,
@@ -294,7 +348,9 @@ export default function useConnectFirst(context: {
     isTransitioning,
     isInboundCall,
     isOutboundCall,
+    isConnecting,
     dialManualOutbound,
+    removeNumberFromQueue,
     hangUp,
     setCurrentIncidentId(id: string) {
       store.commit('incident/setCurrentIncidentId', id);
@@ -323,5 +379,6 @@ export default function useConnectFirst(context: {
     loginPhone,
     dialNextOutbound,
     apiGetQueueStats,
+    resetPhoneSystem,
   };
 }

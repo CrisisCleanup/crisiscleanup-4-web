@@ -16,7 +16,7 @@
       @click.stop
     />
     <template v-if="actions.length > 0" #popper>
-      <div class="flex text-primary-dark" style="z-index: 1001">
+      <div class="flex text-primary-dark z-map-controls">
         <base-button
           v-for="action in actions"
           :key="`${action.id}`"
@@ -82,9 +82,8 @@ export default defineComponent({
 
 <style>
 .layer-action-popover {
-  @apply bg-white text-crisiscleanup-dark-100 outline-none w-full border w-auto;
+  @apply bg-white text-crisiscleanup-dark-100 outline-none w-full border w-auto z-max;
   left: 1px !important;
-  z-index: 50000;
 }
 
 .map-button.selected {
