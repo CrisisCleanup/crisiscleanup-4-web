@@ -1,6 +1,6 @@
 <template>
   <div class="items-center flex justify-center w-full">
-    <div>
+    <div class="w-180">
       <div class="report-generator p-6 bg-white mb-10">
         <h2 class="text-2xl font-semibold mb-4">
           {{ $t('adminDashboard.admin_reports') }}
@@ -16,6 +16,9 @@
             label="label"
             @update:model-value="onReportChange"
           />
+          <div class="text-sm text-crisiscleanup-dark-300">
+            {{ selectedReportObject.description }}
+          </div>
         </div>
         <div
           v-if="reportInputs && reportInputs.length > 0"
@@ -41,12 +44,12 @@
               select-classes="bg-white w-full h-10"
               item-key="id"
               label="name"
-              :placeholder="$t('actions.select_incident')"
+              :placeholder="input.description"
             />
             <base-input
               v-else
               v-model="inputValues[input.name]"
-              :placeholder="input.name"
+              :placeholder="input.description"
               size="large"
             />
           </div>
@@ -96,6 +99,12 @@ const { emitter } = useEmitter();
 // State variables
 const availableReports = ref([]);
 const selectedReport = ref(null);
+const selectedReportObject = computed(() => {
+  const selected = availableReports.value.find(
+    (report) => report.value === selectedReport.value,
+  );
+  return selected || {};
+});
 const reportInputs = ref([]);
 const inputValues = ref({});
 
@@ -136,6 +145,7 @@ onMounted(async () => {
       label: report.name,
       value: report.name,
       inputs: report.inputs || [],
+      description: report.description,
     }));
   } catch (error) {
     console.error('Error fetching report:', error);
