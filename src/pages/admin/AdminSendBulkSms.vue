@@ -209,8 +209,9 @@ const sendSMS = async () => {
       return;
     }
 
-    // Append phone numbers to formData
-    formData.append('phone_numbers', JSON.stringify(validNumbers));
+    validNumbers.forEach((number: string) => {
+      formData.append('phone_numbers', number);
+    });
   } else if (inputMethod.value === 'csvFile') {
     if (!csvFile.value) {
       $toasted.error(t('Please upload a CSV file.'));
