@@ -40,7 +40,7 @@
       ref="table"
       :columns="columns"
       :url="tableUrl"
-      :body-style="{ height: '40rem' }"
+      :body-style="{ height: '' }"
       data-testid="testOrganizationsDataTable"
       class="bg-white border"
       :query="{
@@ -49,23 +49,6 @@
         fields: 'id,name,url,facebook,twitter,type_t',
       }"
     >
-      <template #overdue_count="slotProps">
-        <base-button
-          class="text-primary-dark underline"
-          :action="
-            () => {
-              $router.push(
-                `/incident/${currentIncidentId}/work?showTable=true&work_type__claimed_by=${
-                  slotProps.item.id
-                }&work_type__status__in=${getOpenStatuses()}&created_at__lte=${getCreatedAtLteFilter()}`,
-              );
-            }
-          "
-        >
-          {{ slotProps.item.overdue_count || 0 }}
-        </base-button>
-      </template>
-
       <template #url="slotProps">
         <base-button
           class="text-primary-dark underline sm:ml-0 ml-1"
@@ -159,7 +142,7 @@ export default defineComponent({
     const store = useStore();
     const ccuApi = useApi();
     const { t, locale } = useI18n();
-    const tableUrl = '/other_organizations';
+    const tableUrl = import.meta.env.VITE_APP_API_BASE_URL + '/organizations';
 
     const loading = ref(false);
     const table = ref(null);
@@ -217,70 +200,70 @@ export default defineComponent({
         sortable: false,
         width: '1fr',
       },
-      {
-        title: t('otherOrganizations.incidents'),
-        dataIndex: 'incident_count',
-        key: 'incident_count',
-        // sortable: true,
-        transformer(item: number) {
-          return item || 0;
-        },
-        class: 'justify-center',
-        headerClass: 'justify-center',
-      },
-      {
-        title: t('otherOrganizations.cases_reported'),
-        dataIndex: 'reported_count',
-        key: 'reported_count',
-        sortable: true,
-        transformer(item: number) {
-          return item || 0;
-        },
-        class: 'justify-center',
-        headerClass: 'justify-center',
-      },
-      {
-        title: t('otherOrganizations.cases_claimed'),
-        dataIndex: 'claimed_count',
-        key: 'claimed_count',
-        // sortable: true,
-        transformer(item: number) {
-          return item || 0;
-        },
-        class: 'justify-center',
-        headerClass: 'justify-center',
-      },
-      {
-        title: t('otherOrganizations.cases_closed'),
-        dataIndex: 'closed_count',
-        key: 'closed_count',
-        // sortable: true,
-        transformer(item: number) {
-          return item || 0;
-        },
-        class: 'justify-center',
-        headerClass: 'justify-center',
-      },
-      {
-        title: t('otherOrganizations.cases_overdue'),
-        dataIndex: 'overdue_count',
-        key: 'overdue_count',
-        // sortable: true,
-        class: 'justify-center',
-        headerClass: 'justify-center',
-      },
-      {
-        title: t('otherOrganizations.last_login'),
-        dataIndex: 'last_login',
-        key: 'last_login',
-        // sortable: true,
-        class: 'justify-center',
-        headerClass: 'justify-center',
-        width: '150px',
-        transformer(item: Date) {
-          return moment(item).fromNow();
-        },
-      },
+      // {
+      //   title: t('otherOrganizations.incidents'),
+      //   dataIndex: 'incident_count',
+      //   key: 'incident_count',
+      //   sortable: true,
+      //   transformer(item: number) {
+      //     return item || 0;
+      //   },
+      //   class: 'justify-center',
+      //   headerClass: 'justify-center',
+      // },
+      // {
+      //   title: t('otherOrganizations.cases_reported'),
+      //   dataIndex: 'reported_count',
+      //   key: 'reported_count',
+      //   sortable: true,
+      //   transformer(item: number) {
+      //     return item || 0;
+      //   },
+      //   class: 'justify-center',
+      //   headerClass: 'justify-center',
+      // },
+      // {
+      //   title: t('otherOrganizations.cases_claimed'),
+      //   dataIndex: 'claimed_count',
+      //   key: 'claimed_count',
+      //   sortable: true,
+      //   transformer(item: number) {
+      //     return item || 0;
+      //   },
+      //   class: 'justify-center',
+      //   headerClass: 'justify-center',
+      // },
+      // {
+      //   title: t('otherOrganizations.cases_closed'),
+      //   dataIndex: 'closed_count',
+      //   key: 'closed_count',
+      //   sortable: true,
+      //   transformer(item: number) {
+      //     return item || 0;
+      //   },
+      //   class: 'justify-center',
+      //   headerClass: 'justify-center',
+      // },
+      // {
+      //   title: t('otherOrganizations.cases_overdue'),
+      //   dataIndex: 'overdue_count',
+      //   key: 'overdue_count',
+      //   sortable: true,
+      //   class: 'justify-center',
+      //   headerClass: 'justify-center',
+      // },
+      // {
+      //   title: t('otherOrganizations.last_login'),
+      //   dataIndex: 'last_login',
+      //   key: 'last_login',
+      //   sortable: true,
+      //   class: 'justify-center',
+      //   headerClass: 'justify-center',
+      //   width: '150px',
+      //   transformer(item: Date) {
+      //     return moment(item).fromNow();
+      //   },
+      // },
     ]);
 
     onMounted(async () => {
