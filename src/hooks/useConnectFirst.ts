@@ -253,7 +253,7 @@ export default function useConnectFirst(context: {
     const portal = portalResponse?.data;
 
     if (portal?.attr?.disable_outbound_calls) {
-      $toasted.warning(t('~~Outbound Calls are currently disabled'));
+      $toasted.warning(t('info.outbound_calls_currently_disabled'));
       return;
     }
 
@@ -289,7 +289,7 @@ export default function useConnectFirst(context: {
     const portal = portalResponse?.data;
 
     if (portal?.attr?.disable_outbound_calls) {
-      throw new Error(t('~~Outbound Calls are currently disabled'));
+      throw new Error(t('info.outbound_calls_currently_disabled'));
     }
 
     dialing.value = true;

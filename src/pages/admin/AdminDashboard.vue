@@ -31,8 +31,8 @@
           data-testid="testExportButton"
           size="medium"
           variant="solid"
-          :text="$t('dashboard.edit_current_incident')"
-          :alt="$t('dashboard.edit_current_incident')"
+          :text="$t('adminDashboard.edit_current_incident')"
+          :alt="$t('adminDashboard.edit_current_incident')"
           :action="
             () => $router.push(`/admin/incident_wizard/${currentIncidentId}`)
           "
@@ -40,23 +40,23 @@
         <base-button
           size="medium"
           variant="solid"
-          :text="$t('~~Show God Mode')"
-          :alt="$t('~~Show God Mode')"
+          :text="$t('adminDashboard.show_god_mode')"
+          :alt="$t('adminDashboard.show_god_mode')"
           :action="() => $router.push('/admin/god_mode')"
         />
 
         <base-button
           size="medium"
           variant="solid"
-          :text="$t('~~Send Bulk Sms')"
-          :alt="$t('~~Send Bulk Sms')"
+          :text="$t('adminDashboard.save_bulk_sms')"
+          :alt="$t('adminDashboard.save_bulk_sms')"
           :action="() => $router.push('/admin/send_bulk_sms')"
         />
         <base-button
           size="medium"
           variant="solid"
-          :text="$t('~~Send Bulk Email')"
-          :alt="$t('~~Send Bulk Email')"
+          :text="$t('adminDashboard.send_bulk_email')"
+          :alt="$t('adminDashboard.send_bulk_email')"
           :action="() => $router.push('/admin/send_bulk_email')"
         />
       </div>
