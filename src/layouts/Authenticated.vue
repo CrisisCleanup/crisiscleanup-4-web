@@ -15,7 +15,7 @@
         </main>
         <footer
           style="width: 100svw"
-          class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center"
+          class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center z-header"
         >
           <div
             v-for="r in mobileRoutes"
