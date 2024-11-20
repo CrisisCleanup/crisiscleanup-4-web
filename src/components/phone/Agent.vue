@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-white p-2 text-xs flex justify-end w-full">
+  <div
+    class="bg-white p-2 text-xs flex md:justify-end w-screen md:w-full flex-wrap"
+  >
     <div class="flex items-center justify-center">
       <div v-if="isTakingCalls">{{ allowedCallsString }}</div>
       <PhoneIndicator />
