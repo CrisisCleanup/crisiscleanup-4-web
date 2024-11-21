@@ -271,7 +271,7 @@ const checkTaskStatus = (taskId: string) => {
 
 const showPreview = async () => {
   await component({
-    title: t('Email Preview'),
+    title: t('actions.show_preview'),
     component: CmsViewer,
     classes: 'w-full h-96 overflow-auto p-3',
     modalClasses: 'bg-white max-w-3xl shadow',
@@ -284,7 +284,7 @@ const showPreview = async () => {
 
 const showAdminEmailAssets = async () => {
   await component({
-    title: t('Email Images'),
+    title: t('~~Email Images'),
     component: AdminEmailAssets,
     classes: 'w-full h-96 overflow-auto p-3',
     modalClasses: 'bg-white max-w-3xl shadow',

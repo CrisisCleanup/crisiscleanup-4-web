@@ -103,12 +103,12 @@
         </div>
       </div>
       <div v-else-if="taskStatus.state === 'FAILURE'">
-        <p>{{ $t('Failed to send SMS messages.') }}</p>
+        <p>{{ $t('info.sms_failed') }}</p>
         <!-- Display error details if available -->
         <p v-if="taskStatus.result">{{ taskStatus.result }}</p>
       </div>
       <div v-else>
-        <p>{{ $t('Processing...') }}</p>
+        <p>{{ $t('info.processing') }}</p>
       </div>
     </div>
   </div>
@@ -163,7 +163,7 @@ const sendSMS = async () => {
 
   if (inputMethod.value === 'phoneList') {
     if (!phoneNumberList.value.trim()) {
-      $toasted.error(t('Please enter at least one recipient phone number.'));
+      $toasted.error(t('bulkSms.please_enter_one_phone_number'));
       return;
     }
 
@@ -186,22 +186,20 @@ const sendSMS = async () => {
       // Update invalidNumbersList
       invalidNumbersList.value = invalidNumbers;
       if (validNumbers.length === 0) {
-        $toasted.error(
-          t('All phone numbers were invalid and have been removed.'),
-        );
+        $toasted.error(t('bulkSms.all_phone_numbers_invalid_removed'));
       } else {
         $toasted.error(
-          t('Invalid phone numbers have been removed: ') +
+          t('bulkSms.invalid_phone_numbers_removed') +
             invalidNumbers.join(', ') +
             '. ' +
-            t('Please click Send SMS again.'),
+            t('info.please_click_send_sms_again'),
         );
       }
       return;
     }
 
     if (validNumbers.length === 0) {
-      $toasted.error(t('No valid phone numbers to send.'));
+      $toasted.error(t('bulkSms.no_valid_phone_numbers'));
       return;
     }
 
@@ -209,12 +207,12 @@ const sendSMS = async () => {
     formData.append('phone_numbers', JSON.stringify(validNumbers));
   } else if (inputMethod.value === 'csvFile') {
     if (!csvFile.value) {
-      $toasted.error(t('Please upload a CSV file.'));
+      $toasted.error(t('info.please_upload_csv'));
       return;
     }
     formData.append('csv_file', csvFile.value);
   } else {
-    $toasted.error(t('Invalid input method.'));
+    $toasted.error(t('info.invalid_input_method'));
     return;
   }
 
@@ -224,14 +222,14 @@ const sendSMS = async () => {
         'Content-Type': 'multipart/form-data',
       },
     });
-    $toasted.success(t('SMS messages are being sent.'));
+    $toasted.success(t('info.success'));
     const taskId = response.data.task_id;
     checkTaskStatus(taskId);
     invalidNumbersList.value = [];
     csvErrors.value = [];
   } catch (error) {
     const errorMessage =
-      error.response?.data?.detail || t('Failed to send SMS messages.');
+      error.response?.data?.detail || t('info.failed_to_send_sms');
     $toasted.error(errorMessage);
   }
 };
@@ -255,7 +253,7 @@ const checkTaskStatus = (taskId: string) => {
         }
       }
     } catch {
-      $toasted.error(t('Failed to check task status.'));
+      $toasted.error(t('info.failed_to_check_task_status'));
       clearInterval(statusInterval);
     }
   }, 5000);
@@ -263,12 +261,12 @@ const checkTaskStatus = (taskId: string) => {
 
 const showPreview = async () => {
   if (!messageText.value.trim()) {
-    $toasted.error(t('Please enter a message to preview.'));
+    $toasted.error(t('~~Please enter a message to preview.'));
     return;
   }
 
   await component({
-    title: t('SMS Preview'),
+    title: t('actions.show_preview'),
     component: CmsViewer,
     classes: 'w-full h-96 overflow-auto p-3',
     modalClasses: 'bg-white max-w-md shadow',
