@@ -982,7 +982,7 @@ import Worksite from '../models/Worksite';
 import CaseHistory from '../components/work/CaseHistory.vue';
 import {
   loadCaseImagesCached,
-  loadCasesCachedWithPagination,
+  loadCasesCached,
   loadUserLocations,
 } from '../utils/worksite';
 import { averageGeolocation, getUserLocationLayer } from '../utils/map';
@@ -1256,7 +1256,7 @@ export default defineComponent({
 
     async function getWorksites() {
       mapLoading.value = true;
-      const response = await loadCasesCachedWithPagination({
+      const response = await loadCasesCached({
         ...worksiteQuery.value,
       });
       mapLoading.value = false;
@@ -1274,7 +1274,7 @@ export default defineComponent({
 
     async function getAllWorksites() {
       mapLoading.value = true;
-      const response = await loadCasesCachedWithPagination({
+      const response = await loadCasesCached({
         incident: currentIncidentId.value,
       });
       mapLoading.value = false;

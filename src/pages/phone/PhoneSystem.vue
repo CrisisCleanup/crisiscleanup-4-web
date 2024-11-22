@@ -540,7 +540,7 @@ import useDialogs from '../../hooks/useDialogs';
 import useConnectFirst from '../../hooks/useConnectFirst';
 import User from '../../models/User';
 import WorksiteForm from '../../components/work/WorksiteForm.vue';
-import { loadCasesCachedWithPagination } from '@/utils/worksite';
+import { loadCasesCached } from '@/utils/worksite';
 import { getErrorMessage } from '@/utils/errors';
 import usePhoneService from '@/hooks/phone/usePhoneService';
 import WorksiteTable from '@/components/work/WorksiteTable.vue';
@@ -1120,7 +1120,7 @@ export default defineComponent({
 
     async function getWorksites() {
       mapLoading.value = true;
-      const response = await loadCasesCachedWithPagination({
+      const response = await loadCasesCached({
         incident: currentIncidentId.value,
       });
       mapLoading.value = false;
