@@ -5,7 +5,7 @@ import { getApiUrl } from '@/utils/helpers';
 import Worksite from '@/models/Worksite';
 import { getQueryString } from '@/utils/urls';
 import InvitationRequest from '@/models/InvitationRequest';
-import { loadCasesCachedWithPagination } from '@/utils/worksite';
+import { loadCasesCached } from '@/utils/worksite';
 import User from '@/models/User';
 import Organization from '@/models/Organization';
 
@@ -73,7 +73,7 @@ async function getInvitationRequests() {
 }
 
 async function getWorksites(incident) {
-  const response = await loadCasesCachedWithPagination({
+  const response = await loadCasesCached({
     incident: incident,
   });
   return response.results;
