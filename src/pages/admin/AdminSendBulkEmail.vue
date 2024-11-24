@@ -98,14 +98,18 @@
         <p>{{ $t('info.emails_sent') }}</p>
         <!-- Display sent emails -->
         <div v-if="sentEmails.length > 0" class="mt-2">
-          <p class="text-green-600">{{ $t('bulkEmail.emails_sucessfully_sent_to') }}</p>
+          <p class="text-green-600">
+            {{ $t('bulkEmail.emails_sucessfully_sent_to') }}
+          </p>
           <ul class="list-disc list-inside text-green-600">
             <li v-for="email in sentEmails" :key="email">{{ email }}</li>
           </ul>
         </div>
         <!-- Display unsuccessful emails -->
         <div v-if="unsuccessfulEmails.length > 0" class="mt-2">
-          <p class="text-red-500">{{ $t('bulkEmail.emails_failed_to_send') }}</p>
+          <p class="text-red-500">
+            {{ $t('bulkEmail.emails_failed_to_send') }}
+          </p>
           <ul class="list-disc list-inside text-red-500">
             <li v-for="item in unsuccessfulEmails" :key="item.email">
               {{ item.email }}: {{ item.error }}

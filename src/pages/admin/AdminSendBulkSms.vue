@@ -87,7 +87,9 @@
         <p>{{ $t('info.sms_sent') }}</p>
         <!-- Display sent phone numbers -->
         <div v-if="sentNumbers.length > 0" class="mt-2">
-          <p class="text-green-600">{{ $t('bulkSms.sms_sucessfully_sent_to') }}</p>
+          <p class="text-green-600">
+            {{ $t('bulkSms.sms_sucessfully_sent_to') }}
+          </p>
           <ul class="list-disc list-inside text-green-600">
             <li v-for="number in sentNumbers" :key="number">{{ number }}</li>
           </ul>
