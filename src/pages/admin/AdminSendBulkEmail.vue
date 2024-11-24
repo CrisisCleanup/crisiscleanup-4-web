@@ -284,7 +284,7 @@ const showPreview = async () => {
 
 const showAdminEmailAssets = async () => {
   await component({
-    title: t('~~Email Images'),
+    title: t('bulkEmail.show_email_images'),
     component: AdminEmailAssets,
     classes: 'w-full h-96 overflow-auto p-3',
     modalClasses: 'bg-white max-w-3xl shadow',

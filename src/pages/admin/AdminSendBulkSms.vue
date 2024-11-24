@@ -152,9 +152,7 @@ const validatePhoneNumber = (number: string) => {
 
 const sendSMS = async () => {
   if (!messageText.value.trim()) {
-    $toasted.error(
-      t('Please enter a message and add at least one recipient phone number.'),
-    );
+    $toasted.error(t('info.complete_all_fields_and_recipient'));
     return;
   }
 
@@ -261,7 +259,7 @@ const checkTaskStatus = (taskId: string) => {
 
 const showPreview = async () => {
   if (!messageText.value.trim()) {
-    $toasted.error(t('~~Please enter a message to preview.'));
+    $toasted.error(t('bulkSms.enter_message_preview_sms'));
     return;
   }
 
