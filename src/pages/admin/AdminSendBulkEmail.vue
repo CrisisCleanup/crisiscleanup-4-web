@@ -217,8 +217,9 @@ const sendEmails = async () => {
       return;
     }
 
-    // Append emails to formData
-    formData.append('emails', JSON.stringify(validEmails));
+    validEmails.forEach((email: string) => {
+      formData.append('emails', email);
+    });
   } else if (inputMethod.value === 'csvFile') {
     if (!csvFile.value) {
       $toasted.error(t('info.please_upload_csv'));

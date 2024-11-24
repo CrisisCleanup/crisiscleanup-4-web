@@ -1,4 +1,5 @@
 import moment from 'moment';
+import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { DbService, WORKSITE_IMAGES_DATABASE } from '@/services/db.service';
 import { generateHash } from './helpers';
@@ -24,6 +25,36 @@ const loadCases = async (query: Record<string, unknown>) => {
     },
   );
   return response.data;
+};
+
+const loadCasesPaginated = async (query: Record<string, unknown>) => {
+  const results: CachedCase[] = [];
+  let nextUrl: string | null =
+    `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_page`;
+  let params = { ...query };
+
+  while (nextUrl) {
+    const response: AxiosResponse = await axios.get<CachedCaseResponse>(
+      nextUrl,
+      { params },
+    );
+    const { data } = response;
+    results.push(...data.results);
+    nextUrl = data.next;
+
+    // If nextUrl is relative, construct the full URL
+    if (nextUrl && !nextUrl.startsWith('http')) {
+      nextUrl = `${import.meta.env.VITE_APP_API_BASE_URL}${nextUrl}`;
+    }
+
+    // After the first request, params are included in the next URL
+    params = {};
+  }
+
+  return {
+    count: results.length,
+    results,
+  };
 };
 
 const loadUserLocations = async (query: Record<string, unknown>) => {
@@ -107,6 +138,90 @@ const loadCasesCached = async (query: Record<string, unknown>) => {
   }
 
   const results = await loadCases(query);
+  await DbService.setItem(cacheKeys.CASES, results);
+  await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
+  return results;
+};
+
+const loadCasesCachedWithPagination = async (
+  query: Record<string, unknown>,
+) => {
+  const queryKeys = Object.keys(query).sort();
+  const sortedQuery: Record<string, unknown> = {};
+  for (const key of queryKeys) {
+    sortedQuery[key] = query[key];
+  }
+
+  query = {
+    ...query,
+    limit: 5000,
+  };
+
+  const queryHash = generateHash(JSON.stringify(sortedQuery));
+  const cacheKeys = {
+    CASES: `cachedCases:${queryHash}`,
+    UPDATED: `casesUpdated:${queryHash}`,
+    RECONCILED: `casesReconciled:${queryHash}`,
+  };
+  debug('loadCasesCached::QueryHash %o | %s', query, queryHash);
+  const cachedCases = (await DbService.getItem(
+    cacheKeys.CASES,
+  )) as CachedCaseResponse;
+  const casesUpdatedAt = (await DbService.getItem(cacheKeys.UPDATED)) as string; // ISO date string
+  const casesReconciledAt = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
+    moment().toISOString()) as string; // ISO date string
+
+  if (cachedCases) {
+    const [response, reconciliationResponse] = await Promise.all([
+      loadCasesPaginated({
+        ...query,
+        updated_at__gt: casesUpdatedAt,
+      }),
+      loadCasesPaginated({
+        updated_at__gt: casesReconciledAt,
+        fields: 'id,incident',
+      }),
+    ]);
+
+    // Reconcile data
+    for (const element of reconciliationResponse.results) {
+      const itemIndex = cachedCases.results.findIndex(
+        (o) => o.id === element.id,
+      );
+      if (
+        itemIndex > -1 &&
+        element.incident !== cachedCases.results[itemIndex].incident
+      ) {
+        cachedCases.results.splice(itemIndex, 1);
+      }
+    }
+
+    await DbService.setItem(cacheKeys.RECONCILED, moment().toISOString());
+    await DbService.setItem(cacheKeys.CASES, cachedCases);
+
+    if (response.results.length === 0) {
+      return cachedCases;
+    }
+
+    for (const element of response.results) {
+      const itemIndex = cachedCases.results.findIndex(
+        (o) => o.id === element.id,
+      );
+      if (itemIndex > -1) {
+        cachedCases.results[itemIndex] = element;
+      } else {
+        cachedCases.results.push(element);
+      }
+    }
+
+    cachedCases.count = cachedCases.results.length;
+
+    await DbService.setItem(cacheKeys.CASES, cachedCases);
+    await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
+    return cachedCases;
+  }
+
+  const results = await loadCasesPaginated(query);
   await DbService.setItem(cacheKeys.CASES, results);
   await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
   return results;
@@ -324,4 +439,10 @@ const loadCaseImagesCached = async (query) => {
   return finalData;
 };
 
-export { loadCasesCached, loadCases, loadCaseImagesCached, loadUserLocations };
+export {
+  loadCasesCached,
+  loadCasesCachedWithPagination,
+  loadCases,
+  loadCaseImagesCached,
+  loadUserLocations,
+};
