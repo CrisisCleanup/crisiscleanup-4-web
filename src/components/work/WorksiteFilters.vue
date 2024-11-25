@@ -518,12 +518,12 @@
               </div>
               <div>
                 <div class="my-1 text-base">
-                  {{ $t('~~Search Locations') }}
+                  {{ $t('worksiteFilters.search_locations') }}
                 </div>
                 <div class="grid grid-cols-12 gap-2 pr-2">
                   <base-select
                     class="col-span-6"
-                    :placeholder="$t('~~Select Location')"
+                    :placeholder="$t('worksiteFilters.select_location')"
                     data-testid="testLocationSelect"
                     searchable
                     multiple
@@ -564,7 +564,7 @@
                     item-key="id"
                     label="name_t"
                     searchable
-                    :placeholder="$t('~~Location type for search')"
+                    :placeholder="$t('worksiteFilters.search_by_location_type')"
                     @update:model-value="
                       (type: string) => {
                         currentLocationType = type;
@@ -577,8 +577,8 @@
                     icon="draw-polygon"
                     variant="solid"
                     data-testid="testCreateLocationButton"
-                    :title="$t('~~Draw Location on map')"
-                    :alt="$t('~~Draw Location on map')"
+                    :title="$t('worksiteFilters.draw_location_on_map')"
+                    :alt="$t('worksiteFilters.draw_location_on_map')"
                   >
                   </base-button>
                 </div>

@@ -1,10 +1,10 @@
 <!-- SendBulkSMS.vue -->
 <template>
   <div class="send-bulk-sms">
-    <h2>{{ $t('Send Bulk SMS') }}</h2>
+    <h2>{{ $t('nav.send_bulk_sms') }}</h2>
     <base-input
       v-model="messageText"
-      :placeholder="$t('Enter SMS message (use {{placeholder}} for CSV data)')"
+      :placeholder="$t('bulkSms.enter_sms_message')"
       text-area
       rows="5"
       class="mb-2"
@@ -14,11 +14,11 @@
     <div class="mb-2">
       <label>
         <input v-model="inputMethod" type="radio" value="phoneList" />
-        {{ $t('Enter Phone Number List') }}
+        {{ $t('bulkSms.enter_phone_number_list') }}
       </label>
       <label class="ml-4">
         <input v-model="inputMethod" type="radio" value="csvFile" />
-        {{ $t('Upload CSV File') }}
+        {{ $t('actions.upload_csv') }}
       </label>
     </div>
 
@@ -26,7 +26,7 @@
     <div v-if="inputMethod === 'phoneList'">
       <base-input
         v-model="phoneNumberList"
-        :placeholder="$t('Enter recipient phone numbers, one per line')"
+        :placeholder="$t('bulkSms.enter_recipient_phone_numbers')"
         text-area
         rows="5"
         class="mb-2"
@@ -34,11 +34,7 @@
       <!-- Display invalid phone numbers if any -->
       <div v-if="invalidNumbersList.length > 0" class="mt-2">
         <p class="text-red-500">
-          {{
-            $t(
-              'The following phone numbers were invalid and have been removed:',
-            )
-          }}
+          {{ $t('bulkSms.invalid_phone_numbers_removed_list') }}
         </p>
         <ul class="list-disc list-inside text-red-500">
           <li v-for="number in invalidNumbersList" :key="number">
@@ -58,7 +54,7 @@
       />
       <!-- Display CSV parsing errors if any -->
       <div v-if="csvErrors.length > 0" class="mt-2 text-red-500">
-        <p>{{ $t('Errors in CSV file:') }}</p>
+        <p>{{ $t('info.errors_in_csv') }}</p>
         <ul class="list-disc list-inside">
           <li v-for="error in csvErrors" :key="error">{{ error }}</li>
         </ul>
@@ -68,11 +64,11 @@
     <div class="flex gap-2">
       <base-button
         :action="sendSMS"
-        :alt="$t('Send SMS')"
+        :alt="$t('actions.send_message')"
         variant="solid"
         class="px-2 py-1 mt-4"
       >
-        {{ $t('Send SMS') }}
+        {{ $t('actions.send_message') }}
       </base-button>
       <base-button
         type="bare"
@@ -86,19 +82,21 @@
 
     <!-- Task Status Display -->
     <div v-if="taskStatus" class="mt-4">
-      <p>{{ $t('Task Status') }}: {{ taskStatus.state }}</p>
+      <p>{{ $t('info.task_status') }}: {{ taskStatus.state }}</p>
       <div v-if="taskStatus.state === 'SUCCESS'">
-        <p>{{ $t('SMS sending process completed.') }}</p>
+        <p>{{ $t('info.sms_sent') }}</p>
         <!-- Display sent phone numbers -->
         <div v-if="sentNumbers.length > 0" class="mt-2">
-          <p class="text-green-600">{{ $t('Successfully sent to:') }}</p>
+          <p class="text-green-600">
+            {{ $t('bulkSms.sms_sucessfully_sent_to') }}
+          </p>
           <ul class="list-disc list-inside text-green-600">
             <li v-for="number in sentNumbers" :key="number">{{ number }}</li>
           </ul>
         </div>
         <!-- Display unsuccessful sends -->
         <div v-if="unsuccessfulNumbers.length > 0" class="mt-2">
-          <p class="text-red-500">{{ $t('Failed to send to:') }}</p>
+          <p class="text-red-500">{{ $t('bulkSms.sms_failed_to_send') }}</p>
           <ul class="list-disc list-inside text-red-500">
             <li v-for="item in unsuccessfulNumbers" :key="item.number">
               {{ item.number }}: {{ item.error }}
@@ -107,12 +105,12 @@
         </div>
       </div>
       <div v-else-if="taskStatus.state === 'FAILURE'">
-        <p>{{ $t('Failed to send SMS messages.') }}</p>
+        <p>{{ $t('info.sms_failed') }}</p>
         <!-- Display error details if available -->
         <p v-if="taskStatus.result">{{ taskStatus.result }}</p>
       </div>
       <div v-else>
-        <p>{{ $t('Processing...') }}</p>
+        <p>{{ $t('info.processing') }}</p>
       </div>
     </div>
   </div>
@@ -156,9 +154,7 @@ const validatePhoneNumber = (number: string) => {
 
 const sendSMS = async () => {
   if (!messageText.value.trim()) {
-    $toasted.error(
-      t('Please enter a message and add at least one recipient phone number.'),
-    );
+    $toasted.error(t('info.complete_all_fields_and_recipient'));
     return;
   }
 
@@ -167,7 +163,7 @@ const sendSMS = async () => {
 
   if (inputMethod.value === 'phoneList') {
     if (!phoneNumberList.value.trim()) {
-      $toasted.error(t('Please enter at least one recipient phone number.'));
+      $toasted.error(t('bulkSms.please_enter_one_phone_number'));
       return;
     }
 
@@ -190,22 +186,20 @@ const sendSMS = async () => {
       // Update invalidNumbersList
       invalidNumbersList.value = invalidNumbers;
       if (validNumbers.length === 0) {
-        $toasted.error(
-          t('All phone numbers were invalid and have been removed.'),
-        );
+        $toasted.error(t('bulkSms.all_phone_numbers_invalid_removed'));
       } else {
         $toasted.error(
-          t('Invalid phone numbers have been removed: ') +
+          t('bulkSms.invalid_phone_numbers_removed') +
             invalidNumbers.join(', ') +
             '. ' +
-            t('Please click Send SMS again.'),
+            t('info.please_click_send_sms_again'),
         );
       }
       return;
     }
 
     if (validNumbers.length === 0) {
-      $toasted.error(t('No valid phone numbers to send.'));
+      $toasted.error(t('bulkSms.no_valid_phone_numbers'));
       return;
     }
 
@@ -214,12 +208,12 @@ const sendSMS = async () => {
     });
   } else if (inputMethod.value === 'csvFile') {
     if (!csvFile.value) {
-      $toasted.error(t('Please upload a CSV file.'));
+      $toasted.error(t('info.please_upload_csv'));
       return;
     }
     formData.append('csv_file', csvFile.value);
   } else {
-    $toasted.error(t('Invalid input method.'));
+    $toasted.error(t('info.invalid_input_method'));
     return;
   }
 
@@ -229,14 +223,14 @@ const sendSMS = async () => {
         'Content-Type': 'multipart/form-data',
       },
     });
-    $toasted.success(t('SMS messages are being sent.'));
+    $toasted.success(t('info.success'));
     const taskId = response.data.task_id;
     checkTaskStatus(taskId);
     invalidNumbersList.value = [];
     csvErrors.value = [];
   } catch (error) {
     const errorMessage =
-      error.response?.data?.detail || t('Failed to send SMS messages.');
+      error.response?.data?.detail || t('info.failed_to_send_sms');
     $toasted.error(errorMessage);
   }
 };
@@ -260,7 +254,7 @@ const checkTaskStatus = (taskId: string) => {
         }
       }
     } catch {
-      $toasted.error(t('Failed to check task status.'));
+      $toasted.error(t('info.failed_to_check_task_status'));
       clearInterval(statusInterval);
     }
   }, 5000);
@@ -268,12 +262,12 @@ const checkTaskStatus = (taskId: string) => {
 
 const showPreview = async () => {
   if (!messageText.value.trim()) {
-    $toasted.error(t('Please enter a message to preview.'));
+    $toasted.error(t('bulkSms.enter_message_preview_sms'));
     return;
   }
 
   await component({
-    title: t('SMS Preview'),
+    title: t('actions.show_preview'),
     component: CmsViewer,
     classes: 'w-full h-96 overflow-auto p-3',
     modalClasses: 'bg-white max-w-md shadow',
