@@ -7,11 +7,7 @@
       <!-- Toggle Button for Checkboxes -->
       <div class="mb-4">
         <base-button type="primary" size="md" @click="toggleCheckboxes">
-          {{
-            showCheckboxes
-              ? $t('actions.hide_columns')
-              : $t('actions.show_columns')
-          }}
+          {{ showCheckboxes ? $t('~~Hide Columns') : $t('~~Show Columns') }}
         </base-button>
       </div>
 
@@ -202,6 +198,14 @@
             {{ slotProps.item.case_overdue_count || 0 }}
           </base-button>
         </template>
+        <template #primary_location_id="slotProps">
+          <base-button
+            size="small"
+            icon="map"
+            :action="() => showLocation(slotProps.item.primary_location_id)"
+          >
+          </base-button>
+        </template>
       </AjaxTable>
     </div>
   </div>
@@ -216,6 +220,8 @@ import { useCurrentIncident } from '@/hooks';
 import Spinner from '@/components/Spinner.vue';
 import moment from 'moment';
 import enums from '../store/modules/enums';
+import useDialogs from '@/hooks/useDialogs';
+import DisplayLocation from '@/components/DisplayLocation.vue';
 
 export default {
   name: 'OtherOrganizations',
@@ -277,6 +283,7 @@ export default {
     const tableUrl = '/other_organizations';
 
     const { currentIncidentId } = useCurrentIncident();
+    const { component } = useDialogs();
 
     const getColumnWidth = (key) => {
       return COLUMN_WIDTH_DICT[key] || 'minmax(50px, 1fr)';
@@ -313,6 +320,19 @@ export default {
     const toggleCheckboxes = () => {
       showCheckboxes.value = !showCheckboxes.value;
     };
+
+    const showLocation = async (locationId) => {
+      await component({
+        title: 'Location',
+        component: DisplayLocation,
+        props: {
+          location: locationId,
+        },
+        classes: 'w-full h-120 overflow-auto p-3',
+        modalClasses: 'bg-white max-w-3xl shadow',
+      });
+    };
+
     const getCreatedAtLteFilter = () => moment().subtract(6, 'd').toISOString();
     function getOpenStatuses() {
       enums.state.statuses.filter((status) => status.primary_state === 'open');
@@ -340,6 +360,7 @@ export default {
       toggleCheckboxes,
       getCreatedAtLteFilter,
       getOpenStatuses,
+      showLocation,
     };
   },
 };
