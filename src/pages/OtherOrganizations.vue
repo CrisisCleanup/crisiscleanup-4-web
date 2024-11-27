@@ -1,5 +1,18 @@
 <template>
   <div class="p-10">
+    <div
+      class="sm:w-3/5 border-primary-dark md:h-20 border-2 my-4 flex items-center p-2"
+    >
+      <span class="text-5xl text-primary-dark mr-4">&#9888;</span>
+      <div data-testid="testDoNotSharePublicDiv">
+        <base-text variant="h2" :weight="600">
+          {{ $t('otherOrganizations.do_not_share_public') }}
+        </base-text>
+        <base-text>
+          {{ $t('otherOrganizations.do_not_abuse_contact_data') }}
+        </base-text>
+      </div>
+    </div>
     <div v-if="loading">
       <spinner />
     </div>
