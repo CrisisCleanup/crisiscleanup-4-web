@@ -17,14 +17,35 @@
       <spinner />
     </div>
     <div v-else>
-      <!-- Toggle Button for Checkboxes -->
-      <div class="mb-4">
+      <div class="flex items-center gap-3 mb-3">
+        <base-input
+          data-testid="testTableSearchTextInput"
+          :model-value="search"
+          icon="search"
+          class="w-72"
+          :placeholder="$t('info.search_items')"
+          @update:model-value="
+            (value) => {
+              search = value;
+            }
+          "
+        ></base-input>
+
+        <!-- Toggle Button for Checkboxes -->
         <base-button type="primary" size="md" @click="toggleCheckboxes">
           {{ showCheckboxes ? $t('~~Hide Columns') : $t('~~Show Columns') }}
         </base-button>
+
+        <base-button
+          type="secondary"
+          size="md"
+          variant="outline"
+          @click="downloadCsv"
+        >
+          {{ $t('Download CSV') }}
+        </base-button>
       </div>
 
-      <!-- Collapsible Checkbox List -->
       <div
         v-if="showCheckboxes"
         class="grid grid-cols-3 gap-4 mb-4 border p-4 rounded"
@@ -55,8 +76,8 @@
         :body-style="{ height: '40rem' }"
         :query="{
           incident: currentIncidentId,
+          search,
         }"
-        enable-search
         has-row-details
       >
         <template #rowDetails="slotProps">
@@ -129,69 +150,46 @@
         </template>
 
         <template #url="slotProps">
-          <base-button
-            class="text-primary-dark underline sm:ml-0 ml-1"
-            :icon-classes="$mq === 'sm' ? 'fa-2x' : 'fa-lg'"
-            icon="globe"
-            :alt="$t('profileOrg.url')"
-            :style="slotProps.item.url === '' ? 'opacity: .5' : ''"
-            :action="
-              () => {
-                if (slotProps.item.url != '') {
-                  open(slotProps.item.url, `_blank`);
-                }
-              }
-            "
-          />
           <a
-            v-if="$mq === 'sm'"
             class="text-primary-dark underline ml-2"
             :href="slotProps.item.url"
-            >{{ slotProps.item.url }}</a
+            target="_blank"
           >
+            <ccu-icon type="globe" class="mr-1" linked fa size="small" />
+          </a>
         </template>
         <template #facebook="slotProps">
-          <img
-            src="@/assets/facebook.svg"
-            class="sm:ml-1 sm:w-16 w-12"
-            :style="slotProps.item.facebook === '' ? 'opacity: .5' : ''"
-            :alt="$t('profileOrg.facebook')"
-            @click="
-              () => {
-                if (slotProps.item.facebook != '')
-                  open(slotProps.item.facebook, `_blank`);
-              }
-            "
-          />
           <a
-            v-if="$mq === 'sm'"
             class="text-primary-dark underline ml-1"
             :href="slotProps.item.facebook"
-            >{{ slotProps.item.facebook }}</a
+            target="_blank"
           >
+            <img
+              src="@/assets/facebook.svg"
+              class="sm:ml-1 sm:w-16 w-12"
+              :style="slotProps.item.facebook === '' ? 'opacity: .5' : ''"
+              :alt="$t('profileOrg.facebook')"
+            />
+          </a>
         </template>
         <template #twitter="slotProps">
-          <img
-            src="@/assets/twitter.svg"
-            class="sm:w-6 w-10 sm:ml-0 ml-1"
-            :style="slotProps.item.twitter === '' ? 'opacity: .5' : ''"
-            :alt="$t('profileOrg.twitter')"
-            @click="
-              () => {
-                if (slotProps.item.twitter != '')
-                  open(slotProps.item.twitter, `_blank`);
-              }
-            "
-          />
           <a
-            v-if="$mq === 'sm'"
             class="text-primary-dark underline ml-2"
             :href="slotProps.item.twitter"
-            >{{ slotProps.item.twitter }}</a
+            target="_blank"
           >
+            <img
+              src="@/assets/twitter.svg"
+              class="sm:w-6 w-10 sm:ml-0 ml-1"
+              :style="slotProps.item.twitter === '' ? 'opacity: .5' : ''"
+              :alt="$t('profileOrg.twitter')"
+          /></a>
         </template>
         <template #type_t="slotProps">
           <base-text>{{ $t(slotProps.item.type_t) }}</base-text>
+        </template>
+        <template #role_t="slotProps">
+          <base-text>{{ $t(slotProps.item.role_t) }}</base-text>
         </template>
         <template #case_overdue_count="slotProps">
           <base-button
@@ -235,10 +233,20 @@ import moment from 'moment';
 import enums from '../store/modules/enums';
 import useDialogs from '@/hooks/useDialogs';
 import DisplayLocation from '@/components/DisplayLocation.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import CcuIcon from '@/components/BaseIcon.vue';
+import { forceFileDownload } from '@/utils/downloads';
 
 export default {
   name: 'OtherOrganizations',
-  components: { Spinner, BaseCheckbox, AjaxTable, BaseButton },
+  components: {
+    CcuIcon,
+    BaseInput,
+    Spinner,
+    BaseCheckbox,
+    AjaxTable,
+    BaseButton,
+  },
   setup() {
     const COLUMN_WIDTH_DICT = {
       name: '1.5fr',
@@ -263,6 +271,8 @@ export default {
       'case_overdue_count',
     ]);
 
+    const HIDDEN_COLUMNS = new Set(['primary_contacts']);
+
     const organizations = reactive({
       data: [],
       meta: {
@@ -281,14 +291,16 @@ export default {
       'url',
       'facebook',
       'twitter',
-      'type_t',
       'role_t',
       'incident_count',
       'case_reported_count',
       'case_claimed_count',
       'case_closed_count',
       'case_overdue_count',
+      'phone_user_count',
+      'active_user_count',
     ]);
+    const search = ref('');
     const columns = ref([]);
     const loading = ref(false);
     const showCheckboxes = ref(false);
@@ -297,6 +309,7 @@ export default {
 
     const { currentIncidentId } = useCurrentIncident();
     const { component } = useDialogs();
+    const { t } = useI18n();
 
     const getColumnWidth = (key) => {
       return COLUMN_WIDTH_DICT[key] || 'minmax(50px, 1fr)';
@@ -308,13 +321,29 @@ export default {
         const response = await axios.get(metadataUrl);
         const metadata = response.data.columns;
 
-        allColumns.value = Object.entries(metadata).map(([key, comment]) => ({
-          title: comment,
-          dataIndex: key,
-          key,
-          width: getColumnWidth(key),
-          sortable: SORTABLE_COLUMNS.has(key),
-        }));
+        allColumns.value = Object.entries(metadata)
+          .filter(([key]) => !HIDDEN_COLUMNS.has(key))
+          .map(([key, comment]) => ({
+            title: comment,
+            dataIndex: key,
+            key,
+            width: getColumnWidth(key),
+            sortable: SORTABLE_COLUMNS.has(key),
+            transformer(field: string) {
+              if (
+                [
+                  'last_activity_at',
+                  'org_joined_at',
+                  'incident_access_at',
+                  'created_at',
+                  'updated_at',
+                ].includes(key)
+              ) {
+                return moment(field).fromNow();
+              }
+              return field;
+            },
+          }));
 
         updateColumns();
       } catch (error) {
@@ -354,6 +383,33 @@ export default {
       );
       return openStatuses.map((status) => status.status).join(',');
     }
+
+    const downloadCsv = async () => {
+      if (selectedColumns.value.length === 0) {
+        alert(t('~~Please select at least one column to download.'));
+        return;
+      }
+
+      try {
+        // Construct the query string with selected columns
+        const columnsQuery = selectedColumns.value
+          .map((col) => `columns=${col}`)
+          .join('&');
+        const url = `/other_organizations/download_csv?${columnsQuery}`;
+
+        // Trigger the CSV download
+        const response = await axios.get(url, {
+          responseType: 'blob', // Important for downloading files
+        });
+
+        // Create a blob and download the file
+        forceFileDownload(response);
+      } catch (error) {
+        console.error('Failed to download CSV:', error);
+        alert(t('~~Failed to download CSV. Please try again later.'));
+      }
+    };
+
     watch(selectedColumns, updateColumns);
 
     onMounted(async () => {
@@ -374,6 +430,8 @@ export default {
       getCreatedAtLteFilter,
       getOpenStatuses,
       showLocation,
+      search,
+      downloadCsv,
     };
   },
 };
