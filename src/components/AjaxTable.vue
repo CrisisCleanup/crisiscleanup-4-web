@@ -121,7 +121,7 @@ export default defineComponent({
     const loading = ref(false);
     const meta = ref<TableMeta>({
       pagination: {
-        pageSize: 10,
+        pageSize: 100,
         page: 1,
         current: 1,
       },
