@@ -395,7 +395,7 @@ export default {
         const columnsQuery = selectedColumns.value
           .map((col) => `columns=${col}`)
           .join('&');
-        const url = `/other_organizations/download_csv?${columnsQuery}`;
+        const url = `/other_organizations/download_csv?${columnsQuery}&incident=${currentIncidentId.value}&search=${search.value}`;
 
         // Trigger the CSV download
         const response = await axios.get(url, {
