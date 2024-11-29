@@ -46,7 +46,7 @@
         :alt="
           dialing ? $t('phoneDashboard.dialing') : $t('phoneDashboard.dial')
         "
-        :disabled="dialing || !phone || after10pmEastern"
+        :disabled="dialing || !phone || after10pmEastern || !hasActiveHotline"
         @click="handleDial"
       ></base-button>
 
@@ -71,6 +71,7 @@ import useEmitter from '../../hooks/useEmitter';
 import BaseInput from '@/components/BaseInput.vue';
 import moment from 'moment';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
+import { useActiveHotlines } from '@/hooks/useActiveHotlines';
 
 export default defineComponent({
   name: 'EnhancedManualDialer',
@@ -87,8 +88,7 @@ export default defineComponent({
   },
   emits: ['onDial', 'onRemoveNumberFromQueue'],
   setup(props, { emit }) {
-    const { t } = useI18n();
-    const { emitter } = useEmitter();
+    const { isLoading, incidentsWithActiveHotline } = useActiveHotlines();
 
     const phone = ref('');
     const selectedCountryCode = ref('+1');
@@ -116,6 +116,10 @@ export default defineComponent({
       emit('onRemoveNumberFromQueue', phone.value);
     };
 
+    const hasActiveHotline = computed(() => {
+      return incidentsWithActiveHotline.value.length > 0;
+    });
+
     onMounted(() => {
       updateAfter10State();
       if (props.phoneNumber) {
@@ -129,6 +133,7 @@ export default defineComponent({
       handleDial,
       removeNumberFromQueue,
       after10pmEastern,
+      hasActiveHotline,
     };
   },
 });
