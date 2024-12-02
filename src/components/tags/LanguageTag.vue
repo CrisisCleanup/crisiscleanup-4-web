@@ -29,6 +29,7 @@ export default defineComponent({
     },
   },
   setup(props) {
+    console.log(props.languageId)
     const { theme } = config;
     const language = ref(null);
     const styles = computed(() => {
