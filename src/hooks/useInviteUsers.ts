@@ -5,6 +5,7 @@ import User from '@/models/User';
 import { EMAIL_REGEX } from '@/utils/form';
 import { useToast } from 'vue-toastification';
 import { i18n } from '@/modules/i18n';
+import { generateUUID } from '@/utils/helpers';
 
 interface InviteUsersProps {
   usersToInvite: TagInputData[];
@@ -44,15 +45,19 @@ const useInviteUsers = () => {
       }
 
       const emailsGroup = tags.map((value) => value.text);
+      const invitationUniqueKey = generateUUID();
       await Promise.all(
         emailsGroup.map((email) =>
           User.api().inviteUser(
             email,
             selectedOrganization,
             organizationDoesNotExist,
+            invitationUniqueKey,
           ),
         ),
       );
+
+      await User.api().sendInvitationReport(invitationUniqueKey);
       onSuccess();
     } catch (error) {
       onError(error);
