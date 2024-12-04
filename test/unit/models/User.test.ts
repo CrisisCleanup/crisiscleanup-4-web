@@ -245,6 +245,7 @@ describe('models > User', () => {
         "inviteUser": [Function],
         "model": [Function],
         "orphan": [Function],
+        "sendInvitationReport": [Function],
       }
     `);
   });
