@@ -19,7 +19,7 @@
     <div v-else>
       <div class="flex items-center gap-3 mb-3">
         <base-input
-          data-testid="testTableSearchTextInput"
+          data-testid="testOrganizationsSearchTextInput"
           :model-value="search"
           icon="search"
           class="w-72"
@@ -79,6 +79,7 @@
           search,
         }"
         has-row-details
+        data-testid="testOrganizationsDataTable"
       >
         <template #rowDetails="slotProps">
           <div
