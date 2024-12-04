@@ -79,6 +79,7 @@
           search,
         }"
         has-row-details
+        data-testid="testOrganizationsDataTable"
       >
         <template #rowDetails="slotProps">
           <div
