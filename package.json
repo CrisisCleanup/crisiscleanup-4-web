@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "node": ">=18 <21",
+    "node": ">=18 <23",
     "pnpm": "^9.0.0"
   },
   "repository": {
@@ -173,7 +173,7 @@
     "@types/lodash": "^4.17.7",
     "@types/markdown-it": "^14.1.2",
     "@types/markdown-it-footnote": "^3.0.4",
-    "@types/node": "^20.12.7",
+    "@types/node": "^22.0.0",
     "@types/papaparse": "^5.3.14",
     "@types/postcss-pxtorem": "^6.0.3",
     "@typescript-eslint/eslint-plugin": "^8.5.0",
