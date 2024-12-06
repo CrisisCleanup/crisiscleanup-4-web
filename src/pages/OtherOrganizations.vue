@@ -218,6 +218,14 @@
           >
           </base-button>
         </template>
+        <template #capabilities="slotProps">
+          <base-button
+            size="small"
+            icon="hammer"
+            :action="() => showCapabilities(slotProps.item.capabilities)"
+          >
+          </base-button>
+        </template>
       </AjaxTable>
     </div>
   </div>
@@ -237,6 +245,7 @@ import DisplayLocation from '@/components/DisplayLocation.vue';
 import BaseInput from '@/components/BaseInput.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import { forceFileDownload } from '@/utils/downloads';
+import CapabilityMatrix from '@/components/CapabilityMatrix.vue';
 
 export default {
   name: 'OtherOrganizations',
@@ -376,6 +385,18 @@ export default {
       });
     };
 
+    const showCapabilities = async (capabilities) => {
+      await component({
+        title: 'Capabilities',
+        component: CapabilityMatrix,
+        props: {
+          rawData: JSON.parse(capabilities),
+        },
+        classes: 'w-full h-120 overflow-auto p-3',
+        modalClasses: 'bg-white max-w-3xl shadow',
+      });
+    };
+
     const getCreatedAtLteFilter = () => moment().subtract(6, 'd').toISOString();
     function getOpenStatuses() {
       enums.state.statuses.filter((status) => status.primary_state === 'open');
@@ -433,6 +454,7 @@ export default {
       showLocation,
       search,
       downloadCsv,
+      showCapabilities,
     };
   },
 };
