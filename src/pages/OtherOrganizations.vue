@@ -190,7 +190,18 @@
           <base-text>{{ $t(slotProps.item.type_t) }}</base-text>
         </template>
         <template #role_t="slotProps">
-          <base-text>{{ $t(slotProps.item.role_t) }}</base-text>
+          <div class="flex items-center">
+            <base-text>{{ $t(slotProps.item.role_t) }}</base-text>
+            <ccu-icon
+              type="help"
+              size="medium"
+              :action="
+                () => {
+                  showRoleDescription(slotProps.item);
+                }
+              "
+            />
+          </div>
         </template>
         <template #case_overdue_count="slotProps">
           <base-button
@@ -318,7 +329,7 @@ export default {
     const tableUrl = '/other_organizations';
 
     const { currentIncidentId } = useCurrentIncident();
-    const { component } = useDialogs();
+    const { component, confirm } = useDialogs();
     const { t } = useI18n();
 
     const getColumnWidth = (key) => {
@@ -432,6 +443,20 @@ export default {
       }
     };
 
+    async function showRoleDescription(organization) {
+      await confirm({
+        title: t(organization.role_t),
+        content: `
+          <div class="p-1">
+            <p>${t(organization.role_description_t)}</p>
+          </div>
+          <div class="p-1">
+            <p>${t(organization.role_limitations_t)}</p>
+          </div>
+        `,
+      });
+    }
+
     watch(selectedColumns, updateColumns);
 
     onMounted(async () => {
@@ -455,6 +480,7 @@ export default {
       search,
       downloadCsv,
       showCapabilities,
+      showRoleDescription,
     };
   },
 };
