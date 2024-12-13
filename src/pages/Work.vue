@@ -1983,22 +1983,28 @@ export default defineComponent({
       filterLabels.value = labels;
     }
 
-    const onLocationSearch = _.debounce(async (value: string) => {
-      const params = {
-        type__key__in:
-          'boundary_political_home_local_division,boundary_political_home_postal_code,boundary_political_home_city',
-        incident_area: currentIncidentId.value,
-        limit: 10,
-        search: value,
-        sort: 'name',
-        fields: 'id,name,type',
-      };
-      const { data } = await axios.get(`/locations`, {
-        params,
-      });
+    const onLocationSearch = _.debounce(
+      async (value: string) => {
+        const params = {
+          type__key__in:
+            'boundary_political_home_local_division,boundary_political_home_postal_code,boundary_political_home_city',
+          incident_area: currentIncidentId.value,
+          limit: 10,
+          search: value,
+          sort: 'name',
+          fields: 'id,name,type',
+        };
+        const { data } = await axios.get(`/locations`, {
+          params,
+        });
 
-      return data.results;
-    }, 1000); // Every 300ms
+        return data.results;
+      },
+      500,
+      {
+        leading: true,
+      },
+    ); // Every 300ms
 
     watch(
       () => worksiteQuery.value,
