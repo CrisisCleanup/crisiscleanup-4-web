@@ -324,25 +324,77 @@
               <div class="my-1 text-base">
                 {{ $t('worksiteFilters.personal_info') }}
               </div>
-              <base-checkbox
-                v-for="data in [
-                  'older_than_60',
-                  'children_in_home',
-                  'first_responder',
-                  'veteran',
-                ]"
-                :key="data"
-                :data-testid="`testPersonal${data}Checkbox`"
-                class="block my-1"
-                :model-value="filters.form_data.data[data]"
-                @update:model-value="
-                  (value) => {
-                    filters.form_data.data[data] = value;
-                    filters.form_data.data = { ...filters.form_data.data };
-                  }
-                "
-                >{{ $t(`formLabels.${data}`) }}
-              </base-checkbox>
+              <template
+                v-for="field in propertyInfoFields"
+                :key="field.field_key"
+              >
+                <div class="py-1">
+                  <template v-if="field.html_type === 'select' && field.values">
+                    <div class="font-bold">
+                      {{ $t(field.label_t) }}
+                    </div>
+                    <div>
+                      <div>
+                        <div
+                          v-for="option in field.values.filter((option) =>
+                            Boolean(option.value),
+                          )"
+                          :key="option.value"
+                          :span="8"
+                        >
+                          <base-checkbox
+                            :model-value="
+                              filters.form_data.data[field.field_key] &&
+                              filters.form_data.data[field.field_key].includes(
+                                option.value,
+                              )
+                            "
+                            @update:model-value="
+                              (value) => {
+                                filters.form_data.data[field.field_key] = value
+                                  ? [
+                                      ...(filters.form_data.data[
+                                        field.field_key
+                                      ] || []),
+                                      option.value,
+                                    ]
+                                  : filters.form_data.data[
+                                      field.field_key
+                                    ].filter((item) => item !== option.value);
+                                filters.form_data.data = {
+                                  ...filters.form_data.data,
+                                };
+                              }
+                            "
+                          >
+                            {{ $t(option.name_t) }}
+                          </base-checkbox>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                  <template v-if="field.html_type === 'checkbox'">
+                    <div class="flex">
+                      <div>
+                        <base-checkbox
+                          :model-value="filters.form_data.data[field.field_key]"
+                          @update:model-value="
+                            (value: Boolean) => {
+                              if (value) {
+                                filters.form_data.data[field.field_key] = true;
+                              } else {
+                                delete filters.form_data.data[field.field_key];
+                              }
+                            }
+                          "
+                        >
+                          {{ $t(field.label_t) }}
+                        </base-checkbox>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
             </div>
           </div>
           <template v-if="currentSection === 'work'">
@@ -858,6 +910,20 @@ export default defineComponent({
 
       return [];
     });
+
+    const propertyInfoFields = computed(() => {
+      if (props.incident && props.incident.form_fields) {
+        return props.incident.form_fields.filter((field) => {
+          return (
+            field.field_parent_key === 'property_info' &&
+            ['select', 'checkbox'].includes(field.html_type)
+          );
+        });
+      }
+
+      return [];
+    });
+
     const fieldsCount = computed(() => {
       return filters.value.fields.getCount() || 0;
     });
@@ -1256,6 +1322,7 @@ export default defineComponent({
       currentLocationType,
       locationTypes,
       createNewLocation,
+      propertyInfoFields,
     };
   },
 });
