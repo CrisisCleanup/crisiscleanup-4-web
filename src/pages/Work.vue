@@ -441,6 +441,7 @@
                 @toggle-heat-map="toggleHeatMap"
                 @toggle-user-locations="toggleUserLocations"
               />
+              <spinner v-if="downloadingWorksites" size="small" />
             </div>
             <div
               :class="collapsedUtilityBar ? 'w-full' : ''"
@@ -1038,10 +1039,12 @@ import { momentFromNow } from '@/filters';
 import User from '@/models/User';
 import { string } from 'zod';
 import _ from 'lodash';
+import Spinner from '@/components/Spinner.vue';
 
 export default defineComponent({
   name: 'Work',
   components: {
+    Spinner,
     AjaxTable,
     BaseButton,
     WorksiteSearchAndFilters,
@@ -1124,6 +1127,7 @@ export default defineComponent({
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
     const loading = ref<boolean>(false);
+    const downloadingWorksites = ref<boolean>(false);
     const allWorksiteCount = ref<number>(0);
     const filteredWorksiteCount = ref<number>(0);
     const searchWorksites = ref<any[]>([]);
@@ -1866,7 +1870,7 @@ export default defineComponent({
     }
 
     async function downloadWorksites(ids: any[], skipSizeCheck = false) {
-      loading.value = true;
+      downloadingWorksites.value = true;
       try {
         let params;
 
@@ -1921,7 +1925,7 @@ export default defineComponent({
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       } finally {
-        loading.value = false;
+        downloadingWorksites.value = false;
       }
     }
 
@@ -2290,6 +2294,7 @@ export default defineComponent({
       toggleUserLocations,
       onLocationSearch,
       getAndApplyLocation,
+      downloadingWorksites,
     };
   },
 });
