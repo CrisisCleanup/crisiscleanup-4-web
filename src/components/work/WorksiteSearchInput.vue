@@ -11,6 +11,7 @@
         :input-style="{
           'border-right': icon || tooltip ? '0' : '1px solid #dadada',
         }"
+        icon="search"
         @update:model-value="debouncedSearch"
         @input.stop=""
         @focus="onFocus"

@@ -127,6 +127,11 @@ export default defineComponent({
       default:
         'border relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-base leading-snug outline-none',
     },
+    wrapperClasses: {
+      type: String,
+      default:
+        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none min-h-[theme(spacing.12)]',
+    },
     options: {
       type: [Array, Function],
       default() {
@@ -237,11 +242,13 @@ export default defineComponent({
       const containerClassesObj = props.containerClasses
         ? { container: props.containerClasses }
         : {};
+      const wrapperClassesObj = props.wrapperClasses
+        ? { wrapper: props.wrapperClasses }
+        : {};
       return {
         ...searchClassesObj,
         ...containerClassesObj,
-        wrapper:
-          'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none min-h-[theme(spacing.12)]',
+        ...wrapperClassesObj,
         optionSelected: 'text-white bg-crisiscleanup-dark-200',
         optionPointed: 'text-gray-800 bg-crisiscleanup-dark-100',
         optionSelectedPointed:
@@ -371,5 +378,9 @@ export default defineComponent({
 
 .multiselect-tags-search {
   @apply h-full;
+}
+
+.multiselect-placeholder {
+  @apply text-crisiscleanup-dark-200;
 }
 </style>

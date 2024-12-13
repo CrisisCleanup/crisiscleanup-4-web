@@ -409,6 +409,23 @@
                 @updated-filters="onUpdateFilters"
                 @updated-filter-labels="updateFilterLabels"
               />
+              <base-select
+                data-testid="testLocationSelect"
+                searchable
+                item-key="id"
+                label="name"
+                :placeholder="$t('~~Search by county or postal code')"
+                :options="onLocationSearch"
+                select-classes="bg-white outline-none w-72"
+                wrapper-classes="relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none h-10"
+                class="mr-2"
+                size="small"
+                @update:model-value="
+                  (location) => {
+                    getAndApplyLocation(location);
+                  }
+                "
+              />
               <WorksiteActions
                 v-if="currentIncidentId"
                 :key="currentIncidentId"
@@ -999,7 +1016,7 @@ import useDialogs from '../hooks/useDialogs';
 import type { MapUtils } from '../hooks/worksite/useWorksiteMap';
 import useWorksiteMap from '../hooks/worksite/useWorksiteMap';
 import { numeral } from '@/utils/helpers';
-import type Location from '@/models/Location';
+import Location from '@/models/Location';
 import UpdateCaseStatus from '@/components/UpdateCaseStatus.vue';
 import useWorksiteTableActions from '@/hooks/worksite/useWorksiteTableActions';
 import ShareWorksite from '@/components/modals/ShareWorksite.vue';
@@ -1020,6 +1037,7 @@ import AjaxTable from '@/components/AjaxTable.vue';
 import { momentFromNow } from '@/filters';
 import User from '@/models/User';
 import { string } from 'zod';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'Work',
@@ -1961,6 +1979,23 @@ export default defineComponent({
       filterLabels.value = labels;
     }
 
+    const onLocationSearch = _.debounce(async (value: string) => {
+      const params = {
+        type__key__in:
+          'boundary_political_home_local_division,boundary_political_home_postal_code,boundary_political_home_city',
+        incident_area: currentIncidentId.value,
+        limit: 10,
+        search: value,
+        sort: 'name',
+        fields: 'id,name,type',
+      };
+      const { data } = await axios.get(`/locations`, {
+        params,
+      });
+
+      return data.results;
+    }, 1000); // Every 300ms
+
     watch(
       () => worksiteQuery.value,
       (value, previousValue) => {
@@ -2144,6 +2179,20 @@ export default defineComponent({
       router.replace({ query: undefined });
     }
 
+    async function getAndApplyLocation(locationId) {
+      if (!locationId) {
+        mapUtils?.removeLocationLayers();
+        goToIncidentCenter();
+        return;
+      }
+
+      await Location.api().fetchById(locationId);
+      applyLocation({
+        locationId: locationId,
+        value: true,
+      });
+    }
+
     return {
       addMarkerToMap,
       clearCase,
@@ -2239,6 +2288,8 @@ export default defineComponent({
       currentIncident,
       userLocations,
       toggleUserLocations,
+      onLocationSearch,
+      getAndApplyLocation,
     };
   },
 });
