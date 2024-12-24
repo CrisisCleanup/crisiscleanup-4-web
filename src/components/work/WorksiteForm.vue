@@ -458,16 +458,7 @@
         "
       ></form-tree>
 
-      <template>
-        <SectionHeading :count="5" class="mb-3"
-          >{{ $t('caseView.report') }}
-        </SectionHeading>
-        <WorksiteReportSection
-          :key="worksite.total_time"
-          :worksite="worksite"
-          data-testid="testWorksiteTotalTimeDiv"
-          @time-added="reloadWorksite"
-        />
+      <template v-if="worksite.id">
         <SectionHeading :count="6" class="mb-3"
           >{{ $t('caseForm.photos') }}
         </SectionHeading>
