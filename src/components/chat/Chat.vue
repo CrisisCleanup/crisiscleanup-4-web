@@ -174,12 +174,14 @@
                 {{ $t('chat.urgent') }}
               </div>
               <div class="flex flex-col">
-                <base-input
+                <Editor
                   v-model="currentMessage"
-                  data-testid="testCurrentMessageContent"
-                  text-area
-                  class=""
-                  @enter="sendMessage"
+                  image-handler-type="inline"
+                  :quill-options="[
+                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                    ['link', 'image', 'video'],
+                    ['clean'],
+                  ]"
                 />
                 <div class="flex items-center justify-between py-2">
                   <base-checkbox
@@ -286,10 +288,12 @@ import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
 import { generateUUID } from '@/utils/helpers';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
+import Editor from '@/components/Editor.vue';
 
 export default defineComponent({
   name: 'Chat',
   components: {
+    Editor,
     FontAwesomeIcon,
     Avatar,
     UserDetailsTooltip,

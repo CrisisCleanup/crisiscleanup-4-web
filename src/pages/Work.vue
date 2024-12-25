@@ -1284,7 +1284,7 @@ export default defineComponent({
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
 
-      if ($can('beta_feature.enable_feed')) {
+      if ($can('beta_feature.enable_feed') || $can('development_mode')) {
         loadCaseImagesCached({
           ...worksiteQuery.value,
         }).then((response) => {

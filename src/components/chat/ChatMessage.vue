@@ -33,7 +33,7 @@
             {{ formatDateString(message.created_at, 'h:mm A') }}
           </div>
         </div>
-        <div class="text-gray-700 mt-1 w-11/12">
+        <div ref="messageContainer" class="text-gray-700 mt-1 w-11/12">
           <span v-html="message.content"></span>
         </div>
       </div>
@@ -103,12 +103,16 @@
     </div>
     <!-- Textarea for reply -->
     <div class="flex items-center gap-3 mt-3">
-      <base-input
+      <Editor
         v-model="replyContent"
-        text-area
         class="w-full rounded-lg"
-        placeholder="Reply to this message"
-      ></base-input>
+        image-handler-type="inline"
+        :quill-options="[
+          ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+          ['link', 'image', 'video'],
+          ['clean'],
+        ]"
+      />
       <base-button
         class="bg-crisiscleanup-dark-blue"
         data-testid="testSendMessageButton"
@@ -122,8 +126,6 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import { ref } from 'vue';
 import moment from 'moment';
 import UserDetailsTooltip from '../user/DetailsTooltip.vue';
 import { formatDateString } from '../../filters/index';
@@ -135,10 +137,20 @@ import Avatar from '@/components/Avatar.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import { getUserAvatarLink } from '@/utils/urls';
 import { DbService, USER_DATABASE } from '@/services/db.service';
+// eslint-disable-next-line import/no-unresolved
+import { api as viewerApi } from 'v-viewer';
+import Editor from '@/components/Editor.vue';
 
 export default defineComponent({
   name: 'ChatMessage',
-  components: { CcuIcon, Avatar, BaseButton, BaseInput, UserDetailsTooltip },
+  components: {
+    Editor,
+    CcuIcon,
+    Avatar,
+    BaseButton,
+    BaseInput,
+    UserDetailsTooltip,
+  },
   props: {
     message: {
       type: Object as PropType<Message>,
@@ -155,6 +167,7 @@ export default defineComponent({
     const showReplies = ref(false);
     const showReplyBox = ref(false);
     const userObject = ref(null);
+    const messageContainer = ref(null);
 
     const getUserInitials = (id: number) => {
       const user = User.find(id);
@@ -178,6 +191,32 @@ export default defineComponent({
         `user_${props.message.created_by}`,
         USER_DATABASE,
       );
+
+      if (messageContainer.value) {
+        const images = messageContainer.value.querySelectorAll('img');
+        if (images.length > 0) {
+          const imagesArray = [...images].map((img) => ({
+            src: img.src,
+            'data-source': img.dataset.originalSrc,
+          }));
+
+          for (const [idx, img] of images.entries()) {
+            if (img.src === img.src) {
+              img.style.cursor = 'pointer';
+              img.addEventListener('click', () => {
+                viewerApi({
+                  options: {
+                    toolbar: true,
+                    url: 'data-source', // default Viewer.js behavior
+                    initialViewIndex: idx,
+                  },
+                  images: imagesArray,
+                });
+              });
+            }
+          }
+        }
+      }
     });
 
     return {
@@ -192,6 +231,7 @@ export default defineComponent({
       isToday,
       replyContent,
       userObject,
+      messageContainer,
     };
   },
 });
