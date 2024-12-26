@@ -155,7 +155,11 @@
           selector="js-worksite-email"
           size="large"
           :placeholder="$t('formLabels.email')"
+          :fa-icon="
+            currentIncident.auto_contact && worksite.id ? 'envelope' : null
+          "
           @update:model-value="(v) => updateWorksite(v, 'email')"
+          @icon-clicked="() => sendEmail(worksite.email)"
         />
       </div>
       <div class="form-field">
@@ -941,6 +945,32 @@ export default defineComponent({
       }
     }
 
+    async function sendEmail(email: string) {
+      try {
+        const result = await confirm({
+          title: t(`actions.confirm`),
+          content: t(`caseForm.confirm_send_email`),
+          actions: {
+            no: {
+              text: t('actions.cancel'),
+              type: 'outline',
+              buttonClass: 'border border-black',
+            },
+            yes: {
+              text: t('actions.send_message'),
+              type: 'solid',
+            },
+          },
+        });
+        if (result === 'yes') {
+          await Worksite.api().sendSurvivorEmail(worksite.value.id, email);
+          $toasted.success(t('caseForm.email_sent'));
+        }
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
+    }
+
     async function findPotentialGeocode() {
       const geocodeKeys = ['address', 'city', 'county', 'state', 'postal_code'];
       const nonEmptyKeys = geocodeKeys.filter((key) =>
@@ -1713,13 +1743,8 @@ export default defineComponent({
       getSectionCount,
       clearWorksiteStorage,
       statusValueChange,
-      reloadWorksite,
       sendSms,
-      findPotentialGeocode,
-      checkGeocodeLocation,
       potentialIncidents,
-      getPotentialIncidents,
-      updateWorksiteFields,
       unlockLocationFields,
       clearLocationFields,
       collapseGreenPhoneSection,
@@ -1762,6 +1787,7 @@ export default defineComponent({
       hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
+      sendEmail,
     };
   },
 });

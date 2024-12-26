@@ -413,6 +413,15 @@ export default class Worksite extends CCUModel {
           { save: false },
         );
       },
+      sendSurvivorEmail(id, email) {
+        return this.post(
+          `/worksites/${id}/send_survivor_email`,
+          {
+            email,
+          },
+          { save: false },
+        );
+      },
       searchWorksites(search, incident) {
         return this.get(
           `/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=5&search=${search}&incident=${incident}`,
