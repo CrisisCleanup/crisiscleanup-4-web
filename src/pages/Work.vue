@@ -414,7 +414,7 @@
                 searchable
                 item-key="id"
                 label="name"
-                :placeholder="$t('~~Search by county or postal code')"
+                :placeholder="$t('casesVue.find_county_city_postal_code')"
                 :options="onLocationSearch"
                 select-classes="bg-white outline-none w-72"
                 wrapper-classes="relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none h-10"

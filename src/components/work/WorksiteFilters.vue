@@ -1228,7 +1228,7 @@ export default defineComponent({
       let currentPolygon = null;
       const classes = 'h-168 p-3';
       const response = await component({
-        title: t('~~Select Location'),
+        title: t('worksiteFilters.select_location'),
         component: LocationTool,
         modalClasses: `max-w-5xl`,
         props: {
