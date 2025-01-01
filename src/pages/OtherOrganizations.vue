@@ -33,7 +33,7 @@
 
         <!-- Toggle Button for Checkboxes -->
         <base-button type="primary" size="md" @click="toggleCheckboxes">
-          {{ showCheckboxes ? $t('~~Hide Columns') : $t('~~Show Columns') }}
+          {{ showCheckboxes ? $t('actions.done') : $t('actions.show_columns') }}
         </base-button>
 
         <base-button
@@ -419,7 +419,7 @@ export default {
 
     const downloadCsv = async () => {
       if (selectedColumns.value.length === 0) {
-        alert(t('~~Please select at least one column to download.'));
+        alert(t('info.please_select_one_column'));
         return;
       }
 
@@ -439,7 +439,7 @@ export default {
         forceFileDownload(response);
       } catch (error) {
         console.error('Failed to download CSV:', error);
-        alert(t('~~Failed to download CSV. Please try again later.'));
+        alert(t('info.failed_to_download_try_again'));
       }
     };
 
