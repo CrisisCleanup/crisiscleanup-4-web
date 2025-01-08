@@ -12,17 +12,14 @@
     >
       <template #file="{ item }">
         <div v-if="item.file">
-          <base-link
-            :href="item.file.csv_url"
-            :data-testid="`testDownloads${item.file}Div`"
-            text-variant="bodysm"
-            class="px-2"
-            :download="item.file.filename_original"
-            >{{ item.file.filename_original }}</base-link
+          <base-button
+            :action="() => downloadFile(item.file)"
+            variant="solid"
+            class="ml-3"
+            size="small"
           >
-        </div>
-        <div v-else>
-          {{ item.status }}
+            {{ $t('actions.download') }}
+          </base-button>
         </div>
       </template>
     </AjaxTable>
@@ -34,28 +31,39 @@ import moment from 'moment/moment';
 import { makeTableColumns } from '@/utils/table';
 import AjaxTable from '@/components/AjaxTable.vue';
 import BaseText from '@/components/BaseText.vue';
+import BaseButton from '@/components/BaseButton.vue';
+import axios from 'axios';
+import { forceFileDownloadFromURl } from '@/utils/downloads';
 
 export default defineComponent({
   name: 'Downloads',
-  components: { BaseText, AjaxTable },
+  components: { BaseButton, BaseText, AjaxTable },
   setup() {
     const tableUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/user_downloads`;
     const columns = makeTableColumns([
       ['created_at', '1fr', 'Created At'],
-      ['file', '1fr', 'Status'],
+      ['status', '1fr', 'Status'],
+      ['file', '1fr', ''],
     ]);
     for (const column of columns) {
       // overwrite default column title from `Name` to `Organization`
       if (column.key === 'created_at') {
         column.transformer = (field) => {
-          return moment(field).format('ddd MMMM Do YYYY');
+          return moment(field).format('ddd MMMM Do YYYY h:mm:ss a');
         };
       }
     }
 
+    const downloadFile = async (file: any) => {
+      const { data } = await axios.get(`/files/${file}`);
+      const url = data.csv_url;
+      return forceFileDownloadFromURl(url, data.filename_original);
+    };
+
     return {
       tableUrl,
       columns,
+      downloadFile,
     };
   },
 });

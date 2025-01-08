@@ -72,3 +72,16 @@ export function downloadCSVFile(csvContent: string, fileName: string) {
   link.click();
   link.remove();
 }
+
+export function forceFileDownloadFromURl(url: string, fileName = 'unknown') {
+  const link = document.createElement('a');
+  link.href = url;
+  const name = fileName ?? 'unknown';
+  link.setAttribute('download', name);
+  document.body.append(link);
+  link.href = url;
+  // link.target = '_blank';
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

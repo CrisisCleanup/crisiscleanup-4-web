@@ -1037,9 +1037,9 @@ import BaseButton from '@/components/BaseButton.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { momentFromNow } from '@/filters';
 import User from '@/models/User';
-import { string } from 'zod';
 import _ from 'lodash';
 import Spinner from '@/components/Spinner.vue';
+import DownloadWorksiteCsv from '@/components/downloads/DownloadWorksiteCsv.vue';
 
 export default defineComponent({
   name: 'Work',
@@ -1892,14 +1892,18 @@ export default defineComponent({
           }/worksites_download/download_csv`,
           {
             params,
-            headers: { Accept: 'text/csv' },
-            responseType: 'blob',
           },
         );
         if (response.status === 202) {
-          await confirm({
+          await component({
             title: t('info.processing_download'),
-            content: t('info.processing_download_d'),
+            component: DownloadWorksiteCsv,
+            classes: 'w-full overflow-auto p-3',
+            modalClasses: 'bg-white max-w-4xl shadow',
+            props: {
+              downloadId: response.data.download_id,
+              wait: Number(20),
+            },
           });
         } else if (response.status === 400) {
           const result = await confirm({
