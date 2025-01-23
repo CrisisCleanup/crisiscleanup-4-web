@@ -1889,42 +1889,59 @@ export default defineComponent({
         const response = await axios.get(
           `${
             import.meta.env.VITE_APP_API_BASE_URL
-          }/worksites_download/download_csv`,
+          }/worksites_download/download_csv_async`,
           {
             params,
           },
         );
-        if (response.status === 202) {
-          await component({
-            title: t('info.processing_download'),
-            component: DownloadWorksiteCsv,
-            classes: 'w-full overflow-auto p-3',
-            modalClasses: 'bg-white max-w-4xl shadow',
-            props: {
-              downloadId: response.data.download_id,
-              wait: Number(20),
-            },
-          });
-        } else if (response.status === 400) {
-          const result = await confirm({
-            title: t('casesVue.large_data_download_warning_title'),
-            content: t('casesVue.large_data_download_warning_description'),
-            actions: {
-              yes: {
-                text: t('actions.yes'),
-                type: 'solid',
+        switch (response.status) {
+          case 202: {
+            await component({
+              title: t('info.processing_download'),
+              component: DownloadWorksiteCsv,
+              classes: 'w-full overflow-auto p-3',
+              modalClasses: 'bg-white max-w-4xl shadow',
+              props: {
+                downloadId: response.data.download_id,
+                wait: Number(20),
               },
-              no: {
-                text: t('actions.no'),
-                type: 'outline',
-              },
-            },
-          });
-          if (result === 'yes') {
-            return downloadWorksites(ids, true);
+            });
+
+            break;
           }
-        } else {
-          forceFileDownload(response);
+          case 400: {
+            const result = await confirm({
+              title: t('casesVue.large_data_download_warning_title'),
+              content: t('casesVue.large_data_download_warning_description'),
+              actions: {
+                yes: {
+                  text: t('actions.yes'),
+                  type: 'solid',
+                },
+                no: {
+                  text: t('actions.no'),
+                  type: 'outline',
+                },
+              },
+            });
+            if (result === 'yes') {
+              return downloadWorksites(ids, true);
+            }
+
+            break;
+          }
+          case 200: {
+            forceFileDownload(response.data);
+
+            break;
+          }
+          default: {
+            $toasted.error(
+              t(
+                '~~This download may be too large to process. Please add some filters',
+              ),
+            );
+          }
         }
       } catch (error) {
         await $toasted.error(getErrorMessage(error));

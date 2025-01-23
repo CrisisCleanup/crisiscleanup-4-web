@@ -897,7 +897,6 @@ export default defineComponent({
     }
 
     async function downloadWorksites(ids: number[]) {
-      console.info('onDownloadWorksites', ids);
       loading.value = true;
       try {
         let params;
@@ -920,13 +919,27 @@ export default defineComponent({
             responseType: 'blob',
           },
         );
-        if (response.status === 202) {
-          await confirm({
-            title: t('info.processing_download'),
-            content: t('info.processing_download_d'),
-          });
-        } else {
-          forceFileDownload(response);
+        switch (response.status) {
+          case 202: {
+            await confirm({
+              title: t('info.processing_download'),
+              content: t('info.processing_download_d'),
+            });
+
+            break;
+          }
+          case 200: {
+            forceFileDownload(response.data);
+
+            break;
+          }
+          default: {
+            $toasted.error(
+              t(
+                '~~This download may be too large to process. Please add some filters',
+              ),
+            );
+          }
         }
       } catch (error) {
         $toasted.error(getErrorMessage(error));
