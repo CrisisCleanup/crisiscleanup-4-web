@@ -934,11 +934,7 @@ export default defineComponent({
             break;
           }
           default: {
-            $toasted.error(
-              t(
-                '~~This download may be too large to process. Please add some filters',
-              ),
-            );
+            $toasted.error(t('info.download_too_big_add_filter'));
           }
         }
       } catch (error) {
