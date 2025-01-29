@@ -1886,14 +1886,38 @@ export default defineComponent({
           params.skip_size_warning = true;
         }
 
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/worksites_download/download_csv_async`,
-          {
-            params,
-          },
-        );
+        let url = `worksites_download/download_csv`;
+
+        if (
+          filteredWorksiteCount.value > 2500 ||
+          (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 2500)
+        ) {
+          const result = await confirm({
+            title: t('~~Large CSV Download warning'),
+            content: t(
+              '~~This CSV download contains over 2500 records. Please consider filtering your results to reduce the size of the download. Do you want to continue with this download?',
+            ),
+            actions: {
+              yes: {
+                text: t('actions.yes'),
+                type: 'solid',
+              },
+              no: {
+                text: t('actions.no'),
+                type: 'outline',
+              },
+            },
+          });
+          if (result === 'yes') {
+            url = `worksites_download/download_csv_async`;
+          } else {
+            return;
+          }
+        }
+
+        const response = await axios.get(url, {
+          params,
+        });
         switch (response.status) {
           case 202: {
             await component({
