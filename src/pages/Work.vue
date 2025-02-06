@@ -1909,7 +1909,7 @@ export default defineComponent({
             },
           });
           if (result === 'yes') {
-            url = `worksites_download/download_csv_async`;
+            url = `worksites_download/download_csv`;
           } else {
             return;
           }
