@@ -67,6 +67,7 @@ export default (
         sprite.svi = marker.svi;
         sprite.work_types = marker.work_types;
         sprite.updated_at = marker.updated_at;
+        sprite.photos_count = marker.photos_count;
         sprite.flags = marker.flags || [];
         sprite.favorite_id = marker.favorite_id;
         sprite.updated_at_moment = moment(marker.updated_at);
@@ -137,6 +138,10 @@ export default (
           .replaceAll(
             '{{multiple}}',
             sprite.work_types.length > 1 ? templates.plus : '',
+          )
+          .replaceAll(
+            '{{camera}}',
+            sprite.photos_count > 0 ? templates.camera : '',
           );
 
         sprite.basicTexture = texture;
