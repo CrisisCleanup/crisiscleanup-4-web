@@ -4,7 +4,7 @@ const WORKSITES_DATABASE = 'worksites';
 const WORKSITE_IMAGES_DATABASE = 'worksite_images';
 const USER_DATABASE = 'user';
 
-const dbPromise = openDB('crisiscleanup', 7, {
+const dbPromise = openDB('crisiscleanup', 8, {
   upgrade(db, oldVersion) {
     if (oldVersion > 0) {
       try {
