@@ -26,7 +26,6 @@ vi.mock('@vueuse/router', () => {
 });
 
 vi.mock('axios');
-
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 vi.mock('vue-router', () => ({
@@ -50,7 +49,11 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
 import BaseSelect from '@/components/BaseSelect.vue';
 import type { Store } from 'vuex';
-import type { Database } from '@vuex-orm/core';
+import { Database } from '@vuex-orm/core';
+import * as VuexORM from '@vuex-orm/core';
+import VuexORMAxios from '@vuex-orm/plugin-axios';
+import Team from '@/models/Team';
+import Worksite from '@/models/Worksite';
 
 const mockT = (key: string) => key;
 
@@ -59,7 +62,25 @@ describe('AddScheduleDialog.vue', () => {
   let database: Database;
   let store: Store<any>;
 
+  beforeAll(() => {
+    database = new Database();
+    database.register(Team);
+    database.register(Worksite);
+    VuexORM.use(VuexORMAxios, {
+      axios,
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      baseURL: `${import.meta.env.VITE_APP_API_BASE_URL}`,
+    });
+    store = createStore({
+      plugins: [VuexORM.install(database)],
+    });
+  });
+
   beforeEach(() => {
+    // Reset mocks
     mockedAxios.get.mockReset();
     mockedAxios.post.mockReset();
 

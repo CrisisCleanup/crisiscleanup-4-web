@@ -209,7 +209,7 @@ import { useToast } from 'vue-toastification';
 import moment from 'moment';
 import { getErrorMessage } from '@/utils/errors';
 import { useCurrentIncident } from '@/hooks';
-import type Team from '@/models/Team';
+import Team from '@/models/Team';
 import useEmitter from '@/hooks/useEmitter';
 import type { WorkTypeSchedule } from '@/models/types';
 
@@ -322,10 +322,13 @@ function handleWorkTypeCheckbox(isChecked: boolean, workTypeId: number) {
 }
 
 const getTeams = async () => {
-  const { data } = await axios.get(
+  const results = await Team.api().get(
     `/teams?incident=${currentIncidentId.value}`,
+    {
+      dataKey: 'results',
+    },
   );
-  teams.value = data.results as Team[];
+  teams.value = (results.entities?.teams || []) as Team[];
 };
 
 async function saveSchedules() {
