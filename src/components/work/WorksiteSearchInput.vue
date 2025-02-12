@@ -168,6 +168,10 @@ export default defineComponent({
       type: Number,
       default: 0,
     },
+    query: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   emits: [
     'input',
@@ -287,9 +291,15 @@ export default defineComponent({
 
     function searchWorksites(search: string, incidentId: number) {
       return axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types&limit=3&search=${search}&incident=${incidentId}`,
+        `/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types`,
+        {
+          params: {
+            limit: 3,
+            search,
+            incident: incidentId,
+            ...props.query,
+          },
+        },
       );
     }
 

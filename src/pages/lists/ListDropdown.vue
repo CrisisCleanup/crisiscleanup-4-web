@@ -17,14 +17,17 @@
         {{ $t('actions.create_new') }}
       </base-button>
       <base-button
+        v-if="selectedTableItems.length > 0"
         :button-classes="{ 'justify-start': true, 'justify-center': false }"
         class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
         :action="() => updateLists(userLists, selectedTableItems, null, false)"
         :alt="$t('actions.remove_from_all_lists')"
+        variant="text"
       >
         {{ $t('actions.remove_from_all_lists') }}
       </base-button>
       <v-menu
+        v-if="selectedTableItems.length > 0"
         placement="right-start"
         :triggers="['hover', 'focus']"
         instant-move
@@ -49,6 +52,8 @@
                   'justify-start': true,
                   'justify-center': false,
                 }"
+                :disabled="selectedTableItems.length === 0"
+                variant="text"
                 class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
                 :action="
                   () =>
@@ -62,6 +67,7 @@
         </template>
       </v-menu>
       <v-menu
+        v-if="selectedTableItems.length > 0"
         placement="right-start"
         :triggers="['hover', 'focus']"
         instant-move
@@ -86,6 +92,8 @@
                   'justify-start': true,
                   'justify-center': false,
                 }"
+                :disabled="selectedTableItems.length === 0"
+                variant="text"
                 class="px-4 py-1 w-64 cursor-pointer hover:bg-primary-light"
                 :action="
                   () =>
@@ -140,6 +148,7 @@
           </v-menu>
         </template>
       </v-menu>
+      <!--      select from list-->
     </template>
   </v-popover>
 </template>

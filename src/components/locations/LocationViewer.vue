@@ -23,6 +23,13 @@ export default defineComponent({
     useGoogleMaps: {
       type: Boolean,
     },
+    allowReposition: {
+      type: Boolean,
+      default: true,
+    },
+    customSvgIcon: {
+      type: String,
+    },
   },
   emits: ['updatedLocation'],
   setup(props, { emit }) {
@@ -40,7 +47,7 @@ export default defineComponent({
     function addMarkerToMap() {
       const svgIcon = L.divIcon({
         className: 'crisiscleanup-map-marker',
-        html: templates.map_marker,
+        html: props.customSvgIcon || templates.map_marker,
         iconAnchor: [20, 40],
         iconSize: [50, 50],
       });
@@ -50,7 +57,7 @@ export default defineComponent({
       markerLayer.value.clearLayers();
       const marker = new (L.marker as any)(
         [markerLocation.coordinates[1], markerLocation.coordinates[0]],
-        { draggable: 'true', icon: svgIcon },
+        { draggable: props.allowReposition, icon: svgIcon },
       );
       marker.addTo(markerLayer.value);
       marker.on('dragend', (event: LeafletEvent) => {
@@ -60,12 +67,14 @@ export default defineComponent({
         [markerLocation.coordinates[1], markerLocation.coordinates[0]],
         15,
       );
-      marker
-        .bindTooltip(t('casesVue.drag_pin_to_correct_location'), {
-          direction: 'top',
-          offset: L.point({ x: 0, y: -40 }),
-        })
-        .openTooltip();
+      if (props.allowReposition) {
+        marker
+          .bindTooltip(t('casesVue.drag_pin_to_correct_location'), {
+            direction: 'top',
+            offset: L.point({ x: 0, y: -40 }),
+          })
+          .openTooltip();
+      }
     }
 
     onMounted(() => {

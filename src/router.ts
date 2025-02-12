@@ -43,6 +43,7 @@ const PhoneVolunteerDashboard = () =>
 const CommandCenterDashboard = () =>
   import('./pages/dashboards/CommandCenterDashboard.vue');
 const Work = () => import('./pages/Work.vue');
+const Calendar = () => import('./pages/Calendar.vue');
 const AppDownload = () => import('./pages/AppDownload.vue');
 const OtherOrganizations = () => import('@/pages/OtherOrganizations.vue');
 const Reports = () => import('@/pages/admin/Reports.vue');
@@ -180,6 +181,12 @@ const routes = [
     path: '/locations/:location_id/edit',
     component: Location,
     name: 'nav.edit_location',
+    meta: { layout: 'authenticated' },
+  },
+  {
+    path: '/incident/:incident_id/calendar',
+    component: Calendar,
+    name: 'nav.calendar',
     meta: { layout: 'authenticated' },
   },
   ...HomeRoutes,
