@@ -20,7 +20,19 @@ const getWorktypeSVG = (worktype: any, size = 53) => {
   return svg;
 };
 
+const getBasicWorktypeSVG = (work_type_key: any, size = 53) => {
+  const template = templates[work_type_key] || templates.unknown;
+  const svg = template
+    .replaceAll('{{fillColor}}', 'black')
+    .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
+    .replaceAll('{{strokeColor}}', 'black')
+    .replaceAll(/(width="[1-9]+")/g, `width="${size}"`)
+    .replaceAll(/(height="[1-9]+")/g, `height="${size}"`);
+  return svg;
+};
+
 export default () => ({
   getWorktypeColors,
   getWorktypeSVG,
+  getBasicWorktypeSVG,
 });

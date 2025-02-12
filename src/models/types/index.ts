@@ -234,3 +234,18 @@ export interface UserLocation {
   location: [number, number];
   timestamp: string;
 }
+
+export interface WorkTypeSchedule {
+  notes: string;
+  end: string;
+  team_name: string;
+  start: string;
+  worksite_case_number: string;
+  id: number;
+  worksite_address: string;
+  worksite_location: {
+    type: string;
+    coordinates: number[];
+  };
+  work_type_key?: string;
+}

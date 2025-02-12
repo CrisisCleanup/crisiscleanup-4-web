@@ -259,14 +259,14 @@ async function fetchModelOptions(
   endpoint: string,
   fields: string,
   idIn = '',
-  incidentId = null,
+  incident = null,
 ) {
   const params: Record<string, any> = { fields, limit: '10', search: value };
   if (idIn) {
     params.id__in = idIn; // Adding id__in to the parameters
   }
-  if (incidentId) {
-    params.incident = incidentId;
+  if (incident) {
+    params.incident = incident.id;
   }
   const results = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/${endpoint}`,

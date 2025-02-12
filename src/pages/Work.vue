@@ -722,7 +722,7 @@
           <div v-if="showingTable" class="work-page__main-content--table">
             <div class="items-center justify-start hidden md:flex">
               <ListDropdown
-                :selected-table-items="selectedTableItems"
+                :selected-table-items="Array.from(selectedTableItems)"
                 model-type="worksite_worksites"
                 :title="$t('list.worksite_lists')"
                 :alt="$t('list.worksite_lists')"

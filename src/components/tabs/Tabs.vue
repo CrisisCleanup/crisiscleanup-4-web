@@ -18,7 +18,9 @@
         {{ $t(tab.props.name) }}
       </li>
     </ul>
-    <slot></slot>
+    <div :class="tabDetailsClasses">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
