@@ -146,6 +146,7 @@
 
 <script setup lang="ts">
 import axios from 'axios';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import moment from 'moment';
@@ -169,6 +170,9 @@ import BaseButton from '@/components/BaseButton.vue';
  *   end: string;   // ISO date
  *   team: number|null;
  *   notes?: string;
+ *   worksite_work_types?: WorksiteWorkType[]; // new many-to-many field
+ *   work_type_key?: string; // legacy field
+ *   worksite_id: number;
  *   ...
  * }
  */
@@ -178,9 +182,12 @@ interface ScheduleItem {
   end: string;
   team?: number | null;
   notes?: string;
+  worksite_work_types?: { work_type_key?: string }[];
+  work_type_key?: string;
+  worksite_id: number;
 }
 
-/** Props: we receive the schedule ID. */
+/** Props: we receive the schedule ID via event prop. */
 const props = defineProps<{
   event: Record<string, any>;
 }>();
@@ -206,6 +213,19 @@ const form = ref({
   end: '',
   team: null as number | null,
   notes: '',
+});
+
+// Update markerIcon to use the first work type key from the nested array if available
+const markerIcon = computed(() => {
+  let workTypeKey = null;
+  if (schedule.value) {
+    workTypeKey =
+      schedule.value.worksite_work_types &&
+      schedule.value.worksite_work_types.length > 0
+        ? schedule.value.worksite_work_types[0].work_type_key
+        : schedule.value.work_type_key;
+  }
+  return getBasicWorktypeSVG(workTypeKey, 35);
 });
 
 function closeDialog() {
@@ -320,10 +340,6 @@ function openInGoogleMaps() {
   const url = `https://www.google.com/maps/search/?api=1&query=${worksite.value.location.coordinates[1]},${worksite.value.location.coordinates[0]}`;
   window.open(url, '_blank');
 }
-
-const markerIcon = computed(() => {
-  return getBasicWorktypeSVG(schedule.value.work_type_key, 35);
-});
 
 onMounted(async () => {
   await fetchTeams();

@@ -1889,8 +1889,8 @@ export default defineComponent({
         let url = `worksites_download/download_csv`;
 
         if (
-          filteredWorksiteCount.value > 2500 ||
-          (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 2500)
+          filteredWorksiteCount.value > 10_000 ||
+          (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 10_000)
         ) {
           const result = await confirm({
             title: t('~~Large CSV Download warning'),
