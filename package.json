@@ -65,6 +65,7 @@
     "@pixi/ticker": "6.5.10",
     "@pixi/utils": "6.5.10",
     "@schedule-x/calendar": "^2.18.0",
+    "@schedule-x/calendar-controls": "^2.19.0",
     "@schedule-x/current-time": "^2.19.0",
     "@schedule-x/drag-and-drop": "^2.18.0",
     "@schedule-x/events-service": "^2.18.0",

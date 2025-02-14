@@ -46,9 +46,17 @@ async function loadMap() {
   const bounds = L.latLngBounds([]);
 
   props.schedules.forEach((appt: WorkTypeSchedule) => {
+    // Get coordinates or fallback to defaults
     const coords = appt.worksite_location?.coordinates || [-96.4, 35.7];
     const latLng = L.latLng(coords[1], coords[0]);
-    const markerSvg = getBasicWorktypeSVG(appt.work_type_key, 35);
+
+    // Use nested work types if available, otherwise fallback to legacy work_type_key
+    let workTypeKey = appt.work_type_key;
+    if (appt.worksite_work_types && appt.worksite_work_types.length > 0) {
+      workTypeKey = appt.worksite_work_types[0].work_type_key;
+    }
+
+    const markerSvg = getBasicWorktypeSVG(workTypeKey, 35);
     const divIcon = L.divIcon({
       className: 'leaflet-data-marker',
       html: markerSvg,
@@ -57,9 +65,7 @@ async function loadMap() {
       popupAnchor: [0, -28],
     });
 
-    const marker = L.marker(latLng, {
-      icon: divIcon,
-    }).addTo(map.value);
+    const marker = L.marker(latLng, { icon: divIcon }).addTo(map.value);
 
     marker.on('click', () => {
       emit('workTypeScheduleClick', appt);

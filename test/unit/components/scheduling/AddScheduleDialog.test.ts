@@ -26,7 +26,6 @@ vi.mock('@vueuse/router', () => {
 });
 
 vi.mock('axios');
-
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 vi.mock('vue-router', () => ({
@@ -179,7 +178,7 @@ describe('AddScheduleDialog.vue', () => {
     expect(mockedAxios.post).toHaveBeenCalledWith(
       '/worksite_work_types_schedule',
       {
-        worksite_work_type: 10,
+        worksite_work_types_ids: [10],
         start: moment('2023-12-01 12:00').toISOString(),
         end: moment('2023-12-01 13:00').toISOString(),
         team: null,

@@ -221,6 +221,7 @@ interface WorkType {
 interface Worksite {
   id: number;
   case_number: string;
+  name: string;
   work_types: WorkType[];
 }
 
@@ -275,7 +276,7 @@ function validateForm(): boolean {
       );
     }
   } else {
-    selectedWorkTypeIds.value.forEach((wtId: string) => {
+    selectedWorkTypeIds.value.forEach((wtId: number) => {
       const start = individualTimes.value[wtId]?.start;
       const end = individualTimes.value[wtId]?.end;
 
@@ -314,7 +315,7 @@ function handleWorkTypeCheckbox(isChecked: boolean, workTypeId: number) {
     }
   } else {
     selectedWorkTypeIds.value = selectedWorkTypeIds.value.filter(
-      (id: string) => id !== workTypeId,
+      (id: number) => id !== workTypeId,
     );
     delete individualTimes.value[workTypeId];
     delete individualTeams.value[workTypeId];
@@ -336,25 +337,23 @@ async function saveSchedules() {
   if (!worksite || selectedWorkTypeIds.value.length === 0) return;
   saving.value = true;
 
-  const payloads = selectedWorkTypeIds.value.map((wtId: string) => {
-    let start, end, team_id;
-    if (sameTimeForAll.value) {
-      start = moment(commonStartAt.value).toISOString();
-      end = moment(commonEndAt.value).toISOString();
-      team_id = commonTeam.value;
-    } else {
-      start = moment(individualTimes.value[wtId].start).toISOString();
-      end = moment(individualTimes.value[wtId].end).toISOString();
-      team_id = individualTeams.value[wtId];
-    }
-    return {
-      worksite_work_type: wtId,
-      start,
-      end,
-      team: team_id,
-      notes: notes.value,
-    };
-  });
+  const payloads: any[] = sameTimeForAll.value
+    ? [
+        {
+          worksite_work_types_ids: selectedWorkTypeIds.value,
+          start: moment(commonStartAt.value).toISOString(),
+          end: moment(commonEndAt.value).toISOString(),
+          team: commonTeam.value,
+          notes: notes.value,
+        },
+      ]
+    : selectedWorkTypeIds.value.map((wtId: number) => ({
+        worksite_work_types_ids: [wtId],
+        start: moment(individualTimes.value[wtId].start).toISOString(),
+        end: moment(individualTimes.value[wtId].end).toISOString(),
+        team: individualTeams.value[wtId],
+        notes: notes.value,
+      }));
 
   try {
     await Promise.all(

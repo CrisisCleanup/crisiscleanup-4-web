@@ -1,11 +1,13 @@
 <template>
   <div class="flex flex-col md:flex-row h-full mb-20 md:mb-0">
     <div class="flex flex-col flex-grow relative overflow-y-auto w-full">
+      <!-- Header / Actions -->
       <div class="sticky top-0 bg-white z-10 p-2">
         <div class="flex flex-wrap items-center gap-2 mt-10 md:mt-0">
           <ccu-icon
             type="calendar"
             size="md"
+            class="calendar-actions"
             fa
             :action="() => setView('calendar')"
             :class="
@@ -14,21 +16,20 @@
                 : 'text-crisiscleanup-dark-100'
             "
           />
-
           <ccu-icon
             type="map"
             size="md"
-            class="hidden md:inline-flex"
+            class="hidden md:inline-flex calendar-actions"
             fa
             :action="() => setView('map')"
             :class="
               showMap ? 'text-primary-light' : 'text-crisiscleanup-dark-100'
             "
           />
-
           <ccu-icon
             type="list"
             size="md"
+            class="calendar-actions"
             fa
             :action="() => setView('upcoming')"
             :class="
@@ -61,7 +62,7 @@
             "
           />
 
-          <!-- (Optional) AddFromList -->
+          <!-- (Optional) Add From List -->
           <AddFromList
             model-type="worksite_worksites"
             :title="$t('~~Select from List')"
@@ -74,7 +75,7 @@
             "
           />
 
-          <!-- Select from map icon -->
+          <!-- Select from Map icon -->
           <base-button
             ccu-icon="go-case"
             icon-size="medium"
@@ -84,7 +85,7 @@
             :action="openSelectFromMapDialog"
           />
 
-          <!-- Currently selected case -->
+          <!-- Currently selected worksite -->
           <div
             v-if="selectedWorksite"
             class="ml-auto flex items-center gap-2 bg-primary-light border border-primary-dark rounded px-3 py-1"
@@ -104,6 +105,7 @@
           </div>
         </div>
 
+        <!-- Filters -->
         <div class="flex flex-wrap items-end gap-2 mt-2">
           <div class="items-center gap-2">
             <base-text variant="body" weight="600">
@@ -114,10 +116,9 @@
               format="yyyy-MM-dd"
               :enable-time-picker="false"
               auto-apply
-              @update:model-value="fetchSchedules"
+              @update:model-value="initialize"
             />
           </div>
-
           <div class="items-center gap-2">
             <base-text variant="body" weight="600">
               {{ t('~~End Date') }}
@@ -127,10 +128,9 @@
               format="yyyy-MM-dd"
               :enable-time-picker="false"
               auto-apply
-              @update:model-value="fetchSchedules"
+              @update:model-value="initialize"
             />
           </div>
-
           <div class="items-center gap-2">
             <base-text variant="body" weight="600">
               {{ t('~~Team') }}
@@ -143,10 +143,9 @@
               placeholder="All Teams"
               select-classes="p-1 border"
               class="w-72 h-10"
-              @update:model-value="fetchSchedules"
+              @update:model-value="initialize"
             />
           </div>
-
           <v-popover placement="bottom-start">
             <base-button
               action="add"
@@ -155,7 +154,6 @@
             >
               {{ $t('~~Actions') }}
             </base-button>
-
             <template #popper>
               <div class="flex flex-col">
                 <base-button
@@ -191,6 +189,8 @@
           </v-popover>
         </div>
       </div>
+
+      <!-- Main Views -->
       <template v-if="showMap">
         <div class="h-full">
           <WorkTypeSchedulesMap
@@ -204,6 +204,7 @@
         <ScheduleXCalendar :calendar-app="calendarApp" />
       </template>
 
+      <!-- Upcoming Schedules List -->
       <template v-if="showUpcoming">
         <div class="p-4">
           <div class="flex justify-between items-center">
@@ -219,7 +220,30 @@
               class="mb-4 p-4 bg-white rounded-lg shadow flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
             >
               <div class="space-y-2">
+                <!-- Loop through all connected cases -->
                 <div
+                  v-if="
+                    schedule.worksite_work_types &&
+                    schedule.worksite_work_types.length > 0
+                  "
+                >
+                  <div
+                    v-for="workType in schedule.worksite_work_types"
+                    :key="workType.id"
+                    class="text-lg font-semibold text-gray-800 flex items-center"
+                  >
+                    {{ workType.worksite_case_number }}
+                    <span
+                      v-if="workType.work_type_key"
+                      class="ml-2 text-sm text-gray-600"
+                    >
+                      ({{ $t(`workType.${workType.work_type_key}`) }})
+                    </span>
+                  </div>
+                </div>
+                <!-- Fallback if no nested cases exist -->
+                <div
+                  v-else
                   class="text-lg font-semibold text-gray-800 flex items-center"
                 >
                   {{ schedule.worksite_case_number }}
@@ -237,7 +261,26 @@
                   <span class="font-medium text-gray-600">
                     {{ t('~~Address:') }}
                   </span>
-                  {{ schedule.worksite_address }}
+                  <span
+                    v-if="
+                      schedule.worksite_work_types &&
+                      schedule.worksite_work_types.length > 0
+                    "
+                  >
+                    <span
+                      v-for="(workType, idx) in schedule.worksite_work_types"
+                      :key="idx"
+                    >
+                      {{ workType.worksite_address
+                      }}<span
+                        v-if="idx < schedule.worksite_work_types.length - 1"
+                        >,
+                      </span>
+                    </span>
+                  </span>
+                  <span v-else>
+                    {{ schedule.worksite_address }}
+                  </span>
                 </p>
               </div>
 
@@ -260,7 +303,6 @@
                 >
                   {{ schedule.team_name }}
                 </p>
-
                 <div class="flex gap-2 mt-2 justify-end">
                   <ccu-icon
                     type="edit"
@@ -279,6 +321,7 @@
       </template>
     </div>
 
+    <!-- Side Panel: Worksite Form -->
     <div class="h-full md:w-108 w-full hidden md:block">
       <WorksiteForm
         ref="worksiteForm"
@@ -316,10 +359,8 @@
 import axios from 'axios';
 import moment from 'moment';
 import { useI18n } from 'vue-i18n';
-
 import { ScheduleXCalendar } from '@schedule-x/vue';
 import '@schedule-x/theme-default/dist/index.css';
-
 import {
   createCalendar,
   createViewDay,
@@ -327,11 +368,11 @@ import {
   createViewMonthGrid,
   createViewMonthAgenda,
 } from '@schedule-x/calendar';
-
 import { createEventsServicePlugin } from '@schedule-x/events-service';
 import { createDragAndDropPlugin } from '@schedule-x/drag-and-drop';
 import { createResizePlugin } from '@schedule-x/resize';
 import { createCurrentTimePlugin } from '@schedule-x/current-time';
+import { createCalendarControlsPlugin } from '@schedule-x/calendar-controls';
 
 import WorksiteForm from '@/components/work/WorksiteForm.vue';
 import WorksiteSearchInput from '@/components/work/WorksiteSearchInput.vue';
@@ -346,22 +387,11 @@ import type Worksite from '@/models/Worksite';
 import AddFromList from '@/pages/lists/AddFromList.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { momentFromNow } from '@/filters';
-import Team from '@/models/Team';
+import type Team from '@/models/Team';
 import WorksiteMapPopup from '@/components/WorksiteMapPopup.vue';
 import useEmitter from '@/hooks/useEmitter';
 import BaseButton from '@/components/BaseButton.vue';
 import jsPDF from 'jspdf';
-
-export interface CalendarEvent {
-  id: string | number;
-  start: string;
-  end: string;
-  title?: string;
-  description?: string;
-  location?: string;
-  people?: string[];
-  calendarId?: string;
-}
 
 const { t } = useI18n();
 const { currentIncidentId } = useCurrentIncident();
@@ -373,6 +403,7 @@ const eventsServicePlugin = createEventsServicePlugin();
 const dragAndDropPlugin = createDragAndDropPlugin();
 const resizePlugin = createResizePlugin();
 const currentTimePlugin = createCurrentTimePlugin();
+const calendarControls = createCalendarControlsPlugin();
 
 const scheduleEvents = ref([]);
 const upcomingSchedules = ref<WorkTypeSchedule[]>([]);
@@ -392,17 +423,60 @@ const filterEndDate = ref<string>('');
 const filterTeam = ref<number | null>(null);
 const teams = ref<Team[]>([]);
 
+function generateColorVariants(baseColor: string) {
+  return {
+    lightColors: {
+      main: baseColor,
+      container: baseColor + '99',
+      onContainer: '#000000',
+    },
+  };
+}
+
 function convertScheduleToEvent(item: WorkTypeSchedule) {
-  const caseNumber = item.worksite_case_number || 'UnknownCase';
-  const workType = item.work_type_key || 'UnknownWorkType';
+  let caseNumbers = '';
+  let workTypes = '';
+  let location = '';
+
+  if (item.worksite_work_types && item.worksite_work_types.length > 0) {
+    // Deduplicate case numbers and work type keys
+    const uniqueCaseNumbers = [
+      ...new Set(
+        item.worksite_work_types.map((w: any) => w.worksite_case_number),
+      ),
+    ];
+    const uniqueWorkTypes = [
+      ...new Set(
+        item.worksite_work_types.map((w: any) =>
+          t(`workType.${w.work_type_key}`),
+        ),
+      ),
+    ];
+
+    caseNumbers = uniqueCaseNumbers.join(', ');
+    workTypes = uniqueWorkTypes.join(', ');
+
+    // Determine location: if more than one unique address exists, mark as "Multiple locations"
+    const uniqueAddresses = [
+      ...new Set(item.worksite_work_types.map((w: any) => w.worksite_address)),
+    ];
+    location =
+      uniqueAddresses.length > 1 ? 'Multiple locations' : uniqueAddresses[0];
+  } else {
+    caseNumbers = item.worksite_case_number || 'UnknownCase';
+    workTypes = item.work_type_key || 'UnknownWorkType';
+    location = item.worksite_address || 'Unknown location';
+  }
+
   return {
     id: item.id,
-    title: `${caseNumber} - ${t(`workType.${workType}`)}`,
+    title: `${caseNumbers} - ${workTypes}`,
     start: moment(item.start).format('YYYY-MM-DD HH:mm'),
     end: moment(item.end).format('YYYY-MM-DD HH:mm'),
     description: item.notes,
-    location: item.worksite_address,
+    location: location,
     people: item.team_name ? [item.team_name] : null,
+    calendarId: String(item.team),
   };
 }
 
@@ -437,10 +511,7 @@ async function fetchSchedules() {
 async function fetchUpcomingSchedules() {
   try {
     const now = moment().toISOString();
-    const params: any = {
-      start_at__gt: now,
-      limit: 10,
-    };
+    const params: any = { start_at__gt: now, limit: 10 };
     const { data } = await axios.get('/worksite_work_types_schedule', {
       params,
     });
@@ -451,17 +522,19 @@ async function fetchUpcomingSchedules() {
 }
 
 const getTeams = async () => {
-  try {
-    const results = await Team.api().get(
-      `/teams?incident=${currentIncidentId.value}`,
-      {
-        dataKey: 'results',
-      },
-    );
-    teams.value = (results.entities?.teams || []) as Team[];
-  } catch (error) {
-    console.error('Failed to fetch teams:', error);
-  }
+  const { data } = await axios.get(
+    `/teams?incident=${currentIncidentId.value}`,
+  );
+  teams.value = data.results as Team[];
+  calendarControls.setCalendars(
+    teams.value.reduce((acc: Record<string, any>, team: Team) => {
+      acc[String(team.id)] = {
+        colorName: String(team.id),
+        ...generateColorVariants(team.color),
+      };
+      return acc;
+    }, {}),
+  );
 };
 
 const editEvent = async (event: any) => {
@@ -472,6 +545,7 @@ const editEvent = async (event: any) => {
     hideFooter: true,
     props: { event },
   });
+  await initialize();
 };
 
 async function updateSchedule(event: any) {
@@ -480,7 +554,7 @@ async function updateSchedule(event: any) {
       start: moment(event.start).toISOString(),
       end: moment(event.end).toISOString(),
     });
-    await fetchSchedules();
+    await initialize();
     await fetchUpcomingSchedules();
   } catch (error) {
     console.error('Failed to update schedule:', error);
@@ -493,6 +567,9 @@ async function addCaseToSchedule() {
 }
 
 async function openAddScheduleDialog(initialData = null) {
+  const { formattedStart, formattedEnd } = getRoundedTimeSlots(
+    moment().toISOString(),
+  );
   await component({
     title: 'Create Schedules',
     component: AddScheduleDialog,
@@ -505,13 +582,12 @@ async function openAddScheduleDialog(initialData = null) {
       initialData: initialData
         ? initialData
         : {
-            start: moment().format('YYYY-MM-DD HH:mm'),
-            end: moment().add(1, 'hour').format('YYYY-MM-DD HH:mm'),
+            start: formattedStart,
+            end: formattedEnd,
           },
     },
   });
-  await fetchSchedules();
-  await fetchUpcomingSchedules();
+  await initialize();
 }
 
 async function openSelectFromMapDialog() {
@@ -548,11 +624,8 @@ function exportToCSV() {
     alert('No events to export');
     return;
   }
-
-  // Build CSV rows
   const headers = ['Title', 'Start', 'End', 'Description', 'Location', 'Team'];
-  const rows = data.map((event: CalendarEvent) => {
-    // Adjust as needed for your data shape
+  const rows = data.map((event: any) => {
     const team = event.people?.join(' / ') ?? '';
     return [
       `"${event.title}"`,
@@ -563,11 +636,9 @@ function exportToCSV() {
       `"${team}"`,
     ].join(',');
   });
-
   const csvContent = [headers.join(','), ...rows].join('\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-
   const link = document.createElement('a');
   link.setAttribute('href', url);
   link.setAttribute('download', 'schedules_export.csv');
@@ -577,11 +648,9 @@ function exportToCSV() {
 async function exportToPDF() {
   const doc = new jsPDF();
   doc.setFontSize(12);
-
   let yPos = 10;
   doc.text('Schedules Export', 10, yPos);
-
-  scheduleEvents.value.forEach((evt: CalendarEvent, index: number) => {
+  scheduleEvents.value.forEach((evt: any, index: number) => {
     yPos += 10;
     doc.text(`${index + 1}) ${evt.title}`, 10, yPos);
     yPos += 6;
@@ -593,7 +662,6 @@ async function exportToPDF() {
       yPos = 10;
     }
   });
-
   doc.save('schedules_export.pdf');
 }
 
@@ -603,24 +671,19 @@ function exportToICS() {
     alert('No events to export');
     return;
   }
-
-  // Build iCal string
   let icsContent =
     [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//YourApp//Schedule Export//EN',
     ].join('\r\n') + '\r\n';
-
-  data.forEach((event: CalendarEvent) => {
-    // Convert "YYYY-MM-DD HH:mm" -> "YYYYMMDDTHHmmssZ" (UTC)
+  data.forEach((event: any) => {
     const startUTC = moment(event.start, 'YYYY-MM-DD HH:mm')
       .utc()
       .format('YYYYMMDDTHHmmss[Z]');
     const endUTC = moment(event.end, 'YYYY-MM-DD HH:mm')
       .utc()
       .format('YYYYMMDDTHHmmss[Z]');
-
     icsContent +=
       [
         'BEGIN:VEVENT',
@@ -634,27 +697,32 @@ function exportToICS() {
         'END:VEVENT',
       ].join('\r\n') + '\r\n';
   });
-
   icsContent += 'END:VCALENDAR\r\n';
-
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-
   const link = document.createElement('a');
   link.href = url;
   link.download = 'schedules_export.ics';
   link.click();
 }
 
-// Example: Print the calendar
-// This is a simple approach that will print the entire page,
-// including the calendar view. For a more refined approach,
-// you might create a dedicated print stylesheet or use
-// a library like print-js to customize what gets printed.
 function printCalendar() {
   window.print();
 }
-// --------------------------------------------------------------
+
+const getRoundedTimeSlots = (date: string) => {
+  const minutes = moment(date).minutes();
+  const roundedMinutes = minutes < 15 ? 0 : minutes < 45 ? 30 : 60;
+  const start = moment(date).minutes(roundedMinutes).seconds(0);
+
+  if (roundedMinutes === 60) {
+    start.add(1, 'hour').minutes(0);
+  }
+
+  const formattedStart = start.format('YYYY-MM-DD HH:mm');
+  const formattedEnd = start.add(2, 'hours').format('YYYY-MM-DD HH:mm');
+  return { formattedStart, formattedEnd };
+};
 
 const calendarApp = createCalendar(
   {
@@ -666,9 +734,7 @@ const calendarApp = createCalendar(
       createViewMonthGrid(),
       createViewMonthAgenda(),
     ],
-    weekOptions: {
-      gridHeight: 2000,
-    },
+    weekOptions: { gridHeight: 2000 },
     events: scheduleEvents.value,
     callbacks: {
       onEventClick: editEvent,
@@ -677,20 +743,28 @@ const calendarApp = createCalendar(
       },
       onClickDateTime(date: string) {
         if (selectedWorksite.value) {
-          const start = moment(date).format('YYYY-MM-DD HH:mm');
-          const end = moment(date).add(1, 'hour').format('YYYY-MM-DD HH:mm');
-          openAddScheduleDialog({ start: start, end: end } as any);
+          const { formattedStart, formattedEnd } = getRoundedTimeSlots(date);
+          openAddScheduleDialog({ start: formattedStart, end: formattedEnd });
         }
       },
     },
   },
-  [eventsServicePlugin, dragAndDropPlugin, resizePlugin, currentTimePlugin],
+  [
+    eventsServicePlugin,
+    dragAndDropPlugin,
+    resizePlugin,
+    currentTimePlugin,
+    calendarControls,
+  ],
 );
 
-onMounted(async () => {
+const initialize = async () => {
   await getTeams();
   await fetchSchedules();
   await fetchUpcomingSchedules();
+};
+onMounted(async () => {
+  await initialize();
 });
 </script>
 
