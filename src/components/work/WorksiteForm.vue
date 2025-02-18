@@ -19,6 +19,7 @@
       </div>
     </div>
     <div class="form-content" data-testid="testIntakeFormDiv">
+      <slot name="custom-header"></slot>
       <SectionHeading :count="1" class="mb-3">{{
         $t('caseForm.property_information')
       }}</SectionHeading>

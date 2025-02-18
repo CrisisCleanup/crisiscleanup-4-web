@@ -111,6 +111,7 @@ export default defineComponent({
       default: '',
     },
   },
+  emits: ['rowClick', 'selectionChanged'],
   setup(props) {
     const { emitter } = useEmitter();
 

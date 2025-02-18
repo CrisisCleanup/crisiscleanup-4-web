@@ -722,7 +722,7 @@
           <div v-if="showingTable" class="work-page__main-content--table">
             <div class="items-center justify-start hidden md:flex">
               <ListDropdown
-                :selected-table-items="selectedTableItems"
+                :selected-table-items="Array.from(selectedTableItems)"
                 model-type="worksite_worksites"
                 :title="$t('list.worksite_lists')"
                 :alt="$t('list.worksite_lists')"
@@ -1889,8 +1889,8 @@ export default defineComponent({
         let url = `worksites_download/download_csv`;
 
         if (
-          filteredWorksiteCount.value > 2500 ||
-          (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 2500)
+          filteredWorksiteCount.value > 10_000 ||
+          (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 10_000)
         ) {
           const result = await confirm({
             title: t('~~Large CSV Download warning'),
