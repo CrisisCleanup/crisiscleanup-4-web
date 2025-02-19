@@ -635,6 +635,7 @@ import RequestRedeploy from '@/components/RequestRedeploy.vue';
 import useCapabilities from '@/hooks/useCapabilities';
 import { useCurrentUser } from '@/hooks';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
+import moment from 'moment';
 
 export default defineComponent({
   name: 'Profile',
@@ -709,6 +710,9 @@ export default defineComponent({
         const logos = currentOrganization.value.files.filter(
           (file) => file.file_type_t === 'fileTypes.logo',
         );
+        logos.sort((a, b) => {
+          return moment(b.created_at).diff(moment(a.created_at));
+        });
         if (logos.length > 0) {
           return logos[0].small_thumbnail_url;
         }
