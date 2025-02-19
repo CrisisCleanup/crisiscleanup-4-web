@@ -3,6 +3,7 @@ import Incident from './Incident';
 import type Location from './Location';
 import CCUModel from '@/models/base';
 import type { CCUFileItem, UserContact } from '@/models/types';
+import moment from 'moment';
 
 export default class Organization extends CCUModel {
   static entity = 'organizations';
@@ -140,6 +141,12 @@ export default class Organization extends CCUModel {
       const logos = this.files.filter(
         (file) => file.file_type_t === 'fileTypes.logo',
       );
+
+      // sort logos by created_at desc using moment
+      logos.sort((a, b) => {
+        return moment(b.created_at).diff(moment(a.created_at));
+      });
+
       if (logos.length > 0) {
         return logos[0].small_thumbnail_url;
       }
