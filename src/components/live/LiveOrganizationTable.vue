@@ -96,6 +96,7 @@ import CaseDonutChart from '@/components/live/CaseDonutChart.vue';
 import Table from '@/components/Table.vue';
 import OrganizationActivityModal from '@/components/live/OrganizationActivityModal.vue';
 import type Organization from '@/models/Organization';
+import moment from 'moment';
 
 export default defineComponent({
   name: 'LiveOrganizationTable',
@@ -203,6 +204,11 @@ export default defineComponent({
         const logos = organization.files.filter(
           (file) => file.file_type_t === 'fileTypes.logo',
         );
+
+        logos.sort((a, b) => {
+          return moment(b.created_at).diff(moment(a.created_at));
+        });
+
         if (logos.length > 0) {
           return logos[0].small_thumbnail_url;
         }

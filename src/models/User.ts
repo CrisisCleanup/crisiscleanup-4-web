@@ -95,7 +95,10 @@ export default class User extends CCUModel {
         (file) => file.file_type_t === 'fileTypes.user_profile_picture',
       );
       if (profilePictures.length > 0) {
-        return profilePictures[0].large_thumbnail_url;
+        return (
+          profilePictures[0].large_thumbnail_url ||
+          profilePictures[0].general_file_url
+        );
       }
     }
     return getUserAvatarLink(this.first_name);

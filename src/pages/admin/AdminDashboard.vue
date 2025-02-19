@@ -764,6 +764,8 @@ export default defineComponent({
 
         const parameters = {
           ...parametersDict[organizationApprovalView.value],
+          fields:
+            'id,name,url,admin_notes,profile_completed,is_verified,is_active,incidents,created_at,approved_by,approved_at,rejected_by,rejected_at',
         };
         if (globalSearch.value) {
           parameters.search = globalSearch.value;
