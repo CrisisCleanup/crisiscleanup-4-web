@@ -4,7 +4,7 @@
     <base-button
       action="add"
       suffix-icon="caret-down"
-      class="ml-3 my-3 border border-1.5 border-black p-1 px-4 bg-white"
+      class="border border-1.5 border-black p-1 px-4 bg-white w-full"
     >
       {{ title }}
     </base-button>

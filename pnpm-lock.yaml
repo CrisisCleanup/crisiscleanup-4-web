@@ -74,6 +74,9 @@ importers:
       '@schedule-x/resize':
         specifier: ^2.18.0
         version: 2.18.0
+      '@schedule-x/scroll-controller':
+        specifier: ^2.20.0
+        version: 2.20.0(@preact/signals@1.3.2(preact@10.25.4))
       '@schedule-x/theme-default':
         specifier: ^2.18.0
         version: 2.18.0
@@ -2053,6 +2056,11 @@ packages:
 
   '@schedule-x/resize@2.18.0':
     resolution: {integrity: sha512-LjMm6teyKNXOYcBpxmJeYxo/nSI6dsP1S/rglJH3EbcQMV1Os99OGx5rh9zZrIQiw3Vome+iY7QV2QMy/SKutg==}
+
+  '@schedule-x/scroll-controller@2.20.0':
+    resolution: {integrity: sha512-88v2hcTCHUEWBQzBwQUIpD+92+MkeXMV+lt/JE/z3JrQY0VWQB7FmlwRV+/CjigKh3jgW+zHDqltMToPY/v5zQ==}
+    peerDependencies:
+      '@preact/signals': ^1.1.5
 
   '@schedule-x/theme-default@2.18.0':
     resolution: {integrity: sha512-o4OzFzxxz2nSi7iaCVca5Vi6HAgnQvpZerJcd+3lqNejnB9RL7PUWxmC3DBbP5W6Y9ggUzKFywM1/6kx1LpxEQ==}
@@ -8656,6 +8664,10 @@ snapshots:
   '@schedule-x/events-service@2.18.0': {}
 
   '@schedule-x/resize@2.18.0': {}
+
+  '@schedule-x/scroll-controller@2.20.0(@preact/signals@1.3.2(preact@10.25.4))':
+    dependencies:
+      '@preact/signals': 1.3.2(preact@10.25.4)
 
   '@schedule-x/theme-default@2.18.0': {}
 

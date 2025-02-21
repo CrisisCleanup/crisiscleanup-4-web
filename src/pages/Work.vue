@@ -332,59 +332,36 @@
             <div
               v-if="!collapsedUtilityBar"
               :key="currentIncidentId"
-              class="flex items-center flex-wrap w-full p-3"
+              class="flex items-center flex-wrap w-full p-3 gap-2"
             >
-              <ccu-icon
-                :alt="$t('casesVue.map_view')"
-                data-testid="testMapViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="showingMap ? 'filter-yellow' : 'filter-gray'"
-                type="map"
-                ccu-event="user_ui-view-map"
-                @click="() => showMap(true)"
-              />
-              <ccu-icon
-                :alt="$t('casesVue.table_view')"
-                data-testid="testTableViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="showingTable ? 'filter-yellow' : 'filter-gray'"
-                type="table"
-                ccu-event="user_ui-view-table"
-                @click="showTable"
-              />
-              <ccu-icon
-                v-if="caseImages.length > 0"
-                :alt="$t('casesVue.photo_map_view')"
-                data-testid="testPhotoMapViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="
-                  showingPhotoMap
-                    ? 'text-primary-light'
-                    : 'text-crisiscleanup-dark-100'
+              <WorksiteNavigationIcons
+                :case-images="caseImages"
+                :showing-feed="showingFeed"
+                :showing-map="showingMap"
+                :showing-photo-map="showingPhotoMap"
+                :showing-table="showingTable"
+                @show-feed="showFeed"
+                @show-map="() => showMap(true)"
+                @show-photo-map="showPhotoMap"
+                @show-table="showTable"
+                @show-calendar="
+                  () =>
+                    router.push(
+                      `/incident/${currentIncidentId}/calendar?view=calendar`,
+                    )
                 "
-                ccu-event="user_ui-view-photo-map"
-                type="image"
-                :fa="true"
-                @click="showPhotoMap"
-              />
-              <ccu-icon
-                v-if="can('beta_feature.enable_feed')"
-                :alt="$t('casesVue.photo_map_view')"
-                data-testid="testPhotoMapViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="
-                  showingFeed
-                    ? 'text-primary-light'
-                    : 'text-crisiscleanup-dark-100'
+                @show-calendar-list="
+                  () =>
+                    router.push(
+                      `/incident/${currentIncidentId}/calendar?view=upcoming`,
+                    )
                 "
-                ccu-event="user_ui-view-photo-map"
-                type="scroll"
-                :fa="true"
-                @click="showFeed"
+                @show-calendar-map="
+                  () =>
+                    router.push(
+                      `/incident/${currentIncidentId}/calendar?view=map`,
+                    )
+                "
               />
               <span v-if="allWorksiteCount" class="font-thin">
                 <span
@@ -1003,7 +980,7 @@ import {
   loadCasesCached,
   loadUserLocations,
 } from '../utils/worksite';
-import { averageGeolocation, getUserLocationLayer } from '../utils/map';
+import { getUserLocationLayer } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import { forceFileDownload } from '../utils/downloads';
 import { getErrorMessage } from '../utils/errors';
@@ -1024,8 +1001,6 @@ import ShareWorksite from '@/components/modals/ShareWorksite.vue';
 import useEmitter from '@/hooks/useEmitter';
 import Organization from '@/models/Organization';
 import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
-
-const INTERACTIVE_ZOOM_LEVEL = 12;
 import { useCurrentIncident, useCurrentUser } from '@/hooks';
 import type { Portal, UserLocation } from '@/models/types';
 import WorksiteFeed from '@/components/WorksiteFeed.vue';
@@ -1040,10 +1015,14 @@ import User from '@/models/User';
 import _ from 'lodash';
 import Spinner from '@/components/Spinner.vue';
 import DownloadWorksiteCsv from '@/components/downloads/DownloadWorksiteCsv.vue';
+import WorksiteNavigationIcons from '@/pages/WorksiteNavigationIcons.vue';
+
+const INTERACTIVE_ZOOM_LEVEL = 12;
 
 export default defineComponent({
   name: 'Work',
   components: {
+    WorksiteNavigationIcons,
     Spinner,
     AjaxTable,
     BaseButton,

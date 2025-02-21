@@ -1,193 +1,198 @@
 <template>
-  <div class="bg-white p-3 shadow text-sm">
+  <div class="bg-white p-3 shadow text-sm flex-grow flex flex-col">
     <!-- Display any validation errors -->
-    <div
-      v-if="validationErrors.length > 0"
-      class="mb-3 bg-red-300 text-red-700 p-2 rounded"
-    >
-      <ul>
-        <li v-for="(error, index) in validationErrors" :key="index">
-          {{ error }}
-        </li>
-      </ul>
-    </div>
+    <div class="flex-grow">
+      <div
+        v-if="validationErrors.length > 0"
+        class="mb-3 bg-red-300 text-red-700 p-2 rounded"
+      >
+        <ul>
+          <li v-for="(error, index) in validationErrors" :key="index">
+            {{ error }}
+          </li>
+        </ul>
+      </div>
+      <template v-if="worksite?.id">
+        <!-- Worksite Info -->
+        <base-text variant="h2" :weight="600" class="mb-2">
+          {{ t('~~Worksite Information') }}
+        </base-text>
+        <div class="mb-3 text-gray-700">
+          <base-text variant="body" weight="600" class="mr-1">
+            {{ t('~~Worksite') }}:
+          </base-text>
+          <base-text variant="body">
+            {{ worksite.case_number }} - {{ worksite.name }}
+          </base-text>
+        </div>
 
-    <!-- Worksite Info -->
-    <base-text variant="h2" :weight="600" class="mb-2">
-      {{ t('~~Worksite Information') }}
-    </base-text>
-    <div class="mb-3 text-gray-700">
-      <base-text variant="body" weight="600" class="mr-1">
-        {{ t('~~Worksite') }}:
-      </base-text>
-      <base-text variant="body">
-        {{ worksite.case_number }} - {{ worksite.name }}
-      </base-text>
-    </div>
-
-    <!-- Select Work Types -->
-    <base-text variant="h3" :weight="600" class="mb-2">
-      {{ t('~~Select Work Types') }}
-    </base-text>
-    <div class="mb-5">
-      <div class="grid grid-cols-2 gap-y-2">
-        <div
-          v-for="wt in worksite.work_types"
-          :key="wt.id"
-          class="flex items-center"
-        >
+        <!-- Select Work Types -->
+        <base-text variant="h3" :weight="600" class="mb-2">
+          {{ t('~~Select Work Types') }}
+        </base-text>
+        <div class="mb-5">
+          <div class="grid grid-cols-2 gap-y-2">
+            <div
+              v-for="wt in worksite.work_types"
+              :key="wt.id"
+              class="flex items-center"
+            >
+              <base-checkbox
+                :model-value="selectedWorkTypeIds.includes(wt.id)"
+                :data-testid="`testCheckboxWT-${wt.id}`"
+                @update:model-value="handleWorkTypeCheckbox($event, wt.id)"
+              >
+                {{ $t(`workType.${wt.work_type}`) }}
+              </base-checkbox>
+            </div>
+          </div>
+        </div>
+        <!-- Same Time For All -->
+        <base-text variant="h3" :weight="600" class="mb-2">
+          {{ t('~~Use the same time for all') }}
+        </base-text>
+        <div class="mb-5">
           <base-checkbox
-            :model-value="selectedWorkTypeIds.includes(wt.id)"
-            :data-testid="`testCheckboxWT-${wt.id}`"
-            @update:model-value="handleWorkTypeCheckbox($event, wt.id)"
+            v-model="sameTimeForAll"
+            data-testid="testSameTimeForAll"
           >
-            {{ $t(`workType.${wt.work_type}`) }}
+            {{ t('~~Use the same time for all') }}
           </base-checkbox>
         </div>
-      </div>
-    </div>
+      </template>
 
-    <!-- Same Time For All -->
-    <base-text variant="h3" :weight="600" class="mb-2">
-      {{ t('~~Use the same time for all') }}
-    </base-text>
-    <div class="mb-5">
-      <base-checkbox v-model="sameTimeForAll" data-testid="testSameTimeForAll">
-        {{ t('~~Use the same time for all') }}
-      </base-checkbox>
-    </div>
-
-    <!-- Time pickers & Team (common) -->
-    <div v-if="sameTimeForAll" class="grid grid-cols-2 gap-4 mb-5">
-      <div>
-        <base-text variant="body" weight="600" class="block mb-1">
-          {{ t('~~Start Time') }}
-        </base-text>
-        <datepicker
-          v-model="commonStartAt"
-          data-testid="testCommonStartAt"
-          format="yyyy-MM-dd HH:mm"
-          :enable-time-picker="true"
-          auto-apply
-          class="w-full"
-        />
-      </div>
-      <div>
-        <base-text variant="body" weight="600" class="block mb-1">
-          {{ t('~~End Time') }}
-        </base-text>
-        <datepicker
-          v-model="commonEndAt"
-          data-testid="testCommonEndAt"
-          format="yyyy-MM-dd HH:mm"
-          :enable-time-picker="true"
-          auto-apply
-          class="w-full"
-        />
-      </div>
-
-      <!-- Team selection (only one, used for all work types) -->
-      <div class="col-span-2">
-        <base-text variant="body" weight="600" class="block mb-1">
-          {{ t('~~Select Team') }}
-        </base-text>
-        <base-select
-          v-model="commonTeam"
-          data-testid="testCommonTeamSelect"
-          :placeholder="t('~~Select a Team')"
-          class="w-full"
-          :options="teams"
-          item-key="id"
-          label="name"
-          select-classes="p-1"
-        />
-      </div>
-    </div>
-
-    <!-- Time pickers & Team (individual) -->
-    <div v-else>
-      <div v-for="wt in worksite.work_types" :key="wt.id">
-        <div
-          v-if="selectedWorkTypeIds.includes(wt.id)"
-          class="mb-5 border p-3 rounded"
-        >
-          <base-text variant="h4" :weight="600" class="mb-2">
-            {{ wt.work_type }} - {{ t('~~Time Schedule') }}
+      <!-- Time pickers & Team (common) -->
+      <div v-if="sameTimeForAll" class="flex flex-col gap-3">
+        <div>
+          <base-text variant="body" weight="600" class="block mb-1">
+            {{ t('~~Start Time') }}
           </base-text>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <base-text variant="body" weight="600" class="block mb-1">
-                {{ t('~~Start Time') }}
-              </base-text>
-              <datepicker
-                v-model="individualTimes[wt.id].start"
-                :data-testid="`testStartAt-${wt.id}`"
-                format="yyyy-MM-dd HH:mm"
-                :enable-time-picker="true"
-                auto-apply
-                class="w-full"
-              />
-            </div>
-            <div>
-              <base-text variant="body" weight="600" class="block mb-1">
-                {{ t('~~End Time') }}
-              </base-text>
-              <datepicker
-                v-model="individualTimes[wt.id].end"
-                :data-testid="`testEndAt-${wt.id}`"
-                format="yyyy-MM-dd HH:mm"
-                :enable-time-picker="true"
-                auto-apply
-                class="w-full"
-              />
-            </div>
-          </div>
+          <datepicker
+            v-model="commonStartAt"
+            data-testid="testCommonStartAt"
+            format="yyyy-MM-dd HH:mm"
+            :enable-time-picker="true"
+            auto-apply
+            class="w-full"
+          />
+        </div>
+        <div>
+          <base-text variant="body" weight="600" class="block mb-1">
+            {{ t('~~End Time') }}
+          </base-text>
+          <datepicker
+            v-model="commonEndAt"
+            data-testid="testCommonEndAt"
+            format="yyyy-MM-dd HH:mm"
+            :enable-time-picker="true"
+            auto-apply
+            class="w-full"
+          />
+        </div>
 
-          <!-- Team selection (specific for each work type) -->
-          <div class="mt-3">
-            <base-text variant="body" weight="600" class="block mb-1">
-              {{ t('~~Select Team') }}
+        <!-- Team selection (only one, used for all work types) -->
+        <div class="col-span-2">
+          <base-text variant="body" weight="600" class="block mb-1">
+            {{ t('~~Select Team') }}
+          </base-text>
+          <base-select
+            v-model="commonTeam"
+            data-testid="testCommonTeamSelect"
+            :placeholder="t('~~Select a Team')"
+            class="w-full"
+            :options="teams"
+            item-key="id"
+            label="name"
+            select-classes="p-1"
+          />
+        </div>
+      </div>
+
+      <!-- Time pickers & Team (individual) -->
+      <div v-else>
+        <div v-for="wt in worksite.work_types" :key="wt.id">
+          <div
+            v-if="selectedWorkTypeIds.includes(wt.id)"
+            class="mb-5 border p-3 rounded"
+          >
+            <base-text variant="h4" :weight="600" class="mb-2">
+              {{ wt.work_type }} - {{ t('~~Time Schedule') }}
             </base-text>
-            <base-select
-              v-model="individualTeams[wt.id]"
-              :data-testid="`testTeamSelect-${wt.id}`"
-              :placeholder="t('~~Select a Team')"
-              class="w-full"
-              :options="teams"
-              item-key="id"
-              label="name"
-              select-classes="p-1"
-            />
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <base-text variant="body" weight="600" class="block mb-1">
+                  {{ t('~~Start Time') }}
+                </base-text>
+                <datepicker
+                  v-model="individualTimes[wt.id].start"
+                  :data-testid="`testStartAt-${wt.id}`"
+                  format="yyyy-MM-dd HH:mm"
+                  :enable-time-picker="true"
+                  auto-apply
+                  class="w-full"
+                />
+              </div>
+              <div>
+                <base-text variant="body" weight="600" class="block mb-1">
+                  {{ t('~~End Time') }}
+                </base-text>
+                <datepicker
+                  v-model="individualTimes[wt.id].end"
+                  :data-testid="`testEndAt-${wt.id}`"
+                  format="yyyy-MM-dd HH:mm"
+                  :enable-time-picker="true"
+                  auto-apply
+                  class="w-full"
+                />
+              </div>
+            </div>
+
+            <!-- Team selection (specific for each work type) -->
+            <div class="mt-3">
+              <base-text variant="body" weight="600" class="block mb-1">
+                {{ t('~~Select Team') }}
+              </base-text>
+              <base-select
+                v-model="individualTeams[wt.id]"
+                :data-testid="`testTeamSelect-${wt.id}`"
+                :placeholder="t('~~Select a Team')"
+                class="w-full"
+                :options="teams"
+                item-key="id"
+                label="name"
+                select-classes="p-1"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Notes -->
-    <base-text variant="h3" :weight="600" class="mb-2">
-      {{ t('~~Notes') }}
-    </base-text>
-    <div class="mb-5">
-      <base-input
-        v-model="notes"
-        text-area
-        data-testid="testScheduleNotes"
-        class="w-full border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none resize-none"
-        :placeholder="t('~~Write any notes here...')"
-        rows="4"
-      />
+      <!-- Notes -->
+      <div class="mt-2">
+        <base-text variant="h2" :weight="600" class="mb-2">
+          {{ t('~~Notes') }}
+        </base-text>
+        <div class="mb-5">
+          <base-input
+            v-model="notes"
+            text-area
+            data-testid="testScheduleNotes"
+            class="w-full placeholder-crisiscleanup-dark-200 outline-none resize-none"
+            :placeholder="t('~~Write any notes here...')"
+            rows="4"
+          />
+        </div>
+      </div>
     </div>
-
     <!-- Action buttons -->
-    <div
-      class="sticky bottom-0 bg-white border-t border-gray-200 py-3 flex justify-end gap-4"
-    >
+    <div class="flex justify-between gap-2">
       <base-button
         variant="outline"
         data-testid="testCancelButton"
         :text="t('~~Cancel')"
         :action="closeDialog"
-        size="md"
+        size="large"
+        class="flex-grow"
       />
       <base-button
         variant="solid"
@@ -196,7 +201,8 @@
         :show-spinner="saving"
         :disabled="selectedWorkTypeIds.length === 0"
         :action="saveSchedules"
-        size="md"
+        size="large"
+        class="flex-grow"
       />
     </div>
   </div>
@@ -298,8 +304,21 @@ function validateForm(): boolean {
   return validationErrors.value.length === 0;
 }
 
+const resetFormValues = () => {
+  sameTimeForAll.value = true;
+  commonStartAt.value = '';
+  commonEndAt.value = '';
+  commonTeam.value = null;
+  individualTimes.value = {};
+  individualTeams.value = {};
+  selectedWorkTypeIds.value = [];
+  notes.value = '';
+  validationErrors.value = [];
+};
+
 function closeDialog() {
-  emitter.emit('modal_component:close', 'add_schedule_dialog');
+  resetFormValues();
+  emits('close');
 }
 
 function handleWorkTypeCheckbox(isChecked: boolean, workTypeId: number) {
@@ -356,19 +375,32 @@ async function saveSchedules() {
       }));
 
   try {
-    await Promise.all(
+    const results = await Promise.all(
       payloads.map((p: WorkTypeSchedule) =>
         axios.post('/worksite_work_types_schedule', p),
       ),
     );
     toast.success(t('~~Schedules saved successfully'));
-    closeDialog();
+    emits(
+      'saved',
+      results.map((r) => r.data),
+    );
   } catch (error) {
     toast.error(getErrorMessage(error));
   } finally {
     saving.value = false;
   }
 }
+
+watch(
+  () => props.initialData,
+  () => {
+    if (props.initialData) {
+      commonStartAt.value = props.initialData.start;
+      commonEndAt.value = props.initialData.end;
+    }
+  },
+);
 
 onMounted(() => {
   getTeams();

@@ -23,6 +23,8 @@ import terms from './assets/icons/terms.svg';
 import privacy from './assets/icons/privacy-policy.svg';
 import reports from './assets/icons/reports.svg';
 import calendar from './assets/icons/calendar.svg';
+import calendarList from './assets/icons/calendar-list.svg';
+import calendarMap from './assets/icons/calendar-map.svg';
 import call from './assets/icons/call.svg';
 import chat from './assets/icons/chat.svg';
 import drag from './assets/icons/drag.svg';
@@ -223,6 +225,8 @@ export const ICON_MAP = {
   privacy,
   reports,
   calendar,
+  'calendar-list': calendarList,
+  'calendar-map': calendarMap,
   call,
   chat,
   drag,
@@ -309,6 +313,7 @@ export const ICON_SIZES = [
   'small',
   'md',
   'medium',
+  'base',
   'lg',
   'large',
   'xl',

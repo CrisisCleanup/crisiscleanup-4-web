@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white p-3 shadow text-sm">
-    <tabs tab-details-classes="h-120 mt-3 overflow-auto">
-      <tab name="View">
+  <div class="bg-white p-3 shadow text-sm flex-grow flex flex-col">
+    <div class="flex-grow">
+      <div>
         <div v-if="loading" class="text-gray-600">
           {{ $t('info.loading') }}...
         </div>
@@ -27,37 +27,9 @@
             :allow-reposition="false"
             :custom-svg-icon="markerIcon"
           />
-
-          <!-- Actions (Claim, Print, Share)  -->
-          <div class="flex justify-start gap-1 mt-4">
-            <base-button
-              variant="solid"
-              size="small"
-              :text="$t('actions.print')"
-              :action="() => printWorksite(worksite.id, '')"
-              ccu-icon="print"
-              icon-size="small"
-            />
-            <base-button
-              variant="solid"
-              size="small"
-              :text="$t('~~Send to me')"
-              :action="sendWorksite"
-              ccu-icon="share"
-              icon-size="small"
-            />
-            <base-button
-              variant="solid"
-              size="small"
-              :text="$t('~~Open in google maps')"
-              :action="openInGoogleMaps"
-              ccu-icon="map"
-              icon-size="small"
-            />
-          </div>
         </div>
-      </tab>
-      <tab name="Edit">
+      </div>
+      <div>
         <div v-if="schedule" class="flex flex-col space-y-3">
           <!-- Start time -->
           <div>
@@ -111,34 +83,66 @@
             <base-input
               v-model="form.notes"
               text-area
-              class="w-full border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none resize-none"
+              class="w-full placeholder-crisiscleanup-dark-200 outline-none resize-none"
               :placeholder="$t('scheduleFields.notes_placeholder')"
               rows="3"
             />
           </div>
         </div>
-      </tab>
-    </tabs>
-    <div
-      class="sticky bottom-0 bg-white border-t border-gray-200 py-3 flex justify-end gap-2"
-    >
-      <base-button :action="closeDialog" variant="outline" size="md">
+      </div>
+      <!-- Actions (Claim, Print, Share)  -->
+      <div class="flex justify-start gap-1 mt-4">
+        <base-button
+          variant="solid"
+          size="small"
+          :text="$t('actions.print')"
+          :action="() => printWorksite(worksite.id, '')"
+          ccu-icon="print"
+          icon-size="small"
+        />
+        <base-button
+          variant="solid"
+          size="small"
+          :text="$t('~~Send to me')"
+          :action="sendWorksite"
+          ccu-icon="share"
+          icon-size="small"
+        />
+        <base-button
+          variant="solid"
+          size="small"
+          :text="$t('~~Open in google maps')"
+          :action="openInGoogleMaps"
+          ccu-icon="map"
+          icon-size="small"
+        />
+      </div>
+    </div>
+    <div class="flex justify-between gap-2 my-2">
+      <base-button
+        :action="closeDialog"
+        variant="outline"
+        size="large"
+        class="flex-grow"
+      >
         {{ $t('actions.cancel') }}
       </base-button>
       <base-button
         variant="outline"
-        size="md"
+        size="large"
         :text="$t('actions.delete')"
         :action="deleteSchedule"
         :disabled="loading || !schedule"
+        class="flex-grow"
       />
       <base-button
         variant="solid"
-        size="md"
+        size="large"
         :text="$t('actions.save')"
         :show-spinner="saving"
         :disabled="loading || !schedule"
         :action="updateSchedule"
+        class="flex-grow"
       />
     </div>
   </div>
@@ -229,7 +233,7 @@ const markerIcon = computed(() => {
 });
 
 function closeDialog() {
-  emitter.emit('modal_component:close', 'edit_schedule_dialog');
+  emits('close');
 }
 
 async function fetchSchedule(id: number) {
@@ -296,7 +300,6 @@ async function updateSchedule() {
     );
     toast.success(t('actions.saved_successfully'));
     emits('saved'); // Let the parent know an update occurred
-    closeDialog();
   } catch (error) {
     toast.error(getErrorMessage(error));
   } finally {
@@ -310,7 +313,6 @@ async function deleteSchedule() {
     await axios.delete(`/worksite_work_types_schedule/${schedule.value.id}`);
     toast.success(t('actions.deleted_successfully'));
     emits('deleted'); // Let parent know it's deleted
-    closeDialog();
   } catch (error) {
     toast.error(getErrorMessage(error));
   }

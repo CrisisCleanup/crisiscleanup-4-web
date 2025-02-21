@@ -4,87 +4,30 @@
       <!-- Header / Actions -->
       <div class="sticky top-0 bg-white z-10 p-2">
         <div class="flex flex-wrap items-center gap-2 mt-10 md:mt-0">
-          <ccu-icon
-            type="calendar"
-            size="md"
-            class="calendar-actions"
-            fa
-            :action="() => setView('calendar')"
-            :class="
-              showCalendar
-                ? 'text-primary-light'
-                : 'text-crisiscleanup-dark-100'
+          <WorksiteNavigationIcons
+            :case-images="[]"
+            :showing-feed="false"
+            :showing-map="false"
+            :showing-photo-map="false"
+            :showing-table="false"
+            :showing-calendar="showCalendar"
+            :showing-calendar-list="showUpcoming"
+            :showing-calendar-map="showMap"
+            @show-feed="() => {}"
+            @show-map="
+              () => $router.push(`/incident/${currentIncidentId}/work`)
             "
-          />
-          <ccu-icon
-            type="map"
-            size="md"
-            class="hidden md:inline-flex calendar-actions"
-            fa
-            :action="() => setView('map')"
-            :class="
-              showMap ? 'text-primary-light' : 'text-crisiscleanup-dark-100'
+            @show-photo-map="() => {}"
+            @show-table="
+              () =>
+                $router.push(
+                  `/incident/${currentIncidentId}/work?showTable=true`,
+                )
             "
+            @show-calendar="() => setView('calendar')"
+            @show-calendar-list="() => setView('upcoming')"
+            @show-calendar-map="() => setView('map')"
           />
-          <ccu-icon
-            type="list"
-            size="md"
-            class="calendar-actions"
-            fa
-            :action="() => setView('upcoming')"
-            :class="
-              showUpcoming
-                ? 'text-primary-light'
-                : 'text-crisiscleanup-dark-100'
-            "
-          />
-
-          <!-- Worksite Search -->
-          <WorksiteSearchInput
-            data-testid="testWorksiteSearch"
-            icon="filters"
-            display-property="name"
-            :placeholder="$t('~~Search')"
-            size="medium"
-            skip-validation
-            use-recents
-            :query="{
-              work_type__claimed_by_or_isnull:
-                [
-                  ...currentUser.organization.affiliates,
-                  currentUser.organization.id,
-                ].join(',') + ',true',
-            }"
-            @selected-existing="
-              (ws: Worksite) => {
-                selectedWorksite = ws;
-              }
-            "
-          />
-
-          <!-- (Optional) Add From List -->
-          <AddFromList
-            model-type="worksite_worksites"
-            :title="$t('~~Select from List')"
-            class="text-sm"
-            :incident="currentIncidentId"
-            @add-item="
-              (ws: Worksite) => {
-                selectedWorksite = ws;
-              }
-            "
-          />
-
-          <!-- Select from Map icon -->
-          <base-button
-            ccu-icon="go-case"
-            icon-size="medium"
-            class="py-0.5 px-3 text-sm"
-            :text="$t('~~Select from Map')"
-            variant="outline"
-            :action="openSelectFromMapDialog"
-          />
-
           <!-- Currently selected worksite -->
           <div
             v-if="selectedWorksite"
@@ -322,35 +265,123 @@
     </div>
 
     <!-- Side Panel: Worksite Form -->
-    <div class="h-full md:w-108 w-full hidden md:block">
-      <WorksiteForm
-        ref="worksiteForm"
-        :key="selectedWorksite?.id"
-        :incident-id="String(currentIncidentId)"
-        :worksite-id="selectedWorksite?.id"
-        :is-editing="true"
+    <div class="h-full md:w-132 w-full hidden md:block">
+      <div
+        class="sticky top-0 bg-white z-10 shadow p-2 flex justify-between items-center h-12"
       >
-        <template v-if="selectedWorksite" #custom-header>
-          <div class="text-left text-black flex items-center">
-            <div class="mt-1 mr-1">
-              {{ selectedWorksite.case_number }} - {{ selectedWorksite.name }}
-            </div>
-            <ccu-icon
-              type="calendar"
-              size="sm"
-              fa
-              :action="addCaseToSchedule"
-            />
-          </div>
-          <div
-            v-if="selectedWorksite.id"
-            class="text-xs text-crisiscleanup-grey-700"
+        <div class="flex gap-4">
+          <base-button
+            :class="{
+              'text-primary-dark': selectedTab === 'add',
+            }"
+            :action="() => setSelectedTab('add')"
           >
-            {{ t('~~Updated') }}
-            {{ momentFromNow(selectedWorksite.updated_at) }}
+            {{ $t('~~Add/Edit') }}
+          </base-button>
+          <base-button
+            v-if="selectedWorksite"
+            :class="{
+              'text-primary-dark': selectedTab === 'info',
+            }"
+            :action="() => setSelectedTab('info')"
+          >
+            {{ $t('~~Case Information') }}
+          </base-button>
+        </div>
+      </div>
+      <div class="h-[calc(100%-theme(spacing.12))]">
+        <WorksiteForm
+          v-show="selectedTab === 'info'"
+          v-if="selectedWorksite"
+          ref="worksiteForm"
+          :key="selectedWorksite?.id"
+          :incident-id="String(currentIncidentId)"
+          :worksite-id="selectedWorksite?.id"
+          :is-editing="true"
+        >
+          <template v-if="selectedWorksite" #custom-header>
+            <div class="text-left text-black flex items-center">
+              <div class="mt-1 mr-1">
+                {{ selectedWorksite.case_number }} - {{ selectedWorksite.name }}
+              </div>
+            </div>
+            <div
+              v-if="selectedWorksite.id"
+              class="text-xs text-crisiscleanup-grey-700"
+            >
+              {{ t('~~Updated') }}
+              {{ momentFromNow(selectedWorksite.updated_at) }}
+            </div>
+          </template>
+        </WorksiteForm>
+        <dic v-show="selectedTab === 'add'" class="flex flex-col h-full">
+          <div v-if="!selectedEvent">
+            <WorksiteSearchInput
+              data-testid="testWorksiteSearch"
+              icon="filters"
+              display-property="name"
+              :placeholder="$t('~~Search')"
+              size="medium"
+              skip-validation
+              use-recents
+              :query="{
+                work_type__claimed_by_or_isnull:
+                  [
+                    ...currentUser.organization.affiliates,
+                    currentUser.organization.id,
+                  ].join(',') + ',true',
+              }"
+              class="m-3"
+              @selected-existing="
+                (ws: Worksite) => {
+                  selectedWorksite = ws;
+                }
+              "
+            />
+            <div class="flex gap-4 my-1 mx-3">
+              <AddFromList
+                model-type="worksite_worksites"
+                :title="$t('~~Select from List')"
+                class="text-sm flex-grow"
+                :incident="currentIncidentId"
+                @add-item="
+                  (ws: Worksite) => {
+                    selectedWorksite = ws;
+                  }
+                "
+              />
+
+              <base-button
+                ccu-icon="go-case"
+                icon-size="medium"
+                class="text-sm flex-grow"
+                :text="$t('~~Select from Map')"
+                variant="outline"
+                :action="openSelectFromMapDialog"
+              />
+            </div>
           </div>
-        </template>
-      </WorksiteForm>
+          <EditScheduleDialog
+            v-if="selectedEvent"
+            :key="selectedEvent"
+            :event="selectedEvent"
+            @deleted="onDeleteEvent"
+            @close="
+              selectedEvent = null;
+              selectedWorksite = null;
+            "
+            @saved="onSaveEvent"
+          />
+          <AddScheduleDialog
+            v-else
+            :key="selectedWorksite"
+            :worksite="selectedWorksite"
+            :initial-data="initialData"
+            @close="selectedWorksite = null"
+            @saved="onSaveEvent"
+          />
+        </dic>
+      </div>
     </div>
   </div>
 </template>
@@ -383,7 +414,7 @@ import AddScheduleDialog from '@/components/scheduling/AddScheduleDialog.vue';
 import EditScheduleDialog from '@/components/scheduling/EditScheduleDialog.vue';
 import type { WorkTypeSchedule } from '@/models/types';
 import WorkTypeSchedulesMap from '@/components/scheduling/WorkTypeScheduleMap.vue';
-import type Worksite from '@/models/Worksite';
+import Worksite from '@/models/Worksite';
 import AddFromList from '@/pages/lists/AddFromList.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { momentFromNow } from '@/filters';
@@ -392,12 +423,15 @@ import WorksiteMapPopup from '@/components/WorksiteMapPopup.vue';
 import useEmitter from '@/hooks/useEmitter';
 import BaseButton from '@/components/BaseButton.vue';
 import jsPDF from 'jspdf';
+import { useRoute } from 'vue-router';
+import WorksiteNavigationIcons from '@/pages/WorksiteNavigationIcons.vue';
 
-const { t } = useI18n();
 const { currentIncidentId } = useCurrentIncident();
 const { currentUser } = useCurrentUser();
 const { component } = useDialogs();
 const { emitter } = useEmitter();
+const route = useRoute();
+const { t, locale } = useI18n();
 
 const eventsServicePlugin = createEventsServicePlugin();
 const dragAndDropPlugin = createDragAndDropPlugin();
@@ -416,12 +450,30 @@ function setView(view: string) {
   showMap.value = view === 'map';
   showCalendar.value = view === 'calendar';
   showUpcoming.value = view === 'upcoming';
+  route.query.view = view;
 }
 
 const filterStartDate = ref<string>('');
 const filterEndDate = ref<string>('');
 const filterTeam = ref<number | null>(null);
 const teams = ref<Team[]>([]);
+
+const selectedTab = ref('add');
+
+const selectedEvent = ref<Record<string, any> | null>(null);
+
+const initialData = ref({
+  start: '',
+  end: '',
+});
+
+function setSelectedTab(tab: string) {
+  selectedTab.value = tab;
+}
+
+if (route.query.view) {
+  setView(route.query.view as string);
+}
 
 function generateColorVariants(baseColor: string) {
   return {
@@ -482,7 +534,9 @@ function convertScheduleToEvent(item: WorkTypeSchedule) {
 
 async function fetchSchedules() {
   try {
-    const params: any = {};
+    const params: any = {
+      worksite_work_type__incident: currentIncidentId.value,
+    };
     if (filterStartDate.value) {
       params['start_at__gt'] = moment(filterStartDate.value)
         .startOf('day')
@@ -511,7 +565,11 @@ async function fetchSchedules() {
 async function fetchUpcomingSchedules() {
   try {
     const now = moment().toISOString();
-    const params: any = { start_at__gt: now, limit: 10 };
+    const params: any = {
+      start_at__gt: now,
+      limit: 10,
+      worksite_work_type__incident: currentIncidentId.value,
+    };
     const { data } = await axios.get('/worksite_work_types_schedule', {
       params,
     });
@@ -538,14 +596,22 @@ const getTeams = async () => {
 };
 
 const editEvent = async (event: any) => {
-  await component({
-    title: 'Edit Schedule',
-    id: 'edit_schedule_dialog',
-    component: EditScheduleDialog,
-    hideFooter: true,
-    props: { event },
-  });
+  selectedEvent.value = event;
+  const response = await axios.get(`/worksite_work_types_schedule/${event.id}`);
+  selectedWorksite.value = Worksite.fetchOrFindId(response.data.worksite_id);
+};
+
+const onDeleteEvent = async (event: any) => {
+  selectedEvent.value = null;
+  selectedWorksite.value = null;
   await initialize();
+};
+
+const onSaveEvent = async (schedules: any) => {
+  await initialize();
+  selectedEvent.value = scheduleEvents.value.find(
+    (e: any) => e.id === schedules[0].id,
+  );
 };
 
 async function updateSchedule(event: any) {
@@ -559,11 +625,6 @@ async function updateSchedule(event: any) {
   } catch (error) {
     console.error('Failed to update schedule:', error);
   }
-}
-
-async function addCaseToSchedule() {
-  if (!selectedWorksite.value) return;
-  await openAddScheduleDialog();
 }
 
 async function openAddScheduleDialog(initialData = null) {
@@ -728,13 +789,18 @@ const calendarApp = createCalendar(
   {
     selectedDate: moment().format('YYYY-MM-DD'),
     isResponsive: true,
+    locale: locale.value,
     views: [
       createViewDay(),
       createViewWeek(),
       createViewMonthGrid(),
       createViewMonthAgenda(),
     ],
-    weekOptions: { gridHeight: 2000 },
+    weekOptions: { gridHeight: 800 },
+    dayBoundaries: {
+      start: '04:00',
+      end: '22:00',
+    },
     events: scheduleEvents.value,
     callbacks: {
       onEventClick: editEvent,
@@ -742,10 +808,11 @@ const calendarApp = createCalendar(
         updateSchedule(updatedEvent);
       },
       onClickDateTime(date: string) {
-        if (selectedWorksite.value) {
-          const { formattedStart, formattedEnd } = getRoundedTimeSlots(date);
-          openAddScheduleDialog({ start: formattedStart, end: formattedEnd });
-        }
+        const { formattedStart, formattedEnd } = getRoundedTimeSlots(date);
+        initialData.value = {
+          start: formattedStart,
+          end: formattedEnd,
+        };
       },
     },
   },
@@ -762,6 +829,13 @@ const initialize = async () => {
   await getTeams();
   await fetchSchedules();
   await fetchUpcomingSchedules();
+  const { formattedStart, formattedEnd } = getRoundedTimeSlots(
+    moment().toISOString(),
+  );
+  initialData.value = {
+    start: formattedStart,
+    end: formattedEnd,
+  };
 };
 onMounted(async () => {
   await initialize();
