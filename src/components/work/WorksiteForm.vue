@@ -2,8 +2,11 @@
   <form
     v-if="ready"
     ref="form"
-    class="form h-full"
-    :class="{ 'form--noheader': !hasFormHeaderContent }"
+    :class="{
+      'form--noheader': !hasFormHeaderContent,
+      form: true,
+      [formClasses]: true,
+    }"
     @submit.prevent
   >
     <div v-if="hasFormHeaderContent" class="form-header">
@@ -606,6 +609,10 @@ export default defineComponent({
     dataPrefill: {
       type: Object,
       default: () => ({}),
+    },
+    formClasses: {
+      type: String,
+      default: 'h-full',
     },
   },
   setup(props, { emit }) {

@@ -108,6 +108,7 @@ export default defineComponent({
         'cursor-pointer': true,
         large: ['lg', 'large'].includes(props.size),
         medium: ['md', 'medium'].includes(props.size),
+        base: ['base'].includes(props.size),
         small: ['sm', 'small'].includes(props.size),
         tiny: props.size === 'tiny',
         xs: props.size === 'xs',
@@ -150,6 +151,10 @@ export default defineComponent({
 .ccu-icon.medium {
   height: 20px;
   width: 20px;
+}
+.ccu-icon.base {
+  height: 25px;
+  width: 25px;
 }
 .ccu-icon.xl {
   height: 35px;
