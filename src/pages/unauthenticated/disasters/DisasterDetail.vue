@@ -21,9 +21,17 @@ import type {
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import { getErrorMessage } from '@/utils/errors';
+import type Tabs from '@/components/tabs/Tabs.vue';
 
 const route = useRoute();
+const router = useRouter();
 const REPORT_ID = 22;
+
+const TABINDEX_TO_PATH = {
+  0: 'resources',
+  1: 'latest',
+  2: 'reports',
+};
 
 const incident = computed(() => {
   return Incident.find(route.params.id);
@@ -38,6 +46,7 @@ const transformedData = computed<Record<any, any>>(() => {
   return transformGraphData(graphData.value);
 });
 const loadingReports = ref(false);
+const tabsRef = ref<typeof Tabs | null>(null);
 
 async function getCmsItems(incidentId: string): Promise<CmsItem[]> {
   const response: AxiosResponse<{ results: CmsItem[] }> = await axios.get(
@@ -105,8 +114,20 @@ const downloadAsset = async (asset: IncidentAniAsset) => {
   }
 };
 
+const onSelectTab = (tab: VNode) => {
+  const tabIndex = tabsRef.value?.tabs.indexOf(tab) as number;
+  if (tabIndex !== undefined) {
+    router.push(`/disasters/${route.params.id}/${TABINDEX_TO_PATH[tabIndex]}`);
+  }
+};
+
 onMounted(async () => {
   await Incident.api().fetchById(route.params.id);
+
+  if (route.meta.tabIndex) {
+    tabsRef.value?.selectTab(route.meta.tabIndex);
+  }
+
   await Promise.all([fetchAssets(), fetchAniIncident()]);
   cmsItems.value = await getCmsItems(route.params.id);
   try {
@@ -173,7 +194,7 @@ onMounted(async () => {
         </div>
       </div>
 
-      <tabs>
+      <tabs ref="tabsRef" @tab-selected="onSelectTab">
         <tab name="Resources">
           <div class="overflow-auto h-[calc(100vh-200px)] bg-white">
             <Card
