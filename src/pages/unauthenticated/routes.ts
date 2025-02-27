@@ -124,6 +124,23 @@ const routes = [
     component: DisasterDetail,
     name: 'nav.disaster_detail',
     meta: { layout: 'unauthenticated', noAuth: true },
+    children: [
+      {
+        path: 'resources',
+        component: DisasterDetail,
+        meta: { tabIndex: 0 },
+      },
+      {
+        path: 'latest',
+        component: DisasterDetail,
+        meta: { tabIndex: 1 },
+      },
+      {
+        path: 'reports',
+        component: DisasterDetail,
+        meta: { tabIndex: 2 },
+      },
+    ],
   },
   {
     path: '/disasters/archived',

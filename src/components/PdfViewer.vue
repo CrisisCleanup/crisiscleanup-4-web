@@ -10,12 +10,11 @@
     >
   </div>
   <div class="h-max overflow-y-auto border" @click="$emit('clickPdf')">
-    <vue-pdf-embed :source="pdf.full_url" :width="width" />
+    <vue-pdf-embed v-if="pdf.full_url" :source="pdf.full_url" :width="width" />
   </div>
 </template>
 
 <script lang="ts">
-// eslint-disable-next-line import/default
 import VuePdfEmbed from 'vue-pdf-embed';
 
 export default defineComponent({
