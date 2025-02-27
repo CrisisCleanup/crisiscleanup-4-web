@@ -10,8 +10,7 @@
     >
   </div>
   <div class="h-max overflow-y-auto border" @click="$emit('clickPdf')">
-    <vue-pdf-embed
-      v-if="pdf.full_url"
+    <vue-pdf-embed v-if="pdf.full_url"
       :source="pdf.full_url"
       :width="width"
       :page="page"
