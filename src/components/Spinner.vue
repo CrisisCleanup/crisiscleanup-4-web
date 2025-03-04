@@ -402,6 +402,7 @@ const RANDOM_QUOTES = [
   'spinner.hamster_dryer_socks',
   'spinner.use_time_on_novel',
   'spinner.dedicate_page_to_you',
+  'spinner.see_mold',
 ];
 
 export default defineComponent({
