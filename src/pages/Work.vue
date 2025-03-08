@@ -1872,10 +1872,8 @@ export default defineComponent({
           (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 10_000)
         ) {
           const result = await confirm({
-            title: t('~~Large CSV Download warning'),
-            content: t(
-              '~~This CSV download contains over 2500 records. Please consider filtering your results to reduce the size of the download. Do you want to continue with this download?',
-            ),
+            title: t('casesVue.large_data_download_warning_title'),
+            content: t('casesVue.large_data_download_warning_description'),
             actions: {
               yes: {
                 text: t('actions.yes'),
