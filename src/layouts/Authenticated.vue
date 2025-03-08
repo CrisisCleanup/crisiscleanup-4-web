@@ -57,7 +57,7 @@
             variant="outline"
             class="p-1 my-2 w-full"
           >
-            {{ $t('~~Logout') }}
+            {{ $t('actions.logout') }}
           </base-button>
           <AppDownloadLinks />
         </div>
