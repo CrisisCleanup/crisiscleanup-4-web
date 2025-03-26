@@ -60,7 +60,7 @@ onMounted(() => {
 <template>
   <div>
     <div v-if="waitingForFile">
-      <p>{{ $t('downloads.waiting_for_file) }}</p>
+      <p>{{ $t('downloads.waiting_for_file') }}</p>
       <spinner />
     </div>
     <div v-else-if="message">
