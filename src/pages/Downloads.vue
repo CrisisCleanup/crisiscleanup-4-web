@@ -64,27 +64,27 @@
       <template #status="{ item }">
         <div v-if="item.celery_task_status === 'SUCCESS'">
           <div class="text-green-600">
-            {{ $t('~~Completed') }}
+            {{ $t('downloads.completed') }}
           </div>
         </div>
         <div v-else-if="item.celery_task_status === 'FAILURE'">
           <div class="text-red-600">
-            {{ $t('~~Failed') }}
+            {{ $t('downloads.failed') }}
           </div>
         </div>
         <div v-else-if="item.status === 'completed'">
           <div class="text-green-600">
-            {{ $t('~~Completed') }}
+            {{ $t('downloads.completed') }}
           </div>
         </div>
         <div v-else-if="item.status === 'failed'">
           <div class="text-red-600">
-            {{ $t('~~Failed') }}
+            {{ $t('downloads.failed') }}
           </div>
         </div>
         <div v-else>
           <div class="text-blue-600">
-            {{ $t('~~Processing') }}
+            {{ $t('downloads.processing') }}
           </div>
         </div>
       </template>
@@ -149,8 +149,8 @@ export default defineComponent({
 
     async function editDownloadName(id: string) {
       const result = await prompt({
-        title: t('~~Edit Download Name'),
-        content: t('~~Enter a new name for the download:'),
+        title: t('downloads.edit_file_name'),
+        content: t('downloads.edit_file_name_description'),
       });
       if (result) {
         try {

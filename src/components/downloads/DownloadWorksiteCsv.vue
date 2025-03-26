@@ -23,10 +23,10 @@ const downloadFile = async (fileId: string) => {
     const csvUrl = data.csv_url;
     forceFileDownloadFromURl(csvUrl, data.filename_original);
     waitingForFile.value = false;
-    message.value = t('~~ Download complete!');
+    message.value = t('downloads.download_complete');
   } catch (error) {
     console.error('Error downloading file:', error);
-    errorMessage.value = 'Failed to download the file.';
+    errorMessage.value = t('downloads.download_failed');
     waitingForFile.value = false;
   }
 };
@@ -60,7 +60,7 @@ onMounted(() => {
 <template>
   <div>
     <div v-if="waitingForFile">
-      <p>{{ $t('~~Waiting for the file to be ready for download...') }}</p>
+      <p>{{ $t('downloads.waiting_for_file') }}</p>
       <spinner />
     </div>
     <div v-else-if="message">
