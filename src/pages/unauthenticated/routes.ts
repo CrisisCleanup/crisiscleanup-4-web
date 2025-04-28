@@ -22,6 +22,8 @@ const MagicLinkLogin = () =>
   import('@/pages/unauthenticated/MagicLinkLogin.vue');
 const OtpLogin = () => import('@/pages/unauthenticated/OtpLogin.vue');
 
+const Magazine = () => import('@/pages/unauthenticated/Magazine.vue');
+
 const routes = [
   {
     path: '/more',
@@ -158,6 +160,12 @@ const routes = [
     path: '/blog/post/:id',
     component: BlogPost,
     name: 'nav.blog_post',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/magazine',
+    component: Magazine,
+    name: 'nav.magazine',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {

@@ -10,7 +10,12 @@
     >
   </div>
   <div class="h-max overflow-y-auto border" @click="$emit('clickPdf')">
-    <vue-pdf-embed v-if="pdf.full_url" :source="pdf.full_url" :width="width" />
+    <vue-pdf-embed
+      v-if="pdf.full_url"
+      :source="pdf.full_url"
+      :width="width"
+      :page="page"
+    />
   </div>
 </template>
 
@@ -32,6 +37,10 @@ export default defineComponent({
     width: {
       type: Number,
       default: 300,
+    },
+    page: {
+      type: Number,
+      default: undefined,
     },
   },
   emits: ['clickPdf'],
