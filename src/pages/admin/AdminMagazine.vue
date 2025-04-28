@@ -59,14 +59,14 @@
         <!-- Magazine Issues Section -->
         <div>
           <h3 class="text-lg font-semibold mb-4">
-            {{ $t('~~Magazine Issues') }}
+            {{ $t('~~Magazine Versions') }}
           </h3>
 
           <div
             v-if="magazine.issues.length === 0"
             class="text-gray-500 mb-4 p-4 bg-gray-50 rounded"
           >
-            {{ $t('~~No issues added yet') }}
+            {{ $t('~~No versions added yet') }}
           </div>
 
           <!-- Issue Cards -->
@@ -81,7 +81,7 @@
             >
               <div class="flex justify-between items-center mb-3">
                 <h4 class="font-medium">
-                  {{ $t('~~Issue') }} #{{ index + 1 }}
+                  {{ $t('~~Version') }} #{{ index + 1 }}
                 </h4>
                 <button
                   type="button"
@@ -97,8 +97,8 @@
                 <div class="md:col-span-2">
                   <base-input
                     v-model="issue.name"
-                    :label="$t('~~Issue Name')"
-                    :placeholder="$t('~~Enter issue name')"
+                    :label="$t('~~Version Name')"
+                    :placeholder="$t('~~Enter version name')"
                   />
                 </div>
 
@@ -145,12 +145,12 @@
 
           <base-button
             variant="outline"
-            class="mb-4"
+            class="mb-4 p-2"
             :action="addIssue"
             size="small"
           >
             <i class="fa fa-plus mr-2"></i>
-            {{ $t('~~Add Issue') }}
+            {{ $t('~~Add Version') }}
           </base-button>
         </div>
       </div>
