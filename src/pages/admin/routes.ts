@@ -17,6 +17,7 @@ const AdminReportGenerator = () => import('./AdminReportGenerator.vue');
 const AdminGodMode = () => import('./AdminGodMode.vue');
 const AdminSendBulkSms = () => import('./AdminSendBulkSms.vue');
 const AdminSendBulkEmail = () => import('./AdminSendBulkEmail.vue');
+const AdminMagazine = () => import('./AdminMagazine.vue');
 
 const routes = [
   {
@@ -108,6 +109,11 @@ const routes = [
         path: 'send_bulk_email',
         name: 'nav.send_bulk_email',
         component: AdminSendBulkEmail,
+      },
+      {
+        path: 'magazine',
+        name: 'nav.admin_magazine',
+        component: AdminMagazine,
       },
     ],
   },

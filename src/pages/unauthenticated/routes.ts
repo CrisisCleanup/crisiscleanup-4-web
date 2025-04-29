@@ -22,6 +22,8 @@ const MagicLinkLogin = () =>
   import('@/pages/unauthenticated/MagicLinkLogin.vue');
 const OtpLogin = () => import('@/pages/unauthenticated/OtpLogin.vue');
 
+const Magazine = () => import('@/pages/unauthenticated/Magazine.vue');
+
 const routes = [
   {
     path: '/more',
@@ -124,6 +126,23 @@ const routes = [
     component: DisasterDetail,
     name: 'nav.disaster_detail',
     meta: { layout: 'unauthenticated', noAuth: true },
+    children: [
+      {
+        path: 'resources',
+        component: DisasterDetail,
+        meta: { tabIndex: 0 },
+      },
+      {
+        path: 'latest',
+        component: DisasterDetail,
+        meta: { tabIndex: 1 },
+      },
+      {
+        path: 'reports',
+        component: DisasterDetail,
+        meta: { tabIndex: 2 },
+      },
+    ],
   },
   {
     path: '/disasters/archived',
@@ -141,6 +160,12 @@ const routes = [
     path: '/blog/post/:id',
     component: BlogPost,
     name: 'nav.blog_post',
+    meta: { layout: 'unauthenticated', noAuth: true },
+  },
+  {
+    path: '/magazine',
+    component: Magazine,
+    name: 'nav.magazine',
     meta: { layout: 'unauthenticated', noAuth: true },
   },
   {

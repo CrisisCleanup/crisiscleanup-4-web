@@ -5,8 +5,6 @@
 </template>
 
 <script lang="ts">
-import { onBeforeMount, ref, watch, inject, defineComponent } from 'vue';
-
 export default defineComponent({
   name: 'Tab',
   props: {

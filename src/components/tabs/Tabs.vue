@@ -68,6 +68,7 @@ export default defineComponent({
       default: true,
     },
   },
+  emits: ['tabSelected'],
   setup(_, { slots, emit }) {
     const state = reactive({
       selectedIndex: 0,
@@ -107,10 +108,6 @@ export default defineComponent({
               child.type.name === 'Tab' || child.type.name === 'LightTab',
           );
       }
-    });
-
-    onMounted(() => {
-      selectTab(0);
     });
 
     return { ...toRefs(state), selectTab, nextTab, previousTab, isLast };
