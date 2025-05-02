@@ -14,59 +14,50 @@
         {{ $t('~~magazine.no_magazines') }}
       </div>
 
-      <div v-else>
-        <!-- Grid layout of magazines with PDF previews -->
-        <div class="">
-          <div
-            v-for="magazine in magazines"
-            :key="magazine.id"
-            class="bg-white overflow-hidden"
-          >
-            <div class="">
-              <h2 class="text-xl font-bold truncate">{{ magazine.title }}</h2>
-              <div class="text-sm">
-                {{ $t('~~magazine.volume') }} {{ magazine.volume }},
-                {{ $t('~~magazine.issue') }} {{ magazine.issue }}
-              </div>
-              <div class="text-sm">
-                {{ formatDate(magazine.publish_date) }}
-              </div>
+      <div v-else class="space-y-6">
+        <div
+          v-for="magazine in magazines"
+          :key="magazine.id"
+          class="bg-white rounded-lg shadow p-6"
+        >
+          <div class="mb-4">
+            <h2 class="text-xl font-bold truncate">{{ magazine.title }}</h2>
+            <div class="text-sm text-gray-600">
+              {{ $t('~~Volume') }} {{ magazine.volume }}, {{ $t('~~Issue') }}
+              {{ magazine.issue }}
             </div>
+            <div class="text-sm text-gray-600">
+              {{ formatDate(magazine.publish_date) }}
+            </div>
+          </div>
 
-            <!-- Issues with PDF previews -->
-            <div class="">
-              <h3 class="font-bold mb-3">
-                {{ $t('~~magazine.available_issues') }}
-              </h3>
+          <div>
+            <h3 class="font-bold mb-3">
+              {{ $t('~~Available Editions') }}
+            </h3>
 
-              <div class="flex flex-wrap gap-4">
-                <div
-                  v-for="issue in magazine.issues"
-                  :key="issue.id"
-                  class="w-min"
-                >
-                  <div class="mb-2 font-medium">{{ issue.name }}</div>
-
-                  <!-- PDF Preview -->
-                  <div class="mb-3">
-                    <PdfViewer
-                      :pdf="issue.file"
-                      :page="1"
-                      :show-download-button="false"
-                      :width="200"
-                    />
-                  </div>
-
-                  <!-- Download button -->
-                  <a
-                    :href="issue.file.general_file_url"
-                    target="_blank"
-                    class="bg-primary-light px-3 py-2 text-sm transition w-full flex items-center justify-center"
-                    download
-                  >
-                    {{ $t('~~magazine.download') }}
-                  </a>
+            <div class="flex flex-wrap gap-2">
+              <div
+                v-for="edition in magazine.editions"
+                :key="edition.id"
+                class="border rounded p-4"
+              >
+                <div class="mb-2 font-medium">{{ edition.name }}</div>
+                <div class="mb-3">
+                  <PdfViewer
+                    :pdf="edition.file"
+                    :page="1"
+                    :show-download-button="false"
+                  />
                 </div>
+                <a
+                  :href="edition.file.general_file_url"
+                  target="_blank"
+                  class="bg-primary-light px-3 py-2 text-sm transition w-full flex items-center justify-center"
+                  download
+                >
+                  {{ $t('~~magazine.download') }}
+                </a>
               </div>
             </div>
           </div>
@@ -147,15 +138,18 @@ export default defineComponent({
               issue: attr.issue || 1,
               publish_date: attr.publish_date || file.created_at,
               name: file.attr.name,
-              issues: [],
+              editions: [],
             });
           }
 
-          // Add this file as an issue
-          magazineMap.get(key).issues.push({
+          // Add this file as an edition
+          magazineMap.get(key).editions.push({
             id: file.id,
             name:
-              file.attr.name || file.filename || file.title || 'Untitled Issue',
+              file.attr.name ||
+              file.filename ||
+              file.title ||
+              'Untitled Edition',
             file: file,
           });
         }
