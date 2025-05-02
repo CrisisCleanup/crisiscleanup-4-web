@@ -59,6 +59,13 @@
           :alt="$t('adminDashboard.send_bulk_email')"
           :action="() => $router.push('/admin/send_bulk_email')"
         />
+        <base-button
+          size="medium"
+          variant="solid"
+          :text="$t('adminDashboard.magazine')"
+          :alt="$t('adminDashboard.magazine')"
+          :action="() => $router.push('/admin/magazine')"
+        />
       </div>
     </div>
     <div class="flex" data-testid="testPendingOrganizationsDiv">
