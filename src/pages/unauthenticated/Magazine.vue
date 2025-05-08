@@ -97,7 +97,7 @@
                 {{ formatDate(latestMagazine.timeframe_start) }} -
                 {{ formatDate(latestMagazine.timeframe_end) }}
               </div>
-              <div class="mt-4">
+              <div class="mt-4 flex gap-2">
                 <a
                   v-if="latestPrimaryEdition?.file_details?.general_file_url"
                   :href="latestPrimaryEdition.file_details.general_file_url"
@@ -107,6 +107,13 @@
                 >
                   Download <i class="fa fa-file-pdf"></i>
                 </a>
+                <button
+                  v-if="latestPrimaryEdition?.file_details?.general_file_url"
+                  class="bg-primary-dark hover:bg-primary text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
+                  @click="openPdfViewer(latestPrimaryEdition.file_details)"
+                >
+                  Read <i class="fa fa-eye"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -166,7 +173,7 @@
                       {{ formatDate(magazine.timeframeStart) }} -
                       {{ formatDate(magazine.timeframeEnd) }}
                     </div>
-                    <div class="mt-2">
+                    <div class="mt-2 flex gap-2">
                       <a
                         v-if="
                           getPrimaryEdition(magazine)?.file_details
@@ -182,6 +189,20 @@
                       >
                         Download <i class="fa fa-file-pdf"></i>
                       </a>
+                      <button
+                        v-if="
+                          getPrimaryEdition(magazine)?.file_details
+                            ?.general_file_url
+                        "
+                        class="bg-primary-dark hover:bg-primary text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
+                        @click="
+                          openPdfViewer(
+                            getPrimaryEdition(magazine).file_details,
+                          )
+                        "
+                      >
+                        Read <i class="fa fa-eye"></i>
+                      </button>
                     </div>
                   </div>
                   <div class="flex">
@@ -239,6 +260,7 @@ import Spinner from '@/components/Spinner.vue';
 import BlogPagination from '@/components/blog/Pagination.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import Home from '@/layouts/Home.vue';
+import useDialogs from '@/hooks/useDialogs';
 import type { CCUFileItem } from '@/models/types';
 
 interface MagazineEdition {
@@ -277,6 +299,7 @@ export default defineComponent({
   setup() {
     const ITEMS_PER_PAGE = 9;
     const { t } = useI18n();
+    const dialogs = useDialogs();
 
     const magazines = ref<Magazine[]>([]);
     const loading = ref(true);
@@ -312,6 +335,22 @@ export default defineComponent({
       if (!latestMagazine.value) return null;
       return getPrimaryEdition(latestMagazine.value);
     });
+
+    async function openPdfViewer(pdf: CCUFileItem) {
+      await dialogs.component({
+        title: t('~~Magazine Viewer'),
+        component: PdfViewer,
+        props: {
+          pdf,
+          showDownloadButton: Boolean(false),
+          showPagination: Boolean(true),
+          width: window.innerWidth < 768 ? window.innerWidth - 32 : 500,
+          page: Number(1),
+        },
+        modalClasses: 'max-w-4xl w-full',
+        hideFooter: true,
+      });
+    }
 
     async function fetchMagazines(page = 1): Promise<void> {
       loading.value = true;
@@ -354,6 +393,7 @@ export default defineComponent({
       getOtherEditions,
       latestMagazine,
       latestPrimaryEdition,
+      openPdfViewer,
     };
   },
 });
