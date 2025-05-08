@@ -359,6 +359,31 @@ export default defineComponent({
       });
     }
 
+    function getPrimaryEdition(magazine: Magazine) {
+      return (
+        magazine.editions.find((e) => e.is_primary) || magazine.editions[0]
+      );
+    }
+
+    function getOtherEditions(magazine: Magazine) {
+      return magazine.editions.filter((e) => !e.is_primary);
+    }
+
+    const latestMagazine = computed(() => {
+      return magazines.value.length > 0
+        ? [...magazines.value].sort(
+            (a, b) =>
+              new Date(b.publish_date).getTime() -
+              new Date(a.publish_date).getTime(),
+          )[0]
+        : null;
+    });
+
+    const latestPrimaryEdition = computed(() => {
+      if (!latestMagazine.value) return null;
+      return getPrimaryEdition(latestMagazine.value);
+    });
+
     async function fetchMagazines(page = 1): Promise<void> {
       loading.value = true;
 
