@@ -64,7 +64,7 @@
           <div class="flex flex-col md:flex-row gap-8 items-center">
             <div
               v-if="latestPrimaryEdition?.thumbnail_details?.general_file_url"
-              class="w-32 h-44 flex-shrink-0"
+              class="w-32 h-44 flex-shrink-0 transform -rotate-3 hover:rotate-0 transition-transform duration-300"
             >
               <img
                 :src="latestPrimaryEdition.thumbnail_details.general_file_url"
@@ -72,7 +72,10 @@
                 class="w-full h-full object-cover rounded shadow"
               />
             </div>
-            <div v-else class="flex-shrink-0">
+            <div
+              v-else
+              class="flex-shrink-0 transform -rotate-3 hover:rotate-0 transition-transform duration-300"
+            >
               <PdfViewer
                 :pdf="latestPrimaryEdition.file_details"
                 :page="1"
@@ -138,7 +141,7 @@
                     getPrimaryEdition(magazine)?.thumbnail_details
                       ?.general_file_url
                   "
-                  class="w-32 h-44 flex-shrink-0"
+                  class="w-32 h-44 flex-shrink-0 transform -rotate-3 hover:rotate-0 transition-transform duration-300"
                 >
                   <img
                     :src="
@@ -149,7 +152,10 @@
                     class="w-full h-full object-cover rounded shadow"
                   />
                 </div>
-                <div v-else class="flex-shrink-0">
+                <div
+                  v-else
+                  class="flex-shrink-0 transform -rotate-3 hover:rotate-0 transition-transform duration-300"
+                >
                   <PdfViewer
                     :pdf="getPrimaryEdition(magazine).file_details"
                     :page="1"
