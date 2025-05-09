@@ -22,15 +22,17 @@ import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import { getErrorMessage } from '@/utils/errors';
 import type Tabs from '@/components/tabs/Tabs.vue';
+import MagazineList from '@/components/magazine/MagazineList.vue';
 
 const route = useRoute();
 const router = useRouter();
 const REPORT_ID = 22;
 
-const TABINDEX_TO_PATH = {
+const TABINDEX_TO_PATH: Record<number, string> = {
   0: 'resources',
   1: 'latest',
   2: 'reports',
+  3: 'magazines',
 };
 
 const incident = computed(() => {
@@ -282,6 +284,15 @@ onMounted(async () => {
                 :value="value"
               />
             </div>
+          </div>
+        </tab>
+        <tab name="Magazines">
+          <div class="overflow-auto h-[calc(100vh-55px)] bg-white">
+            <MagazineList
+              :filters="{
+                incident_ids__contains: route.params.id,
+              }"
+            />
           </div>
         </tab>
       </tabs>
