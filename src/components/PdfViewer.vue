@@ -9,8 +9,6 @@
       >{{ $t('actions.download') }}</a
     >
   </div>
-  <div class="h-max overflow-y-auto border" @click="$emit('clickPdf')">
-    <vue-pdf-embed v-if="pdf.full_url"
   <div
     class="h-max overflow-y-auto border w-min mx-auto"
     @click="$emit('clickPdf')"
