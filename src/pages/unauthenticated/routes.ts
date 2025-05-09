@@ -142,6 +142,11 @@ const routes = [
         component: DisasterDetail,
         meta: { tabIndex: 2 },
       },
+      {
+        path: 'magazines',
+        component: DisasterDetail,
+        meta: { tabIndex: 3 },
+      },
     ],
   },
   {
