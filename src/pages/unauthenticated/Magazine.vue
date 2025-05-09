@@ -8,20 +8,18 @@
         <div class="flex flex-col gap-2">
           <h1 class="text-4xl font-bold flex gap-4 items-center">
             <div>
-              {{ $t('~~CRISIS') }} <br />
-              {{ $t('~~CLEANUP') }}
+              {{ $t('magazine.title_crisis') }} <br />
+              {{ $t('magazine.title_cleanup') }}
             </div>
             <div class="font-normal text-3xl">
-              <span class="text-primary-light">|</span> {{ $t('~~MAGAZINE') }}
+              <span class="text-primary-light">|</span>
+              {{ $t('magazine.title_magazine') }}
             </div>
           </h1>
           <p class="mb-2 max-w-xl">
-            {{
-              $t(
-                '~~We created Crisis Cleanup Magazine to highlight the important work happening on the ground by volunteer organizations helping communities hit by disaster.',
-              )
-            }}<br /><br /><span class="font-semibold">{{
-              $t('~~Download issues below ↓↓↓')
+            {{ $t('magazine.magazine_intro_text') }}<br /><br />
+            <span class="font-semibold">{{
+              $t('magazine.download_issues_below')
             }}</span>
           </p>
         </div>
@@ -33,7 +31,7 @@
             class="text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
             target="_blank"
           >
-            {{ $t('~~Subscribe') }}
+            {{ $t('magazine.subscribe') }}
           </a>
         </div>
       </div>

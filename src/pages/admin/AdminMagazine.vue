@@ -1,65 +1,71 @@
 <template>
   <div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">{{ $t('~~Magazine Management') }}</h1>
+    <h1 class="text-2xl font-bold mb-4">
+      {{ $t('adminMagazine.magazine_management') }}
+    </h1>
 
     <div class="mb-6">
       <h2 class="text-xl font-bold mb-4">
-        {{ magazine.id ? $t('~~Edit Magazine') : $t('~~Create Magazine') }}
+        {{
+          magazine.id
+            ? $t('actions.edit_magazine')
+            : $t('actions.create_magazine')
+        }}
       </h2>
 
       <div class="grid grid-cols-1 gap-6">
         <!-- Basic Magazine Information Section -->
         <div class="bg-gray-50 p-4 rounded-lg">
           <h3 class="text-lg font-semibold mb-4">
-            {{ $t('~~Basic Information') }}
+            {{ $t('adminMagazine.basic_information') }}
           </h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~Magazine Title') }}
+                  {{ $t('adminMagazine.magazine_title') }}
                 </label>
                 <base-input
                   v-model="magazine.title"
-                  :placeholder="$t('~~Enter magazine title')"
+                  :placeholder="$t('adminMagazine.enter_magazine_title')"
                   required
                 />
               </div>
 
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~Subtitle') }}
+                  {{ $t('adminMagazine.subtitle') }}
                 </label>
                 <base-input
                   v-model="magazine.subtitle"
-                  :placeholder="$t('~~Enter magazine subtitle')"
+                  :placeholder="$t('adminMagazine.enter_magazine_subtitle')"
                 />
               </div>
 
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~Incident IDs') }}
+                  {{ $t('adminMagazine.incident_ids') }}
                 </label>
                 <base-input
                   v-model="magazine.incident_ids"
-                  :placeholder="$t('~~Enter incident IDs (comma-separated)')"
+                  :placeholder="$t('adminMagazine.incident_ids')"
                 />
               </div>
 
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~Incident Name') }}
+                  {{ $t('adminMagazine.incident_name') }}
                 </label>
                 <base-input
                   v-model="magazine.incident_name"
-                  :placeholder="$t('~~Enter incident name')"
+                  :placeholder="$t('adminMagazine.enter_incident_name')"
                 />
               </div>
 
               <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-medium mb-2">
-                    {{ $t('~~Volume') }}
+                    {{ $t('adminMagazine.volume') }}
                   </label>
                   <base-input
                     v-model="magazine.volume"
@@ -71,7 +77,7 @@
 
                 <div>
                   <label class="block text-sm font-medium mb-2">
-                    {{ $t('~~Issue') }}
+                    {{ $t('adminMagazine.issue') }}
                   </label>
                   <base-input
                     v-model="magazine.issue"
@@ -84,18 +90,18 @@
 
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~ISSN') }}
+                  {{ $t('adminMagazine.issn') }}
                 </label>
                 <base-input
                   v-model="magazine.issn"
-                  :placeholder="$t('~~Enter ISSN')"
+                  :placeholder="$t('adminMagazine.enter_issn')"
                 />
               </div>
             </div>
 
             <div>
               <label class="block text-sm font-medium mb-2">
-                {{ $t('~~Publication Date') }}
+                {{ $t('adminMagazine.publication_date') }}
               </label>
               <datepicker
                 v-model="magazine.publish_date"
@@ -105,62 +111,36 @@
                 class="mb-4"
               />
             </div>
-          </div>
-        </div>
-
-        <!-- Timeframe Section -->
-        <div class="bg-gray-50 p-4 rounded-lg">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">{{ $t('~~Timeframe') }}</h3>
-            <button
-              class="text-gray-500 hover:text-gray-700"
-              @click="expandedSections.timeframe = !expandedSections.timeframe"
-            >
-              <i
-                :class="[
-                  'fa',
-                  expandedSections.timeframe
-                    ? 'fa-chevron-down'
-                    : 'fa-chevron-right',
-                ]"
-              ></i>
-            </button>
-          </div>
-          <transition name="slide">
-            <div v-show="expandedSections.timeframe">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium mb-2">
-                    {{ $t('~~Timeframe Start') }}
-                  </label>
-                  <datepicker
-                    v-model="magazine.timeframe_start"
-                    auto-apply
-                    format="yyyy-MM-dd HH:mm"
-                    class="mb-4"
-                  />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium mb-2">
-                    {{ $t('~~Timeframe End') }}
-                  </label>
-                  <datepicker
-                    v-model="magazine.timeframe_end"
-                    auto-apply
-                    format="yyyy-MM-dd HH:mm"
-                    class="mb-4"
-                  />
-                </div>
-              </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ $t('adminMagazine.timeframe_start') }}
+              </label>
+              <datepicker
+                v-model="magazine.timeframe_start"
+                auto-apply
+                format="yyyy-MM-dd HH:mm"
+                class="mb-4"
+              />
             </div>
-          </transition>
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ $t('adminMagazine.timeframe_end') }}
+              </label>
+              <datepicker
+                v-model="magazine.timeframe_end"
+                auto-apply
+                format="yyyy-MM-dd HH:mm"
+                class="mb-4"
+              />
+            </div>
+          </div>
         </div>
 
         <!-- Publisher Information Section -->
         <div class="bg-gray-50 p-4 rounded-lg">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">
-              {{ $t('~~Publisher Information') }}
+              {{ $t('adminMagazine.publisher_information') }}
             </h3>
             <button
               class="text-gray-500 hover:text-gray-700"
@@ -182,31 +162,31 @@
                 <div>
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Publisher') }}
+                      {{ $t('adminMagazine.publisher') }}
                     </label>
                     <base-input
                       v-model="magazine.publisher"
-                      :placeholder="$t('~~Enter publisher name')"
+                      :placeholder="$t('adminMagazine.enter_publisher_name')"
                     />
                   </div>
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Publisher City') }}
+                      {{ $t('adminMagazine.publisher_city') }}
                     </label>
                     <base-input
-                      v-model="magazine.publisherCity"
-                      :placeholder="$t('~~Enter publisher city')"
+                      v-model="magazine.publisher_city"
+                      :placeholder="$t('adminMagazine.enter_publisher_city')"
                     />
                   </div>
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Publisher State') }}
+                      {{ $t('adminMagazine.publisher_state') }}
                     </label>
                     <base-input
-                      v-model="magazine.publisherState"
-                      :placeholder="$t('~~Enter publisher state')"
+                      v-model="magazine.publisher_state"
+                      :placeholder="$t('adminMagazine.enter_publisher_state')"
                     />
                   </div>
                 </div>
@@ -214,22 +194,22 @@
                 <div>
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Publisher Email') }}
+                      {{ $t('adminMagazine.publisher_email') }}
                     </label>
                     <base-input
-                      v-model="magazine.publisherEmail"
-                      :placeholder="$t('~~Enter publisher email')"
+                      v-model="magazine.publisher_email"
+                      :placeholder="$t('adminMagazine.enter_publisher_email')"
                       type="email"
                     />
                   </div>
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Publisher Phone') }}
+                      {{ $t('adminMagazine.publisher_phone') }}
                     </label>
                     <base-input
-                      v-model="magazine.publisherPhone"
-                      :placeholder="$t('~~Enter publisher phone')"
+                      v-model="magazine.publisher_phone"
+                      :placeholder="$t('adminMagazine.enter_publisher_phone')"
                     />
                   </div>
                 </div>
@@ -242,7 +222,7 @@
         <div class="bg-gray-50 p-4 rounded-lg">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">
-              {{ $t('~~Subscription Information') }}
+              {{ $t('adminMagazine.subscription_information') }}
             </h3>
             <button
               class="text-gray-500 hover:text-gray-700"
@@ -266,22 +246,24 @@
                 <div>
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Subscription URL') }}
+                      {{ $t('adminMagazine.subscription_url') }}
                     </label>
                     <base-input
-                      v-model="magazine.subscriptionUrl"
-                      :placeholder="$t('~~Enter subscription URL')"
+                      v-model="magazine.subscription_url"
+                      :placeholder="$t('adminMagazine.enter_subscription_url')"
                       type="url"
                     />
                   </div>
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Subscription Address') }}
+                      {{ $t('adminMagazine.subscription_address') }}
                     </label>
                     <base-input
-                      v-model="magazine.subscriptionAddress1"
-                      :placeholder="$t('~~Enter subscription address')"
+                      v-model="magazine.subscription_address_1"
+                      :placeholder="
+                        $t('adminMagazine.enter_subscription_address')
+                      "
                     />
                   </div>
                 </div>
@@ -291,22 +273,22 @@
                     <div class="col-span-2">
                       <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">
-                          {{ $t('~~City') }}
+                          {{ $t('adminMagazine.city') }}
                         </label>
                         <base-input
-                          v-model="magazine.subscriptionCity"
-                          :placeholder="$t('~~Enter city')"
+                          v-model="magazine.subscription_city"
+                          :placeholder="$t('adminMagazine.enter_city')"
                         />
                       </div>
                     </div>
                     <div>
                       <div class="mb-4">
                         <label class="block text-sm font-medium mb-2">
-                          {{ $t('~~State') }}
+                          {{ $t('adminMagazine.state') }}
                         </label>
                         <base-input
-                          v-model="magazine.subscriptionState"
-                          :placeholder="$t('~~State')"
+                          v-model="magazine.subscription_state"
+                          :placeholder="$t('adminMagazine.enter_state')"
                         />
                       </div>
                     </div>
@@ -314,11 +296,11 @@
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Postal Code') }}
+                      {{ $t('adminMagazine.postal_code') }}
                     </label>
                     <base-input
-                      v-model="magazine.subscriptionPostalCode"
-                      :placeholder="$t('~~Enter postal code')"
+                      v-model="magazine.subscription_postal_code"
+                      :placeholder="$t('adminMagazine.enter_postal_code')"
                     />
                   </div>
                 </div>
@@ -331,7 +313,7 @@
         <div class="bg-gray-50 p-4 rounded-lg">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">
-              {{ $t('~~Publication Details') }}
+              {{ $t('adminMagazine.publication_details') }}
             </h3>
             <button
               class="text-gray-500 hover:text-gray-700"
@@ -355,7 +337,7 @@
                 <div>
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Availability') }}
+                      {{ $t('adminMagazine.availability') }}
                     </label>
                     <base-select
                       v-model="magazine.availability"
@@ -365,21 +347,23 @@
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Frequency') }}
+                      {{ $t('adminMagazine.frequency') }}
                     </label>
                     <base-input
                       v-model="magazine.frequency"
-                      :placeholder="$t('~~Enter publication frequency')"
+                      :placeholder="
+                        $t('adminMagazine.enter_publication_frequency')
+                      "
                     />
                   </div>
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Type of Publication') }}
+                      {{ $t('adminMagazine.type_of_publication') }}
                     </label>
                     <base-input
-                      v-model="magazine.pubType"
-                      :placeholder="$t('~~Enter publication type')"
+                      v-model="magazine.pub_type"
+                      :placeholder="$t('adminMagazine.enter_publication_type')"
                     />
                   </div>
                 </div>
@@ -387,17 +371,17 @@
                 <div>
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Language') }}
+                      {{ $t('adminMagazine.language') }}
                     </label>
                     <base-input
                       v-model="magazine.language"
-                      :placeholder="$t('~~Enter language')"
+                      :placeholder="$t('adminMagazine.enter_language')"
                     />
                   </div>
 
                   <div class="mb-4">
                     <label class="block text-sm font-medium mb-2">
-                      {{ $t('~~Format') }}
+                      {{ $t('adminMagazine.format') }}
                     </label>
                     <div class="space-y-2">
                       <div>
@@ -407,7 +391,9 @@
                           type="checkbox"
                           class="mr-2"
                         />
-                        <label for="format-print">{{ $t('~~Print') }}</label>
+                        <label for="format-print">{{
+                          $t('adminMagazine.print')
+                        }}</label>
                       </div>
                       <div>
                         <input
@@ -416,7 +402,9 @@
                           type="checkbox"
                           class="mr-2"
                         />
-                        <label for="format-online">{{ $t('~~Online') }}</label>
+                        <label for="format-online">{{
+                          $t('adminMagazine.online')
+                        }}</label>
                       </div>
                     </div>
                   </div>
@@ -429,14 +417,14 @@
         <!-- Magazine Editions Section -->
         <div class="bg-gray-50 p-4 rounded-lg">
           <h3 class="text-lg font-semibold mb-4">
-            {{ $t('~~Magazine Editions') }}
+            {{ $t('adminMagazine.magazine_editions') }}
           </h3>
 
           <div
             v-if="magazine.editions.length === 0"
             class="text-gray-500 mb-4 p-4 bg-gray-100 rounded"
           >
-            {{ $t('~~No editions added yet') }}
+            {{ $t('adminMagazine.no_editions_added_yet') }}
           </div>
 
           <!-- Edition Cards -->
@@ -451,7 +439,7 @@
             >
               <div class="flex justify-between items-center mb-3">
                 <h4 class="font-medium">
-                  {{ $t('~~Edition') }} #{{ index + 1 }}
+                  {{ $t('adminMagazine.edition') }} #{{ index + 1 }}
                 </h4>
                 <button
                   type="button"
@@ -467,13 +455,13 @@
                 <div class="md:col-span-2">
                   <base-input
                     v-model="edition.name"
-                    :label="$t('~~Edition Name')"
-                    :placeholder="$t('~~Enter edition name')"
+                    :label="$t('adminMagazine.edition_name')"
+                    :placeholder="$t('adminMagazine.enter_edition_name')"
                   />
                   <base-input
                     v-model="edition.short_name"
-                    :label="$t('~~Short Name')"
-                    :placeholder="$t('~~Enter short name')"
+                    :label="$t('adminMagazine.short_name')"
+                    :placeholder="$t('adminMagazine.enter_short_name')"
                     class="mt-2"
                   />
                   <div class="mt-2">
@@ -484,7 +472,7 @@
                         class="form-checkbox h-4 w-4 text-primary"
                       />
                       <span class="text-sm text-gray-700">{{
-                        $t('~~Primary Edition')
+                        $t('adminMagazine.primary_edition')
                       }}</span>
                     </label>
                   </div>
@@ -493,7 +481,7 @@
                 <!-- PDF Upload -->
                 <div class="md:col-span-3">
                   <label class="block text-sm font-medium mb-2">{{
-                    $t('~~PDF File')
+                    $t('adminMagazine.pdf_file')
                   }}</label>
 
                   <div
@@ -526,14 +514,14 @@
                   >
                     <div class="text-gray-500 text-sm">
                       <i class="fa fa-cloud-upload text-xl mb-1"></i>
-                      <p>{{ $t('~~Drop PDF file here or click to upload') }}</p>
+                      <p>{{ $t('adminMagazine.upload_pdf') }}</p>
                     </div>
                   </DragDrop>
 
                   <!-- Thumbnail Upload -->
                   <div class="mt-4">
                     <label class="block text-sm font-medium mb-2">{{
-                      $t('~~Thumbnail Image')
+                      $t('adminMagazine.thumbnail_image')
                     }}</label>
 
                     <div
@@ -566,9 +554,7 @@
                       <div class="text-gray-500 text-sm">
                         <i class="fa fa-image text-xl mb-1"></i>
                         <p>
-                          {{
-                            $t('~~Drop thumbnail image here or click to upload')
-                          }}
+                          {{ $t('adminMagazine.upload_thumbnail') }}
                         </p>
                       </div>
                     </DragDrop>
@@ -585,7 +571,7 @@
             size="small"
           >
             <i class="fa fa-plus mr-2"></i>
-            {{ $t('~~Add Edition') }}
+            {{ $t('adminMagazine.add_edition') }}
           </base-button>
         </div>
       </div>
@@ -597,7 +583,7 @@
           :action="resetForm"
           size="large"
         >
-          {{ $t('~~Cancel') }}
+          {{ $t('actions.cancel') }}
         </base-button>
         <base-button
           variant="solid"
@@ -606,7 +592,7 @@
           :disabled="saving || !isFormValid"
           size="large"
         >
-          {{ magazine.id ? $t('~~Update') : $t('~~Save') }}
+          {{ magazine.id ? $t('actions.update') : $t('actions.save') }}
           <span v-if="uploadProgress > 0 && uploadProgress < 100" class="ml-2">
             ({{ uploadProgress }}%)
           </span>
@@ -615,7 +601,7 @@
     </div>
     <div v-if="existingMagazines" class="mt-6">
       <h2 class="text-xl font-bold mb-4">
-        {{ $t('~~Existing Magazines') }}
+        {{ $t('adminMagazine.existing_magazines') }}
       </h2>
       <div class="space-y-6">
         <div
@@ -627,45 +613,47 @@
             <div v-if="editingMagazine?.id === magazine.id">
               <base-input
                 v-model="editingMagazine.title"
-                :label="$t('~~Title')"
-                :placeholder="$t('~~Enter magazine title')"
+                :label="$t('adminMagazine.title')"
+                :placeholder="$t('adminMagazine.enter_magazine_title')"
                 class="mb-2"
               />
               <base-input
                 v-model="editingMagazine.subtitle"
-                :label="$t('~~Subtitle')"
-                :placeholder="$t('~~Enter magazine subtitle')"
+                :label="$t('adminMagazine.subtitle')"
+                :placeholder="$t('adminMagazine.enter_magazine_subtitle')"
                 class="mb-2"
               />
               <base-input
                 v-model="editingMagazine.incident_name"
-                :label="$t('~~Incident Name')"
-                :placeholder="$t('~~Enter incident name')"
+                :label="$t('adminMagazine.incident_name')"
+                :placeholder="$t('adminMagazine.enter_incident_name')"
                 class="mb-2"
               />
               <base-input
                 v-model="editingMagazine.incident_ids"
-                :label="$t('~~Incident IDs')"
-                :placeholder="$t('~~Enter incident IDs (comma-separated)')"
+                :label="$t('adminMagazine.incident_ids')"
+                :placeholder="
+                  $t('adminMagazine.enter_incident_ids_comma_separated')
+                "
                 class="mb-2"
               />
               <div class="grid grid-cols-2 gap-4 mb-2">
                 <base-input
                   v-model="editingMagazine.volume"
                   type="number"
-                  :label="$t('~~Volume')"
-                  :placeholder="$t('~~Enter volume number')"
+                  :label="$t('adminMagazine.volume')"
+                  :placeholder="$t('adminMagazine.enter_volume_number')"
                 />
                 <base-input
                   v-model="editingMagazine.issue"
                   type="number"
-                  :label="$t('~~Issue')"
-                  :placeholder="$t('~~Enter issue number')"
+                  :label="$t('adminMagazine.issue')"
+                  :placeholder="$t('adminMagazine.enter_issue_number')"
                 />
               </div>
               <datepicker
                 v-model="editingMagazine.publish_date"
-                :label="$t('~~Publication Date')"
+                :label="$t('adminMagazine.publication_date')"
                 auto-apply
                 format="yyyy-MM-dd"
                 class="mb-2"
@@ -676,7 +664,7 @@
                   size="small"
                   :action="() => cancelEdit()"
                 >
-                  {{ $t('~~Cancel') }}
+                  {{ $t('actions.cancel') }}
                 </base-button>
                 <base-button
                   variant="solid"
@@ -684,7 +672,7 @@
                   :action="() => saveEdit()"
                   :show-spinner="saving"
                 >
-                  {{ $t('~~Save') }}
+                  {{ $t('actions.save') }}
                 </base-button>
               </div>
             </div>
@@ -694,17 +682,19 @@
                 {{ magazine.subtitle }}
               </div>
               <div v-if="magazine.incident_name" class="text-sm text-gray-600">
-                {{ $t('~~Incident') }}: {{ magazine.incident_name }}
+                {{ $t('adminMagazine.incident_name') }}:
+                {{ magazine.incident_name }}
               </div>
               <div
                 v-if="magazine.incident_ids?.length"
                 class="text-sm text-gray-600"
               >
-                {{ $t('~~Incident IDs') }}:
+                {{ $t('adminMagazine.incident_ids') }}:
                 {{ magazine.incident_ids.join(', ') }}
               </div>
               <div class="text-sm text-gray-600">
-                {{ $t('~~Volume') }} {{ magazine.volume }}, {{ $t('~~Issue') }}
+                {{ $t('adminMagazine.volume') }} {{ magazine.volume }},
+                {{ $t('adminMagazine.issue') }}
                 {{ magazine.issue }}
               </div>
               <div class="text-sm text-gray-600">
@@ -717,7 +707,7 @@
                   :action="() => startEdit(magazine)"
                 >
                   <i class="fa fa-edit mr-2"></i>
-                  {{ $t('~~Edit') }}
+                  {{ $t('actions.edit') }}
                 </base-button>
               </div>
             </div>
@@ -725,7 +715,7 @@
 
           <div>
             <h4 class="font-bold mb-3">
-              {{ $t('~~Available Editions') }}
+              {{ $t('adminMagazine.available_editions') }}
             </h4>
 
             <div class="flex flex-wrap gap-2">
@@ -755,7 +745,7 @@
                   class="bg-primary-light px-3 py-2 text-sm transition w-full flex items-center justify-center"
                   download
                 >
-                  {{ $t('~~magazine.download') }}
+                  {{ $t('adminMagazine.magazine_download') }}
                 </a>
               </div>
             </div>
@@ -763,7 +753,7 @@
         </div>
       </div>
       <div v-if="existingMagazines.length === 0" class="text-gray-500">
-        {{ $t('~~No existing magazines found') }}
+        {{ $t('adminMagazine.no_existing_magazines_found') }}
       </div>
     </div>
   </div>
@@ -872,15 +862,15 @@ const availabilityOptions = [
 const magazine = ref<MagazineData>({
   id: null,
   title: 'Crisis Cleanup',
-  subtitle: '60 Day Snapshot',
+  subtitle: '60-Day Snapshot',
   incident_ids: [],
-  incident_name: 'Hurricanes Helene & Milton',
+  incident_name: '',
   volume: 1,
   issue: 1,
-  issn: '000000000',
-  publish_date: '2025-05-12',
-  timeframe_start: '2024-09-24',
-  timeframe_end: '2024-12-08',
+  issn: '',
+  publish_date: '',
+  timeframe_start: '',
+  timeframe_end: '',
   publisher: 'Crisis Cleanup, LLC',
   publisher_city: 'Longmont',
   publisher_state: 'Colorado',
@@ -941,7 +931,7 @@ function addEdition() {
 }
 
 function removeEdition(index: number) {
-  if (confirm(t('~~Are you sure you want to remove this edition?'))) {
+  if (confirm(t('adminMagazine.remove_edition_confirmation'))) {
     magazine.value.editions.splice(index, 1);
     if (selectedIssueIndex.value === index) {
       selectedIssueIndex.value = magazine.value.editions.length > 0 ? 0 : null;
@@ -967,7 +957,7 @@ function handleFileSelection(fileList: File[], index: number) {
 
   const file = fileList[0];
   if (file.type !== 'application/pdf' && file.type !== 'application/zip') {
-    $toasted.error(t('~~Only PDF and ZIP files are allowed'));
+    $toasted.error(t('adminMagazine.only_pdf_and_zip_files_are_allowed'));
     return;
   }
 
@@ -987,7 +977,9 @@ function handleThumbnailSelection(fileList: File[], index: number) {
 
   const file = fileList[0];
   if (!file.type.startsWith('image/')) {
-    $toasted.error(t('~~Only image files are allowed for thumbnails'));
+    $toasted.error(
+      t('adminMagazine.only_image_files_are_allowed_for_thumbnails'),
+    );
     return;
   }
 
@@ -1082,7 +1074,7 @@ async function getExistingMagazineFiles() {
 
 async function saveMagazine() {
   if (!isFormValid.value) {
-    $toasted.error(t('~~Please fill in all required fields'));
+    $toasted.error(t('adminMagazine.please_fill_in_all_required_fields'));
     return;
   }
 
@@ -1238,7 +1230,7 @@ async function saveMagazine() {
 
     await Promise.all(editionPromises);
 
-    $toasted.success(t('~~Magazine saved successfully'));
+    $toasted.success(t('adminMagazine.magazine_saved_successfully'));
     resetForm();
   } catch (error) {
     $toasted.error(getErrorMessage(error));
@@ -1259,7 +1251,7 @@ function resetForm() {
     volume: 1,
     issue: 1,
     issn: '',
-    publish_date: moment().format('YYYY-MM-DD'),
+    publish_date: moment().format('YYYY-MM-DD hh:mm'),
     timeframe_start: '',
     timeframe_end: '',
     publisher: '',
@@ -1339,7 +1331,7 @@ async function saveEdit() {
       `${import.meta.env.VITE_APP_API_BASE_URL}/magazines/${editingMagazine.value.id}`,
       dataToSave,
     );
-    $toasted.success(t('~~Magazine updated successfully'));
+    $toasted.success(t('adminMagazine.magazine_updated_successfully'));
     await getExistingMagazineFiles();
     editingMagazine.value = null;
   } catch (error) {
@@ -1350,7 +1342,7 @@ async function saveEdit() {
 }
 
 async function deleteEdition(magazineId: string, editionId: string) {
-  if (!confirm(t('~~Are you sure you want to delete this edition?'))) {
+  if (!confirm(t('adminMagazine.delete_edition_confirmation'))) {
     return;
   }
 
@@ -1358,7 +1350,7 @@ async function deleteEdition(magazineId: string, editionId: string) {
     await axios.delete(
       `${import.meta.env.VITE_APP_API_BASE_URL}/editions/${editionId}`,
     );
-    $toasted.success(t('~~Edition deleted successfully'));
+    $toasted.success(t('adminMagazine.edition_deleted_successfully'));
     await getExistingMagazineFiles();
   } catch (error) {
     $toasted.error(getErrorMessage(error));
