@@ -1,10 +1,16 @@
 <template>
   <div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">{{ $t('adminMagazine.magazine_management') }}</h1>
+    <h1 class="text-2xl font-bold mb-4">
+      {{ $t('adminMagazine.magazine_management') }}
+    </h1>
 
     <div class="mb-6">
       <h2 class="text-xl font-bold mb-4">
-        {{ magazine.id ? $t('actions.edit_magazine') : $t('actions.create_magazine') }}
+        {{
+          magazine.id
+            ? $t('actions.edit_magazine')
+            : $t('actions.create_magazine')
+        }}
       </h2>
 
       <div class="grid grid-cols-1 gap-6">
@@ -255,7 +261,9 @@
                     </label>
                     <base-input
                       v-model="magazine.subscription_address_1"
-                      :placeholder="$t('adminMagazine.enter_subscription_address')"
+                      :placeholder="
+                        $t('adminMagazine.enter_subscription_address')
+                      "
                     />
                   </div>
                 </div>
@@ -343,7 +351,9 @@
                     </label>
                     <base-input
                       v-model="magazine.frequency"
-                      :placeholder="$t('adminMagazine.enter_publication_frequency')"
+                      :placeholder="
+                        $t('adminMagazine.enter_publication_frequency')
+                      "
                     />
                   </div>
 
@@ -381,7 +391,9 @@
                           type="checkbox"
                           class="mr-2"
                         />
-                        <label for="format-print">{{ $t('adminMagazine.print') }}</label>
+                        <label for="format-print">{{
+                          $t('adminMagazine.print')
+                        }}</label>
                       </div>
                       <div>
                         <input
@@ -390,7 +402,9 @@
                           type="checkbox"
                           class="mr-2"
                         />
-                        <label for="format-online">{{ $t('adminMagazine.online') }}</label>
+                        <label for="format-online">{{
+                          $t('adminMagazine.online')
+                        }}</label>
                       </div>
                     </div>
                   </div>
@@ -540,9 +554,7 @@
                       <div class="text-gray-500 text-sm">
                         <i class="fa fa-image text-xl mb-1"></i>
                         <p>
-                          {{
-                            $t('adminMagazine.upload_thumbnail')
-                          }}
+                          {{ $t('adminMagazine.upload_thumbnail') }}
                         </p>
                       </div>
                     </DragDrop>
@@ -620,7 +632,9 @@
               <base-input
                 v-model="editingMagazine.incident_ids"
                 :label="$t('adminMagazine.incident_ids')"
-                :placeholder="$t('adminMagazine.enter_incident_ids_comma_separated')"
+                :placeholder="
+                  $t('adminMagazine.enter_incident_ids_comma_separated')
+                "
                 class="mb-2"
               />
               <div class="grid grid-cols-2 gap-4 mb-2">
@@ -668,7 +682,8 @@
                 {{ magazine.subtitle }}
               </div>
               <div v-if="magazine.incident_name" class="text-sm text-gray-600">
-                {{ $t('adminMagazine.incident_name') }}: {{ magazine.incident_name }}
+                {{ $t('adminMagazine.incident_name') }}:
+                {{ magazine.incident_name }}
               </div>
               <div
                 v-if="magazine.incident_ids?.length"
@@ -678,7 +693,8 @@
                 {{ magazine.incident_ids.join(', ') }}
               </div>
               <div class="text-sm text-gray-600">
-                {{ $t('adminMagazine.volume') }} {{ magazine.volume }}, {{ $t('adminMagazine.issue') }}
+                {{ $t('adminMagazine.volume') }} {{ magazine.volume }},
+                {{ $t('adminMagazine.issue') }}
                 {{ magazine.issue }}
               </div>
               <div class="text-sm text-gray-600">
@@ -850,7 +866,7 @@ const magazine = ref<MagazineData>({
   incident_ids: [],
   incident_name: '',
   volume: 1,
-  issue: ,
+  issue: 1,
   issn: '',
   publish_date: '',
   timeframe_start: '',
@@ -961,7 +977,9 @@ function handleThumbnailSelection(fileList: File[], index: number) {
 
   const file = fileList[0];
   if (!file.type.startsWith('image/')) {
-    $toasted.error(t('adminMagazine.only_image_files_are_allowed_for_thumbnails'));
+    $toasted.error(
+      t('adminMagazine.only_image_files_are_allowed_for_thumbnails'),
+    );
     return;
   }
 

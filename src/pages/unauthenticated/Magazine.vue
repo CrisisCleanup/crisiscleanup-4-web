@@ -12,11 +12,12 @@
               {{ $t('magazine.title_cleanup') }}
             </div>
             <div class="font-normal text-3xl">
-              <span class="text-primary-light">|</span> {{ $t('magazine.title_magazine') }}
+              <span class="text-primary-light">|</span>
+              {{ $t('magazine.title_magazine') }}
             </div>
           </h1>
           <p class="mb-2 max-w-xl">
-            {{ $t('magazine.magazine_intro_text')}}<br /><br />
+            {{ $t('magazine.magazine_intro_text') }}<br /><br />
             <span class="font-semibold">{{
               $t('magazine.download_issues_below')
             }}</span>
