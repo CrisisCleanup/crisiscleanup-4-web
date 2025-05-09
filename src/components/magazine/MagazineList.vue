@@ -7,7 +7,7 @@
       v-else-if="magazines.length === 0"
       class="text-center py-8 text-gray-500"
     >
-      {{ $t('~~magazine.no_magazines') }}
+      {{ $t('magazine.no_magazines') }}
     </div>
     <div v-else>
       <!-- Latest Issue Section -->
@@ -15,7 +15,7 @@
         <h2
           class="text-md font-bold uppercase text-gray-700 underline decoration-primary-light mb-2"
         >
-          {{ $t('~~Latest Issue') }}
+          {{ $t('magazine.latest_issue') }}
         </h2>
         <div class="flex flex-col md:flex-row gap-8 items-center">
           <div
@@ -83,7 +83,7 @@
         <h2
           class="text-md font-bold mb-2 uppercase text-gray-700 underline decoration-primary-light"
         >
-          {{ $t('~~Available Issues') }}
+          {{ $t('magazine.available_issues') }}
         </h2>
         <div class="flex flex-col gap-8">
           <div
@@ -170,7 +170,7 @@
                   <!-- State Focused Editions -->
                   <div class="md:w-64 w-full mt-4 md:mt-0">
                     <div class="font-semibold mb-2">
-                      {{ $t('~~Download other editions:') }}
+                      {{ $t('magazine.download_other_editions') }}
                     </div>
                     <ul class="columns-2 gap-4 h-32 [column-fill:auto]">
                       <li
@@ -190,7 +190,7 @@
                         v-if="getOtherEditions(magazine).length === 0"
                         class="text-gray-400 text-xs"
                       >
-                        {{ $t('~~No other editions') }}
+                        {{ $t('magazine.no_other_editions') }}
                       </li>
                     </ul>
                   </div>
@@ -328,7 +328,7 @@ const latestPrimaryEdition = computed(() => {
 
 async function openPdfViewer(pdf: CCUFileItem) {
   await dialogs.component({
-    title: t('~~Magazine Viewer'),
+    title: t('magazine.magazine_viewer'),
     component: PdfViewer,
     props: {
       pdf,
