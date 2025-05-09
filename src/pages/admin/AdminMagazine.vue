@@ -872,7 +872,7 @@ const availabilityOptions = [
 const magazine = ref<MagazineData>({
   id: null,
   title: 'Crisis Cleanup',
-  subtitle: '60 DAY Snapshot',
+  subtitle: '60 Day Snapshot',
   incident_ids: [],
   incident_name: 'Hurricanes Helene & Milton',
   volume: 1,
