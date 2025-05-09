@@ -26,16 +26,17 @@
           </p>
         </div>
       </div>
-      <!-- <div class="h-full">
-        <div class="bg-blue-700 p-4 text-center h-full">
-          <div class="text-xs uppercase tracking-widest">STAT HERE</div>
-          <div class="text-3xl font-bold">000</div>
-
-          <div class="text-xs uppercase tracking-widest">STAT HERE</div>
-          <div class="text-3xl font-bold">000</div>
-
+      <div class="h-full">
+        <div class="bg-blue-700 p-4 text-center h-full mr-4">
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfBt0P6KFnmhacpEmehJH4ichsB9YhuwJ9azMMdeviIE0suGA/viewform?usp=dialog"
+            class="text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
+            target="_blank"
+          >
+            {{ $t('~~Subscribe') }}
+          </a>
         </div>
-      </div> -->
+      </div>
     </div>
     <!-- two tone bar -->
     <div class="h-3 flex">
