@@ -38,26 +38,24 @@
 
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~Incident ID') }}
+                  {{ $t('~~Incident IDs') }}
                 </label>
                 <base-input
-                  v-model="magazine.incidentId"
-                  :placeholder="$t('~~Enter incident ID')"
+                  v-model="magazine.incident_ids"
+                  :placeholder="$t('~~Enter incident IDs (comma-separated)')"
                 />
               </div>
 
               <div class="mb-4">
                 <label class="block text-sm font-medium mb-2">
-                  {{ $t('~~Edition') }}
+                  {{ $t('~~Incident Name') }}
                 </label>
                 <base-input
-                  v-model="magazine.edition"
-                  :placeholder="$t('~~Enter edition')"
+                  v-model="magazine.incident_name"
+                  :placeholder="$t('~~Enter incident name')"
                 />
               </div>
-            </div>
 
-            <div>
               <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label class="block text-sm font-medium mb-2">
@@ -93,7 +91,9 @@
                   :placeholder="$t('~~Enter ISSN')"
                 />
               </div>
+            </div>
 
+            <div>
               <label class="block text-sm font-medium mb-2">
                 {{ $t('~~Publication Date') }}
               </label>
@@ -134,10 +134,9 @@
                     {{ $t('~~Timeframe Start') }}
                   </label>
                   <datepicker
-                    v-model="magazine.timeframeStart"
+                    v-model="magazine.timeframe_start"
                     auto-apply
-                    format="yyyy-MM-dd"
-                    time-picker
+                    format="yyyy-MM-dd HH:mm"
                     class="mb-4"
                   />
                 </div>
@@ -146,10 +145,9 @@
                     {{ $t('~~Timeframe End') }}
                   </label>
                   <datepicker
-                    v-model="magazine.timeframeEnd"
+                    v-model="magazine.timeframe_end"
                     auto-apply
-                    format="yyyy-MM-dd"
-                    time-picker
+                    format="yyyy-MM-dd HH:mm"
                     class="mb-4"
                   />
                 </div>
@@ -428,23 +426,23 @@
           </transition>
         </div>
 
-        <!-- Magazine Issues Section -->
+        <!-- Magazine Editions Section -->
         <div class="bg-gray-50 p-4 rounded-lg">
           <h3 class="text-lg font-semibold mb-4">
             {{ $t('~~Magazine Editions') }}
           </h3>
 
           <div
-            v-if="magazine.issues.length === 0"
+            v-if="magazine.editions.length === 0"
             class="text-gray-500 mb-4 p-4 bg-gray-100 rounded"
           >
             {{ $t('~~No editions added yet') }}
           </div>
 
-          <!-- Issue Cards -->
+          <!-- Edition Cards -->
           <div v-else class="space-y-4 mb-4">
             <div
-              v-for="(issue, index) in magazine.issues"
+              v-for="(edition, index) in magazine.editions"
               :key="index"
               class="border rounded p-4 bg-white"
               :class="{
@@ -458,20 +456,38 @@
                 <button
                   type="button"
                   class="text-red-500 hover:text-red-700"
-                  @click="removeIssue(index)"
+                  @click="removeEdition(index)"
                 >
                   <i class="fa fa-trash"></i>
                 </button>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
-                <!-- Issue Name -->
+                <!-- Edition Name -->
                 <div class="md:col-span-2">
                   <base-input
-                    v-model="issue.name"
-                    :label="$t('~~Version Name')"
-                    :placeholder="$t('~~Enter version name')"
+                    v-model="edition.name"
+                    :label="$t('~~Edition Name')"
+                    :placeholder="$t('~~Enter edition name')"
                   />
+                  <base-input
+                    v-model="edition.short_name"
+                    :label="$t('~~Short Name')"
+                    :placeholder="$t('~~Enter short name')"
+                    class="mt-2"
+                  />
+                  <div class="mt-2">
+                    <label class="flex items-center space-x-2">
+                      <input
+                        v-model="edition.is_primary"
+                        type="checkbox"
+                        class="form-checkbox h-4 w-4 text-primary"
+                      />
+                      <span class="text-sm text-gray-700">{{
+                        $t('~~Primary Edition')
+                      }}</span>
+                    </label>
+                  </div>
                 </div>
 
                 <!-- PDF Upload -->
@@ -480,12 +496,15 @@
                     $t('~~PDF File')
                   }}</label>
 
-                  <div v-if="issue.file_info" class="flex items-center mb-2">
+                  <div
+                    v-if="edition.file_details"
+                    class="flex items-center mb-2"
+                  >
                     <div class="flex-grow mr-2 text-sm">
                       <div class="flex items-center">
                         <i class="fa fa-file-pdf text-red-500 mr-2"></i>
                         <span class="truncate">{{
-                          issue.file_info.filename
+                          edition.file_details.filename
                         }}</span>
                       </div>
                     </div>
@@ -510,6 +529,50 @@
                       <p>{{ $t('~~Drop PDF file here or click to upload') }}</p>
                     </div>
                   </DragDrop>
+
+                  <!-- Thumbnail Upload -->
+                  <div class="mt-4">
+                    <label class="block text-sm font-medium mb-2">{{
+                      $t('~~Thumbnail Image')
+                    }}</label>
+
+                    <div
+                      v-if="edition.thumbnail_details"
+                      class="flex items-center mb-2"
+                    >
+                      <div class="flex-grow mr-2">
+                        <img
+                          :src="edition.thumbnail_details.url"
+                          class="h-20 w-auto object-cover rounded"
+                          alt="Thumbnail preview"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        class="text-red-500 hover:text-red-700"
+                        @click="removeThumbnail(index)"
+                      >
+                        <i class="fa fa-times"></i>
+                      </button>
+                    </div>
+
+                    <DragDrop
+                      v-else
+                      :multiple="false"
+                      container-class="border-2 border-dashed border-gray-300 p-3 text-center rounded"
+                      :disabled="saving"
+                      @files="(files) => handleThumbnailSelection(files, index)"
+                    >
+                      <div class="text-gray-500 text-sm">
+                        <i class="fa fa-image text-xl mb-1"></i>
+                        <p>
+                          {{
+                            $t('~~Drop thumbnail image here or click to upload')
+                          }}
+                        </p>
+                      </div>
+                    </DragDrop>
+                  </div>
                 </div>
               </div>
             </div>
@@ -518,7 +581,7 @@
           <base-button
             variant="outline"
             class="mb-4 p-2"
-            :action="addIssue"
+            :action="addEdition"
             size="small"
           >
             <i class="fa fa-plus mr-2"></i>
@@ -556,18 +619,107 @@
       </h2>
       <div class="space-y-6">
         <div
-          v-for="magazine in groupedMagazines"
+          v-for="magazine in existingMagazines"
           :key="magazine.id"
           class="bg-white rounded-lg shadow p-6"
         >
           <div class="mb-4">
-            <h3 class="text-xl font-bold truncate">{{ magazine.title }}</h3>
-            <div class="text-sm text-gray-600">
-              {{ $t('~~Volume') }} {{ magazine.volume }}, {{ $t('~~Issue') }}
-              {{ magazine.issue }}
+            <div v-if="editingMagazine?.id === magazine.id">
+              <base-input
+                v-model="editingMagazine.title"
+                :label="$t('~~Title')"
+                :placeholder="$t('~~Enter magazine title')"
+                class="mb-2"
+              />
+              <base-input
+                v-model="editingMagazine.subtitle"
+                :label="$t('~~Subtitle')"
+                :placeholder="$t('~~Enter magazine subtitle')"
+                class="mb-2"
+              />
+              <base-input
+                v-model="editingMagazine.incident_name"
+                :label="$t('~~Incident Name')"
+                :placeholder="$t('~~Enter incident name')"
+                class="mb-2"
+              />
+              <base-input
+                v-model="editingMagazine.incident_ids"
+                :label="$t('~~Incident IDs')"
+                :placeholder="$t('~~Enter incident IDs (comma-separated)')"
+                class="mb-2"
+              />
+              <div class="grid grid-cols-2 gap-4 mb-2">
+                <base-input
+                  v-model="editingMagazine.volume"
+                  type="number"
+                  :label="$t('~~Volume')"
+                  :placeholder="$t('~~Enter volume number')"
+                />
+                <base-input
+                  v-model="editingMagazine.issue"
+                  type="number"
+                  :label="$t('~~Issue')"
+                  :placeholder="$t('~~Enter issue number')"
+                />
+              </div>
+              <datepicker
+                v-model="editingMagazine.publish_date"
+                :label="$t('~~Publication Date')"
+                auto-apply
+                format="yyyy-MM-dd"
+                class="mb-2"
+              />
+              <div class="flex justify-end space-x-2">
+                <base-button
+                  variant="outline"
+                  size="small"
+                  :action="() => cancelEdit()"
+                >
+                  {{ $t('~~Cancel') }}
+                </base-button>
+                <base-button
+                  variant="solid"
+                  size="small"
+                  :action="() => saveEdit()"
+                  :show-spinner="saving"
+                >
+                  {{ $t('~~Save') }}
+                </base-button>
+              </div>
             </div>
-            <div class="text-sm text-gray-600">
-              {{ formatDate(magazine.publish_date) }}
+            <div v-else>
+              <h3 class="text-xl font-bold truncate">{{ magazine.title }}</h3>
+              <div v-if="magazine.subtitle" class="text-sm text-gray-600">
+                {{ magazine.subtitle }}
+              </div>
+              <div v-if="magazine.incident_name" class="text-sm text-gray-600">
+                {{ $t('~~Incident') }}: {{ magazine.incident_name }}
+              </div>
+              <div
+                v-if="magazine.incident_ids?.length"
+                class="text-sm text-gray-600"
+              >
+                {{ $t('~~Incident IDs') }}:
+                {{ magazine.incident_ids.join(', ') }}
+              </div>
+              <div class="text-sm text-gray-600">
+                {{ $t('~~Volume') }} {{ magazine.volume }}, {{ $t('~~Issue') }}
+                {{ magazine.issue }}
+              </div>
+              <div class="text-sm text-gray-600">
+                {{ formatDate(magazine.publish_date) }}
+              </div>
+              <div class="mt-2">
+                <base-button
+                  variant="outline"
+                  size="small"
+                  :action="() => startEdit(magazine)"
+                >
+                  <i class="fa fa-edit mr-2"></i>
+                  {{ $t('~~Edit') }}
+                </base-button>
+              </div>
             </div>
           </div>
 
@@ -580,18 +732,25 @@
               <div
                 v-for="edition in magazine.editions"
                 :key="edition.id"
-                class="border rounded p-4"
+                class="border rounded p-4 relative"
               >
+                <button
+                  type="button"
+                  class="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                  @click="deleteEdition(magazine.id, edition.id)"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
                 <div class="mb-2 font-medium">{{ edition.name }}</div>
                 <div class="mb-3">
                   <PdfViewer
-                    :pdf="edition.file"
+                    :pdf="edition.file_details"
                     :page="1"
                     :show-download-button="false"
                   />
                 </div>
                 <a
-                  :href="edition.file.general_file_url"
+                  :href="edition.file_details.general_file_url"
                   target="_blank"
                   class="bg-primary-light px-3 py-2 text-sm transition w-full flex items-center justify-center"
                   download
@@ -603,7 +762,7 @@
           </div>
         </div>
       </div>
-      <div v-if="groupedMagazines.length === 0" class="text-gray-500">
+      <div v-if="existingMagazines.length === 0" class="text-gray-500">
         {{ $t('~~No existing magazines found') }}
       </div>
     </div>
@@ -618,42 +777,76 @@ import moment from 'moment';
 import DragDrop from '@/components/DragDrop.vue';
 import { getErrorMessage } from '@/utils/errors';
 import PdfViewer from '@/components/PdfViewer.vue';
+import type { CCUFileItem } from '@/models/types';
 
-interface MagazineIssue {
+interface MagazineEditionData {
+  id?: string;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
+  updated_by?: string;
+  magazine?: string;
   name: string;
+  short_name?: string;
   file: string | null;
-  file_info: any | null;
-  file_data: File | null; // Store actual file here for batch upload
+  file_details?: CCUFileItem;
+  file_data?: File | null;
+  thumbnail_file?: string | null;
+  thumbnail_details?: CCUFileItem;
+  thumbnail_data?: File | null;
+  is_primary: boolean;
 }
 
 interface MagazineData {
   id: string | null;
   title: string;
   subtitle: string;
-  incidentId: string;
-  edition: string;
+  incident_ids: string | string[];
+  incident_name: string;
   volume: number;
   issue: number;
   issn: string;
   publish_date: string;
-  timeframeStart: string;
-  timeframeEnd: string;
+  timeframe_start: string;
+  timeframe_end: string;
   publisher: string;
-  publisherCity: string;
-  publisherState: string;
-  publisherEmail: string;
-  publisherPhone: string;
-  subscriptionUrl: string;
-  subscriptionAddress1: string;
-  subscriptionCity: string;
-  subscriptionState: string;
-  subscriptionPostalCode: string;
+  publisher_city: string;
+  publisher_state: string;
+  publisher_email: string;
+  publisher_phone: string;
+  subscription_url: string;
+  subscription_address_1: string;
+  subscription_city: string;
+  subscription_state: string;
+  subscription_postal_code: string;
   availability: string;
   frequency: string;
-  pubType: string;
+  pub_type: string;
   language: string;
   is_active: boolean;
-  issues: MagazineIssue[];
+  editions: MagazineEditionData[];
+}
+
+interface MagazineEdition {
+  id: string;
+  name: string;
+  short_name: string;
+  file: any;
+  thumbnail: any;
+  is_primary: boolean;
+  file_details: CCUFileItem;
+}
+
+interface Magazine {
+  id: string;
+  title: string;
+  subtitle: string;
+  incident_ids: string | string[];
+  incident_name: string;
+  volume: number;
+  issue: number;
+  publish_date: string;
+  editions: MagazineEdition[];
 }
 
 const { t } = useI18n();
@@ -679,31 +872,31 @@ const availabilityOptions = [
 const magazine = ref<MagazineData>({
   id: null,
   title: 'Crisis Cleanup',
-  subtitle: 'Hurricanes Helene & Milton',
-  incidentId: '171',
-  edition: 'Florida',
+  subtitle: '60 Day Snapshot',
+  incident_ids: [],
+  incident_name: 'Hurricanes Helene & Milton',
   volume: 1,
   issue: 1,
   issn: '000000000',
   publish_date: '2025-05-12',
-  timeframeStart: '2024-09-24T00:00:00Z',
-  timeframeEnd: '2024-12-08T00:00:00Z',
+  timeframe_start: '2024-09-24',
+  timeframe_end: '2024-12-08',
   publisher: 'Crisis Cleanup, LLC',
-  publisherCity: 'Longmont',
-  publisherState: 'Colorado',
-  publisherEmail: 'magazine@crisiscleanup.org',
-  publisherPhone: '(848) 480-0660',
-  subscriptionUrl: 'https://www.crisiscleanup.org/magazine',
-  subscriptionAddress1: '5905 Blue Mountain Cir.',
-  subscriptionCity: 'Longmont',
-  subscriptionState: 'CO',
-  subscriptionPostalCode: '80503',
+  publisher_city: 'Longmont',
+  publisher_state: 'Colorado',
+  publisher_email: 'magazine@crisiscleanup.org',
+  publisher_phone: '(848) 480-0660',
+  subscription_url: 'https://www.crisiscleanup.org/magazine',
+  subscription_address_1: '5905 Blue Mountain Cir.',
+  subscription_city: 'Longmont',
+  subscription_state: 'CO',
+  subscription_postal_code: '80503',
   availability: 'Open Access',
   frequency: 'Twice a month',
-  pubType: 'Magazine',
+  pub_type: 'Magazine',
   language: 'English',
   is_active: true,
-  issues: [],
+  editions: [],
 });
 
 // Initialize format options based on default values
@@ -717,7 +910,7 @@ const isFormValid = computed(() => {
     return false;
   }
 
-  if (magazine.value.issues.length === 0) {
+  if (magazine.value.editions.length === 0) {
     return false;
   }
 
@@ -726,26 +919,32 @@ const isFormValid = computed(() => {
     return false;
   }
 
-  return magazine.value.issues.every(
-    (issue: MagazineIssue) => issue.name && (issue.file || issue.file_data),
+  return magazine.value.editions.every(
+    (edition: MagazineEditionData) =>
+      edition.name && (edition.file || edition.file_data),
   );
 });
 
-function addIssue() {
-  magazine.value.issues.push({
+function addEdition() {
+  magazine.value.editions.push({
     name: '',
+    short_name: '',
     file: null,
-    file_info: null,
+    file_details: null,
+    thumbnail_file: null,
+    thumbnail_details: null,
+    thumbnail_data: null,
+    is_primary: false,
     file_data: null,
   });
-  selectedIssueIndex.value = magazine.value.issues.length - 1;
+  selectedIssueIndex.value = magazine.value.editions.length - 1;
 }
 
-function removeIssue(index: number) {
-  if (confirm(t('~~Are you sure you want to remove this issue?'))) {
-    magazine.value.issues.splice(index, 1);
+function removeEdition(index: number) {
+  if (confirm(t('~~Are you sure you want to remove this edition?'))) {
+    magazine.value.editions.splice(index, 1);
     if (selectedIssueIndex.value === index) {
-      selectedIssueIndex.value = magazine.value.issues.length > 0 ? 0 : null;
+      selectedIssueIndex.value = magazine.value.editions.length > 0 ? 0 : null;
     } else if (
       selectedIssueIndex.value !== null &&
       selectedIssueIndex.value > index
@@ -756,106 +955,87 @@ function removeIssue(index: number) {
 }
 
 function removeFile(index: number) {
-  magazine.value.issues[index].file = null;
-  magazine.value.issues[index].file_info = null;
-  magazine.value.issues[index].file_data = null;
+  magazine.value.editions[index].file = null;
+  magazine.value.editions[index].file_details = null;
+  magazine.value.editions[index].file_data = null;
 }
 
-function handleFileSelection(fileList: File[], issueIndex: number) {
+function handleFileSelection(fileList: File[], index: number) {
   if (fileList.length === 0) {
     return;
   }
 
   const file = fileList[0];
-  if (file.type !== 'application/pdf') {
-    $toasted.error(t('~~Only PDF files are allowed'));
+  if (file.type !== 'application/pdf' && file.type !== 'application/zip') {
+    $toasted.error(t('~~Only PDF and ZIP files are allowed'));
     return;
   }
 
   // Store file in memory for batch upload later
-  magazine.value.issues[issueIndex].file_data = file;
-  magazine.value.issues[issueIndex].file_info = {
+  magazine.value.editions[index].file_data = file;
+  magazine.value.editions[index].file_details = {
     filename: file.name,
     size: file.size,
-    type: file.type,
+    mime_content_type: file.type,
   };
 }
 
+function handleThumbnailSelection(fileList: File[], index: number) {
+  if (fileList.length === 0) {
+    return;
+  }
+
+  const file = fileList[0];
+  if (!file.type.startsWith('image/')) {
+    $toasted.error(t('~~Only image files are allowed for thumbnails'));
+    return;
+  }
+
+  // Store file in memory for batch upload later
+  magazine.value.editions[index].thumbnail_data = file;
+  magazine.value.editions[index].thumbnail_details = {
+    filename: file.name,
+    size: file.size,
+    mime_content_type: file.type,
+  };
+}
+
+function removeThumbnail(index: number) {
+  magazine.value.editions[index].thumbnail_file = null;
+  magazine.value.editions[index].thumbnail_details = null;
+  magazine.value.editions[index].thumbnail_data = null;
+}
+
 async function uploadAllFiles(): Promise<boolean> {
-  const issuesToUpload = magazine.value.issues.filter(
-    (issue: MagazineIssue) => issue.file_data && !issue.file,
+  const editionsToUpload = magazine.value.editions.filter(
+    (edition: MagazineEditionData) => edition.file_data && !edition.file,
   );
 
-  if (issuesToUpload.length === 0) {
+  if (editionsToUpload.length === 0) {
     return true; // No files to upload
   }
 
   uploadProgress.value = 0;
-  const totalFiles = issuesToUpload.length;
+  const totalFiles = editionsToUpload.length;
   let uploadedCount = 0;
 
   try {
     // Upload all files in parallel
-    const uploadPromises = magazine.value.issues.map(
-      async (issue: MagazineIssue, index: number) => {
-        if (!issue.file_data || issue.file) {
+    const uploadPromises = magazine.value.editions.map(
+      async (edition: MagazineEditionData, index: number) => {
+        if (!edition.file_data || edition.file) {
           return; // Skip if no file data or already has a file ID
         }
 
-        // Create format array from checkboxes
-        const formats = [];
-        if (formatOptions.value.print) formats.push('Print');
-        if (formatOptions.value.online) formats.push('Online');
-
         const formData = new FormData();
-        formData.append('upload', issue.file_data);
-        formData.append('type_t', 'fileTypes.magazine_issue');
-        formData.append('filename', issue.file_info?.filename || '');
-        formData.append('content_type', issue.file_info?.type || '');
-        formData.append(
-          'attr',
-          JSON.stringify({
-            // Basic information
-            title: magazine.value.title,
-            subtitle: magazine.value.subtitle,
-            incidentId: magazine.value.incidentId,
-            edition: magazine.value.edition,
-            volume: magazine.value.volume,
-            issue: magazine.value.issue,
-            issn: magazine.value.issn,
-            publish_date: magazine.value.publish_date,
-            name: issue.name,
-
-            // Timeframe
-            timeframeStart: magazine.value.timeframeStart,
-            timeframeEnd: magazine.value.timeframeEnd,
-
-            // Publisher information
-            publisher: magazine.value.publisher,
-            publisherCity: magazine.value.publisherCity,
-            publisherState: magazine.value.publisherState,
-            publisherEmail: magazine.value.publisherEmail,
-            publisherPhone: magazine.value.publisherPhone,
-
-            // Subscription information
-            subscriptionUrl: magazine.value.subscriptionUrl,
-            subscriptionAddress1: magazine.value.subscriptionAddress1,
-            subscriptionCity: magazine.value.subscriptionCity,
-            subscriptionState: magazine.value.subscriptionState,
-            subscriptionPostalCode: magazine.value.subscriptionPostalCode,
-
-            // Publication details
-            availability: magazine.value.availability,
-            frequency: magazine.value.frequency,
-            pubType: magazine.value.pubType,
-            language: magazine.value.language,
-            format: formats,
-          }),
-        );
-        formData.append('title', magazine.value.title);
+        formData.append('file', edition.file_data);
+        formData.append('name', edition.name);
+        formData.append('short_name', edition.short_name || '');
+        formData.append('is_primary', edition.is_primary.toString());
+        formData.append('magazine', magazine.value.id || '');
 
         const result = await axios.post(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+          `${import.meta.env.VITE_APP_API_BASE_URL}/editions`,
           formData,
           {
             headers: {
@@ -865,9 +1045,12 @@ async function uploadAllFiles(): Promise<boolean> {
           },
         );
 
-        // Update file info with server response
-        magazine.value.issues[index].file = result.data.id;
-        magazine.value.issues[index].file_info = result.data;
+        // Update edition info with server response
+        magazine.value.editions[index] = {
+          ...magazine.value.editions[index],
+          ...result.data,
+          file_data: null, // Clear the temporary file data
+        };
 
         // Update progress
         uploadedCount++;
@@ -889,12 +1072,7 @@ async function uploadAllFiles(): Promise<boolean> {
 async function getExistingMagazineFiles() {
   try {
     const { data } = await axios.get(
-      `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
-      {
-        params: {
-          type_t: 'fileTypes.magazine_issue',
-        },
-      },
+      `${import.meta.env.VITE_APP_API_BASE_URL}/magazines`,
     );
     existingMagazines.value = data.results;
   } catch (error) {
@@ -911,11 +1089,154 @@ async function saveMagazine() {
   saving.value = true;
 
   try {
-    // Step 1: Upload all files first
-    const uploadSuccess = await uploadAllFiles();
-    if (!uploadSuccess) {
-      throw new Error(t('~~File upload failed'));
+    // Step 1: Create or update the magazine
+    const magazineData = {
+      title: magazine.value.title,
+      subtitle: magazine.value.subtitle,
+      incident_ids: magazine.value.incident_ids
+        ? magazine.value.incident_ids.split(',')
+        : [],
+      incident_name: magazine.value.incident_name,
+      volume: magazine.value.volume,
+      issue: magazine.value.issue,
+      issn: magazine.value.issn,
+      publish_date: magazine.value.publish_date,
+      timeframe_start: magazine.value.timeframe_start,
+      timeframe_end: magazine.value.timeframe_end,
+      publisher: magazine.value.publisher,
+      publisher_city: magazine.value.publisher_city,
+      publisher_state: magazine.value.publisher_state,
+      publisher_email: magazine.value.publisher_email,
+      publisher_phone: magazine.value.publisher_phone,
+      subscription_url: magazine.value.subscription_url,
+      subscription_address_1: magazine.value.subscription_address_1,
+      subscription_city: magazine.value.subscription_city,
+      subscription_state: magazine.value.subscription_state,
+      subscription_postal_code: magazine.value.subscription_postal_code,
+      availability: magazine.value.availability,
+      frequency: magazine.value.frequency,
+      pub_type: magazine.value.pub_type,
+      language: magazine.value.language,
+      is_active: magazine.value.is_active,
+    };
+
+    const magazineResponse = await axios.post(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/magazines`,
+      magazineData,
+    );
+
+    // Update the magazine ID
+    magazine.value.id = magazineResponse.data.id;
+
+    // Step 2: Upload all files first
+    const editionsToUpload = magazine.value.editions.filter(
+      (edition: MagazineEditionData) =>
+        (edition.file_data || edition.thumbnail_data) &&
+        (!edition.file || !edition.thumbnail_file),
+    );
+
+    if (editionsToUpload.length > 0) {
+      uploadProgress.value = 0;
+      const totalFiles = editionsToUpload.length * 2; // Count both PDF and thumbnail files
+      let uploadedCount = 0;
+
+      // Upload all files in parallel
+      const uploadPromises = magazine.value.editions.map(
+        async (edition: MagazineEditionData, index: number) => {
+          const promises = [];
+
+          // Upload PDF if needed
+          if (edition.file_data && !edition.file) {
+            const formData = new FormData();
+            formData.append('upload', edition.file_data);
+            formData.append('type_t', 'fileTypes.magazine_issue');
+            formData.append('filename', edition.file_details?.filename || '');
+            formData.append(
+              'content_type',
+              edition.file_details?.mime_content_type || '',
+            );
+            formData.append('title', magazine.value.title);
+
+            const result = await axios.post(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  Accept: 'application/json',
+                },
+              },
+            );
+
+            // Update file info with server response
+            magazine.value.editions[index].file = result.data.id;
+            magazine.value.editions[index].file_details = result.data;
+            uploadedCount++;
+            uploadProgress.value = Math.round(
+              (uploadedCount / totalFiles) * 100,
+            );
+          }
+
+          // Upload thumbnail if needed
+          if (edition.thumbnail_data && !edition.thumbnail_file) {
+            const formData = new FormData();
+            formData.append('upload', edition.thumbnail_data);
+            formData.append('type_t', 'fileTypes.other_file');
+            formData.append(
+              'filename',
+              edition.thumbnail_details?.filename || '',
+            );
+            formData.append(
+              'content_type',
+              edition.thumbnail_details?.mime_content_type || '',
+            );
+            formData.append('title', `${magazine.value.title} - Thumbnail`);
+
+            const result = await axios.post(
+              `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+              formData,
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  Accept: 'application/json',
+                },
+              },
+            );
+
+            // Update thumbnail info with server response
+            magazine.value.editions[index].thumbnail_file = result.data.id;
+            magazine.value.editions[index].thumbnail_details = result.data;
+            uploadedCount++;
+            uploadProgress.value = Math.round(
+              (uploadedCount / totalFiles) * 100,
+            );
+          }
+        },
+      );
+
+      await Promise.all(uploadPromises);
     }
+
+    // Step 3: Create all editions
+    const editionPromises = magazine.value.editions.map(
+      async (edition: MagazineEditionData) => {
+        const editionData = {
+          name: edition.name,
+          short_name: edition.short_name || '',
+          is_primary: edition.is_primary,
+          magazine: magazine.value.id,
+          file: edition.file,
+          thumbnail_file: edition.thumbnail_file,
+        };
+
+        return axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/editions`,
+          editionData,
+        );
+      },
+    );
+
+    await Promise.all(editionPromises);
 
     $toasted.success(t('~~Magazine saved successfully'));
     resetForm();
@@ -924,6 +1245,7 @@ async function saveMagazine() {
   } finally {
     saving.value = false;
     uploadProgress.value = 0;
+    await getExistingMagazineFiles();
   }
 }
 
@@ -932,30 +1254,30 @@ function resetForm() {
     id: null,
     title: '',
     subtitle: '',
-    incidentId: '',
-    edition: '',
+    incident_ids: [],
+    incident_name: '',
     volume: 1,
     issue: 1,
     issn: '',
     publish_date: moment().format('YYYY-MM-DD'),
-    timeframeStart: '',
-    timeframeEnd: '',
+    timeframe_start: '',
+    timeframe_end: '',
     publisher: '',
-    publisherCity: '',
-    publisherState: '',
-    publisherEmail: '',
-    publisherPhone: '',
-    subscriptionUrl: '',
-    subscriptionAddress1: '',
-    subscriptionCity: '',
-    subscriptionState: '',
-    subscriptionPostalCode: '',
+    publisher_city: '',
+    publisher_state: '',
+    publisher_email: '',
+    publisher_phone: '',
+    subscription_url: '',
+    subscription_address_1: '',
+    subscription_city: '',
+    subscription_state: '',
+    subscription_postal_code: '',
     availability: 'Open Access',
     frequency: '',
-    pubType: '',
+    pub_type: '',
     language: '',
     is_active: true,
-    issues: [],
+    editions: [],
   };
   formatOptions.value.print = false;
   formatOptions.value.online = false;
@@ -976,43 +1298,71 @@ const expandedSections = ref({
   versions: false,
 });
 
-const groupedMagazines = computed(() => {
-  if (!existingMagazines.value) return [];
-
-  const magazineMap = new Map();
-
-  // Group files by magazine metadata
-  for (const file of existingMagazines.value) {
-    const attr = file.attr || {};
-    const key = `${file.title} ${attr.volume || '0'}-${attr.issue || '0'}`;
-
-    if (!magazineMap.has(key)) {
-      magazineMap.set(key, {
-        id: key,
-        title: file.title,
-        volume: attr.volume || 1,
-        issue: attr.issue || 1,
-        publish_date: attr.publish_date || file.created_at,
-        editions: [],
-      });
-    }
-
-    // Add this file as an edition
-    magazineMap.get(key).editions.push({
-      id: file.id,
-      name: file.attr.name || file.filename || file.title || 'Untitled Edition',
-      file: file,
-    });
-  }
-
-  // Convert map to array and sort by publish date (most recent first)
-  return [...magazineMap.values()].sort((a, b) =>
-    moment(b.publish_date).diff(moment(a.publish_date)),
-  );
-});
-
 function formatDate(date: string): string {
   return moment(date).format('MMMM D, YYYY');
+}
+
+const editingMagazine = ref<Magazine | null>(null);
+
+function startEdit(magazine: Magazine) {
+  editingMagazine.value = {
+    ...magazine,
+    incident_ids: Array.isArray(magazine.incident_ids)
+      ? magazine.incident_ids
+      : magazine.incident_ids
+          ?.split(',')
+          .map((id: string) => id.trim())
+          .filter(Boolean) || [],
+  };
+}
+
+function cancelEdit() {
+  editingMagazine.value = null;
+}
+
+async function saveEdit() {
+  if (!editingMagazine.value) return;
+
+  saving.value = true;
+  try {
+    const dataToSave = {
+      ...editingMagazine.value,
+      incident_ids: Array.isArray(editingMagazine.value.incident_ids)
+        ? editingMagazine.value.incident_ids
+        : editingMagazine.value.incident_ids
+            .split(',')
+            .map((id: string) => id.trim())
+            .filter(Boolean),
+    };
+
+    await axios.put(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/magazines/${editingMagazine.value.id}`,
+      dataToSave,
+    );
+    $toasted.success(t('~~Magazine updated successfully'));
+    await getExistingMagazineFiles();
+    editingMagazine.value = null;
+  } catch (error) {
+    $toasted.error(getErrorMessage(error));
+  } finally {
+    saving.value = false;
+  }
+}
+
+async function deleteEdition(magazineId: string, editionId: string) {
+  if (!confirm(t('~~Are you sure you want to delete this edition?'))) {
+    return;
+  }
+
+  try {
+    await axios.delete(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/editions/${editionId}`,
+    );
+    $toasted.success(t('~~Edition deleted successfully'));
+    await getExistingMagazineFiles();
+  } catch (error) {
+    $toasted.error(getErrorMessage(error));
+  }
 }
 </script>
 
