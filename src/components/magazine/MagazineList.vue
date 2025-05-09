@@ -240,7 +240,7 @@ interface Magazine {
   incident_name: string;
   volume: number;
   issue: number;
-  publish_date: string;
+  publish_at: string;
   timeframeStart: string;
   timeframeEnd: string;
   editions: MagazineEdition[];
@@ -279,7 +279,7 @@ async function fetchMagazines(page = 1): Promise<void> {
         params: {
           limit: props.itemsPerPage ?? 9,
           offset: (page - 1) * (props.itemsPerPage ?? 9),
-          sort: '-publish_date',
+          sort: '-publish_at',
           ...props.filters,
         },
       },
@@ -315,8 +315,7 @@ const latestMagazine = computed(() => {
   return magazines.value.length > 0
     ? [...magazines.value].sort(
         (a, b) =>
-          new Date(b.publish_date).getTime() -
-          new Date(a.publish_date).getTime(),
+          new Date(b.publish_at).getTime() - new Date(a.publish_at).getTime(),
       )[0]
     : null;
 });

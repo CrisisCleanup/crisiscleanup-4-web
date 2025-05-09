@@ -104,7 +104,7 @@
                 {{ $t('adminMagazine.publication_date') }}
               </label>
               <datepicker
-                v-model="magazine.publish_date"
+                v-model="magazine.publish_at"
                 data-testid="testPublishDatePicker"
                 auto-apply
                 format="yyyy-MM-dd"
@@ -652,7 +652,7 @@
                 />
               </div>
               <datepicker
-                v-model="editingMagazine.publish_date"
+                v-model="editingMagazine.publish_at"
                 :label="$t('adminMagazine.publication_date')"
                 auto-apply
                 format="yyyy-MM-dd"
@@ -698,7 +698,7 @@
                 {{ magazine.issue }}
               </div>
               <div class="text-sm text-gray-600">
-                {{ formatDate(magazine.publish_date) }}
+                {{ formatDate(magazine.publish_at) }}
               </div>
               <div class="mt-2">
                 <base-button
@@ -796,7 +796,7 @@ interface MagazineData {
   volume: number;
   issue: number;
   issn: string;
-  publish_date: string;
+  publish_at: string;
   timeframe_start: string;
   timeframe_end: string;
   publisher: string;
@@ -835,7 +835,7 @@ interface Magazine {
   incident_name: string;
   volume: number;
   issue: number;
-  publish_date: string;
+  publish_at: string;
   editions: MagazineEdition[];
 }
 
@@ -867,10 +867,10 @@ const magazine = ref<MagazineData>({
   incident_name: '',
   volume: 1,
   issue: 1,
-  issn: '',
-  publish_date: '',
-  timeframe_start: '',
-  timeframe_end: '',
+  issn: '000000000',
+  publish_date: '2025-05-12',
+  timeframe_start: '2024-09-24',
+  timeframe_end: '2024-12-08',
   publisher: 'Crisis Cleanup, LLC',
   publisher_city: 'Longmont',
   publisher_state: 'Colorado',
@@ -896,7 +896,7 @@ onMounted(() => {
 });
 
 const isFormValid = computed(() => {
-  if (!magazine.value.title || !magazine.value.publish_date) {
+  if (!magazine.value.title || !magazine.value.publish_at) {
     return false;
   }
 
@@ -1092,7 +1092,7 @@ async function saveMagazine() {
       volume: magazine.value.volume,
       issue: magazine.value.issue,
       issn: magazine.value.issn,
-      publish_date: magazine.value.publish_date,
+      publish_at: magazine.value.publish_at,
       timeframe_start: magazine.value.timeframe_start,
       timeframe_end: magazine.value.timeframe_end,
       publisher: magazine.value.publisher,
@@ -1251,7 +1251,7 @@ function resetForm() {
     volume: 1,
     issue: 1,
     issn: '',
-    publish_date: moment().format('YYYY-MM-DD hh:mm'),
+    publish_date: moment().format('YYYY-MM-DD'),
     timeframe_start: '',
     timeframe_end: '',
     publisher: '',
