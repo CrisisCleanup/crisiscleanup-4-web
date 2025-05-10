@@ -39,9 +39,17 @@ export default {
   },
   methods: {
     changePage(page) {
-      if (page > 0 && page <= this.totalPages) {
-        this.$emit('page-changed', page);
+      // Don't emit if the page is the current page
+      if (page === this.currentPage) {
+        return;
       }
+
+      // Don't emit if the button should be disabled
+      if (page < 1 || page > this.totalPages) {
+        return;
+      }
+
+      this.$emit('page-changed', page);
     },
   },
 };
@@ -49,4 +57,8 @@ export default {
 
 <style scoped>
 /* Add Tailwind or standard CSS for pagination styles as required. */
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 </style>
