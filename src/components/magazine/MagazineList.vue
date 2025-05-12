@@ -68,7 +68,7 @@
               </a>
               <button
                 v-if="latestPrimaryEdition?.file_details?.general_file_url"
-                class="bg-primary-dark hover:bg-primary text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
+                class="bg-primary-dark hover:bg-primary text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit read-button"
                 @click="openPdfViewer(latestPrimaryEdition.file_details)"
               >
                 Read <i class="fa fa-eye"></i>
@@ -156,7 +156,7 @@
                         getPrimaryEdition(magazine)?.file_details
                           ?.general_file_url
                       "
-                      class="bg-primary-dark hover:bg-primary text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
+                      class="bg-primary-dark hover:bg-primary text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit read-button"
                       @click="
                         openPdfViewer(getPrimaryEdition(magazine).file_details)
                       "
