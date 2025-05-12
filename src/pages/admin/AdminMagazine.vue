@@ -658,7 +658,167 @@
                 format="yyyy-MM-dd"
                 class="mb-2"
               />
-              <div class="flex justify-end space-x-2">
+
+              <!-- Editions Section -->
+              <div class="mt-6">
+                <h4 class="font-bold mb-3">
+                  {{ $t('adminMagazine.magazine_editions') }}
+                </h4>
+
+                <!-- Edition Cards -->
+                <div class="space-y-4 mb-4">
+                  <div
+                    v-for="(edition, index) in editingMagazine.editions"
+                    :key="index"
+                    class="border rounded p-4 bg-white"
+                  >
+                    <div class="flex justify-between items-center mb-3">
+                      <h4 class="font-medium">
+                        {{ $t('adminMagazine.edition') }} #{{ index + 1 }}
+                      </h4>
+                      <button
+                        type="button"
+                        class="text-red-500 hover:text-red-700"
+                        @click="removeEditionFromEdit(index)"
+                      >
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </div>
+
+                    <div
+                      class="grid grid-cols-1 md:grid-cols-5 gap-4 items-start"
+                    >
+                      <!-- Edition Name -->
+                      <div class="md:col-span-2">
+                        <base-input
+                          v-model="edition.name"
+                          :label="$t('adminMagazine.edition_name')"
+                          :placeholder="$t('adminMagazine.enter_edition_name')"
+                        />
+                        <base-input
+                          v-model="edition.short_name"
+                          :label="$t('adminMagazine.short_name')"
+                          :placeholder="$t('adminMagazine.enter_short_name')"
+                          class="mt-2"
+                        />
+                        <div class="mt-2">
+                          <label class="flex items-center space-x-2">
+                            <input
+                              v-model="edition.is_primary"
+                              type="checkbox"
+                              class="form-checkbox h-4 w-4 text-primary"
+                            />
+                            <span class="text-sm text-gray-700">{{
+                              $t('adminMagazine.primary_edition')
+                            }}</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <!-- PDF Upload -->
+                      <div class="md:col-span-3">
+                        <label class="block text-sm font-medium mb-2">{{
+                          $t('adminMagazine.pdf_file')
+                        }}</label>
+
+                        <div
+                          v-if="edition.file_details"
+                          class="flex items-center mb-2"
+                        >
+                          <div class="flex-grow mr-2 text-sm">
+                            <div class="flex items-center">
+                              <i class="fa fa-file-pdf text-red-500 mr-2"></i>
+                              <span class="truncate">{{
+                                edition.file_details.filename
+                              }}</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            class="text-red-500 hover:text-red-700"
+                            @click="removeFileFromEdit(index)"
+                          >
+                            <i class="fa fa-times"></i>
+                          </button>
+                        </div>
+
+                        <DragDrop
+                          v-else
+                          :multiple="false"
+                          container-class="border-2 border-dashed border-gray-300 p-3 text-center rounded"
+                          :disabled="saving"
+                          @files="
+                            (files) => handleFileSelectionForEdit(files, index)
+                          "
+                        >
+                          <div class="text-gray-500 text-sm">
+                            <i class="fa fa-cloud-upload text-xl mb-1"></i>
+                            <p>{{ $t('adminMagazine.upload_pdf') }}</p>
+                          </div>
+                        </DragDrop>
+
+                        <!-- Thumbnail Upload -->
+                        <div class="mt-4">
+                          <label class="block text-sm font-medium mb-2">{{
+                            $t('adminMagazine.thumbnail_image')
+                          }}</label>
+
+                          <div
+                            v-if="edition.thumbnail_details"
+                            class="flex items-center mb-2"
+                          >
+                            <div class="flex-grow mr-2">
+                              <img
+                                :src="edition.thumbnail_details.url"
+                                class="h-20 w-auto object-cover rounded"
+                                alt="Thumbnail preview"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              class="text-red-500 hover:text-red-700"
+                              @click="removeThumbnailFromEdit(index)"
+                            >
+                              <i class="fa fa-times"></i>
+                            </button>
+                          </div>
+
+                          <DragDrop
+                            v-else
+                            :multiple="false"
+                            container-class="border-2 border-dashed border-gray-300 p-3 text-center rounded"
+                            :disabled="saving"
+                            @files="
+                              (files) =>
+                                handleThumbnailSelectionForEdit(files, index)
+                            "
+                          >
+                            <div class="text-gray-500 text-sm">
+                              <i class="fa fa-image text-xl mb-1"></i>
+                              <p>
+                                {{ $t('adminMagazine.upload_thumbnail') }}
+                              </p>
+                            </div>
+                          </DragDrop>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add Edition Button -->
+                <base-button
+                  variant="outline"
+                  class="mb-4 p-2"
+                  :action="() => addEditionToExistingMagazine(magazine.id)"
+                  size="small"
+                >
+                  <i class="fa fa-plus mr-2"></i>
+                  {{ $t('adminMagazine.add_edition') }}
+                </base-button>
+              </div>
+
+              <div class="flex justify-end space-x-2 mt-4">
                 <base-button
                   variant="outline"
                   size="small"
@@ -734,12 +894,20 @@
                 <div class="mb-2 font-medium">{{ edition.name }}</div>
                 <div class="mb-3">
                   <PdfViewer
+                    v-if="edition.file_details"
                     :pdf="edition.file_details"
                     :page="1"
                     :show-download-button="false"
                   />
+                  <div
+                    v-else
+                    class="text-gray-500 text-center p-4 bg-gray-50 rounded"
+                  >
+                    {{ $t('adminMagazine.no_pdf_uploaded') }}
+                  </div>
                 </div>
                 <a
+                  v-if="edition.file_details?.general_file_url"
                   :href="edition.file_details.general_file_url"
                   target="_blank"
                   class="bg-primary-light px-3 py-2 text-sm transition w-full flex items-center justify-center"
@@ -747,6 +915,18 @@
                 >
                   {{ $t('adminMagazine.magazine_download') }}
                 </a>
+              </div>
+
+              <!-- Add New Edition Button -->
+              <div
+                v-if="editingMagazine?.id === magazine.id"
+                class="border-2 border-dashed border-gray-300 rounded p-4 flex items-center justify-center cursor-pointer hover:border-primary"
+                @click="addEditionToExistingMagazine(magazine.id)"
+              >
+                <div class="text-center">
+                  <i class="fa fa-plus text-2xl mb-2"></i>
+                  <p>{{ $t('adminMagazine.add_new_edition') }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -865,10 +1045,10 @@ const magazine = ref<MagazineData>({
   subtitle: '60-Day Snapshot',
   incident_ids: [],
   incident_name: '',
-  volume: 1,
+  volume: new Date().getFullYear() - 2025 + 1,
   issue: 1,
   issn: '000000000',
-  publish_date: '2025-05-12',
+  publish_at: '2025-05-12',
   timeframe_start: '2024-09-24',
   timeframe_end: '2024-12-08',
   publisher: 'Crisis Cleanup, LLC',
@@ -893,6 +1073,9 @@ const magazine = ref<MagazineData>({
 onMounted(() => {
   formatOptions.value.print = true;
   formatOptions.value.online = true;
+  getNextIssueNumber(magazine.value.volume).then((nextIssue) => {
+    magazine.value.issue = nextIssue;
+  });
 });
 
 const isFormValid = computed(() => {
@@ -1081,7 +1264,7 @@ async function saveMagazine() {
   saving.value = true;
 
   try {
-    // Step 1: Create or update the magazine
+    // Step 1: Create the magazine
     const magazineData = {
       title: magazine.value.title,
       subtitle: magazine.value.subtitle,
@@ -1120,115 +1303,81 @@ async function saveMagazine() {
     // Update the magazine ID
     magazine.value.id = magazineResponse.data.id;
 
-    // Step 2: Upload all files first
-    const editionsToUpload = magazine.value.editions.filter(
-      (edition: MagazineEditionData) =>
-        (edition.file_data || edition.thumbnail_data) &&
-        (!edition.file || !edition.thumbnail_file),
-    );
-
-    if (editionsToUpload.length > 0) {
-      uploadProgress.value = 0;
-      const totalFiles = editionsToUpload.length * 2; // Count both PDF and thumbnail files
-      let uploadedCount = 0;
-
-      // Upload all files in parallel
-      const uploadPromises = magazine.value.editions.map(
-        async (edition: MagazineEditionData, index: number) => {
-          const promises = [];
-
-          // Upload PDF if needed
-          if (edition.file_data && !edition.file) {
-            const formData = new FormData();
-            formData.append('upload', edition.file_data);
-            formData.append('type_t', 'fileTypes.magazine_issue');
-            formData.append('filename', edition.file_details?.filename || '');
-            formData.append(
-              'content_type',
-              edition.file_details?.mime_content_type || '',
-            );
-            formData.append('title', magazine.value.title);
-
-            const result = await axios.post(
-              `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
-              formData,
-              {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                  Accept: 'application/json',
-                },
-              },
-            );
-
-            // Update file info with server response
-            magazine.value.editions[index].file = result.data.id;
-            magazine.value.editions[index].file_details = result.data;
-            uploadedCount++;
-            uploadProgress.value = Math.round(
-              (uploadedCount / totalFiles) * 100,
-            );
-          }
-
-          // Upload thumbnail if needed
-          if (edition.thumbnail_data && !edition.thumbnail_file) {
-            const formData = new FormData();
-            formData.append('upload', edition.thumbnail_data);
-            formData.append('type_t', 'fileTypes.other_file');
-            formData.append(
-              'filename',
-              edition.thumbnail_details?.filename || '',
-            );
-            formData.append(
-              'content_type',
-              edition.thumbnail_details?.mime_content_type || '',
-            );
-            formData.append('title', `${magazine.value.title} - Thumbnail`);
-
-            const result = await axios.post(
-              `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
-              formData,
-              {
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                  Accept: 'application/json',
-                },
-              },
-            );
-
-            // Update thumbnail info with server response
-            magazine.value.editions[index].thumbnail_file = result.data.id;
-            magazine.value.editions[index].thumbnail_details = result.data;
-            uploadedCount++;
-            uploadProgress.value = Math.round(
-              (uploadedCount / totalFiles) * 100,
-            );
-          }
-        },
-      );
-
-      await Promise.all(uploadPromises);
-    }
-
-    // Step 3: Create all editions
-    const editionPromises = magazine.value.editions.map(
-      async (edition: MagazineEditionData) => {
-        const editionData = {
-          name: edition.name,
-          short_name: edition.short_name || '',
-          is_primary: edition.is_primary,
-          magazine: magazine.value.id,
-          file: edition.file,
-          thumbnail_file: edition.thumbnail_file,
-        };
-
-        return axios.post(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/editions`,
-          editionData,
+    // Step 2: Create all editions
+    for (const edition of magazine.value.editions) {
+      // First upload the file if it exists
+      let fileId = null;
+      if (edition.file_data) {
+        const fileFormData = new FormData();
+        fileFormData.append('upload', edition.file_data);
+        fileFormData.append('type_t', 'fileTypes.magazine_issue');
+        fileFormData.append('filename', edition.file_details?.filename || '');
+        fileFormData.append(
+          'content_type',
+          edition.file_details?.mime_content_type || '',
         );
-      },
-    );
+        fileFormData.append('title', magazine.value.title);
 
-    await Promise.all(editionPromises);
+        const fileResponse = await axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+          fileFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Accept: 'application/json',
+            },
+          },
+        );
+        fileId = fileResponse.data.id;
+      }
+
+      // Then upload the thumbnail if it exists
+      let thumbnailId = null;
+      if (edition.thumbnail_data) {
+        const thumbnailFormData = new FormData();
+        thumbnailFormData.append('upload', edition.thumbnail_data);
+        thumbnailFormData.append('type_t', 'fileTypes.other_file');
+        thumbnailFormData.append(
+          'filename',
+          edition.thumbnail_details?.filename || '',
+        );
+        thumbnailFormData.append(
+          'content_type',
+          edition.thumbnail_details?.mime_content_type || '',
+        );
+        thumbnailFormData.append(
+          'title',
+          `${magazine.value.title} - Thumbnail`,
+        );
+
+        const thumbnailResponse = await axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+          thumbnailFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Accept: 'application/json',
+            },
+          },
+        );
+        thumbnailId = thumbnailResponse.data.id;
+      }
+
+      // Finally create the edition
+      const editionData = {
+        name: edition.name,
+        short_name: edition.short_name || '',
+        is_primary: edition.is_primary,
+        magazine: magazine.value.id,
+        file: fileId,
+        thumbnail_file: thumbnailId,
+      };
+
+      await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/editions`,
+        editionData,
+      );
+    }
 
     $toasted.success(t('adminMagazine.magazine_saved_successfully'));
     resetForm();
@@ -1241,36 +1390,64 @@ async function saveMagazine() {
   }
 }
 
+async function getNextIssueNumber(volume: number): Promise<number> {
+  try {
+    const { data } = await axios.get(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/magazines?volume=${volume}`,
+    );
+
+    if (!data.results || data.results.length === 0) {
+      return 1;
+    }
+
+    const lastIssue = Math.max(
+      ...data.results.map((mag: Magazine) => mag.issue),
+    );
+    return lastIssue + 1;
+  } catch (error) {
+    console.error('Error fetching last issue number:', error);
+    return 1;
+  }
+}
+
 function resetForm() {
+  const currentVolume = new Date().getFullYear() - 2025 + 1;
+
   magazine.value = {
     id: null,
     title: '',
     subtitle: '',
     incident_ids: [],
     incident_name: '',
-    volume: 1,
-    issue: 1,
+    volume: currentVolume,
+    issue: 1, // This will be updated after fetching the last issue number
     issn: '',
-    publish_date: moment().format('YYYY-MM-DD'),
-    timeframe_start: '',
-    timeframe_end: '',
-    publisher: '',
-    publisher_city: '',
-    publisher_state: '',
-    publisher_email: '',
-    publisher_phone: '',
-    subscription_url: '',
-    subscription_address_1: '',
-    subscription_city: '',
-    subscription_state: '',
-    subscription_postal_code: '',
+    publish_at: '2025-05-12',
+    timeframe_start: '2024-09-24',
+    timeframe_end: '2024-12-08',
+    publisher: 'Crisis Cleanup, LLC',
+    publisher_city: 'Longmont',
+    publisher_state: 'Colorado',
+    publisher_email: 'magazine@crisiscleanup.org',
+    publisher_phone: '(848) 480-0660',
+    subscription_url: 'https://www.crisiscleanup.org/magazine',
+    subscription_address_1: '5905 Blue Mountain Cir.',
+    subscription_city: 'Longmont',
+    subscription_state: 'CO',
+    subscription_postal_code: '80503',
     availability: 'Open Access',
-    frequency: '',
-    pub_type: '',
-    language: '',
+    frequency: 'Twice a month',
+    pub_type: 'Magazine',
+    language: 'English',
     is_active: true,
     editions: [],
   };
+
+  // Fetch the next issue number for the current volume
+  getNextIssueNumber(currentVolume).then((nextIssue) => {
+    magazine.value.issue = nextIssue;
+  });
+
   formatOptions.value.print = false;
   formatOptions.value.online = false;
   selectedIssueIndex.value = null;
@@ -1327,10 +1504,93 @@ async function saveEdit() {
             .filter(Boolean),
     };
 
+    // Save the magazine data
     await axios.put(
       `${import.meta.env.VITE_APP_API_BASE_URL}/magazines/${editingMagazine.value.id}`,
       dataToSave,
     );
+
+    // Save any new editions
+    const newEditions = editingMagazine.value.editions.filter(
+      (edition: { id: any }) => !edition.id,
+    );
+    if (newEditions.length > 0) {
+      for (const edition of newEditions) {
+        // First upload the file if it exists
+        let fileId = null;
+        if (edition.file_data) {
+          const fileFormData = new FormData();
+          fileFormData.append('upload', edition.file_data);
+          fileFormData.append('type_t', 'fileTypes.magazine_issue');
+          fileFormData.append('filename', edition.file_details?.filename || '');
+          fileFormData.append(
+            'content_type',
+            edition.file_details?.mime_content_type || '',
+          );
+          fileFormData.append('title', editingMagazine.value.title);
+
+          const fileResponse = await axios.post(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+            fileFormData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Accept: 'application/json',
+              },
+            },
+          );
+          fileId = fileResponse.data.id;
+        }
+
+        // Then upload the thumbnail if it exists
+        let thumbnailId = null;
+        if (edition.thumbnail_data) {
+          const thumbnailFormData = new FormData();
+          thumbnailFormData.append('upload', edition.thumbnail_data);
+          thumbnailFormData.append('type_t', 'fileTypes.other_file');
+          thumbnailFormData.append(
+            'filename',
+            edition.thumbnail_details?.filename || '',
+          );
+          thumbnailFormData.append(
+            'content_type',
+            edition.thumbnail_details?.mime_content_type || '',
+          );
+          thumbnailFormData.append(
+            'title',
+            `${editingMagazine.value.title} - Thumbnail`,
+          );
+
+          const thumbnailResponse = await axios.post(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/files`,
+            thumbnailFormData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Accept: 'application/json',
+              },
+            },
+          );
+          thumbnailId = thumbnailResponse.data.id;
+        }
+
+        // Finally create the edition
+        const editionData = {
+          name: edition.name,
+          short_name: edition.short_name || '',
+          is_primary: edition.is_primary,
+          magazine: editingMagazine.value.id,
+          file: fileId,
+          thumbnail_file: thumbnailId,
+        };
+
+        await axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/editions`,
+          editionData,
+        );
+      }
+    }
+
     $toasted.success(t('adminMagazine.magazine_updated_successfully'));
     await getExistingMagazineFiles();
     editingMagazine.value = null;
@@ -1355,6 +1615,96 @@ async function deleteEdition(magazineId: string, editionId: string) {
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }
+}
+
+async function addEditionToExistingMagazine(magazineId: string) {
+  try {
+    const newEdition = {
+      name: '',
+      short_name: '',
+      file: null,
+      file_details: null,
+      thumbnail_file: null,
+      thumbnail_details: null,
+      thumbnail_data: null,
+      is_primary: false,
+      file_data: null,
+    };
+
+    // Add to the editing magazine's editions array
+    if (editingMagazine.value) {
+      editingMagazine.value.editions.push(newEdition);
+    }
+
+    // Show the edition form
+    selectedIssueIndex.value = editingMagazine.value?.editions.length
+      ? editingMagazine.value.editions.length - 1
+      : 0;
+  } catch (error) {
+    $toasted.error(getErrorMessage(error));
+  }
+}
+
+function removeEditionFromEdit(index: number) {
+  if (confirm(t('adminMagazine.remove_edition_confirmation'))) {
+    editingMagazine.value?.editions.splice(index, 1);
+  }
+}
+
+function removeFileFromEdit(index: number) {
+  if (editingMagazine.value) {
+    editingMagazine.value.editions[index].file = null;
+    editingMagazine.value.editions[index].file_details = null;
+    editingMagazine.value.editions[index].file_data = null;
+  }
+}
+
+function removeThumbnailFromEdit(index: number) {
+  if (editingMagazine.value) {
+    editingMagazine.value.editions[index].thumbnail_file = null;
+    editingMagazine.value.editions[index].thumbnail_details = null;
+    editingMagazine.value.editions[index].thumbnail_data = null;
+  }
+}
+
+function handleFileSelectionForEdit(fileList: File[], index: number) {
+  if (fileList.length === 0 || !editingMagazine.value) {
+    return;
+  }
+
+  const file = fileList[0];
+  if (file.type !== 'application/pdf' && file.type !== 'application/zip') {
+    $toasted.error(t('adminMagazine.only_pdf_and_zip_files_are_allowed'));
+    return;
+  }
+
+  editingMagazine.value.editions[index].file_data = file;
+  editingMagazine.value.editions[index].file_details = {
+    filename: file.name,
+    size: file.size,
+    mime_content_type: file.type,
+  };
+}
+
+function handleThumbnailSelectionForEdit(fileList: File[], index: number) {
+  if (fileList.length === 0 || !editingMagazine.value) {
+    return;
+  }
+
+  const file = fileList[0];
+  if (!file.type.startsWith('image/')) {
+    $toasted.error(
+      t('adminMagazine.only_image_files_are_allowed_for_thumbnails'),
+    );
+    return;
+  }
+
+  editingMagazine.value.editions[index].thumbnail_data = file;
+  editingMagazine.value.editions[index].thumbnail_details = {
+    filename: file.name,
+    size: file.size,
+    mime_content_type: file.type,
+  };
 }
 </script>
 

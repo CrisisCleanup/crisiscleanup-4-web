@@ -168,7 +168,7 @@
                 <div class="flex">
                   <div class="w-0.5 bg-primary-light mr-4"></div>
                   <!-- State Focused Editions -->
-                  <div class="md:w-64 w-full mt-4 md:mt-0">
+                  <div class="md:w-96 w-full mt-4 md:mt-0">
                     <div class="font-semibold mb-2">
                       {{ $t('magazine.download_other_editions') }}
                     </div>
