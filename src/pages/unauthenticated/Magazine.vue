@@ -13,14 +13,16 @@
             </div>
             <div class="font-normal text-3xl">
               <span class="text-primary-light">|</span>
-              {{ $t('magazine.title_magazine') }}
+              <span v-html="$t('magazine.title_magazine')"></span>
             </div>
           </h1>
           <p class="mb-2 max-w-xl">
-            {{ $t('magazine.magazine_intro_text') }}<br /><br />
-            <span class="font-semibold">{{
-              $t('magazine.download_issues_below')
-            }}</span>
+            <span v-html="$t('magazine.magazine_intro_text')"></span
+            ><br /><br />
+            <span
+              class="font-semibold"
+              v-html="$t('magazine.download_issues_below')"
+            ></span>
           </p>
         </div>
       </div>
