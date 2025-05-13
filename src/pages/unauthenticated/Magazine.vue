@@ -11,28 +11,28 @@
               {{ $t('magazine.title_crisis') }} <br />
               {{ $t('magazine.title_cleanup') }}
             </div>
-            <div class="font-normal text-3xl">
+            <div class="font-normal text-3xl flex items-center gap-4">
               <span class="text-primary-light">|</span>
-              {{ $t('magazine.title_magazine') }}
+              <span v-html="$t('magazine.title_magazine')"></span>
+              <div class="bg-blue-700 p-2 text-center text-sm">
+                <a
+                  href="https://docs.google.com/forms/d/e/1FAIpQLSfBt0P6KFnmhacpEmehJH4ichsB9YhuwJ9azMMdeviIE0suGA/viewform?usp=dialog"
+                  class="text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
+                  target="_blank"
+                >
+                  {{ $t('magazine.subscribe') }}
+                </a>
+              </div>
             </div>
           </h1>
           <p class="mb-2 max-w-xl">
-            {{ $t('magazine.magazine_intro_text') }}<br /><br />
-            <span class="font-semibold">{{
-              $t('magazine.download_issues_below')
-            }}</span>
+            <span v-html="$t('magazine.magazine_intro_text')"></span
+            ><br /><br />
+            <span
+              class="font-semibold"
+              v-html="$t('magazine.download_issues_below')"
+            ></span>
           </p>
-        </div>
-      </div>
-      <div class="h-full">
-        <div class="bg-blue-700 p-4 text-center h-full mr-4">
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSfBt0P6KFnmhacpEmehJH4ichsB9YhuwJ9azMMdeviIE0suGA/viewform?usp=dialog"
-            class="text-white font-semibold px-3 py-1 rounded flex items-center gap-2 w-fit"
-            target="_blank"
-          >
-            {{ $t('magazine.subscribe') }}
-          </a>
         </div>
       </div>
     </div>
