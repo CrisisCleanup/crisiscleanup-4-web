@@ -16,6 +16,15 @@ vi.mock('@/hooks/useDialogs', () => ({
   }),
 }));
 
+// Mock Vue Router
+vi.mock('vue-router', () => ({
+  useRoute: () => ({
+    query: {
+      s: '',
+    },
+  }),
+}));
+
 // Mock useCurrentUser hook
 vi.mock('@/hooks/useCurrentUser', () => ({
   default: () => ({

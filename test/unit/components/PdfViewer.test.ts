@@ -15,7 +15,7 @@ vi.mock('vue-pdf-embed', () => ({
 
 describe('PdfViewer', () => {
   const mockPdf = {
-    full_url: 'http://test.com/test.pdf',
+    general_file_url: 'http://test.com/test.pdf',
     filename_original: 'test.pdf',
   };
 
@@ -64,7 +64,7 @@ describe('PdfViewer', () => {
 
     const downloadButton = wrapper.find('[data-testid="testDownloadLink"]');
     expect(downloadButton.exists()).toBe(true);
-    expect(downloadButton.attributes('href')).toBe(mockPdf.full_url);
+    expect(downloadButton.attributes('href')).toBe(mockPdf.general_file_url);
     expect(downloadButton.attributes('download')).toBe(
       mockPdf.filename_original,
     );
@@ -205,12 +205,76 @@ describe('PdfViewer', () => {
       .vm.$emit('loaded', { numPages: 5 });
     await wrapper.vm.$nextTick();
 
-    // Click next button
+    // Click next page button
     await wrapper.find('button:last-child').trigger('click');
+    expect(wrapper.emitted('pageChange')).toBeTruthy();
     expect(wrapper.emitted('pageChange')?.[0]).toEqual([2]);
 
-    // Click previous button
+    // Click previous page button
     await wrapper.find('button:first-child').trigger('click');
     expect(wrapper.emitted('pageChange')?.[1]).toEqual([1]);
+  });
+
+  it('disables previous button on first page', async () => {
+    const wrapper = mount(PdfViewer, {
+      props: {
+        pdf: mockPdf,
+        showPagination: true,
+        page: 1,
+      },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    // Simulate PDF loaded with multiple pages
+    await wrapper
+      .findComponent({ name: 'VuePdfEmbed' })
+      .vm.$emit('loaded', { numPages: 5 });
+    await wrapper.vm.$nextTick();
+
+    const prevButton = wrapper.find('button:first-child');
+    expect(prevButton.attributes('disabled')).toBeDefined();
+  });
+
+  it('disables next button on last page', async () => {
+    const wrapper = mount(PdfViewer, {
+      props: {
+        pdf: mockPdf,
+        showPagination: true,
+        page: 5,
+      },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    // Simulate PDF loaded with multiple pages
+    await wrapper
+      .findComponent({ name: 'VuePdfEmbed' })
+      .vm.$emit('loaded', { numPages: 5 });
+    await wrapper.vm.$nextTick();
+
+    const nextButton = wrapper.find('button:last-child');
+    expect(nextButton.attributes('disabled')).toBeDefined();
+  });
+
+  it('updates current page when loaded event is emitted', async () => {
+    const wrapper = mount(PdfViewer, {
+      props: {
+        pdf: mockPdf,
+        showPagination: true,
+      },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    await wrapper
+      .findComponent({ name: 'VuePdfEmbed' })
+      .vm.$emit('loaded', { numPages: 5 });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.text()).toContain('1 / 5');
   });
 });

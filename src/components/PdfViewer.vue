@@ -4,7 +4,7 @@
       v-if="showDownloadButton"
       class="p-2 bg-primary-light border-primary-light"
       data-testid="testDownloadLink"
-      :href="pdf.full_url"
+      :href="pdf.general_file_url"
       :download="pdf.filename_original"
       >{{ $t('actions.download') }}</a
     >
@@ -14,8 +14,8 @@
     @click="$emit('clickPdf')"
   >
     <vue-pdf-embed
-      v-if="pdf.full_url"
-      :source="pdf.full_url"
+      v-if="pdf.general_file_url"
+      :source="pdf.general_file_url"
       :width="width"
       :page="currentPage"
       @loaded="onLoaded"
@@ -48,7 +48,7 @@ import VuePdfEmbed from 'vue-pdf-embed';
 
 interface PdfViewerProps {
   pdf: {
-    full_url: string;
+    general_file_url: string;
     filename_original: string;
   };
   page: number;
