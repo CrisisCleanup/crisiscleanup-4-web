@@ -220,6 +220,7 @@ import BlogPagination from '@/components/blog/Pagination.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import useDialogs from '@/hooks/useDialogs';
 import type { CCUFileItem } from '@/models/types';
+import { useRoute } from 'vue-router';
 
 interface MagazineEdition {
   id: string;
@@ -263,16 +264,58 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const dialogs = useDialogs();
+const route = useRoute();
 
 const magazines = ref<Magazine[]>([]);
 const loading = ref(true);
 const currentPage = ref(1);
 const totalPages = ref(0);
 
+// Parse permalink format: [incident_ids]_[volume]_[issue]_[edition_short_name]
+function parsePermalink(permalink: string) {
+  const parts = permalink.split(/[._]/);
+  if (parts.length < 3) return null;
+
+  const incidentIds = parts[0].split('_');
+  const volume = Number.parseInt(parts[1]);
+  const issue = Number.parseInt(parts[2]);
+  const editionShortName = parts[3] || null;
+
+  return {
+    incidentIds,
+    volume,
+    issue,
+    editionShortName,
+  };
+}
+
 async function fetchMagazines(page = 1): Promise<void> {
   loading.value = true;
 
   try {
+    const searchParam = route.query.s as string;
+    let filters = { ...props.filters };
+
+    // Handle permalink format
+    if (searchParam && /^[\d_]+(?:[._]\d+){2}/.test(searchParam)) {
+      const permalinkData = parsePermalink(searchParam);
+      if (permalinkData) {
+        filters = {
+          ...filters,
+          incident_ids: permalinkData.incidentIds,
+          volume: permalinkData.volume,
+          issue: permalinkData.issue,
+          edition_short_name: permalinkData.editionShortName,
+        };
+      }
+    } else if (searchParam) {
+      // Handle regular search
+      filters = {
+        ...filters,
+        search: searchParam,
+      };
+    }
+
     const response = await axios.get<MagazineResponse>(
       `${import.meta.env.VITE_APP_API_BASE_URL}/magazines`,
       {
@@ -280,7 +323,7 @@ async function fetchMagazines(page = 1): Promise<void> {
           limit: props.itemsPerPage ?? 9,
           offset: (page - 1) * (props.itemsPerPage ?? 9),
           sort: '-publish_at',
-          ...props.filters,
+          ...filters,
         },
       },
     );
@@ -297,6 +340,14 @@ async function fetchMagazines(page = 1): Promise<void> {
     loading.value = false;
   }
 }
+
+// Watch for route changes to update the list
+watch(
+  () => route.query.s,
+  () => {
+    void fetchMagazines(1);
+  },
+);
 
 function formatDate(date: string): string {
   if (!date) return '';

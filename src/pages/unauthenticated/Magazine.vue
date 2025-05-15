@@ -23,6 +23,18 @@
                   {{ $t('magazine.subscribe') }}
                 </a>
               </div>
+              <!-- Search Bar -->
+              <div class="w-full max-w-md">
+                <BaseInput
+                  v-model="searchQuery"
+                  :placeholder="$t('magazine.search_placeholder')"
+                  type="search"
+                  fa-icon="search"
+                  class="bg-white/10 text-white placeholder-white/60"
+                  size="medium"
+                  @input="handleSearch"
+                />
+              </div>
             </div>
           </h1>
           <p class="mb-2 max-w-xl">
@@ -43,7 +55,7 @@
     </div>
 
     <div class="bg-white py-10">
-      <MagazineList show-latest-issue />
+      <MagazineList :show-latest-issue="!searchQuery" />
     </div>
   </Home>
 </template>
@@ -51,4 +63,44 @@
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
 import MagazineList from '@/components/magazine/MagazineList.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useDebounceFn } from '@vueuse/core';
+
+const route = useRoute();
+const router = useRouter();
+const searchQuery = ref('');
+
+// Initialize search from URL parameter
+onMounted(() => {
+  const searchParam = route.query.s as string;
+  if (searchParam) {
+    searchQuery.value = searchParam;
+  }
+});
+
+// Handle search input with debounce
+const debouncedSearch = useDebounceFn(() => {
+  const query = { ...route.query };
+  if (searchQuery.value) {
+    query.s = searchQuery.value;
+  } else {
+    delete query.s;
+  }
+  router.replace({ query });
+}, 300);
+
+function handleSearch() {
+  debouncedSearch();
+}
+
+// Watch for URL changes
+watch(
+  () => route.query.s,
+  (newSearch: string | undefined) => {
+    if (newSearch !== searchQuery.value) {
+      searchQuery.value = newSearch || '';
+    }
+  },
+);
 </script>
