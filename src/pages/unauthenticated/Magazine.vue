@@ -23,18 +23,6 @@
                   {{ $t('magazine.subscribe') }}
                 </a>
               </div>
-              <!-- Search Bar -->
-              <div class="w-full max-w-md">
-                <BaseInput
-                  v-model="searchQuery"
-                  :placeholder="$t('magazine.search_placeholder')"
-                  type="search"
-                  fa-icon="search"
-                  class="bg-white/10 text-white placeholder-white/60"
-                  size="medium"
-                  @input="handleSearch"
-                />
-              </div>
             </div>
           </h1>
           <p class="mb-2 max-w-xl">
@@ -46,6 +34,18 @@
             ></span>
           </p>
         </div>
+      </div>
+      <!-- Search Bar -->
+      <div class="w-full max-w-md m-5">
+        <BaseInput
+          v-model="searchQuery"
+          :placeholder="$t('magazine.search_placeholder')"
+          type="search"
+          fa-icon="search"
+          class="bg-white/10 text-white placeholder-white/60"
+          size="medium"
+          @input="handleSearch"
+        />
       </div>
     </div>
     <!-- two tone bar -->
