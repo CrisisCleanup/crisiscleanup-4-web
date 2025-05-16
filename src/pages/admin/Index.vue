@@ -57,25 +57,34 @@ onMounted(async () => {
     return router.push('/dashboard');
   }
   if (!$can('development_mode')) {
-    const bugsData = await ccuApi('/bug_reports', {
-      method: 'GET',
-      params: {
-        created_at__gte: moment().subtract(60, 'day').format('YYYY-MM-DD'),
+    const { isFinished: isBugsFinished, data: _bugsData } = ccuApi(
+      '/bug_reports',
+      {
+        method: 'GET',
+        params: {
+          created_at__gte: moment().subtract(60, 'day').format('YYYY-MM-DD'),
+        },
       },
-    });
-    if (bugsData.data) {
-      bugReportsData.value = bugsData.data;
-    }
+    );
 
-    const ticketsData = await ccuApi(
+    const { isFinished: isTicketsFinished, data: _ticketsData } = ccuApi(
       'zendesk/search/count.json?query=type:ticket status<solved',
       {
         method: 'GET',
       },
     );
-    if (ticketsData.data) {
-      ticketCountData.value = ticketsData.data;
-    }
+
+    whenever(isBugsFinished, () => {
+      if (_bugsData.value) {
+        bugReportsData.value = _bugsData.value;
+      }
+    });
+
+    whenever(isTicketsFinished, () => {
+      if (_ticketsData.value) {
+        ticketCountData.value = _ticketsData.value;
+      }
+    });
   }
 });
 
