@@ -225,6 +225,14 @@
                 class="block my-1"
                 >{{ $t('worksiteFilters.claimed_by_my_org') }}
               </base-checkbox>
+
+              <base-checkbox
+                v-model="filters.statusGroups.data['claimed_by_me']"
+                data-testid="testClaimedByMeCheckbox"
+                class="block my-1"
+                >{{ $t('worksiteFilters.claimed_by_me') }}
+              </base-checkbox>
+
               <base-checkbox
                 v-model="filters.statusGroups.data['reported_by_org']"
                 data-testid="testReportedByOrgCheckbox"
