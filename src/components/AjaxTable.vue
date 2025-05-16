@@ -111,8 +111,8 @@ export default defineComponent({
       default: '',
     },
   },
-  emits: ['rowClick', 'selectionChanged'],
-  setup(props) {
+  emits: ['rowClick', 'selectionChanged', 'dataFetched'],
+  setup(props, { emit }) {
     const { emitter } = useEmitter();
 
     const defaultColumns = ref<any[]>([]);
@@ -158,6 +158,7 @@ export default defineComponent({
         ...sorter,
       };
       loading.value = false;
+      emit('dataFetched', response.data.count);
     };
 
     onMounted(async () => {
