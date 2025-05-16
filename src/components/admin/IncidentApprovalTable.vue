@@ -6,6 +6,7 @@
     :url="url"
     @change="$emit('change', $event)"
     @row-click="showContacts"
+    @data-fetched="handleDataFetched"
   >
     <template #created_at="slotProps">
       <div :title="slotProps.item.created_at">
@@ -217,12 +218,17 @@ export default defineComponent({
       emit('reload');
     }
 
+    function handleDataFetched(count: number) {
+      emit('onIncidentApprovalDataFetched', count);
+    }
+
     return {
       showContacts,
       approveRequest,
       rejectRequest,
       clearApproval,
       momentFromNow,
+      handleDataFetched,
       moment,
       url,
       columns: [

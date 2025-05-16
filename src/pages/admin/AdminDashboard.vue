@@ -132,6 +132,9 @@
           <OrganizationApprovalTable
             :query="organizationApprovalQuery"
             @reload="setOrganizationApprovalQuery"
+            @on-organization-approval-data-fetched="
+              handleOrganizationApprovalDataFetched
+            "
           ></OrganizationApprovalTable>
         </div>
       </div>
@@ -189,6 +192,9 @@
           <IncidentApprovalTable
             :query="incidentApprovalQuery"
             @reload="setIncidentApprovalQuery"
+            @on-incident-approval-data-fetched="
+              handleIncidentApprovalDataFetched
+            "
           ></IncidentApprovalTable>
         </div>
       </div>
@@ -474,13 +480,15 @@ export default defineComponent({
     OrganizationApprovalTable,
     InviteUsers,
   },
-  setup() {
+  setup(props, { emit }) {
     const { t } = useI18n();
     const store = useStore();
     const $toasted = useToast();
     const { $can } = useAcl();
     const { component } = useDialogs();
 
+    const organizationApprovalCount = ref(0);
+    const incidentApprovalCount = ref(0);
     const usersToInvite = ref('');
     const globalSearch = ref('');
     const organizations = ref({
@@ -811,6 +819,29 @@ export default defineComponent({
       });
     }
 
+    function handleOrganizationApprovalDataFetched(count: number) {
+      if (organizationApprovalView.value === 'default') {
+        organizationApprovalCount.value = count;
+      }
+    }
+
+    function handleIncidentApprovalDataFetched(count: number) {
+      if (redeployView.value === 'default') {
+        incidentApprovalCount.value = count;
+      }
+    }
+
+    const totalCount = computed(() => {
+      return (
+        (organizationApprovalCount.value || 0) +
+        (incidentApprovalCount.value || 0)
+      );
+    });
+
+    watch(totalCount, () => {
+      emit('onTotalDashboardCountFetched', totalCount.value);
+    });
+
     onMounted(async () => {
       loading.value = true;
       await reloadDashBoard();
@@ -828,6 +859,8 @@ export default defineComponent({
       reloadDashBoard,
       showArcGisUploader,
       getInvitations,
+      handleOrganizationApprovalDataFetched,
+      handleIncidentApprovalDataFetched,
       usersToInvite,
       globalSearch,
       organizations,
@@ -847,6 +880,8 @@ export default defineComponent({
       redeployView,
       setApprovalView,
       setRedeployViewView,
+      organizationApprovalCount,
+      incidentApprovalCount,
     };
   },
 });

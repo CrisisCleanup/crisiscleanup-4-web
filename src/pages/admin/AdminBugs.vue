@@ -108,6 +108,7 @@ export default defineComponent({
     const tableUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/bug_reports`;
     const tableQuery = ref({
       resolved_at__isnull: true,
+      created_at__gte: moment().subtract(60, 'day').format('YYYY-MM-DD'),
     });
     const columns = makeTableColumns([
       ['title', '0.75fr', 'Title'],
