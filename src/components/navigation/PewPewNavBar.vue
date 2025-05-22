@@ -1,46 +1,68 @@
 <template>
-  <div class="pewpew__nav h-full">
-    <router-link :to="{ name: 'nav.pew' }" class="pewpew__navheader">
+  <div
+    class="pewpew__nav h-full flex flex-row md:flex-col items-center md:items-stretch justify-between md:justify-start w-full"
+  >
+    <router-link
+      :to="{ name: 'nav.pew' }"
+      class="pewpew__navheader flex-shrink-0 md:mb-4 mb-0 px-2 md:px-0"
+    >
       <img
         v-if="colorMode === 'dark'"
         data-testid="testPewPewLogoIcon"
         src="@/assets/cc-pew-pew-logo.gif"
         :alt="$t('nav.crisis_cleanup')"
-        class="h-8"
+        class="h-8 md:h-10"
       />
       <img
         v-else
         data-testid="testCrisiscleanupLogoIcon"
         src="@/assets/ccu-logo-black-500w.png"
         :alt="$t('nav.crisis_cleanup')"
-        class="h-16"
+        class="h-10 md:h-16"
       />
     </router-link>
 
-    <template v-for="r in navRoutes" :key="r.title">
-      <a v-if="r.external" :alt="r.title" :href="r.route" target="_blank">
-        <div class="pewpew__navlink">
-          <ccu-icon
-            :linked="true"
-            :data-testid="`test${r.title}Button`"
-            v-bind="r.iconProps"
-          />
-          {{ r.title }}
-        </div>
-      </a>
-      <a v-else :href="r.routeProps">
-        <div class="pewpew__navlink">
-          <ccu-icon
-            :data-testid="`test${r.title}Icon`"
-            :linked="true"
-            v-bind="r.iconProps"
-          />
-          {{ r.title }}
-        </div>
-      </a>
-    </template>
+    <div
+      class="flex flex-row md:flex-col flex-1 w-full justify-center md:justify-start items-center md:items-stretch"
+    >
+      <template v-for="r in navRoutes" :key="r.title">
+        <a
+          v-if="r.external"
+          :alt="r.title"
+          :href="r.route"
+          target="_blank"
+          class="mx-2 md:mx-0"
+        >
+          <div
+            class="pewpew__navlink flex flex-col md:flex-row items-center md:items-start"
+          >
+            <ccu-icon
+              :linked="true"
+              :data-testid="`test${r.title}Button`"
+              v-bind="r.iconProps"
+            />
+            <span class="hidden md:inline ml-0 md:ml-2">{{ r.title }}</span>
+          </div>
+        </a>
+        <a v-else :href="r.routeProps" class="mx-2 md:mx-0">
+          <div
+            class="pewpew__navlink flex flex-col md:flex-row items-center md:items-start"
+          >
+            <ccu-icon
+              :data-testid="`test${r.title}Icon`"
+              :linked="true"
+              v-bind="r.iconProps"
+            />
+            <span class="hidden md:inline ml-0 md:ml-2">{{ r.title }}</span>
+          </div>
+        </a>
+      </template>
+    </div>
 
-    <div v-if="!isLoggedIn" class="pewpew__navactions flex flex-col m-1 mt-6">
+    <div
+      v-if="!isLoggedIn"
+      class="pewpew__navactions flex flex-col m-1 mt-0 md:mt-6"
+    >
       <base-text class="flex text-white">{{
         $t('publicNav.relief_orgs_only')
       }}</base-text>
@@ -66,6 +88,15 @@ import useAcl from '@/hooks/useAcl';
 import User from '@/models/User';
 import { useAuthStore, useCurrentUser } from '@/hooks';
 
+interface NavRoute {
+  iconProps: Record<string, any>;
+  title: string;
+  routeName: string;
+  routeProps: any;
+  external?: boolean;
+  [key: string]: any;
+}
+
 export default defineComponent({
   name: 'PewPewNavBar',
   props: {
@@ -74,7 +105,7 @@ export default defineComponent({
       required: true,
     },
   },
-  setup(props) {
+  setup(props: { colorMode: string }) {
     const store = useStore();
     const { $can } = useAcl();
     const { t } = useI18n();
@@ -131,10 +162,10 @@ export default defineComponent({
       return _routes;
     });
 
-    const navRoutes = computed(() => {
+    const navRoutes = computed<NavRoute[]>(() => {
       const _routeDefs = isLoggedIn.value ? routes.value : publicRoutes.value;
       const _routeRootKey = isLoggedIn.value ? 'nav' : 'publicNav';
-      const map = _.map(_routeDefs, (value, key) => {
+      const map: NavRoute[] = Object.entries(_routeDefs).map(([key, value]) => {
         const { icon, disabled, title, route, external } = value as Record<
           string,
           any
@@ -160,7 +191,7 @@ export default defineComponent({
         }
 
         return {
-          ...value,
+          ...(typeof value === 'object' && value !== null ? value : {}),
           iconProps,
           title: _title,
           routeName,
