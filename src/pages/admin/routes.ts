@@ -18,6 +18,7 @@ const AdminGodMode = () => import('./AdminGodMode.vue');
 const AdminSendBulkSms = () => import('./AdminSendBulkSms.vue');
 const AdminSendBulkEmail = () => import('./AdminSendBulkEmail.vue');
 const AdminMagazine = () => import('./AdminMagazine.vue');
+const AdminSentimentAnalysis = () => import('./AdminSentimentAnalysis.vue');
 
 const routes = [
   {
@@ -114,6 +115,11 @@ const routes = [
         path: 'magazine',
         name: 'nav.admin_magazine',
         component: AdminMagazine,
+      },
+      {
+        path: 'sentiment_analysis',
+        name: 'nav.sentiment_analysis',
+        component: AdminSentimentAnalysis,
       },
     ],
   },
