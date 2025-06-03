@@ -1,39 +1,50 @@
 <template>
   <form class="flex flex-col">
+    <!-- Status Selector Section -->
     <div
-      class="flex flex-col flex-wrap text-center status-wrapper"
+      class="flex flex-col flex-wrap text-center status-wrapper gap-4 md:gap-6"
       data-testid="testStatusSelectorDiv"
     >
-      <div v-for="(section, index) in sortedValues" :key="index">
-        <div>
-          <div class="font-bold">
-            {{ section.name }}
-          </div>
-          <div v-for="(item, idx) in section.values" :key="idx">
-            <div
-              class="m-1 p-1 rounded cursor-pointer"
-              :class="item.value === status ? 'outline' : 'opacity-80'"
-              :style="`background: ${section.color}`"
-              @click="status = item.value"
-            >
-              {{ item.name_t }}
-            </div>
-          </div>
+      <div
+        v-for="(section, index) in sortedValues"
+        :key="index"
+        class="flex flex-col items-center"
+      >
+        <div class="font-bold text-base sm:text-lg">
+          {{ section.name }}
+        </div>
+        <div
+          v-for="(item, idx) in section.values"
+          :key="idx"
+          class="m-1 p-1 rounded cursor-pointer text-sm sm:text-base w-full sm:w-auto"
+          :class="
+            item.value === status
+              ? 'outline border border-gray-700'
+              : 'opacity-80'
+          "
+          :style="`background: ${section.color}`"
+          @click="status = item.value"
+        >
+          {{ item.name_t }}
         </div>
       </div>
     </div>
+
+    <!-- Notes Section -->
     <textarea
       v-model="callNotes"
       data-testid="testCallNoteTextarea"
       rows="3"
-      class="text-base border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none p-2 my-2 resize-none w-full"
+      class="text-sm sm:text-base border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none p-2 my-4 resize-none w-full rounded"
       :placeholder="$t('phoneDashboard.notes')"
       @update:modelValue="(value) => (updateNotes = value)"
     ></textarea>
-    <div class="flex gap-2 mt-4">
+
+    <!-- Buttons Section -->
+    <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-4">
       <base-button
         data-testid="testCompleteCallButton"
-        class="p-0.5 rounded"
+        class="p-2 rounded text-sm sm:text-base"
         size="small"
         variant="solid"
         :alt="$t('phoneDashboard.complete_call')"
@@ -49,7 +60,7 @@
       </base-button>
       <base-button
         v-if="allowCancel"
-        class="p-0.5 rounded"
+        class="p-2 rounded text-sm sm:text-base"
         :alt="$t('actions.cancel')"
         :action="
           () =>

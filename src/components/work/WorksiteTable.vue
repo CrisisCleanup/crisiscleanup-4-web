@@ -3,13 +3,14 @@
     ref="table"
     :columns="columns"
     :url="tableUrl"
-    class="shadow-lg"
+    class="shadow-sm"
     :query="{
       ...worksiteQuery,
       fields:
         'id,case_number,name,address,city,state,postal_code,county,work_types',
     }"
     enable-selection
+    :body-style="bodyStyle"
     @row-click="
       (worksite) => {
         $emit('rowClick', worksite);
@@ -50,13 +51,16 @@ import {
 import AjaxTable from '@/components/AjaxTable.vue';
 import { useMq } from 'vue3-mq';
 import ColoredCircle from '@/components/ColoredCircle.vue';
+import Table from '@/components/Table.vue';
 
 export default defineComponent({
   name: 'WorksiteTable',
-  components: { ColoredCircle, AjaxTable },
+  components: { Table, ColoredCircle, AjaxTable },
   props: {
     worksiteQuery: { type: Object, default: null, required: false },
+    bodyStyle: { type: Object, default: null, required: false },
   },
+  emits: ['rowClick'],
 
   setup() {
     const { t } = useI18n();

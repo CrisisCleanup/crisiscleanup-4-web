@@ -4,8 +4,8 @@
       <div class="text-lg">{{ chat.name }}</div>
     </div>
 
-    <div class="flex gap-2 h-full">
-      <div class="w-1/3 bg-crisiscleanup-light-smoke p-2">
+    <div class="flex flex-col md:flex-row gap-2 h-full">
+      <div class="w-full md:w-1/3 bg-crisiscleanup-light-smoke p-2">
         <Accordion>
           <AccordionItem name="Online">
             <template #name>
@@ -17,7 +17,7 @@
                 </BaseText>
               </div>
             </template>
-            <div class="h-180 overflow-auto">
+            <div class="overflow-auto h-auto md:h-180">
               <div
                 v-for="organization in sortedOrganizations"
                 :key="organization.id"
@@ -70,7 +70,7 @@
             </div>
           </AccordionItem>
           <AccordionItem
-            body-classes="flex flex-col overflow-hidden max-h-144"
+            body-classes="flex flex-col overflow-hidden max-h-96 md:max-h-144"
             start-open
             name="Dynamic FAQ"
           >
@@ -110,12 +110,12 @@
       </div>
       <tabs tab-details-classes="" class="flex-1">
         <tab :name="$t('chat.chat')">
-          <div class="message-container h-156">
+          <div class="message-container flex flex-col h-full">
             <div
               id="messages"
               ref="messagesBox"
               data-testid="testMessagesContent"
-              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch h-72 md:h-120"
               @wheel="handleWheel"
               @ontouchmove="handleWheel"
             >
@@ -174,12 +174,14 @@
                 {{ $t('chat.urgent') }}
               </div>
               <div class="flex flex-col">
-                <base-input
+                <Editor
                   v-model="currentMessage"
-                  data-testid="testCurrentMessageContent"
-                  text-area
-                  class=""
-                  @enter="sendMessage"
+                  image-handler-type="inline"
+                  :quill-options="[
+                    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                    ['link', 'image', 'video'],
+                    ['clean'],
+                  ]"
                 />
                 <div class="flex items-center justify-between py-2">
                   <base-checkbox
@@ -210,7 +212,7 @@
           </div>
         </tab>
         <tab :name="$t('chat.favorites')">
-          <div class="flex flex-col h-156">
+          <div class="flex flex-col h-full">
             <div
               class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
             >
@@ -224,7 +226,7 @@
           </div>
         </tab>
         <tab :name="$t('chat.search')">
-          <div class="flex flex-col w-full h-156">
+          <div class="flex flex-col w-full h-full">
             <base-input
               data-testid="testMessagesSearchTextInput"
               :model-value="search"
@@ -286,10 +288,12 @@ import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
 import { generateUUID } from '@/utils/helpers';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
+import Editor from '@/components/Editor.vue';
 
 export default defineComponent({
   name: 'Chat',
   components: {
+    Editor,
     FontAwesomeIcon,
     Avatar,
     UserDetailsTooltip,

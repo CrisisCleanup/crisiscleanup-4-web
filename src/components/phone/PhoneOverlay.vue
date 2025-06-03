@@ -22,6 +22,7 @@ import PhoneOutbound from '@/models/PhoneOutbound';
 import { useToast } from 'vue-toastification';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
+import { useMq } from 'vue3-mq';
 
 const emit = defineEmits([
   'onCompleteCall',
@@ -44,6 +45,7 @@ const sideBarExpanded = ref(true);
 const { t } = useI18n();
 const { updateUserStates } = useCurrentUser();
 const { currentUser } = useCurrentUser();
+const mq = useMq();
 
 // Sections as a computed property
 const sections = computed(() => {
@@ -278,6 +280,10 @@ const viewToTitleMap = {
   reportBug: t('phoneDashboard.report_bug'),
 };
 
+const useBottomNav = computed(() => {
+  return mq.mdMinus;
+});
+
 onBeforeUnmount(() => {
   if (intervalId) {
     clearInterval(intervalId);
@@ -309,21 +315,98 @@ const {
       'h-0': !expanded && !caller,
     }"
   >
-    <div class="top-0 flex absolute right-0 left-0 bottom-0 z-phone-overlay">
+    <div v-if="useBottomNav" class="w-full z-header absolute">
+      <nav class="bg-gray-100 h-14 flex flex-row justify-between">
+        <ul class="flex flex-row w-full">
+          <div class="flex flex-row items-center w-full">
+            <div
+              v-for="section in sections"
+              :key="section.view"
+              :data-testid="`testPhoneOverlay_${section.view}`"
+              class="p-2 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center"
+              :class="{
+                'border-t-4 border-primary-light font-bold':
+                  currentView === section.view,
+              }"
+              @click="
+                () =>
+                  currentView === section.view
+                    ? closeTab()
+                    : updateView(section)
+              "
+            >
+              <div class="flex flex-col items-center gap-1">
+                <ccu-icon
+                  :type="section.icon"
+                  :alt="section.alt"
+                  :class="[
+                    currentView === section.view
+                      ? 'filter-primary'
+                      : 'filter-gray',
+                    '!transition-none',
+                  ]"
+                  size="large"
+                />
+              </div>
+              <!-- Badges for unread counts -->
+              <div
+                v-if="section.view === 'generalStats' && callsWaiting > 0"
+                class="relative"
+              >
+                <badge
+                  class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
+                  >{{ callsWaiting }}</badge
+                >
+              </div>
+              <div
+                v-if="section.view === 'cms' && unreadNewsCount > 0"
+                class="relative"
+              >
+                <badge
+                  class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
+                  >{{ unreadNewsCount }}</badge
+                >
+              </div>
+              <div v-if="section.view === 'chat'" class="flex gap-1 relative">
+                <badge
+                  v-if="unreadChatCount > 0"
+                  class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
+                >
+                  {{ unreadChatCount }}
+                </badge>
+                <badge
+                  v-if="unreadUrgentChatCount > 0"
+                  class="text-white bg-red-500 text-base absolute top-0 right-0 p-2"
+                >
+                  {{ unreadUrgentChatCount }}
+                </badge>
+              </div>
+            </div>
+          </div>
+        </ul>
+      </nav>
+    </div>
+    <div
+      class="top-0 flex absolute right-0 left-0 bottom-0 z-phone-overlay md:h-auto"
+      :class="expanded && useBottomNav ? 'h-screen w-screen pb-20' : ''"
+    >
       <!-- Container for the expand/collapse component -->
-      <div class="flex-1 h-full">
+      <div class="flex-1 md:h-full">
         <div
           class="relative flex flex-col"
-          :class="expanded ? 'h-full' : 'h-12'"
+          :class="expanded ? 'h-full bg-white' : 'h-12'"
         >
           <div
             v-if="caller"
-            class="p-3 flex flex-col justify-center h-12 bg-crisiscleanup-phone-green text-white"
+            class="p-3 flex flex-col justify-center h-auto bg-crisiscleanup-phone-green text-white"
             :class="isOnCall ? 'animate-pulse' : ''"
           >
-            <div class="flex justify-between items-center">
-              <div class="flex gap-3 items-center">
-                <div class="flex flex-col item-center">
+            <div
+              class="flex flex-col md:flex-row justify-between items-center gap-4"
+            >
+              <!-- Caller Info Section -->
+              <div class="flex flex-wrap gap-3 items-center">
+                <div class="flex flex-col items-start">
                   <div v-if="isConnecting" data-testid="testIsConnectingDiv">
                     {{ $t('phoneDashboard.connecting') }}
                   </div>
@@ -348,22 +431,29 @@ const {
                     {{ $t('phoneDashboard.call_ended') }}
                   </div>
                   <PhoneNumberDisplay
-                    class="w-40"
+                    class="w-full md:w-40"
                     :phone-number="caller.dnis"
                     type="plain"
                   />
                 </div>
 
                 <span
-                  class="ml-3 font-light break-words text-xs sm:text-sm lg:text-base"
+                  class="ml-3 font-light break-words text-xs md:text-sm lg:text-base"
                 >
                   {{ caller.location_name }} {{ caller.state_name }}
                 </span>
 
-                <span class="ml-6 font-light">{{ formattedElapsedTime }}</span>
+                <span
+                  class="ml-3 md:ml-6 font-light text-xs md:text-sm lg:text-base"
+                >
+                  {{ formattedElapsedTime }}
+                </span>
               </div>
 
-              <div class="flex items-center">
+              <!-- Action Buttons Section -->
+              <div
+                class="flex flex-wrap gap-3 justify-center md:justify-end items-center py-2"
+              >
                 <base-button
                   class="p-1"
                   :action="() => (expanded = !expanded)"
@@ -373,7 +463,7 @@ const {
                 />
                 <base-button
                   v-if="isOnCall"
-                  class="p-1 text-black text-sm"
+                  class="p-1 text-black text-xs md:text-sm"
                   variant="solid"
                   :action="endCall"
                   :text="$t('actions.end_call')"
@@ -381,7 +471,7 @@ const {
                 />
                 <base-button
                   v-else
-                  class="p-1 text-black text-sm ml-10"
+                  class="p-1 text-black text-xs md:text-sm"
                   variant="solid"
                   :action="showCompleteCall"
                   :alt="$t('phoneDashboard.complete_call')"
@@ -391,6 +481,7 @@ const {
               </div>
             </div>
           </div>
+
           <div v-else></div>
           <template v-if="expanded">
             <div
@@ -474,7 +565,7 @@ const {
               </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2 h-[calc(100vh-13rem)] z-phone-component bg-white"
+                class="p-2 h-[calc(100vh-13rem)] z-phone-component bg-white w-screen md:w-auto"
                 data-testid="testPhoneCmsItemsDiv"
                 @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
@@ -539,7 +630,7 @@ const {
                         {{ $t('phoneDashboard.how_to_report_bugs') }}
                       </p>
                       <ul
-                        class="space-y-2 m-5 lg:flex lg:flex-row lg:space-y-0 lg:space-x-2"
+                        class="space-y-2 m-5 lg:flex lg:flex-row lg:space-y-0 lg:space-x-2 flex-wrap"
                       >
                         <li>
                           <div
@@ -645,7 +736,7 @@ const {
         </div>
       </div>
 
-      <div :class="sideBarExpanded ? 'w-56' : 'w-14'">
+      <div v-if="!useBottomNav" :class="sideBarExpanded ? 'w-56' : 'w-14'">
         <nav
           class="bg-gray-100 h-[calc(100vh-10.5rem)] flex flex-col justify-between"
         >

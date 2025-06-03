@@ -42,6 +42,7 @@ export interface MapUtils {
   hideMarkers: () => void;
   showMarkers: () => void;
   switchTileLayer: (useGoogleMaps: boolean) => void;
+  removeLocationLayers: () => void;
 }
 
 const DEFAULT_MAP_BOUNDS = [
@@ -334,6 +335,14 @@ export default (
     }
   };
 
+  async function removeLocationLayers() {
+    map.eachLayer((layer) => {
+      if ((layer as L.Layer & PixiLayer).location_id) {
+        map.removeLayer(layer);
+      }
+    });
+  }
+
   async function applyLocation(locationId: string, value: boolean) {
     if (value && map) {
       await Location.api().fetchById(locationId);
@@ -436,6 +445,7 @@ export default (
     hideMarkers,
     showMarkers,
     switchTileLayer,
+    removeLocationLayers,
   };
   return mapUtils;
 };

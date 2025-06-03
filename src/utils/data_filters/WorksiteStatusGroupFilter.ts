@@ -19,6 +19,10 @@ export default class WorksiteStatusGroupFilter extends Filter {
       packed.work_type__claimed_by = currentUser.organization.id;
     }
 
+    if (this.data.claimed_by_me) {
+      packed.work_type__user_claimed_by = currentUser.id;
+    }
+
     if (this.data.reported_by_org) {
       packed.reported_by = currentUser.organization.id;
     }

@@ -10,6 +10,13 @@
           :worksite-id="worksiteId"
         />
       </div>
+      <PhoneOverlay
+        :case-id="worksiteId"
+        :selected-chat="selectedChat"
+        @on-complete-call="completeCall"
+        @set-case="selectCase"
+        @on-report-bug="reportBug"
+      />
       <SimpleMap
         :key="showingMap"
         :map-loading="mapLoading"
@@ -28,234 +35,6 @@
           }
         "
       />
-      <div
-        ref="phoneButtons"
-        class="phone-system__actions"
-        data-testid="testPhoneButtonsDiv"
-      >
-        <PhoneComponentButton
-          name="caller"
-          data-testid="testPhoneComponentCallerButton"
-          :alt="$t('phoneDashboard.availability_indicator')"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--caller"
-        >
-          <template #button>
-            <div
-              class="w-full h-full relative flex items-center justify-center"
-            >
-              <PhoneIndicator class="w-full h-full" />
-              <!-- add invisible layer over svg to allow pointer events / onClicks -->
-              <span class="absolute inset-0 bg-transparent"></span>
-            </div>
-          </template>
-          <template #component>
-            <div
-              v-if="potentialFailedCall"
-              data-testid="testPotentialFailedCallDiv"
-              class="bg-red-500 mt-6 text-white p-1.5"
-            >
-              {{ $t('phoneDashboard.ended_early') }}
-              <base-button
-                :action="retryFailedCall"
-                data-testid="testRetryFailedCallButton"
-                variant="solid"
-                class="px-2 text-black mt-1"
-                :text="$t('phoneDashboard.try_again')"
-                :alt="$t('phoneDashboard.try_again')"
-              />
-            </div>
-            <tabs ref="tabs" :details="false" @mounted="setTabs">
-              <tab ref="callTab" :name="$t('phoneDashboard.active_call')">
-                <ActiveCall
-                  :case-id="worksiteId"
-                  data-testid="testActiveCallDiv"
-                  @set-case="selectCase"
-                />
-              </tab>
-              <tab ref="statusTab" :name="$t('phoneDashboard.call_status')">
-                <UpdateStatus
-                  class="p-2"
-                  data-testid="testUpdateStatusCompleteCallDiv"
-                  @on-complete-call="completeCall"
-                />
-              </tab>
-            </tabs>
-          </template>
-        </PhoneComponentButton>
-        <PhoneComponentButton
-          name="dialer"
-          data-testid="testPhoneComponentDialerButton"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--dialer"
-          :alt="$t('phoneDashboard.manual_dialer')"
-          icon="dialer"
-          icon-size="small"
-          icon-class="bg-black p-1"
-        >
-          <template #component>
-            <ManualDialer
-              class="p-2 z-toolbar"
-              data-testid="testManualDialerDiv"
-              :dialing="dialing"
-              @on-dial="initiateManualOutbound"
-            ></ManualDialer>
-          </template>
-        </PhoneComponentButton>
-
-        <PhoneComponentButton
-          name="chat"
-          data-testid="testPhoneComponentChatButton"
-          :alt="$t('chat.chat')"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--chat"
-          @open="
-            () => {
-              updateUserState({
-                chat_last_seen: moment().toISOString(),
-              });
-              unreadChatCount = 0;
-              unreadUrgentChatCount = 0;
-            }
-          "
-        >
-          <template #button>
-            <div
-              class="w-full h-full flex items-center justify-center relative"
-            >
-              <div
-                v-if="unreadChatCount"
-                class="absolute top-0 left-0 m-1"
-                data-testid="testUnreadChatCountDiv"
-              >
-                <span
-                  class="inline-flex items-center justify-center px-1 py-0.5 mr-2 text-xs font-bold leading-none text-black bg-primary-light rounded-full"
-                  >{{ unreadChatCount }}</span
-                >
-              </div>
-              <div
-                v-if="unreadUrgentChatCount"
-                class="absolute top-0 right-0 my-1 -mx-1"
-                data-testid="testUnreadUrgentChatCountDiv"
-              >
-                <span
-                  class="inline-flex items-center justify-center px-1 py-0.5 mr-2 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full"
-                  >{{ unreadUrgentChatCount }}</span
-                >
-              </div>
-              <ccu-icon
-                type="chat"
-                class="p-1 ml-1.5"
-                size="large"
-                :alt="$t('chat.chat')"
-              />
-            </div>
-          </template>
-          <template #component>
-            <Chat
-              v-if="selectedChat"
-              :chat="selectedChat"
-              @unread-count="unreadChatCount = $event"
-              @unread-urgent-count="unreadUrgentChatCount = $event"
-              @on-new-message="unreadChatCount += 1"
-              @on-new-urgent-message="unreadUrgentChatCount += 1"
-              @focus-news-tab="focusNewsTab"
-            />
-          </template>
-        </PhoneComponentButton>
-        <PhoneComponentButton
-          name="zoom"
-          data-testid="testZoomMeetingButton"
-          :alt="$t('phoneDashboard.join_zoom')"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--zoom"
-        >
-          <template #button>
-            <div class="w-full h-full flex items-center justify-center">
-              <ccu-icon
-                type="zoom"
-                class="p-1"
-                size="medium"
-                :alt="$t('phoneDashboard.join_zoom')"
-              />
-            </div>
-          </template>
-          <template #component>
-            <div class="flex items-center justify-center p-3 gap-2">
-              <a href="https://bit.ly/ccuzoom" target="_blank"
-                ><div class="bg-primary-light py-1 px-4">
-                  {{ $t('phoneDashboard.join_zoom') }}
-                </div></a
-              >
-            </div>
-          </template>
-        </PhoneComponentButton>
-        <PhoneComponentButton
-          v-if="callHistory"
-          data-testid="testPhoneComponentHistoryButton"
-          :alt="$t('phoneDashboard.call_history')"
-          name="history"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--history"
-          icon="phone-history"
-          icon-size="large"
-          icon-class="p-1"
-        >
-          <template #component>
-            <CallHistory
-              :calls="callHistory"
-              data-testid="testCallHistoryDiv"
-              @row-click="handleCallHistoryRowClick"
-            />
-          </template>
-        </PhoneComponentButton>
-        <PhoneComponentButton
-          name="stats"
-          data-testid="testPhoneComponentStatsButton"
-          :alt="$t('phoneDashboard.stats')"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--stats"
-        >
-          <template #button>
-            <div class="w-full h-full flex items-center justify-center">
-              <div class="text-xl">
-                {{ callsWaiting }}
-              </div>
-            </div>
-          </template>
-          <template #component>
-            <GeneralStats
-              @on-remaining-callbacks="remainingCallbacks = $event"
-              @on-remaining-calldowns="remainingCalldowns = $event"
-            />
-          </template>
-        </PhoneComponentButton>
-        <PhoneComponentButton
-          name="leaderboard"
-          data-testid="testPhoneComponentLeaderboardButton"
-          :alt="$t('phoneDashboard.leaderboard')"
-          class="phone-system__action"
-          component-class="phone-system__action-content phone-system__action-content--leaderboard"
-          icon="leaderboard"
-          icon-size="medium"
-          icon-class="p-1"
-        >
-          <template #button>
-            <div class="w-full h-full flex items-center justify-center">
-              <ccu-icon
-                :fa="true"
-                type="users"
-                class="p-1"
-                size="medium"
-                :alt="$t('phoneDashboard.leaderboard')"
-              />
-            </div>
-          </template>
-          <template #component>
-            <Leaderboard class="h-full" />
-          </template>
-        </PhoneComponentButton>
-      </div>
       <span
         v-if="allWorksiteCount"
         class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6 z-toolbar"
@@ -1118,7 +897,6 @@ export default defineComponent({
     }
 
     async function downloadWorksites(ids: number[]) {
-      console.info('onDownloadWorksites', ids);
       loading.value = true;
       try {
         let params;
@@ -1141,13 +919,23 @@ export default defineComponent({
             responseType: 'blob',
           },
         );
-        if (response.status === 202) {
-          await confirm({
-            title: t('info.processing_download'),
-            content: t('info.processing_download_d'),
-          });
-        } else {
-          forceFileDownload(response);
+        switch (response.status) {
+          case 202: {
+            await confirm({
+              title: t('info.processing_download'),
+              content: t('info.processing_download_d'),
+            });
+
+            break;
+          }
+          case 200: {
+            forceFileDownload(response.data);
+
+            break;
+          }
+          default: {
+            $toasted.error(t('info.download_too_big_add_filter'));
+          }
         }
       } catch (error) {
         $toasted.error(getErrorMessage(error));

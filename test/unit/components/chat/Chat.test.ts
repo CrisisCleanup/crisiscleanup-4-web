@@ -48,6 +48,13 @@ describe('Chat.vue', () => {
       props: {
         chat: mockChat,
       },
+      global: {
+        stubs: {
+          Editor: {
+            template: '<textarea />',
+          },
+        },
+      },
     });
 
     await flushPromises();
@@ -69,6 +76,13 @@ describe('Chat.vue', () => {
       components: {
         BaseInput,
         BaseButton,
+      },
+      global: {
+        stubs: {
+          Editor: {
+            template: '<textarea />',
+          },
+        },
       },
     });
 

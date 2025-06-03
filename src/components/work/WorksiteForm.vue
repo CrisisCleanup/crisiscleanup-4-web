@@ -2,8 +2,11 @@
   <form
     v-if="ready"
     ref="form"
-    class="form h-full"
-    :class="{ 'form--noheader': !hasFormHeaderContent }"
+    :class="{
+      'form--noheader': !hasFormHeaderContent,
+      form: true,
+      [formClasses]: true,
+    }"
     @submit.prevent
   >
     <div v-if="hasFormHeaderContent" class="form-header">
@@ -19,6 +22,7 @@
       </div>
     </div>
     <div class="form-content" data-testid="testIntakeFormDiv">
+      <slot name="custom-header"></slot>
       <SectionHeading :count="1" class="mb-3">{{
         $t('caseForm.property_information')
       }}</SectionHeading>
@@ -155,7 +159,11 @@
           selector="js-worksite-email"
           size="large"
           :placeholder="$t('formLabels.email')"
+          :fa-icon="
+            currentIncident.auto_contact && worksite.id ? 'envelope' : null
+          "
           @update:model-value="(v) => updateWorksite(v, 'email')"
+          @icon-clicked="() => sendEmail(worksite.email)"
         />
       </div>
       <div class="form-field">
@@ -458,16 +466,7 @@
         "
       ></form-tree>
 
-      <template>
-        <SectionHeading :count="5" class="mb-3"
-          >{{ $t('caseView.report') }}
-        </SectionHeading>
-        <WorksiteReportSection
-          :key="worksite.total_time"
-          :worksite="worksite"
-          data-testid="testWorksiteTotalTimeDiv"
-          @time-added="reloadWorksite"
-        />
+      <template v-if="worksite.id">
         <SectionHeading :count="6" class="mb-3"
           >{{ $t('caseForm.photos') }}
         </SectionHeading>
@@ -610,6 +609,10 @@ export default defineComponent({
     dataPrefill: {
       type: Object,
       default: () => ({}),
+    },
+    formClasses: {
+      type: String,
+      default: 'h-full',
     },
   },
   setup(props, { emit }) {
@@ -944,6 +947,32 @@ export default defineComponent({
         if (result === 'yes') {
           await Worksite.api().sendSurvivorSms(worksite.value.id, phone);
           $toasted.success(t('caseForm.sms_sent'));
+        }
+      } catch (error) {
+        $toasted.error(getErrorMessage(error));
+      }
+    }
+
+    async function sendEmail(email: string) {
+      try {
+        const result = await confirm({
+          title: t(`actions.confirm`),
+          content: t(`caseForm.confirm_send_email`),
+          actions: {
+            no: {
+              text: t('actions.cancel'),
+              type: 'outline',
+              buttonClass: 'border border-black',
+            },
+            yes: {
+              text: t('actions.send_message'),
+              type: 'solid',
+            },
+          },
+        });
+        if (result === 'yes') {
+          await Worksite.api().sendSurvivorEmail(worksite.value.id, email);
+          $toasted.success(t('caseForm.email_sent'));
         }
       } catch (error) {
         $toasted.error(getErrorMessage(error));
@@ -1722,13 +1751,8 @@ export default defineComponent({
       getSectionCount,
       clearWorksiteStorage,
       statusValueChange,
-      reloadWorksite,
       sendSms,
-      findPotentialGeocode,
-      checkGeocodeLocation,
       potentialIncidents,
-      getPotentialIncidents,
-      updateWorksiteFields,
       unlockLocationFields,
       clearLocationFields,
       collapseGreenPhoneSection,
@@ -1771,6 +1795,7 @@ export default defineComponent({
       hasFormHeaderContent,
       supportedLanguages,
       emitManualDialer,
+      sendEmail,
     };
   },
 });

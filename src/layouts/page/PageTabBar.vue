@@ -19,6 +19,12 @@ const { selectorStyle, setTab, activeIndex, state } = useTabs({
     return route;
   },
 });
+
+const emit = defineEmits(['onTotalDashboardCountFetched']);
+
+function handleTotalDashboardCountFetched(count: number) {
+  emit('onTotalDashboardCountFetched', count);
+}
 </script>
 
 <template>
@@ -47,7 +53,10 @@ const { selectorStyle, setTab, activeIndex, state } = useTabs({
     <div class="flex-grow p-3 mb-16">
       <router-view v-slot="{ Component }">
         <keep-alive>
-          <component :is="Component" />
+          <component
+            :is="Component"
+            @on-total-dashboard-count-fetched="handleTotalDashboardCountFetched"
+          />
         </keep-alive>
       </router-view>
     </div>

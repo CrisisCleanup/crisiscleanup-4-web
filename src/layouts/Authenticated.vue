@@ -15,7 +15,7 @@
         </main>
         <footer
           style="width: 100svw"
-          class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center"
+          class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center z-header"
         >
           <div
             v-for="r in mobileRoutes"
@@ -41,7 +41,7 @@
       <modal
         v-if="showingMoreLinks"
         data-testid="testShowingMoreLinksModal"
-        modal-classes="bg-white h-120 shadow p-3"
+        modal-classes="bg-white h-132 shadow p-3"
         closeable
         :title="$t('nav.all_links')"
         @close="showingMoreLinks = false"
@@ -51,7 +51,16 @@
             {{ r.text || $t(`nav.${r.key}`) }}
           </base-link>
         </div>
-        <AppDownloadLinks />
+        <div class="flex flex-col items-center my-1">
+          <base-button
+            :action="logoutApp"
+            variant="outline"
+            class="p-1 my-2 w-full"
+          >
+            {{ $t('actions.logout') }}
+          </base-button>
+          <AppDownloadLinks />
+        </div>
       </modal>
     </template>
 

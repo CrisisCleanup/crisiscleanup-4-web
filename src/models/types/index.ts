@@ -234,3 +234,31 @@ export interface UserLocation {
   location: [number, number];
   timestamp: string;
 }
+
+export interface WorkTypeScheduleNestedWorkType {
+  id: number;
+  worksite_case_number: string;
+  work_type_key?: string;
+  worksite_address: string;
+  worksite_location: {
+    type: string;
+    coordinates: number[];
+  };
+}
+
+export interface WorkTypeSchedule {
+  id: number;
+  start: string;
+  end: string;
+  notes: string;
+  team_name: string;
+  team: number;
+  worksite_case_number: string;
+  worksite_address: string;
+  worksite_location: {
+    type: string;
+    coordinates: number[];
+  };
+  work_type_key?: string;
+  worksite_work_types?: WorkTypeScheduleNestedWorkType[];
+}

@@ -56,6 +56,33 @@ importers:
       '@pixi/utils':
         specifier: 6.5.10
         version: 6.5.10(@pixi/constants@6.5.10)(@pixi/settings@6.5.10(@pixi/constants@6.5.10))
+      '@schedule-x/calendar':
+        specifier: ^2.18.0
+        version: 2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4)
+      '@schedule-x/calendar-controls':
+        specifier: ^2.19.0
+        version: 2.19.0
+      '@schedule-x/current-time':
+        specifier: ^2.19.0
+        version: 2.19.0
+      '@schedule-x/drag-and-drop':
+        specifier: ^2.18.0
+        version: 2.18.0
+      '@schedule-x/events-service':
+        specifier: ^2.18.0
+        version: 2.18.0
+      '@schedule-x/resize':
+        specifier: ^2.18.0
+        version: 2.18.0
+      '@schedule-x/scroll-controller':
+        specifier: ^2.20.0
+        version: 2.20.0(@preact/signals@1.3.2(preact@10.25.4))
+      '@schedule-x/theme-default':
+        specifier: ^2.18.0
+        version: 2.18.0
+      '@schedule-x/vue':
+        specifier: ^2.16.0
+        version: 2.16.0(@schedule-x/calendar@2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4))(@schedule-x/date-picker@2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4))(vue@3.5.12(typescript@5.6.3))
       '@sentry/integrations':
         specifier: ^7.111.0
         version: 7.114.0
@@ -261,8 +288,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       quill:
-        specifier: ^2.0.0
-        version: 2.0.2
+        specifier: ^2.0.3
+        version: 2.0.3
       quill-image-resize-vue:
         specifier: ^1.0.4
         version: 1.0.4
@@ -1898,6 +1925,14 @@ packages:
   '@polka/url@1.0.0-next.25':
     resolution: {integrity: sha512-j7P6Rgr3mmtdkeDGTe0E/aYyWEWVtc5yFXtHCRHs28/jptDEWfaVOc5T7cblqy1XKPPfCxJc/8DwQ5YgLOZOVQ==}
 
+  '@preact/signals-core@1.8.0':
+    resolution: {integrity: sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA==}
+
+  '@preact/signals@1.3.2':
+    resolution: {integrity: sha512-naxcJgUJ6BTOROJ7C3QML7KvwKwCXQJYTc5L/b0eEsdYgPB6SxwoQ1vDGcS0Q7GVjAenVq/tXrybVdFShHYZWg==}
+    peerDependencies:
+      preact: 10.x
+
   '@puppeteer/browsers@2.4.0':
     resolution: {integrity: sha512-x8J1csfIygOwf6D6qUAZ0ASk3z63zPb7wkNeHRerCMh82qWKUrOgkuP005AJC8lDL6/evtXETGEJVcwykKT4/g==}
     engines: {node: '>=18'}
@@ -1994,6 +2029,48 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
+
+  '@schedule-x/calendar-controls@2.19.0':
+    resolution: {integrity: sha512-Sd5PxMg4FZLK4iW/3c6TPvNKN3n5H7tPUhcuzdw630MiO/T/aYzKiRQ1pyqjDCRwIrYR2n/+Qpo1huUyEjIuBQ==}
+
+  '@schedule-x/calendar@2.18.0':
+    resolution: {integrity: sha512-ZnlYFD8P9dXxCsDpEMviOK8xVK4b871s+m4mWhLsIutyFUNwxFw/kVFtrMHCZhin2SRoh+pyXBfQqsHxQDMpmA==}
+    peerDependencies:
+      '@preact/signals': ^1.1.5
+      preact: ^10.19.2
+
+  '@schedule-x/current-time@2.19.0':
+    resolution: {integrity: sha512-KKCyegIAPvRcniyXW7e4F+PZZL29gFzLcN3wBWgATC8aCTzvFwVpS1ovz8rV3CZVCawzHc6R5H3j9XsT1xoL/Q==}
+
+  '@schedule-x/date-picker@2.18.0':
+    resolution: {integrity: sha512-KTcU/qJD7BXC4F6ADokI2m7hlx4WkIIgl1YcvCaJnIiif4+GJ8ycGE9fsxY+R/W1DvLBPaj83ldvIplHkBxiaA==}
+    peerDependencies:
+      '@preact/signals': ^1.1.5
+      preact: ^10.19.2
+
+  '@schedule-x/drag-and-drop@2.18.0':
+    resolution: {integrity: sha512-MFScnv+JG9s28rmG3fFDkpVVYLQF7LbOFEBNr3aUXbtKmtVUPruaS4D/T+RiOvFz5v+SvOsmbEskmI3w90YhOA==}
+
+  '@schedule-x/events-service@2.18.0':
+    resolution: {integrity: sha512-6PhcTl/Fk9GRjHINN3u7OmpMAO5ZKthjXBVIgpsuq4yopnWlYw3WFEVSw/0ahDGCN663cPb7N1KrEP9Lxvu8QQ==}
+
+  '@schedule-x/resize@2.18.0':
+    resolution: {integrity: sha512-LjMm6teyKNXOYcBpxmJeYxo/nSI6dsP1S/rglJH3EbcQMV1Os99OGx5rh9zZrIQiw3Vome+iY7QV2QMy/SKutg==}
+
+  '@schedule-x/scroll-controller@2.20.0':
+    resolution: {integrity: sha512-88v2hcTCHUEWBQzBwQUIpD+92+MkeXMV+lt/JE/z3JrQY0VWQB7FmlwRV+/CjigKh3jgW+zHDqltMToPY/v5zQ==}
+    peerDependencies:
+      '@preact/signals': ^1.1.5
+
+  '@schedule-x/theme-default@2.18.0':
+    resolution: {integrity: sha512-o4OzFzxxz2nSi7iaCVca5Vi6HAgnQvpZerJcd+3lqNejnB9RL7PUWxmC3DBbP5W6Y9ggUzKFywM1/6kx1LpxEQ==}
+
+  '@schedule-x/vue@2.16.0':
+    resolution: {integrity: sha512-CRhZhcTu4I1vIu9lSaJ7ESs1h3kajnCOSAdBcbj1avjNw/dk02jqOxAs3vLB2viS2sTFq68VdYQYi2bC71in0Q==}
+    peerDependencies:
+      '@schedule-x/calendar': 2.18.0
+      '@schedule-x/date-picker': 2.18.0
+      vue: ^3
 
   '@sentry-internal/browser-utils@8.35.0':
     resolution: {integrity: sha512-uj9nwERm7HIS13f/Q52hF/NUS5Al8Ma6jkgpfYGeppYvU0uSjPkwMogtqoJQNbOoZg973tV8qUScbcWY616wNA==}
@@ -5792,6 +5869,9 @@ packages:
     resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
     engines: {node: ^10 || ^12 || >=14}
 
+  preact@10.25.4:
+    resolution: {integrity: sha512-jLdZDb+Q+odkHJ+MpW/9U5cODzqnB+fy2EiHSZES7ldV5LK7yjlVzTp7R8Xy6W6y75kfK8iWYtFVH7lvjwrCMA==}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -5951,8 +6031,8 @@ packages:
   quill@1.3.7:
     resolution: {integrity: sha512-hG/DVzh/TiknWtE6QmWAF/pxoZKYxfe3J/d/+ShUWkDvvkZQVTPeVmUJVu1uE6DDooC4fWTiCLh84ul89oNz5g==}
 
-  quill@2.0.2:
-    resolution: {integrity: sha512-QfazNrhMakEdRG57IoYFwffUIr04LWJxbS/ZkidRFXYCQt63c1gK6Z7IHUXMx/Vh25WgPBU42oBaNzQ0K1R/xw==}
+  quill@2.0.3:
+    resolution: {integrity: sha512-xEYQBqfYx/sfb33VJiKnSJp8ehloavImQ2A6564GAbqG55PGw1dAWUn1MUbQB62t0azawUS2CZZhWCjO8gRvTw==}
     engines: {npm: '>=8.2.3'}
 
   raf@3.4.1:
@@ -8487,6 +8567,13 @@ snapshots:
 
   '@polka/url@1.0.0-next.25': {}
 
+  '@preact/signals-core@1.8.0': {}
+
+  '@preact/signals@1.3.2(preact@10.25.4)':
+    dependencies:
+      '@preact/signals-core': 1.8.0
+      preact: 10.25.4
+
   '@puppeteer/browsers@2.4.0':
     dependencies:
       debug: 4.3.7
@@ -8557,6 +8644,38 @@ snapshots:
     optional: true
 
   '@rtsao/scc@1.1.0': {}
+
+  '@schedule-x/calendar-controls@2.19.0': {}
+
+  '@schedule-x/calendar@2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4)':
+    dependencies:
+      '@preact/signals': 1.3.2(preact@10.25.4)
+      preact: 10.25.4
+
+  '@schedule-x/current-time@2.19.0': {}
+
+  '@schedule-x/date-picker@2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4)':
+    dependencies:
+      '@preact/signals': 1.3.2(preact@10.25.4)
+      preact: 10.25.4
+
+  '@schedule-x/drag-and-drop@2.18.0': {}
+
+  '@schedule-x/events-service@2.18.0': {}
+
+  '@schedule-x/resize@2.18.0': {}
+
+  '@schedule-x/scroll-controller@2.20.0(@preact/signals@1.3.2(preact@10.25.4))':
+    dependencies:
+      '@preact/signals': 1.3.2(preact@10.25.4)
+
+  '@schedule-x/theme-default@2.18.0': {}
+
+  '@schedule-x/vue@2.16.0(@schedule-x/calendar@2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4))(@schedule-x/date-picker@2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4))(vue@3.5.12(typescript@5.6.3))':
+    dependencies:
+      '@schedule-x/calendar': 2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4)
+      '@schedule-x/date-picker': 2.18.0(@preact/signals@1.3.2(preact@10.25.4))(preact@10.25.4)
+      vue: 3.5.12(typescript@5.6.3)
 
   '@sentry-internal/browser-utils@8.35.0':
     dependencies:
@@ -11348,7 +11467,7 @@ snapshots:
       debug: 4.3.7
       enhanced-resolve: 5.17.1
       eslint: 9.13.0(jiti@1.21.6)
-      eslint-module-utils: 2.8.2(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6))
+      eslint-module-utils: 2.8.2(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
       fast-glob: 3.3.2
       get-tsconfig: 4.7.6
       is-bun-module: 1.1.0
@@ -11361,7 +11480,7 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6)):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -11372,7 +11491,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.2(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6)):
+  eslint-module-utils@2.8.2(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -11404,7 +11523,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.13.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.13.0(jiti@1.21.6))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.12.2(eslint@9.13.0(jiti@1.21.6))(typescript@5.6.3))(eslint-plugin-import@2.31.0)(eslint@9.13.0(jiti@1.21.6)))(eslint@9.13.0(jiti@1.21.6))
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -13306,6 +13425,8 @@ snapshots:
       picocolors: 1.1.0
       source-map-js: 1.2.1
 
+  preact@10.25.4: {}
+
   prelude-ls@1.2.1: {}
 
   prettier-linter-helpers@1.0.0:
@@ -13437,7 +13558,7 @@ snapshots:
       parchment: 1.1.4
       quill-delta: 3.6.3
 
-  quill@2.0.2:
+  quill@2.0.3:
     dependencies:
       eventemitter3: 5.0.1
       lodash-es: 4.17.21

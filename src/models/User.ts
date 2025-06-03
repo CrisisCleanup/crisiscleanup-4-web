@@ -95,7 +95,10 @@ export default class User extends CCUModel {
         (file) => file.file_type_t === 'fileTypes.user_profile_picture',
       );
       if (profilePictures.length > 0) {
-        return profilePictures[0].large_thumbnail_url;
+        return (
+          profilePictures[0].large_thumbnail_url ||
+          profilePictures[0].general_file_url
+        );
       }
     }
     return getUserAvatarLink(this.first_name);
@@ -214,6 +217,7 @@ export default class User extends CCUModel {
         email: string,
         organization = null,
         organizationDoesNotExist = false,
+        invitationUniqueKey = '',
       ) {
         const data: Record<string, any> = {
           invitee_email: email,
@@ -224,6 +228,10 @@ export default class User extends CCUModel {
 
         if (organizationDoesNotExist) {
           data.organization_does_not_exist = true;
+        }
+
+        if (invitationUniqueKey) {
+          data.invitation_unique_key = invitationUniqueKey;
         }
 
         return this.post(`/invitations`, data, { save: false });
@@ -246,6 +254,13 @@ export default class User extends CCUModel {
             mobile,
             title,
           },
+          { save: false },
+        );
+      },
+      sendInvitationReport(key: string) {
+        return this.post(
+          `/invitations/send_invitation_report`,
+          { invitation_unique_key: key },
           { save: false },
         );
       },

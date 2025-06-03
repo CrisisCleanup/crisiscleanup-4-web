@@ -53,7 +53,7 @@ export default defineConfig(async ({ command }) => {
     // https://github.com/antfu/vite-plugin-inspect
     inspect(),
     // https://github.com/webfansplz/vite-plugin-vue-inspector
-    inspector(),
+    // inspector(),
     markdownRawPlugin({
       fileRegex: /\.svgr$/,
     }),

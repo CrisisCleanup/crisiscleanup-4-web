@@ -225,6 +225,14 @@
                 class="block my-1"
                 >{{ $t('worksiteFilters.claimed_by_my_org') }}
               </base-checkbox>
+
+              <base-checkbox
+                v-model="filters.statusGroups.data['claimed_by_me']"
+                data-testid="testClaimedByMeCheckbox"
+                class="block my-1"
+                >{{ $t('worksiteFilters.claimed_by_me') }}
+              </base-checkbox>
+
               <base-checkbox
                 v-model="filters.statusGroups.data['reported_by_org']"
                 data-testid="testReportedByOrgCheckbox"
@@ -324,25 +332,77 @@
               <div class="my-1 text-base">
                 {{ $t('worksiteFilters.personal_info') }}
               </div>
-              <base-checkbox
-                v-for="data in [
-                  'older_than_60',
-                  'children_in_home',
-                  'first_responder',
-                  'veteran',
-                ]"
-                :key="data"
-                :data-testid="`testPersonal${data}Checkbox`"
-                class="block my-1"
-                :model-value="filters.form_data.data[data]"
-                @update:model-value="
-                  (value) => {
-                    filters.form_data.data[data] = value;
-                    filters.form_data.data = { ...filters.form_data.data };
-                  }
-                "
-                >{{ $t(`formLabels.${data}`) }}
-              </base-checkbox>
+              <template
+                v-for="field in propertyInfoFields"
+                :key="field.field_key"
+              >
+                <div class="py-1">
+                  <template v-if="field.html_type === 'select' && field.values">
+                    <div class="font-bold">
+                      {{ $t(field.label_t) }}
+                    </div>
+                    <div>
+                      <div>
+                        <div
+                          v-for="option in field.values.filter((option) =>
+                            Boolean(option.value),
+                          )"
+                          :key="option.value"
+                          :span="8"
+                        >
+                          <base-checkbox
+                            :model-value="
+                              filters.form_data.data[field.field_key] &&
+                              filters.form_data.data[field.field_key].includes(
+                                option.value,
+                              )
+                            "
+                            @update:model-value="
+                              (value) => {
+                                filters.form_data.data[field.field_key] = value
+                                  ? [
+                                      ...(filters.form_data.data[
+                                        field.field_key
+                                      ] || []),
+                                      option.value,
+                                    ]
+                                  : filters.form_data.data[
+                                      field.field_key
+                                    ].filter((item) => item !== option.value);
+                                filters.form_data.data = {
+                                  ...filters.form_data.data,
+                                };
+                              }
+                            "
+                          >
+                            {{ $t(option.name_t) }}
+                          </base-checkbox>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                  <template v-if="field.html_type === 'checkbox'">
+                    <div class="flex">
+                      <div>
+                        <base-checkbox
+                          :model-value="filters.form_data.data[field.field_key]"
+                          @update:model-value="
+                            (value: Boolean) => {
+                              if (value) {
+                                filters.form_data.data[field.field_key] = true;
+                              } else {
+                                delete filters.form_data.data[field.field_key];
+                              }
+                            }
+                          "
+                        >
+                          {{ $t(field.label_t) }}
+                        </base-checkbox>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
             </div>
           </div>
           <template v-if="currentSection === 'work'">
@@ -518,12 +578,12 @@
               </div>
               <div>
                 <div class="my-1 text-base">
-                  {{ $t('~~Search Locations') }}
+                  {{ $t('worksiteFilters.search_locations') }}
                 </div>
                 <div class="grid grid-cols-12 gap-2 pr-2">
                   <base-select
                     class="col-span-6"
-                    :placeholder="$t('~~Select Location')"
+                    :placeholder="$t('worksiteFilters.select_location')"
                     data-testid="testLocationSelect"
                     searchable
                     multiple
@@ -564,7 +624,7 @@
                     item-key="id"
                     label="name_t"
                     searchable
-                    :placeholder="$t('~~Location type for search')"
+                    :placeholder="$t('worksiteFilters.search_by_location_type')"
                     @update:model-value="
                       (type: string) => {
                         currentLocationType = type;
@@ -577,8 +637,8 @@
                     icon="draw-polygon"
                     variant="solid"
                     data-testid="testCreateLocationButton"
-                    :title="$t('~~Draw Location on map')"
-                    :alt="$t('~~Draw Location on map')"
+                    :title="$t('worksiteFilters.draw_location_on_map')"
+                    :alt="$t('worksiteFilters.draw_location_on_map')"
                   >
                   </base-button>
                 </div>
@@ -858,6 +918,20 @@ export default defineComponent({
 
       return [];
     });
+
+    const propertyInfoFields = computed(() => {
+      if (props.incident && props.incident.form_fields) {
+        return props.incident.form_fields.filter((field) => {
+          return (
+            field.field_parent_key === 'property_info' &&
+            ['select', 'checkbox'].includes(field.html_type)
+          );
+        });
+      }
+
+      return [];
+    });
+
     const fieldsCount = computed(() => {
       return filters.value.fields.getCount() || 0;
     });
@@ -1162,7 +1236,7 @@ export default defineComponent({
       let currentPolygon = null;
       const classes = 'h-168 p-3';
       const response = await component({
-        title: t('~~Select Location'),
+        title: t('worksiteFilters.select_location'),
         component: LocationTool,
         modalClasses: `max-w-5xl`,
         props: {
@@ -1256,6 +1330,7 @@ export default defineComponent({
       currentLocationType,
       locationTypes,
       createNewLocation,
+      propertyInfoFields,
     };
   },
 });

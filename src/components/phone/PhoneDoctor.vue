@@ -647,7 +647,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mt-20 px-6 max-h-[calc(100vh-20rem)] overflow-auto">
+  <div
+    class="mt-20 px-6 max-h-[calc(100vh-20rem)] overflow-auto md:w-full w-screen"
+  >
     <div class="flex items-start gap-2">
       <LaStethoscope
         class="w-1/3 text-7xl font-light text-crisiscleanup-dark-100"

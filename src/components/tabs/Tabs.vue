@@ -18,7 +18,9 @@
         {{ $t(tab.props.name) }}
       </li>
     </ul>
-    <slot></slot>
+    <div :class="tabDetailsClasses">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -66,6 +68,7 @@ export default defineComponent({
       default: true,
     },
   },
+  emits: ['tabSelected'],
   setup(_, { slots, emit }) {
     const state = reactive({
       selectedIndex: 0,
@@ -105,10 +108,6 @@ export default defineComponent({
               child.type.name === 'Tab' || child.type.name === 'LightTab',
           );
       }
-    });
-
-    onMounted(() => {
-      selectTab(0);
     });
 
     return { ...toRefs(state), selectTab, nextTab, previousTab, isLast };

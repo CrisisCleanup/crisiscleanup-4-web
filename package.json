@@ -5,7 +5,7 @@
   "type": "module",
   "engines": {
     "node": ">=18 <21",
-    "pnpm": "^9.0.0"
+    "pnpm": "^10.2.1"
   },
   "repository": {
     "type": "git",
@@ -64,6 +64,15 @@
     "@pixi/settings": "6.5.10",
     "@pixi/ticker": "6.5.10",
     "@pixi/utils": "6.5.10",
+    "@schedule-x/calendar": "^2.18.0",
+    "@schedule-x/calendar-controls": "^2.19.0",
+    "@schedule-x/current-time": "^2.19.0",
+    "@schedule-x/drag-and-drop": "^2.18.0",
+    "@schedule-x/events-service": "^2.18.0",
+    "@schedule-x/resize": "^2.18.0",
+    "@schedule-x/scroll-controller": "^2.20.0",
+    "@schedule-x/theme-default": "^2.18.0",
+    "@schedule-x/vue": "^2.16.0",
     "@sentry/integrations": "^7.111.0",
     "@sentry/vue": "^8.27.0",
     "@sipec/vue3-tags-input": "^3.0.4",
@@ -132,7 +141,7 @@
     "puppeteer": "^23.0.0",
     "qrcode": "^1.5.4",
     "qrcode-svg": "^1.1.0",
-    "quill": "^2.0.0",
+    "quill": "^2.0.3",
     "quill-image-resize-vue": "^1.0.4",
     "raw-loader": "^4.0.2",
     "rrule": "^2.8.1",

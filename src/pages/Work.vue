@@ -332,59 +332,36 @@
             <div
               v-if="!collapsedUtilityBar"
               :key="currentIncidentId"
-              class="flex items-center flex-wrap w-full p-3"
+              class="flex items-center flex-wrap w-full p-3 gap-2"
             >
-              <ccu-icon
-                :alt="$t('casesVue.map_view')"
-                data-testid="testMapViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="showingMap ? 'filter-yellow' : 'filter-gray'"
-                type="map"
-                ccu-event="user_ui-view-map"
-                @click="() => showMap(true)"
-              />
-              <ccu-icon
-                :alt="$t('casesVue.table_view')"
-                data-testid="testTableViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="showingTable ? 'filter-yellow' : 'filter-gray'"
-                type="table"
-                ccu-event="user_ui-view-table"
-                @click="showTable"
-              />
-              <ccu-icon
-                v-if="caseImages.length > 0"
-                :alt="$t('casesVue.photo_map_view')"
-                data-testid="testPhotoMapViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="
-                  showingPhotoMap
-                    ? 'text-primary-light'
-                    : 'text-crisiscleanup-dark-100'
+              <WorksiteNavigationIcons
+                :case-images="caseImages"
+                :showing-feed="showingFeed"
+                :showing-map="showingMap"
+                :showing-photo-map="showingPhotoMap"
+                :showing-table="showingTable"
+                @show-feed="showFeed"
+                @show-map="() => showMap(true)"
+                @show-photo-map="showPhotoMap"
+                @show-table="showTable"
+                @show-calendar="
+                  () =>
+                    router.push(
+                      `/incident/${currentIncidentId}/calendar?view=calendar`,
+                    )
                 "
-                ccu-event="user_ui-view-photo-map"
-                type="image"
-                :fa="true"
-                @click="showPhotoMap"
-              />
-              <ccu-icon
-                v-if="can('beta_feature.enable_feed')"
-                :alt="$t('casesVue.photo_map_view')"
-                data-testid="testPhotoMapViewIcon"
-                size="medium"
-                class="mr-4 cursor-pointer"
-                :class="
-                  showingFeed
-                    ? 'text-primary-light'
-                    : 'text-crisiscleanup-dark-100'
+                @show-calendar-list="
+                  () =>
+                    router.push(
+                      `/incident/${currentIncidentId}/calendar?view=upcoming`,
+                    )
                 "
-                ccu-event="user_ui-view-photo-map"
-                type="scroll"
-                :fa="true"
-                @click="showFeed"
+                @show-calendar-map="
+                  () =>
+                    router.push(
+                      `/incident/${currentIncidentId}/calendar?view=map`,
+                    )
+                "
               />
               <span v-if="allWorksiteCount" class="font-thin">
                 <span
@@ -409,6 +386,23 @@
                 @updated-filters="onUpdateFilters"
                 @updated-filter-labels="updateFilterLabels"
               />
+              <base-select
+                data-testid="testLocationSelect"
+                searchable
+                item-key="id"
+                label="name"
+                :placeholder="$t('casesVue.find_county_city_postal_code')"
+                :options="onLocationSearch"
+                select-classes="bg-white outline-none w-72"
+                wrapper-classes="relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none h-10"
+                class="mr-2"
+                size="small"
+                @update:model-value="
+                  (location) => {
+                    getAndApplyLocation(location);
+                  }
+                "
+              />
               <WorksiteActions
                 v-if="currentIncidentId"
                 :key="currentIncidentId"
@@ -424,6 +418,7 @@
                 @toggle-heat-map="toggleHeatMap"
                 @toggle-user-locations="toggleUserLocations"
               />
+              <spinner v-if="downloadingWorksites" size="small" />
             </div>
             <div
               :class="collapsedUtilityBar ? 'w-full' : ''"
@@ -704,7 +699,7 @@
           <div v-if="showingTable" class="work-page__main-content--table">
             <div class="items-center justify-start hidden md:flex">
               <ListDropdown
-                :selected-table-items="selectedTableItems"
+                :selected-table-items="Array.from(selectedTableItems)"
                 model-type="worksite_worksites"
                 :title="$t('list.worksite_lists')"
                 :alt="$t('list.worksite_lists')"
@@ -985,7 +980,7 @@ import {
   loadCasesCached,
   loadUserLocations,
 } from '../utils/worksite';
-import { averageGeolocation, getUserLocationLayer } from '../utils/map';
+import { getUserLocationLayer } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import { forceFileDownload } from '../utils/downloads';
 import { getErrorMessage } from '../utils/errors';
@@ -999,15 +994,13 @@ import useDialogs from '../hooks/useDialogs';
 import type { MapUtils } from '../hooks/worksite/useWorksiteMap';
 import useWorksiteMap from '../hooks/worksite/useWorksiteMap';
 import { numeral } from '@/utils/helpers';
-import type Location from '@/models/Location';
+import Location from '@/models/Location';
 import UpdateCaseStatus from '@/components/UpdateCaseStatus.vue';
 import useWorksiteTableActions from '@/hooks/worksite/useWorksiteTableActions';
 import ShareWorksite from '@/components/modals/ShareWorksite.vue';
 import useEmitter from '@/hooks/useEmitter';
 import Organization from '@/models/Organization';
 import WorksitePhotoMap from '@/components/WorksitePhotoMap.vue';
-
-const INTERACTIVE_ZOOM_LEVEL = 12;
 import { useCurrentIncident, useCurrentUser } from '@/hooks';
 import type { Portal, UserLocation } from '@/models/types';
 import WorksiteFeed from '@/components/WorksiteFeed.vue';
@@ -1019,11 +1012,18 @@ import BaseButton from '@/components/BaseButton.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { momentFromNow } from '@/filters';
 import User from '@/models/User';
-import { string } from 'zod';
+import _ from 'lodash';
+import Spinner from '@/components/Spinner.vue';
+import DownloadWorksiteCsv from '@/components/downloads/DownloadWorksiteCsv.vue';
+import WorksiteNavigationIcons from '@/pages/WorksiteNavigationIcons.vue';
+
+const INTERACTIVE_ZOOM_LEVEL = 12;
 
 export default defineComponent({
   name: 'Work',
   components: {
+    WorksiteNavigationIcons,
+    Spinner,
     AjaxTable,
     BaseButton,
     WorksiteSearchAndFilters,
@@ -1106,6 +1106,7 @@ export default defineComponent({
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
     const loading = ref<boolean>(false);
+    const downloadingWorksites = ref<boolean>(false);
     const allWorksiteCount = ref<number>(0);
     const filteredWorksiteCount = ref<number>(0);
     const searchWorksites = ref<any[]>([]);
@@ -1262,7 +1263,7 @@ export default defineComponent({
       mapLoading.value = false;
       filteredWorksiteCount.value = response.results.length;
 
-      if ($can('beta_feature.enable_feed')) {
+      if ($can('beta_feature.enable_feed') || $can('development_mode')) {
         loadCaseImagesCached({
           ...worksiteQuery.value,
         }).then((response) => {
@@ -1848,7 +1849,7 @@ export default defineComponent({
     }
 
     async function downloadWorksites(ids: any[], skipSizeCheck = false) {
-      loading.value = true;
+      downloadingWorksites.value = true;
       try {
         let params;
 
@@ -1864,22 +1865,12 @@ export default defineComponent({
           params.skip_size_warning = true;
         }
 
-        const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/worksites_download/download_csv`,
-          {
-            params,
-            headers: { Accept: 'text/csv' },
-            responseType: 'blob',
-          },
-        );
-        if (response.status === 202) {
-          await confirm({
-            title: t('info.processing_download'),
-            content: t('info.processing_download_d'),
-          });
-        } else if (response.status === 400) {
+        let url = `worksites_download/download_csv`;
+
+        if (
+          filteredWorksiteCount.value > 10_000 ||
+          (filteredWorksiteCount.value === 0 && allWorksiteCount.value > 10_000)
+        ) {
           const result = await confirm({
             title: t('casesVue.large_data_download_warning_title'),
             content: t('casesVue.large_data_download_warning_description'),
@@ -1895,15 +1886,64 @@ export default defineComponent({
             },
           });
           if (result === 'yes') {
-            return downloadWorksites(ids, true);
+            url = `worksites_download/download_csv`;
+          } else {
+            return;
           }
-        } else {
-          forceFileDownload(response);
+        }
+
+        const response = await axios.get(url, {
+          params,
+        });
+        switch (response.status) {
+          case 202: {
+            await component({
+              title: t('info.processing_download'),
+              component: DownloadWorksiteCsv,
+              classes: 'w-full overflow-auto p-3',
+              modalClasses: 'bg-white max-w-4xl shadow',
+              props: {
+                downloadId: response.data.download_id,
+                wait: Number(20),
+              },
+            });
+
+            break;
+          }
+          case 400: {
+            const result = await confirm({
+              title: t('casesVue.large_data_download_warning_title'),
+              content: t('casesVue.large_data_download_warning_description'),
+              actions: {
+                yes: {
+                  text: t('actions.yes'),
+                  type: 'solid',
+                },
+                no: {
+                  text: t('actions.no'),
+                  type: 'outline',
+                },
+              },
+            });
+            if (result === 'yes') {
+              return downloadWorksites(ids, true);
+            }
+
+            break;
+          }
+          case 200: {
+            forceFileDownload(response.data);
+
+            break;
+          }
+          default: {
+            $toasted.error(t('info.download_too_big_add_filter'));
+          }
         }
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       } finally {
-        loading.value = false;
+        downloadingWorksites.value = false;
       }
     }
 
@@ -1960,6 +2000,29 @@ export default defineComponent({
     function updateFilterLabels(labels: any) {
       filterLabels.value = labels;
     }
+
+    const onLocationSearch = _.debounce(
+      async (value: string) => {
+        const params = {
+          type__key__in:
+            'boundary_political_home_local_division,boundary_political_home_postal_code,boundary_political_home_city',
+          incident_area: currentIncidentId.value,
+          limit: 10,
+          search: value,
+          sort: 'name',
+          fields: 'id,name,type',
+        };
+        const { data } = await axios.get(`/locations`, {
+          params,
+        });
+
+        return data.results;
+      },
+      500,
+      {
+        leading: true,
+      },
+    ); // Every 300ms
 
     watch(
       () => worksiteQuery.value,
@@ -2144,6 +2207,20 @@ export default defineComponent({
       router.replace({ query: undefined });
     }
 
+    async function getAndApplyLocation(locationId) {
+      if (!locationId) {
+        mapUtils?.removeLocationLayers();
+        goToIncidentCenter();
+        return;
+      }
+
+      await Location.api().fetchById(locationId);
+      applyLocation({
+        locationId: locationId,
+        value: true,
+      });
+    }
+
     return {
       addMarkerToMap,
       clearCase,
@@ -2239,6 +2316,9 @@ export default defineComponent({
       currentIncident,
       userLocations,
       toggleUserLocations,
+      onLocationSearch,
+      getAndApplyLocation,
+      downloadingWorksites,
     };
   },
 });

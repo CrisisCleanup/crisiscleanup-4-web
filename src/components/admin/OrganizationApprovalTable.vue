@@ -10,6 +10,7 @@
     }"
     @change="$emit('change', $event)"
     @row-click="showContacts"
+    @data-fetched="handleDataFetched"
   >
     <template #statuses="slotProps">
       <div class="w-full flex items-center">
@@ -257,6 +258,10 @@ export default defineComponent({
       }
     }
 
+    function handleDataFetched(count: number) {
+      emit('onOrganizationApprovalDataFetched', count);
+    }
+
     return {
       currentUser,
       getIncidentName,
@@ -267,6 +272,7 @@ export default defineComponent({
       notifyOrganization,
       moment,
       url,
+      handleDataFetched,
       columns: [
         {
           title: t('ID'),

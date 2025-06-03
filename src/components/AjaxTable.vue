@@ -111,7 +111,8 @@ export default defineComponent({
       default: '',
     },
   },
-  setup(props) {
+  emits: ['rowClick', 'selectionChanged', 'dataFetched'],
+  setup(props, { emit }) {
     const { emitter } = useEmitter();
 
     const defaultColumns = ref<any[]>([]);
@@ -121,7 +122,7 @@ export default defineComponent({
     const loading = ref(false);
     const meta = ref<TableMeta>({
       pagination: {
-        pageSize: 10,
+        pageSize: 100,
         page: 1,
         current: 1,
       },
@@ -157,6 +158,7 @@ export default defineComponent({
         ...sorter,
       };
       loading.value = false;
+      emit('dataFetched', response.data.count);
     };
 
     onMounted(async () => {

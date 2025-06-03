@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, type PropType } from 'vue';
 
 export default defineComponent({
   name: 'BaseLink',
@@ -31,8 +31,12 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    linkVariant: {
+      type: String as PropType<'light' | 'dark'>,
+      default: 'dark',
+    },
   },
-  setup(props) {
+  setup(props: { to: string | null; href: string }) {
     const linkComponent = computed(() => (props.to ? 'router-link' : 'a'));
 
     return {

@@ -95,7 +95,8 @@ const suggestedScript = computed(() => {
 
 <template>
   <div>
-    <div class="flex gap-4">
+    <!-- Details Header Section -->
+    <div class="flex flex-wrap gap-4 items-center">
       <div class="font-bold mb-4">{{ $t('phoneDashboard.details') }}</div>
       <div
         v-if="caller"
@@ -111,23 +112,30 @@ const suggestedScript = computed(() => {
         }}
       </div>
     </div>
-    <div class="grid grid-cols-3 gap-5">
+
+    <!-- Content Grid Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Suggested Script Section -->
       <div class="prompts">
         <div class="font-bold">{{ $t('phoneDashboard.suggested_script') }}</div>
-        <span v-html="suggestedScript"></span>
+        <span class="text-sm" v-html="suggestedScript"></span>
       </div>
+
+      <!-- Cases Section -->
       <div class="cases">
         <div class="font-bold">{{ $t('phoneDashboard.existing_cases') }}</div>
-        <div class="h-120 overflow-auto">
+        <div
+          class="h-60 sm:h-80 lg:h-120 overflow-auto border border-gray-300 rounded-md"
+        >
           <div
             v-for="c in cases"
             :key="`${c.id}`"
             :data-testid="`test${c.id}Content`"
-            class="flex-grow-0 flex-shrink-0 w-56 m-1"
+            class="m-1 flex-grow-0 flex-shrink-0 w-full sm:w-56"
           >
             <div
-              class="cursor-pointer p-1 h-full w-full"
-              :class="c.id === caseId ? 'border border-black' : ''"
+              class="cursor-pointer p-2 h-full w-full border rounded-md"
+              :class="c.id === caseId ? 'border-black bg-gray-100' : ''"
               @click="() => setCase(c)"
             >
               <div class="flex items-center">
@@ -136,18 +144,25 @@ const suggestedScript = computed(() => {
                   data-testid="testWorktypeSVGIcon"
                   v-html="getSVG(c.worktype)"
                 ></div>
-                <div class="px-1" data-testid="testCaseNumberDiv">
+                <div class="px-1 text-sm" data-testid="testCaseNumberDiv">
                   {{ c.caseNumber }}
                 </div>
               </div>
-              <div class="px-1" data-testid="testCaseNameDiv">{{ c.name }}</div>
-              <div class="text-sm p-1" data-testid="testCaseAddressStateDiv">
+              <div class="px-1 text-sm" data-testid="testCaseNameDiv">
+                {{ c.name }}
+              </div>
+              <div
+                class="text-xs text-gray-600 p-1"
+                data-testid="testCaseAddressStateDiv"
+              >
                 {{ c.address }} {{ c.state }}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- FAQ Section -->
       <div class="faq">
         <div class="font-bold">{{ $t('phoneDashboard.faq') }}</div>
         <PhoneFaqRAG />

@@ -1,148 +1,177 @@
 <template>
-  <div class="pewpew" :style="styles" data-testid="testPewPewDiv">
-    <div class="grid grid-cols-12 relative h-full w-full">
-      <div class="h-full">
+  <div
+    class="pewpew min-h-screen w-full"
+    :style="styles"
+    data-testid="testPewPewDiv"
+  >
+    <div class="relative w-full h-full flex flex-col md:flex-row">
+      <!-- Navigation Sidebar (Desktop) -->
+      <div class="hidden md:block w-[100px] h-full z-20">
         <PewPewNavBar :color-mode="colorMode" />
       </div>
-      <div class="col-span-11 h-full flex flex-col">
-        <div class="grid grid-cols-6 h-full">
-          <div class="h-full p-2 w-full col-span-1">
-            <tabs
-              ref="tabs"
-              class="relative h-full w-full px-1 mt-10 mx-1"
-              tab-classes="text-xs"
-              tab-default-classes="flex items-center justify-center h-8 cursor-pointer px-2"
-              tab-active-classes="bg-crisiscleanup-dark-400 rounded-t-xl"
-              @tab-selected="stopSiteInfoTabCirculationTimer"
-            >
-              <tab
-                :name="$t('pewPew.live')"
-                :selected="
-                  siteInfoTimerData.isTimerActive &&
-                  siteInfoTimerData.activeInfoTab === 0
-                "
-                data-testid="testPewPewLiveTab"
-                class="absolute mx-1 left-0 right-0"
-                :style="{ top: '2rem', bottom: 0 }"
+      <!-- Bottom Bar (Mobile) -->
+      <div
+        class="md:hidden fixed bottom-0 left-0 w-full bg-crisiscleanup-dark-500 z-max flex justify-center items-center py-2"
+      >
+        <PewPewNavBar :color-mode="colorMode" />
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 flex flex-col pb-[146px] md:pb-0 overflow-y-auto">
+        <div class="flex flex-col md:grid md:grid-cols-6 h-full">
+          <!-- Left Sidebar with Stats -->
+          <div class="w-full md:col-span-1 p-2">
+            <div class="mt-4 md:mt-10">
+              <tabs
+                ref="tabs"
+                tab-classes="text-xs"
+                tab-default-classes="flex items-center justify-center h-8 cursor-pointer px-2 hover:bg-crisiscleanup-dark-300 transition-colors duration-200"
+                tab-active-classes="bg-crisiscleanup-dark-400 rounded-t-sm"
+                @tab-selected="stopSiteInfoTabCirculationTimer"
               >
-                <div
-                  class="rounded-tr-xl bg-gradient-to-b from-crisiscleanup-dark-400 via-crisiscleanup-dark-500"
-                  :name="$t('reports.pp_engagement_title')"
+                <!-- Live Tab -->
+                <tab
+                  :name="$t('pewPew.live')"
+                  :selected="
+                    siteInfoTimerData.isTimerActive &&
+                    siteInfoTimerData.activeInfoTab === 0
+                  "
+                  data-testid="testPewPewLiveTab"
+                  class="mx-1 left-0 right-0 min-w-[100px] md:min-w-[120px]"
+                  :style="{ top: '2rem', bottom: 0 }"
                 >
-                  <div class="text-xs px-5 text-center pt-4">
-                    {{ $t('reports.pp_engagement_title') }}
+                  <SiteActivityGauge
+                    v-if="currentSiteStats.length > 0"
+                    :key="currentEngagement"
+                    data-testid="testCurrentEngagementChart"
+                    class="h-full w-full"
+                    :chart-data="currentEngagement"
+                    :margin-all="10"
+                    chart-id="site-activity-gauge"
+                    :title="$t('reports.pp_engagement_title')"
+                  />
+                  <div class="h-1/2 md:h-3/4 w-full overflow-hidden mt-2">
+                    <CardStack ref="cards" />
                   </div>
-                  <div class="h-40 w-full">
-                    <SiteActivityGauge
-                      v-if="currentSiteStats.length > 0"
-                      :key="currentEngagement"
-                      data-testid="testCurrentEngagementChart"
-                      class="h-full w-full"
-                      :chart-data="currentEngagement"
-                      :margin-all="10"
-                      chart-id="site-activity-gauge"
-                    />
-                  </div>
-                </div>
-                <div class="h-3/4 w-full overflow-hidden">
-                  <CardStack ref="cards" />
-                </div>
-              </tab>
-              <tab
-                :name="
-                  currentSiteStats.length > 0
-                    ? `${currentSiteStats[0].currency_symbol}${formatStatValue(
-                        currentSiteStats[0].value,
-                      )}`
-                    : $t('reports.pp_site_stats_title')
-                "
-                :selected="
-                  siteInfoTimerData.isTimerActive &&
-                  siteInfoTimerData.activeInfoTab === 1
-                "
-                data-testid="testSiteStatsTab"
-                class="absolute mx-1 left-0 right-0"
-                :style="{ top: '2rem', bottom: 0 }"
-              >
-                <div
-                  class="flex flex-col items-start justify-start p-2 w-full rounded-t-xl bg-gradient-to-b from-crisiscleanup-dark-400 via-crisiscleanup-dark-500"
+                </tab>
+                <!-- Stats Tab -->
+                <tab
+                  :name="
+                    currentSiteStats.length > 0
+                      ? `${currentSiteStats[0].currency_symbol}${formatStatValue(currentSiteStats[0].value)}`
+                      : $t('reports.pp_site_stats_title')
+                  "
+                  :selected="
+                    siteInfoTimerData.isTimerActive &&
+                    siteInfoTimerData.activeInfoTab === 1
+                  "
+                  data-testid="testSiteStatsTab"
+                  class="mx-0.5 md:mx-1 left-0 right-0 min-w-[90px] md:min-w-[110px]"
+                  :style="{ top: '1.5rem', bottom: 0 }"
                 >
-                  <div class="">
+                  <div
+                    class="flex flex-col items-start justify-start p-1.5 md:p-3 w-full rounded-t-xl bg-crisiscleanup-dark-400 max-h-72 overflow-y-auto md:max-h-none"
+                  >
                     <div
-                      v-for="(stat, index) in currentSiteStats"
-                      :key="stat.id"
-                      :data-testid="`testSiteStats${stat.id}Div`"
-                      class="mb-2"
+                      class="w-full grid grid-cols-2 sm:grid-cols-1 gap-1 md:gap-2"
                     >
-                      <template v-if="index === 0">
-                        <div :key="stat.id" class="flex font-bold">
-                          {{ $t(stat.name_t) }}
-                          <ccu-icon
-                            v-tooltip="{
-                              content: $t(stat.description_t),
-                              html: true,
-                              triggers: ['click'],
-                              popperClass: 'interactive-tooltip w-auto',
-                            }"
-                            :invert-color="true"
-                            :data-testid="`testSiteStats${stat.id}Icon`"
-                            type="help"
-                            size="medium"
-                          />
-                        </div>
-                        <div :key="stat.id" class="text-xl stats">
-                          {{ stat.currency_symbol
-                          }}{{ formatStatValue(stat.value) }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        <div :key="stat.id" class="flex font-bold">
-                          {{ $t(stat.name_t) }}
-                          <ccu-icon
-                            v-tooltip="{
-                              content: $t(stat.description_t),
-                              triggers: ['click'],
-                              html: true,
-                              popperClass: 'interactive-tooltip w-auto',
-                            }"
-                            :invert-color="true"
-                            :data-testid="`testSiteStats2${stat.id}Icon`"
-                            type="help"
-                            size="medium"
-                          />
-                        </div>
-                        <div :key="stat.id" class="text-sm stats">
-                          {{ stat.currency_symbol
-                          }}{{ formatStatValue(stat.value) }}
-                        </div>
-                      </template>
+                      <div
+                        v-for="(stat, index) in currentSiteStats"
+                        :key="stat.id"
+                        :data-testid="`testSiteStats${stat.id}Div`"
+                        class="p-1.5 md:p-2 rounded-lg hover:bg-crisiscleanup-dark-300 transition-colors duration-200"
+                      >
+                        <template v-if="index === 0">
+                          <div
+                            :key="stat.id"
+                            class="flex items-center font-bold mb-0.5 md:mb-1"
+                          >
+                            <span class="text-[10px] md:text-xs lg:text-sm">{{
+                              $t(stat.name_t)
+                            }}</span>
+                            <ccu-icon
+                              v-tooltip="{
+                                content: $t(stat.description_t),
+                                html: true,
+                                triggers: ['click'],
+                                popperClass: 'interactive-tooltip w-auto',
+                              }"
+                              :invert-color="true"
+                              :data-testid="`testSiteStats${stat.id}Icon`"
+                              type="help"
+                              size="small"
+                              class="ml-0.5 md:ml-1"
+                            />
+                          </div>
+                          <div
+                            :key="stat.id"
+                            class="text-base md:text-lg lg:text-xl stats font-bold"
+                          >
+                            {{ stat.currency_symbol
+                            }}{{ formatStatValue(stat.value) }}
+                          </div>
+                        </template>
+                        <template v-else>
+                          <div
+                            :key="stat.id"
+                            class="flex items-center font-bold mb-0.5 md:mb-1"
+                          >
+                            <span class="text-[10px] md:text-xs lg:text-sm">{{
+                              $t(stat.name_t)
+                            }}</span>
+                            <ccu-icon
+                              v-tooltip="{
+                                content: $t(stat.description_t),
+                                triggers: ['click'],
+                                html: true,
+                                popperClass: 'interactive-tooltip w-auto',
+                              }"
+                              :invert-color="true"
+                              :data-testid="`testSiteStats2${stat.id}Icon`"
+                              type="help"
+                              size="small"
+                              class="ml-0.5 md:ml-1"
+                            />
+                          </div>
+                          <div
+                            :key="stat.id"
+                            class="text-xs md:text-sm lg:text-base stats"
+                          >
+                            {{ stat.currency_symbol
+                            }}{{ formatStatValue(stat.value) }}
+                          </div>
+                        </template>
+                      </div>
                     </div>
-                    <!-- Add future statistics stub
-                    <div class="underline text-blue-600">
-                      {{ $t('reports.pp_site_stats_more_stats') }}
-                    </div>
-                    -->
                   </div>
-                </div>
-              </tab>
-            </tabs>
+                </tab>
+              </tabs>
+            </div>
           </div>
-          <div class="h-full col-span-5 flex flex-col">
-            <div class="min-h-12 grid grid-cols-10">
+
+          <!-- Main Content Area -->
+          <div class="flex-1 md:col-span-5 flex flex-col">
+            <!-- Top Banner -->
+            <div
+              class="min-h-8 md:min-h-12 grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0"
+            >
               <div
-                class="col-span-8 flex justify-center items-center text-black font-bold ribbon-gradient"
+                class="md:col-span-8 flex justify-center items-center text-black font-bold ribbon-gradient px-2 md:px-0"
               >
                 <div
                   v-if="incidentList.length > 0"
-                  class="text-[0.7rem] sm:text-sm text-center md:py-1 px-8 md:px-32"
+                  class="text-[0.7rem] sm:text-sm md:text-base text-center md:py-2 px-4 md:px-32"
                 >
                   <span
                     v-for="(incident, index) in incidentList"
                     :key="incident.id"
                     :data-testid="`testIncident${incident.id}Div`"
+                    class="inline-flex items-center"
                   >
-                    {{ incident.short_name }}:
-                    <div class="inline-block transform scale-70">
+                    <span class="text-xs md:text-sm"
+                      >{{ incident.short_name }}:</span
+                    >
+                    <div class="inline-block transform scale-70 ml-1">
                       <PhoneNumberDisplay
                         v-for="hotlineNumber in formatIncidentPhoneNumbers(
                           incident,
@@ -154,21 +183,28 @@
                     </div>
                     <span
                       v-if="index < incidentList.length - 1"
-                      class="text-base text-primary-light"
+                      class="text-base text-primary-light mx-2"
                     >
-                      &nbsp; | &nbsp;
+                      |
                     </span>
                   </span>
                 </div>
-                <div v-else data-testid="testPewPewBannerDiv">
+                <div
+                  v-else
+                  data-testid="testPewPewBannerDiv"
+                  class="text-sm md:text-lg"
+                >
                   {{ $t('homeVue.pew_pew_banner') }}
                 </div>
               </div>
-              <div class="col-span-2 flex items-center justify-center">
-                <Toggle v-if="false" v-model="isDarkMode" />
+
+              <!-- Auth Buttons -->
+              <div
+                class="md:col-span-2 flex items-center justify-center space-x-2 mt-2 md:mt-0"
+              >
                 <template v-if="!isLoggedIn">
                   <base-button
-                    class="text-xs p-1 w-20 text-black rounded"
+                    class="text-[10px] md:text-xs p-1.5 md:p-2 w-20 md:w-24 text-black rounded-lg hover:bg-opacity-90 transition-colors duration-200"
                     data-testid="testRegisterButton"
                     variant="solid"
                     :text="$t('actions.register')"
@@ -176,7 +212,7 @@
                     :action="() => $router.push('/register')"
                   />
                   <base-button
-                    class="text-xs ml-2 p-1 w-20 rounded"
+                    class="text-[10px] md:text-xs p-1.5 md:p-2 w-20 md:w-24 rounded-lg hover:bg-opacity-90 transition-colors duration-200"
                     data-testid="testLoginButton"
                     variant="outline-dark"
                     :text="$t('actions.login')"
@@ -193,18 +229,15 @@
                 </template>
               </div>
             </div>
+
+            <!-- Incident Tabs -->
             <div
-              class="h-12 mt-3 flex text-xs"
-              data-testid="testIncidentSelectedDiv"
+              class="h-14 md:h-18 lg:h-12 mt-2 md:mt-3 flex text-[10px] md:text-xs overflow-x-auto whitespace-nowrap"
             >
               <div
-                class="live-tab px-6"
+                class="live-tab px-3 md:px-4 lg:px-6"
                 :class="incidentId ? '' : 'live-tab--selected'"
-                @click="
-                  $router.push({
-                    name: 'nav.pew',
-                  })
-                "
+                @click="$router.push({ name: 'nav.pew' })"
               >
                 {{ $t('pewPew.current') }}
               </div>
@@ -212,11 +245,8 @@
                 v-for="i in incidents"
                 :key="i.id"
                 :data-testid="`testIncident${i.id}Div`"
-                :to="{
-                  name: 'nav.pew',
-                  query: { incident: i.id },
-                }"
-                class="live-tab px-2"
+                :to="{ name: 'nav.pew', query: { incident: i.id } }"
+                class="live-tab px-2 md:px-3 lg:px-4"
                 :class="
                   String(i.id) === String(incidentId)
                     ? 'live-tab--selected'
@@ -224,31 +254,42 @@
                 "
               >
                 <DisasterIcon
-                  class="mx-2"
+                  class="mx-0.5 md:mx-1 lg:mx-2"
                   :data-testid="`testDisaster${i.id}Icon`"
                   :current-incident="i"
                   :alt="i.short_name"
                 />
-                {{ i.short_name }}
+                <span class="text-[10px] md:text-xs">{{ i.short_name }}</span>
               </router-link>
             </div>
-            <div class="flex-grow select-none grid grid-cols-10">
-              <div class="relative h-full select-none col-span-7">
+
+            <!-- Map and Charts Area -->
+            <div
+              class="flex-grow select-none grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0"
+            >
+              <!-- Map Section -->
+              <div
+                class="relative min-h-[400px] md:h-full select-none col-span-1 md:col-span-7"
+              >
                 <div
                   id="map"
                   ref="map"
                   data-testid="testMapDiv"
-                  class="absolute top-0 left-0 right-0 bottom-0"
+                  class="absolute top-0 left-0 right-0 bottom-0 rounded-sm"
                 ></div>
+
+                <!-- Map Loading Indicator -->
                 <div
                   v-if="mapLoading"
                   data-testid="testMapLoadingDiv"
-                  class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls"
+                  class="absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center z-map-controls bg-black bg-opacity-50 rounded-sm"
                 >
                   <spinner />
                 </div>
+
+                <!-- Map Controls -->
                 <div
-                  class="absolute top-0 left-0 m-2 p-2 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md z-map-controls"
+                  class="absolute top-0 left-0 m-2 p-2 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-sm z-map-controls w-[calc(100%-1rem)] md:w-auto"
                 >
                   <Slider
                     primary-color="#FECE09"
@@ -256,13 +297,11 @@
                     :value="100"
                     :from="$t('svi.most_vulnerable')"
                     :to="$t('svi.everyone')"
-                    @input="
-                      (value) => {
-                        refreshSvi(value);
-                      }
-                    "
+                    @input="(_value) => refreshSvi(_value)"
                   ></Slider>
                 </div>
+
+                <!-- Zoom Controls -->
                 <div
                   class="absolute top-0 left-0 m-2 p-2 rounded-md mt-12 flex flex-col z-map-controls"
                 >
@@ -276,7 +315,7 @@
                       :title="$t('worksiteMap.zoom_in')"
                       :alt="$t('worksiteMap.zoom_in')"
                       :action="zoomIn"
-                      class="w-8 h-8 border-crisiscleanup-dark-100 border-b bg-opacity-25 bg-crisiscleanup-dark-400 shadow-xl text-white text-xl rounded-t"
+                      class="w-8 h-8 border-crisiscleanup-dark-100 border-b bg-opacity-25 bg-crisiscleanup-dark-400 text-white text-xl rounded-sm hover:bg-opacity-50 transition-colors duration-200"
                     />
                     <base-button
                       text=""
@@ -287,10 +326,12 @@
                       :title="$t('worksiteMap.zoom_out')"
                       :alt="$t('worksiteMap.zoom_out')"
                       :action="zoomOut"
-                      class="w-8 h-8 bg-opacity-25 bg-crisiscleanup-dark-400 shadow-xl text-white text-xl rounded-b"
+                      class="w-8 h-8 bg-opacity-25 bg-crisiscleanup-dark-400 text-white text-xl rounded-sm hover:bg-opacity-50 transition-colors duration-200"
                     />
                   </div>
                 </div>
+
+                <!-- Live Incidents -->
                 <div
                   :key="incidentId"
                   class="absolute top-0 right-0 h-48 w-auto overflow-hidden mt-3 mr-3 z-map-controls"
@@ -304,25 +345,25 @@
                     <div
                       v-for="i in liveIncidents"
                       :key="i.key"
-                      class="bg-crisiscleanup-dark-400 p-1 my-2 bg-opacity-25 w-56 text-center"
+                      class="bg-crisiscleanup-dark-400 p-2 my-2 bg-opacity-25 w-48 md:w-56 text-center rounded-sm text-sm md:text-base"
                     >
                       {{ i.name }}
                     </div>
                   </transition-group>
                 </div>
+
+                <!-- Legend -->
                 <div
                   v-if="displayedWorkTypeSvgs.length > 0"
-                  class="absolute bottom-0 left-0 w-1/3 h-auto bg-crisiscleanup-dark-400 p-2 ml-3 bg-opacity-25 z-map-controls"
+                  class="absolute bottom-0 left-0 w-[calc(100%-1.5rem)] md:w-1/3 h-auto bg-crisiscleanup-dark-400 p-2 md:p-3 ml-3 bg-opacity-25 z-map-controls rounded-sm"
                   style="bottom: 25%"
                 >
                   <div
-                    class="flex justify-between font-bold my-1 text-white text-sm"
+                    class="flex justify-between font-bold my-1 md:my-2 text-white text-xs md:text-sm"
                   >
-                    <span>
-                      {{ $t('worksiteMap.legend') }}
-                    </span>
+                    <span>{{ $t('worksiteMap.legend') }}</span>
                     <span
-                      class="cursor-pointer"
+                      class="cursor-pointer hover:text-crisiscleanup-light-400 transition-colors duration-200"
                       @click="isLegendHidden = !isLegendHidden"
                     >
                       <font-awesome-icon
@@ -342,69 +383,73 @@
                   <transition name="fade">
                     <div
                       v-if="!isLegendHidden"
-                      class="grid grid-cols-2 auto-cols-max justify-between"
+                      class="grid grid-cols-2 md:grid-cols-2 auto-cols-max justify-between gap-1 md:gap-2"
                     >
                       <div
                         v-for="entry in displayedWorkTypeSvgs"
                         :key="entry.key"
                         :data-testid="`testLegendSvgs${entry.key}Div`"
-                        class="flex items-center mb-1 cursor-pointer p-1 hover:border-white border"
+                        class="flex items-center mb-1 cursor-pointer p-1 md:p-2 hover:bg-crisiscleanup-dark-300 rounded-sm transition-colors duration-200"
                         :class="
-                          entry.selected
-                            ? 'selected border-white'
-                            : 'border-transparent'
+                          entry.selected ? 'bg-crisiscleanup-dark-300' : ''
                         "
                         @click="
                           () => {
                             entry.selected = !entry.selected;
-                            // displayedWorkTypeSvgs = [...displayedWorkTypeSvgs]; TODO: Fix filtering for worktypes
                             refreshVisibility(entry.key);
                           }
                         "
                       >
                         <div class="map-svg-container" v-html="entry.svg"></div>
-                        <span class="text-xs ml-1 text-white">{{
-                          getWorkTypeName(entry.key)
-                        }}</span>
+                        <span
+                          class="text-[10px] md:text-xs ml-1 md:ml-2 text-white"
+                          >{{ getWorkTypeName(entry.key) }}</span
+                        >
                       </div>
                     </div>
                   </transition>
                 </div>
+
+                <!-- Map Stats and Controls -->
                 <div class="absolute left-0 bottom-0 right-0 z-map-controls">
                   <div class="relative">
                     <img
                       src="@/assets/cc-logo.svg"
                       data-testid="testCcuLogoIcon"
                       alt="crisis-cleanup-logo"
-                      class="absolute p-3 h-16 right-0 bottom-0 opacity-20"
+                      class="absolute p-2 md:p-3 h-12 md:h-16 right-0 bottom-0 opacity-20"
                     />
                   </div>
                   <div
-                    class="mapStats grid grid-flow-col auto-cols-max items-center overflow-x-auto mb-2 px-3"
+                    class="mapStats grid grid-flow-col auto-cols-max items-center overflow-x-auto mb-2 px-2 md:px-3"
                   >
                     <div
                       v-for="item in mapStatistics"
                       :key="item['title']"
                       :data-testid="`testMapStatItem${item['title']}Div`"
-                      class="p-1 px-3 border mx-1 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-md"
+                      class="p-1 md:p-2 px-2 md:px-4 border mx-1 bg-opacity-25 bg-crisiscleanup-dark-400 rounded-sm hover:bg-opacity-35 transition-colors duration-200"
                       :style="item['style']"
                     >
-                      <div class="text-center text-white text-xs opacity-50">
+                      <div
+                        class="text-center text-white text-[10px] md:text-xs opacity-50"
+                      >
                         {{ item['title'] }}
                       </div>
-                      <div class="text-center text-white text-sm">
+                      <div
+                        class="text-center text-white text-xs md:text-sm font-semibold"
+                      >
                         {{ item['count'] }}
                       </div>
                     </div>
                   </div>
                   <div
-                    class="w-auto h-auto bg-crisiscleanup-dark-400 p-3 bg-opacity-25 flex mb-8 mx-3 rounded"
+                    class="w-auto h-auto bg-crisiscleanup-dark-400 p-2 md:p-3 bg-opacity-25 flex mb-4 md:mb-8 mx-2 md:mx-3 rounded-sm"
                   >
                     <div class="flex justify-center items-center mr-2">
                       <base-button
                         v-if="!isPaused"
                         data-testid="testPauseGeneratePointsButton"
-                        class="w-8 h-8 rounded-full focus:outline-none border p-2"
+                        class="w-6 h-6 md:w-8 md:h-8 rounded-full focus:outline-none border p-1 md:p-2 hover:bg-opacity-50 transition-colors duration-200"
                         :action="pauseGeneratePoints"
                         icon="pause"
                         icon-size="xs"
@@ -413,7 +458,7 @@
                       <base-button
                         v-else
                         data-testid="testResumeGeneratePointsButton"
-                        class="w-8 h-8 rounded-full focus:outline-none border p-2"
+                        class="w-6 h-6 md:w-8 md:h-8 rounded-full focus:outline-none border p-1 md:p-2 hover:bg-opacity-50 transition-colors duration-200"
                         :action="resumeGeneratePoints"
                         icon="play"
                         icon-size="xs"
@@ -431,17 +476,18 @@
                       :to="queryFilter.end_date.format('MMM Do YYYY')"
                       :alt="$t('actions.play')"
                       @input="
-                        (value) => {
-                          throttle(() => {
-                            refreshTimeline(value);
-                          }, 1000)();
-                        }
+                        (_value) =>
+                          throttle(() => refreshTimeline(_value), 1000)()
                       "
                     ></Slider>
                   </div>
                 </div>
               </div>
-              <div class="h-full p-2 w-full col-span-3 grid grid-rows-12">
+
+              <!-- Right Sidebar -->
+              <div
+                class="h-full p-2 w-full col-span-1 md:col-span-3 grid grid-rows-12 min-h-[1200px] md:min-h-[0px]"
+              >
                 <LiveOrganizationTable
                   :organizations="organizations"
                   :query-filter="queryFilter"
@@ -450,13 +496,12 @@
                   data-testid="testLiveOrganizationTableDiv"
                   class="row-span-7 relative"
                 />
-                <div class="row-span-5">
+                <div class="row-span-5" data-testid="testBottomChartTabsDiv">
                   <tabs
-                    ref="tabs"
                     data-testid="testStopChartTabCirculationTimerTab"
-                    class="relative h-full m-1"
-                    tab-classes="text-xs"
-                    tab-default-classes="flex items-center justify-center text-center h-10 cursor-pointer px-2"
+                    class="relative h-full m-1 overflow-x-auto flex md:block"
+                    tab-classes="text-[10px] md:text-xs"
+                    tab-default-classes="flex items-center justify-center text-center h-8 md:h-10 cursor-pointer px-1.5 md:px-2 hover:bg-crisiscleanup-dark-300 transition-colors duration-200"
                     tab-active-classes="bg-crisiscleanup-dark-400 rounded-t-lg"
                     @tab-selected="stopChartTabCirculationTimer"
                   >
@@ -470,14 +515,16 @@
                         chartCirculationTimerData.activeChartTab === 0
                       "
                     >
-                      <div class="chart-container rounded-tr-xl h-72">
+                      <div
+                        class="chart-container rounded-tr-xl h-56 md:h-64 lg:h-72"
+                      >
                         <CircularBarplot
                           v-if="circularBarplotData.length > 0"
                           :key="circularBarplotData"
                           data-testid="testPpCallTimesChart"
-                          class="h-full h-full"
+                          class="h-full w-full"
                           :chart-data="circularBarplotData"
-                          :margin="20"
+                          :margin="15"
                           :is-stacked="false"
                         />
                       </div>
@@ -492,12 +539,14 @@
                         chartCirculationTimerData.activeChartTab === 1
                       "
                     >
-                      <div class="chart-container rounded-t-xl">
+                      <div
+                        class="chart-container rounded-t-xl h-56 md:h-64 lg:h-72"
+                      >
                         <TotalCases
                           :key="totalCasesChartData"
                           data-testid="testTotalCasesChart"
                           class="h-full w-full"
-                          :margin-all="30"
+                          :margin-all="20"
                           :chart-data="totalCasesChartData"
                         />
                       </div>
@@ -511,7 +560,9 @@
                         chartCirculationTimerData.activeChartTab === 2
                       "
                     >
-                      <div class="chart-container rounded-t-xl h-72">
+                      <div
+                        class="chart-container rounded-t-xl h-56 md:h-64 lg:h-72"
+                      >
                         <D3BarChart
                           :key="barChartData"
                           class="h-full w-full"
@@ -537,7 +588,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { useStore } from 'vuex';
 import { shuffle, throttle } from 'lodash';
-import { watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { getQueryString } from '@/utils/urls';
 import useLiveMap from '@/hooks/worksite/useLiveMap';
@@ -562,8 +613,34 @@ import PewPewNavBar from '@/components/navigation/PewPewNavBar.vue';
 import User from '@/models/User';
 import { useAuthStore } from '@/hooks';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import type { Sprite, WorksiteType } from '@/types';
+import { useMq } from 'vue3-mq';
 
-export default defineComponent({
+interface QueryFilter {
+  start_date: moment.Moment;
+  end_date: moment.Moment;
+  incident?: string;
+}
+
+interface SiteInfoTimerData {
+  timerId: number | null;
+  activeInfoTab: number;
+  isTimerActive: boolean;
+}
+
+interface ChartCirculationTimerData {
+  timerId: number | null;
+  activeInfoTab: number;
+  isTimerActive: boolean;
+}
+
+interface MapStatistics {
+  title: string;
+  count: number;
+  style: Record<string, string>;
+}
+
+export default {
   name: 'PewPew',
   components: {
     PhoneNumberDisplay,
@@ -583,21 +660,28 @@ export default defineComponent({
     const store = useStore();
     const { t } = useI18n();
     const authStore = useAuthStore();
+    const route = useRoute();
+    const mq = useMq();
 
-    const queryFilter = ref({
+    // State
+    const queryFilter = ref<QueryFilter>({
       start_date: moment().add(-60, 'days'),
       end_date: moment(),
     });
-    const cards = ref(null);
-    const incidentId = ref(null);
-    const liveIncidents = ref([]);
-    const incidents = ref([]);
+    const cards = ref<InstanceType<typeof CardStack> | null>(null);
+    const incidentId = ref<string | null>(null);
+    const liveIncidents = ref<Array<{ name: string; key: string }>>([]);
+    const incidents = ref<Array<Record<string, any>>>([]);
     const mapLoading = ref(false);
     const isLegendHidden = ref(false);
     const colorMode = ref('dark');
-    const lastEventTimestamp = ref(null);
+    const lastEventTimestamp = ref<string | null>(null);
     const markersLength = ref(0);
-    const mapUtils = ref(null);
+    const mapUtils = ref<any>(null);
+    const organizations = ref<Array<Record<string, any>>>([]);
+    const showSidebar = ref(false);
+
+    // Computed
     const isDarkMode = computed(() => colorMode.value === 'dark');
     const { isAuthenticated: isLoggedIn } = useAuthStore();
     const incidentList = computed(() =>
@@ -605,7 +689,6 @@ export default defineComponent({
         .where('active_phone_number', (p: unknown) => isValidActiveHotline(p))
         .get(),
     );
-    const organizations = ref([]);
 
     const {
       currentSiteStats,
@@ -617,51 +700,35 @@ export default defineComponent({
       formatStatValue,
     } = useSiteStatistics(queryFilter, organizations);
 
-    const styles = computed(() => {
-      if (colorMode.value === 'dark') {
-        return {
-          color: 'white',
-          backgroundColor: '#232323',
-        };
-      }
+    const styles = computed(() => ({
+      color: colorMode.value === 'dark' ? 'white' : '#232323',
+      backgroundColor: colorMode.value === 'dark' ? '#232323' : 'white',
+    }));
 
-      return {
-        color: '#232323',
-        backgroundColor: 'white',
-      };
-    });
+    const overlayStyles = computed(() => ({
+      color: colorMode.value === 'dark' ? 'white' : '#232323',
+      backgroundColor: colorMode.value === 'dark' ? '#242C36' : 'white',
+    }));
 
-    const overlayStyles = computed(() => {
-      if (colorMode.value === 'dark') {
-        return {
-          color: 'white',
-          backgroundColor: '#242C36',
-        };
-      }
-
-      return {
-        color: '#232323',
-        backgroundColor: 'white',
-      };
-    });
-
-    const siteInfoTimerData = reactive({
+    // Timer Data
+    const siteInfoTimerData = reactive<SiteInfoTimerData>({
       timerId: null,
       activeInfoTab: 0,
       isTimerActive: true,
     });
 
-    const chartCirculationTimerData = reactive({
+    const chartCirculationTimerData = reactive<ChartCirculationTimerData>({
       timerId: null,
       activeInfoTab: 0,
       isTimerActive: true,
     });
 
+    // Methods
     async function getAllEvents() {
       try {
         mapLoading.value = true;
         if (queryFilter.value.incident) {
-          const params = {
+          const params: Record<string, any> = {
             limit: 60_000,
             event_key__in: Object.keys({
               user_create_worksite: true,
@@ -673,9 +740,7 @@ export default defineComponent({
           };
           const queryString = getQueryString(params);
           const response = await axios.get(
-            `${
-              import.meta.env.VITE_APP_API_BASE_URL
-            }/all_events?${queryString}`,
+            `${import.meta.env.VITE_APP_API_BASE_URL}/all_events?${queryString}`,
           );
           return response.data.results;
         }
@@ -685,9 +750,7 @@ export default defineComponent({
         };
         const queryString = getQueryString(params);
         const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/recent_events?${queryString}`,
+          `${import.meta.env.VITE_APP_API_BASE_URL}/recent_events?${queryString}`,
         );
         markersLength.value = response.data.length;
         return response.data;
@@ -697,7 +760,7 @@ export default defineComponent({
     }
 
     async function getLatestEvents() {
-      const params = {
+      const params: Record<string, any> = {
         limit: 100,
         sort: '-created_at',
         incident_id: queryFilter.value.incident || '',
@@ -733,51 +796,45 @@ export default defineComponent({
       mapUtils.value?.resumeGeneratePoints();
     }
 
-    function refreshTimeline(index) {
+    function refreshTimeline(index: number) {
       mapUtils.value?.refreshTimeline(index);
     }
 
-    function refreshSvi(index) {
+    function refreshSvi(index: number) {
       mapUtils.value?.refreshSvi(index);
     }
 
-    function refreshVisibility(index) {
+    function refreshVisibility(index: string) {
       mapUtils.value?.refreshVisibility(index);
     }
 
     async function getRecentIncidents() {
       const response = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/incidents?fields=id,name,short_name,geofence,locations,incident_type,color,turn_on_release,active_phone_number&limit=8&sort=-start_at`,
+        `${import.meta.env.VITE_APP_API_BASE_URL}/incidents?fields=id,name,short_name,geofence,locations,incident_type,color,turn_on_release,active_phone_number&limit=8&sort=-start_at`,
       );
       const { results } = response.data;
       return results;
     }
 
     async function getOrganizations() {
-      const { incident } = queryFilter.value;
-      const params = {
+      const params: Record<string, any> = {
         start_date: moment().add(-120, 'days').format('YYYY-MM-DD'),
         end_date: moment().format('YYYY-MM-DD'),
       };
-      if (incident) {
-        params.incident = incident;
+      if (queryFilter.value.incident) {
+        params.incident = queryFilter.value.incident;
       }
 
       const queryString = getQueryString(params);
-
       const response = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/reports_data/organization_statistics?${queryString}`,
+        `${import.meta.env.VITE_APP_API_BASE_URL}/reports_data/organization_statistics?${queryString}`,
       );
       return response.data;
     }
 
-    function startSiteInfoTabCirculationTimer(ms) {
+    function startSiteInfoTabCirculationTimer(ms: number) {
       const totalTabs = 2;
-      siteInfoTimerData.timerId = setInterval(() => {
+      siteInfoTimerData.timerId = window.setInterval(() => {
         siteInfoTimerData.activeInfoTab =
           (siteInfoTimerData.activeInfoTab + 1) % totalTabs;
       }, ms);
@@ -790,9 +847,9 @@ export default defineComponent({
       }
     }
 
-    function startTabCirculationTimer(ms) {
-      const totalTabs = 3; // total tabs present inside tabs component
-      chartCirculationTimerData.timerId = setInterval(() => {
+    function startTabCirculationTimer(ms: number) {
+      const totalTabs = 3;
+      chartCirculationTimerData.timerId = window.setInterval(() => {
         chartCirculationTimerData.activeChartTab =
           (chartCirculationTimerData.activeChartTab + 1) % totalTabs;
       }, ms);
@@ -805,6 +862,7 @@ export default defineComponent({
       }
     }
 
+    // Lifecycle Hooks
     onMounted(async () => {
       getRecentIncidents().then((results) => {
         incidents.value = results;
@@ -812,10 +870,31 @@ export default defineComponent({
       getOrganizations().then((o) => {
         organizations.value = shuffle(o);
       });
+      const emptyArray: (Sprite & WorksiteType)[] = [];
       mapUtils.value = useLiveMap(
         await getAllEvents(),
-        () => [],
-        null,
+        emptyArray,
+        new Incident({
+          id: 0,
+          case_label: '',
+          timezone: '',
+          form_fields: [],
+          geofence: null,
+          short_name: '',
+          name: '',
+          start_at: '',
+          uuid: '',
+          extent: null,
+          incident_type: '',
+          color: '',
+          locations: [],
+          turn_on_release: false,
+          auto_contact: false,
+          active_phone_number: undefined,
+          created_work_types: [],
+          is_archived: false,
+          incident_center: null,
+        }),
         2000,
         getLatestEvents,
         (card) => {
@@ -832,7 +911,7 @@ export default defineComponent({
           }
         },
         () => {
-          cards.value.clearCards();
+          cards.value?.clearCards();
           liveIncidents.value = [];
         },
       );
@@ -840,24 +919,30 @@ export default defineComponent({
       startTabCirculationTimer(10_000);
     });
 
+    // Watchers
+    watch(
+      () => route.query.incident,
+      async (value: string | undefined) => {
+        if (value) {
+          queryFilter.value.incident = value;
+          incidentId.value = value;
+          queryFilter.value = { ...queryFilter.value };
+          lastEventTimestamp.value = null;
+          mapUtils?.value?.reloadMap(
+            await getAllEvents(),
+            [] as (Sprite & WorksiteType)[],
+          );
+          mapUtils?.value?.restartLiveEvents();
+        }
+      },
+    );
+
+    // Computed Properties
     const isPaused = computed(() => mapUtils.value?.isPaused);
     const displayedWorkTypeSvgs = computed(
       () => mapUtils.value?.displayedWorkTypeSvgs || [],
     );
 
-    const route = useRoute();
-
-    watch(
-      () => route.query.incident,
-      async (value) => {
-        queryFilter.value.incident = value;
-        incidentId.value = value;
-        queryFilter.value = { ...queryFilter.value };
-        lastEventTimestamp.value = null;
-        mapUtils?.value?.reloadMap(await getAllEvents(), () => []);
-        mapUtils?.value?.restartLiveEvents();
-      },
-    );
     return {
       isLegendHidden,
       colorMode,
@@ -901,9 +986,11 @@ export default defineComponent({
       getWorkTypeName,
       logout: () => authStore.logout(),
       $t: (text: string) => (text ? t(text) : undefined),
+      showSidebar,
+      mq,
     };
   },
-});
+};
 </script>
 
 <style lang="postcss">
@@ -931,7 +1018,7 @@ export default defineComponent({
 }
 
 .live-tab--selected {
-  @apply bg-gradient-to-t from-crisiscleanup-dark-500 to-crisiscleanup-dark-400 rounded-t;
+  @apply bg-crisiscleanup-dark-400 rounded-sm;
 }
 
 .leaflet-data-marker svg {
@@ -959,13 +1046,7 @@ export default defineComponent({
   @apply h-full w-full overflow-hidden;
 
   .ribbon-gradient {
-    background: linear-gradient(
-      270deg,
-      rgba(129, 154, 176, 0) 0.27%,
-      #819ab0 25.98%,
-      #819ab0 75.52%,
-      rgba(129, 154, 176, 0) 100.43%
-    );
+    background: rgba(129, 154, 176, 0.7);
   }
 
   /* set top to 2.5rem to place it after tab headers which has a h-10 = 2.5rem */
@@ -981,9 +1062,7 @@ export default defineComponent({
     bottom-0
     left-0
     right-0
-    bg-gradient-to-b
-    from-crisiscleanup-dark-400
-    via-crisiscleanup-dark-500;
+    bg-crisiscleanup-dark-400;
   }
 
   ::-webkit-scrollbar {

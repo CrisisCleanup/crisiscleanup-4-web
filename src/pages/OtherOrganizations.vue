@@ -13,141 +13,289 @@
         </base-text>
       </div>
     </div>
-
-    <div class="flex">
-      <base-input
-        v-model="organizations.search"
-        data-testid="testOrganizationsSearchTextInput"
-        icon="search"
-        class="sm:w-84 my-2"
-        :placeholder="$t('actions.search')"
-        @update:model-value="onSearchInput"
-      ></base-input>
-
-      <base-button
-        v-if="table"
-        :action="table.exportTableCSV"
-        type="primary"
-        :text="$t('actions.download')"
-        :alt="$t('actions.download')"
-        class="table-action-button my-2 ml-2 p-2"
-        ccu-icon="download"
-        icon-size="small"
-      />
+    <div v-if="loading">
+      <spinner />
     </div>
+    <div v-else>
+      <div class="flex items-center gap-3 mb-3">
+        <base-input
+          data-testid="testOrganizationsSearchTextInput"
+          :model-value="search"
+          icon="search"
+          class="w-72"
+          :placeholder="$t('info.search_items')"
+          @update:model-value="
+            (value) => {
+              search = value;
+            }
+          "
+        ></base-input>
 
-    <AjaxTable
-      ref="table"
-      :columns="columns"
-      :url="tableUrl"
-      :body-style="{ height: '' }"
-      data-testid="testOrganizationsDataTable"
-      class="bg-white border"
-      :query="{
-        search: organizations.search,
-        incident: currentIncidentId,
-        fields: 'id,name,url,facebook,twitter,type_t',
-      }"
-    >
-      <template #url="slotProps">
+        <!-- Toggle Button for Checkboxes -->
+        <base-button type="primary" size="md" @click="toggleCheckboxes">
+          {{ showCheckboxes ? $t('actions.done') : $t('actions.show_columns') }}
+        </base-button>
+
         <base-button
-          class="text-primary-dark underline sm:ml-0 ml-1"
-          :icon-classes="$mq === 'sm' ? 'fa-2x' : 'fa-lg'"
-          icon="globe"
-          :alt="$t('profileOrg.url')"
-          :style="slotProps.item.url === '' ? 'opacity: .5' : ''"
-          :action="
-            () => {
-              if (slotProps.item.url != '') {
-                open(slotProps.item.url, `_blank`);
+          type="secondary"
+          size="md"
+          variant="outline"
+          @click="downloadCsv"
+        >
+          {{ $t('Download CSV') }}
+        </base-button>
+      </div>
+
+      <div
+        v-if="showCheckboxes"
+        class="grid grid-cols-3 gap-4 mb-4 border p-4 rounded"
+      >
+        <base-checkbox
+          v-for="column in allColumns"
+          :key="column.key"
+          :model-value="selectedColumns.includes(column.key)"
+          @update:model-value="
+            ($event) => {
+              if ($event) {
+                selectedColumns.push(column.key);
+              } else {
+                selectedColumns.splice(selectedColumns.indexOf(column.key), 1);
               }
+              selectedColumns = [...selectedColumns];
             }
           "
-        />
-        <a
-          v-if="$mq === 'sm'"
-          class="text-primary-dark underline ml-2"
-          :href="slotProps.item.url"
-          >{{ slotProps.item.url }}</a
         >
-      </template>
-      <template #facebook="slotProps">
-        <img
-          src="@/assets/facebook.svg"
-          class="sm:ml-1 sm:w-16 w-12"
-          :style="slotProps.item.facebook === '' ? 'opacity: .5' : ''"
-          :alt="$t('profileOrg.facebook')"
-          @click="
-            () => {
-              if (slotProps.item.facebook != '')
-                open(slotProps.item.facebook, `_blank`);
-            }
-          "
-        />
-        <a
-          v-if="$mq === 'sm'"
-          class="text-primary-dark underline ml-1"
-          :href="slotProps.item.facebook"
-          >{{ slotProps.item.facebook }}</a
-        >
-      </template>
-      <template #twitter="slotProps">
-        <img
-          src="@/assets/twitter.svg"
-          class="sm:w-6 w-10 sm:ml-0 ml-1"
-          :style="slotProps.item.twitter === '' ? 'opacity: .5' : ''"
-          :alt="$t('profileOrg.twitter')"
-          @click="
-            () => {
-              if (slotProps.item.twitter != '')
-                open(slotProps.item.twitter, `_blank`);
-            }
-          "
-        />
-        <a
-          v-if="$mq === 'sm'"
-          class="text-primary-dark underline ml-2"
-          :href="slotProps.item.twitter"
-          >{{ slotProps.item.twitter }}</a
-        >
-      </template>
-      <template #type_t="slotProps">
-        <base-text>{{ $t(slotProps.item.type_t) }}</base-text>
-      </template>
-    </AjaxTable>
+          {{ $t(column.title) }}
+        </base-checkbox>
+      </div>
+
+      <AjaxTable
+        ref="table"
+        :columns="columns"
+        :url="tableUrl"
+        :body-style="{ height: '40rem' }"
+        :query="{
+          incident: currentIncidentId,
+          search,
+        }"
+        has-row-details
+        data-testid="testOrganizationsDataTable"
+      >
+        <template #rowDetails="slotProps">
+          <div
+            v-if="JSON.parse(slotProps.item.primary_contacts)?.primary_contacts"
+            class="flex p-3"
+            data-testid="testPrimaryContactsDiv"
+          >
+            <div class="mr-4">
+              <base-text variant="h2">
+                {{ $t('otherOrganizations.primary_contacts') }}
+              </base-text>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: max-content max-content max-content;
+                  grid-column-gap: 10px;
+                "
+              >
+                <template
+                  v-for="contact in JSON.parse(slotProps.item.primary_contacts)
+                    ?.primary_contacts"
+                  :key="contact.email"
+                >
+                  <div class="my-1">
+                    <strong class="font-bold"
+                      >{{ contact.first_name }} {{ contact.last_name }}</strong
+                    >
+                    <div>{{ contact.title ? contact.title : '' }}</div>
+                    <div>{{ contact.email }}</div>
+                    <div>{{ contact.mobile }}</div>
+                  </div>
+                </template>
+              </div>
+            </div>
+            <div>
+              <base-text
+                v-if="
+                  JSON.parse(slotProps.item.primary_contacts)
+                    ?.incident_primary_contacts
+                "
+                variant="h2"
+              >
+                {{ $t('otherOrganizations.incident_primary_contacts') }}
+              </base-text>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: max-content max-content max-content;
+                  grid-column-gap: 10px;
+                "
+              >
+                <template
+                  v-for="contact in JSON.parse(slotProps.item.primary_contacts)
+                    ?.incident_primary_contacts"
+                  :key="contact.email"
+                >
+                  <div class="my-1">
+                    <strong class="font-bold"
+                      >{{ contact.first_name }} {{ contact.last_name }}</strong
+                    >
+                    <div>{{ contact.title ? contact.title : '' }}</div>
+                    <div>{{ contact.email }}</div>
+                    <div>{{ contact.mobile }}</div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template #url="slotProps">
+          <a
+            class="text-primary-dark underline ml-2"
+            :href="slotProps.item.url"
+            target="_blank"
+          >
+            <ccu-icon type="globe" class="mr-1" linked fa size="small" />
+          </a>
+        </template>
+        <template #facebook="slotProps">
+          <a
+            class="text-primary-dark underline ml-1"
+            :href="slotProps.item.facebook"
+            target="_blank"
+          >
+            <img
+              src="@/assets/facebook.svg"
+              class="sm:ml-1 sm:w-16 w-12"
+              :style="slotProps.item.facebook === '' ? 'opacity: .5' : ''"
+              :alt="$t('profileOrg.facebook')"
+            />
+          </a>
+        </template>
+        <template #twitter="slotProps">
+          <a
+            class="text-primary-dark underline ml-2"
+            :href="slotProps.item.twitter"
+            target="_blank"
+          >
+            <img
+              src="@/assets/twitter.svg"
+              class="sm:w-6 w-10 sm:ml-0 ml-1"
+              :style="slotProps.item.twitter === '' ? 'opacity: .5' : ''"
+              :alt="$t('profileOrg.twitter')"
+          /></a>
+        </template>
+        <template #type_t="slotProps">
+          <base-text>{{ $t(slotProps.item.type_t) }}</base-text>
+        </template>
+        <template #role_t="slotProps">
+          <div class="flex items-center">
+            <base-text>{{ $t(slotProps.item.role_t) }}</base-text>
+            <ccu-icon
+              type="help"
+              size="medium"
+              :action="
+                () => {
+                  showRoleDescription(slotProps.item);
+                }
+              "
+            />
+          </div>
+        </template>
+        <template #case_overdue_count="slotProps">
+          <base-button
+            class="text-primary-dark underline"
+            data-testid="testOverdueCountButton"
+            :alt="slotProps.item.overdue_count || 0"
+            :action="
+              () => {
+                $router.push(
+                  `/incident/${currentIncidentId}/work?showTable=true&work_type__claimed_by=${
+                    slotProps.item.organization_id
+                  }&work_type__status__in=${getOpenStatuses()}&created_at__lte=${getCreatedAtLteFilter()}`,
+                );
+              }
+            "
+          >
+            {{ slotProps.item.case_overdue_count || 0 }}
+          </base-button>
+        </template>
+        <template #primary_location_id="slotProps">
+          <base-button
+            size="small"
+            icon="map"
+            :action="() => showLocation(slotProps.item.primary_location_id)"
+          >
+          </base-button>
+        </template>
+        <template #capabilities="slotProps">
+          <base-button
+            size="small"
+            icon="hammer"
+            :action="() => showCapabilities(slotProps.item.capabilities)"
+          >
+          </base-button>
+        </template>
+      </AjaxTable>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { throttle } from 'lodash';
+import axios from 'axios';
+import AjaxTable from '@/components/AjaxTable.vue';
+import BaseCheckbox from '@/components/BaseCheckbox.vue';
+import BaseButton from '@/components/BaseButton.vue';
+import { useCurrentIncident } from '@/hooks';
+import Spinner from '@/components/Spinner.vue';
 import moment from 'moment';
 import enums from '../store/modules/enums';
-import Table from '@/components/Table.vue';
-import type {
-  TableSorterObject,
-  TableChangeEmitItem,
-} from '@/components/Table.vue';
-import { getQueryString } from '@/utils/urls';
-import { cachedGet } from '@/utils/promise';
-import type Role from '@/models/Role';
-import { useApi } from '@/hooks/useApi';
-import type Organization from '@/models/Organization';
-import { useCurrentIncident, useCurrentUser } from '@/hooks';
-import AjaxTable from '@/components/AjaxTable.vue';
+import useDialogs from '@/hooks/useDialogs';
+import DisplayLocation from '@/components/DisplayLocation.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import CcuIcon from '@/components/BaseIcon.vue';
+import { forceFileDownload } from '@/utils/downloads';
+import CapabilityMatrix from '@/components/CapabilityMatrix.vue';
 
-export default defineComponent({
+export default {
   name: 'OtherOrganizations',
-  components: { AjaxTable, Table },
-  setup(props) {
-    const store = useStore();
-    const ccuApi = useApi();
-    const { t, locale } = useI18n();
-    const tableUrl = import.meta.env.VITE_APP_API_BASE_URL + '/organizations';
+  components: {
+    CcuIcon,
+    BaseInput,
+    Spinner,
+    BaseCheckbox,
+    AjaxTable,
+    BaseButton,
+  },
+  setup() {
+    const COLUMN_WIDTH_DICT = {
+      name: '1.5fr',
+      facebook: '50px',
+      twitter: '50px',
+      url: '50px',
+      type_t: 'minmax(200px, 1fr)',
+      role_t: 'minmax(200px, 1fr)',
+      incident_count: 'minmax(50px, 1fr)',
+      case_reported_count: 'minmax(50px, 1fr)',
+      case_claimed_count: 'minmax(50px, 1fr)',
+      case_closed_count: 'minmax(50px, 1fr)',
+      case_overdue_count: 'minmax(50px, 1fr)',
+    };
 
-    const loading = ref(false);
-    const table = ref(null);
+    const SORTABLE_COLUMNS = new Set([
+      'name',
+      'incident_count',
+      'case_reported_count',
+      'case_claimed_count',
+      'case_closed_count',
+      'case_overdue_count',
+    ]);
+
+    const HIDDEN_COLUMNS = new Set(['primary_contacts']);
+
     const organizations = reactive({
-      data: [] as Organization[],
+      data: [],
       meta: {
         pagination: {
           pageSize: 50,
@@ -156,160 +304,186 @@ export default defineComponent({
         },
       },
       search: '',
-      visible: true,
     });
-    const otherOrgSorter = ref<TableSorterObject<Organization>>({});
-    const organizationRoles = ref<Role[]>([]);
+
+    const allColumns = ref([]);
+    const selectedColumns = ref([
+      'name',
+      'url',
+      'facebook',
+      'twitter',
+      'role_t',
+      'incident_count',
+      'case_reported_count',
+      'case_claimed_count',
+      'case_closed_count',
+      'case_overdue_count',
+      'phone_user_count',
+      'active_user_count',
+    ]);
+    const search = ref('');
+    const columns = ref([]);
+    const loading = ref(false);
+    const showCheckboxes = ref(false);
+    const metadataUrl = '/other_organizations/metadata';
+    const tableUrl = '/other_organizations';
 
     const { currentIncidentId } = useCurrentIncident();
+    const { component, confirm } = useDialogs();
+    const { t } = useI18n();
 
-    const { currentUser } = useCurrentUser();
-    const columns = computed(() => [
-      {
-        title: t('otherOrganizations.name'),
-        dataIndex: 'name',
-        key: 'name',
-        sortable: true,
-        width: isLandscape() ? '2fr' : '350px',
-      },
-      {
-        // TODO: change title to show url within the $t()
-        title: t('Links'),
-        dataIndex: 'url',
-        key: 'url',
-        width: '30px',
-      },
-      {
-        // TODO: change title to show url within the $t()
-        title: '',
-        dataIndex: 'facebook',
-        key: 'facebook',
-        width: '50px',
-      },
-      {
-        // TODO: change title to show url within the $t()
-        title: '',
-        dataIndex: 'twitter',
-        key: 'twitter',
-        width: '50px',
-      },
-      {
-        title: t('profileOrg.organization_type'),
-        dataIndex: 'type_t',
-        key: 'type_t',
-        sortable: false,
-        width: '1fr',
-      },
-      // {
-      //   title: t('otherOrganizations.incidents'),
-      //   dataIndex: 'incident_count',
-      //   key: 'incident_count',
-      //   sortable: true,
-      //   transformer(item: number) {
-      //     return item || 0;
-      //   },
-      //   class: 'justify-center',
-      //   headerClass: 'justify-center',
-      // },
-      // {
-      //   title: t('otherOrganizations.cases_reported'),
-      //   dataIndex: 'reported_count',
-      //   key: 'reported_count',
-      //   sortable: true,
-      //   transformer(item: number) {
-      //     return item || 0;
-      //   },
-      //   class: 'justify-center',
-      //   headerClass: 'justify-center',
-      // },
-      // {
-      //   title: t('otherOrganizations.cases_claimed'),
-      //   dataIndex: 'claimed_count',
-      //   key: 'claimed_count',
-      //   sortable: true,
-      //   transformer(item: number) {
-      //     return item || 0;
-      //   },
-      //   class: 'justify-center',
-      //   headerClass: 'justify-center',
-      // },
-      // {
-      //   title: t('otherOrganizations.cases_closed'),
-      //   dataIndex: 'closed_count',
-      //   key: 'closed_count',
-      //   sortable: true,
-      //   transformer(item: number) {
-      //     return item || 0;
-      //   },
-      //   class: 'justify-center',
-      //   headerClass: 'justify-center',
-      // },
-      // {
-      //   title: t('otherOrganizations.cases_overdue'),
-      //   dataIndex: 'overdue_count',
-      //   key: 'overdue_count',
-      //   sortable: true,
-      //   class: 'justify-center',
-      //   headerClass: 'justify-center',
-      // },
-      // {
-      //   title: t('otherOrganizations.last_login'),
-      //   dataIndex: 'last_login',
-      //   key: 'last_login',
-      //   sortable: true,
-      //   class: 'justify-center',
-      //   headerClass: 'justify-center',
-      //   width: '150px',
-      //   transformer(item: Date) {
-      //     return moment(item).fromNow();
-      //   },
-      // },
-    ]);
+    const getColumnWidth = (key) => {
+      return COLUMN_WIDTH_DICT[key] || 'minmax(50px, 1fr)';
+    };
 
-    onMounted(async () => {
-      const organizationRolesResponse = await cachedGet(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/organization_roles`,
-        {},
-        `organizations_roles:${locale.value}`,
+    const fetchMetadata = async () => {
+      try {
+        loading.value = true;
+        const response = await axios.get(metadataUrl);
+        const metadata = response.data.columns;
+
+        allColumns.value = Object.entries(metadata)
+          .filter(([key]) => !HIDDEN_COLUMNS.has(key))
+          .map(([key, comment]) => ({
+            title: comment,
+            dataIndex: key,
+            key,
+            width: getColumnWidth(key),
+            sortable: SORTABLE_COLUMNS.has(key),
+            transformer(field: string) {
+              if (
+                [
+                  'last_activity_at',
+                  'org_joined_at',
+                  'incident_access_at',
+                  'created_at',
+                  'updated_at',
+                ].includes(key)
+              ) {
+                return moment(field).fromNow();
+              }
+              return field;
+            },
+          }));
+
+        updateColumns();
+      } catch (error) {
+        console.error('Failed to fetch metadata:', error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    const updateColumns = () => {
+      columns.value = allColumns.value.filter((column) =>
+        selectedColumns.value.includes(column.key),
       );
-      organizationRoles.value = organizationRolesResponse.data.results;
-    });
+    };
+
+    const toggleCheckboxes = () => {
+      showCheckboxes.value = !showCheckboxes.value;
+    };
+
+    const showLocation = async (locationId) => {
+      await component({
+        title: 'Location',
+        component: DisplayLocation,
+        props: {
+          location: locationId,
+        },
+        classes: 'w-full h-120 overflow-auto p-3',
+        modalClasses: 'bg-white max-w-3xl shadow',
+      });
+    };
+
+    const showCapabilities = async (capabilities) => {
+      await component({
+        title: 'Capabilities',
+        component: CapabilityMatrix,
+        props: {
+          rawData: JSON.parse(capabilities),
+        },
+        classes: 'w-full h-120 overflow-auto p-3',
+        modalClasses: 'bg-white max-w-3xl shadow',
+      });
+    };
 
     const getCreatedAtLteFilter = () => moment().subtract(6, 'd').toISOString();
-    function isLandscape() {
-      return window.matchMedia(
-        'only screen and (max-device-width: 1223px) and (orientation: landscape)',
-      ).matches;
+    function getOpenStatuses() {
+      enums.state.statuses.filter((status) => status.primary_state === 'open');
+      const openStatuses = enums.state.statuses.filter(
+        (status) => status.primary_state === 'open',
+      );
+      return openStatuses.map((status) => status.status).join(',');
     }
 
-    function getHighestRole(roles: number[]) {
-      if (roles.length > 0) {
-        return organizationRoles.value.find((role) => roles.includes(role.id));
+    const downloadCsv = async () => {
+      if (selectedColumns.value.length === 0) {
+        alert(t('info.please_select_one_column'));
+        return;
       }
 
-      return {};
+      try {
+        // Construct the query string with selected columns
+        const columnsQuery = selectedColumns.value
+          .map((col) => `columns=${col}`)
+          .join('&');
+        const url = `/other_organizations/download_csv?${columnsQuery}&incident=${currentIncidentId.value}&search=${search.value}`;
+
+        // Trigger the CSV download
+        const response = await axios.get(url, {
+          responseType: 'blob', // Important for downloading files
+        });
+
+        // Create a blob and download the file
+        forceFileDownload(response);
+      } catch (error) {
+        console.error('Failed to download CSV:', error);
+        alert(t('info.failed_to_download_try_again'));
+      }
+    };
+
+    async function showRoleDescription(organization) {
+      await confirm({
+        title: t(organization.role_t),
+        content: `
+          <div class="p-1">
+            <p>${t(organization.role_description_t)}</p>
+          </div>
+          <div class="p-1">
+            <p>${t(organization.role_limitations_t)}</p>
+          </div>
+        `,
+      });
     }
 
+    watch(selectedColumns, updateColumns);
+
+    onMounted(async () => {
+      await fetchMetadata();
+    });
+
     return {
-      loading,
       organizations,
       columns,
-      organizationRoles,
-      currentIncidentId,
-      currentUser,
-      otherOrgSorter,
-      throttle,
-      getCreatedAtLteFilter,
-      isLandscape,
-      getHighestRole,
+      loading,
       tableUrl,
-      table,
-      open: (location, target) => {
-        window.open(location, target);
-      },
+      currentIncidentId,
+      selectedColumns,
+      allColumns,
+      updateColumns,
+      showCheckboxes,
+      toggleCheckboxes,
+      getCreatedAtLteFilter,
+      getOpenStatuses,
+      showLocation,
+      search,
+      downloadCsv,
+      showCapabilities,
+      showRoleDescription,
     };
   },
-});
+};
 </script>
 
 <style lang="postcss" scoped></style>

@@ -14,6 +14,7 @@ export default class Team extends CCUModel {
   cases_area!: Record<string, unknown>;
   incident!: Incident;
   organization!: string;
+  color!: string;
 
   static fields() {
     return {
@@ -25,6 +26,7 @@ export default class Team extends CCUModel {
       cases_area: this.attr({}),
       incident: this.attr(null),
       organization: this.attr(''),
+      color: this.attr(''),
     };
   }
 
