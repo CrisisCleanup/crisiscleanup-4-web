@@ -57,8 +57,9 @@
           variant="solid"
           data-testid="testSaveButton"
           size="large"
+          :disabled="languages.length === 0"
           :alt="$t('actions.save')"
-          :action="() => updateUserNeeded()"
+          :action="updateUserNeeded"
           >{{ $t('actions.save') }}</base-button
         >
       </div>
@@ -96,7 +97,7 @@ export default defineComponent({
         await updateCurrentUser({ secondary_language: undefined });
         const [primary_language, secondary_language] = languages.value;
         await updateCurrentUser({ primary_language });
-        await updateCurrentUser({ secondary_language });
+        if (secondary_language) await updateCurrentUser({ secondary_language });
       }
 
       try {
