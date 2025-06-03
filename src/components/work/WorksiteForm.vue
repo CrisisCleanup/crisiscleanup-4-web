@@ -479,6 +479,19 @@
           @update-files="updateImage"
           @pop-local="onRemoveFile"
         />
+        <SectionHeading :count="7" class="mb-3">{{
+          $t('~~Attachments')
+        }}</SectionHeading>
+        <div class="px-3 pb-3">
+          <SupportingDocumentSection
+            :worksite="worksite"
+            :is-print-token="isPrintToken"
+            :is-survivor-token="isSurvivorToken"
+            :disable-document-upload="disableDocumentUpload"
+            @update-files="handleFileUpdate"
+            @documents-changed="handleDocumentsChanged"
+          />
+        </div>
       </template>
     </div>
     <div class="form-footer flex justify-between p-3 gap-2">
@@ -542,6 +555,7 @@ import useDialogs from '../../hooks/useDialogs';
 import useEmitter from '../../hooks/useEmitter';
 import BaseSelect from '../BaseSelect.vue';
 import WorksiteImageSection from './WorksiteImageSection.vue';
+import SupportingDocumentSection from './SupportingDocumentSection.vue';
 import WorksiteReportSection from './WorksiteReportSection.vue';
 import WorksiteSearchInput from './WorksiteSearchInput.vue';
 import SectionHeading from './SectionHeading.vue';
@@ -582,6 +596,7 @@ export default defineComponent({
     WorksiteSearchInput,
     WorksiteReportSection,
     WorksiteImageSection,
+    SupportingDocumentSection,
   },
   props: {
     worksiteId: {

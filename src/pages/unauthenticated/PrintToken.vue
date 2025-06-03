@@ -105,6 +105,16 @@
               @photos-changed="reloadFiles"
             />
           </div>
+          <div>
+            <base-text>{{ $t('printToken.supporting_documents') }}</base-text>
+            <SupportingDocumentSection
+              :key="printToken.files"
+              :worksite="printToken"
+              :is-print-token="true"
+              data-testid="testSupportingDocumentsFile"
+              @documents-changed="reloadFiles"
+            />
+          </div>
           <base-button
             variant="solid"
             data-testid="testSaveButton"
@@ -128,6 +138,7 @@ import WorksiteStatusDropdown from '../../components/WorksiteStatusDropdown.vue'
 import { getErrorMessage } from '../../utils/errors';
 import Home from '@/layouts/Home.vue';
 import WorksiteImageSection from '@/components/work/WorksiteImageSection.vue';
+import SupportingDocumentSection from '@/components/work/SupportingDocumentSection.vue';
 import { getWorkTypeName } from '@/filters/index';
 import IncidentContact from '@/components/IncidentContact.vue';
 
@@ -138,6 +149,7 @@ export default defineComponent({
     WorksiteImageSection,
     Home,
     WorksiteStatusDropdown,
+    SupportingDocumentSection,
   },
   setup() {
     const route = useRoute();
