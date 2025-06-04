@@ -368,6 +368,19 @@
         :worksite="worksite"
         class="px-3 pb-3"
       />
+      <SectionHeading :count="7" class="mb-3">{{
+        $t('~~Attachments')
+      }}</SectionHeading>
+      <div class="px-3 pb-3">
+        <SupportingDocumentSection
+          :worksite="worksite"
+          :is-print-token="isPrintToken"
+          :is-survivor-token="isSurvivorToken"
+          :disable-document-upload="disableDocumentUpload"
+          @update-files="handleFileUpdate"
+          @documents-changed="handleDocumentsChanged"
+        />
+      </div>
     </div>
 
     <div class="form-footer flex justify-between p-3 gap-2">
@@ -463,8 +476,8 @@ import WorksiteNotes from './WorksiteNotes.vue';
 import SectionHeading from './SectionHeading.vue';
 import WorksiteReportSection from './WorksiteReportSection.vue';
 import WorksiteImageSection from './WorksiteImageSection.vue';
+import SupportingDocumentSection from './SupportingDocumentSection.vue';
 import useAcl from '@/hooks/useAcl';
-import { AxiosError } from 'axios';
 import AddressDisplay from '@/components/AddressDisplay.vue';
 import { formatWorksiteAddress } from '@/utils/helpers';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
@@ -477,6 +490,7 @@ export default defineComponent({
     WorksiteNotes,
     WorksiteReportSection,
     WorksiteImageSection,
+    SupportingDocumentSection,
     Flag,
     SectionHeading,
     WorkTypeRequestModal,

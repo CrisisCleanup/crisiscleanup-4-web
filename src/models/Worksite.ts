@@ -38,6 +38,7 @@ export default class Worksite extends CCUModel {
   favorite_id!: string | undefined;
   svi!: number;
   language!: number;
+  files!: any[];
 
   key_work_type!: Record<string, any>;
 
