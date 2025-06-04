@@ -671,7 +671,14 @@ const batchColumns = makeTableColumns([
 const loadIncidents = async () => {
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_APP_API_BASE_URL}/incidents`,
+      `${import.meta.env.VITE_APP_API_BASE_URL}/incidents_list`,
+      {
+        params: {
+          fields: 'id,name,short_name,geofence,locations',
+          limit: 200,
+          sort: '-start_at',
+        },
+      },
     );
     incidents.value = response.data.results || response.data;
   } catch (error) {
