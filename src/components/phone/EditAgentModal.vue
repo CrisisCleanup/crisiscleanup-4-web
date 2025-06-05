@@ -57,8 +57,9 @@
           variant="solid"
           data-testid="testSaveButton"
           size="large"
+          :disabled="languages.length === 0"
           :alt="$t('actions.save')"
-          :action="() => updateUserNeeded()"
+          :action="updateUserNeeded"
           >{{ $t('actions.save') }}</base-button
         >
       </div>
@@ -87,17 +88,13 @@ export default defineComponent({
     const { t } = useI18n();
 
     async function updateUserNeeded() {
-      if (phoneNumber.value) {
-        await updateCurrentUser({ mobile: phoneNumber.value });
-      }
+      const [primary_language, secondary_language] = languages.value;
 
-      if (languages.value.length > 0) {
-        await updateCurrentUser({ primary_language: undefined });
-        await updateCurrentUser({ secondary_language: undefined });
-        const [primary_language, secondary_language] = languages.value;
-        await updateCurrentUser({ primary_language });
-        await updateCurrentUser({ secondary_language });
-      }
+      await updateCurrentUser({
+        mobile: phoneNumber.value,
+        primary_language: primary_language,
+        secondary_language: secondary_language ? secondary_language : null,
+      });
 
       try {
         await loadAgent();
