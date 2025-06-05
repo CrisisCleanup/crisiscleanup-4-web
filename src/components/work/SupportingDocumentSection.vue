@@ -1,9 +1,9 @@
 <template>
-  <section class="flex">
+  <section class="flex flex-col">
     <DragDrop
-      v-if="!disableImageUpload"
-      class="w-20 h-20 border-solid border-2"
-      data-testid="testImageUploaderFile"
+      v-if="!disableDocumentUpload"
+      class="w-full h-12 border-solid border-2"
+      data-testid="testDocumentUploaderFile"
       :disabled="uploading"
       @files="handleFileUpload"
     >
@@ -12,48 +12,70 @@
         <font-awesome-icon
           v-else
           size="lg"
-          icon="camera"
-          :alt="$t('formLabels.upload_photos')"
+          icon="file"
+          :alt="$t('formLabels.upload_documents')"
         />
       </div>
     </DragDrop>
 
-    <div class="flex flex-wrap">
-      <ImageModal
-        :image-list="imageList"
-        :disable-modal="disableModal"
-        data-testid="testImageUploaderModal"
-        @remove-image="deleteFile"
-      />
+    <div class="flex flex-wrap mt-4">
+      <div
+        v-for="file in documentList"
+        :key="file.id"
+        class="flex items-center mb-4 w-full"
+      >
+        <div
+          class="flex items-center bg-white p-2 border rounded w-full justify-between"
+        >
+          <div class="flex items-center">
+            <font-awesome-icon
+              class="text-crisiscleanup-dark-400 mr-2"
+              size="lg"
+              icon="file"
+            />
+            <a
+              :href="file.general_file_url"
+              class="text-sm mr-2 text-blue-600 hover:text-blue-800 hover:underline"
+              target="_blank"
+              download
+            >
+              {{ file.filename_original }}
+            </a>
+          </div>
+          <button
+            v-if="!disableDocumentUpload"
+            class="text-red-500 hover:text-red-700"
+            @click="deleteFile(file.file)"
+          >
+            <font-awesome-icon icon="times" />
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
 import { useToast } from 'vue-toastification';
 import DragDrop from '../DragDrop.vue';
 import Worksite from '../../models/Worksite';
 import { getErrorMessage } from '../../utils/errors';
-import ImageModal from '../ImageModal.vue';
 import { uploadFile } from '../../utils/file';
 
 interface Props {
-  disableImageUpload: boolean;
-  worksite: any; // TODO: Replace with proper Worksite type if available
+  disableDocumentUpload: boolean;
+  worksite: Worksite & { token?: string };
   isPrintToken: boolean;
   isSurvivorToken: boolean;
-  disableModal: boolean;
 }
 
 export default defineComponent({
-  name: 'WorksiteImageSection',
+  name: 'SupportingDocumentSection',
   components: {
     DragDrop,
-    ImageModal,
   },
   props: {
-    disableImageUpload: {
+    disableDocumentUpload: {
       type: Boolean,
       default: false,
     },
@@ -66,10 +88,6 @@ export default defineComponent({
     isSurvivorToken: {
       type: Boolean,
     },
-    disableModal: {
-      type: Boolean,
-      default: false,
-    },
   },
 
   setup(
@@ -77,26 +95,18 @@ export default defineComponent({
     { emit }: { emit: (event: string, ...args: any[]) => void },
   ) {
     const uploading = ref(false);
-    const localImages = ref([]);
-    const imageList = computed(() => {
+    const localDocuments = ref([]);
+    const documentList = computed(() => {
       if (props.worksite?.id || props.worksite?.token) {
         return (
-          props.worksite?.files?.filter(
-            (file: any) => file.file_type_t !== 'fileTypes.supporting_document',
+          props.worksite.files?.filter(
+            (file: any) => file.file_type_t === 'fileTypes.supporting_document',
           ) ?? []
         );
       }
-      return localImages.value;
+      return localDocuments.value;
     });
     const $toasted = useToast();
-
-    function changeImage(image: any) {
-      emit('changeImage', image);
-    }
-
-    function imageClick(image: any) {
-      emit('image-click', image);
-    }
 
     async function saveToWorkSite(file: any, id: any, token: any) {
       if (props.isPrintToken) {
@@ -117,7 +127,7 @@ export default defineComponent({
 
       const formData = new FormData();
       formData.append('upload', fileList[0]);
-      formData.append('type_t', 'fileTypes.worksite_photo');
+      formData.append('type_t', 'fileTypes.supporting_document');
       uploading.value = true;
       try {
         const result = await uploadFile(formData);
@@ -126,10 +136,10 @@ export default defineComponent({
         if (props.worksite.id || props.worksite.token) {
           await saveToWorkSite(file, props.worksite.id, props.worksite.token);
         } else {
-          localImages.value.push(result.data);
+          localDocuments.value.push(result.data);
         }
 
-        emit('photosChanged');
+        emit('documentsChanged');
       } catch (error) {
         await $toasted.error(getErrorMessage(error));
       } finally {
@@ -137,7 +147,7 @@ export default defineComponent({
       }
     }
 
-    async function deleteFile(fileId: any, id: any) {
+    async function deleteFile(fileId: any) {
       if (props.worksite) {
         if (props.isSurvivorToken) {
           await Worksite.api().deleteFileWithSurvivorToken(
@@ -149,23 +159,21 @@ export default defineComponent({
           await Worksite.api().fetch(props.worksite.id);
         }
       } else {
-        const i = _.findIndex(localImages.value, (c: any) => {
-          return c.id === id;
-        });
-        localImages.value.splice(i, 1);
-        emit('popLocal', localImages.value);
+        const index = localDocuments.value.findIndex(
+          (file: any) => file.id === fileId,
+        );
+        if (index !== -1) {
+          localDocuments.value.splice(index, 1);
+        }
       }
 
-      emit('photosChanged');
+      emit('documentsChanged');
     }
 
     return {
-      imageList,
+      documentList,
       uploading,
-      changeImage,
-      imageClick,
       handleFileUpload,
-      saveToWorkSite,
       deleteFile,
     };
   },
