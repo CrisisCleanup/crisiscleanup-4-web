@@ -4,10 +4,9 @@
       <!-- Header Section -->
       <div class="border-b border-gray-200 p-6">
         <div class="flex items-center mb-2">
-          <ccu-icon
-            type="heart"
-            size="large"
-            class="text-green-500 mr-3"
+          <font-awesome-icon
+            :icon="['fas', 'heart']"
+            class="text-green-500 mr-3 text-2xl"
             :alt="t('~~Story Analysis')"
           />
           <h1 class="text-2xl font-bold text-gray-900">
@@ -103,7 +102,10 @@
             />
           </div>
           <div v-if="analyzing" class="flex items-center text-blue-600">
-            <ccu-icon type="spinner" class="animate-spin mr-2" size="small" />
+            <font-awesome-icon
+              :icon="['fas', 'spinner']"
+              class="animate-spin mr-2"
+            />
             <span class="text-sm">{{ t('~~Processing...') }}</span>
           </div>
         </div>
@@ -112,7 +114,7 @@
       <!-- Results Summary -->
       <div v-if="showSummary" class="p-6 bg-blue-50 border-b border-gray-200">
         <h4 class="text-lg font-semibold mb-3 text-gray-900 flex items-center">
-          <ccu-icon type="chart-line" class="mr-2" size="medium" />
+          <font-awesome-icon :icon="['fas', 'chart-line']" class="mr-2" />
           {{ t('~~Analysis Results') }}
         </h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -152,6 +154,13 @@
             {{ t('~~Results') }}
           </h4>
           <div class="flex items-center space-x-4">
+            <base-input
+              v-model="searchText"
+              type="text"
+              :placeholder="t('~~Search results...')"
+              class="w-64"
+              size="medium"
+            />
             <base-checkbox
               v-model="selectAll"
               @update:model-value="toggleSelectAll"
@@ -174,24 +183,68 @@
                   {{ t('~~Select') }}
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  @click="handleSort('case_number')"
                 >
-                  {{ t('~~Case Number') }}
+                  <div class="flex items-center">
+                    {{ t('~~Case Number') }}
+                    <font-awesome-icon
+                      v-if="sortField === 'case_number'"
+                      :icon="[
+                        'fas',
+                        sortDirection === 'asc' ? 'chevron-up' : 'chevron-down',
+                      ]"
+                      class="ml-1 w-3 h-3"
+                    />
+                  </div>
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  @click="handleSort('survivor_initials')"
                 >
-                  {{ t('~~Survivor Initials') }}
+                  <div class="flex items-center">
+                    {{ t('~~Survivor Initials') }}
+                    <font-awesome-icon
+                      v-if="sortField === 'survivor_initials'"
+                      :icon="[
+                        'fas',
+                        sortDirection === 'asc' ? 'chevron-up' : 'chevron-down',
+                      ]"
+                      class="ml-1 w-3 h-3"
+                    />
+                  </div>
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  @click="handleSort('city')"
                 >
-                  {{ t('~~Location') }}
+                  <div class="flex items-center">
+                    {{ t('~~Location') }}
+                    <font-awesome-icon
+                      v-if="sortField === 'city'"
+                      :icon="[
+                        'fas',
+                        sortDirection === 'asc' ? 'chevron-up' : 'chevron-down',
+                      ]"
+                      class="ml-1 w-3 h-3"
+                    />
+                  </div>
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  @click="handleSort('sentiment_score')"
                 >
-                  {{ t('~~Story Rating') }}
+                  <div class="flex items-center">
+                    {{ t('~~Story Rating') }}
+                    <font-awesome-icon
+                      v-if="sortField === 'sentiment_score'"
+                      :icon="[
+                        'fas',
+                        sortDirection === 'asc' ? 'chevron-up' : 'chevron-down',
+                      ]"
+                      class="ml-1 w-3 h-3"
+                    />
+                  </div>
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -199,9 +252,20 @@
                   {{ t('~~Note') }}
                 </th>
                 <th
-                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  @click="handleSort('claimed_organizations')"
                 >
-                  {{ t('~~Organizations') }}
+                  <div class="flex items-center">
+                    {{ t('~~Organizations') }}
+                    <font-awesome-icon
+                      v-if="sortField === 'claimed_organizations'"
+                      :icon="[
+                        'fas',
+                        sortDirection === 'asc' ? 'chevron-up' : 'chevron-down',
+                      ]"
+                      class="ml-1 w-3 h-3"
+                    />
+                  </div>
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -217,7 +281,7 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               <tr
-                v-for="worksite in results"
+                v-for="worksite in filteredAndSortedResults"
                 :key="worksite.worksite_id"
                 class="hover:bg-gray-50"
               >
@@ -258,11 +322,25 @@
                   </span>
                 </td>
                 <td class="px-4 py-4">
-                  <div
-                    class="text-sm text-gray-900 max-w-xs truncate"
-                    :title="worksite.note"
-                  >
-                    {{ worksite.note }}
+                  <div class="text-sm text-gray-900 max-w-xs">
+                    <div
+                      v-if="!expandedNotes.has(worksite.worksite_id)"
+                      class="truncate cursor-pointer hover:text-blue-600"
+                      :title="t('~~Click to expand')"
+                      @click="toggleNoteExpansion(worksite.worksite_id)"
+                    >
+                      {{ worksite.note }}
+                    </div>
+                    <div
+                      v-else
+                      class="whitespace-pre-wrap cursor-pointer"
+                      @click="toggleNoteExpansion(worksite.worksite_id)"
+                    >
+                      {{ worksite.note }}
+                      <span class="text-blue-600 text-xs ml-2"
+                        >[{{ t('~~Click to collapse') }}]</span
+                      >
+                    </div>
                   </div>
                 </td>
                 <td class="px-4 py-4">
@@ -348,10 +426,9 @@
         class="p-6 text-center"
       >
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <ccu-icon
-            type="exclamation-triangle"
-            class="text-yellow-500 mb-4"
-            size="large"
+          <font-awesome-icon
+            :icon="['fas', 'exclamation-triangle']"
+            class="text-yellow-500 mb-4 text-2xl"
           />
           <h3 class="text-lg font-semibold text-yellow-800 mb-2">
             {{ t('~~No Results Found') }}
@@ -416,6 +493,36 @@
           <template #created_at="slotProps">
             {{ formatDate(slotProps.item.created_at) }}
           </template>
+          <template #incident_info="slotProps">
+            <div class="text-sm">
+              <div
+                v-if="slotProps.item.metadata?.incident_names?.length"
+                class="font-medium text-gray-900 mb-1"
+              >
+                {{ slotProps.item.metadata.incident_names.join(', ') }}
+              </div>
+              <div
+                v-if="slotProps.item.metadata?.case_numbers?.length"
+                class="text-gray-600"
+              >
+                {{
+                  slotProps.item.metadata.case_numbers.slice(0, 3).join(', ')
+                }}
+                <span
+                  v-if="slotProps.item.metadata.case_numbers.length > 3"
+                  class="text-gray-400"
+                >
+                  +{{ slotProps.item.metadata.case_numbers.length - 3 }} more
+                </span>
+              </div>
+              <div
+                v-if="slotProps.item.metadata?.incident_ids?.length"
+                class="text-xs text-gray-500 mt-1"
+              >
+                ID: {{ slotProps.item.metadata.incident_ids.join(', ') }}
+              </div>
+            </div>
+          </template>
           <template #actions="slotProps">
             <div class="flex space-x-2">
               <base-button
@@ -451,8 +558,11 @@
     closeable
     @close="closeImageModal"
   >
-    <div class="p-6">
-      <div v-if="selectedWorksiteForImages" class="mb-4">
+    <div class="flex flex-col max-h-[80vh]">
+      <div
+        v-if="selectedWorksiteForImages"
+        class="p-6 border-b border-gray-200"
+      >
         <h4 class="text-lg font-semibold">
           {{ $t('adminSentimentAnalysis.case') }} #{{
             selectedWorksiteForImages.case_number
@@ -463,57 +573,58 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-        <div
-          v-for="(image, index) in currentImages"
-          :key="image.id"
-          class="relative group cursor-pointer"
-          @click="selectImage(index)"
-        >
-          <img
-            :src="image.thumbnail_url || image.general_file_url"
-            :alt="image.filename"
-            class="w-full h-32 object-cover rounded-lg border-2"
-            :class="
-              selectedImageIndex === index
-                ? 'border-blue-500'
-                : 'border-gray-300'
-            "
-          />
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <div
-            class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center"
+            v-for="(image, index) in currentImages"
+            :key="image.id"
+            class="relative group cursor-pointer"
+            @click="selectImage(index)"
           >
-            <ccu-icon
-              type="eye"
-              class="text-white opacity-0 group-hover:opacity-100"
-              size="large"
+            <img
+              :src="image.thumbnail_url || image.general_file_url"
+              :alt="image.filename"
+              class="w-full h-32 object-cover rounded-lg border-2"
+              :class="
+                selectedImageIndex === index
+                  ? 'border-blue-500'
+                  : 'border-gray-300'
+              "
             />
+            <div
+              class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity rounded-lg flex items-center justify-center"
+            >
+              <font-awesome-icon
+                :icon="['fas', 'eye']"
+                class="text-white opacity-0 group-hover:opacity-100 text-2xl"
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div v-if="selectedImage" class="text-center">
-        <img
-          :src="selectedImage.general_file_url"
-          :alt="selectedImage.filename"
-          class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg"
-        />
-        <div class="mt-4 flex justify-center space-x-4">
-          <base-button
-            :action="applyMonetFilter"
-            :disabled="applyingFilter"
-            variant="solid"
-            size="medium"
-            class="px-6 py-2 bg-purple-600 hover:bg-purple-700"
-            :text="
-              applyingFilter
-                ? t('~~Applying Filter...')
-                : t('~~Apply Monet Filter')
-            "
-            :alt="t('~~Apply Monet Filter')"
-            :show-spinner="applyingFilter"
-            ccu-icon="paint-brush"
+        <div v-if="selectedImage" class="text-center">
+          <img
+            :src="selectedImage.general_file_url"
+            :alt="selectedImage.filename"
+            class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg"
           />
+          <div class="mt-4 flex justify-center space-x-4">
+            <base-button
+              :action="applyMonetFilter"
+              :disabled="applyingFilter"
+              variant="solid"
+              size="medium"
+              class="px-6 py-2 bg-purple-600 hover:bg-purple-700"
+              :text="
+                applyingFilter
+                  ? t('~~Applying Filter...')
+                  : t('~~Apply Monet Filter')
+              "
+              :alt="t('~~Apply Monet Filter')"
+              :show-spinner="applyingFilter"
+              ccu-icon="paint-brush"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -527,44 +638,46 @@
     closeable
     @close="closeFileSelectionModal"
   >
-    <div class="p-6">
-      <div
-        v-for="worksite in fileSelectionWorksites"
-        :key="worksite.worksite_id"
-        class="mb-6"
-      >
-        <h4 class="text-lg font-semibold mb-3">
-          {{ $t('adminSentimentAnalysis.case') }} #{{ worksite.case_number }}
-        </h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div
-            v-for="image in worksite.images"
-            :key="image.id"
-            class="relative"
-          >
-            <base-checkbox
-              :model-value="isFileSelected(worksite.worksite_id, image.id)"
-              class="absolute top-2 left-2 z-10"
-              @update:model-value="
-                (value) =>
-                  toggleFileSelection(worksite.worksite_id, image.id, value)
-              "
-            />
-            <img
-              :src="image.thumbnail_url || image.general_file_url"
-              :alt="image.filename"
-              class="w-full h-24 object-cover rounded-lg border"
-            />
-            <p class="text-xs text-gray-600 mt-1 truncate">
-              {{ image.filename }}
-            </p>
+    <div class="flex flex-col max-h-[80vh] overflow-hidden">
+      <div class="flex-1 overflow-y-auto p-6">
+        <div
+          v-for="worksite in fileSelectionWorksites"
+          :key="worksite.worksite_id"
+          class="mb-6"
+        >
+          <h4 class="text-lg font-semibold mb-3">
+            {{ $t('adminSentimentAnalysis.case') }} #{{ worksite.case_number }}
+          </h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div
+              v-for="image in worksite.images"
+              :key="image.id"
+              class="relative"
+            >
+              <base-checkbox
+                :model-value="isFileSelected(worksite.worksite_id, image.id)"
+                class="absolute top-2 left-2 z-10"
+                @update:model-value="
+                  (value) =>
+                    toggleFileSelection(worksite.worksite_id, image.id, value)
+                "
+              />
+              <img
+                :src="image.thumbnail_url || image.general_file_url"
+                :alt="image.filename"
+                class="w-full h-24 object-cover rounded-lg border"
+              />
+              <p class="text-xs text-gray-600 mt-1 truncate">
+                {{ image.filename }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <template #footer>
-      <div class="flex justify-end space-x-3 p-6 border-t">
+      <div class="flex justify-end space-x-3 p-6 border-t bg-gray-50">
         <base-button
           :action="closeFileSelectionModal"
           variant="outline"
@@ -611,6 +724,7 @@ const analyzing = ref(false);
 const hasSearched = ref(false);
 const showSummary = ref(false);
 const results = ref([]);
+const filteredResults = ref([]);
 const selectedWorksites = ref([]);
 const selectAll = ref(false);
 const showImageModal = ref(false);
@@ -621,6 +735,10 @@ const applyingFilter = ref(false);
 const showFileSelectionModal = ref(false);
 const fileSelectionWorksites = ref([]);
 const selectedFiles = ref({});
+const searchText = ref('');
+const sortField = ref('');
+const sortDirection = ref('asc');
+const expandedNotes = ref(new Set());
 
 // Data
 const incidents = ref([]);
@@ -639,6 +757,53 @@ const pagination = reactive({
 
 // Computed properties
 const hasResults = computed(() => results.value.length > 0);
+
+const filteredAndSortedResults = computed(() => {
+  let filtered = results.value;
+
+  // Apply text filter
+  if (searchText.value.trim()) {
+    const search = searchText.value.toLowerCase().trim();
+    filtered = filtered.filter((worksite: any) => {
+      return (
+        worksite.case_number?.toLowerCase().includes(search) ||
+        worksite.survivor_initials?.toLowerCase().includes(search) ||
+        worksite.city?.toLowerCase().includes(search) ||
+        worksite.state?.toLowerCase().includes(search) ||
+        worksite.note?.toLowerCase().includes(search) ||
+        worksite.claimed_organizations?.some((org: string) =>
+          org.toLowerCase().includes(search),
+        )
+      );
+    });
+  }
+
+  // Apply sorting
+  if (sortField.value) {
+    filtered.sort((a: any, b: any) => {
+      let aVal = a[sortField.value];
+      let bVal = b[sortField.value];
+
+      // Special handling for different field types
+      if (sortField.value === 'sentiment_score') {
+        aVal = Number(aVal);
+        bVal = Number(bVal);
+      } else if (sortField.value === 'claimed_organizations') {
+        aVal = Array.isArray(aVal) ? aVal.join(', ') : '';
+        bVal = Array.isArray(bVal) ? bVal.join(', ') : '';
+      } else {
+        aVal = String(aVal || '').toLowerCase();
+        bVal = String(bVal || '').toLowerCase();
+      }
+
+      if (aVal < bVal) return sortDirection.value === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortDirection.value === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  return filtered;
+});
 
 const selectedImage = computed(() => {
   if (currentImages.value.length > 0 && selectedImageIndex.value >= 0) {
@@ -659,11 +824,12 @@ const batchTableUrl = computed(
 const batchQuery = ref({ batch_type: 'worksite_positive_sentiment_zip' });
 
 const batchColumns = makeTableColumns([
-  ['id', '1fr', t('~~Batch ID')],
-  ['created_at', '1fr', t('~~Created At')],
-  ['status', '1fr', t('~~Status')],
+  ['id', '0.5fr', t('~~Batch ID')],
+  ['created_at', '0.5fr', t('~~Created At')],
+  ['incident_info', '1fr', t('~~Incident & Cases')],
+  ['status', '0.5fr', t('~~Status')],
   ['progress', '1fr', t('~~Progress')],
-  ['total_items', '1fr', t('~~Total Items')],
+  ['total_items', '0.5fr', t('~~Total Items')],
   ['actions', '1fr', t('~~Actions')],
 ]);
 
@@ -742,6 +908,12 @@ const analyzeSentiment = async () => {
       );
       selectAll.value = true;
 
+      // Clear any previous search/sort state
+      searchText.value = '';
+      sortField.value = '';
+      sortDirection.value = 'asc';
+      expandedNotes.value.clear();
+
       await $toasted.success(t('adminSentimentAnalysis.analysis_complete'));
     } else {
       await $toasted.error(t('adminSentimentAnalysis.analysis_failed'));
@@ -756,7 +928,9 @@ const analyzeSentiment = async () => {
 
 const toggleSelectAll = (value: boolean) => {
   selectedWorksites.value = value
-    ? results.value.map((w: { worksite_id: number }) => w.worksite_id)
+    ? filteredAndSortedResults.value.map(
+        (w: { worksite_id: number }) => w.worksite_id,
+      )
     : [];
 };
 
@@ -772,7 +946,25 @@ const toggleWorksiteSelection = (worksiteId: number, selected: boolean) => {
   }
 
   // Update select all checkbox
-  selectAll.value = selectedWorksites.value.length === results.value.length;
+  selectAll.value =
+    selectedWorksites.value.length === filteredAndSortedResults.value.length;
+};
+
+const handleSort = (field: string) => {
+  if (sortField.value === field) {
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortDirection.value = 'asc';
+  }
+};
+
+const toggleNoteExpansion = (worksiteId: number) => {
+  if (expandedNotes.value.has(worksiteId)) {
+    expandedNotes.value.delete(worksiteId);
+  } else {
+    expandedNotes.value.add(worksiteId);
+  }
 };
 
 const changePage = async (newOffset: number) => {
@@ -959,10 +1151,10 @@ const toggleFileSelection = (
 
 const confirmFileSelection = async () => {
   const filesToFilter = Object.entries(selectedFiles.value)
-    .filter(([_, fileIds]) => fileIds.length > 0)
+    .filter(([_, fileIds]) => Array.isArray(fileIds) && fileIds.length > 0)
     .map(([worksiteId, fileIds]) => ({
       worksite_id: Number.parseInt(worksiteId),
-      file_ids: fileIds,
+      file_ids: fileIds as string[],
     }));
 
   closeFileSelectionModal();
