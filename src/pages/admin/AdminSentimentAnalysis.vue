@@ -23,7 +23,7 @@
         <h3 class="text-lg font-semibold mb-4 text-gray-900">
           {{ t('~~Filters') }}
         </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               {{ t('~~Disaster') }}
@@ -34,21 +34,6 @@
               :placeholder="t('~~Select a disaster')"
               item-key="id"
               label="name"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('~~Story Rating Threshold') }}
-            </label>
-            <base-input
-              v-model="sentimentThreshold"
-              type="number"
-              min="0"
-              max="1"
-              step="0.1"
-              :placeholder="t('~~Enter rating threshold (0-1)')"
-              class="w-full"
-              size="medium"
             />
           </div>
           <div>
@@ -173,7 +158,9 @@
           </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div
+          class="overflow-x-auto overflow-y-auto max-h-96 border border-gray-200 rounded-lg"
+        >
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
@@ -718,7 +705,6 @@ const $toasted = useToast();
 
 // Reactive state
 const selectedIncident = ref(null);
-const sentimentThreshold = ref(0.1);
 const imagesOnly = ref('true');
 const analyzing = ref(false);
 const hasSearched = ref(false);
@@ -750,7 +736,7 @@ const resultsSummary = reactive({
 });
 
 const pagination = reactive({
-  limit: 10,
+  limit: 250,
   offset: 0,
   total: 0,
 });
@@ -865,11 +851,15 @@ const analyzeSentiment = async () => {
   const startTime = performance.now();
 
   try {
-    const params = {
+    const params: any = {
       incident_id: selectedIncident.value,
       limit: pagination.limit,
       offset: pagination.offset,
     };
+
+    if (imagesOnly.value === 'true') {
+      params.has_images = true;
+    }
 
     const response = await axios.get(
       `${import.meta.env.VITE_APP_API_BASE_URL}/sentiment_analysis/analyze_positive_sentiment`,
