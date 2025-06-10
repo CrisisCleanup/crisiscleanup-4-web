@@ -31,25 +31,44 @@
         :key="`${note.id}`"
         data-testid="testShowNotesDiv"
         class="my-1 p-1 flex items-start bg-opacity-50 rounded"
-        :class="
-          note.is_survivor
-            ? 'bg-crisiscleanup-yellow-100'
-            : 'bg-crisiscleanup-light-grey'
-        "
-        @click="
-          () => {
-            expandedNotes[note.id] = !expandedNotes[note.id];
-            expandedNotes = { ...expandedNotes };
-          }
-        "
+        :class="getNoteClass(note)"
       >
-        <span class="text-crisiscleanup-grey-700 mr-3 notes-time w-40"
-          >{{ momentFromNow(note.created_at) }}:</span
-        ><span
-          class="font-hairline w-64 cursor-pointer"
-          :class="expandedNotes[note.id] ? '' : 'max-lines'"
-          v-html="note.note"
-        ></span>
+        <span class="text-crisiscleanup-grey-700 mr-3 notes-time w-40">
+          {{ momentFromNow(note.created_at) }}:
+        </span>
+        <span class="font-hairline w-64 flex flex-col">
+          <template v-if="note.note_type === 'ai_generated_call_summary'">
+            <span class="inline-flex items-center mb-1 text-xs text-gray-500">
+              <span class="mr-1">🤖</span>{{ $t('formLabels.ai_generated') }}
+            </span>
+            <span v-if="!expandedNotes[note.id]">
+              <span v-html="getAiNotePreview(note.note)"></span>
+              <a
+                href="#"
+                class="text-primary-dark underline cursor-pointer"
+                @click.prevent="toggleNoteExpand(note.id)"
+                >{{ $t('actions.see_more') }}</a
+              >
+            </span>
+            <span v-else>
+              <span v-html="note.note"></span>
+              <a
+                href="#"
+                class="text-primary-dark underline cursor-pointer"
+                @click.prevent="toggleNoteExpand(note.id)"
+                >{{ $t('actions.see_less') }}</a
+              >
+            </span>
+          </template>
+          <template v-else>
+            <span
+              class="cursor-pointer"
+              :class="expandedNotes[note.id] ? '' : 'max-lines'"
+              @click="toggleNoteExpand(note.id)"
+              v-html="note.note"
+            ></span>
+          </template>
+        </span>
       </div>
     </template>
     <div v-if="canAdd" class="flex items-center justify-between">
@@ -72,13 +91,33 @@
         <span>{{ $t('caseView.add_note') }}</span>
       </base-button>
 
-      <div class="flex my-1">
-        <ColoredCircle
-          class="text-crisiscleanup-yellow-100 text-opacity-50 mx-1 w-4 h-4"
-          color=""
-        />
-        <div class="text-xs opacity-25">
-          {{ $t('formLabels.survivor_notes') }}
+      <div class="flex flex-col my-1 space-y-1">
+        <div class="flex items-center">
+          <ColoredCircle
+            class="text-crisiscleanup-yellow-100 text-opacity-50 mx-1 w-4 h-4"
+            color=""
+          />
+          <div class="text-xs opacity-50">
+            {{ $t('formLabels.survivor_notes') }}
+          </div>
+        </div>
+        <div class="flex items-center">
+          <ColoredCircle
+            class="text-crisiscleanup-light-grey text-opacity-50 mx-1 w-4 h-4"
+            color=""
+          />
+          <div class="text-xs opacity-50">
+            {{ $t('formLabels.volunteer_notes') }}
+          </div>
+        </div>
+        <div class="flex items-center">
+          <ColoredCircle
+            class="text-blue-100 text-opacity-50 mx-1 w-4 h-4"
+            color=""
+          />
+          <div class="text-xs opacity-50">
+            {{ $t('formLabels.ai_generated_call_summary') }}
+          </div>
         </div>
       </div>
     </div>
@@ -120,18 +159,40 @@
 </template>
 
 <script lang="ts">
-import { computed, ref } from 'vue';
 import moment from 'moment';
 import { useToast } from 'vue-toastification';
+import { useI18n } from 'vue-i18n';
 import { momentFromNow } from '../../filters/index';
 import ColoredCircle from '@/components/ColoredCircle.vue';
+
+interface Note {
+  id: number;
+  note: string;
+  created_at: string;
+  note_type: string;
+}
+
+interface WorksiteProps {
+  notes?: Note[];
+}
+
+interface Props {
+  worksite: WorksiteProps;
+  canAdd: boolean;
+  expanded: boolean;
+}
+
+interface Emits {
+  (event: 'saveNote', value: string): void;
+  (event: 'input', value: string): void;
+}
 
 export default defineComponent({
   name: 'WorksiteNotes',
   components: { ColoredCircle },
   props: {
     worksite: {
-      type: Object,
+      type: Object as PropType<WorksiteProps>,
       default() {
         return {};
       },
@@ -145,10 +206,11 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(props, { emit }) {
+  emits: ['saveNote', 'input'],
+  setup(props: Props, { emit }: { emit: Emits }) {
     const addingNotes = ref(props.expanded);
     const addingTime = ref(false);
-    const expandedNotes = ref({});
+    const expandedNotes = ref<Record<number, boolean>>({});
     const showingAllNotes = ref(false);
     const currentNote = ref('');
     const toast = useToast();
@@ -166,7 +228,7 @@ export default defineComponent({
 
     async function saveNote() {
       if (currentNote.value.length <= 1) {
-        toast.error(t('info.submit_longer_note'));
+        await toast.error(t('info.submit_longer_note'));
       } else {
         emit('saveNote', currentNote.value);
         emit('input', '');
@@ -181,6 +243,39 @@ export default defineComponent({
       currentNote.value = '';
     }
 
+    function getNoteClass(note: Note) {
+      switch (note.note_type) {
+        case 'survivor_note': {
+          return 'bg-crisiscleanup-yellow-100';
+        }
+        case 'volunteer_note': {
+          return 'bg-crisiscleanup-light-grey';
+        }
+        case 'ai_generated_call_summary': {
+          return 'bg-blue-100';
+        }
+        default: {
+          return 'bg-gray-100';
+        }
+      }
+    }
+
+    function getAiNotePreview(note: string) {
+      // Strip HTML tags for preview, then truncate
+      const div = document.createElement('div');
+      div.innerHTML = note;
+      const text = div.textContent || '';
+      if (text.length > 100) {
+        return text.slice(0, 100) + '… ';
+      }
+      return text;
+    }
+
+    function toggleNoteExpand(id: number) {
+      expandedNotes.value[id] = !expandedNotes.value[id];
+      expandedNotes.value = { ...expandedNotes.value };
+    }
+
     return {
       addingNotes,
       addingTime,
@@ -191,6 +286,9 @@ export default defineComponent({
       saveNote,
       cancelNote,
       momentFromNow,
+      getNoteClass,
+      getAiNotePreview,
+      toggleNoteExpand,
     };
   },
 });
