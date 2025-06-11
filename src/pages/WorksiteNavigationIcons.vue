@@ -50,7 +50,6 @@
     />
 
     <ccu-icon
-      v-if="$can('beta_feature.calendar_view')"
       :alt="$t('casesVue.calendar_view')"
       data-testid="testCalendarIcon"
       size="medium"
@@ -62,7 +61,6 @@
       @click="handleShowCalendar"
     />
     <ccu-icon
-      v-if="$can('beta_feature.calendar_view')"
       :alt="$t('casesVue.calendar_list_view')"
       data-testid="testCalendarListViewIcon"
       size="base"
@@ -73,7 +71,6 @@
       @click="handleShowCalendarList"
     />
     <ccu-icon
-      v-if="$can('beta_feature.calendar_view')"
       :alt="$t('casesVue.calendar_map_view')"
       data-testid="testCalendarMapViewIcon"
       size="base"
