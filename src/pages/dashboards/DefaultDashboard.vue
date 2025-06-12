@@ -17,7 +17,7 @@ import Worksite from '@/models/Worksite';
 import { getErrorMessage } from '@/utils/errors';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { useToast } from 'vue-toastification';
-import useWorksiteMap from '@/hooks/worksite/useWorksiteMap';
+import useWorksiteMap from '@/hooks/worksite/useWorksiteMapRefactored';
 import { useCurrentIncident } from '@/hooks';
 import VolunteerChart from '@/components/dashboard/VolunteerChart.vue';
 import SimpleMap from '@/components/SimpleMap.vue';
