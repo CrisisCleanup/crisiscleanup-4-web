@@ -4,7 +4,7 @@ import Organization from '@/models/Organization';
 import axios from 'axios';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
-import useWorksiteMap from '@/hooks/worksite/useWorksiteMap';
+import useWorksiteMap from '@/hooks/worksite/useWorksiteMapRefactored';
 import { getWorksites, getDashboardStatistics } from '@/utils/dashboard';
 import { useCurrentIncident, useCurrentUser } from '@/hooks';
 import SimpleMap from '@/components/SimpleMap.vue';

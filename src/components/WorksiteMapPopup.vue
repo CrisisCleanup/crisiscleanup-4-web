@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import SimpleMap from '@/components/SimpleMap.vue';
-import useWorksiteMap from '@/hooks/worksite/useWorksiteMap';
+import useWorksiteMap from '@/hooks/worksite/useWorksiteMapRefactored';
 import CcuIcon from '@/components/BaseIcon.vue';
 import WorksiteTable from '@/components/work/WorksiteTable.vue';
 import { loadCasesCached } from '@/utils/worksite';

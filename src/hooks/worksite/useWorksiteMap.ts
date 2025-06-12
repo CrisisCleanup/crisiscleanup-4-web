@@ -21,6 +21,34 @@ import { store } from '@/store';
 import { getErrorMessage } from '@/utils/errors';
 import type { Portal } from '@/models/types';
 
+// Add type declarations for Google Maps mutant
+/* eslint-disable @typescript-eslint/no-namespace */
+declare global {
+  namespace L {
+    namespace gridLayer {
+      function googleMutant(options?: {
+        type: 'roadmap' | 'satellite';
+      }): L.GridLayer;
+    }
+  }
+}
+/* eslint-enable @typescript-eslint/no-namespace */
+
+// Add extended types
+interface ExtendedLayer extends L.Layer {
+  destroy?: () => void;
+  _container?: HTMLElement;
+}
+
+interface KDBushPoint {
+  x: number;
+  y: number;
+  id: string;
+  case_number: string;
+  address: string;
+  work_types: any[];
+}
+
 export interface MapUtils {
   getMap: () => L.Map;
   getPixiContainer: () => Container | undefined;
@@ -81,21 +109,6 @@ export default (
         maxZoom: 18,
         noWrap: false,
       }).addTo(map);
-
-  // const switchTileLayer = () => {
-  //   if (currentTileLayer) {
-  //     map.removeLayer(currentTileLayer);
-  //   }
-  //   usingGoogleMaps = !usingGoogleMaps;
-  //   currentTileLayer = usingGoogleMaps
-  //     ? L.gridLayer.googleMutant({ type: 'roadmap' }).addTo(map)
-  //     : L.tileLayer(mapTileLayer, {
-  //         attribution: mapAttribution,
-  //         detectRetina: false,
-  //         maxZoom: 18,
-  //         noWrap: false,
-  //       }).addTo(map);
-  // };
 
   // Array to hold different map layer configurations, not instantiated layers
   const mapLayerConfigs = [
@@ -159,6 +172,7 @@ export default (
       visibleIds,
     );
     loadMarker = renderMarkerSprite;
+
     map.on('click', (e) => {
       const marker = findMarker(e.latlng);
       if (marker) {
@@ -177,12 +191,18 @@ export default (
 
     function addCursor(e: LeafletMouseEvent) {
       const marker = findMarker(e.latlng);
-      if (marker) {
-        L.DomUtil.addClass(worksiteLayer._container, 'cursor-pointer');
-        worksiteLayer._container.setAttribute('title', marker.case_number);
-      } else {
-        L.DomUtil.removeClass(worksiteLayer._container, 'cursor-pointer');
-        worksiteLayer._container.setAttribute('title', '');
+      if (marker && (worksiteLayer as any)._container) {
+        L.DomUtil.addClass((worksiteLayer as any)._container, 'cursor-pointer');
+        (worksiteLayer as any)._container.setAttribute(
+          'title',
+          marker.case_number,
+        );
+      } else if ((worksiteLayer as any)._container) {
+        L.DomUtil.removeClass(
+          (worksiteLayer as any)._container,
+          'cursor-pointer',
+        );
+        (worksiteLayer as any)._container.setAttribute('title', '');
       }
     }
 
@@ -206,7 +226,7 @@ export default (
   }
 
   function getPixiContainer(): Container | undefined {
-    let container = null;
+    let container: Container | undefined = undefined;
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === 'marker_layer') {
         container = (layer as L.Layer & PixiLayer)._pixiContainer;
@@ -216,7 +236,7 @@ export default (
   }
 
   function getCurrentMarkerLayer(): (L.Layer & PixiLayer) | undefined {
-    let l: (L.Layer & PixiLayer) | undefined = null;
+    let l: (L.Layer & PixiLayer) | undefined = undefined;
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === 'marker_layer') {
         l = layer as L.Layer & PixiLayer;
@@ -287,7 +307,7 @@ export default (
     }
   }
 
-  function getLocationCenter(location) {
+  function getLocationCenter(location: Location) {
     if (!location) {
       return null;
     }

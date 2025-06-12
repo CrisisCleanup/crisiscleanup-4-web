@@ -533,7 +533,7 @@ import Chat from '../../components/chat/Chat.vue';
 import ActiveCall from '../../components/phone/ActiveCall.vue';
 import UpdateStatus from '../../components/phone/UpdateStatus.vue';
 import PhoneIndicator from '../../components/phone/PhoneIndicator.vue';
-import useWorksiteMap from '../../hooks/worksite/useWorksiteMap';
+import useWorksiteMap from '../../hooks/worksite/useWorksiteMapRefactored';
 import PhoneToolBar from '../../components/phone/PhoneToolBar.vue';
 import PhoneNews from '../../components/phone/PhoneNews.vue';
 import useDialogs from '../../hooks/useDialogs';

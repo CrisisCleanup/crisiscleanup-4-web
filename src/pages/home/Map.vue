@@ -54,7 +54,7 @@ import { reactive, toRefs, onMounted } from 'vue';
 import * as L from 'leaflet';
 import Home from '@/layouts/Home.vue';
 import SimpleMap from '@/components/SimpleMap.vue';
-import useWorksiteMap from '@/hooks/worksite/useWorksiteMap';
+import useWorksiteMap from '@/hooks/worksite/useWorksiteMapRefactored';
 
 export default defineComponent({
   name: 'Map',
