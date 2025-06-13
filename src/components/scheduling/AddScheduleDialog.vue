@@ -277,9 +277,7 @@ function validateForm(): boolean {
       commonEndAt.value &&
       moment(commonStartAt.value).isSameOrAfter(moment(commonEndAt.value))
     ) {
-      validationErrors.value.push(
-        t('calendar.start_time_before_end_time'),
-      );
+      validationErrors.value.push(t('calendar.start_time_before_end_time'));
     }
   } else {
     selectedWorkTypeIds.value.forEach((wtId: number) => {
