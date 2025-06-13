@@ -126,7 +126,7 @@ describe('AddScheduleDialog.vue', () => {
     expect(wrapper.exists()).toBe(true);
 
     // Check for some text that identifies the worksite info
-    expect(wrapper.text()).toContain('~~Worksite Information'); // from your template
+    expect(wrapper.text()).toContain('calendar.worksite_info'); // from your template
     expect(wrapper.text()).toContain('V001');
     expect(wrapper.text()).toContain('Test Worksite');
 

@@ -379,7 +379,7 @@ const DocumentsBranch: FunctionalComponent<{
             // eslint-disable-next-line no-undef
             <BaseButton
               class="p-1"
-              :text="$t('adminRAG.move_to_folder')"
+              text={t('adminRAG.move_to_folder')}
               variant="text"
               action={() => moveFile(itemProps.file)}
             />
