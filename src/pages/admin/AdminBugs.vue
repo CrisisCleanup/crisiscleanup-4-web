@@ -105,6 +105,8 @@ export default defineComponent({
   components: { AgentHistory, UserDetailsTooltip, AjaxTable },
   setup() {
     const { currentUser } = useCurrentUser();
+    const { t } = useI18n();
+    const { component } = useDialogs();
     const tableUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/bug_reports`;
     const tableQuery = ref({
       resolved_at__isnull: true,
@@ -116,9 +118,6 @@ export default defineComponent({
       ['user', '0.5fr', t(`adminBugs.user`)],
       ['actions', '1fr', ' '],
     ]);
-    const { component } = useDialogs();
-    const { t } = useI18n();
-
     async function showPreview(bug: { title: any; description: any }) {
       await component({
         title: t(`adminBugs.bug_details`),
