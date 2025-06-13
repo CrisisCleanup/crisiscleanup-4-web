@@ -59,6 +59,7 @@ import JsonWrapper from '@/components/JsonWrapper.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { makeTableColumns } from '@/utils/table';
 import PhoneStatus from '@/models/PhoneStatus';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'AgentHistory',
@@ -71,6 +72,8 @@ export default {
   },
   setup(props) {
     const { component } = useDialogs();
+    const { t } = useI18n();
+
 
     const urls = {
       callHistory: {
