@@ -369,7 +369,7 @@
         class="px-3 pb-3"
       />
       <SectionHeading :count="7" class="mb-3">{{
-        $t('~~Attachments')
+        $t('caseView.attachments')
       }}</SectionHeading>
       <div class="px-3 pb-3">
         <SupportingDocumentSection

@@ -386,7 +386,7 @@ export default {
 
     const showLocation = async (locationId) => {
       await component({
-        title: 'Location',
+        title: t('profileOrg.location'),
         component: DisplayLocation,
         props: {
           location: locationId,
@@ -398,6 +398,7 @@ export default {
 
     const showCapabilities = async (capabilities) => {
       await component({
+        title: t('profileOrg.capabilities'),
         title: 'Capabilities',
         component: CapabilityMatrix,
         props: {

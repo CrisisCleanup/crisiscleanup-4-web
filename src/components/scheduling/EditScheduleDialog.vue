@@ -103,7 +103,7 @@
         <base-button
           variant="solid"
           size="small"
-          :text="$t('~~Send to me')"
+          :text="$t('calendar.send_to_me')"
           :action="sendWorksite"
           ccu-icon="share"
           icon-size="small"
@@ -111,7 +111,7 @@
         <base-button
           variant="solid"
           size="small"
-          :text="$t('~~Open in google maps')"
+          :text="$t('calendar.open_in_google_maps')"
           :action="openInGoogleMaps"
           ccu-icon="map"
           icon-size="small"
@@ -334,7 +334,7 @@ async function sendWorksite() {
     '',
   );
 
-  toast.success(t('~~Worksite details sent to you'));
+  toast.success(t('calendar.worksite_details_sent'));
 }
 
 function openInGoogleMaps() {

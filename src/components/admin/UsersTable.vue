@@ -110,7 +110,7 @@ export default defineComponent({
 
     async function showUserEvents(user: User) {
       await component({
-        title: `Events for User ${user.id}: ${user.first_name} ${user.last_name} ${user.email}`,
+        title: t('userTable.events_for_user'),
         component: AdminEventStream,
         classes: 'w-full h-96 overflow-auto',
         modalClasses: 'bg-white max-w-3xl shadow',

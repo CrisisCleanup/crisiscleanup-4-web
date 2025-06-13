@@ -15,11 +15,11 @@
       <template v-if="worksite?.id">
         <!-- Worksite Info -->
         <base-text variant="h2" :weight="600" class="mb-2">
-          {{ t('~~Worksite Information') }}
+          {{ t('calendar.worksite_info') }}
         </base-text>
         <div class="mb-3 text-gray-700">
           <base-text variant="body" weight="600" class="mr-1">
-            {{ t('~~Worksite') }}:
+            {{ t('calendar.worksite') }}:
           </base-text>
           <base-text variant="body">
             {{ worksite.case_number }} - {{ worksite.name }}
@@ -28,7 +28,7 @@
 
         <!-- Select Work Types -->
         <base-text variant="h3" :weight="600" class="mb-2">
-          {{ t('~~Select Work Types') }}
+          {{ t('calendar.select_work_types') }}
         </base-text>
         <div class="mb-5">
           <div class="grid grid-cols-2 gap-y-2">
@@ -49,14 +49,14 @@
         </div>
         <!-- Same Time For All -->
         <base-text variant="h3" :weight="600" class="mb-2">
-          {{ t('~~Use the same time for all') }}
+          {{ t('calendar.use_same_time_for_all') }}
         </base-text>
         <div class="mb-5">
           <base-checkbox
             v-model="sameTimeForAll"
             data-testid="testSameTimeForAll"
           >
-            {{ t('~~Use the same time for all') }}
+            {{ t('calendar.use_same_time_for_all') }}
           </base-checkbox>
         </div>
       </template>
@@ -65,7 +65,7 @@
       <div v-if="sameTimeForAll" class="flex flex-col gap-3">
         <div>
           <base-text variant="body" weight="600" class="block mb-1">
-            {{ t('~~Start Time') }}
+            {{ t('calendar.start_time') }}
           </base-text>
           <datepicker
             v-model="commonStartAt"
@@ -78,7 +78,7 @@
         </div>
         <div>
           <base-text variant="body" weight="600" class="block mb-1">
-            {{ t('~~End Time') }}
+            {{ t('calendar.end_time') }}
           </base-text>
           <datepicker
             v-model="commonEndAt"
@@ -93,12 +93,12 @@
         <!-- Team selection (only one, used for all work types) -->
         <div class="col-span-2">
           <base-text variant="body" weight="600" class="block mb-1">
-            {{ t('~~Select Team') }}
+            {{ t('calendar.select_team') }}
           </base-text>
           <base-select
             v-model="commonTeam"
             data-testid="testCommonTeamSelect"
-            :placeholder="t('~~Select a Team')"
+            :placeholder="t('calendar.select_team')"
             class="w-full"
             :options="teams"
             item-key="id"
@@ -116,12 +116,12 @@
             class="mb-5 border p-3 rounded"
           >
             <base-text variant="h4" :weight="600" class="mb-2">
-              {{ wt.work_type }} - {{ t('~~Time Schedule') }}
+              {{ wt.work_type }} - {{ t('calendar.time_schedule') }}
             </base-text>
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <base-text variant="body" weight="600" class="block mb-1">
-                  {{ t('~~Start Time') }}
+                  {{ t('calendar.start_time') }}
                 </base-text>
                 <datepicker
                   v-model="individualTimes[wt.id].start"
@@ -134,7 +134,7 @@
               </div>
               <div>
                 <base-text variant="body" weight="600" class="block mb-1">
-                  {{ t('~~End Time') }}
+                  {{ t('calendar.end_time') }}
                 </base-text>
                 <datepicker
                   v-model="individualTimes[wt.id].end"
@@ -150,12 +150,12 @@
             <!-- Team selection (specific for each work type) -->
             <div class="mt-3">
               <base-text variant="body" weight="600" class="block mb-1">
-                {{ t('~~Select Team') }}
+                {{ t('calendar.select_team') }}
               </base-text>
               <base-select
                 v-model="individualTeams[wt.id]"
                 :data-testid="`testTeamSelect-${wt.id}`"
-                :placeholder="t('~~Select a Team')"
+                :placeholder="t('calendar.select_team')"
                 class="w-full"
                 :options="teams"
                 item-key="id"
@@ -170,7 +170,7 @@
       <!-- Notes -->
       <div class="mt-2">
         <base-text variant="h2" :weight="600" class="mb-2">
-          {{ t('~~Notes') }}
+          {{ t('calendar.notes') }}
         </base-text>
         <div class="mb-5">
           <base-input
@@ -178,7 +178,7 @@
             text-area
             data-testid="testScheduleNotes"
             class="w-full placeholder-crisiscleanup-dark-200 outline-none resize-none"
-            :placeholder="t('~~Write any notes here...')"
+            :placeholder="t('calendar.add_notes_here')"
             rows="4"
           />
         </div>
@@ -189,7 +189,7 @@
       <base-button
         variant="outline"
         data-testid="testCancelButton"
-        :text="t('~~Cancel')"
+        :text="t('actions.cancel')"
         :action="closeDialog"
         size="large"
         class="flex-grow"
@@ -197,7 +197,7 @@
       <base-button
         variant="solid"
         data-testid="testSaveButton"
-        :text="t('~~Save')"
+        :text="t('actions.save')"
         :show-spinner="saving"
         :disabled="selectedWorkTypeIds.length === 0"
         :action="saveSchedules"
@@ -262,15 +262,15 @@ function validateForm(): boolean {
   validationErrors.value = [];
 
   if (selectedWorkTypeIds.value.length === 0) {
-    validationErrors.value.push(t('~~You must select at least one Work Type.'));
+    validationErrors.value.push(t('calendar.must_select_work_type'));
   }
 
   if (sameTimeForAll.value) {
     if (!commonStartAt.value) {
-      validationErrors.value.push(t('~~Common start time is required.'));
+      validationErrors.value.push(t('calendar.start_time_required'));
     }
     if (!commonEndAt.value) {
-      validationErrors.value.push(t('~~Common end time is required.'));
+      validationErrors.value.push(t('calendar.end_time_required'));
     }
     if (
       commonStartAt.value &&
@@ -278,7 +278,7 @@ function validateForm(): boolean {
       moment(commonStartAt.value).isSameOrAfter(moment(commonEndAt.value))
     ) {
       validationErrors.value.push(
-        t('~~Common start time must be before common end time.'),
+        t('calendar.start_time_before_end_time'),
       );
     }
   } else {
@@ -287,14 +287,14 @@ function validateForm(): boolean {
       const end = individualTimes.value[wtId]?.end;
 
       if (!start) {
-        validationErrors.value.push(t('~~Start time is missing'));
+        validationErrors.value.push(t('calendar.start_time_missing'));
       }
       if (!end) {
-        validationErrors.value.push(t('~~End time is missing'));
+        validationErrors.value.push(t('calendar.end_time_missing'));
       }
       if (start && end && moment(start).isSameOrAfter(moment(end))) {
         validationErrors.value.push(
-          t('~~Start time must be before end time for Work Type ID {id}.', {
+          t('calendar.start_time_before_end_time_for_work_type_id', {
             id: wtId,
           }),
         );
@@ -350,7 +350,7 @@ const getTeams = async () => {
 
 async function saveSchedules() {
   if (!validateForm()) {
-    toast.error(t('~~Please fix form errors before saving.'));
+    toast.error(t('info.please_fix_errors_on_save'));
     return;
   }
   if (!worksite || selectedWorkTypeIds.value.length === 0) return;
@@ -380,7 +380,7 @@ async function saveSchedules() {
         axios.post('/worksite_work_types_schedule', p),
       ),
     );
-    toast.success(t('~~Schedules saved successfully'));
+    toast.success(t('calendar.schedules_saved_successfully'));
     emits(
       'saved',
       results.map((r) => r.data),

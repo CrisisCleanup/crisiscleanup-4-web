@@ -34,7 +34,7 @@
             class="ml-auto flex items-center gap-2 bg-primary-light border border-primary-dark rounded px-3 py-1"
           >
             <base-text variant="body" weight="700" class="text-yellow-900">
-              {{ t('~~Case') }}:
+              {{ t('calendar.case') }}:
             </base-text>
             <base-text variant="body" weight="600" class="text-yellow-900">
               {{ selectedWorksite?.case_number }} - {{ selectedWorksite?.name }}
@@ -52,7 +52,7 @@
         <div class="flex flex-wrap items-end gap-2 mt-2">
           <div class="items-center gap-2">
             <base-text variant="body" weight="600">
-              {{ t('~~Start Date') }}
+              {{ t('calendar.start_date') }}
             </base-text>
             <datepicker
               v-model="filterStartDate"
@@ -64,7 +64,7 @@
           </div>
           <div class="items-center gap-2">
             <base-text variant="body" weight="600">
-              {{ t('~~End Date') }}
+              {{ t('calendar.end_date') }}
             </base-text>
             <datepicker
               v-model="filterEndDate"
@@ -76,14 +76,14 @@
           </div>
           <div class="items-center gap-2">
             <base-text variant="body" weight="600">
-              {{ t('~~Team') }}
+              {{ t('calendar.team') }}
             </base-text>
             <base-select
               v-model="filterTeam"
               :options="teams"
               item-key="id"
               label="name"
-              placeholder="All Teams"
+              :placeholder="$t('calendar.all_teams')"
               select-classes="p-1 border"
               class="w-72 h-10"
               @update:model-value="initialize"
@@ -95,33 +95,33 @@
               suffix-icon="caret-down"
               class="border border-1.5 border-black p-1 px-4 bg-white"
             >
-              {{ $t('~~Actions') }}
+              {{ $t('calendar.actions') }}
             </base-button>
             <template #popper>
               <div class="flex flex-col">
                 <base-button
-                  text="Export CSV"
+                  :text="$t('actions.export_csv')"
                   variant="bare"
                   icon-size="medium"
                   class="cursor-pointer hover:bg-primary-light px-6 py-2"
                   @click="exportToCSV"
                 />
                 <base-button
-                  text="Export PDF"
+                  :text="$t('actions.export_pdf')"
                   variant="bare"
                   icon-size="medium"
                   class="cursor-pointer hover:bg-primary-light px-6 py-2"
                   @click="exportToPDF"
                 />
                 <base-button
-                  text="Export iCal"
+                  :text="$t('actions.export_ical')"
                   variant="bare"
                   icon-size="medium"
                   class="cursor-pointer hover:bg-primary-light px-6 py-2"
                   @click="exportToICS"
                 />
                 <base-button
-                  text="Print Calendar"
+                  :text="$t('actions.print_calendar')"
                   variant="bare"
                   icon-size="medium"
                   class="cursor-pointer hover:bg-primary-light px-6 py-2"
@@ -152,7 +152,7 @@
         <div class="p-4">
           <div class="flex justify-between items-center">
             <div class="mb-4 text-2xl font-bold">
-              {{ t('~~Upcoming') }}
+              {{ t('calendar.upcoming') }}
             </div>
           </div>
 
@@ -202,7 +202,7 @@
                 </p>
                 <p class="text-sm text-gray-400">
                   <span class="font-medium text-gray-600">
-                    {{ t('~~Address:') }}
+                    {{ t('calendar.address') }}
                   </span>
                   <span
                     v-if="
@@ -230,13 +230,13 @@
               <div class="text-right space-y-1">
                 <p class="text-sm text-gray-500">
                   <span class="font-medium text-gray-700">
-                    {{ t('~~Start:') }}
+                    {{ t('calendar.start') }}
                   </span>
                   {{ moment(schedule.start).format('MMM DD, YYYY [at] HH:mm') }}
                 </p>
                 <p class="text-sm text-gray-500">
                   <span class="font-medium text-gray-700">
-                    {{ t('~~End:') }}
+                    {{ t('calendar.end') }}
                   </span>
                   {{ moment(schedule.end).format('MMM DD, YYYY [at] HH:mm') }}
                 </p>
@@ -250,6 +250,8 @@
                   <ccu-icon
                     type="edit"
                     size="sm"
+                    :title="$t('actions.edit')"
+                    :alt="$t('actions.edit')"
                     fa
                     :action="() => editEvent(schedule)"
                   />
@@ -258,7 +260,7 @@
             </div>
           </div>
           <div v-else class="text-gray-500">
-            {{ t('~~No upcoming schedules found.') }}
+            {{ t('calendar.no_upcoming_schedules_found') }}
           </div>
         </div>
       </template>
@@ -276,7 +278,7 @@
             }"
             :action="() => setSelectedTab('add')"
           >
-            {{ $t('~~Add/Edit') }}
+            {{ $t('actions.add_or_edit') }}
           </base-button>
           <base-button
             v-if="selectedWorksite"
@@ -285,7 +287,7 @@
             }"
             :action="() => setSelectedTab('info')"
           >
-            {{ $t('~~Case Information') }}
+            {{ $t('calendar.case_info') }}
           </base-button>
         </div>
       </div>
@@ -309,7 +311,7 @@
               v-if="selectedWorksite.id"
               class="text-xs text-crisiscleanup-grey-700"
             >
-              {{ t('~~Updated') }}
+              {{ t('calendar.updated') }}
               {{ momentFromNow(selectedWorksite.updated_at) }}
             </div>
           </template>
@@ -320,7 +322,7 @@
               data-testid="testWorksiteSearch"
               icon="filters"
               display-property="name"
-              :placeholder="$t('~~Search')"
+              :placeholder="$t('actions.search')"
               size="medium"
               skip-validation
               use-recents
@@ -341,7 +343,7 @@
             <div class="flex gap-4 my-1 mx-3">
               <AddFromList
                 model-type="worksite_worksites"
-                :title="$t('~~Select from List')"
+                :title="$t('calendar.select_from_list')"
                 class="text-sm flex-grow"
                 :incident="currentIncidentId"
                 @add-item="
@@ -355,7 +357,7 @@
                 ccu-icon="go-case"
                 icon-size="medium"
                 class="text-sm flex-grow"
-                :text="$t('~~Select from Map')"
+                :text="$t('calendar.select_from_map')"
                 variant="outline"
                 :action="openSelectFromMapDialog"
               />
@@ -632,7 +634,7 @@ async function openAddScheduleDialog(initialData = null) {
     moment().toISOString(),
   );
   await component({
-    title: 'Create Schedules',
+    title: t('calendar.create_schedules'),
     component: AddScheduleDialog,
     classes: 'w-full h-144 overflow-y-auto p-3',
     modalClasses: 'bg-white max-w-4xl shadow',
@@ -658,7 +660,7 @@ async function openSelectFromMapDialog() {
       currentUser.value.organization.id,
     ].join(',') + ',true';
   await component({
-    title: '~~Select Worksite from Map',
+    title: t('calendar.select_worksite_from_map'),
     component: WorksiteMapPopup,
     id: 'select_worksite_from_map',
     modalClasses: 'bg-white max-w-6xl shadow',

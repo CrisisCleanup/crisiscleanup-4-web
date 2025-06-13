@@ -75,7 +75,7 @@ const { history, submitQuestion, latestMessage, isStreamingMessage } = useRAG(
 const onDeleteConversation = async (conversationId: string) => {
   const didConfirm = await confirm({
     title: t('actions.confirm'),
-    content: t(`Are you sure you want to delete this conversation?`),
+    content: t('adminRAG.confirm_delete_conversation'),
     actions: {
       no: {
         text: t('actions.cancel'),
@@ -83,7 +83,7 @@ const onDeleteConversation = async (conversationId: string) => {
         size: 'medium',
       },
       yes: {
-        text: t(`Delete`),
+        text: t(`actions.delete`),
         variant: 'solid',
         size: 'medium',
       },
@@ -91,7 +91,7 @@ const onDeleteConversation = async (conversationId: string) => {
   });
   if (didConfirm === 'yes') {
     await deleteConversation(conversationId)
-      .then(() => toast.success('Conversation deleted'))
+      .then(() => toast.success(t('adminRAG.conversation_deleted')))
       .catch(getAndToastErrorMessage);
   } else {
     toast.warning(t('actions.cancelled'));
@@ -201,9 +201,7 @@ const toggleFile = (fileId: number, toActive?: boolean) => {
 const deleteActiveFiles = async () => {
   const didConfirm = await confirm({
     title: t('actions.confirm'),
-    content: t(
-      `Are you sure you want to delete ${currentCollectionActiveFileIds.value.size} files?`,
-    ),
+    content: t('adminRAG.confirm_delete_files'),
     actions: {
       no: {
         text: t('actions.cancel'),
@@ -211,7 +209,7 @@ const deleteActiveFiles = async () => {
         size: 'medium',
       },
       yes: {
-        text: t(`Delete ${currentCollectionActiveFileIds.value.size} files`),
+        text: t('adminRAG.delete_files_with_count'),
         variant: 'solid',
         size: 'medium',
       },
@@ -219,7 +217,7 @@ const deleteActiveFiles = async () => {
   });
   if (didConfirm === 'yes') {
     await deleteFile(...currentCollectionActiveFileIds.value)
-      .then(() => toast.success('Files deleted'))
+      .then(() => toast.success(t('adminRAG.files_deleted')))
       .catch(getAndToastErrorMessage);
     allCollectionFileIds.value[collectionId.value as string] = [];
   } else {
@@ -256,7 +254,7 @@ whenever(hasUploadsQueue, async () => {
 // display message tools
 const displayMessageTools = async (entry: RAGEntry) => {
   await component({
-    title: 'Documents',
+    title: t('adminRAG.documents'),
     component: MessageTools,
     classes: 'w-full h-144 p-3',
     modalClasses: 'bg-white max-w-4xl shadow',
@@ -267,7 +265,7 @@ const displayMessageTools = async (entry: RAGEntry) => {
 };
 
 const collectionsDropdownProps = computed(() => ({
-  placeholder: t('Select Collection'),
+  placeholder: t('adminRAG.select_collection'),
   options: collectionOptions.value,
   itemKey: 'uuid',
   label: 'label',
@@ -381,7 +379,7 @@ const DocumentsBranch: FunctionalComponent<{
             // eslint-disable-next-line no-undef
             <BaseButton
               class="p-1"
-              text="Move to folder"
+              :text="$t('adminRAG.move_to_folder')"
               variant="text"
               action={() => moveFile(itemProps.file)}
             />
@@ -461,7 +459,7 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
   const virtualPath = ref(documentFile.attr?.virtualPath ?? '');
 
   const result = await component({
-    title: 'Move to folder',
+    title: t('adminRAG.move_to_folder'),
     component: MoveFileInput,
     classes: 'w-full h-25 p-3',
     modalClasses: 'bg-white max-w-4xl shadow',
@@ -480,12 +478,12 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
       virtualPath: virtualPath.value,
     };
     await updateFile(documentFile, { virtualPath: virtualPath.value });
-    toast.success('File move to: ' + virtualPath.value, {
+    toast.success(t('adminRAG.file_move_to') + virtualPath.value, {
       pauseOnFocusLoss: false,
       timeout: 2000,
     });
   } else {
-    toast.warning('File move cancelled');
+    toast.warning(t('adminRAG.file_move_cancelled'));
   }
 };
 </script>
@@ -493,7 +491,7 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
 <template>
   <div class="rag grid grid-cols-2 gap-2 h-full overflow-x-visible">
     <TitledCard
-      :title="$t('Chat')"
+      :title="$t('adminRAG.chat')"
       :dropdown="collectionsDropdownProps"
       @update:dropdown="(value) => (collectionId = value)"
     >
@@ -508,7 +506,7 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
               <ccu-icon
                 type="info"
                 size="lg"
-                title="Info"
+                :title="$t('adminRAG.info')"
                 class="hover:bg-crisiscleanup-light-grey transition-all cursor-pointer hover:scale-105"
                 icon-classes="invert"
                 @click="() => displayMessageTools(h)"
@@ -525,8 +523,8 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
             v-model="question"
             :placeholder="
               isStreamingMessage
-                ? t('Performing some witchcraft...')
-                : t('Ask a question...')
+                ? t('adminRAG.performing_witchcraft')
+                : t('adminRAG.ask_question')
             "
             class="w-full chat--input"
             :disabled="isStreamingMessage"
@@ -592,7 +590,7 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
           </div>
         </template>
         <template #files>
-          <BaseInput v-model="fileSearch" :placeholder="t('Search')" />
+          <BaseInput v-model="fileSearch" :placeholder="t('actions.search')" />
 
           <div
             class="border-2 border-transparent border-b-crisiscleanup-light-smoke py-1 pl-1"
@@ -625,9 +623,7 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
               class="flex-1"
               variant="solid"
               size="md"
-              :text="
-                $t(`Delete Files (${currentCollectionActiveFileIds.size})`)
-              "
+              :text="$t('adminRAG.delete_files_with_count')"
               ccu-icon="trash"
               icon-size="sm"
               :disabled="currentCollectionActiveFileIds.size === 0"

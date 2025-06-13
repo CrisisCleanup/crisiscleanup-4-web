@@ -111,9 +111,9 @@ export default defineComponent({
       created_at__gte: moment().subtract(60, 'day').format('YYYY-MM-DD'),
     });
     const columns = makeTableColumns([
-      ['title', '0.75fr', 'Title'],
-      ['created_at', '0.5fr', 'Created At'],
-      ['user', '0.5fr', 'User'],
+      ['title', '0.75fr', t(`adminBugs.title`)],
+      ['created_at', '0.5fr', t(`adminBugs.created_at`)],
+      ['user', '0.5fr', t(`adminBugs.user`)],
       ['actions', '1fr', ' '],
     ]);
     const { component } = useDialogs();
@@ -135,7 +135,7 @@ export default defineComponent({
 
     const showAttr = async (item: Record<string, any>, prop = 'attr') => {
       await component({
-        title: `Bug attr for bug: ${item.id}`,
+        title: t(`adminBugs.bugg_attr_bug_id`),
         component: JsonWrapper,
         classes: 'w-full h-96',
         props: {

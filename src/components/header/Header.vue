@@ -142,7 +142,7 @@ export default defineComponent({
     const { currentUser } = useCurrentUser();
     async function showCurrentUser() {
       await component({
-        title: `User: ${currentUser?.value?.id} | ${currentUser?.value?.first_name} ${currentUser?.value?.last_name}`,
+        title: t('userTable.user_data'),
         component: JsonWrapper,
         classes: 'w-full h-96',
         props: {
@@ -157,7 +157,7 @@ export default defineComponent({
         true,
       );
       await component({
-        title: `Incident: ${props.currentIncident?.id}`,
+        title: t('userTable.incident_data'),
         component: JsonWrapper,
         classes: 'w-full h-96',
         props: {
