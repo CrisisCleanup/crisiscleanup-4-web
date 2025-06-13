@@ -74,7 +74,6 @@ export default {
     const { component } = useDialogs();
     const { t } = useI18n();
 
-
     const urls = {
       callHistory: {
         name: t('agentHistory.status_history'),
