@@ -149,7 +149,7 @@ const AdminEventStream = defineComponent({
 
     const showUserEvents = async (userId: string, name: string) => {
       await component({
-        title: `Events for User ${userId}: ${name}`,
+        title: t('adminDashboard.events_for_user'),
         component: AdminEventStream,
         classes: 'w-full h-96 overflow-auto',
         modalClasses: 'bg-white max-w-3xl shadow',
@@ -162,7 +162,7 @@ const AdminEventStream = defineComponent({
 
     const showEventAttrs = async (stream: Record<string, any>) => {
       await component({
-        title: `Event Attributes for Log: ${stream.id} | Key: ${stream.event_key}`,
+        title: t('adminDashboard.event_attrs'),
         component: JsonWrapper,
         classes: 'w-full h-96',
         props: {
@@ -176,7 +176,7 @@ const AdminEventStream = defineComponent({
         `${import.meta.env.VITE_APP_API_BASE_URL}/event_stream/${stream.id}`,
       );
       await component({
-        title: `All Fields for Log: ${stream.id} | Key: ${stream.event_key}`,
+        title: `~~All Fields for Log: ${stream.id} | Key: ${stream.event_key}`,
         component: JsonWrapper,
         classes: 'w-full h-96',
         props: {

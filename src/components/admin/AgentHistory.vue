@@ -59,6 +59,7 @@ import JsonWrapper from '@/components/JsonWrapper.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { makeTableColumns } from '@/utils/table';
 import PhoneStatus from '@/models/PhoneStatus';
+import { useI18n } from 'vue-i18n';
 
 export default {
   name: 'AgentHistory',
@@ -71,19 +72,20 @@ export default {
   },
   setup(props) {
     const { component } = useDialogs();
+    const { t } = useI18n();
 
     const urls = {
       callHistory: {
-        name: 'Status History',
+        name: t('agentHistory.status_history'),
         url: `${import.meta.env.VITE_APP_API_BASE_URL}/phone_agents/${
           props.agentId
         }/status_history`,
         columns: makeTableColumns([
-          ['phone_number', '1fr', 'Phone Number'],
+          ['phone_number', '1fr', t('agentHistory.phone_number')],
           [
             'status',
             '1fr',
-            'Status',
+            t('agentHistory.status'),
             {
               transformer: (_: string, item) =>
                 get(
@@ -93,19 +95,19 @@ export default {
                 ),
             },
           ],
-          ['notes', '2fr', 'Notes'],
-          ['created_at', '1fr', 'Created At'],
+          ['notes', '2fr', t('agentHistory.notes')],
+          ['created_at', '1fr', t('agentHistory.created_at')],
         ]),
       },
       inboundHistory: {
-        name: 'Inbound History',
+        name: t('agentHistory.inbound_history'),
         url: `${import.meta.env.VITE_APP_API_BASE_URL}/phone_agents/${
           props.agentId
         }/inbound_history`,
         columns: makeTableColumns([
-          ['ani', '1fr', 'Ani'],
-          ['dnis', '1fr', 'Dnis'],
-          ['call_at', '1fr', 'Call At'],
+          ['ani', '1fr', t('agentHistory.ani')],
+          ['dnis', '1fr', t('agentHistory.dnis')],
+          ['call_at', '1fr', t('agentHistory.call_at')],
         ]),
       },
       outboundHistory: {
@@ -114,11 +116,11 @@ export default {
           props.agentId
         }/outbound_history`,
         columns: makeTableColumns([
-          ['phone_number', '1fr', 'Phone Number'],
+          ['phone_number', '1fr', t('agentHistory.phone_number')],
           [
             'latest_status',
             '1fr',
-            'Latest Status',
+            t('agentHistory.latest_status'),
             {
               transformer: (_: string, item: PhoneOutbound) =>
                 get(
@@ -128,8 +130,8 @@ export default {
                 ),
             },
           ],
-          ['completion', '1fr', 'Completion'],
-          ['updated_at', '1fr', 'Updated At'],
+          ['completion', '1fr', t('agentHistory.completion')],
+          ['updated_at', '1fr', t('agentHistory.updated_at')],
         ]),
       },
       ringCentralHistory: {
@@ -138,20 +140,20 @@ export default {
           props.agentId
         }/ringcentral_history`,
         columns: makeTableColumns([
-          ['agent_id', '1fr', 'Agent Id'],
-          ['username', '1fr', 'Username'],
-          ['agent_phone', '1fr', 'Agent Phone'],
-          ['event_type', '1fr', 'Event Type'],
-          ['prev_state', '1fr', 'Prev State'],
-          ['call_state', '1fr', 'Call State'],
-          ['created_at', '1fr', 'Created At'],
+          ['agent_id', '1fr', t('agentHistory.agent_id')],
+          ['username', '1fr', t('agentHistory.username')],
+          ['agent_phone', '1fr', t('agentHistory.agent_phone')],
+          ['event_type', '1fr', t('agentHistory.event_type')],
+          ['prev_state', '1fr', t('agentHistory.prev_state')],
+          ['call_state', '1fr', t('agentHistory.call_state')],
+          ['created_at', '1fr', t('agentHistory.created_at')],
         ]),
       },
     };
 
     const onRowClick = async (item) => {
       await component({
-        title: `Item detail`,
+        title: t('agentHistory.item_detail'),
         component: JsonWrapper,
         classes: 'w-full h-96',
         props: {
