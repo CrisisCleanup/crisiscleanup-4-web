@@ -399,7 +399,6 @@ export default {
     const showCapabilities = async (capabilities) => {
       await component({
         title: t('profileOrg.capabilities'),
-        title: 'Capabilities',
         component: CapabilityMatrix,
         props: {
           rawData: JSON.parse(capabilities),
