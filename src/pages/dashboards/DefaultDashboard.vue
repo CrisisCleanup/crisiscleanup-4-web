@@ -396,9 +396,11 @@ onMounted(() => {
         <div
           v-for="worksite in claimedWorksites"
           :key="worksite.id"
-          class="grid grid-cols-12 items-center justify-start bg-crisiscleanup-light-smoke p-1 m-1"
+          class="grid grid-cols-12 items-center justify-start bg-crisiscleanup-light-smoke p-2 m-1 gap-2 rounded"
         >
-          <div class="flex items-center justify-start gap-1 col-span-6">
+          <div
+            class="flex items-center justify-start gap-1 col-span-10 w-full flex-wrap"
+          >
             <span class="font-semibold mr-1">{{ worksite.case_number }}</span>
             <div
               v-for="workType in worksite.work_types"
@@ -419,10 +421,6 @@ onMounted(() => {
               />
             </div>
           </div>
-          <div class="text-xs text-gray-500 col-span-4 justify-self-center">
-            {{ $t('dashboard.claimed') }}
-            {{ moment(worksite.updated_at).format('M/D/YY') }}
-          </div>
           <div class="flex gap-2 justify-end col-span-2">
             <base-button
               variant="primary"
@@ -432,6 +430,10 @@ onMounted(() => {
               size="small"
               >{{ $t('actions.unclaim_all') }}
             </base-button>
+          </div>
+          <div class="text-xs text-gray-500 col-span-12 justify-self-end">
+            {{ $t('dashboard.claimed') }}
+            {{ moment(worksite.updated_at).format('M/D/YY') }}
           </div>
         </div>
       </div>
