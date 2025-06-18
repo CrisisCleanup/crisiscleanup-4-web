@@ -66,7 +66,7 @@
           </div>
           <div class="form-row">
             <FloatingInput
-              class="mr-2 w-full sm:w-84"
+              class="mr-2 w-full sm:w-full w-84"
               data-testid="testOrganizationNameTextInput"
               :placeholder="$t('profileOrg.organization_name')"
               :value="currentOrganization.name"
@@ -76,7 +76,7 @@
           </div>
           <div class="form-row">
             <FloatingInput
-              class="mr-2 w-full sm:w-84"
+              class="mr-2 w-full sm:w-full w-84"
               data-testid="testAddressTextInput"
               :placeholder="$t('profileOrg.address')"
               :value="currentOrganization.address"
@@ -86,7 +86,7 @@
           </div>
           <div class="form-row">
             <FloatingInput
-              class="mr-2 w-full sm:w-84"
+              class="mr-2 w-full sm:w-full w-84"
               data-testid="testUrlTextInput"
               :placeholder="$t('profileOrg.url')"
               :value="currentOrganization.url"
@@ -96,7 +96,7 @@
           </div>
           <div class="form-row">
             <FloatingInput
-              class="mr-2 w-full sm:w-84"
+              class="mr-2 w-full sm:w-full w-84"
               data-testid="testEmailTextInput"
               :placeholder="$t('profileOrg.email')"
               :value="currentOrganization.email"
@@ -106,7 +106,7 @@
           </div>
           <div class="form-row">
             <PhoneNumberInput
-              class="sm:w-84"
+              class="sm:w-full w-84"
               data-testid="testPhoneTextInput"
               :placeholder="$t('profileOrg.phone')"
               :model-value="currentOrganization.phone1"
@@ -118,7 +118,7 @@
             <base-select
               :placeholder="$t('profileOrg.organization_type')"
               data-testid="testOrganizationTypeTextInput"
-              class="w-full sm:w-84 flex-grow border border-crisiscleanup-dark-100"
+              class="w-full sm:w-full w-84 flex-grow border border-crisiscleanup-dark-100"
               :options="organizationTypes"
               :model-value="currentOrganization.type_t"
               item-key="key"
@@ -235,7 +235,7 @@
           </div>
           <div class="form-row">
             <FloatingInput
-              class="mr-2 w-full sm:w-84"
+              class="mr-2 sm:w-full w-84"
               data-testid="testDonationUrlTextInput"
               :placeholder="$t('profileOrg.donation_url')"
               :value="currentOrganization.donate_url"
