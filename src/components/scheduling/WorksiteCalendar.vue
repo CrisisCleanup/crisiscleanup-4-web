@@ -846,4 +846,7 @@ onMounted(async () => {
 
 <style scoped>
 /* Your page-specific styles here if needed */
+.sx-vue-calendar-wrapper {
+  @apply z-0;
+}
 </style>
