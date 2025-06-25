@@ -703,8 +703,19 @@ const {
                   class="h-full bg-crisiscleanup-green-900 bg-opacity-20 p-2 flex flex-col items-start justify-between"
                 >
                   <div class="w-full">
-                    <div class="py-2">
+                    <div class="py-2 flex">
                       {{ $t('phoneDashboard.complete_call') }}
+                      <ccu-icon
+                        v-tooltip="{
+                          content: $t('phoneDashboard.status_tooltip'),
+                          triggers: ['hover'],
+                          popperClass: 'interactive-tooltip w-auto',
+                          html: true,
+                        }"
+                        :alt="$t('phoneDashboard.status_tooltip')"
+                        type="help"
+                        size="medium"
+                      />
                     </div>
                     <UpdateStatus
                       class="max-w-4xl"
