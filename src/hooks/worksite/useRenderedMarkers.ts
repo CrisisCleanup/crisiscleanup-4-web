@@ -160,14 +160,19 @@ export default (
           (flag: { is_high_priority: boolean }) => flag.is_high_priority,
         );
 
+        let templateType = workType?.work_type || 'unknown';
         if (sprite.favorite || sprite.favorite_id) {
           detailedTemplate = templates.favorite;
+          templateType = 'favorite';
         } else if (isHighPriority) {
           detailedTemplate = templates.important;
+          templateType = 'important';
         }
 
-        // Generate detailed texture with caching
-        const detailedTextureKey = `${fillColor}_${isFilteredMarker}_${isVisitedMarker}_${workType?.work_type}_detailed`;
+        // Generate detailed texture with caching - include all dynamic factors
+        const hasMultiple = sprite.work_types.length > 1;
+        const hasPhotos = sprite.photos_count > 0;
+        const detailedTextureKey = `${fillColor}_${isFilteredMarker}_${isVisitedMarker}_${templateType}_${hasMultiple}_${hasPhotos}_detailed`;
         let detailedTexture = textureCache.get(detailedTextureKey);
 
         if (!detailedTexture) {

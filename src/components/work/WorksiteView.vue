@@ -560,7 +560,7 @@ export default defineComponent({
       if (worksite.value) {
         return worksite.value.work_types.filter(
           (type) =>
-            currentUser.value.organization.affiliates.includes(
+            currentUser.value.organization.all_affiliates_and_groups.includes(
               type.claimed_by,
             ) || type.claimed_by === currentUser.value.organization.id,
         );
@@ -574,7 +574,7 @@ export default defineComponent({
         const list = worksite.value.work_types.filter(
           (type) =>
             type.claimed_by &&
-            !currentUser.value.organization.affiliates.includes(
+            !currentUser.value.organization.all_affiliates_and_groups.includes(
               type.claimed_by,
             ) &&
             type.claimed_by !== currentUser.value.organization.id,
