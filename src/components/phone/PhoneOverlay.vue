@@ -705,6 +705,17 @@ const {
                   <div class="w-full">
                     <div class="py-2">
                       {{ $t('phoneDashboard.complete_call') }}
+                      <ccu-icon
+                        v-tooltip="{
+                          :content: $t(phoneDashboard.status_tooltip),
+                          triggers: ['click'],
+                          popperClass: 'interactive-tooltip w-auto',
+                          html: true,
+                        }"
+                        :alt= $t(phoneDashboard.status_tooltip),
+                        type="help"
+                        size="medium"
+                      />
                     </div>
                     <UpdateStatus
                       class="max-w-4xl"
