@@ -39,7 +39,7 @@
       <div class="w-full max-w-md m-5">
         <BaseInput
           v-model="searchQuery"
-          :placeholder="$t('action.search')"
+          :placeholder="$t('actions.search')"
           type="search"
           fa-icon="search"
           class="bg-white/10 text-white placeholder-white/60"
