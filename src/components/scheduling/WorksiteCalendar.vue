@@ -3,7 +3,9 @@
     <div class="flex flex-col flex-grow relative overflow-y-auto w-full">
       <!-- Header / Actions -->
       <div class="sticky top-0 bg-white z-10 p-2">
-        <div class="flex flex-wrap items-center gap-2 mt-10 md:mt-0">
+        <div
+          class="flex flex-wrap items-center gap-2 lg:justify-start lg:mt-0 mt-4 justify-end"
+        >
           <WorksiteNavigationIcons
             :case-images="[]"
             :showing-feed="false"
@@ -49,8 +51,10 @@
         </div>
 
         <!-- Filters -->
-        <div class="flex flex-wrap items-end gap-2 mt-2">
-          <div class="items-center gap-2">
+        <div
+          class="flex lg:flex-wrap lg:flex-row flex-col items-end gap-2 mt-2"
+        >
+          <div class="items-center gap-2 lg:w-80 w-full">
             <base-text variant="body" weight="600">
               {{ t('calendar.start_date') }}
             </base-text>
@@ -62,7 +66,7 @@
               @update:model-value="initialize"
             />
           </div>
-          <div class="items-center gap-2">
+          <div class="items-center gap-2 lg:w-80 w-full">
             <base-text variant="body" weight="600">
               {{ t('calendar.end_date') }}
             </base-text>
@@ -74,7 +78,7 @@
               @update:model-value="initialize"
             />
           </div>
-          <div class="items-center gap-2">
+          <div class="items-center gap-2 lg:w-72 w-full">
             <base-text variant="body" weight="600">
               {{ t('calendar.team') }}
             </base-text>
@@ -85,7 +89,7 @@
               label="name"
               :placeholder="$t('calendar.all_teams')"
               select-classes="p-1 border"
-              class="w-72 h-10"
+              class="lg:w-72 w-full h-10"
               @update:model-value="initialize"
             />
           </div>
