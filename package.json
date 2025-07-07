@@ -90,7 +90,7 @@
     "@vueuse/shared": "^11.0.3",
     "@vuex-orm/core": "^0.36.4",
     "@vuex-orm/plugin-axios": "^0.9.4",
-    "apexcharts": "^3.52.0",
+    "apexcharts": "^4.0.0",
     "axios": "^1.7.5",
     "bowser": "^2.11.0",
     "browser-acl": "^1.0.2",
