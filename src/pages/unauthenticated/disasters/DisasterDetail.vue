@@ -86,7 +86,7 @@ function getAniIncident(phoneNumber: number | string) {
   return matchingAniIncident ?? incident.value;
 }
 
-const downloadAsset = async (asset: IncidentAniAsset) => {
+const downloadAsset = async (asset: IncidentAniAsset, asLink = false) => {
   // refetch assets before downloading so that they don't have expired link
   // in case user's been on the page for a while
   try {
@@ -104,13 +104,20 @@ const downloadAsset = async (asset: IncidentAniAsset) => {
         asset = matchingAsset;
       }
     }
-    const response = await axios.get(asset.files[0].general_file_url, {
-      responseType: 'blob',
-      headers: {
-        Authorization: null,
-      },
-    });
-    forceFileDownload(response, asset.files[0].filename);
+
+    if (asLink) {
+      // Open the link directly in a new tab
+      window.open(asset.files[0].general_file_url, '_blank');
+    } else {
+      // Force file download
+      const response = await axios.get(asset.files[0].general_file_url, {
+        responseType: 'blob',
+        headers: {
+          Authorization: null,
+        },
+      });
+      forceFileDownload(response, asset.files[0].filename);
+    }
   } catch (error) {
     getErrorMessage(error);
   }
@@ -222,14 +229,14 @@ onMounted(async () => {
                     "
                     :pdf="asset.files[0]"
                     :show-download-button="false"
-                    @click-pdf="() => downloadAsset(asset)"
+                    @click-pdf="() => downloadAsset(asset, true)"
                   />
                   <img
                     v-else
                     :src="asset.files[0].general_file_url"
                     :alt="asset.files[0].filename"
                     class="h-64 max-w-84"
-                    @click="() => downloadAsset(asset)"
+                    @click="() => downloadAsset(asset, true)"
                   />
                   <div class="flex mt-2 items-center justify-center gap-2">
                     <div class="flex gap-5 items-center">
@@ -239,7 +246,7 @@ onMounted(async () => {
                       />
                       <div class="flex justify-self-end">
                         <base-button
-                          :action="() => downloadAsset(asset)"
+                          :action="() => downloadAsset(asset, true)"
                           variant="solid"
                           :text="$t('actions.download')"
                           :alt="$t('actions.download')"
