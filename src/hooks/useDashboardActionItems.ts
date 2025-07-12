@@ -47,6 +47,10 @@ export function useDashboardActionItems(
   const worksiteRequests = ref([]);
   const allClaimedWorksites = ref([]);
   const loading = ref(false);
+  const loadingWorksites = ref(false);
+  const loadingInvitations = ref(false);
+  const loadingTransfers = ref(false);
+  const loadingRequests = ref(false);
 
   const { prompt } = useDialogs();
 
@@ -68,42 +72,73 @@ export function useDashboardActionItems(
       .slice(0, 5);
   });
 
-  const fetchAllData = async () => {
-    loading.value = true;
+  const fetchWorksites = async () => {
+    loadingWorksites.value = true;
+    try {
+      const data = await getClaimedWorksites(currentIncidentId, organizationId);
+      allClaimedWorksites.value = data;
+    } catch (error) {
+      console.error('Error fetching worksites:', error);
+    } finally {
+      loadingWorksites.value = false;
+    }
+  };
 
+  const fetchInvitations = async () => {
+    loadingInvitations.value = true;
     const preferences = user.preferences || {};
-    const archivedWorksiteRequests =
-      preferences.archived_worksite_requests || [];
     const archivedInvitationRequests =
       preferences.archived_invitation_requests || [];
 
     try {
-      const [
-        allClaimedWorksitesData,
-        invitationRequestsData,
-        transferRequestsData,
-        worksiteRequestsData,
-      ] = await Promise.all([
-        getClaimedWorksites(currentIncidentId, organizationId),
-        getInvitationRequests(),
-        getUserTransferRequests(),
-        getWorksiteRequests(),
-      ]);
-      invitationRequests.value = invitationRequestsData.filter(
+      const data = await getInvitationRequests();
+      invitationRequests.value = data.filter(
         (request) => !archivedInvitationRequests.includes(request.id),
       );
-      transferRequests.value = transferRequestsData;
-      worksiteRequests.value = worksiteRequestsData.filter(
+    } catch (error) {
+      console.error('Error fetching invitations:', error);
+    } finally {
+      loadingInvitations.value = false;
+    }
+  };
+
+  const fetchTransfers = async () => {
+    loadingTransfers.value = true;
+    try {
+      const data = await getUserTransferRequests();
+      transferRequests.value = data;
+    } catch (error) {
+      console.error('Error fetching transfers:', error);
+    } finally {
+      loadingTransfers.value = false;
+    }
+  };
+
+  const fetchWorksiteRequests = async () => {
+    loadingRequests.value = true;
+    const preferences = user.preferences || {};
+    const archivedWorksiteRequests =
+      preferences.archived_worksite_requests || [];
+
+    try {
+      const data = await getWorksiteRequests();
+      worksiteRequests.value = data.filter(
         (request) =>
           !archivedWorksiteRequests.includes(request.id) &&
           request.requested_by_org.id !== organizationId,
       );
-      allClaimedWorksites.value = allClaimedWorksitesData;
     } catch (error) {
-      console.error('Error fetching action items:', error);
+      console.error('Error fetching worksite requests:', error);
     } finally {
-      loading.value = false;
+      loadingRequests.value = false;
     }
+  };
+
+  const fetchAllData = () => {
+    fetchWorksites();
+    fetchInvitations();
+    fetchTransfers();
+    fetchWorksiteRequests();
   };
 
   onMounted(fetchAllData);
@@ -240,6 +275,14 @@ export function useDashboardActionItems(
     transferRequests,
     worksiteRequests,
     loadingActionItems: loading,
+    loadingWorksites,
+    loadingInvitations,
+    loadingTransfers,
+    loadingRequests,
     fetchAllData,
+    fetchWorksites,
+    fetchInvitations,
+    fetchTransfers,
+    fetchWorksiteRequests,
   };
 }
