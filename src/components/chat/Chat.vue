@@ -663,7 +663,7 @@ export default defineComponent({
               parent.replies.push(data);
             }
           } else {
-            messages.value = [data, ...messages.value];
+            messages.value = [...messages.value, data];
             if (String(data.created_by) !== String(currentUser?.value?.id)) {
               if (data.is_urgent) {
                 emit('onNewUrgentMessage');
