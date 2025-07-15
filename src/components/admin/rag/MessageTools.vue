@@ -11,7 +11,7 @@ const messageTools = computed<Record<string, RAGToolMessage[]>>(
 );
 const messageDocuments = computed<RAGDocument[]>(() =>
   Object.values(messageTools.value).flatMap((toolMessage) => {
-    return (toolMessage as unknown as RAGToolMessage).documents;
+    return (toolMessage as RAGToolMessage).documents;
   }),
 );
 const documentNames = computed(() => [

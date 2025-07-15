@@ -122,7 +122,7 @@ import { isEqual } from 'lodash';
 import { useI18n } from 'vue-i18n';
 import { ref, defineComponent, onMounted } from 'vue';
 import moment from 'moment';
-// eslint-disable-next-line import/default
+
 import LitepieDatepicker from 'litepie-datepicker';
 
 export default defineComponent({
