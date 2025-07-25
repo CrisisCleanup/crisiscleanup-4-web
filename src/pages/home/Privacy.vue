@@ -31,7 +31,10 @@
         <h3>3 {{ $t('privacy.children') }}</h3>
         <p v-html="$t('privacy.not_for_under_13')"></p>
 
-        <h3>4 {{ $t('privacy.information_collected') }}</h3>
+        <h3>4 {{ $t('privacy.artificial_intelligence') }}</h3>
+        <p v-html="$t('privacy.ai_explanation_opt_out')"></p>
+
+        <h3>5 {{ $t('privacy.information_collected') }}</h3>
         <ol class="outline four">
           <li>
             <div v-html="$t('privacy.how_used_intro')"></div>
@@ -122,7 +125,7 @@
           </li>
         </ol>
 
-        <h3>5 {{ $t('privacy.other_disclosures') }}</h3>
+        <h3>6 {{ $t('privacy.other_disclosures') }}</h3>
 
         <p v-html="$t('privacy.disclose_pii_when')"></p>
         <ol class="outline five">
@@ -133,10 +136,13 @@
           <li v-html="$t('privacy.other_purposes')"></li>
         </ol>
 
-        <h3>6 {{ $t('privacy.ssl_encryption') }}</h3>
+        <h3>7 {{ $t('privacy.language') }}</h3>
+        <p v-html="$t('privacy.written_in_english')"></p>
+
+        <h3>8 {{ $t('privacy.ssl_encryption') }}</h3>
         <p v-html="$t('privacy.we_use_ssl')"></p>
 
-        <h3>7 {{ $t('privacy.policy_changes') }}</h3>
+        <h3>8 {{ $t('privacy.policy_changes') }}</h3>
         <ol class="outline seven">
           <li v-html="$t('privacy.how_we_update_policy')"></li>
           <li v-html="$t('privacy.effective_date')"></li>
