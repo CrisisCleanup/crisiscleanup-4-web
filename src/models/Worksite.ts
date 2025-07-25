@@ -234,7 +234,7 @@ export default class Worksite extends CCUModel {
         }
 
         const { currentUserId } = useAuthStore();
-        const eventUserIds = worksite.response.data.events
+        const eventUserIds = (worksite.response.data?.events || [])
           .map((event) => event.created_by)
           .filter((userId) => Number(userId) !== Number(currentUserId.value));
         if (eventUserIds.length > 0) {
