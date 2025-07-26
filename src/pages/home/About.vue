@@ -92,13 +92,13 @@
         data-testid="testAboutStatsDiv"
       >
         <div class="flex flex-col">
-          <h1 class="text-3xl font-bold text-center">2,500+</h1>
+          <h1 class="text-3xl font-bold text-center">3,300+</h1>
           <base-text weight="300" variant="body" class="crisiscleanup-grey-500"
             >{{ $t('about.organizations') }}
           </base-text>
         </div>
         <div class="flex flex-col">
-          <h1 class="text-3xl font-bold text-center">80,905+</h1>
+          <h1 class="text-3xl font-bold text-center">188,094+</h1>
           <base-text
             weight="300"
             variant="body"
@@ -108,7 +108,7 @@
           </base-text>
         </div>
         <div class="flex flex-col text-center">
-          <h1 class="text-3xl font-bold">$46,929</h1>
+          <h1 class="text-3xl font-bold">$464,947</h1>
           <base-text
             weight="300"
             variant="body"
@@ -125,7 +125,7 @@
           class="py-2 px-3"
           :alt="$t('about.view_details')"
         >
-          {{ $t('about.view_details') }}
+          <a href="/pew-pew">{{ $t('about.view_details') }}</a>
         </base-button>
       </div>
       <!-- Info Card w/ Sketch -->
@@ -152,21 +152,20 @@
       <h1
         class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
       >
-        {{ $t('about.people_of_ccu') }}
+        {{ $t('about.core_team') }}
       </h1>
 
-      <div class="images-grid sm:grid-cols-3" data-testid="testAboutPeopleDiv">
-        <!-- Headshots -->
+        <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/aarontitus.jpg" class="m-5" />
+          <img src="@/assets/headshots/tobi_abiodun.png" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Aaron Titus</span><br />
-            {{ $t('about.aaron_titus_title') }}
+            <span class="font-bold">Tobi Abiodun</span><br />
+            {{ $t('about.tobi_abiodun_title') }}
           </p>
           <base-text
             variant="body"
             class="pt-2"
-            v-html="$t('about.aaron_titus_bio')"
+            v-html="$t('about.tobi_abiodun_bio')"
           >
           </base-text>
         </div>
@@ -190,15 +189,15 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/tobiabiodun.jpg" class="m-5" />
+          <img src="@/assets/headshots/jeri_curry" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Tobi Abiodun</span><br />
-            {{ $t('about.tobi_abiodun_title') }}
+            <span class="font-bold">Jeri Curry</span><br />
+            {{ $t('about.jeri_curry_title') }}
           </p>
           <base-text
             variant="body"
             class="pt-2"
-            v-html="$t('about.tobi_abiodun_bio')"
+            v-html="$t('about.jeri_curry_bio')"
           >
           </base-text>
         </div>
@@ -215,6 +214,109 @@
             variant="body"
             class="pt-2"
             v-html="$t('about.gina_newby_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/zacstout.jpeg" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Zac Stout</span><br />
+            {{ $t('about.zac_stout_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.zac_stout_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+      <div class="images-grid sm:grid-cols-3" data-testid="testAboutPeopleDiv">
+        <!-- Headshots -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/aarontitus.jpg" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Aaron Titus</span><br />
+            {{ $t('about.aaron_titus_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.aaron_titus_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/quivan.jpg" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Qui Van</span><br />
+            {{ $t('about.qui_van_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.qui_van_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+      <h1
+        class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+      >
+        {{ $t('about.support_team') }}
+      </h1>
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/sam_brown.png" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Sam Brown</span><br />
+            {{ $t('about.sam_brown_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.sam_brown_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/daniel_hebert.png" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Daniel Hebert</span><br />
+            {{ $t('about.daniel_hebert_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.daniel_hebert_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/triston_lewis.png" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Triston Lewis</span><br />
+            {{ $t('about.triston_lewis_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.triston_lewis_bio')"
           >
           </base-text>
         </div>
@@ -254,15 +356,15 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/dankaupilla.jpg" class="m-5" />
+          <img src="@/assets/headshots/jaimi_sun.png" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Dan Kaupilla</span><br />
-            {{ $t('about.dan_kaupilla_title') }}
+            <span class="font-bold">Jaimi Sun</span><br />
+            {{ $t('about.jaimi_sun_title') }}
           </p>
           <base-text
             variant="body"
             class="pt-2"
-            v-html="$t('about.dan_kaupilla_bio')"
+            v-html="$t('about.jaimi_sun_bio')"
           >
           </base-text>
         </div>
@@ -270,31 +372,15 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/quivan.jpg" class="m-5" />
+          <img src="@/assets/headshots/tim_szczesny.png" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Qui Van</span><br />
-            {{ $t('about.qui_van_title') }}
+            <span class="font-bold">Tim Szczesny</span><br />
+            {{ $t('about.tim_szczesny_title') }}
           </p>
           <base-text
             variant="body"
             class="pt-2"
-            v-html="$t('about.qui_van_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
-
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/zacstout.jpeg" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Zac Stout</span><br />
-            {{ $t('about.zac_stout_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.zac_stout_bio')"
+            v-html="$t('about.tim_szczesny_bio')"
           >
           </base-text>
         </div>
@@ -315,12 +401,46 @@
           </base-text>
         </div>
         <!-- End Card -->
-      </div>
 
-      <!-- Major Contributors -->
-      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
-        Major Contributors
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <img src="@/assets/headshots/kevin_west.png" class="m-5" />
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Kevin West</span><br />
+            {{ $t('about.kevin_west_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.kevin_west_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+      <h1
+        class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+      >
+        {{ $t('about.alumni') }}
       </h1>
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <!--<img src="@/assets/headshots/dankaupilla.jpg" class="m-5" />-->
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Dan Kaupilla</span><br />
+            {{ $t('about.dan_kaupilla_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.dan_kaupilla_bio')"
+          >
+          </base-text>
+        </div>
+        <!-- End Card -->
+
+      </div>
 
       <div
         class="images-grid sm:grid-cols-3"
@@ -328,7 +448,7 @@
       >
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/andygimma.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/andygimma.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Andy Gimma</span><br />
             {{ $t('about.andy_gimma_title') }}
@@ -344,7 +464,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/olgauzhykova.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/olgauzhykova.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Olga Uzhykova</span><br />
             {{ $t('about.olga_uzhykova_title') }}
@@ -360,7 +480,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/mariiafilatova.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/mariiafilatova.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Mariia Filatova</span><br />
             {{ $t('about.mariia_filatova_title') }}
@@ -376,7 +496,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/zacharystraub.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/zacharystraub.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Zachary Straub</span><br />
             {{ $t('about.zachary_straub_title') }}
@@ -392,7 +512,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/tylersanders.png" class="m-5" />
+          <!--<img src="@/assets/headshots/tylersanders.png" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Tyler Sanders</span><br />
             {{ $t('about.tyler_sanders_title') }}
@@ -408,7 +528,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/dhruvmehrotra.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/dhruvmehrotra.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Dhruv Mehrotra</span><br />
             {{ $t('about.dhruv_mehrotra_title') }}
@@ -424,7 +544,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/chriswood.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/chriswood.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Chris Wood</span><br />
             {{ $t('about.chris_wood_title') }}
@@ -440,7 +560,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/karissaphelps.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/karissaphelps.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Karissa Phelps</span><br />
             {{ $t('about.karissa_phelps_title') }}
@@ -456,7 +576,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/jeremypack.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/jeremypack.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Jeremy Pack</span><br />
             {{ $t('about.jeremy_pack_title') }}
@@ -471,7 +591,7 @@
         <!-- End Card -->
 
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/brucechristensen.jpg" class="m-5" />
+          <!--<img src="@/assets/headshots/brucechristensen.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Bruce Christensen</span><br />
             {{ $t('about.bruce_christensen_title') }}
@@ -487,7 +607,7 @@
         <!-- End Major Contributors -->
       </div>
 
-      <!-- Major Supporters -->
+      <!-- Current Supporters -->
       <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
         {{ $t('about.major_supporters') }}
       </h1>
@@ -532,7 +652,24 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/arc_logo.jpg" class="m-5" />
+          <img src="@/assets/partners/ringcentral_logo.png" class="m-5" />
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.ringcentral.com/" target="_blank"
+                >RingCentral</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
+        {{ $t('about.past_supporters') }}
+      </h1>
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/arc_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="http://www.redcross.org/" target="_blank"
@@ -545,7 +682,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/houston_logo.png" class="m-5" />
+          <!--<img src="@/assets/partners/houston_logo.png" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="http://www.houstontx.gov/housing/" target="_blank"
@@ -558,10 +695,10 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img
+          <!--<img
             src="@/assets/partners/church_of_jesus_christ_logo.jpg"
             class="m-5"
-          />
+          />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a
@@ -576,7 +713,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/visionlink_logo.jpg" class="m-5" />
+          <!--<img src="@/assets/partners/visionlink_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="http://visionlink.org/" target="_blank"
@@ -589,7 +726,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/umcor_logo.jpg" class="m-5" />
+          <!--<img src="@/assets/partners/umcor_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="https://www.umcor.org/" target="_blank">UMCOR</a></span
@@ -600,7 +737,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/volunteer_florida_logo.jpg" class="m-5" />
+          <!--<img src="@/assets/partners/volunteer_florida_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="https://www.volunteerflorida.org/" target="_blank"
@@ -613,7 +750,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/h2prep_logo.jpg" class="m-5" />
+          <!--<img src="@/assets/partners/h2prep_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a
@@ -628,7 +765,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/nj211_logo.jpg" class="m-5" />
+          <!--<img src="@/assets/partners/nj211_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="http://www.nj211.org/" target="_blank"
@@ -641,7 +778,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/thinkso_logo.png" class="m-5" />
+          <!--<img src="@/assets/partners/thinkso_logo.png" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="https://thinkso.com/" target="_blank">ThinkSo</a></span
@@ -652,20 +789,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/connectfirst_logo.png" class="m-5" />
-          <p class="text-xl text-center px-0.5 pb-5">
-            <span class="font-bold"
-              ><a href="http://www.connectfirst.com/" target="_blank"
-                >Connect First</a
-              ></span
-            >
-          </p>
-        </div>
-        <!-- End Card -->
-
-        <!-- StartCard -->
-        <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/nj_voad_logo.jpg" class="m-5" />
+          <!--<img src="@/assets/partners/nj_voad_logo.jpg" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="https://www.njvoad.org/" target="_blank"
@@ -678,7 +802,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/sdema_logo.png" class="m-5" />
+          <!--<img src="@/assets/partners/sdema_logo.png" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="https://sdema.wildapricot.org/" target="_blank"
@@ -691,7 +815,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/hono_logo.png" class="m-5" />
+          <!--<img src="@/assets/partners/hono_logo.png" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a href="https://www.handsonneworleans.org/" target="_blank"
@@ -704,7 +828,7 @@
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
-          <img src="@/assets/partners/nc_volunteerism_logo.png" class="m-5" />
+          <!--<img src="@/assets/partners/nc_volunteerism_logo.png" class="m-5" />-->
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
               ><a
