@@ -36,8 +36,8 @@
           variant="outline"
           class="mt-2"
           size="small"
-          @click="toggleSection"
           :alt="$t('actions.cancel')"
+          @click="toggleSection"
         >
           {{ $t('actions.cancel') }}
         </base-button>

@@ -153,7 +153,7 @@ export default defineComponent({
         }
       }
 
-      router.replace({ ...router.currentRoute, query } as any);
+      router.replace({ ...router.currentRoute, query });
       emit('onFilter', query);
     };
 

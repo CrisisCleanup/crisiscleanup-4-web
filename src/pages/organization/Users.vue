@@ -271,7 +271,7 @@
     <div class="flex h-full p-8 m-auto">
       <div class="w-full flex flex-col">
         <div class="flex items-center justify-between w-full">
-          <div class="flex py-2">
+          <div class="flex flex-wrap py-2 gap-2">
             <div class="mr-4">
               <base-input
                 v-model="currentSearch"
