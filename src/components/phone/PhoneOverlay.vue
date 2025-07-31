@@ -497,16 +497,14 @@ const {
               </base-button>
             </div>
             <div class="bg-white h-full">
-              <div class="bg-white">
-                <Leaderboard
-                  v-if="currentView === 'leaderboard'"
-                  class="h-[calc(100vh-15rem)]"
-                />
-              </div>
+              <Leaderboard
+                v-if="currentView === 'leaderboard'"
+                class="h-204 bg-white"
+              />
 
               <div
                 v-if="currentView === 'manualDialer'"
-                class="flex items-center justify-center h-[calc(100vh-15rem)] bg-white"
+                class="flex items-center justify-center h-204 bg-white"
               >
                 <ManualDialer
                   class="p-2 z-phone-component"
@@ -520,7 +518,7 @@ const {
 
               <div v-if="currentView === 'zoom'" class="bg-white">
                 <div
-                  class="h-[calc(100vh-15rem)]"
+                  class="h-204"
                   style="
                     display: flex;
                     flex-direction: column;
@@ -562,7 +560,7 @@ const {
               </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2 h-[calc(100vh-15rem)] z-phone-component bg-white w-screen md:w-auto max-h-none"
+                class="p-2 h-204 z-phone-component bg-white w-screen md:w-auto max-h-none"
                 data-testid="testPhoneCmsItemsDiv"
                 @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
@@ -570,9 +568,9 @@ const {
               <div class="bg-white">
                 <CallHistory
                   v-if="currentView === 'callHistory'"
-                  class="border-top-4 h-[calc(100vh-15rem)]"
+                  class="border-top-4"
                   :calls="callHistory"
-                  :table-body-style="{ height: '50rem' }"
+                  :table-body-style="{ height: '36rem' }"
                   @row-click="
                     ({ phone_number }) => {
                       setManualOutbound(phone_number);
@@ -583,7 +581,7 @@ const {
 
               <div v-if="currentView === 'generalStats'" class="">
                 <div
-                  class="bg-white w-full h-[calc(100vh-15rem)] flex items-center justify-center"
+                  class="bg-white w-full h-204 flex items-center justify-center"
                 >
                   <GeneralStats
                     @on-remaining-callbacks="remainingCallbacks = $event"
@@ -595,7 +593,7 @@ const {
                 <Chat
                   v-if="selectedChat"
                   :chat="selectedChat"
-                  class="bg-white h-[calc(100vh-15rem)]"
+                  class="bg-white h-204"
                   @unread-count="unreadChatCount = $event"
                   @unread-urgent-count="unreadUrgentChatCount = $event"
                   @on-new-message="unreadChatCount += 1"
@@ -604,7 +602,7 @@ const {
               </template>
               <template v-if="currentView === 'reportBug'">
                 <div
-                  class="h-[calc(100vh-15rem)] flex flex-col justify-center items-center text-left p-5 w-full bg-white"
+                  class="h-204 flex flex-col justify-center items-center text-left p-5 w-full bg-white"
                 >
                   <div class="flex flex-col lg:flex-row">
                     <div class="flex items-center">
@@ -690,7 +688,7 @@ const {
                 </div>
               </template>
               <template v-if="currentView === 'phoneDoctor'">
-                <PhoneDoctor class="h-[calc(100vh-15rem)] bg-white" />
+                <PhoneDoctor class="h-204 bg-white" />
               </template>
             </div>
             <div v-show="!currentView && caller" class="flex-grow">

@@ -1,10 +1,28 @@
 <template>
-  <TitledCard
-    :title="$t('phoneDashboard.leaderboard')"
-    :dropdown="dropdownProps"
-    data-testid="testLeaderboardDiv"
-    @update:dropdown="onDropdownUpdate"
-  >
+  <div class="shadow-crisiscleanup-card card" data-testid="testLeaderboardDiv">
+    <div
+      class="flex justify-between items-center py-4 px-6 border-b border-opacity-20 border-gray-400"
+    >
+      <base-text variant="h3" bold>
+        {{ $t('phoneDashboard.leaderboard') }}
+      </base-text>
+      <div class="mx-3">
+        <base-select
+          :model-value="dropdownProps.value"
+          :searchable="false"
+          :clearable="false"
+          class="w-44"
+          v-bind="dropdownProps"
+          @update:model-value="onDropdownUpdate"
+        >
+          <template #selected-option="{ option }">
+            <base-text variant="h3" class="text-crisiscleanup-dark-300" regular>
+              {{ option[dropdownProps.label] }}
+            </base-text>
+          </template>
+        </base-select>
+      </div>
+    </div>
     <div class="max-h-120 overflow-y-auto">
       <div
         v-for="rank in leaderboard"
@@ -112,7 +130,7 @@
         :action="() => loadLeaderboard(null, next)"
       />
     </div>
-  </TitledCard>
+  </div>
 </template>
 
 <script lang="ts">
@@ -131,7 +149,6 @@ import User from '../../models/User';
 import Avatar from '../Avatar.vue';
 import UserDetailsTooltip from '../user/DetailsTooltip.vue';
 import LanguageTag from '../tags/LanguageTag.vue';
-import TitledCard from '../cards/TitledCard.vue';
 import { useWebSockets } from '../../hooks/useWebSockets';
 import useEmitter from '../../hooks/useEmitter';
 import { momentFromNow } from '../../filters/index';
@@ -152,7 +169,7 @@ const AGENT_STATES = Object.freeze({
 
 export default defineComponent({
   name: 'Leaderboard',
-  components: { TitledCard, LanguageTag, UserDetailsTooltip, Avatar },
+  components: { LanguageTag, UserDetailsTooltip, Avatar },
   setup() {
     const { emitter } = useEmitter();
     const { t } = useI18n();
