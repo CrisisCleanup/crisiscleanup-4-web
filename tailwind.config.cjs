@@ -176,6 +176,13 @@ module.exports = {
         156: '39rem',
         168: '42rem',
         180: '45rem',
+        192: '48rem',
+        204: '51rem',
+        216: '54rem',
+        228: '57rem',
+        240: '60rem',
+        252: '63rem',
+        264: '66rem',
       },
       boxShadow: {
         'crisiscleanup-card': '0 4px 8px 0px rgba(164, 177, 184, 0.6)',
