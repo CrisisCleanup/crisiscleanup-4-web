@@ -311,7 +311,7 @@ const {
     class="relative"
     :class="{
       'h-12': !expanded && caller,
-      'h-full': expanded,
+      'h-max bg-white': expanded,
       'h-0': !expanded && !caller,
     }"
   >
@@ -486,7 +486,7 @@ const {
           <template v-if="expanded">
             <div
               v-if="currentView"
-              class="flex items-center justify-between px-3 py-[11px] border-b-4"
+              class="flex items-center justify-between px-3 py-[11px] border-b-4 z-phone-overlay"
             >
               <h1>{{ viewToTitleMap[currentView] }}</h1>
               <base-button
@@ -496,10 +496,7 @@ const {
                 {{ $t('phoneDashboard.close_tab') }}
               </base-button>
             </div>
-            <div
-              class="bg-white"
-              :class="!currentView && caller ? '' : 'h-full'"
-            >
+            <div class="bg-white h-full">
               <div class="bg-white">
                 <Leaderboard
                   v-if="currentView === 'leaderboard'"
@@ -584,11 +581,10 @@ const {
                 ></CallHistory>
               </div>
 
-              <div
-                v-if="currentView === 'generalStats'"
-                class="flex items-center justify-center h-full"
-              >
-                <div class="h-full flex flex-col items-center justify-center">
+              <div v-if="currentView === 'generalStats'" class="">
+                <div
+                  class="bg-white w-full h-120 flex items-center justify-center"
+                >
                   <GeneralStats
                     @on-remaining-callbacks="remainingCallbacks = $event"
                     @on-remaining-calldowns="remainingCalldowns = $event"
@@ -599,6 +595,7 @@ const {
                 <Chat
                   v-if="selectedChat"
                   :chat="selectedChat"
+                  class="bg-white h-max"
                   @unread-count="unreadChatCount = $event"
                   @unread-urgent-count="unreadUrgentChatCount = $event"
                   @on-new-message="unreadChatCount += 1"
@@ -693,10 +690,9 @@ const {
                 </div>
               </template>
               <template v-if="currentView === 'phoneDoctor'">
-                <PhoneDoctor />
+                <PhoneDoctor class="h-max bg-white" />
               </template>
             </div>
-
             <div v-show="!currentView && caller" class="flex-grow">
               <template v-if="showCompleteCallScreen">
                 <div
