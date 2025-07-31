@@ -155,85 +155,85 @@
         {{ $t('about.core_team') }}
       </h1>
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/tobi_abiodun.png" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Tobi Abiodun</span><br />
-            {{ $t('about.tobi_abiodun_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.tobi_abiodun_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <img src="@/assets/headshots/tobi_abiodun.png" class="m-5" />
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Tobi Abiodun</span><br />
+          {{ $t('about.tobi_abiodun_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.tobi_abiodun_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/rossarroyo.jpeg" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Ross Arroyo</span><br />
-            {{ $t('about.ross_arroyo_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.ross_arroyo_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <img src="@/assets/headshots/rossarroyo.jpeg" class="m-5" />
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Ross Arroyo</span><br />
+          {{ $t('about.ross_arroyo_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.ross_arroyo_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/jeri_curry" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Jeri Curry</span><br />
-            {{ $t('about.jeri_curry_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.jeri_curry_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <img src="@/assets/headshots/jeri_curry.png" class="m-5" />
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Jeri Curry</span><br />
+          {{ $t('about.jeri_curry_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.jeri_curry_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/ginanewby.jpg" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Gina Newby</span><br />
-            {{ $t('about.gina_newby_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.gina_newby_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <img src="@/assets/headshots/ginanewby.jpg" class="m-5" />
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Gina Newby</span><br />
+          {{ $t('about.gina_newby_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.gina_newby_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/zacstout.jpeg" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Zac Stout</span><br />
-            {{ $t('about.zac_stout_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.zac_stout_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <img src="@/assets/headshots/zacstout.jpeg" class="m-5" />
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Zac Stout</span><br />
+          {{ $t('about.zac_stout_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.zac_stout_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
       <div class="images-grid sm:grid-cols-3" data-testid="testAboutPeopleDiv">
         <!-- Headshots -->
@@ -268,11 +268,11 @@
         </div>
         <!-- End Card -->
 
-      <h1
-        class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-      >
-        {{ $t('about.support_team') }}
-      </h1>
+        <h1
+          class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+        >
+          {{ $t('about.support_team') }}
+        </h1>
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
@@ -418,11 +418,11 @@
         </div>
         <!-- End Card -->
 
-      <h1
-        class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-      >
-        {{ $t('about.alumni') }}
-      </h1>
+        <h1
+          class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+        >
+          {{ $t('about.alumni') }}
+        </h1>
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
@@ -439,7 +439,6 @@
           </base-text>
         </div>
         <!-- End Card -->
-
       </div>
 
       <div
@@ -663,9 +662,9 @@
         </div>
         <!-- End Card -->
 
-      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
-        {{ $t('about.past_supporters') }}
-      </h1>
+        <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
+          {{ $t('about.past_supporters') }}
+        </h1>
 
         <!-- StartCard -->
         <div class="flex flex-col items-center justify-start">
