@@ -486,7 +486,7 @@ const {
           <template v-if="expanded">
             <div
               v-if="currentView"
-              class="flex items-center justify-between px-3 py-[11px] border-b-4 z-phone-overlay"
+              class="flex items-center justify-between px-3 py-[11px] border-b-4 z-phone-overlay bg-white"
             >
               <h1>{{ viewToTitleMap[currentView] }}</h1>
               <base-button
@@ -500,13 +500,13 @@ const {
               <div class="bg-white">
                 <Leaderboard
                   v-if="currentView === 'leaderboard'"
-                  class="h-full"
+                  class="h-[calc(100vh-15rem)]"
                 />
               </div>
 
               <div
                 v-if="currentView === 'manualDialer'"
-                class="flex items-center justify-center h-[calc(100vh-13rem)] bg-white"
+                class="flex items-center justify-center h-[calc(100vh-15rem)] bg-white"
               >
                 <ManualDialer
                   class="p-2 z-phone-component"
@@ -520,7 +520,7 @@ const {
 
               <div v-if="currentView === 'zoom'" class="bg-white">
                 <div
-                  class="h-[calc(100vh-13rem)]"
+                  class="h-[calc(100vh-15rem)]"
                   style="
                     display: flex;
                     flex-direction: column;
@@ -562,7 +562,7 @@ const {
               </div>
               <PhoneCmsItems
                 v-if="currentView === 'cms'"
-                class="p-2 h-[calc(100vh-13rem)] z-phone-component bg-white w-screen md:w-auto"
+                class="p-2 h-[calc(100vh-15rem)] z-phone-component bg-white w-screen md:w-auto max-h-none"
                 data-testid="testPhoneCmsItemsDiv"
                 @unread-count="unreadNewsCount = $event"
               ></PhoneCmsItems>
@@ -570,9 +570,9 @@ const {
               <div class="bg-white">
                 <CallHistory
                   v-if="currentView === 'callHistory'"
-                  class="border-top-4"
+                  class="border-top-4 h-[calc(100vh-15rem)]"
                   :calls="callHistory"
-                  :table-body-style="{ height: '30rem' }"
+                  :table-body-style="{ height: '50rem' }"
                   @row-click="
                     ({ phone_number }) => {
                       setManualOutbound(phone_number);
@@ -583,7 +583,7 @@ const {
 
               <div v-if="currentView === 'generalStats'" class="">
                 <div
-                  class="bg-white w-full h-120 flex items-center justify-center"
+                  class="bg-white w-full h-[calc(100vh-15rem)] flex items-center justify-center"
                 >
                   <GeneralStats
                     @on-remaining-callbacks="remainingCallbacks = $event"
@@ -595,7 +595,7 @@ const {
                 <Chat
                   v-if="selectedChat"
                   :chat="selectedChat"
-                  class="bg-white h-max"
+                  class="bg-white h-[calc(100vh-15rem)]"
                   @unread-count="unreadChatCount = $event"
                   @unread-urgent-count="unreadUrgentChatCount = $event"
                   @on-new-message="unreadChatCount += 1"
@@ -604,7 +604,7 @@ const {
               </template>
               <template v-if="currentView === 'reportBug'">
                 <div
-                  class="h-[calc(100vh-13rem)] flex flex-col justify-center items-center text-left p-5 w-full bg-white"
+                  class="h-[calc(100vh-15rem)] flex flex-col justify-center items-center text-left p-5 w-full bg-white"
                 >
                   <div class="flex flex-col lg:flex-row">
                     <div class="flex items-center">
@@ -690,7 +690,7 @@ const {
                 </div>
               </template>
               <template v-if="currentView === 'phoneDoctor'">
-                <PhoneDoctor class="h-max bg-white" />
+                <PhoneDoctor class="h-[calc(100vh-15rem)] bg-white" />
               </template>
             </div>
             <div v-show="!currentView && caller" class="flex-grow">
@@ -734,7 +734,7 @@ const {
               <template v-else>
                 <CurrentCall
                   :case-id="caseId"
-                  class="p-2 bg-crisiscleanup-green-900 bg-opacity-20 h-full"
+                  class="p-2 bg-crisiscleanup-green-800/95 h-full"
                   @set-case="emit('setCase', $event)"
                 />
               </template>
