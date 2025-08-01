@@ -42,6 +42,7 @@ interface RAGSocketAnswerMessageBody
   messageId: string;
   answer: string;
   status: 'pending' | 'in_progress' | 'error' | 'finish' | 'rejected';
+  tools?: Record<string, ToolMessage[]>;
 }
 
 type RAGSocketConversationMessageBody =
@@ -671,6 +672,7 @@ export const useRAG = (
       collectionId,
       conversationId,
       status,
+      tools,
     } = data;
     if (currentQuestion.value && status !== 'rejected') {
       // push current question when we know its been validated
@@ -716,6 +718,7 @@ export const useRAG = (
         conversationId,
         actor: options?.aiActorName ?? 'aarongpt',
         content: answer,
+        tools,
       });
     }
   }
