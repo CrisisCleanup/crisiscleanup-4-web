@@ -10,12 +10,14 @@ const messageTools = computed<Record<string, RAGToolMessage[]>>(
   () => props.entry.tools ?? {},
 );
 const messageDocuments = computed<RAGDocument[]>(() =>
-  Object.values(messageTools.value).flatMap((toolMessage) => {
-    return (toolMessage as unknown as RAGToolMessage).documents;
-  }),
+  Object.values(messageTools.value)
+    .flatMap((toolMessage) => {
+      return toolMessage as RAGToolMessage;
+    })
+    .flatMap((i) => i.documents ?? []),
 );
 const documentNames = computed(() => [
-  ...new Set(messageDocuments.value.map((doc) => doc.metadata.filename)),
+  ...new Set(messageDocuments.value.map((doc) => doc?.metadata?.filename)),
 ]);
 const currentDocument = ref(documentNames.value[0]);
 const selectedDocuments = computed(() =>
