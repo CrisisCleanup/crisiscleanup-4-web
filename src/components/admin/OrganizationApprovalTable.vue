@@ -83,7 +83,85 @@
           type="help"
           size="lg"
         />
-        <base-button
+        <v-popover placement="bottom-start">
+          <base-button
+            action="add"
+            suffix-icon="caret-down"
+            class="ml-3 my-3 border border-1.5 border-black p-1 px-4 bg-white"
+          >
+            Actions
+          </base-button>
+          <template #popper class="flex flex-col justify-center items-center">
+            <base-button
+              v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
+              data-testid="testApproveButton"
+              :text="$t('actions.approve')"
+              :alt="$t('actions.approve')"
+              variant="solid"
+              size="medium"
+              :action="
+                () => {
+                  approveOrganization(slotProps.item.id);
+                }
+              "
+            />
+            <base-button
+              v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
+              data-testid="testRejectButton"
+              :text="$t('actions.reject')"
+              :alt="$t('actions.reject')"
+              size="medium"
+              class="mx-1"
+              :action="
+                () => {
+                  rejectOrganization(slotProps.item.id);
+                }
+              "
+            />
+            <base-button
+              data-testid="testNotifyButton"
+              :text="$t('actions.notify')"
+              :alt="$t('adminDashboard.notify_content')"
+              size="medium"
+              class="mx-1"
+              :action="
+                () => {
+                  notifyOrganization(slotProps.item.id);
+                }
+              "
+            />
+            <base-button
+              v-if="
+                currentUser &&
+                currentUser.isAdmin &&
+                (slotProps.item.approved_by || slotProps.item.rejected_by)
+              "
+              data-testid="testClearApprovalButton"
+              :text="$t('actions.undo')"
+              :alt="$t('actions.undo')"
+              size="medium"
+              class="mx-1"
+              :action="
+                () => {
+                  clearApproval(slotProps.item.id);
+                }
+              "
+            />
+            <base-button
+              v-if="currentUser && currentUser.isAdmin"
+              data-testid="testOrganizationLink"
+              :action="
+                () => {
+                  $router.push(`/admin/organization/${slotProps.item.id}`);
+                }
+              "
+              size="medium"
+              class="mx-1"
+              >{{ $t('actions.edit') }}</base-button
+            >
+          </template>
+        </v-popover>
+        <!-- <base-button
           v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
           data-testid="testApproveButton"
           :text="$t('actions.approve')"
@@ -149,7 +227,7 @@
           text-variant="bodysm"
           class="px-1"
           >{{ $t('actions.edit') }}</base-link
-        >
+        > -->
       </div>
     </template>
   </AjaxTable>
