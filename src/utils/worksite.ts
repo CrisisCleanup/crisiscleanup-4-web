@@ -13,6 +13,12 @@ export interface CachedCaseResponse {
   results: CachedCase[];
 }
 
+export interface WorksiteChange {
+  worksite_id: number;
+  incident_id: number;
+  invalidated_at: string | null;
+}
+
 const debug = createDebug('@ccu:utils:worksite');
 
 const loadCases = async (query: Record<string, unknown>) => {
@@ -57,6 +63,18 @@ const loadCasesPaginated = async (query: Record<string, unknown>) => {
   };
 };
 
+const loadWorksiteChanges = async (
+  since: string,
+): Promise<WorksiteChange[]> => {
+  const response = await axios.get<WorksiteChange[]>(
+    `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_changes`,
+    {
+      params: { since },
+    },
+  );
+  return response.data;
+};
+
 const loadUserLocations = async (query: Record<string, unknown>) => {
   const response = await axios.get(
     `${import.meta.env.VITE_APP_API_BASE_URL}/user_geo_locations/latest_locations`,
@@ -89,26 +107,28 @@ const loadCasesCached = async (query: Record<string, unknown>) => {
   const casesReconciledAt = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
     moment().toISOString()) as string; // ISO date string
   if (cachedCases) {
-    const [response, reconciliationResponse] = await Promise.all([
+    const [response, worksiteChanges] = await Promise.all([
       loadCases({
         ...query,
         updated_at__gt: casesUpdatedAt,
       }),
-      loadCases({
-        updated_at__gt: casesReconciledAt,
-        fields: 'id,incident',
-      }),
+      loadWorksiteChanges(casesReconciledAt),
     ]);
 
-    for (const element of reconciliationResponse.results) {
+    for (const change of worksiteChanges) {
       const itemIndex = cachedCases.results.findIndex(
-        (o) => o.id === element.id,
+        (o) => o.id === change.worksite_id,
       );
-      if (
-        itemIndex > -1 &&
-        element.incident !== cachedCases.results[itemIndex].incident
-      ) {
-        cachedCases.results.splice(itemIndex, 1);
+      if (itemIndex > -1) {
+        if (change.invalidated_at !== null) {
+          // Remove invalidated worksites
+          cachedCases.results.splice(itemIndex, 1);
+        } else if (
+          change.incident_id !== cachedCases.results[itemIndex].incident
+        ) {
+          // Remove worksites moved to different incidents
+          cachedCases.results.splice(itemIndex, 1);
+        }
       }
     }
 
@@ -172,27 +192,29 @@ const loadCasesCachedWithPagination = async (
     moment().toISOString()) as string; // ISO date string
 
   if (cachedCases) {
-    const [response, reconciliationResponse] = await Promise.all([
+    const [response, worksiteChanges] = await Promise.all([
       loadCasesPaginated({
         ...query,
         updated_at__gt: casesUpdatedAt,
       }),
-      loadCasesPaginated({
-        updated_at__gt: casesReconciledAt,
-        fields: 'id,incident',
-      }),
+      loadWorksiteChanges(casesReconciledAt),
     ]);
 
     // Reconcile data
-    for (const element of reconciliationResponse.results) {
+    for (const change of worksiteChanges) {
       const itemIndex = cachedCases.results.findIndex(
-        (o) => o.id === element.id,
+        (o) => o.id === change.worksite_id,
       );
-      if (
-        itemIndex > -1 &&
-        element.incident !== cachedCases.results[itemIndex].incident
-      ) {
-        cachedCases.results.splice(itemIndex, 1);
+      if (itemIndex > -1) {
+        if (change.invalidated_at !== null) {
+          // Remove invalidated worksites
+          cachedCases.results.splice(itemIndex, 1);
+        } else if (
+          change.incident_id !== cachedCases.results[itemIndex].incident
+        ) {
+          // Remove worksites moved to different incidents
+          cachedCases.results.splice(itemIndex, 1);
+        }
       }
     }
 
@@ -445,4 +467,5 @@ export {
   loadCases,
   loadCaseImagesCached,
   loadUserLocations,
+  loadWorksiteChanges,
 };
