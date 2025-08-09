@@ -6,6 +6,10 @@ import User from './User';
 import type WorkType from './WorkType';
 import CCUModel from '@/models/base';
 import { useAuthStore } from '@/hooks/useAuth';
+import moment from 'moment';
+import Incident from './Incident';
+import type { Portal } from '@/models/types';
+import { i18n } from '@/modules/i18n';
 
 export default class Worksite extends CCUModel {
   static entity = 'worksites';
@@ -260,7 +264,78 @@ export default class Worksite extends CCUModel {
 
         return item;
       },
-      claimWorksite(id, workTypes) {
+      async claimWorksite(id, workTypes, options?: { portal?: Portal }) {
+        // Client-side pre-check for claiming restrictions based on portal thresholds and incident age
+        try {
+          const worksiteRecord = await Worksite.find(id);
+          const incidentId = worksiteRecord?.incident;
+          const incident = incidentId ? Incident.find(incidentId) : undefined;
+
+          const isRecentIncident = incident
+            ? moment(incident.start_at).isAfter(moment().add(-60, 'days'))
+            : false;
+
+          if (incident && isRecentIncident) {
+            const portal = options?.portal;
+            const claimedThresholdRaw =
+              portal?.attr?.claimed_work_type_count_threshold;
+            const closedRatioThresholdRaw =
+              portal?.attr?.claimed_work_type_closed_ratio_threshold;
+
+            const claimedThreshold =
+              claimedThresholdRaw !== undefined && claimedThresholdRaw !== null
+                ? Number(claimedThresholdRaw)
+                : undefined;
+            const closedRatioThreshold =
+              closedRatioThresholdRaw !== undefined &&
+              closedRatioThresholdRaw !== null
+                ? Number(closedRatioThresholdRaw)
+                : undefined;
+
+            if (
+              typeof claimedThreshold === 'number' &&
+              !Number.isNaN(claimedThreshold) &&
+              typeof closedRatioThreshold === 'number' &&
+              !Number.isNaN(closedRatioThreshold)
+            ) {
+              const { currentUserId } = useAuthStore();
+              const user = currentUserId.value
+                ? User.find(currentUserId.value as any)
+                : undefined;
+              const incidentStates = user?.getStatesForIncident(
+                String(incident.id),
+                true,
+              ) as Record<string, any> | undefined;
+
+              const userClaimedCount = Number(
+                incidentStates?.claimed_work_type_count ?? 0,
+              );
+              const userClosedRatio = Number(
+                incidentStates?.claimed_work_type_closed_ratio ?? 0,
+              );
+
+              const exceedsCount = userClaimedCount > claimedThreshold;
+              const exceedsRatio = userClosedRatio < closedRatioThreshold;
+
+              if (exceedsCount && exceedsRatio) {
+                const messageKey =
+                  'info.claiming_restricted_threshold_exceeded';
+                const translated = i18n.global.t(messageKey);
+                const message =
+                  translated === messageKey
+                    ? 'Additional claiming is restricted for this incident due to your current claiming statistics. Please close existing claimed work types before claiming additional work.'
+                    : translated;
+                throw new Error(message);
+              }
+            }
+          }
+        } catch (error) {
+          // If pre-check throws, propagate error to caller; otherwise continue
+          if (error instanceof Error) {
+            throw error;
+          }
+        }
+
         return this.post(
           `/worksites/${id}/claim`,
           {

@@ -576,6 +576,7 @@ import {
   formatWorksiteAddressHtml,
 } from '@/utils/helpers';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
+import { useClaimWorksite } from '@/hooks';
 
 const AUTO_CONTACT_FREQUENCY_OPTIONS = [
   'formOptions.often',
@@ -1460,7 +1461,9 @@ export default defineComponent({
       }
 
       try {
-        await Worksite.api().claimWorksite(worksite.value.id, []);
+        const { claim } = useClaimWorksite();
+        const result = await claim(worksite.value.id, []);
+        if (!result.ok) return;
         await $toasted.success(t('caseForm.claim_success'));
       } catch (error) {
         await $toasted.error(getErrorMessage(error));

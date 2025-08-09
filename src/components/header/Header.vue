@@ -61,6 +61,14 @@
           :alt="$t('actions.debug_incident_states')"
           :action="showCurrentIncidentStates"
         />
+        <base-button
+          class="p-1.5"
+          variant="solid"
+          data-testid="testDebugPortalButton"
+          :text="$t('actions.debug_portal')"
+          :alt="$t('actions.debug_portal')"
+          :action="showCurrentPortal"
+        />
       </div>
       <div class="flex h-full items-center">
         <div
@@ -131,6 +139,7 @@ export default defineComponent({
     const { component } = useDialogs();
     const { $can } = useAcl();
     const { t } = useI18n();
+    const store = useStore();
 
     const incidentOptions = computed(() =>
       props.incidents.map((i) => ({
@@ -166,6 +175,18 @@ export default defineComponent({
       });
     }
 
+    async function showCurrentPortal() {
+      const portal = store.getters['enums/portal'];
+      await component({
+        title: t('nav.portal'),
+        component: JsonWrapper,
+        classes: 'w-full h-96',
+        props: {
+          jsonData: portal,
+        },
+      });
+    }
+
     const showRedeployModal = ref(false);
     return {
       can: $can,
@@ -176,6 +197,7 @@ export default defineComponent({
         return text ? t(text) : null;
       },
       showCurrentIncidentStates,
+      showCurrentPortal,
     };
   },
 });

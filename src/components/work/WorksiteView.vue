@@ -481,6 +481,7 @@ import useAcl from '@/hooks/useAcl';
 import AddressDisplay from '@/components/AddressDisplay.vue';
 import { formatWorksiteAddress } from '@/utils/helpers';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import { useClaimWorksite } from '@/hooks';
 
 export default defineComponent({
   name: 'WorksiteView',
@@ -529,6 +530,7 @@ export default defineComponent({
     const uploading = ref(false);
     const showingClaimModal = ref(false);
     const workTypesToClaim = ref(new Set());
+    const { claim } = useClaimWorksite();
 
     function isStaleCase(workType) {
       return moment(workType.created_at).isBefore(moment().add(-30, 'days'));
@@ -665,7 +667,8 @@ export default defineComponent({
 
     async function claimWorkType(workTypes = []) {
       try {
-        await Worksite.api().claimWorksite(props.worksiteId, workTypes);
+        const result = await claim(props.worksiteId, workTypes);
+        if (!result.ok) return;
         await Worksite.api().fetch(props.worksiteId);
         emit('reloadMap', props.worksiteId);
         emit('reloadTable');
