@@ -558,9 +558,7 @@ const moveFile = async (documentFile: CCUDocumentFileItem) => {
                   variant="h4"
                   :bold="conv.conversationId === conversationId"
                   class="p-2 ws-nowrap truncate text-wrap flex-1"
-                  >{{
-                    truncate(conv.title.split('user: ')[1], { length: 250 })
-                  }}</BaseText
+                  >{{ truncate(conv.title, { length: 250 }) }}</BaseText
                 >
                 <div class="mt-auto mb-auto">
                   <ccu-icon
