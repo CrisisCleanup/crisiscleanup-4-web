@@ -612,8 +612,10 @@
         <!-- End Alumni -->
       </div>
 
-      <div class="images-grid sm:grid-cols-3" data-testid="testCurrentSupporters">
-
+      <div
+        class="images-grid sm:grid-cols-3"
+        data-testid="testCurrentSupporters"
+      >
         <!-- Current Supporters -->
         <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
           {{ $t('about.major_supporters') }}
@@ -670,8 +672,13 @@
           </div>
           <!-- End Card -->
         </div>
-        <div class="images-grid sm:grid-cols-3" data-testid="testPastSupporters">
-          <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
+        <div
+          class="images-grid sm:grid-cols-3"
+          data-testid="testPastSupporters"
+        >
+          <h1
+            class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+          >
             {{ $t('about.past_supporters') }}
           </h1>
 
@@ -737,7 +744,9 @@
             <!--<img src="@/assets/partners/umcor_logo.jpg" class="m-5" />-->
             <p class="text-xl text-center px-0.5 pb-5">
               <span class="font-bold"
-                ><a href="https://www.umcor.org/" target="_blank">UMCOR</a></span
+                ><a href="https://www.umcor.org/" target="_blank"
+                  >UMCOR</a
+                ></span
               >
             </p>
           </div>
@@ -789,7 +798,9 @@
             <!--<img src="@/assets/partners/thinkso_logo.png" class="m-5" />-->
             <p class="text-xl text-center px-0.5 pb-5">
               <span class="font-bold"
-                ><a href="https://thinkso.com/" target="_blank">ThinkSo</a></span
+                ><a href="https://thinkso.com/" target="_blank"
+                  >ThinkSo</a
+                ></span
               >
             </p>
           </div>
@@ -848,6 +859,7 @@
             </p>
           </div>
           <!-- End Card -->
+        </div>
       </div>
       <!-- Foundational Philosophies -->
       <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
@@ -986,6 +998,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue';
 import Home from '../../layouts/Home.vue';
 
 export default defineComponent({
