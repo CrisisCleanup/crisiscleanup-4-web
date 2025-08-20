@@ -87,11 +87,7 @@
                 :key="`${h.actor}:${h.content}`"
               >
                 <template v-if="h.actor === 'user'">
-                  <ccu-icon class="pt-3 pb-1" type="help" size="large">
-                    <BaseText variant="h2">
-                      {{ h.content }}
-                    </BaseText>
-                  </ccu-icon>
+                  <ccu-icon class="pt-3 pb-1" type="help" size="large" />
                 </template>
                 <template v-else>
                   <div class="pl-1">
