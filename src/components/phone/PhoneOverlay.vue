@@ -23,6 +23,7 @@ import { useToast } from 'vue-toastification';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 import { useMq } from 'vue3-mq';
+import { useClearCache } from '@/hooks/useClearCache';
 
 const emit = defineEmits([
   'onCompleteCall',
@@ -46,6 +47,7 @@ const { t } = useI18n();
 const { updateUserStates } = useCurrentUser();
 const { currentUser } = useCurrentUser();
 const mq = useMq();
+const { clearCache, isClearing } = useClearCache();
 
 // Sections as a computed property
 const sections = computed(() => {
@@ -682,6 +684,19 @@ const {
                         size="large"
                       >
                         {{ $t('phoneDashboard.reset_phone_system') }}
+                      </base-button>
+
+                      <base-button
+                        :action="clearCache"
+                        class="text-white bg-crisiscleanup-red-200 my-2"
+                        :text="$t('phoneDashboard.clear_cache')"
+                        :alt="$t('phoneDashboard.clear_cache')"
+                        :disabled="isClearing"
+                        :show-spinner="isClearing"
+                        data-testid="testPhoneClearCacheButton"
+                        size="large"
+                      >
+                        {{ $t('phoneDashboard.clear_cache') }}
                       </base-button>
                     </div>
                   </div>

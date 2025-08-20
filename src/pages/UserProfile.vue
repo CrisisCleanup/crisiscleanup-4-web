@@ -401,6 +401,19 @@
             <p class="my-3">
               {{ $t('profileUser.clear_favorites_user_settings') }}
             </p>
+            <base-button
+              :text="$t('profileUser.clear_cache')"
+              :alt="$t('profileUser.clear_cache')"
+              data-testid="testClearCacheButton"
+              variant="solid"
+              class="px-4 py-1"
+              :disabled="isClearing"
+              :show-spinner="isClearing"
+              :action="clearCache"
+            />
+            <p class="my-3">
+              {{ $t('profileUser.clear_cache_description') }}
+            </p>
             <a
               href="https://crisiscleanup.zendesk.com/hc/en-us/articles/25053795283597-Deleting-Your-User-Account"
               data-testid="testDeleteUserAccountButton"
@@ -427,7 +440,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
+import { useI18n } from 'vue-i18n';
 import baseButton from '@/components/BaseButton.vue';
 import baseInput from '@/components/BaseInput.vue';
 import { useAuthStore, useCurrentUser } from '@/hooks';
@@ -450,6 +465,7 @@ import UserEquipment from '@/models/UserEquipment';
 import type { Collection } from '@vuex-orm/core';
 import Equipment from '@/models/Equipment';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
+import { useClearCache } from '@/hooks/useClearCache';
 
 const {
   currentUser,
@@ -464,6 +480,7 @@ const $toasted = useToast();
 const { t } = useI18n();
 const { setupLanguage } = useSetupLanguage();
 const { $can } = useAcl();
+const { clearCache, isClearing } = useClearCache();
 
 const betaFeatures = ref<BetaFeature[]>([]);
 const showChangeOrganizationModal = ref(false);
