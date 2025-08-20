@@ -458,6 +458,7 @@ const RANDOM_QUOTES = [
   'spinner.always_something_to_love',
   'spinner.darkest_night_end_sun_rise',
   'spinner.plans_useless_planning_indispensable',
+  'spinner.janitor_supplies',
 ];
 
 export default defineComponent({
