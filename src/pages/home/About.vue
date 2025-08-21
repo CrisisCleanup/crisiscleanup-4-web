@@ -149,12 +149,11 @@
       </div>
 
       <!-- The People of Crisis Cleanup -->
+      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
+        {{ $t('about.core_team') }}
+      </h1>
+
       <div class="images-grid sm:grid-cols-3" data-testid="testAboutPeopleDiv">
-        <h1
-          class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-        >
-          {{ $t('about.core_team') }}
-        </h1>
         <!-- Headshots -->
 
         <!-- StartCard -->
@@ -270,12 +269,11 @@
         <!-- End Card -->
       </div>
 
+      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
+        {{ $t('about.support_team') }}
+      </h1>
+
       <div class="images-grid sm:grid-cols-3" data-testid="testSupportTeamDiv">
-        <h1
-          class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-        >
-          {{ $t('about.support_team') }}
-        </h1>
         <!-- Headshots -->
 
         <!-- StartCard -->
@@ -423,12 +421,11 @@
         <!-- End Card -->
       </div>
 
+      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
+        {{ $t('about.alumni') }}
+      </h1>
+
       <div class="images-grid sm:grid-cols-3" data-testid="testSupportTeamDiv">
-        <h1
-          class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-        >
-          {{ $t('about.alumni') }}
-        </h1>
 
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
@@ -447,10 +444,6 @@
         <!-- End Card -->
       </div>
 
-      <div
-        class="images-grid sm:grid-cols-3"
-        data-testid="testAboutMajorContributorsDiv"
-      >
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
           <!--<img src="@/assets/headshots/andygimma.jpg" class="m-5" />-->
@@ -612,18 +605,18 @@
         <!-- End Alumni -->
       </div>
 
-      <div
-        class="images-grid sm:grid-cols-3"
-        data-testid="testCurrentSupporters"
-      >
+      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
+        {{ $t('about.major_supporters') }}
+      </h1>
         <!-- Current Supporters -->
-        <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
-          {{ $t('about.major_supporters') }}
-        </h1>
         <base-text variant="body" class="pt-2"
           >{{ $t('about.in_kind_supporter_intro') }}
         </base-text>
 
+      <div
+        class="images-grid sm:grid-cols-3"
+        data-testid="testCurrentSupporters"
+      >
         <!-- Logos -->
         <div
           class="partners-grid sm:grid-cols-6"
@@ -672,15 +665,15 @@
           </div>
           <!-- End Card -->
         </div>
+
+      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
+        {{ $t('about.past_supporters') }}
+      </h1>
+
         <div
           class="images-grid sm:grid-cols-3"
           data-testid="testPastSupporters"
         >
-          <h1
-            class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-          >
-            {{ $t('about.past_supporters') }}
-          </h1>
 
           <!-- StartCard -->
           <div class="flex flex-col items-center justify-start">
