@@ -426,7 +426,6 @@
       </h1>
 
       <div class="images-grid sm:grid-cols-3" data-testid="testSupportTeamDiv">
-
         <!-- StartCard -->
         <div class="flex flex-col items-center px-5 sm:px-0">
           <!--<img src="@/assets/headshots/dankaupilla.jpg" class="m-5" />-->
@@ -444,549 +443,537 @@
         <!-- End Card -->
       </div>
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/andygimma.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Andy Gimma</span><br />
-            {{ $t('about.andy_gimma_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.andy_gimma_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/andygimma.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Andy Gimma</span><br />
+          {{ $t('about.andy_gimma_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.andy_gimma_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/olgauzhykova.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Olga Uzhykova</span><br />
-            {{ $t('about.olga_uzhykova_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.olga_uzhykova_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/olgauzhykova.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Olga Uzhykova</span><br />
+          {{ $t('about.olga_uzhykova_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.olga_uzhykova_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/mariiafilatova.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Mariia Filatova</span><br />
-            {{ $t('about.mariia_filatova_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.mariia_filatova_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/mariiafilatova.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Mariia Filatova</span><br />
+          {{ $t('about.mariia_filatova_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.mariia_filatova_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/zacharystraub.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Zachary Straub</span><br />
-            {{ $t('about.zachary_straub_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.zachary_straub_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/zacharystraub.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Zachary Straub</span><br />
+          {{ $t('about.zachary_straub_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.zachary_straub_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/tylersanders.png" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Tyler Sanders</span><br />
-            {{ $t('about.tyler_sanders_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.tyler_sanders_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/tylersanders.png" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Tyler Sanders</span><br />
+          {{ $t('about.tyler_sanders_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.tyler_sanders_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/dhruvmehrotra.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Dhruv Mehrotra</span><br />
-            {{ $t('about.dhruv_mehrotra_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.dhruv_mehrotra_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/dhruvmehrotra.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Dhruv Mehrotra</span><br />
+          {{ $t('about.dhruv_mehrotra_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.dhruv_mehrotra_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/chriswood.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Chris Wood</span><br />
-            {{ $t('about.chris_wood_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.chris_wood_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/chriswood.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Chris Wood</span><br />
+          {{ $t('about.chris_wood_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.chris_wood_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/karissaphelps.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Karissa Phelps</span><br />
-            {{ $t('about.karissa_phelps_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.karissa_phelps_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/karissaphelps.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Karissa Phelps</span><br />
+          {{ $t('about.karissa_phelps_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.karissa_phelps_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <!-- StartCard -->
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/jeremypack.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Jeremy Pack</span><br />
-            {{ $t('about.jeremy_pack_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.jeremy_pack_bio')"
-          >
-          </base-text>
-        </div>
-        <!-- End Card -->
+      <!-- StartCard -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/jeremypack.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Jeremy Pack</span><br />
+          {{ $t('about.jeremy_pack_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.jeremy_pack_bio')"
+        >
+        </base-text>
+      </div>
+      <!-- End Card -->
 
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <!--<img src="@/assets/headshots/brucechristensen.jpg" class="m-5" />-->
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Bruce Christensen</span><br />
-            {{ $t('about.bruce_christensen_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.bruce_christensen_bio')"
-          >
-          </base-text>
-        </div>
-
-        <!-- End Alumni -->
+      <div class="flex flex-col items-center px-5 sm:px-0">
+        <!--<img src="@/assets/headshots/brucechristensen.jpg" class="m-5" />-->
+        <p class="text-3xl px-0.5 pb-5">
+          <span class="font-bold">Bruce Christensen</span><br />
+          {{ $t('about.bruce_christensen_title') }}
+        </p>
+        <base-text
+          variant="body"
+          class="pt-2"
+          v-html="$t('about.bruce_christensen_bio')"
+        >
+        </base-text>
       </div>
 
-      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
-        {{ $t('about.major_supporters') }}
-      </h1>
-        <!-- Current Supporters -->
-        <base-text variant="body" class="pt-2"
-          >{{ $t('about.in_kind_supporter_intro') }}
-        </base-text>
+      <!-- End Alumni -->
+    </div>
 
+    <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
+      {{ $t('about.major_supporters') }}
+    </h1>
+    <!-- Current Supporters -->
+    <base-text variant="body" class="pt-2"
+      >{{ $t('about.in_kind_supporter_intro') }}
+    </base-text>
+
+    <div class="images-grid sm:grid-cols-3" data-testid="testCurrentSupporters">
+      <!-- Logos -->
       <div
-        class="images-grid sm:grid-cols-3"
-        data-testid="testCurrentSupporters"
+        class="partners-grid sm:grid-cols-6"
+        data-testid="testAboutSupporterLogosDiv"
       >
-        <!-- Logos -->
-        <div
-          class="partners-grid sm:grid-cols-6"
-          data-testid="testAboutSupporterLogosDiv"
-        >
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <img src="@/assets/partners/fdem_logo.jpg" class="m-5" />
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://www.facebook.com/FLSERT/" target="_blank"
-                  >Florida Division of Emergency Management</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <img
-              src="@/assets/partners/aws_logo.png"
-              class="m-5"
-              style="width: 12rem; height: 8rem"
-            />
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://aws.amazon.com/" target="_blank"
-                  >Amazon Web Services</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <img src="@/assets/partners/ringcentral_logo.png" class="m-5" />
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://www.ringcentral.com/" target="_blank"
-                  >RingCentral</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <img src="@/assets/partners/fdem_logo.jpg" class="m-5" />
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.facebook.com/FLSERT/" target="_blank"
+                >Florida Division of Emergency Management</a
+              ></span
+            >
+          </p>
         </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <img
+            src="@/assets/partners/aws_logo.png"
+            class="m-5"
+            style="width: 12rem; height: 8rem"
+          />
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://aws.amazon.com/" target="_blank"
+                >Amazon Web Services</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <img src="@/assets/partners/ringcentral_logo.png" class="m-5" />
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.ringcentral.com/" target="_blank"
+                >RingCentral</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+      </div>
 
       <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
         {{ $t('about.past_supporters') }}
       </h1>
 
-        <div
-          class="images-grid sm:grid-cols-3"
-          data-testid="testPastSupporters"
-        >
+      <div class="images-grid sm:grid-cols-3" data-testid="testPastSupporters">
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/arc_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="http://www.redcross.org/" target="_blank"
+                >The American Red Cross</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
 
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/arc_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="http://www.redcross.org/" target="_blank"
-                  >The American Red Cross</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/houston_logo.png" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="http://www.houstontx.gov/housing/" target="_blank"
+                >The City of Houston</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
 
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/houston_logo.png" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="http://www.houstontx.gov/housing/" target="_blank"
-                  >The City of Houston</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img
               src="@/assets/partners/church_of_jesus_christ_logo.jpg"
               class="m-5"
             />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a
-                  href="https://www.churchofjesuschrist.org/serve/caring-for-those-in-need?lang=eng&cid=rdb_v_caring"
-                  target="_blank"
-                  >The Church of Jesus Christ of Latter-day Saints</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/visionlink_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="http://visionlink.org/" target="_blank"
-                  >VisionLink</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/umcor_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://www.umcor.org/" target="_blank"
-                  >UMCOR</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/volunteer_florida_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://www.volunteerflorida.org/" target="_blank"
-                  >Volunteer Florida</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/h2prep_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a
-                  href="https://www.amazon.com/How-Prepare-Everything-Aaron-Titus/dp/1525505947/"
-                  target="_blank"
-                  >How to Prepare for Everything</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/nj211_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="http://www.nj211.org/" target="_blank"
-                  >NJ 2-1-1</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/thinkso_logo.png" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://thinkso.com/" target="_blank"
-                  >ThinkSo</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/nj_voad_logo.jpg" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://www.njvoad.org/" target="_blank"
-                  >NJVOAD</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/sdema_logo.png" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://sdema.wildapricot.org/" target="_blank"
-                  >SDEMA</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/hono_logo.png" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a href="https://www.handsonneworleans.org/" target="_blank"
-                  >HandsOn New Orleans</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-
-          <!-- StartCard -->
-          <div class="flex flex-col items-center justify-start">
-            <!--<img src="@/assets/partners/nc_volunteerism_logo.png" class="m-5" />-->
-            <p class="text-xl text-center px-0.5 pb-5">
-              <span class="font-bold"
-                ><a
-                  href="https://www.nc.gov/working/volunteer-opportunities/volunteernc"
-                  target="_blank"
-                  >NC Commission on Volunteerism and Community Service</a
-                ></span
-              >
-            </p>
-          </div>
-          <!-- End Card -->
-        </div>
-      </div>
-      <!-- Foundational Philosophies -->
-      <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
-        {{ $t('about.foundational_philosophies') }}
-      </h1>
-      <div class="flex flex-row" data-testid="testAboutPhilosophiesDiv">
-        <div class="flex flex-col">
-          <img src="@/assets/foundationalphilosophiessketchss.jpg" />
-        </div>
-        <div class="flex flex-col m-5">
-          <ul class="text-xl text-crisiscleanup-dark-400 font-hairline">
-            <li>
-              {{ $t('about.right_way_get_it_done') }}
-            </li>
-            <li>
-              {{ $t('about.tech_enhance_relationships') }}
-            </li>
-            <br />
-            <li>
-              {{ $t('about.no_pyramid') }}
-            </li>
-            <br />
-            <li>
-              {{ $t('about.collab_comm_convenient_required') }}
-            </li>
-            <br />
-            <li>
-              {{ $t('about.one_app_rule_all') }}
-            </li>
-            <br />
-            <li>
-              {{ $t('about.property_not_people') }}
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- Info Card w/ Sketch pt2 -->
-      <div
-        class="my-2 mx-3 bg-white shadow w-70 h-70 content-center flex-wrap align-middle pt-15"
-      >
-        <div class="flex flex-row justify-around">
-          <div class="flex-col w-1/4">
-            <img src="@/assets/supportteamsketchss.jpg" class="m-5" />
-          </div>
-          <div class="flex-col w-3/4 m-7">
-            <h1
-              class="m-5 px-5 py-5 text-center text-2xl text-crisiscleanup-dark-400 font-hairline"
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a
+                href="https://www.churchofjesuschrist.org/serve/caring-for-those-in-need?lang=eng&cid=rdb_v_caring"
+                target="_blank"
+                >The Church of Jesus Christ of Latter-day Saints</a
+              ></span
             >
-              {{ $t('about.innovation_is_coordination') }}
-            </h1>
-          </div>
+          </p>
         </div>
-      </div>
-      <!-- End Foundational Philosophies -->
-      <!-- Corporate and Legal Stuff -->
-      <h1
-        class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-      >
-        {{ $t('about.corporate_legal_stuff') }}
-      </h1>
+        <!-- End Card -->
 
-      <div>
-        <p
-          class="text-xl px-5 sm:px-0.5 pb-5"
-          v-html="$t('about.ccu_llc_open_source')"
-        ></p>
-      </div>
-      <!-- End Corporate and Legal Stuff -->
-
-      <!-- Helpful Links -->
-      <h1
-        class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
-      >
-        {{ $t('about.helpful_links') }}
-      </h1>
-      <div
-        class="flex flex-row pb-20 sm:pb-0"
-        data-testid="testAboutLegalStuffDiv"
-      >
-        <div class="flex flex-col m-5">
-          <ul class="text-xl text-crisiscleanup-dark-400 font-hairline about">
-            <li>
-              <a
-                href="https://app.dev.crisiscleanup.io/"
-                target="_blank"
-                :title="$t('about.ccu_demo')"
-                >{{ $t('about.ccu_demo') }}</a
-              >
-            </li>
-            <br />
-            <li>
-              <a
-                href="/training"
-                target="_blank"
-                :title="$t('about.mandatory_training')"
-                >{{ $t('about.mandatory_training') }}</a
-              >
-            </li>
-            <br />
-            <li>
-              <a
-                href="https://crisiscleanup.zendesk.com/hc/en-us/articles/200603007"
-                target="_blank"
-                :title="$t('about.req_for_participation')"
-                >{{ $t('about.req_for_participation') }}</a
-              >
-            </li>
-            <br />
-            <li>
-              <a
-                href="https://crisiscleanup.zendesk.com/hc/en-us/articles/200596493-Is-Crisis-Cleanup-a-Good-Fit-"
-                target="_blank"
-                :title="$t('about.good_fit')"
-                >{{ $t('about.good_fit') }}</a
-              >
-            </li>
-            <br />
-            <li v-html="$t('about.contribute')"></li>
-            <br />
-            <li>
-              <a
-                href="https://crisiscleanup.zendesk.com/hc/en-us/"
-                target="_blank"
-                :title="$t('about.helpdesk')"
-                >{{ $t('about.helpdesk') }}</a
-              >
-            </li>
-            <br />
-            <li v-html="$t('about.ccu_story')"></li>
-          </ul>
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/visionlink_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="http://visionlink.org/" target="_blank"
+                >VisionLink</a
+              ></span
+            >
+          </p>
         </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/umcor_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.umcor.org/" target="_blank">UMCOR</a></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/volunteer_florida_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.volunteerflorida.org/" target="_blank"
+                >Volunteer Florida</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/h2prep_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a
+                href="https://www.amazon.com/How-Prepare-Everything-Aaron-Titus/dp/1525505947/"
+                target="_blank"
+                >How to Prepare for Everything</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/nj211_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="http://www.nj211.org/" target="_blank"
+                >NJ 2-1-1</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/thinkso_logo.png" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://thinkso.com/" target="_blank">ThinkSo</a></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/nj_voad_logo.jpg" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.njvoad.org/" target="_blank"
+                >NJVOAD</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/sdema_logo.png" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://sdema.wildapricot.org/" target="_blank"
+                >SDEMA</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/hono_logo.png" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.handsonneworleans.org/" target="_blank"
+                >HandsOn New Orleans</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
+
+        <!-- StartCard -->
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/nc_volunteerism_logo.png" class="m-5" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a
+                href="https://www.nc.gov/working/volunteer-opportunities/volunteernc"
+                target="_blank"
+                >NC Commission on Volunteerism and Community Service</a
+              ></span
+            >
+          </p>
+        </div>
+        <!-- End Card -->
       </div>
-      <!-- End Helpful Links -->
     </div>
+    <!-- Foundational Philosophies -->
+    <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold py-8">
+      {{ $t('about.foundational_philosophies') }}
+    </h1>
+    <div class="flex flex-row" data-testid="testAboutPhilosophiesDiv">
+      <div class="flex flex-col">
+        <img src="@/assets/foundationalphilosophiessketchss.jpg" />
+      </div>
+      <div class="flex flex-col m-5">
+        <ul class="text-xl text-crisiscleanup-dark-400 font-hairline">
+          <li>
+            {{ $t('about.right_way_get_it_done') }}
+          </li>
+          <li>
+            {{ $t('about.tech_enhance_relationships') }}
+          </li>
+          <br />
+          <li>
+            {{ $t('about.no_pyramid') }}
+          </li>
+          <br />
+          <li>
+            {{ $t('about.collab_comm_convenient_required') }}
+          </li>
+          <br />
+          <li>
+            {{ $t('about.one_app_rule_all') }}
+          </li>
+          <br />
+          <li>
+            {{ $t('about.property_not_people') }}
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- Info Card w/ Sketch pt2 -->
+    <div
+      class="my-2 mx-3 bg-white shadow w-70 h-70 content-center flex-wrap align-middle pt-15"
+    >
+      <div class="flex flex-row justify-around">
+        <div class="flex-col w-1/4">
+          <img src="@/assets/supportteamsketchss.jpg" class="m-5" />
+        </div>
+        <div class="flex-col w-3/4 m-7">
+          <h1
+            class="m-5 px-5 py-5 text-center text-2xl text-crisiscleanup-dark-400 font-hairline"
+          >
+            {{ $t('about.innovation_is_coordination') }}
+          </h1>
+        </div>
+      </div>
+    </div>
+    <!-- End Foundational Philosophies -->
+    <!-- Corporate and Legal Stuff -->
+    <h1
+      class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+    >
+      {{ $t('about.corporate_legal_stuff') }}
+    </h1>
+
+    <div>
+      <p
+        class="text-xl px-5 sm:px-0.5 pb-5"
+        v-html="$t('about.ccu_llc_open_source')"
+      ></p>
+    </div>
+    <!-- End Corporate and Legal Stuff -->
+
+    <!-- Helpful Links -->
+    <h1
+      class="text-4xl px-5 sm:px-0.5 text-crisiscleanup-dark-500 font-bold py-8"
+    >
+      {{ $t('about.helpful_links') }}
+    </h1>
+    <div
+      class="flex flex-row pb-20 sm:pb-0"
+      data-testid="testAboutLegalStuffDiv"
+    >
+      <div class="flex flex-col m-5">
+        <ul class="text-xl text-crisiscleanup-dark-400 font-hairline about">
+          <li>
+            <a
+              href="https://app.dev.crisiscleanup.io/"
+              target="_blank"
+              :title="$t('about.ccu_demo')"
+              >{{ $t('about.ccu_demo') }}</a
+            >
+          </li>
+          <br />
+          <li>
+            <a
+              href="/training"
+              target="_blank"
+              :title="$t('about.mandatory_training')"
+              >{{ $t('about.mandatory_training') }}</a
+            >
+          </li>
+          <br />
+          <li>
+            <a
+              href="https://crisiscleanup.zendesk.com/hc/en-us/articles/200603007"
+              target="_blank"
+              :title="$t('about.req_for_participation')"
+              >{{ $t('about.req_for_participation') }}</a
+            >
+          </li>
+          <br />
+          <li>
+            <a
+              href="https://crisiscleanup.zendesk.com/hc/en-us/articles/200596493-Is-Crisis-Cleanup-a-Good-Fit-"
+              target="_blank"
+              :title="$t('about.good_fit')"
+              >{{ $t('about.good_fit') }}</a
+            >
+          </li>
+          <br />
+          <li v-html="$t('about.contribute')"></li>
+          <br />
+          <li>
+            <a
+              href="https://crisiscleanup.zendesk.com/hc/en-us/"
+              target="_blank"
+              :title="$t('about.helpdesk')"
+              >{{ $t('about.helpdesk') }}</a
+            >
+          </li>
+          <br />
+          <li v-html="$t('about.ccu_story')"></li>
+        </ul>
+      </div>
+    </div>
+    <!-- End Helpful Links -->
   </Home>
 </template>
 
