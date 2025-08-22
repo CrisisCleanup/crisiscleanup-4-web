@@ -151,6 +151,14 @@
             :action="() => refreshSingleImport(slotProps.item.id)"
           />
           <base-button
+            v-if="slotProps.item.is_stuck || slotProps.item.status === 'stuck'"
+            icon="wrench"
+            variant="solid"
+            size="small"
+            :text="$t('worksiteImport.recover')"
+            :action="() => recoverStuckImport(slotProps.item.id)"
+          />
+          <base-button
             v-if="
               slotProps.item.recent_errors &&
               slotProps.item.recent_errors.length > 0
@@ -296,6 +304,48 @@ export default defineComponent({
       }
     }
 
+    async function recoverStuckImport(importId: string) {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_import/${importId}/recover`,
+        );
+        console.log('Recovery initiated for import:', importId);
+
+        // Refresh the data after recovery
+        await loadPageData();
+
+        // Show success message
+        await confirm({
+          title: 'Recovery Initiated',
+          content: `Recovery process has been started for import ${importId.slice(0, 8)}...`,
+          actions: {
+            ok: {
+              text: 'OK',
+              type: 'solid',
+            },
+          },
+        });
+
+        return response.data;
+      } catch (error) {
+        console.error('Failed to recover import:', error);
+
+        // Show error message
+        await confirm({
+          title: 'Recovery Failed',
+          content: 'Failed to initiate recovery process. Please try again.',
+          actions: {
+            ok: {
+              text: 'OK',
+              type: 'solid',
+            },
+          },
+        });
+
+        return null;
+      }
+    }
+
     function showErrors(importItem: any) {
       selectedImportErrors.value = importItem.recent_errors || [];
       showErrorModal.value = true;
@@ -409,17 +459,70 @@ export default defineComponent({
           )
           .join('\n');
 
-        await confirm({
+        const result = await confirm({
           title: `Found ${stuckImportsData.length} Stuck Import${stuckImportsData.length > 1 ? 's' : ''}`,
-          content: `The following imports appear to be stuck and may need attention:\n\n${importsList}`,
+          content: `The following imports appear to be stuck and may need attention:\n\n${importsList}\n\nWould you like to recover all stuck imports?`,
           actions: {
-            ok: {
-              text: 'OK',
+            recover: {
+              text: 'Recover All',
               type: 'solid',
+            },
+            cancel: {
+              text: 'Cancel',
+              type: 'outline',
             },
           },
         });
+
+        // If user chose to recover all stuck imports
+        if (result === 'recover') {
+          await recoverAllStuckImports(stuckImportsData);
+        }
       }
+    }
+
+    async function recoverAllStuckImports(stuckImportsData: any[]) {
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const imp of stuckImportsData) {
+        try {
+          await axios.post(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_import/${imp.id}/recover`,
+          );
+          successCount++;
+          console.log(`Recovery initiated for import: ${imp.id}`);
+        } catch (error) {
+          failCount++;
+          console.error(`Failed to recover import ${imp.id}:`, error);
+        }
+      }
+
+      // Refresh data after recovery attempts
+      await loadPageData();
+
+      // Show results
+      await (failCount === 0
+        ? confirm({
+            title: 'Recovery Initiated',
+            content: `Recovery process has been started for all ${successCount} stuck imports.`,
+            actions: {
+              ok: {
+                text: 'OK',
+                type: 'solid',
+              },
+            },
+          })
+        : confirm({
+            title: 'Recovery Partially Completed',
+            content: `Recovery initiated for ${successCount} imports. ${failCount} imports failed to recover.`,
+            actions: {
+              ok: {
+                text: 'OK',
+                type: 'solid',
+              },
+            },
+          }));
     }
 
     async function refreshSingleImport(importId: string) {
@@ -544,6 +647,8 @@ export default defineComponent({
       refreshAllStatus,
       checkStuckImports,
       refreshSingleImport,
+      recoverStuckImport,
+      recoverAllStuckImports,
       columns: [
         {
           title: t('worksiteImport.id'),
