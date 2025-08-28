@@ -233,6 +233,33 @@ describe('models > User', () => {
     expect(user.getStatesForIncident('2', false)).toBe(null);
   });
 
+  test('method: getInternalStateForIncident', () => {
+    const user = new User({
+      internal_state: {
+        incidents: {
+          '287': {
+            claimed_work_type_count: null,
+            claimed_work_type_closed_ratio: null,
+          },
+          '291': {
+            claimed_work_type_count: 30,
+            claimed_work_type_closed_ratio: 0.9375,
+          },
+        },
+        updated_at: '2025-08-28T12:30:00.011785+00:00',
+      },
+    });
+    expect(user.getInternalStateForIncident('291')).toEqual({
+      claimed_work_type_count: 30,
+      claimed_work_type_closed_ratio: 0.9375,
+    });
+    expect(user.getInternalStateForIncident('287')).toEqual({
+      claimed_work_type_count: null,
+      claimed_work_type_closed_ratio: null,
+    });
+    expect(user.getInternalStateForIncident('999')).toBe(null);
+  });
+
   test('has api actions', () => {
     expect(User.api()).toMatchInlineSnapshot(`
       Request {

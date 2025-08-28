@@ -302,9 +302,8 @@ export default class Worksite extends CCUModel {
               const user = currentUserId.value
                 ? User.find(currentUserId.value as any)
                 : undefined;
-              const incidentStates = user?.getStatesForIncident(
+              const incidentStates = user?.getInternalStateForIncident(
                 String(incident.id),
-                true,
               ) as Record<string, any> | undefined;
 
               const userClaimedCount = Number(

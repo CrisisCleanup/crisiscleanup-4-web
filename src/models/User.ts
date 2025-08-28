@@ -36,6 +36,8 @@ export default class User extends CCUModel {
 
   states!: Record<string, any>;
 
+  internal_state!: Record<string, any>;
+
   social!: Record<string, any>;
 
   files!: any[];
@@ -63,6 +65,7 @@ export default class User extends CCUModel {
       files: this.attr(null),
       organization: this.attr(null),
       states: this.attr({}),
+      internal_state: this.attr({}),
       preferences: this.attr({}),
       permissions: this.attr({}),
       beta_features: this.attr({}),
@@ -206,6 +209,18 @@ export default class User extends CCUModel {
 
     if (fallback) {
       return this.states;
+    }
+
+    return null;
+  }
+
+  getInternalStateForIncident(incidentId: string) {
+    if (
+      this.internal_state &&
+      this.internal_state.incidents &&
+      this.internal_state.incidents[incidentId]
+    ) {
+      return this.internal_state.incidents[incidentId];
     }
 
     return null;
