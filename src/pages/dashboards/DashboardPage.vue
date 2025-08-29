@@ -36,6 +36,31 @@
         <div class="flex items-center" data-testid="testHeaderRight">
           <RedeployRequest data-testid="testRedeployRequest" />
           <base-button
+            :text="
+              $t('dashboard.upload_volunteer_photos_button') ||
+              'Upload Volunteer Photos'
+            "
+            :alt="
+              $t('dashboard.upload_volunteer_photos_button') ||
+              'Upload Volunteer Photos'
+            "
+            data-testid="testUploadVolunteerPhotosButton"
+            variant="solid"
+            class="mx-1"
+            size="medium"
+            :action="
+              () => {
+                showUploadPhotosModal = true;
+              }
+            "
+          >
+            <font-awesome-icon icon="camera" class="mr-1" />
+            {{
+              $t('dashboard.upload_volunteer_photos_button') ||
+              'Upload Volunteer Photos'
+            }}
+          </base-button>
+          <base-button
             :text="$t('usersVue.invite_new_user')"
             :alt="$t('usersVue.invite_new_user')"
             data-testid="testInviteNewUserButton"
@@ -169,10 +194,32 @@
 
       <DashboardFooter class="flex-shrink" data-testid="testDashboardFooter" />
     </div>
+
+    <teleport to="body">
+      <div
+        v-if="showUploadPhotosModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        @click.self="showUploadPhotosModal = false"
+      >
+        <div
+          class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto"
+        >
+          <UploadVolunteerPhotosModal
+            :organization-id="currentUser?.organization?.id"
+            :incidents="availableIncidents"
+            :current-incident-id="currentIncidentId"
+            @close="showUploadPhotosModal = false"
+            @uploaded="onPhotosUploaded"
+          />
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import UserProfileCard from '@/components/UserProfileCard.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import BaseButton from '@/components/BaseButton.vue';
@@ -189,6 +236,8 @@ import Invite from '@/components/Invite.vue';
 import { getErrorMessage } from '@/utils/errors';
 import type { TagInputData } from '@sipec/vue3-tags-input';
 import useInviteUsers from '@/hooks/useInviteUsers';
+import UploadVolunteerPhotosModal from '@/components/dashboard/UploadVolunteerPhotosModal.vue';
+import Incident from '@/models/Incident';
 
 const { currentUser, userPreferences, updateCurrentUser } = useCurrentUser();
 const { currentIncidentId } = useCurrentIncident();
@@ -202,6 +251,8 @@ const selectedOrganization = ref(null);
 const organizationDoesNotExist = ref(false);
 const { inviteUsers } = useInviteUsers();
 const showInviteSection = ref(false);
+const showUploadPhotosModal = ref(false);
+const availableIncidents = ref<Incident[]>([]);
 
 const performAction = async (action) => {
   await action();
@@ -252,7 +303,24 @@ const sendInvitations = async () => {
   });
 };
 
+const onPhotosUploaded = () => {
+  // Optionally refresh data or show additional success messaging
+  $toasted.success(
+    t('dashboard.photos_upload_complete') || 'Photos uploaded successfully!',
+  );
+};
+
+const fetchIncidents = async () => {
+  try {
+    const incidents = Incident.query().get();
+    availableIncidents.value = incidents;
+  } catch (error) {
+    console.error('Error fetching incidents:', error);
+  }
+};
+
 onMounted(() => {
+  fetchIncidents();
   watch(
     loadingActionItems,
     (newVal) => {

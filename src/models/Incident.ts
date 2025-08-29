@@ -47,6 +47,16 @@ export default class Incident extends CCUModel {
           save: false,
         });
       },
+      async addFile(this: Request, id: string, file: string, type: string) {
+        return this.post(
+          `/incidents/${id}/files`,
+          {
+            file,
+            type_t: type,
+          },
+          { save: false },
+        );
+      },
     },
   };
 
