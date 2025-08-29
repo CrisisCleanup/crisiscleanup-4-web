@@ -101,6 +101,7 @@ describe('models > Incident', () => {
   test('has api actions', () => {
     expect(Incident.api()).toMatchInlineSnapshot(`
       Request {
+        "addFile": [Function],
         "addLocation": [Function],
         "config": {
           "save": true,
