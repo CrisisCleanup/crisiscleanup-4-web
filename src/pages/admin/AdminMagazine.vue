@@ -97,6 +97,16 @@
                   :placeholder="$t('adminMagazine.enter_issn')"
                 />
               </div>
+
+              <div class="mb-4">
+                <label class="block text-sm font-medium mb-2">
+                  {{ $t('adminMagazine.doi') }}
+                </label>
+                <base-input
+                  v-model="magazine.doi"
+                  :placeholder="$t('adminMagazine.enter_doi')"
+                />
+              </div>
             </div>
 
             <div>
@@ -651,6 +661,18 @@
                   :placeholder="$t('adminMagazine.enter_issue_number')"
                 />
               </div>
+              <base-input
+                v-model="editingMagazine.issn"
+                :label="$t('adminMagazine.issn')"
+                :placeholder="$t('adminMagazine.enter_issn')"
+                class="mb-2"
+              />
+              <base-input
+                v-model="editingMagazine.doi"
+                :label="$t('adminMagazine.doi')"
+                :placeholder="$t('adminMagazine.enter_doi')"
+                class="mb-2"
+              />
               <datepicker
                 v-model="editingMagazine.publish_at"
                 :label="$t('adminMagazine.publication_date')"
@@ -857,6 +879,12 @@
                 {{ $t('adminMagazine.issue') }}
                 {{ magazine.issue }}
               </div>
+              <div v-if="magazine.issn" class="text-sm text-gray-600">
+                {{ $t('adminMagazine.issn') }}: {{ magazine.issn }}
+              </div>
+              <div v-if="magazine.doi" class="text-sm text-gray-600">
+                {{ $t('adminMagazine.doi') }}: {{ magazine.doi }}
+              </div>
               <div class="text-sm text-gray-600">
                 {{ formatDate(magazine.publish_at) }}
               </div>
@@ -976,6 +1004,7 @@ interface MagazineData {
   volume: number;
   issue: number;
   issn: string;
+  doi: string;
   publish_at: string;
   timeframe_start: string;
   timeframe_end: string;
@@ -1015,6 +1044,8 @@ interface Magazine {
   incident_name: string;
   volume: number;
   issue: number;
+  issn?: string;
+  doi?: string;
   publish_at: string;
   editions: MagazineEdition[];
 }
@@ -1048,6 +1079,7 @@ const magazine = ref<MagazineData>({
   volume: new Date().getFullYear() - 2025 + 1,
   issue: 1,
   issn: '000000000',
+  doi: '',
   publish_at: '2025-05-12',
   timeframe_start: '2024-09-24',
   timeframe_end: '2024-12-08',
@@ -1275,6 +1307,7 @@ async function saveMagazine() {
       volume: magazine.value.volume,
       issue: magazine.value.issue,
       issn: magazine.value.issn,
+      doi: magazine.value.doi,
       publish_at: magazine.value.publish_at,
       timeframe_start: magazine.value.timeframe_start,
       timeframe_end: magazine.value.timeframe_end,
@@ -1422,6 +1455,7 @@ function resetForm() {
     volume: currentVolume,
     issue: 1, // This will be updated after fetching the last issue number
     issn: '',
+    doi: '',
     publish_at: '2025-05-12',
     timeframe_start: '2024-09-24',
     timeframe_end: '2024-12-08',
