@@ -45,9 +45,12 @@
               Volume {{ latestMagazine.volume }}. Issue
               {{ latestMagazine.issue }}.
             </div>
-            <div class="text-xl text-gray-600 mb-1 uppercase">
+            <router-link
+              :to="generatePermalink(latestMagazine)"
+              class="text-xl text-gray-600 mb-1 uppercase hover:text-primary-dark block"
+            >
               {{ latestMagazine.incident_name }}
-            </div>
+            </router-link>
             <div class="text-base mb-1 uppercase">
               {{ latestMagazine.subtitle }}
             </div>
@@ -55,6 +58,16 @@
             <div class="text-sm text-gray-600 mb-1 uppercase">
               {{ formatDate(latestMagazine.timeframe_start) }} -
               {{ formatDate(latestMagazine.timeframe_end) }}
+            </div>
+            <div v-if="latestMagazine.doi" class="text-sm text-gray-600 mb-1">
+              doi:
+              <a
+                :href="`https://doi.org/${latestMagazine.doi}`"
+                target="_blank"
+                class="text-blue-700 hover:underline"
+              >
+                {{ latestMagazine.doi }}
+              </a>
             </div>
             <div class="mt-4 flex gap-2">
               <a
@@ -125,15 +138,28 @@
                   <div class="text-sm mb-1">
                     Volume {{ magazine.volume }}. Issue {{ magazine.issue }}.
                   </div>
-                  <div class="text-lg text-gray-600 mb-1 uppercase">
+                  <router-link
+                    :to="generatePermalink(magazine)"
+                    class="text-lg text-gray-600 mb-1 uppercase hover:text-primary-dark block"
+                  >
                     {{ magazine.incident_name }}
-                  </div>
+                  </router-link>
                   <div class="text-base mb-1 uppercase">
                     {{ magazine.subtitle }}
                   </div>
                   <div class="text-sm text-gray-600 mb-1 uppercase">
-                    {{ formatDate(magazine.timeframeStart) }} -
-                    {{ formatDate(magazine.timeframeEnd) }}
+                    {{ formatDate(magazine.timeframe_start) }} -
+                    {{ formatDate(magazine.timeframe_end) }}
+                  </div>
+                  <div v-if="magazine.doi" class="text-sm text-gray-600 mb-1">
+                    doi:
+                    <a
+                      :href="`https://doi.org/${magazine.doi}`"
+                      target="_blank"
+                      class="text-blue-700 hover:underline"
+                    >
+                      {{ magazine.doi }}
+                    </a>
                   </div>
                   <div class="mt-2 flex gap-2">
                     <a
@@ -242,8 +268,9 @@ interface Magazine {
   volume: number;
   issue: number;
   publish_at: string;
-  timeframeStart: string;
-  timeframeEnd: string;
+  timeframe_start: string;
+  timeframe_end: string;
+  doi: string | null;
   editions: MagazineEdition[];
 }
 
@@ -287,6 +314,12 @@ function parsePermalink(permalink: string) {
     issue,
     editionShortName,
   };
+}
+
+// Generate permalink for a magazine
+function generatePermalink(magazine: Magazine): string {
+  const incidentIds = magazine.incident_ids.join('_');
+  return `/magazine?s=${incidentIds}.${magazine.volume}.${magazine.issue}`;
 }
 
 async function fetchMagazines(page = 1): Promise<void> {
