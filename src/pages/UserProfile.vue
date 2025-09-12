@@ -367,6 +367,109 @@
           </div>
         </template>
       </UserProfileSection>
+      <!-- Preferences -->
+      <UserProfileSection
+        :title="$t('profileUser.preferences')"
+        :save-action="() => toggleSection('preferences')"
+        :expanded-sections="expandedSections"
+        section-key="preferences"
+        class="mb-4"
+        @toggle-section="toggleSection"
+      >
+        <template #collapsed>
+          <div>
+            <div class="py-1">
+              <span class="font-semibold">AI Features:</span>
+              <span class="ml-2">
+                {{
+                  userPreferences?.ai_opt_out_user
+                    ? $t('profileUser.opted_out') || 'Opted Out'
+                    : $t('profileUser.enabled') || 'Enabled'
+                }}
+              </span>
+            </div>
+            <div class="py-1">
+              <span class="font-semibold">Default Dashboard:</span>
+              <span class="ml-2">
+                {{
+                  formatDashboardName(userPreferences?.dashboard || 'default')
+                }}
+              </span>
+            </div>
+            <div v-if="Object.keys(filteredPreferences).length > 0">
+              <div
+                v-for="(value, key) in filteredPreferences"
+                :key="key"
+                class="py-1"
+              >
+                <span class="font-semibold"
+                  >{{ formatPreferenceKey(key) }}:</span
+                >
+                <span class="ml-2">{{ formatPreferenceValue(value) }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+        <template #expanded>
+          <div class="py-3">
+            <div class="mb-4 pb-4 border-b border-gray-200">
+              <base-checkbox
+                class="text-sm"
+                :model-value="userPreferences?.ai_opt_out_user || false"
+                @update:model-value="updateAiOptOut"
+              >
+                {{ $t('profileUser.ai_opt_out') || 'Opt out of AI features' }}
+              </base-checkbox>
+              <p class="text-xs text-gray-600 mt-1">
+                {{
+                  $t('profileUser.ai_opt_out_description') ||
+                  'When enabled, your data will not be used for AI assistance features'
+                }}
+              </p>
+            </div>
+            <div class="mb-4 pb-4 border-b border-gray-200">
+              <label class="block text-sm font-semibold mb-2">
+                {{ $t('profileUser.default_dashboard') || 'Default Dashboard' }}
+              </label>
+              <base-select
+                :model-value="userPreferences?.dashboard || 'default'"
+                :options="dashboardOptions"
+                item-key="value"
+                label="label"
+                @update:model-value="updateDashboardPreference"
+              />
+              <p class="text-xs text-gray-600 mt-1">
+                {{
+                  $t('profileUser.default_dashboard_description') ||
+                  'Choose your preferred dashboard view when logging in'
+                }}
+              </p>
+            </div>
+            <div v-if="Object.keys(filteredPreferences).length > 0">
+              <h3 class="text-sm font-semibold mb-2">
+                {{ $t('profileUser.other_preferences') || 'Other Preferences' }}
+              </h3>
+              <div
+                v-for="(value, key) in filteredPreferences"
+                :key="key"
+                class="py-2 border-b border-gray-200 last:border-0"
+              >
+                <div class="font-semibold mb-1">
+                  {{ formatPreferenceKey(key) }}
+                </div>
+                <div class="text-sm">
+                  <pre
+                    v-if="typeof value === 'object'"
+                    class="bg-gray-50 p-2 rounded text-xs overflow-x-auto"
+                    >{{ JSON.stringify(value, null, 2) }}</pre
+                  >
+                  <span v-else>{{ formatPreferenceValue(value) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </UserProfileSection>
       <!-- Troubleshooting -->
       <UserProfileSection
         :title="$t('profileUser.troubleshooting')"
@@ -445,6 +548,8 @@ import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import baseButton from '@/components/BaseButton.vue';
 import baseInput from '@/components/BaseInput.vue';
+import baseCheckbox from '@/components/BaseCheckbox.vue';
+import baseSelect from '@/components/BaseSelect.vue';
 import { useAuthStore, useCurrentUser } from '@/hooks';
 import Avatar from '@/components/Avatar.vue';
 import DragDrop from '@/components/DragDrop.vue';
@@ -485,6 +590,47 @@ const { clearCache, isClearing } = useClearCache();
 const betaFeatures = ref<BetaFeature[]>([]);
 const showChangeOrganizationModal = ref(false);
 const userEquipment = ref<Collection<UserEquipment>>([]);
+
+const dashboardOptions = computed(() => [
+  {
+    value: 'default',
+    label: t('dashboard.default') || 'Default Dashboard',
+  },
+  {
+    value: 'phone-volunteer',
+    label: t('dashboard.phone_volunteer') || 'Phone Volunteer Dashboard',
+  },
+  {
+    value: 'command-center',
+    label: t('dashboard.command_center') || 'Command Center Dashboard',
+  },
+]);
+
+// List of preferences that should not be displayed in the generic preferences section
+// These are either displayed with custom UI or are internal/system preferences
+const hiddenPreferences = new Set([
+  'ai_opt_out_user', // Displayed with checkbox
+  'dashboard', // Displayed with select dropdown
+  'hideAppBanner', // Internal banner state
+  'hideTeamsAppBanner', // Internal banner state
+  'hideTrainingBanner', // Internal banner state
+  'archived_worksite_requests', // Internal archived items
+  'archived_invitation_requests', // Internal archived items
+  'notification_settings', // Complex object, could be displayed separately if needed
+]);
+
+const filteredPreferences = computed(() => {
+  if (!userPreferences.value) return {};
+  return Object.entries(userPreferences.value)
+    .filter(([key]) => !hiddenPreferences.has(key))
+    .reduce(
+      (acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
+});
 
 const languages = computed(() =>
   Language.all().map((l) => {
@@ -614,6 +760,30 @@ async function resetPreferences() {
   });
 }
 
+async function updateAiOptOut(value: boolean) {
+  const updatedPreferences = {
+    ...userPreferences.value,
+    ai_opt_out_user: value,
+  };
+  await updateCurrentUser({
+    preferences: updatedPreferences,
+  }).catch((error) => {
+    $toasted.error(getErrorMessage(error));
+  });
+}
+
+async function updateDashboardPreference(value: string) {
+  const updatedPreferences = {
+    ...userPreferences.value,
+    dashboard: value,
+  };
+  await updateCurrentUser({
+    preferences: updatedPreferences,
+  }).catch((error) => {
+    $toasted.error(getErrorMessage(error));
+  });
+}
+
 async function getUserEquipment() {
   const results = await UserEquipment.api().get(`/user_equipment`, {
     dataKey: 'results',
@@ -625,6 +795,34 @@ async function getUserEquipment() {
 function getEquipmentName(equipmentId: number) {
   const equipment = Equipment.find(equipmentId);
   return equipment?.name_t || '';
+}
+
+function formatPreferenceKey(key: string): string {
+  return key
+    .replaceAll('_', ' ')
+    .replaceAll(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatPreferenceValue(value: any): string {
+  if (typeof value === 'boolean') {
+    return value ? t('profileUser.enabled') : t('profileUser.disabled');
+  }
+  if (typeof value === 'object' && value !== null) {
+    if (Array.isArray(value)) {
+      return `${value.length} items`;
+    }
+    return `${Object.keys(value).length} settings`;
+  }
+  return String(value);
+}
+
+function formatDashboardName(dashboard: string): string {
+  const dashboardMap: Record<string, string> = {
+    default: t('dashboard.default') || 'Default',
+    'phone-volunteer': t('dashboard.phone_volunteer') || 'Phone Volunteer',
+    'command-center': t('dashboard.command_center') || 'Command Center',
+  };
+  return dashboardMap[dashboard] || formatPreferenceKey(dashboard);
 }
 
 onMounted(async () => {
