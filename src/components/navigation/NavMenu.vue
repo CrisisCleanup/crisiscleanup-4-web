@@ -21,7 +21,8 @@
         :route="r"
       />
     </div>
-    <PoweredByAws class="pt-4 pb-12 px-4" type="square" />
+    <PoweredByRingCentral v-if="isPhonePage" class="pt-4 pb-12 px-4" />
+    <PoweredByAws v-else class="pt-4 pb-12 px-4" type="square" />
   </div>
 </template>
 
@@ -31,10 +32,11 @@ import NavButton from './NavButton.vue';
 import type { Portal } from '@/models/types';
 import logo from '@/assets/crisiscleanup_logo.png';
 import PoweredByAws from '@/components/PoweredByAws.vue';
+import PoweredByRingCentral from '@/components/PoweredByRingCentral.vue';
 
 export default defineComponent({
   name: 'NavMenu',
-  components: { PoweredByAws, NavButton },
+  components: { PoweredByAws, PoweredByRingCentral, NavButton },
   props: {
     routes: {
       type: Array as PropType<Record<string, any>[]>,
@@ -47,10 +49,15 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const route = useRoute();
     const portal = computed(() => store.getters['enums/portal'] as Portal);
+    const isPhonePage = computed(() => {
+      return route.path.includes('/phone');
+    });
     return {
       portal,
       logo,
+      isPhonePage,
     };
   },
 });
