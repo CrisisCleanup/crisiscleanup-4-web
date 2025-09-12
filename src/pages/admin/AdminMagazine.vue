@@ -488,6 +488,55 @@
                   </div>
                 </div>
 
+                <!-- Print Production Details -->
+                <div
+                  class="md:col-span-5 grid grid-cols-2 md:grid-cols-4 gap-2"
+                >
+                  <div>
+                    <label class="block text-sm font-medium mb-1">{{
+                      $t('adminMagazine.page_count')
+                    }}</label>
+                    <base-input
+                      v-model="edition.page_count"
+                      type="number"
+                      min="0"
+                      :placeholder="$t('adminMagazine.enter_page_count')"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">{{
+                      $t('adminMagazine.binding')
+                    }}</label>
+                    <base-input
+                      v-model="edition.binding"
+                      :placeholder="$t('adminMagazine.enter_binding_type')"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">{{
+                      $t('adminMagazine.circulation')
+                    }}</label>
+                    <base-input
+                      v-model="edition.circulation"
+                      type="number"
+                      min="0"
+                      :placeholder="$t('adminMagazine.enter_circulation')"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium mb-1">{{
+                      $t('adminMagazine.print_run_price')
+                    }}</label>
+                    <base-input
+                      v-model="edition.print_run_price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      :placeholder="$t('adminMagazine.enter_print_price')"
+                    />
+                  </div>
+                </div>
+
                 <!-- PDF Upload -->
                 <div class="md:col-span-3">
                   <label class="block text-sm font-medium mb-2">{{
@@ -734,6 +783,57 @@
                               $t('adminMagazine.primary_edition')
                             }}</span>
                           </label>
+                        </div>
+                      </div>
+
+                      <!-- Print Production Details -->
+                      <div
+                        class="md:col-span-5 grid grid-cols-2 md:grid-cols-4 gap-2"
+                      >
+                        <div>
+                          <label class="block text-sm font-medium mb-1">{{
+                            $t('adminMagazine.page_count')
+                          }}</label>
+                          <base-input
+                            v-model="edition.page_count"
+                            type="number"
+                            min="0"
+                            :placeholder="$t('adminMagazine.enter_page_count')"
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium mb-1">{{
+                            $t('adminMagazine.binding')
+                          }}</label>
+                          <base-input
+                            v-model="edition.binding"
+                            :placeholder="
+                              $t('adminMagazine.enter_binding_type')
+                            "
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium mb-1">{{
+                            $t('adminMagazine.circulation')
+                          }}</label>
+                          <base-input
+                            v-model="edition.circulation"
+                            type="number"
+                            min="0"
+                            :placeholder="$t('adminMagazine.enter_circulation')"
+                          />
+                        </div>
+                        <div>
+                          <label class="block text-sm font-medium mb-1">{{
+                            $t('adminMagazine.print_run_price')
+                          }}</label>
+                          <base-input
+                            v-model="edition.print_run_price"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            :placeholder="$t('adminMagazine.enter_print_price')"
+                          />
                         </div>
                       </div>
 
@@ -993,6 +1093,10 @@ interface MagazineEditionData {
   thumbnail_details?: CCUFileItem;
   thumbnail_data?: File | null;
   is_primary: boolean;
+  page_count?: number;
+  binding?: string;
+  circulation?: number;
+  print_run_price?: number;
 }
 
 interface MagazineData {
@@ -1141,6 +1245,10 @@ function addEdition() {
     thumbnail_data: null,
     is_primary: false,
     file_data: null,
+    page_count: undefined,
+    binding: '',
+    circulation: undefined,
+    print_run_price: undefined,
   });
   selectedIssueIndex.value = magazine.value.editions.length - 1;
 }
@@ -1404,6 +1512,10 @@ async function saveMagazine() {
         magazine: magazine.value.id,
         file: fileId,
         thumbnail_file: thumbnailId,
+        page_count: edition.page_count || undefined,
+        binding: edition.binding || undefined,
+        circulation: edition.circulation || undefined,
+        print_run_price: edition.print_run_price || undefined,
       };
 
       await axios.post(
@@ -1616,6 +1728,10 @@ async function saveEdit() {
           magazine: editingMagazine.value.id,
           file: fileId,
           thumbnail_file: thumbnailId,
+          page_count: edition.page_count || undefined,
+          binding: edition.binding || undefined,
+          circulation: edition.circulation || undefined,
+          print_run_price: edition.print_run_price || undefined,
         };
 
         await axios.post(
@@ -1663,6 +1779,10 @@ async function addEditionToExistingMagazine(magazineId: string) {
       thumbnail_data: null,
       is_primary: false,
       file_data: null,
+      page_count: undefined,
+      binding: '',
+      circulation: undefined,
+      print_run_price: undefined,
     };
 
     // Add to the editing magazine's editions array
