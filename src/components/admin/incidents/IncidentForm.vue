@@ -87,6 +87,14 @@
       >
         {{ $t('incidentBuilder.archived') }}
       </base-checkbox>
+
+      <base-checkbox
+        v-model="currentIncident.ignore_claiming_thresholds"
+        data-testid="testCurrentIncidentIgnoreClaimingThresholdsCheckbox"
+        class="mb-3"
+      >
+        {{ $t('incidentBuilder.ignore_claiming_thresholds') }}
+      </base-checkbox>
     </div>
 
     <hr class="mb-4" />
@@ -266,6 +274,7 @@ export default defineComponent({
       is_archived: false,
       turn_on_release: false,
       auto_contact: true,
+      ignore_claiming_thresholds: false,
       start_at: '',
     });
     const currentAni = ref<Record<string, any>>({

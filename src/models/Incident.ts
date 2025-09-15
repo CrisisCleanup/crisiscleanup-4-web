@@ -81,6 +81,7 @@ export default class Incident extends CCUModel {
       created_work_types: this.attr([]),
       is_archived: this.attr(false),
       incident_center: this.attr(null),
+      ignore_claiming_thresholds: this.attr(false),
     };
   }
 
@@ -131,6 +132,7 @@ export default class Incident extends CCUModel {
   created_work_types!: any[];
   is_archived!: boolean;
   incident_center!: GeoJSON | null;
+  ignore_claiming_thresholds!: boolean;
 
   get incidentImage() {
     return Incident.getIncidentImage(this.incident_type) as unknown;

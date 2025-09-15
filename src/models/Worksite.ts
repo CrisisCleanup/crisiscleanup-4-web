@@ -275,7 +275,11 @@ export default class Worksite extends CCUModel {
             ? moment(incident.start_at).isAfter(moment().add(-60, 'days'))
             : false;
 
-          if (incident && isRecentIncident) {
+          if (
+            incident &&
+            isRecentIncident &&
+            !incident.ignore_claiming_thresholds
+          ) {
             const portal = options?.portal;
             const claimedThresholdRaw =
               portal?.attr?.claimed_work_type_count_threshold;
