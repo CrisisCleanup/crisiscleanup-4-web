@@ -15,6 +15,16 @@
       class="mb-2"
     />
 
+    <!-- From Email Address Selection -->
+    <base-select
+      v-model="fromEmail"
+      :options="fromEmailOptions"
+      :placeholder="$t('bulkEmail.select_from_email')"
+      label="label"
+      item-key="value"
+      class="mb-2"
+    />
+
     <!-- Toggle between Email List and CSV File -->
     <div class="mb-2">
       <label>
@@ -135,6 +145,7 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import BaseInput from '@/components/BaseInput.vue';
 import BaseButton from '@/components/BaseButton.vue';
+import BaseSelect from '@/components/BaseSelect.vue';
 import CmsViewer from '@/components/cms/CmsViewer.vue';
 import useDialogs from '@/hooks/useDialogs';
 import { ref } from 'vue';
@@ -147,6 +158,7 @@ const { component } = useDialogs();
 
 const subject = ref('');
 const htmlMessage = ref('');
+const fromEmail = ref('support'); // Default to support email
 const inputMethod = ref('emailList'); // 'emailList' or 'csvFile'
 const emailList = ref('');
 const csvFile = ref<File | null>(null);
@@ -156,6 +168,26 @@ const taskStatus = ref<any>(null);
 const sentEmails = ref<string[]>([]);
 const unsuccessfulEmails = ref<{ email: string; error: string }[]>([]);
 let statusInterval = null;
+
+// From email options with display labels and values
+const fromEmailOptions = [
+  {
+    value: 'support',
+    label: 'Crisis Cleanup Support (help@crisiscleanup.org)',
+  },
+  {
+    value: 'magazine',
+    label: 'Crisis Cleanup Magazine (magazine@crisiscleanup.org)',
+  },
+  {
+    value: 'dev',
+    label: 'Crisis Cleanup Development Team (dev@crisiscleanup.org)',
+  },
+  { value: 'aaron', label: 'Aaron Titus (aaron@crisiscleanup.org)' },
+  { value: 'jeri', label: 'Jeri Curry (jeri@crisiscleanup.org)' },
+  { value: 'gina', label: 'Gina Newby (gina@crisiscleanup.org)' },
+  { value: 'ross', label: 'Ross Arroyo (ross@crisiscleanup.org)' },
+];
 
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -178,6 +210,7 @@ const sendEmails = async () => {
   const formData = new FormData();
   formData.append('subject', subject.value);
   formData.append('html_message', htmlMessage.value);
+  formData.append('from_email', fromEmail.value);
 
   if (inputMethod.value === 'emailList') {
     if (!emailList.value.trim()) {
