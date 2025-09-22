@@ -710,7 +710,7 @@ const {
             <div v-show="!currentView && caller" class="flex-grow">
               <template v-if="showCompleteCallScreen">
                 <div
-                  class="h-full bg-crisiscleanup-green-900 bg-opacity-20 p-2 flex flex-col items-start justify-between"
+                  class="h-full bg-white p-2 flex flex-col items-start justify-between w-full"
                 >
                   <div class="w-full">
                     <div class="py-2 flex">
@@ -735,9 +735,10 @@ const {
                       @on-cancel="onCancelCompleteCall"
                     />
                   </div>
-                  <div class="w-full">
+                  <div class="w-full mt-2">
                     <base-button
                       class="p-1 w-full bg-white"
+                      variant="outline"
                       :action="() => (showCompleteCallScreen = false)"
                       :text="$t('actions.hide')"
                       :alt="$t('actions.hide')"

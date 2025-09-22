@@ -46,7 +46,10 @@
         :alt="
           dialing ? $t('phoneDashboard.dialing') : $t('phoneDashboard.dial')
         "
-        :disabled="dialing || !phone || after10pmEastern || !hasActiveHotline"
+        :disabled="
+          (dialing || !phone || after10pmEastern || !hasActiveHotline) &&
+          !can('development_mode')
+        "
         @click="handleDial"
       ></base-button>
 
@@ -72,6 +75,7 @@ import BaseInput from '@/components/BaseInput.vue';
 import moment from 'moment';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';
+import useAcl from '@/hooks/useAcl';
 
 export default defineComponent({
   name: 'EnhancedManualDialer',
@@ -89,6 +93,7 @@ export default defineComponent({
   emits: ['onDial', 'onRemoveNumberFromQueue'],
   setup(props, { emit }) {
     const { isLoading, incidentsWithActiveHotline } = useActiveHotlines();
+    const { $can } = useAcl();
 
     const phone = ref('');
     const selectedCountryCode = ref('+1');
@@ -127,6 +132,7 @@ export default defineComponent({
       }
     });
     return {
+      can: $can,
       selectedCountryCode,
       phone,
       countryCodes,

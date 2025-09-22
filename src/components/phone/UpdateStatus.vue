@@ -1,51 +1,66 @@
 <template>
-  <form class="flex flex-col">
+  <form class="flex flex-col bg-white rounded-lg shadow-sm p-6 w-full">
     <!-- Status Selector Section -->
     <div
-      class="flex flex-col flex-wrap text-center status-wrapper gap-4 md:gap-6"
+      class="grid grid-cols-1 md:grid-cols-3 gap-6 status-wrapper overflow-x-hidden p-0.5"
       data-testid="testStatusSelectorDiv"
     >
       <div
         v-for="(section, index) in sortedValues"
         :key="index"
-        class="flex flex-col items-center"
+        class="flex flex-col"
       >
-        <div class="font-bold text-base sm:text-lg">
+        <div
+          class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide flex items-center"
+        >
+          <span
+            class="inline-block w-3 h-3 rounded-full mr-2"
+            :style="`background: ${section.color}`"
+          ></span>
           {{ section.name }}
         </div>
-        <div
-          v-for="(item, idx) in section.values"
-          :key="idx"
-          class="m-1 p-1 rounded cursor-pointer text-sm sm:text-base w-full sm:w-auto"
-          :class="
-            item.value === status
-              ? 'outline border border-gray-700'
-              : 'opacity-80'
-          "
-          :style="`background: ${section.color}`"
-          @click="status = item.value"
-        >
-          {{ item.name_t }}
+        <div class="space-y-2">
+          <div
+            v-for="(item, idx) in section.values"
+            :key="idx"
+            class="px-3 py-2.5 rounded-md cursor-pointer text-sm transition-all duration-200 hover:scale-105 hover:shadow-md"
+            :class="
+              item.value === status
+                ? 'ring-2 ring-offset-2 ring-gray-600 shadow-md scale-105 font-medium'
+                : 'opacity-85 hover:opacity-100'
+            "
+            :style="`background: ${
+              item.value === status ? section.color : section.color + '40'
+            }`"
+            @click="status = item.value"
+          >
+            {{ item.name_t }}
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Notes Section -->
-    <textarea
-      v-model="callNotes"
-      data-testid="testCallNoteTextarea"
-      rows="3"
-      class="text-sm sm:text-base border border-crisiscleanup-dark-100 placeholder-crisiscleanup-dark-200 outline-none p-2 my-4 resize-none w-full rounded"
-      :placeholder="$t('phoneDashboard.notes')"
-      @update:modelValue="(value) => (updateNotes = value)"
-    ></textarea>
+    <div class="mt-8">
+      <label class="block text-sm font-medium text-gray-700 mb-2">
+        {{ $t('phoneDashboard.notes') }}
+      </label>
+      <textarea
+        v-model="callNotes"
+        data-testid="testCallNoteTextarea"
+        rows="4"
+        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-none"
+        :placeholder="$t('phoneDashboard.notes')"
+        @update:modelValue="(value) => (updateNotes = value)"
+      ></textarea>
+    </div>
 
     <!-- Buttons Section -->
-    <div class="flex flex-wrap gap-2 justify-center sm:justify-start mt-4">
+    <div class="flex flex-wrap gap-3 mt-6">
       <base-button
         data-testid="testCompleteCallButton"
-        class="p-2 rounded text-sm sm:text-base"
-        size="small"
+        class="flex-1 sm:flex-initial px-6 py-2.5 font-medium shadow-sm hover:shadow-md transition-all duration-200"
+        size="medium"
         variant="solid"
         :alt="$t('phoneDashboard.complete_call')"
         :action="
@@ -60,7 +75,7 @@
       </base-button>
       <base-button
         v-if="allowCancel"
-        class="p-2 rounded text-sm sm:text-base"
+        class="flex-1 sm:flex-initial px-6 py-2.5 font-medium transition-all duration-200"
         :alt="$t('actions.cancel')"
         :action="
           () =>
@@ -69,7 +84,7 @@
               notes: callNotes,
             })
         "
-        size="small"
+        size="medium"
         variant="outline"
       >
         {{ $t('actions.cancel') }}
@@ -205,6 +220,25 @@ export default defineComponent({
 
 <style scoped lang="postcss">
 .status-wrapper {
-  height: 18rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
+}
+
+.status-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.status-wrapper::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded;
+}
+
+.status-wrapper::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded;
+}
+
+.status-wrapper::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
 }
 </style>
