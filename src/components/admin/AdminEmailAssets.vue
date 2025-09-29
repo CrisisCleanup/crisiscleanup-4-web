@@ -1,7 +1,21 @@
 <!-- EmailImageLibrary.vue -->
 <template>
   <div class="email-images-library">
-    <h3>{{ $t('Email Images') }}</h3>
+    <div class="header-section">
+      <h3>{{ $t('Email Images') }}</h3>
+      <base-button
+        :text="$t('Clear Cache')"
+        :alt="$t('Clear Cache')"
+        data-testid="testClearEmailImagesCacheButton"
+        variant="outline"
+        size="small"
+        :disabled="isClearing"
+        :show-spinner="isClearing"
+        :action="clearEmailImagesCache"
+      >
+        {{ $t('Clear Cache') }}
+      </base-button>
+    </div>
     <div class="images-grid">
       <div
         v-for="image in emailImages"
@@ -26,9 +40,11 @@ import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import BaseButton from '@/components/BaseButton.vue';
+import { useEmailImagesClearCache } from '@/hooks/useEmailImagesClearCache';
 
 const { t } = useI18n();
 const $toasted = useToast();
+const { clearEmailImagesCache, isClearing } = useEmailImagesClearCache();
 
 const emailImages = ref<any[]>([]);
 
@@ -60,9 +76,15 @@ onMounted(async () => {
   max-height: 80vh;
   overflow-y: auto;
 }
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
 .email-images-library h3 {
   font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+  margin: 0;
 }
 .images-grid {
   display: grid;
