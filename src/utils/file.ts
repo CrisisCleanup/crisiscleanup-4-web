@@ -34,7 +34,11 @@ export async function uploadToS3({
   return presignedPostUrl.filePath;
 }
 
-export async function uploadFile(formData: FormData) {
+export async function uploadFile(
+  formData: FormData,
+  shouldConfirm = true,
+  extractMetadata = true,
+) {
   const upload = formData.get('upload');
   if (!upload || !(upload instanceof File)) {
     throw new Error('No file to upload');
@@ -62,5 +66,44 @@ export async function uploadFile(formData: FormData) {
     presignedPostUrl: result.data.presigned_post_url,
   });
 
+  if (shouldConfirm && result.data.id) {
+    await confirmFileUpload(result.data.id, extractMetadata);
+  }
+
   return result;
+}
+
+export async function confirmFileUpload(
+  fileId: string,
+  extractMetadata = true,
+) {
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_APP_API_BASE_URL}/files/${fileId}/confirm_upload`,
+      {
+        extract_metadata: extractMetadata,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    const result = response.data;
+
+    if (result.success) {
+      console.log('Upload confirmed:', result.message);
+      if (result.task_id) {
+        console.log('Metadata extraction task:', result.task_id);
+      }
+    } else {
+      console.error('Confirmation failed:', result.message);
+    }
+
+    return result;
+  } catch (error) {
+    console.error('Confirmation request failed:', error);
+    throw error;
+  }
 }
