@@ -19,6 +19,7 @@ const AdminSendBulkSms = () => import('./AdminSendBulkSms.vue');
 const AdminSendBulkEmail = () => import('./AdminSendBulkEmail.vue');
 const AdminMagazine = () => import('./AdminMagazine.vue');
 const AdminSentimentAnalysis = () => import('./AdminSentimentAnalysis.vue');
+const AdminPortalFiles = () => import('./AdminPortalFiles.vue');
 
 const routes = [
   {
@@ -120,6 +121,11 @@ const routes = [
         path: 'sentiment_analysis',
         name: 'nav.sentiment_analysis',
         component: AdminSentimentAnalysis,
+      },
+      {
+        path: 'portal_files',
+        name: 'nav.portal_files',
+        component: AdminPortalFiles,
       },
     ],
   },

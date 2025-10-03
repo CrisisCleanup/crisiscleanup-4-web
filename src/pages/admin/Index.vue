@@ -44,6 +44,9 @@ const tabs = reactive<Tab[]>([
   {
     key: 'nav.sentiment_analysis',
   },
+  {
+    key: 'nav.portal_files',
+  },
 ]);
 
 const ccuApi = useApi();
