@@ -55,7 +55,7 @@
           <base-button
             variant="outline"
             size="small"
-            @click="copyFileLink(file.url)"
+            @click="copyFileLink(file.blog_url)"
           >
             {{ $t('Copy Link') }}
           </base-button>
