@@ -93,7 +93,7 @@ watch(showingLegend, async (newValue) => {
               emit('onZoomIn');
             }
           "
-          class="w-8 h-8 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+          class="my-2 w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
         <base-button
           text=""
@@ -108,7 +108,7 @@ watch(showingLegend, async (newValue) => {
               emit('onZoomOut');
             }
           "
-          class="w-8 h-8 border border-crisiscleanup-dark-100 bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+          class="w-12 h-12 border border-crisiscleanup-dark-100 bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
       </div>
       <base-button
@@ -131,7 +131,7 @@ watch(showingLegend, async (newValue) => {
         "
         icon="tree"
         icon-size="lg"
-        class="w-8 h-8 border my-1 border-crisiscleanup-dark-100 bg-white shadow-xl text-crisiscleanup-dark-400"
+        class="w-12 h-12 border my-1 border-crisiscleanup-dark-100 bg-white shadow-xl text-crisiscleanup-dark-400"
       />
       <base-button
         v-tooltip="{
@@ -153,7 +153,7 @@ watch(showingLegend, async (newValue) => {
             emit('onZoomIncidentCenter');
           }
         "
-        class="w-8 h-8 border border-crisiscleanup-dark-100 my-1 bg-white shadow-xl text-crisiscleanup-dark-400"
+        class="w-12 h-12 border border-crisiscleanup-dark-100 my-1 bg-white shadow-xl text-crisiscleanup-dark-400"
       />
       <base-button
         v-if="props.showMapLayerToggle"
