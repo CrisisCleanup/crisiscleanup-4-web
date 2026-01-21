@@ -14,28 +14,45 @@
       <slot
     /></base-text>
     <template #popper>
-      <div class="tooltip-content p-2">
-        <div v-if="userItem" class="text-base">
-          {{ `${userItem.first_name} ${userItem.last_name}` }}
+      <div class="flex">
+        <div v-if="userItem" class="flex items-center justify-center">
+          <Avatar
+            :initials="userItem.first_name"
+            :url="
+              userItem.profilePictureUrl
+                ? userItem.profilePictureUrl
+                : getUserAvatarLink(userItem.first_name)
+            "
+            :custom-size="{ width: '40px', height: '40px' }"
+            inner-classes="shadow"
+          />
         </div>
-        <div
-          v-if="userItem"
-          class="text-xs"
-          data-testid="testUserOrganizationDiv"
-        >
-          {{ userItem.organization.name }}
-        </div>
-        <div v-if="userItem" class="mt-2" data-testid="testUserEmailDiv">
-          <font-awesome-icon icon="envelope" :alt="$t('actions.email')" />
-          <a :href="`mailto:${userItem.email}`" class="ml-1">{{
-            userItem.email
-          }}</a>
-        </div>
-        <div v-if="userItem && userItem.mobile" data-testid="testUserMobileDiv">
-          <font-awesome-icon icon="phone" :alt="$t('actions.call')" />
-          <a :href="`tel:${userItem.mobile}`" class="ml-1">{{
-            userItem.mobile
-          }}</a>
+        <div class="tooltip-content p-2">
+          <div v-if="userItem" class="text-base">
+            {{ `${userItem.first_name} ${userItem.last_name}` }}
+          </div>
+          <div
+            v-if="userItem"
+            class="text-xs"
+            data-testid="testUserOrganizationDiv"
+          >
+            {{ userItem.organization.name }}
+          </div>
+          <div v-if="userItem" class="mt-2" data-testid="testUserEmailDiv">
+            <font-awesome-icon icon="envelope" :alt="$t('actions.email')" />
+            <a :href="`mailto:${userItem.email}`" class="ml-1">{{
+              userItem.email
+            }}</a>
+          </div>
+          <div
+            v-if="userItem && userItem.mobile"
+            data-testid="testUserMobileDiv"
+          >
+            <font-awesome-icon icon="phone" :alt="$t('actions.call')" />
+            <a :href="`tel:${userItem.mobile}`" class="ml-1">{{
+              userItem.mobile
+            }}</a>
+          </div>
         </div>
       </div>
     </template>
@@ -46,9 +63,12 @@
 import { computed, onMounted, ref } from 'vue';
 import User from '../../models/User';
 import { DbService, USER_DATABASE } from '@/services/db.service';
+import { getUserAvatarLink } from '../../utils/urls';
+import Avatar from '@/components/Avatar.vue';
 
 export default defineComponent({
   name: 'UserDetailsTooltip',
+  components: { Avatar },
   props: {
     user: {
       type: Number,
@@ -102,6 +122,8 @@ export default defineComponent({
     return {
       asyncUser,
       userItem,
+      getUserAvatarLink,
+      Avatar,
     };
   },
 });
