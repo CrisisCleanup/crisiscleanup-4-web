@@ -52,7 +52,7 @@ export const useAxiosRetry = <T = unknown>(props: AxiosRetryProps<T>) => {
   const interceptorId = instance.interceptors.response.use(
     undefined,
     (error: AxiosError<T>) => {
-      if (!responsePredicate(error)) return error;
+      if (!responsePredicate(error)) throw error;
       debug('intercepted response: %O', error);
       // if not processing yet, invoke handler
       if (!processing.value) {

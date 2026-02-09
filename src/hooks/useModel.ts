@@ -7,8 +7,7 @@ import {
   computedEager,
 } from '@vueuse/core';
 import { type Model } from '@vuex-orm/core';
-import { readonly, ref, type Ref, shallowRef } from 'vue';
-import { logicAnd } from '@vueuse/math/index';
+import { readonly, ref, type Ref, shallowRef, computed } from 'vue';
 import createDebug from 'debug';
 import { getErrorMessage } from '@/utils/errors';
 
@@ -61,24 +60,23 @@ export const useModelInstance = <ModelT extends typeof Model>(
   );
 
   // if eager, ensure incident data exists in store.
+  const shouldFetch = computed(
+    () =>
+      !hasItem.value &&
+      !itemState.isLoading.value &&
+      itemId.value !== undefined,
+  );
+
   if (!lazy) {
-    whenever(
-      logicAnd(
-        !hasItem.value,
-        !itemState.isLoading.value,
-        itemId.value !== undefined,
-      ),
-      async () => {
-        debug(
-          'retrieving data for (model=%s, itemId=%s)',
-          model.value.entity,
-          itemId.value,
-        );
-        // error is not thrown, but exposed via `error` ref.
-        await itemState.execute();
-      },
-      { immediate: true },
-    );
+    whenever(shouldFetch, async () => {
+      debug(
+        'retrieving data for (model=%s, itemId=%s)',
+        model.value.entity,
+        itemId.value,
+      );
+      // error is not thrown, but exposed via `error` ref.
+      await itemState.execute();
+    });
   }
 
   // handle errors when fetching item.
