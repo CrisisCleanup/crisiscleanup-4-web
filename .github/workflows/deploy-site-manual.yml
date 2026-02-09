@@ -1,0 +1,133 @@
+name: Deploy Site (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Environment to deploy to'
+        required: true
+        type: environment
+      dry_run:
+        description: 'Dry run (skip actual deploy)'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy >> ${{ inputs.stage }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.stage }}
+      url: ${{ vars.VITE_APP_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build:app
+        env:
+          NODE_ENV: production
+          VITE_APP_API_BASE_URL: ${{ vars.VITE_APP_API_BASE_URL }}
+          VITE_APP_BASE_URL: ${{ vars.VITE_APP_BASE_URL }}
+          VITE_APP_WS_URL: ${{ vars.VITE_APP_WS_URL }}
+          VITE_APP_STAGE: ${{ vars.VITE_APP_STAGE }}
+          VITE_APP_AWS_CCP_URL: ${{ vars.VITE_APP_AWS_CCP_URL }}
+          VITE_APP_CCP_INSTANCE: ${{ vars.VITE_APP_CCP_INSTANCE }}
+          VITE_APP_PORTAL_KEY: ${{ vars.VITE_APP_PORTAL_KEY }}
+          VITE_APP_PHONE_DEFAULT_USERNAME: ${{ vars.VITE_APP_PHONE_DEFAULT_USERNAME }}
+          VITE_APP_PHONE_DEFAULT_PASSWORD: ${{ vars.VITE_APP_PHONE_DEFAULT_PASSWORD }}
+          VITE_APP_ENGLISH_PHONE_GATEWAY: ${{ vars.VITE_APP_ENGLISH_PHONE_GATEWAY }}
+          VITE_APP_SPANISH_PHONE_GATEWAY: ${{ vars.VITE_APP_SPANISH_PHONE_GATEWAY }}
+          VITE_APP_DEFAULT_CALLER_ID: ${{ vars.VITE_APP_DEFAULT_CALLER_ID }}
+          VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID: ${{ vars.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID }}
+          VITE_APP_WHAT_3_WORDS_API_KEY: ${{ secrets.VITE_APP_WHAT_3_WORDS_API_KEY }}
+          VITE_APP_PITNEYBOWES_BASIC_AUTH_TOKEN: ${{ secrets.VITE_APP_PITNEYBOWES_BASIC_AUTH_TOKEN }}
+          VITE_APP_PITNEYBOWES_API_KEY: ${{ secrets.VITE_APP_PITNEYBOWES_API_KEY }}
+          VITE_APP_GOOGLE_TRANSLATE_API_KEY: ${{ secrets.VITE_APP_GOOGLE_TRANSLATE_API_KEY }}
+          VITE_APP_GOOGLE_MAPS_API_KEY: ${{ secrets.VITE_APP_GOOGLE_MAPS_API_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+
+      - name: Resolve environment config
+        id: config
+        run: |
+          case "${{ inputs.stage }}" in
+            development)
+              echo "account_id=${{ secrets.AWS_ACCOUNT_ID_DEVELOPMENT }}" >> "$GITHUB_OUTPUT"
+              echo "region=us-east-1" >> "$GITHUB_OUTPUT"
+              ;;
+            staging)
+              echo "account_id=${{ secrets.AWS_ACCOUNT_ID_STAGING }}" >> "$GITHUB_OUTPUT"
+              echo "region=us-east-1" >> "$GITHUB_OUTPUT"
+              ;;
+            production)
+              echo "account_id=${{ secrets.AWS_ACCOUNT_ID_PRODUCTION }}" >> "$GITHUB_OUTPUT"
+              echo "region=us-east-1" >> "$GITHUB_OUTPUT"
+              ;;
+            production-au)
+              echo "account_id=${{ secrets.AWS_ACCOUNT_ID_PRODUCTION_AU }}" >> "$GITHUB_OUTPUT"
+              echo "region=ap-southeast-2" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Authenticate via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_PIPELINE_ACCOUNT_ID }}:role/GitHubActionRole
+          role-session-name: deploy-site-manual
+          role-duration-seconds: 1800
+          aws-region: ${{ steps.config.outputs.region }}
+
+      - name: Assume environment role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ steps.config.outputs.account_id }}:role/cdk-hnb659fds-deploy-role-${{ steps.config.outputs.account_id }}-${{ steps.config.outputs.region }}
+          role-external-id: Pipeline
+          role-session-name: deploy-site-manual
+          role-duration-seconds: 1800
+          aws-region: ${{ steps.config.outputs.region }}
+          role-chaining: true
+
+      - name: Find S3 bucket
+        id: bucket
+        run: |
+          BUCKET=$(aws s3 ls | grep -o 'crisiscleanup-web-[^ ]*' | head -1)
+          echo "name=$BUCKET" >> "$GITHUB_OUTPUT"
+          echo "Found bucket: $BUCKET"
+
+      - name: Find CloudFront distribution
+        id: cf
+        run: |
+          DIST_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Comment=='CrisisCleanup Site'].Id | [0]" \
+            --output text)
+          echo "id=$DIST_ID" >> "$GITHUB_OUTPUT"
+          echo "Found distribution: $DIST_ID"
+
+      - name: Sync to S3 (dry run)
+        if: inputs.dry_run
+        run: aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --delete --dryrun
+
+      - name: Sync to S3
+        if: ${{ !inputs.dry_run }}
+        run: aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --delete
+
+      - name: Invalidate CloudFront
+        if: ${{ !inputs.dry_run }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.cf.outputs.id }} \
+            --paths "/*"
