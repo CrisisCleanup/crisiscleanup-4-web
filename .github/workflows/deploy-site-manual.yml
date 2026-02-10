@@ -88,23 +88,9 @@ jobs:
       - name: Authenticate via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_PIPELINE_ACCOUNT_ID }}:role/GitHubActionRole
+          role-to-assume: arn:aws:iam::${{ steps.config.outputs.account_id }}:role/GitHubDeploySiteRole
           role-session-name: deploy-site-manual
           role-duration-seconds: 1800
-          role-skip-session-tagging: true
-          aws-region: ${{ steps.config.outputs.region }}
-
-      - name: Assume environment role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
-          role-to-assume: arn:aws:iam::${{ steps.config.outputs.account_id }}:role/cdk-hnb659fds-deploy-role-${{ steps.config.outputs.account_id }}-${{ steps.config.outputs.region }}
-          role-external-id: Pipeline
-          role-session-name: deploy-site-manual
-          role-duration-seconds: 1800
-          role-skip-session-tagging: true
           aws-region: ${{ steps.config.outputs.region }}
 
       - name: Find S3 bucket
