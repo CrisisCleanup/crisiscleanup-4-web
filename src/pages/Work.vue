@@ -980,7 +980,7 @@ import {
   loadCasesCached,
   loadUserLocations,
 } from '../utils/worksite';
-import { getUserLocationLayer } from '../utils/map';
+import { destroyLeafletMap, getUserLocationLayer } from '../utils/map';
 import WorksiteActions from '../components/work/WorksiteActions.vue';
 import { forceFileDownload } from '../utils/downloads';
 import { getErrorMessage } from '../utils/errors';
@@ -2041,12 +2041,25 @@ export default defineComponent({
           isEditing.value = false;
           isViewing.value = false;
           router.push(`/incident/${currentIncidentId.value}/work`);
-          init();
+          init({ force: true });
         }
       },
     );
 
-    async function init() {
+    let isInitializingMap = false;
+
+    async function init({ force = false }: { force?: boolean } = {}) {
+      // Skip re-entrant calls (onLoadMarkers → loadStatesForUser → showMap
+      // → nextTick(init)) and redundant calls once the map exists.
+      if (isInitializingMap) return;
+      if (mapUtils && !force) return;
+      isInitializingMap = true;
+
+      if (mapUtils) {
+        destroyLeafletMap(mapUtils.getMap());
+        mapUtils = null;
+      }
+
       const [allWorksites, markers] = await Promise.all([
         getAllWorksites(),
         getWorksites(),
@@ -2110,6 +2123,8 @@ export default defineComponent({
         );
       } catch (error) {
         console.error('Error setting mapUtils', error);
+      } finally {
+        isInitializingMap = false;
       }
 
       nextTick(() => {
@@ -2188,6 +2203,14 @@ export default defineComponent({
       await init();
       jumpToCase();
     });
+
+    onBeforeUnmount(() => {
+      if (mapUtils) {
+        destroyLeafletMap(mapUtils.getMap());
+        mapUtils = null;
+      }
+    });
+
     function focusNewsTab() {
       emitter.emit('phone_component:close');
       // open the active call PhoneComponentButton

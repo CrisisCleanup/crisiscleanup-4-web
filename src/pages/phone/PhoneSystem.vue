@@ -554,7 +554,7 @@ import {
   BUTTON_VARIANTS as VARIANTS,
   INTERACTIVE_ZOOM_LEVEL,
 } from '@/constants';
-import { averageGeolocation } from '@/utils/map';
+import { averageGeolocation, destroyLeafletMap } from '@/utils/map';
 import type { MapUtils } from '@/hooks/worksite/useLiveMap';
 import { useCurrentUser } from '@/hooks';
 import PhoneOverlay from '@/components/phone/PhoneOverlay.vue';
@@ -1333,6 +1333,12 @@ export default defineComponent({
       const [group] = chatGroups.value;
       selectedChat.value = group;
       const markers = await getWorksites();
+      // Tear down any prior map bound to this container so re-init
+      // doesn't throw "Map container is already initialized."
+      if (mapUtils.value) {
+        destroyLeafletMap(mapUtils.value.getMap());
+        mapUtils.value = undefined;
+      }
       mapUtils.value = useWorksiteMap(
         markers,
         markers.map((m) => m.id),
@@ -1434,6 +1440,13 @@ export default defineComponent({
           onLoggedIn();
         }
       }, 20_000);
+    });
+
+    onBeforeUnmount(() => {
+      if (mapUtils.value) {
+        destroyLeafletMap(mapUtils.value.getMap());
+        mapUtils.value = undefined;
+      }
     });
 
     return {
