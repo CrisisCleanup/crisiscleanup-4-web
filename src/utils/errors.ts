@@ -6,11 +6,23 @@ import createDebug from 'debug';
 
 const debug = createDebug('@ccu:utils:errors');
 
+const EXPECTED_AXIOS_STATUSES = new Set([400, 403, 404, 409, 422]);
+
+export function shouldReportToSentry(error: any): boolean {
+  if (error instanceof AxiosError) {
+    if (error.code === 'ERR_CANCELED') return false;
+    const status = error.response?.status;
+    if (status && EXPECTED_AXIOS_STATUSES.has(status)) return false;
+  }
+  return true;
+}
+
 export function getErrorMessage(error: any): string {
   debug('getErrorMessage %o', error);
 
-  // Capture all errors with Sentry
-  Sentry.captureException(error);
+  if (shouldReportToSentry(error)) {
+    Sentry.captureException(error);
+  }
   const t = i18n.global.t;
   // Handle Axios errors
   if (error instanceof AxiosError) {

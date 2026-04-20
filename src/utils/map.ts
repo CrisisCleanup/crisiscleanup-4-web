@@ -36,6 +36,31 @@ export const googleMapsLayer =
 export const mapAttribution =
   '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
 
+/**
+ * Clear any existing Leaflet binding on the given container so L.map()
+ * won't throw "Map container is already initialized." when a component
+ * remounts onto the same DOM node.
+ */
+export function resetLeafletContainer(
+  container: HTMLElement | string | null | undefined,
+): void {
+  const el =
+    typeof container === 'string' ? L.DomUtil.get(container) : container;
+  if (el && (el as any)._leaflet_id) {
+    (el as any)._leaflet_id = null;
+  }
+}
+
+/** Safely tear down a Leaflet map instance. */
+export function destroyLeafletMap(map: L.Map | null | undefined): void {
+  if (!map) return;
+  try {
+    map.remove();
+  } catch (error) {
+    console.warn('destroyLeafletMap: ignore', error);
+  }
+}
+
 export const getGoogleMapsLocation = (url: string) => {
   const regex = new RegExp('@(.*),(.*),');
   const match = regex.exec(url) || [0, 0];

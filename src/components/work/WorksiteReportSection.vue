@@ -171,8 +171,9 @@ export default defineComponent({
     const timeEnteredByOtherOrganizations = computed(() => {
       let time = [];
       if (props.worksite) {
-        time = props.worksite.time.filter(
-          (type) => type.created_by_org !== currentUser.value.organization.id,
+        const orgId = currentUser.value?.organization?.id;
+        time = (props.worksite.time ?? []).filter(
+          (type) => type.created_by_org !== orgId,
         );
       }
 

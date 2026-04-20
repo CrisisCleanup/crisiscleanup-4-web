@@ -12,7 +12,12 @@
 import * as L from 'leaflet';
 import type { PropType } from 'vue';
 import { colors, templates } from '@/icons/icons_templates';
-import { mapAttribution, mapTileLayer } from '@/utils/map';
+import {
+  destroyLeafletMap,
+  mapAttribution,
+  mapTileLayer,
+  resetLeafletContainer,
+} from '@/utils/map';
 import { SVG_STROKE_WIDTH } from '@/constants';
 
 export default defineComponent({
@@ -49,6 +54,7 @@ export default defineComponent({
     };
 
     const renderMap = async (markers: Record<string, any>[]) => {
+      resetLeafletContainer('map');
       map.value = L.map('map', {
         zoomControl: false,
       }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 10);
@@ -63,13 +69,21 @@ export default defineComponent({
       }).addTo(map.value);
 
       for (const wt of markers) {
-        const { coordinates } = wt.location;
+        const coordinates = wt.location?.coordinates;
+        if (
+          !coordinates ||
+          coordinates[0] == undefined ||
+          coordinates[1] == undefined
+        ) {
+          continue;
+        }
         const latLng = L.latLng(coordinates[1], coordinates[0]);
 
         const colorsKey = `${wt.status}_${
           wt.claimed_by ? 'claimed' : 'unclaimed'
         }`;
         const spriteColors = colors[colorsKey];
+        if (!spriteColors) continue;
         const template = templates[wt.work_type] || templates.unknown;
         const typeSvg = template
           .replaceAll('{{fillColor}}', spriteColors.fillColor)
@@ -106,6 +120,12 @@ export default defineComponent({
         map.value.fitBounds(props.polygon.getBounds());
       }
     });
+
+    onBeforeUnmount(() => {
+      destroyLeafletMap(map.value);
+      map.value = null;
+    });
+
     return {
       markers,
       templates,

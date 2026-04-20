@@ -34,8 +34,14 @@
       class="text-primary-dark hover:text-primary-light transition duration-300 ease-in-out text-lg mb-2 text-base"
       >{{ $t('actions.view_profile') }}</a
     >
-    <div class="border-t py-4 w-full bg-crisiscleanup-light-smoke text-center">
-      <div class="w-full flex items-center justify-center mb-2">
+    <div
+      v-if="organization"
+      class="border-t py-4 w-full bg-crisiscleanup-light-smoke text-center"
+    >
+      <div
+        v-if="organization.logo_url"
+        class="w-full flex items-center justify-center mb-2"
+      >
         <img
           :src="organization.logo_url"
           :alt="organization.name"

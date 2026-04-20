@@ -209,7 +209,10 @@ onMounted(async () => {
             </div>
 
             <!-- Data Rows -->
-            <template v-for="team in teams" :key="team.id">
+            <template
+              v-for="team in (teams || []).filter(Boolean)"
+              :key="team.id"
+            >
               <div class="col-span-3 grid gap-1 grid-cols-3">
                 <div class="flex items-center">
                   <div
@@ -218,8 +221,8 @@ onMounted(async () => {
                   ></div>
                   {{ team.name }}
                 </div>
-                <span>{{ team.users.length }}</span>
-                <span>{{ team.assigned_work_types.length }}</span>
+                <span>{{ team.users?.length ?? 0 }}</span>
+                <span>{{ team.assigned_work_types?.length ?? 0 }}</span>
               </div>
             </template>
           </div>

@@ -57,7 +57,23 @@ import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
-import { getAndToastWarningMessage } from '@/utils/errors';
+import {
+  getAndToastWarningMessage,
+  shouldReportToSentry,
+} from '@/utils/errors';
+
+const CHUNK_LOAD_ERROR_PATTERN =
+  /preloaderror|failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|unable to preload css/i;
+
+const CHUNK_RELOAD_KEY = 'ccu:chunk-reload';
+
+function reloadForStaleChunk() {
+  if (sessionStorage.getItem(CHUNK_RELOAD_KEY) === '1') return;
+  sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
+  window.location.reload();
+}
+
+window.addEventListener('vite:preloadError', reloadForStaleChunk);
 
 library.add(fas);
 library.add(far);
@@ -70,7 +86,9 @@ axios.interceptors.response.use(
   (error) => {
     if (
       error instanceof AxiosError &&
-      [400, 408, 409, 422, 502].includes(error.response?.status as number)
+      [400, 403, 404, 408, 409, 422, 502].includes(
+        error.response?.status as number,
+      )
     ) {
       getAndToastWarningMessage(error);
     }
@@ -136,6 +154,16 @@ const initSentry = (vueApp: VueApp) =>
       Sentry.browserTracingIntegration({ router }),
       Sentry.replayIntegration(),
     ],
+    beforeSend(event, hint) {
+      const original = hint?.originalException as any;
+      if (original && !shouldReportToSentry(original)) return null;
+      const message =
+        (typeof original?.message === 'string' && original.message) ||
+        event.exception?.values?.[0]?.value ||
+        '';
+      if (message && CHUNK_LOAD_ERROR_PATTERN.test(message)) return null;
+      return event;
+    },
   });
 
 const entrypoint =

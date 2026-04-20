@@ -876,7 +876,7 @@ export default defineComponent({
         }
       }
 
-      dynamicFields.value = worksite.value.form_data.reduce(function (
+      dynamicFields.value = (worksite.value.form_data ?? []).reduce(function (
         map,
         object,
       ) {

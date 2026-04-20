@@ -44,8 +44,18 @@ export default {
       authorizationCode,
       async (code) => {
         console.log('watch code:', code);
-        if (code) {
+        if (!code) return;
+        try {
           await authStore.exchange(code);
+        } catch (error) {
+          const message = error?.message ?? '';
+          if (typeof message === 'string' && message.includes('verifier')) {
+            // User opened the callback in a different browser/session than
+            // the one that started the OAuth flow. Send them back to login.
+            router.push({ name: 'nav.login' });
+            return;
+          }
+          throw error;
         }
       },
       { immediate: true, flush: 'sync' },

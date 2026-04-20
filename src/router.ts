@@ -207,4 +207,15 @@ const router = createRouter({
   routes,
 });
 
+const CHUNK_LOAD_ROUTER_ERROR =
+  /failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|chunkloaderror/i;
+
+router.onError((error) => {
+  const message = (error as Error)?.message ?? '';
+  if (!CHUNK_LOAD_ROUTER_ERROR.test(message)) return;
+  if (sessionStorage.getItem('ccu:chunk-reload') === '1') return;
+  sessionStorage.setItem('ccu:chunk-reload', '1');
+  window.location.reload();
+});
+
 export default router;

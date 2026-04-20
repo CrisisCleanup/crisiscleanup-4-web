@@ -943,6 +943,11 @@ export default {
       () => mapUtils.value?.displayedWorkTypeSvgs || [],
     );
 
+    onBeforeUnmount(() => {
+      mapUtils.value?.destroy?.();
+      mapUtils.value = null;
+    });
+
     return {
       isLegendHidden,
       colorMode,

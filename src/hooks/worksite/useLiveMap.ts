@@ -13,6 +13,7 @@ import { orderBy } from 'lodash';
 import type { Ref } from 'vue';
 import {
   degreesToRadians,
+  destroyLeafletMap,
   findBezierPoints,
   getLiveLayer,
   getMarkerLayer,
@@ -20,6 +21,7 @@ import {
   mapTileLayer,
   mapTileLayerDark,
   randomIntFromInterval,
+  resetLeafletContainer,
 } from '../../utils/map';
 import Location from '../../models/Location';
 import { i18n } from '@/modules/i18n';
@@ -53,6 +55,7 @@ export interface MapUtils {
   refreshTimeline: (index: number) => void;
   refreshSvi: (index: number) => void;
   displayedWorkTypeSvgs: Ref<Array<Record<string, any>>>;
+  destroy: () => void;
 }
 
 export default (
@@ -87,6 +90,7 @@ export default (
     .replaceAll('{{strokeColor}}', 'black');
   const orbTexture = Texture.from(svg);
 
+  resetLeafletContainer('map');
   const map = L.map('map', {
     zoomControl: false,
   }).fitBounds([
@@ -287,13 +291,14 @@ export default (
         const markerTemplate = templates.circle;
         let actorMarkerSprite = null;
         let patientMarkerSprite = null;
-        if (marker.actor_blurred_location) {
+        if (marker.actor_blurred_location?.coordinates) {
           const actorCoords = (
             layer as L.Layer & PixiLayer
-          ).utils.latLngToLayerPoint([
+          )?.utils?.latLngToLayerPoint?.([
             marker.actor_blurred_location.coordinates[1],
             marker.actor_blurred_location.coordinates[0],
           ]);
+          if (!actorCoords) return;
 
           // const isOrg = (element) =>
           //   element.name === marker.attr.actor_organization_name;
@@ -324,18 +329,20 @@ export default (
         }
 
         if (
-          layer & marker.recipient_blurred_location ||
+          (layer && marker.recipient_blurred_location) ||
           marker.patient_blurred_location
         ) {
           const location = marker[`${marker.map_destination}_blurred_location`];
+          if (!location?.coordinates) return;
           const patientCoords = (
             layer as L.Layer & PixiLayer
-          ).utils.latLngToLayerPoint([
+          )?.utils?.latLngToLayerPoint?.([
             location.coordinates[1],
             location.coordinates[0],
           ]);
+          if (!patientCoords) return;
 
-          const wwtsp = marker.attr[`${marker.map_destination}_wwtsp`];
+          const wwtsp = marker.attr?.[`${marker.map_destination}_wwtsp`];
           let color = '#61D5F8';
           let strokeColor = '#61D5F8';
           let workTypeKey = null;
@@ -356,19 +363,23 @@ export default (
             card.color = color;
             card.strokeColor = strokeColor;
           } else if (
-            marker.attr.recipient_status ||
-            marker.attr.patient_status
+            marker.attr?.recipient_status ||
+            marker.attr?.patient_status
           ) {
-            const statusProp = marker.attr[`${marker.map_destination}_status`];
-            const claimed = marker.attr[`${marker.map_destination}_claimed_by`]
+            const statusProp =
+              marker.attr?.[`${marker.map_destination}_status`];
+            const claimed = marker.attr?.[
+              `${marker.map_destination}_claimed_by`
+            ]
               ? 'claimed'
               : 'unclaimed';
             const colorsKey = `${statusProp}_${claimed}`;
             const spriteColors = colors[colorsKey];
+            if (!spriteColors) return;
             color = spriteColors.fillColor;
             strokeColor = spriteColors.strokeColor;
             workTypeKey =
-              marker.attr[`${marker.map_destination}_work_type_key`];
+              marker.attr?.[`${marker.map_destination}_work_type_key`];
             displayedWorkTypes.push(workTypeKey);
             card.strokeColor = strokeColor;
           }
@@ -667,6 +678,8 @@ export default (
   const jumpToCase = async (worksite: Worksite, showPopup = true) => {
     const container = getPixiContainer();
     if (map && worksite && container) {
+      if (worksite.latitude == undefined || worksite.longitude == undefined)
+        return;
       container.visible = false;
       map.setView([worksite.latitude, worksite.longitude], 18);
       if (showPopup) {
@@ -814,6 +827,14 @@ export default (
   setupMap(markers);
   setLegend([...displayedWorkTypes]);
 
+  const destroy = () => {
+    if (eventsInterval.value) {
+      clearInterval(eventsInterval.value);
+      eventsInterval.value = null;
+    }
+    destroyLeafletMap(map);
+  };
+
   const mapUtils: MapUtils = {
     getMap,
     getPixiContainer,
@@ -833,6 +854,7 @@ export default (
     refreshSvi,
     refreshVisibility,
     displayedWorkTypeSvgs,
+    destroy,
   };
   return mapUtils;
 };

@@ -1,12 +1,16 @@
 <template>
-  <div id="map" ref="map" />
+  <div ref="mapContainer" class="h-full w-full" />
 </template>
 
 <script lang="ts">
 import * as L from 'leaflet';
 import { nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { mapTileLayer } from '@/utils/map';
+import {
+  destroyLeafletMap,
+  mapTileLayer,
+  resetLeafletContainer,
+} from '@/utils/map';
 import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
 import type { LeafletEvent } from 'leaflet';
@@ -34,6 +38,7 @@ export default defineComponent({
   emits: ['updatedLocation'],
   setup(props, { emit }) {
     const map = ref<L.Map | null>(null);
+    const mapContainer = ref<HTMLElement | null>(null);
     const markerLayer = ref(L.layerGroup());
     const { t } = useI18n();
 
@@ -53,6 +58,13 @@ export default defineComponent({
       });
 
       const markerLocation = props.location;
+      if (
+        !markerLocation?.coordinates ||
+        markerLocation.coordinates[0] == undefined ||
+        markerLocation.coordinates[1] == undefined
+      ) {
+        return;
+      }
 
       markerLayer.value.clearLayers();
       const marker = new (L.marker as any)(
@@ -79,7 +91,10 @@ export default defineComponent({
 
     onMounted(() => {
       nextTick(async () => {
-        map.value = L.map('map', {
+        if (!mapContainer.value) return;
+        resetLeafletContainer(mapContainer.value);
+        // eslint-disable-next-line unicorn/no-array-method-this-argument
+        map.value = L.map(mapContainer.value, {
           zoomControl: false,
         }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 3);
         if (props.useGoogleMaps) {
@@ -95,8 +110,14 @@ export default defineComponent({
       });
     });
 
+    onBeforeUnmount(() => {
+      destroyLeafletMap(map.value);
+      map.value = null;
+    });
+
     return {
       map,
+      mapContainer,
       markerLayer,
       createTileLayer,
       addMarkerToMap,
