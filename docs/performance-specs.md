@@ -21,6 +21,7 @@ Priorities: P0 = ship first (correctness or highest user-visible impact); P1 = s
 
 | ID | Title | Priority | Status | Owner | PR / Notes |
 |----|-------|----------|--------|-------|------------|
+| [PERF-018](#perf-018--initial-route-critical-path-slimming) | Initial route critical-path slimming | P0 | in-review | — | Post-fix (2026-04-20): `dist/index.html` references only `index` + `vendor-vue` (+ their CSS) ≈ **596 KB gzip** (was 2.14 MB). Removed Google Maps, Zendesk, Font Awesome CDN from `index.html` (moved to idle-callback loaders in `src/utils/{scriptLoader,googleMaps,zendesk}.ts`); fonts switched to `media="print" onload` non-blocking pattern. De-globalized `Datepicker`, `VueTagsInput`, `FormTree` via `defineAsyncComponent`; dropped unused `vSelect` registration; localized `VueApexCharts` + `JsonViewer` into their sole consumers. Extracted `IncidentAniAsset`/`GroupedAssets` types to `src/types/incident-assets.ts` so public disaster pages no longer pull the admin SFC. Deleted the dead `import downloads from '@/pages/Downloads.vue'` from `IncidentAssetBuilder.vue`. Moved `RRule` out of `src/filters/index.ts` (now `src/utils/rrule.ts`) so rrule isn't on every consumer's critical path. Deduped `setupLanguage()` to App.vue only (removed from Unauthenticated.vue layout). Split Authenticated preload into immediate (Incident/Organization/Language) + idle-callback (Report/Role/PhoneStatus/geolocation). Replaced over-aggressive `group-downloads` + per-domain vendor manualChunks with one `vendor-vue` core chunk — heavy libs (pdf/leaflet/d3/schedule-x/quill) now stay with their lazy route consumers and are no longer statically reachable from the entry chunk. AC1 ✓ (none of vendor-pdf/charts/calendar/group-downloads referenced in `dist/index.html`). AC2 ⚠ 596 KB vs 450 KB budget — remaining gap is ~310 KB entry chunk (src shell) + ~267 KB vendor-vue (vue/i18n/vuex/lodash/dayjs/axios/floating-vue/toastification). AC4 ✓ (Unauthenticated routes no longer double-fire `setupLanguage`). AC3/AC5 still pending manual smoke. |
 | [PERF-001](#perf-001--websocket-reconnect-cleanup--exponential-backoff) | WebSocket reconnect cleanup + backoff | P0 | in-review | — | Rewrote hook with scope-dispose, backoff + jitter, explicit `close()`, non-recoverable close codes skipped. New tests: `test/unit/hooks/useWebSockets.test.ts`. |
 | [PERF-002](#perf-002--usesitestatistics-interval-leak) | `useSiteStatistics` interval leak | P0 | in-review | — | Added `onScopeDispose` clearing `statsInterval`. |
 | [PERF-003](#perf-003--workvue-query-watch--drop-jsonstringify) | `Work.vue` query watch — drop `JSON.stringify` | P0 | in-review | — | Replaced in-callback double-`JSON.stringify` with a cached `worksiteQuerySignature` computed; `watch` now fires on string `===` change, one stringify per dependency tick. |
@@ -490,6 +491,84 @@ Ship Tier A first; Tier B is a follow-up spec.
 
 ---
 
+## PERF-018 — Initial route critical-path slimming
+
+**Priority:** P0 (first paint / route-entry latency)
+
+**Problem.** On 2026-04-20, the production build's `dist/index.html` referenced these assets before route-specific interaction:
+
+- `index-LvNav48C.js` — 247,692 B gzip
+- `vendor-vue-5HYjTu1u.js` — 118,206 B gzip
+- `index-egyvgTuk.css` — 22,703 B gzip
+- `vendor-calendar-Df-SooPM.js` + CSS — 65,849 B gzip
+- `vendor-pdf-CoXSYU0c.js` — 969,791 B gzip
+- `group-downloads-CgksljQJ.js` + CSS — 536,696 B gzip
+- `vendor-charts-BnwwLt25.js` — 183,384 B gzip
+
+That is roughly **2.14 MB gzip** on the HTML critical path before the user has even hit a calendar, PDF, download, or chart surface. Separately, `index.html` hard-loads Google Maps, Zendesk, Google Fonts, New Relic's inline bootstrap, and Font Awesome CDN CSS on every route. `src/main.ts` globally imports and registers optional UI libraries (`@vuepic/vue-datepicker`, `vue-select`, `floating-vue`, `vue-json-viewer`, `vue3-apexcharts`, tags input), which keeps them in the base entry. Public disaster pages also import types from `IncidentAssetBuilder.vue`, and that SFC statically imports `Downloads.vue`, creating an accidental path from public pages into the downloads/PDF chunk family. Startup locale setup is duplicated across `App.vue`, `Authenticated.vue`, and `Unauthenticated.vue`.
+
+**Goals.** Public and login routes should download only the app shell, the active route, and the smallest shared vendor set needed to render that route. Optional integrations and admin/download code should move behind on-demand boundaries.
+
+**Non-goals.** Replacing Google Maps, Zendesk, Font Awesome, or the current i18n/auth architecture outright.
+
+**Requirements.**
+- R1. `dist/index.html` must not directly reference `vendor-pdf`, `group-downloads`, `vendor-charts`, or `vendor-calendar` unless the entry route truly requires them.
+- R2. Google Maps and Zendesk are loaded on demand from the first consumer, not hard-coded in `index.html`.
+- R3. Optional UI packages currently imported in `src/main.ts` are localized to the components/routes that actually use them, or wrapped in async components/plugins.
+- R4. Shared incident-asset interfaces move out of `IncidentAssetBuilder.vue` into a plain `.ts` module so public routes no longer pull admin/download code through type imports.
+- R5. Locale bootstrap runs once per cold start; unauthenticated entry routes do not trigger the authenticated startup fan-out.
+- R6. Existing charts, tooltips, selects, datepickers, PDFs, Maps, and Zendesk behavior still work when the user reaches those surfaces.
+
+**Acceptance criteria.**
+- AC1. `pnpm build` output shows `dist/index.html` no longer referencing `vendor-pdf`, `group-downloads`, `vendor-charts`, or `vendor-calendar`.
+- AC2. Total gzip size of assets directly referenced by `dist/index.html` is **≤ 450 KB**.
+- AC3. On cold-load of `/login` or `/disasters`, the Network tab shows no requests for Google Maps, Zendesk, PDF libs, chart libs, or downloads chunks before user interaction.
+- AC4. Cold-load bootstrap triggers at most one `/languages` request and one active-locale message fetch.
+- AC5. Manual smoke on `/dashboard`, `/disasters`, `/admin`, `/incident/:id/calendar`, `/downloads`, and a map/search surface shows no missing widgets or broken lazy integrations.
+
+**Design.** Ship in three passes under one PR or as tightly-scoped commits:
+
+- **Pass A — HTML critical path**
+  - Remove static Google Maps, Zendesk, and Font Awesome CDN includes from `index.html`.
+  - Introduce small script-loader utilities or consumer-owned lazy loaders.
+  - Keep Google Fonts/New Relic only if they can remain non-blocking; otherwise gate or defer them as a follow-up inside the same spec.
+
+- **Pass B — Base entry de-globalization**
+  - In `src/main.ts`, stop globally registering optional libraries that are not needed on the first route.
+  - Prefer local component imports or async wrappers for `Datepicker`, `VSelect`, `JsonViewer`, `VueApexCharts`, tag input, and `floating-vue` consumers.
+  - Verify that the base entry no longer retains chart/calendar/PDF/download code via those global imports.
+
+- **Pass C — Import-graph and bootstrap cleanup**
+  - Extract `GroupedAssets` / `IncidentAniAsset` into a lightweight shared module, e.g. `src/types/incident-assets.ts`.
+  - Update `src/utils/incident_assets.ts`, public disaster pages, and admin incident asset code to import types from the new module.
+  - Remove the static `Downloads.vue` dependency path from public pages.
+  - Dedupe `setupLanguage()` so only one cold-start path performs locale negotiation/fetching.
+  - Move authenticated-only preload fan-out (`reports`, `roles`, `phone_statuses`, geolocation, etc.) behind route need or post-render background work.
+
+**Files.**
+- `index.html`
+- `src/main.ts`
+- `src/App.vue`
+- `src/layouts/Authenticated.vue`
+- `src/layouts/Unauthenticated.vue`
+- `src/hooks/useSetupLanguage.ts`
+- `src/components/admin/incidents/IncidentAssetBuilder.vue`
+- `src/utils/incident_assets.ts`
+- `src/pages/unauthenticated/disasters/Disasters.vue`
+- `src/pages/unauthenticated/disasters/DisasterDetail.vue`
+- New lightweight shared type/module and any lazy-loader utilities needed
+
+**Verification.**
+- `pnpm build`
+- Inspect `dist/index.html` and emitted asset sizes; compare against the 2026-04-20 baseline above
+- Bundle analyzer / emitted chunk diff proving the heavy vendor chunks are no longer on the critical path
+- Browser Network-tab traces for `/login` and `/disasters`
+- Manual smoke on calendar, chart, PDF, download, map, and Zendesk surfaces
+
+**Dependencies.** Builds on PERF-006: vendor chunk splitting already exposed the heavy libraries; this spec removes their accidental reachability from the initial route.
+
+---
+
 ## Cross-cutting verification
 
 After any spec ships:
@@ -498,7 +577,7 @@ After any spec ships:
 - `pnpm run test`
 - `pnpm run test:e2e:primary`
 - Manual smoke on `/dashboard`, `/incident/:id/work`, `/phone`, `/organization/users`.
-- For bundle-affecting specs (004, 005, 006, 012, 013, 014, 015, 016): attach `rollup-plugin-visualizer` output to the PR; compare initial chunk + total transfer with `master`.
+- For bundle-affecting specs (004, 005, 006, 012, 013, 014, 015, 016, 018): attach `rollup-plugin-visualizer` output to the PR; compare initial chunk + total transfer with `master`.
 - For leak/perf-affecting specs (001, 002, 003, 007, 010, 011, 017): capture a DevTools Performance or Memory trace showing the improvement.
 
 ## Suggested build-budget guardrails (future)

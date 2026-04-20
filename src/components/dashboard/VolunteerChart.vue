@@ -1,11 +1,11 @@
 <template>
   <div v-if="chartData.length > 0" class="flex flex-col items-center w-full">
     <div class="h-84 w-108">
-      <apexchart
+      <ApexChart
         type="line"
         :options="chartOptions"
         :series="series"
-      ></apexchart>
+      ></ApexChart>
     </div>
     <div
       class="flex items-center mt-4 flex-grow gap-2 w-full h-full p-1 text-center"
@@ -48,7 +48,11 @@
 
 <script setup>
 import { defineProps, ref, onMounted, computed } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
+
+const ApexChart = defineAsyncComponent(async () => {
+  const mod = await import('vue3-apexcharts');
+  return mod.default;
+});
 
 const props = defineProps({
   data: Array,

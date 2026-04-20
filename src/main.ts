@@ -1,12 +1,9 @@
 import { version } from '@/../package.json';
-import { createApp, type App as VueApp } from 'vue';
+import { createApp, defineAsyncComponent, type App as VueApp } from 'vue';
 import './style.css';
 import axios, { AxiosError } from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import VueTagsInput from '@sipec/vue3-tags-input';
-
-import Datepicker from '@vuepic/vue-datepicker';
 import * as Sentry from '@sentry/vue';
 import {
   faArrowLeft,
@@ -96,7 +93,6 @@ import Toast, {
 } from 'vue-toastification';
 import { i18n } from '@/modules/i18n';
 
-import vSelect from 'vue-select';
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';
 import router from './router';
@@ -107,7 +103,6 @@ import Badge from './components/Badge.vue';
 import Tag from './components/Tag.vue';
 import Modal from './components/Modal.vue';
 import Authenticated from './layouts/Authenticated.vue';
-import VueApexCharts from 'vue3-apexcharts';
 
 // Icons
 
@@ -116,7 +111,6 @@ import { store } from './store';
 
 // Toast
 import 'vue-toastification/dist/index.css';
-import 'vue-select/dist/vue-select.css';
 
 // Responsive
 import { Vue3Mq } from 'vue3-mq';
@@ -125,12 +119,9 @@ import { Vue3Mq } from 'vue3-mq';
 import { Dropdown, VTooltip, Menu } from 'floating-vue';
 import 'floating-vue/dist/style.css';
 
-// JSON
-import JsonViewer from 'vue-json-viewer';
 import BaseSelect from './components/BaseSelect.vue';
 import Spinner from './components/Spinner.vue';
 import BaseCheckbox from './components/BaseCheckbox.vue';
-import FormTree from './components/form/FormTree.vue';
 import Tab from './components/tabs/Tab.vue';
 import Tabs from './components/tabs/Tabs.vue';
 import BaseRadio from './components/BaseRadio.vue';
@@ -141,6 +132,21 @@ import {
   getAndToastWarningMessage,
   shouldReportToSentry,
 } from '@/utils/errors';
+
+const Datepicker = defineAsyncComponent(async () => {
+  await import('@vuepic/vue-datepicker/dist/main.css');
+  const mod = await import('@vuepic/vue-datepicker');
+  return mod.default;
+});
+
+const VueTagsInput = defineAsyncComponent(async () => {
+  const mod = await import('@sipec/vue3-tags-input');
+  return mod.default;
+});
+
+const FormTree = defineAsyncComponent(
+  () => import('./components/form/FormTree.vue'),
+);
 
 const CHUNK_LOAD_ERROR_PATTERN =
   /preloaderror|failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|unable to preload css/i;
@@ -263,7 +269,6 @@ const buildApp = (app: VueApp) =>
     .component('Badge', Badge)
     .component('Tag', Tag)
     .component('TagInput', VueTagsInput)
-    .component('VSelect', vSelect)
     .component('AuthenticatedLayout', Authenticated)
     .component('UnauthenticatedLayout', Unauthenticated)
     .component('BaseSelect', BaseSelect)
@@ -282,14 +287,12 @@ const buildApp = (app: VueApp) =>
     // provide axios globally
     .provide('axios', axios)
     .use(Vue3Mq)
-    .use(VueApexCharts)
     .use(router)
     .use(i18n)
     .use(Toast, {
       timeout: 10_000,
       shareAppContext: true,
-    } as VueToastificationPluginOptions)
-    .use(JsonViewer);
+    } as VueToastificationPluginOptions);
 
 const initSentry = (vueApp: VueApp) =>
   Sentry.init({

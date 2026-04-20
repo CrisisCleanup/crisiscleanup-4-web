@@ -1,7 +1,4 @@
-import type {
-  GroupedAssets,
-  IncidentAniAsset,
-} from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import type { GroupedAssets, IncidentAniAsset } from '@/types/incident-assets';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 

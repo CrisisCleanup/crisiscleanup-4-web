@@ -19,6 +19,7 @@ import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
 import { store } from '@/store';
 import { getErrorMessage } from '@/utils/errors';
+import { loadGoogleMaps } from '@/utils/googleMaps';
 import type { Portal } from '@/models/types';
 
 // Add type declarations for Google Maps mutant
@@ -95,6 +96,10 @@ export default (
   ) => {};
 
   let currentTileLayer: L.Layer | null = null;
+
+  // Kick off Google Maps load so GoogleMutant tile layers have the API
+  // ready when their onAdd fires.
+  void loadGoogleMaps().catch(() => {});
 
   const map = new L.Map(mapId, {
     zoomControl: false,

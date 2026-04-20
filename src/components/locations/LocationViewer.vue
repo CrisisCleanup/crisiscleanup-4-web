@@ -13,6 +13,7 @@ import {
 } from '@/utils/map';
 import '@/external/Leaflet.GoogleMutant/index';
 import { templates } from '@/icons/icons_templates';
+import { loadGoogleMaps } from '@/utils/googleMaps';
 import type { LeafletEvent } from 'leaflet';
 
 export default defineComponent({
@@ -98,6 +99,7 @@ export default defineComponent({
           zoomControl: false,
         }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 3);
         if (props.useGoogleMaps) {
+          void loadGoogleMaps().catch(() => {});
           L.gridLayer
             .googleMutant({ type: 'roadmap' })
             .addTo(map.value as L.Map);

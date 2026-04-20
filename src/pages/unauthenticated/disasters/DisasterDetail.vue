@@ -14,10 +14,7 @@ import ReportWidget from '@/components/reports/ReportWidget.vue';
 import BlogPosts from '@/components/blog/BlogPosts.vue';
 import PdfViewer from '@/components/PdfViewer.vue';
 import { forceFileDownload } from '@/utils/downloads';
-import type {
-  GroupedAssets,
-  IncidentAniAsset,
-} from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import type { GroupedAssets, IncidentAniAsset } from '@/types/incident-assets';
 import { formatHotlineClosingDate, getAniClosingDate } from '@/utils/helpers';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import { getErrorMessage } from '@/utils/errors';

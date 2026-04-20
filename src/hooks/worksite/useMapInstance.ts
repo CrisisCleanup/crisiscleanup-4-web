@@ -5,6 +5,7 @@ import {
   mapTileLayerDark,
 } from '../../utils/map';
 import { store } from '@/store';
+import { loadGoogleMaps } from '@/utils/googleMaps';
 import type { Portal } from '@/models/types';
 import '@/external/Leaflet.GoogleMutant/index';
 
@@ -38,6 +39,10 @@ export default function useMapInstance(
   mapBounds: any = null,
 ): MapInstanceUtils {
   const portal = store.getters['enums/portal'] as Portal;
+
+  // Kick off Google Maps load so GoogleMutant tile layers have the API
+  // ready when their onAdd fires.
+  void loadGoogleMaps().catch(() => {});
 
   // Create map instance
   const map = new L.Map(mapId, {

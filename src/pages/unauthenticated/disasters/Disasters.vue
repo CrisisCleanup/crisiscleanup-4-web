@@ -143,7 +143,7 @@ import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import type { Ani } from '@/models/types';
 import Spinner from '@/components/Spinner.vue';
-import type { GroupedAssets } from '@/components/admin/incidents/IncidentAssetBuilder.vue';
+import type { GroupedAssets } from '@/types/incident-assets';
 import { hash } from '@/utils/promise';
 import { getAssets } from '@/utils/incident_assets';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';

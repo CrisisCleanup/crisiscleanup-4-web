@@ -186,6 +186,7 @@ import createDebug from 'debug';
 import type { Portal } from '@/models/types';
 import { VERSION_3_LAUNCH_DATE } from '@/constants';
 import { useAuthenticatedRoutes } from '@/hooks/useAuthenticatedRoutes';
+import { runWhenIdle } from '@/utils/scriptLoader';
 import axios from 'axios';
 
 const debug = createDebug('@ccu:layouts:Authed');
@@ -462,8 +463,8 @@ export default defineComponent({
       }
     });
 
-    // TODO: Move these network calls to where they belong
-    async function loadPageData() {
+    // Critical for first render: incident list, current org, language catalog.
+    async function loadCriticalPageData() {
       await Promise.allSettled([
         Incident.api().get(
           `/incidents?fields=${incidentFieldsStr.value}&limit=250&sort=-start_at`,
@@ -475,20 +476,27 @@ export default defineComponent({
         Language.api().get('/languages', {
           dataKey: 'results',
         }),
-        Report.api().get('/reports', {
-          dataKey: 'results',
-        }),
-        Role.api().get('/roles', {
-          dataKey: 'results',
-        }),
-        PhoneStatus.api().get('/phone_statuses', {
-          dataKey: 'results',
-        }),
       ]);
     }
 
+    // Deferred to idle — reports/roles/phone statuses and geolocation aren't
+    // needed before first paint of any route.
+    function scheduleBackgroundPageData() {
+      runWhenIdle(() => {
+        Promise.allSettled([
+          Report.api().get('/reports', { dataKey: 'results' }),
+          Role.api().get('/roles', { dataKey: 'results' }),
+          PhoneStatus.api().get('/phone_statuses', { dataKey: 'results' }),
+        ]).catch(() => {});
+        checkUserLocation();
+      });
+    }
+
     const loadState = useAsyncState(
-      () => Promise.all([setupLanguage(), loadPageData(), checkUserLocation()]),
+      async () => {
+        await Promise.all([setupLanguage(), loadCriticalPageData()]);
+        scheduleBackgroundPageData();
+      },
       undefined,
       {
         immediate: false,

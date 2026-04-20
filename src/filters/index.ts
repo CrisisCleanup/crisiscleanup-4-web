@@ -1,5 +1,4 @@
 import { parsePhoneNumber } from 'libphonenumber-js';
-import { RRule } from 'rrule';
 import _ from 'lodash';
 import moment from '@/utils/dates';
 import enums from '../store/modules/enums';
@@ -31,9 +30,9 @@ export function getStatusName(statusKey: string) {
   return status ? i18n.global.t(status.status_name_t) : '';
 }
 
-export function getRecurrenceString(rule: string) {
-  return RRule.fromString(rule).toText();
-}
+// getRecurrenceString used to live here but pulled rrule (~200 KB) onto every
+// route that imports @/filters. The helper now lives in @/utils/rrule so only
+// the components that actually render recurrence strings pay the cost.
 
 export function formatDateString(date: string, format: string) {
   return moment(date).format(format);

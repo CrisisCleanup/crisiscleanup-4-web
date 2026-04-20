@@ -464,11 +464,8 @@ import { groupBy } from '../../utils/array';
 import WorksiteStatusDropdown from '../WorksiteStatusDropdown.vue';
 import User from '../../models/User';
 import useDialogs from '../../hooks/useDialogs';
-import {
-  formatRecurrence,
-  getRecurrenceString,
-  getWorkTypeName,
-} from '../../filters/index';
+import { formatRecurrence, getWorkTypeName } from '../../filters/index';
+import { getRecurrenceString } from '@/utils/rrule';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import WorkTypeRequestModal from './WorkTypeRequestModal.vue';
 import Flag from './Flag.vue';

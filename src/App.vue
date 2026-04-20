@@ -9,6 +9,8 @@ import axios from 'axios';
 import { hash } from './utils/promise';
 import { useProvideZendesk, useAuthStore } from '@/hooks';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
+import { loadZendeskWhenIdle } from '@/utils/zendesk';
+import { loadStylesheet, runWhenIdle } from '@/utils/scriptLoader';
 
 export default defineComponent({
   name: 'App',
@@ -106,6 +108,13 @@ export default defineComponent({
         eventsInterval.value = setInterval(pushCurrentEvents, 2000);
       }
 
+      runWhenIdle(() => {
+        loadZendeskWhenIdle();
+        loadStylesheet(
+          'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css',
+        );
+      });
+
       await setupLanguage();
       await getEnums();
     });
@@ -158,9 +167,6 @@ export default defineComponent({
 </template>
 
 <style lang="scss">
-$dp__input_padding: 11px 12px !default;
-@import '@vuepic/vue-datepicker/dist/main.css';
-
 .crisiscleanup-map-marker svg {
   width: 40px;
   height: 40px;

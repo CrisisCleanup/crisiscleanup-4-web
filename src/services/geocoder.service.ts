@@ -1,6 +1,7 @@
 import * as parser from 'parse-address';
 import * as Sentry from '@sentry/vue';
 import { store } from '@/store';
+import { loadGoogleMaps } from '@/utils/googleMaps';
 import type { pitneybowes } from '@/types/pitney-bowes';
 
 export type GeocoderType = 'google' | 'pitney-bowes';
@@ -16,6 +17,7 @@ const GEOCODER = 'google' as GeocoderType;
 export default {
   async getGooglePlaceDetails(placeId: string) {
     const sessionToken = store.getters['map/autocompleteToken'];
+    await loadGoogleMaps();
     return new Promise<google.maps.places.PlaceResult>((resolve, reject) => {
       const div = document.createElement('div');
       const map = new google.maps.Map(div, {
@@ -116,6 +118,7 @@ export default {
     }
 
     if (GEOCODER === 'google') {
+      await loadGoogleMaps();
       return new Promise((resolve) => {
         let sessionToken;
         if (store.getters['map/autocompleteToken']) {
@@ -215,6 +218,7 @@ export default {
   },
   async getPlaceDetails(address: string, placeId: string | null = null) {
     if (GEOCODER === 'google') {
+      await loadGoogleMaps();
       return new Promise((resolve, reject) => {
         if (placeId) {
           this.getGooglePlaceDetails(placeId)
@@ -275,6 +279,7 @@ export default {
 
   async getLocationDetails({ longitude, latitude }: LatitudeLongitude) {
     if (GEOCODER === 'google') {
+      await loadGoogleMaps();
       const latlng = { lat: latitude, lng: longitude };
       return new Promise((resolve, reject) => {
         const geocoder = new google.maps.Geocoder();

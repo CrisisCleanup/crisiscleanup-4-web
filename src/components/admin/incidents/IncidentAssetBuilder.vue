@@ -247,13 +247,12 @@ import useTranslation from '@/hooks/useTranslation';
 import Language from '@/models/Language';
 import BaseButton from '@/components/BaseButton.vue';
 import Incident from '@/models/Incident';
-import type { Ani, CCUFileItem } from '@/models/types';
+import type { Ani } from '@/models/types';
 import Card from '@/components/cards/Card.vue';
 import { useToast } from 'vue-toastification';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
 import { formatNationalNumber, getWorkTypeName } from '@/filters';
 import moment from '@/utils/dates';
-import downloads from '@/pages/Downloads.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import CcuIcon from '@/components/BaseIcon.vue';
 import QRCode from 'qrcode-svg';
@@ -264,34 +263,18 @@ import BaseSelect from '@/components/BaseSelect.vue';
 import { useCurrentIncident } from '@/hooks';
 import type { VueDatePicker } from '@vuepic/vue-datepicker';
 import BaseInput from '@/components/BaseInput.vue';
-
-export interface IncidentAniAsset {
-  id?: number;
-  asset_type: string;
-  language: number;
-  content: string;
-  ani: number;
-  incident: number;
-  visibility: string;
-  published_at: string | null;
-  created_at: string;
-  files: CCUFileItem[];
-  share_text_t: string;
-}
-
-export interface AssetTypeValue {
-  key: string;
-  value: string;
-}
-
-export interface VisibilityValue {
-  key: string;
-  value: string;
-}
-
-export interface GroupedAssets {
-  [assetType: string]: IncidentAniAsset[];
-}
+import type {
+  AssetTypeValue,
+  GroupedAssets,
+  IncidentAniAsset,
+  VisibilityValue,
+} from '@/types/incident-assets';
+export type {
+  AssetTypeValue,
+  GroupedAssets,
+  IncidentAniAsset,
+  VisibilityValue,
+} from '@/types/incident-assets';
 
 interface PrintOption {
   printContainerStyle: string;
@@ -843,11 +826,6 @@ export default {
       saveAssetsForType,
       selectedAnis,
     };
-  },
-  computed: {
-    downloads() {
-      return downloads;
-    },
   },
 };
 </script>

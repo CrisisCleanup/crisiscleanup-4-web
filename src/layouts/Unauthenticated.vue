@@ -5,21 +5,10 @@
 </template>
 
 <script lang="ts">
-import detectBrowserLanguage from 'detect-browser-language';
-import { defineComponent, onBeforeMount } from 'vue';
-import useSetupLanguage from '@/hooks/useSetupLanguage';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  setup() {
-    const currentLanguage = detectBrowserLanguage();
-    console.log('current lang', currentLanguage);
-
-    const { setupLanguage } = useSetupLanguage();
-
-    onBeforeMount(async () => {
-      await setupLanguage();
-    });
-  },
+  setup() {},
 });
 </script>
 

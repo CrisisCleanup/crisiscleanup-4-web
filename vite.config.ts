@@ -81,48 +81,20 @@ export default defineConfig(async ({ command }) => {
       rollupOptions: {
         output: {
           manualChunks(id: string) {
-            // todo: do not statically import downloads into asset builder
+            if (!id.includes('node_modules')) return;
+            // Only consolidate vendors that are reachable from the entry.
+            // Heavy lazy vendors (pdf, leaflet/pixi, d3/apex, schedule-x, quill)
+            // are left unchunked so Rollup can co-locate them with their
+            // lazy-loaded route consumers; forcing them into named chunks
+            // caused the entry chunk to statically import from them for
+            // runtime helpers (__vitePreload, CJS interop), which put those
+            // chunks onto the initial-route critical path.
             if (
-              id.includes('/src/pages/Downloads.vue') ||
-              id.includes(
-                '/src/components/admin/incidents/IncidentAssetBuilder.vue',
+              /[/\\](vue|vue-router|vue-i18n|vuex|@vuex-orm|@vueuse|dayjs|lodash|lodash-es|axios|debug|vue-toastification|floating-vue|vue3-mq|vue3-promise-dialog|@fortawesome)[/\\]/.test(
+                id,
               )
             ) {
-              return 'group-downloads';
-            }
-            if (id.includes('node_modules')) {
-              if (
-                /[/\\](leaflet|leaflet-draw|leaflet-loading|leaflet-pixi-overlay|leaflet\.heat|leaflet\.markercluster|@geoman-io|@pixi|pixi\.js|pixi-filters)[/\\]/.test(
-                  id,
-                )
-              ) {
-                return 'vendor-map';
-              }
-              if (
-                /[/\\](d3|d3-[^/\\]+|apexcharts|vue3-apexcharts)[/\\]/.test(id)
-              ) {
-                return 'vendor-charts';
-              }
-              if (/[/\\](@schedule-x|rrule)[/\\]/.test(id)) {
-                return 'vendor-calendar';
-              }
-              if (
-                /[/\\](quill|quill-image-resize-vue|markdown-it|markdown-it-[^/\\]+|highlight\.js)[/\\]/.test(
-                  id,
-                )
-              ) {
-                return 'vendor-editor';
-              }
-              if (
-                /[/\\](jspdf|html2canvas|vue-pdf-embed|qrcode|qrcode-svg)[/\\]/.test(
-                  id,
-                )
-              ) {
-                return 'vendor-pdf';
-              }
-              if (/[/\\](vue|vue-router|vue-i18n|vuex|@vueuse)[/\\]/.test(id)) {
-                return 'vendor-vue';
-              }
+              return 'vendor-vue';
             }
           },
         },
