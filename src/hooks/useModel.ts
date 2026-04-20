@@ -68,15 +68,19 @@ export const useModelInstance = <ModelT extends typeof Model>(
   );
 
   if (!lazy) {
-    whenever(shouldFetch, async () => {
-      debug(
-        'retrieving data for (model=%s, itemId=%s)',
-        model.value.entity,
-        itemId.value,
-      );
-      // error is not thrown, but exposed via `error` ref.
-      await itemState.execute();
-    });
+    whenever(
+      shouldFetch,
+      async () => {
+        debug(
+          'retrieving data for (model=%s, itemId=%s)',
+          model.value.entity,
+          itemId.value,
+        );
+        // error is not thrown, but exposed via `error` ref.
+        await itemState.execute();
+      },
+      { immediate: true },
+    );
   }
 
   // handle errors when fetching item.
