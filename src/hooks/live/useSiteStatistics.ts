@@ -335,6 +335,15 @@ export default function useSiteStatistics(
     },
   );
 
+  if (getCurrentScope()) {
+    onScopeDispose(() => {
+      if (statsInterval.value) {
+        clearInterval(statsInterval.value);
+        statsInterval.value = null;
+      }
+    });
+  }
+
   return {
     currentSiteStats,
     currentEngagement,
