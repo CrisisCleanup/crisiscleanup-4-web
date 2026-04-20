@@ -78,25 +78,34 @@ export default defineComponent({
       return props.userObject || userFromCache.value || User.find(props.user);
     });
     onMounted(async () => {
-      const user = props.userObject || User.find(props.user);
+      if (!Number.isInteger(props.user)) {
+        return;
+      }
+
+      const userId = props.user;
+      const user = props.userObject || User.find(userId);
 
       if (!user) {
         userFromCache.value = await DbService.getItem(
-          `user_${props.user}`,
+          `user_${userId}`,
           USER_DATABASE,
         );
       }
 
       if (!user && !userFromCache.value) {
-        User.api()
-          .get(`/users/${props.user}`, {})
-          .then((response) => {
-            DbService.setItem(
-              `user_${props.user}`,
-              User.find(props.user)?.$toJson(),
+        try {
+          await User.api().get(`/users/${userId}`, {});
+          const fetchedUser = User.find(userId)?.$toJson();
+          if (fetchedUser) {
+            await DbService.setItem(
+              `user_${userId}`,
+              fetchedUser,
               USER_DATABASE,
             );
-          });
+          }
+        } catch {
+          // Ignore tooltip hydration failures and render without extra user data.
+        }
       }
     });
     return {
