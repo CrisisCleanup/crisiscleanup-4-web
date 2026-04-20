@@ -2024,14 +2024,17 @@ export default defineComponent({
       },
     ); // Every 300ms
 
-    watch(
-      () => worksiteQuery.value,
-      (value, previousValue) => {
-        if (JSON.stringify(value) !== JSON.stringify(previousValue)) {
-          reloadMap();
-        }
-      },
-    );
+    const worksiteQuerySignature = computed(() => {
+      const q = worksiteQuery.value;
+      const sortedKeys = Object.keys(q).sort();
+      const normalized: Record<string, unknown> = {};
+      for (const k of sortedKeys) normalized[k] = q[k];
+      return JSON.stringify(normalized);
+    });
+
+    watch(worksiteQuerySignature, () => {
+      reloadMap();
+    });
 
     watch(
       () => currentIncidentId.value,

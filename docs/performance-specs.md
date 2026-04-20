@@ -23,7 +23,7 @@ Priorities: P0 = ship first (correctness or highest user-visible impact); P1 = s
 |----|-------|----------|--------|-------|------------|
 | [PERF-001](#perf-001--websocket-reconnect-cleanup--exponential-backoff) | WebSocket reconnect cleanup + backoff | P0 | in-review | — | Rewrote hook with scope-dispose, backoff + jitter, explicit `close()`, non-recoverable close codes skipped. New tests: `test/unit/hooks/useWebSockets.test.ts`. |
 | [PERF-002](#perf-002--usesitestatistics-interval-leak) | `useSiteStatistics` interval leak | P0 | in-review | — | Added `onScopeDispose` clearing `statsInterval`. |
-| [PERF-003](#perf-003--workvue-query-watch--drop-jsonstringify) | `Work.vue` query watch — drop `JSON.stringify` | P0 | todo | — | — |
+| [PERF-003](#perf-003--workvue-query-watch--drop-jsonstringify) | `Work.vue` query watch — drop `JSON.stringify` | P0 | in-review | — | Replaced in-callback double-`JSON.stringify` with a cached `worksiteQuerySignature` computed; `watch` now fires on string `===` change, one stringify per dependency tick. |
 | [PERF-004](#perf-004--fontawesome-tree-shaking) | FontAwesome tree-shaking | P0 | todo | — | — |
 | [PERF-005](#perf-005--migrate-moment--dayjs-and-drop-moment-deps) | Migrate moment → dayjs and drop moment deps | P0 | todo | — | — |
 | [PERF-006](#perf-006--vendor-chunk-splitting) | Vendor chunk splitting | P1 | todo | — | — |
