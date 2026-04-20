@@ -390,7 +390,7 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useI18n } from 'vue-i18n';
 import { ScheduleXCalendar } from '@schedule-x/vue';
 import '@schedule-x/theme-default/dist/index.css';
@@ -774,12 +774,12 @@ function printCalendar() {
 }
 
 const getRoundedTimeSlots = (date: string) => {
-  const minutes = moment(date).minutes();
+  const minutes = moment(date).minute();
   const roundedMinutes = minutes < 15 ? 0 : minutes < 45 ? 30 : 60;
-  const start = moment(date).minutes(roundedMinutes).seconds(0);
+  const start = moment(date).minute(roundedMinutes).second(0);
 
   if (roundedMinutes === 60) {
-    start.add(1, 'hour').minutes(0);
+    start.add(1, 'hour').minute(0);
   }
 
   const formattedStart = start.format('YYYY-MM-DD HH:mm');

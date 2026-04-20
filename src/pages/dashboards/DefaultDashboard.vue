@@ -11,7 +11,7 @@ import {
   rejectWorksiteRequest,
 } from '@/utils/dashboard';
 import { nFormatter } from '@/utils/helpers';
-import moment from 'moment/moment';
+import moment from '@/utils/dates';
 import WorksiteStatusDropdown from '@/components/WorksiteStatusDropdown.vue';
 import Worksite from '@/models/Worksite';
 import { getErrorMessage } from '@/utils/errors';

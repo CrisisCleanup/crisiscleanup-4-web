@@ -9,7 +9,7 @@ import useWorktypeImages from '@/hooks/worksite/useWorktypeImages';
 import { getQueryString } from '@/utils/urls';
 const emit = defineEmits(['setCase']);
 const { getWorktypeSVG } = useWorktypeImages();
-import moment from 'moment';
+import moment from '@/utils/dates';
 import PhoneFaqRAG from '@/components/phone/PhoneFaqRAG.vue';
 const { t } = useI18n();
 

@@ -145,7 +145,7 @@ import Language from '@/models/Language';
 import { useWebSockets } from '@/hooks/useWebSockets';
 import AjaxTable from '@/components/AjaxTable.vue';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { makeTableColumns } from '@/utils/table';
 import Incident from '@/models/Incident';
 import { formatNationalNumber } from '@/filters';

@@ -5,7 +5,7 @@ import { getUserLocationLayer, mapTileLayer } from '@/utils/map';
 import User from '@/models/User';
 import * as L from 'leaflet';
 import { momentFromNow } from '@/filters';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 interface UserGeoLocation {
   user: string;

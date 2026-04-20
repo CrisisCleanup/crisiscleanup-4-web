@@ -5,7 +5,7 @@ import * as VuexORM from '@vuex-orm/core';
 import { Database } from '@vuex-orm/core';
 import VuexORMAxios from '@vuex-orm/plugin-axios';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type { Store } from 'vuex';
 import { createStore } from 'vuex';
 import * as useCurrentUser from '@/hooks/useCurrentUser';

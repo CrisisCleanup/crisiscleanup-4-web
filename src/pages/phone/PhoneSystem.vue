@@ -505,7 +505,7 @@ import { useToast } from 'vue-toastification';
 import { useStore } from 'vuex';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useMq } from 'vue3-mq';
 import PhoneComponentButton from '../../components/phone/PhoneComponentButton.vue';
 import ManualDialer from '../../components/phone/ManualDialer.vue';

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type User from './User';
 import CCUModel from '@/models/base';
 import useCurrentUser from '@/hooks/useCurrentUser';

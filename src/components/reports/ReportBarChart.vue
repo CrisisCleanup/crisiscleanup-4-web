@@ -5,7 +5,7 @@
 <script lang="ts">
 import { onMounted } from 'vue';
 import * as d3 from 'd3';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 export default defineComponent({
   name: 'ReportBarChart',

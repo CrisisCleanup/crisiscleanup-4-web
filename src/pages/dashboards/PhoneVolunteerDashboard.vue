@@ -6,7 +6,7 @@ import EditAgentModal from '@/components/phone/EditAgentModal.vue';
 import PhoneCmsItems from '@/components/phone/PhoneCmsItems.vue';
 import PhoneOutbound from '@/models/PhoneOutbound';
 import User from '@/models/User';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import Avatar from '@/components/Avatar.vue';
 import { momentFromNow } from '../../filters';
 import QRCode from '@/components/QRCode.vue';

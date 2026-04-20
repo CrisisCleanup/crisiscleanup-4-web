@@ -72,7 +72,7 @@ import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useEmitter from '../../hooks/useEmitter';
 import BaseInput from '@/components/BaseInput.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';
 import useAcl from '@/hooks/useAcl';

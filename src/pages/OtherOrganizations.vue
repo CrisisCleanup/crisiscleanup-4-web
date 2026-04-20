@@ -249,7 +249,7 @@ import BaseCheckbox from '@/components/BaseCheckbox.vue';
 import BaseButton from '@/components/BaseButton.vue';
 import { useCurrentIncident } from '@/hooks';
 import Spinner from '@/components/Spinner.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import enums from '../store/modules/enums';
 import useDialogs from '@/hooks/useDialogs';
 import DisplayLocation from '@/components/DisplayLocation.vue';

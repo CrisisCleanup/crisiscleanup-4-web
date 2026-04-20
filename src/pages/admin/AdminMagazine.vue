@@ -1071,7 +1071,7 @@
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import DragDrop from '@/components/DragDrop.vue';
 import { getErrorMessage } from '@/utils/errors';
 import PdfViewer from '@/components/PdfViewer.vue';

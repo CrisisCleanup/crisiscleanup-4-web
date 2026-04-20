@@ -85,7 +85,7 @@ import { mapState, useStore } from 'vuex';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import EventLog from '@/models/EventLog';
 import Report from '@/models/Report';
 import User from '@/models/User';

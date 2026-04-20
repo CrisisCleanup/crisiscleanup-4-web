@@ -7,7 +7,7 @@ import { computed } from 'vue';
 // TODO: Fix in eslint config
 // eslint-disable-next-line import/no-unresolved
 import * as config from 'tailwind.config';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { wrap } from '../../utils/wrap';
 import type Incident from '../../models/Incident';
 import type Worksite from '../../models/Worksite';

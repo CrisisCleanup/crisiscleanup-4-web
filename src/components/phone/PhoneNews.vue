@@ -74,7 +74,7 @@
 <script lang="ts">
 import { onBeforeMount, onBeforeUnmount, ref, onMounted } from 'vue';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { formatCmsItem } from '../../utils/helpers';
 import useDialogs from '../../hooks/useDialogs';
 import CmsViewer from '../cms/CmsViewer.vue';

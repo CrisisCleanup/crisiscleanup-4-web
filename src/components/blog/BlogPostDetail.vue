@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment';
+import moment from '@/utils/dates';
 import User from '@/models/User';
 import type { PropType } from 'vue';
 import type { CmsItem } from '@/models/types';

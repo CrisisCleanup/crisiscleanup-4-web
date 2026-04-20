@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import BlogPostDetail from '@/components/blog/BlogPostDetail.vue'; // Ensure the correct component path is used
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { formatCmsItem } from '@/utils/helpers';
 
 // Mock the User model

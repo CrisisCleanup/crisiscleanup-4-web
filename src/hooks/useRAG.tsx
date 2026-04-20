@@ -14,7 +14,7 @@ import type {
 import type { CCUFileItem } from '@/models/types';
 import type { CamelCasedProperties } from 'type-fest';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import defu from 'defu';
 
 const debug = createDebug('@ccu:hooks:useRAG');

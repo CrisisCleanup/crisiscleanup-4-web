@@ -775,7 +775,7 @@ import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { useRoute, useRouter } from 'vue-router';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useMq } from 'vue3-mq';
 import { getErrorMessage } from '../../utils/errors';
 import LocationTool from '../../components/locations/LocationTool.vue';

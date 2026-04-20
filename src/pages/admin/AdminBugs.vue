@@ -88,7 +88,7 @@
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
-import moment from 'moment/moment';
+import moment from '@/utils/dates';
 import { momentFromNow } from '../../filters';
 import { makeTableColumns } from '@/utils/table';
 import CmsViewer from '@/components/cms/CmsViewer.vue';

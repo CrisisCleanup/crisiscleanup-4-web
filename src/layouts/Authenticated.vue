@@ -149,7 +149,7 @@
 
 <script lang="ts">
 import { computed, ref } from 'vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useAsyncState } from '@vueuse/core';
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';

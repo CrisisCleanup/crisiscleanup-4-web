@@ -159,7 +159,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { momentFromNow } from '../../filters/index';

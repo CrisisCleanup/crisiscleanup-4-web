@@ -584,7 +584,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment';
+import moment from '@/utils/dates';
 import axios from 'axios';
 import { useStore } from 'vuex';
 import { shuffle, throttle } from 'lodash';
@@ -617,8 +617,8 @@ import type { Sprite, WorksiteType } from '@/types';
 import { useMq } from 'vue3-mq';
 
 interface QueryFilter {
-  start_date: moment.Moment;
-  end_date: moment.Moment;
+  start_date: moment.Dayjs;
+  end_date: moment.Dayjs;
   incident?: string;
 }
 

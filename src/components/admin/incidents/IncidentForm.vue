@@ -197,7 +197,7 @@ import axios from 'axios';
 import { onMounted, ref, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
-import moment from 'moment-timezone';
+import { timezoneNames as getTimezoneNames } from '@/utils/dates';
 import { cloneDeep } from 'lodash';
 import type { VueDatePicker } from '@vuepic/vue-datepicker';
 import FloatingInput from '@/components/FloatingInput.vue';
@@ -264,7 +264,7 @@ export default defineComponent({
       };
     });
 
-    const timezoneNames = moment.tz.names();
+    const timezoneNames = getTimezoneNames();
 
     const currentIncident = ref<Partial<Incident>>({
       name: '',

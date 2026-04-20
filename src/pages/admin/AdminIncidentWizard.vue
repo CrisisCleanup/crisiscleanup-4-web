@@ -65,7 +65,7 @@
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useRoute } from 'vue-router';
 import Wizard from '@/components/wizard/Wizard.vue';
 import Step from '@/components/wizard/Step.vue';

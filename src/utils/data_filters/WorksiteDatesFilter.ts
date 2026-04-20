@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { omitBy, isNull } from 'lodash';
 import { i18n } from '@/modules/i18n';
 import Filter from './Filter';
@@ -9,21 +9,36 @@ interface WorksiteDatesFilterPacked {
   updated_at__gt?: string;
   updated_at__lt?: string;
 }
+function isDateLike(value: unknown): boolean {
+  if (value === null || value === undefined || typeof value === 'boolean') {
+    return false;
+  }
+  return moment(value as never).isValid();
+}
+
 export default class WorksiteDatesFilter extends Filter {
   get isCreatedAtGtValid() {
-    return this.data?.created?.[0] && moment(this.data?.created?.[0]).isValid();
+    return (
+      Boolean(this.data?.created?.[0]) && isDateLike(this.data?.created?.[0])
+    );
   }
 
   get isCreatedAtLtValid() {
-    return this.data?.created?.[1] && moment(this.data?.created?.[1]).isValid();
+    return (
+      Boolean(this.data?.created?.[1]) && isDateLike(this.data?.created?.[1])
+    );
   }
 
   get isUpdatedAtGtValid() {
-    return this.data?.updated?.[0] && moment(this.data?.updated?.[0]).isValid();
+    return (
+      Boolean(this.data?.updated?.[0]) && isDateLike(this.data?.updated?.[0])
+    );
   }
 
   get isUpdatedAtLtValid() {
-    return this.data?.updated?.[1] && moment(this.data?.updated?.[1]).isValid();
+    return (
+      Boolean(this.data?.updated?.[1]) && isDateLike(this.data?.updated?.[1])
+    );
   }
 
   packFunction() {

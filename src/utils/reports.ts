@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 export interface ReportWidgetDefinition<T extends Record<string, any>> {
   type: string;

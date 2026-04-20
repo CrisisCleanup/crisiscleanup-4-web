@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import Role from './Role';
 import CCUModel from '@/models/base';
 

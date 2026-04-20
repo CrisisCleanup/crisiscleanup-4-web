@@ -212,7 +212,7 @@
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { getErrorMessage } from '@/utils/errors';
 import { useCurrentIncident } from '@/hooks';
 import type Team from '@/models/Team';

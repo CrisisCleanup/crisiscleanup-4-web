@@ -602,7 +602,7 @@ import UserEditModal from '@/pages/organization/UserEditModal.vue';
 import { getErrorMessage } from '@/utils/errors';
 import { useCurrentIncident, useCurrentUser } from '@/hooks';
 import { unparse } from 'papaparse';
-import moment from 'moment-timezone';
+import moment from '@/utils/dates';
 import AjaxTable from '@/components/AjaxTable.vue';
 import ListDropdown from '@/pages/lists/ListDropdown.vue';
 import { downloadCSVFile } from '@/utils/downloads';

@@ -11,7 +11,7 @@ import {
 import { logicAnd, logicNot, logicOr } from '@vueuse/math';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import createDebug from 'debug';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 import { useAxiosRetry } from '@/hooks/useAxiosRetry';
@@ -31,7 +31,7 @@ export enum AuthStatus {
 
 export interface AuthState {
   accessToken?: string;
-  accessTokenExpiry?: moment.Moment;
+  accessTokenExpiry?: moment.Dayjs;
   refreshToken?: string;
   userId?: number;
   status: AuthStatus;
@@ -60,7 +60,7 @@ interface AuthorizeProps {
 
 interface AuthorizedToken {
   access_token: string;
-  access_token_expiry: moment.Moment;
+  access_token_expiry: moment.Dayjs;
   refresh_token: string;
   updated: string;
   created: string;

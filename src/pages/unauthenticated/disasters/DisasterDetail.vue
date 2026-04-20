@@ -5,7 +5,7 @@ import { getAssets } from '@/utils/incident_assets';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
 import Card from '@/components/cards/Card.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type { CmsItem } from '@/models/types';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';

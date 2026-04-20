@@ -239,7 +239,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import axios from 'axios';
 import Spinner from '@/components/Spinner.vue';
 import BlogPagination from '@/components/blog/Pagination.vue';

@@ -11,7 +11,7 @@ import PageTabBar from '@/layouts/page/PageTabBar.vue';
 import useAcl from '@/hooks/useAcl';
 import type { Tab } from '@/hooks/useTabs';
 import { useCurrentUser } from '@/hooks';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 const tabs = reactive<Tab[]>([
   {

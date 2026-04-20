@@ -3,7 +3,7 @@ import KDBush from 'kdbush';
 import * as turf from '@turf/turf';
 import type * as L from 'leaflet';
 import type { Feature, Point, Properties } from '@turf/turf';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { templates, colors } from '../../icons/icons_templates';
 import type Worksite from '@/models/Worksite';
 import type { PixiLayer } from '@/utils/types/map';

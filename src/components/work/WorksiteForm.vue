@@ -538,7 +538,7 @@
 
 <script lang="ts">
 import { sortBy, uniqueId } from 'lodash';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import * as turf from '@turf/turf';
 import * as L from 'leaflet';
 import { useI18n } from 'vue-i18n';

@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { DbService, WORKSITE_IMAGES_DATABASE } from '@/services/db.service';

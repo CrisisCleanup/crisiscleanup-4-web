@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import CCUModel from '@/models/base';
 
 export default class PasswordResetRequest extends CCUModel {

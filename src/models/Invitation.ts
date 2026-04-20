@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type { Config, Request } from '@vuex-orm/plugin-axios';
 import type { Fields } from '@vuex-orm/core';
 import CCUModel from '@/models/base';

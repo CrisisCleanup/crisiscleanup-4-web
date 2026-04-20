@@ -218,7 +218,7 @@ import { onMounted, ref } from 'vue';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { getErrorMessage } from '../../utils/errors';
 import { makeTableColumns } from '../../utils/table';
 import AjaxTable from '../../components/AjaxTable.vue';

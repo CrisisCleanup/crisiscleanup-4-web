@@ -83,7 +83,7 @@
 
 <script lang="ts">
 import { onMounted, ref, computed } from 'vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useStore } from 'vuex';
 import Location from '@/models/Location';
 import Organization from '@/models/Organization';
@@ -153,7 +153,7 @@ export default defineComponent({
         }
       }
 
-      router.replace({ ...router.currentRoute, query } as any);
+      router.replace({ ...router.currentRoute, query });
       emit('onFilter', query);
     };
 

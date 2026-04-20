@@ -134,7 +134,7 @@
 
 <script setup lang="ts">
 import Home from '@/layouts/Home.vue';
-import moment from 'moment/moment';
+import moment from '@/utils/dates';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';

@@ -263,7 +263,7 @@ import {
   ref,
 } from 'vue';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useToast } from 'vue-toastification';
 import { getQueryString, getUserAvatarLink } from '../../utils/urls';
 import { getErrorMessage } from '../../utils/errors';

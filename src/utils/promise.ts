@@ -1,5 +1,5 @@
 import { zipObject } from 'lodash';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import axios from 'axios';
 import { StorageService } from '../services/storage.service';
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type { Ref } from 'vue';
 import { getQueryString } from '@/utils/urls';
 import { i18n } from '@/modules/i18n';

@@ -449,7 +449,7 @@
 
 <script lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { useRoute, useRouter } from 'vue-router';

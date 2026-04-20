@@ -183,7 +183,7 @@ import type * as L from 'leaflet';
 
 import type Worksite from '@/models/Worksite';
 import { useCurrentIncident } from '@/hooks';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import BaseButton from '@/components/BaseButton.vue';
 import Spinner from '@/components/Spinner.vue';
 import * as turf from '@turf/turf';

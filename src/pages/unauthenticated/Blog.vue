@@ -175,7 +175,7 @@ import BaseInput from '@/components/BaseInput.vue';
 import debounce from 'lodash/debounce';
 import Spinner from '@/components/Spinner.vue';
 import Home from '@/layouts/Home.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import BlogPosts from '@/components/blog/BlogPosts.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';

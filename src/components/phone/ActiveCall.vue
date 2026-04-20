@@ -134,7 +134,7 @@
 import * as Sentry from '@sentry/vue';
 import { computed, reactive, ref, watch } from 'vue';
 import { useStore } from 'vuex';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import useScripts from '../../hooks/phone/useScripts';

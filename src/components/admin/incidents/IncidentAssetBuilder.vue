@@ -252,7 +252,7 @@ import Card from '@/components/cards/Card.vue';
 import { useToast } from 'vue-toastification';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
 import { formatNationalNumber, getWorkTypeName } from '@/filters';
-import moment from 'moment/moment';
+import moment from '@/utils/dates';
 import downloads from '@/pages/Downloads.vue';
 import { forceFileDownload } from '@/utils/downloads';
 import CcuIcon from '@/components/BaseIcon.vue';

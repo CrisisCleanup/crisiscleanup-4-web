@@ -8,8 +8,8 @@ import defu from 'defu';
 import type { AxiosInstance, AxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import createDebug from 'debug';
-import type { Moment } from 'moment/moment';
-import moment from 'moment';
+import type { Moment } from '@/utils/dates';
+import moment from '@/utils/dates';
 import type Worksite from '@/models/Worksite';
 const debug = createDebug('@ccu:utils:helpers');
 

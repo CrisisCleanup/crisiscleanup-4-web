@@ -15,7 +15,7 @@ import CcuIcon from '@/components/BaseIcon.vue';
 import Chat from '@/components/chat/Chat.vue';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import BaseText from '@/components/BaseText.vue';
 import Badge from '@/components/Badge.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';

@@ -47,7 +47,7 @@
 <script lang="ts">
 import { computed, defineComponent, onMounted } from 'vue';
 import type { PropType } from 'vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import User from '../../models/User';

@@ -96,7 +96,7 @@ import CaseDonutChart from '@/components/live/CaseDonutChart.vue';
 import Table from '@/components/Table.vue';
 import OrganizationActivityModal from '@/components/live/OrganizationActivityModal.vue';
 import type Organization from '@/models/Organization';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 export default defineComponent({
   name: 'LiveOrganizationTable',

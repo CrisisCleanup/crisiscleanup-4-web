@@ -49,7 +49,7 @@
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import Table from '../Table.vue';
 import Invitation from '../../models/Invitation';
 import useCurrentUser from '@/hooks/useCurrentUser';

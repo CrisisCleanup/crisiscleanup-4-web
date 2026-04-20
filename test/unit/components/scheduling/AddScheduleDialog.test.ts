@@ -10,7 +10,7 @@ import {
 import type { VueWrapper } from '@vue/test-utils';
 import { flushPromises, mount } from '@vue/test-utils';
 import axios from 'axios';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 // Mock `@vueuse/router`
 vi.mock('@vueuse/router', () => {

@@ -635,7 +635,7 @@ import RequestRedeploy from '@/components/RequestRedeploy.vue';
 import useCapabilities from '@/hooks/useCapabilities';
 import { useCurrentUser } from '@/hooks';
 import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 export default defineComponent({
   name: 'Profile',

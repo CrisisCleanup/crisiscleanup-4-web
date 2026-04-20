@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { formatCmsItem } from '@/utils/helpers';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { defineProps, defineEmits, type PropType } from 'vue';
 import { type CmsItem } from '@/models/types';
 

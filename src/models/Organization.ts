@@ -3,7 +3,7 @@ import Incident from './Incident';
 import type Location from './Location';
 import CCUModel from '@/models/base';
 import type { CCUFileItem, UserContact } from '@/models/types';
-import moment from 'moment';
+import moment from '@/utils/dates';
 
 export default class Organization extends CCUModel {
   static entity = 'organizations';

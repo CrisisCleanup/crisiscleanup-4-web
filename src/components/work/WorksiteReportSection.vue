@@ -131,7 +131,7 @@
 <script lang="ts">
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useToast } from 'vue-toastification';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import { getErrorMessage } from '../../utils/errors';

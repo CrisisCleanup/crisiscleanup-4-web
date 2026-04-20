@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { StorageService } from './storage.service';
 import type {
   LanguagesResponse,

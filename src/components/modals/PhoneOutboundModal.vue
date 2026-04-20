@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { useI18n } from 'vue-i18n';
 import { makeTableColumns } from '@/utils/table';
 import type PhoneOutbound from '@/models/PhoneOutbound';

@@ -822,7 +822,7 @@ import WorksiteDatesFilter from '@/utils/data_filters/WorksiteDatesFilter';
 import { getStatusName } from '@/filters/index';
 import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { getQueryString } from '@/utils/urls';
 import LocationTool from '@/components/locations/LocationTool.vue';
 import useDialogs from '@/hooks/useDialogs';

@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment';
+import moment from '@/utils/dates';
 import UserDetailsTooltip from '../user/DetailsTooltip.vue';
 import { formatDateString } from '../../filters/index';
 import type { Message } from '@/models/types';

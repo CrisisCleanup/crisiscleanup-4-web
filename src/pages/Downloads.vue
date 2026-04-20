@@ -93,7 +93,7 @@
 </template>
 
 <script lang="ts">
-import moment from 'moment/moment';
+import moment from '@/utils/dates';
 import { makeTableColumns } from '@/utils/table';
 import AjaxTable from '@/components/AjaxTable.vue';
 import BaseText from '@/components/BaseText.vue';

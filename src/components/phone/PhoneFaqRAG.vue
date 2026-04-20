@@ -5,7 +5,7 @@ import { useRAG, useRAGCollections } from '@/hooks';
 import { useStorage } from '@vueuse/core/index';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseInput from '@/components/BaseInput.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import useCurrentUser from '@/hooks/useCurrentUser';
 
 const question = ref<string>('');

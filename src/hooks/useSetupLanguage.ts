@@ -1,6 +1,6 @@
 import axios from 'axios';
 import size from 'lodash/size';
-import moment from 'moment/moment';
+import moment from '@/utils/dates';
 import detectBrowserLanguage from 'detect-browser-language';
 import { i18nService } from '@/services/i18n.service';
 import { i18n } from '@/modules/i18n';

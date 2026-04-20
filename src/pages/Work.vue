@@ -963,7 +963,7 @@ import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import axios from 'axios';
 import type { Sprite } from 'pixi.js';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import type { LatLng } from 'leaflet';
 import * as L from 'leaflet';
 import { useMq } from 'vue3-mq';

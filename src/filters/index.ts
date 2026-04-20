@@ -1,7 +1,7 @@
 import { parsePhoneNumber } from 'libphonenumber-js';
 import { RRule } from 'rrule';
 import _ from 'lodash';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import enums from '../store/modules/enums';
 import { colors as iconColors, templates } from '../icons/icons_templates';
 import Organization from '../models/Organization';
@@ -43,7 +43,7 @@ export function formatRecurrence(date: string) {
   return formatDateString(date, 'ddd MMMM Do YYYY [at] h:mm A');
 }
 
-export function momentFromNow(date: string | moment.Moment) {
+export function momentFromNow(date: string | moment.Dayjs) {
   return moment(date).fromNow();
 }
 

@@ -6,7 +6,7 @@ import User from './User';
 import type WorkType from './WorkType';
 import CCUModel from '@/models/base';
 import { useAuthStore } from '@/hooks/useAuth';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import Incident from './Incident';
 import type { Portal } from '@/models/types';
 import { i18n } from '@/modules/i18n';

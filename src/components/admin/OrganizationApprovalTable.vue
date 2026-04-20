@@ -158,7 +158,7 @@
 <script lang="ts">
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { defineComponent } from 'vue';
 import AjaxTable from '@/components/AjaxTable.vue';
 import useDialogs from '@/hooks/useDialogs';

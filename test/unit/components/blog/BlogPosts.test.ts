@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import BlogPosts from '@/components/blog/BlogPosts.vue'; // Adjust the path if necessary
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { formatCmsItem } from '@/utils/helpers';
 
 // Mock the formatCmsItem helper

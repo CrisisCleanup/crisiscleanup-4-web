@@ -400,7 +400,7 @@ import GeocoderService from '@/services/geocoder.service';
 import LocationViewer from '@/components/locations/LocationViewer.vue';
 import WorksiteImageSection from '@/components/work/WorksiteImageSection.vue';
 import WorksiteNotes from '@/components/work/WorksiteNotes.vue';
-import moment from 'moment';
+import moment from '@/utils/dates';
 import { getWorkTypeImage, getWorkTypeName } from '@/filters';
 import { formatCmsItem } from '@/utils/helpers';
 import survivor from '@/pages/home/Survivor.vue';
