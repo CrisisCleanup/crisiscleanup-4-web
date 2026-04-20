@@ -21,7 +21,6 @@ import {
   mapTileLayer,
   mapTileLayerDark,
   randomIntFromInterval,
-  resetLeafletContainer,
 } from '../../utils/map';
 import Location from '../../models/Location';
 import { i18n } from '@/modules/i18n';
@@ -90,7 +89,6 @@ export default (
     .replaceAll('{{strokeColor}}', 'black');
   const orbTexture = Texture.from(svg);
 
-  resetLeafletContainer('map');
   const map = L.map('map', {
     zoomControl: false,
   }).fitBounds([

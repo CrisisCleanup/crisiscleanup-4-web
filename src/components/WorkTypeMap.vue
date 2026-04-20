@@ -12,12 +12,7 @@
 import * as L from 'leaflet';
 import type { PropType } from 'vue';
 import { colors, templates } from '@/icons/icons_templates';
-import {
-  destroyLeafletMap,
-  mapAttribution,
-  mapTileLayer,
-  resetLeafletContainer,
-} from '@/utils/map';
+import { mapAttribution, mapTileLayer } from '@/utils/map';
 import { SVG_STROKE_WIDTH } from '@/constants';
 
 export default defineComponent({
@@ -54,7 +49,6 @@ export default defineComponent({
     };
 
     const renderMap = async (markers: Record<string, any>[]) => {
-      resetLeafletContainer('map');
       map.value = L.map('map', {
         zoomControl: false,
       }).setView([35.746_512_259_918_5, -96.411_509_631_256_56], 10);
@@ -119,11 +113,6 @@ export default defineComponent({
         props.polygon.addTo(map.value);
         map.value.fitBounds(props.polygon.getBounds());
       }
-    });
-
-    onBeforeUnmount(() => {
-      destroyLeafletMap(map.value);
-      map.value = null;
     });
 
     return {
