@@ -3,6 +3,7 @@ import {
   mapTileLayer,
   mapAttribution,
   mapTileLayerDark,
+  resetLeafletContainer,
 } from '../../utils/map';
 import { store } from '@/store';
 import type { Portal } from '@/models/types';
@@ -39,7 +40,10 @@ export default function useMapInstance(
 ): MapInstanceUtils {
   const portal = store.getters['enums/portal'] as Portal;
 
-  // Create map instance
+  // Clear any prior Leaflet binding on this container so a remount
+  // (e.g., Work.vue re-running init) doesn't throw
+  // "Map container is already initialized."
+  resetLeafletContainer(mapId);
   const map = new L.Map(mapId, {
     zoomControl: false,
   }).fitBounds(
