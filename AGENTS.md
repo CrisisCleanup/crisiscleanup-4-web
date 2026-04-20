@@ -33,9 +33,10 @@ pnpm lint:show               # interactive eslint-nibble triage
 ### Unit tests (Vitest)
 
 ```bash
-pnpm test                    # = pnpm test:cov (v8 coverage)
+pnpm test                    # serial vitest run without coverage
+pnpm test:run                # serial vitest run without coverage
 pnpm test:unit               # vitest watch mode
-pnpm test:cov                # vitest --coverage
+pnpm test:cov                # serial vitest coverage run (memory-optimized)
 pnpm exec vitest run test/unit/path/to/file.test.ts        # single file
 pnpm exec vitest run -t "test name substring"              # filter by name
 ```

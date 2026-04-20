@@ -199,6 +199,8 @@ To ensure the functionality of individual components of our application, we use 
 pnpm run test
 ```
 
+This runs the Vitest suite without coverage so local test runs stay reliable on large suites.
+
 To view the coverage of these tests, use the following command:
 
 ```bash
