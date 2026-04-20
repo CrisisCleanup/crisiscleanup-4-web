@@ -108,7 +108,7 @@ export default defineComponent({
       title:
         props.invert === true
           ? ['text-white']
-          : ['text-crisiscleanup-dark-300'],
+          : ['text-crisiscleanup-dark-500'],
     }));
 
     return {

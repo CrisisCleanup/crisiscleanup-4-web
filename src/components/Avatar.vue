@@ -11,6 +11,8 @@
       <img
         :src="url"
         :alt="initials"
+        :width="sizePx"
+        :height="sizePx"
         data-testid="testAvatarIcon"
         class="object-cover object-center w-full h-full visible group-hover:hidden"
       />
@@ -72,9 +74,34 @@ export default defineComponent({
         : {};
     });
 
+    const sizePx = computed(() => {
+      if (props.customSize) return Number.parseInt(props.customSize.width, 10);
+      switch (props.size) {
+        case 'xsmall': {
+          return 50;
+        }
+        case 'small': {
+          return 60;
+        }
+        case 'medium': {
+          return 150;
+        }
+        case 'large': {
+          return 200;
+        }
+        case 'xl': {
+          return 300;
+        }
+        default: {
+          return 60;
+        }
+      }
+    });
+
     return {
       classes,
       customStyle,
+      sizePx,
       currentUser,
     };
   },

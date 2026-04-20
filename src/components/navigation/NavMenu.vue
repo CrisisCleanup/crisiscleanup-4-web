@@ -1,12 +1,19 @@
 <template>
   <div class="navbar overflow-y-auto">
-    <router-link :to="logoRoute.to" class="logo--grid">
+    <router-link
+      :to="logoRoute.to"
+      class="logo--grid"
+      :aria-label="$t('nav.home')"
+    >
       <div
         class="logo flex justify-center px-2 py-4 border-b border-crisiscleanup-dark-400"
       >
         <img
           :src="portal?.logo_url || logo"
-          style="height: 53px"
+          :alt="portal?.name_t ? $t(portal.name_t) : 'Crisis Cleanup'"
+          width="133"
+          height="53"
+          style="height: 53px; width: auto"
           data-testid="testCrisiscleanupLogoIcon"
         />
       </div>

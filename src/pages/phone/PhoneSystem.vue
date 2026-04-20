@@ -529,7 +529,9 @@ import CallHistory from '../../components/phone/CallHistory.vue';
 import SimpleMap from '../../components/SimpleMap.vue';
 import Leaderboard from '../../components/phone/Leaderboard.vue';
 import Incident from '../../models/Incident';
-import Chat from '../../components/chat/Chat.vue';
+const Chat = defineAsyncComponent(
+  () => import('../../components/chat/Chat.vue'),
+);
 import ActiveCall from '../../components/phone/ActiveCall.vue';
 import UpdateStatus from '../../components/phone/UpdateStatus.vue';
 import PhoneIndicator from '../../components/phone/PhoneIndicator.vue';

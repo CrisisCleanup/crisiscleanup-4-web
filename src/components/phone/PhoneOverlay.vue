@@ -320,72 +320,68 @@ const {
   >
     <div v-if="useBottomNav" class="w-full z-header absolute">
       <nav class="bg-gray-100 h-14 flex flex-row justify-between">
-        <ul class="flex flex-row w-full">
-          <div class="flex flex-row items-center w-full">
-            <div
-              v-for="section in sections"
-              :key="section.view"
-              :data-testid="`testPhoneOverlay_${section.view}`"
-              class="p-2 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center"
-              :class="{
-                'border-t-4 border-primary-light font-bold':
-                  currentView === section.view,
-              }"
-              @click="
-                () =>
+        <ul class="flex flex-row w-full items-center">
+          <li
+            v-for="section in sections"
+            :key="section.view"
+            :data-testid="`testPhoneOverlay_${section.view}`"
+            class="p-2 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center list-none"
+            :class="{
+              'border-t-4 border-primary-light font-bold':
+                currentView === section.view,
+            }"
+            @click="
+              () =>
+                currentView === section.view ? closeTab() : updateView(section)
+            "
+          >
+            <div class="flex flex-col items-center gap-1">
+              <ccu-icon
+                :type="section.icon"
+                :alt="section.alt"
+                :class="[
                   currentView === section.view
-                    ? closeTab()
-                    : updateView(section)
-              "
-            >
-              <div class="flex flex-col items-center gap-1">
-                <ccu-icon
-                  :type="section.icon"
-                  :alt="section.alt"
-                  :class="[
-                    currentView === section.view
-                      ? 'filter-primary'
-                      : 'filter-gray',
-                    '!transition-none',
-                  ]"
-                  size="large"
-                />
-              </div>
-              <!-- Badges for unread counts -->
-              <div
-                v-if="section.view === 'generalStats' && callsWaiting > 0"
-                class="relative"
-              >
-                <badge
-                  class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
-                  >{{ callsWaiting }}</badge
-                >
-              </div>
-              <div
-                v-if="section.view === 'cms' && unreadNewsCount > 0"
-                class="relative"
-              >
-                <badge
-                  class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
-                  >{{ unreadNewsCount }}</badge
-                >
-              </div>
-              <div v-if="section.view === 'chat'" class="flex gap-1 relative">
-                <badge
-                  v-if="unreadChatCount > 0"
-                  class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
-                >
-                  {{ unreadChatCount }}
-                </badge>
-                <badge
-                  v-if="unreadUrgentChatCount > 0"
-                  class="text-white bg-red-500 text-base absolute top-0 right-0 p-2"
-                >
-                  {{ unreadUrgentChatCount }}
-                </badge>
-              </div>
+                    ? 'filter-primary'
+                    : 'filter-gray',
+                  '!transition-none',
+                ]"
+                size="large"
+              />
             </div>
-          </div>
+            <!-- Badges for unread counts -->
+            <div
+              v-if="section.view === 'generalStats' && callsWaiting > 0"
+              class="relative"
+            >
+              <badge
+                class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
+                >{{ callsWaiting }}</badge
+              >
+            </div>
+            <div
+              v-if="section.view === 'cms' && unreadNewsCount > 0"
+              class="relative"
+            >
+              <badge
+                class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
+                >{{ unreadNewsCount }}</badge
+              >
+            </div>
+            <div v-if="section.view === 'chat'" class="flex gap-1 relative">
+              <badge
+                v-if="unreadChatCount > 0"
+                class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
+              >
+                {{ unreadChatCount }}
+              </badge>
+              <badge
+                v-if="unreadUrgentChatCount > 0"
+                class="text-white bg-red-500 text-base absolute top-0 right-0 p-2"
+              >
+                {{ unreadUrgentChatCount }}
+              </badge>
+            </div>
+          </li>
         </ul>
       </nav>
     </div>

@@ -2,6 +2,7 @@
   <button
     :class="[styles, buttonSelector]"
     :alt="alt || text"
+    :aria-label="accessibleName"
     :disabled="disabled || loading"
     type="submit"
     :size="size"
@@ -112,6 +113,14 @@ export default defineComponent({
 
     const buttonTitle = computed(() => props.text || props.alt || props.title);
 
+    // When the button has visible text, let it be its own name; otherwise
+    // surface `alt`/`title` via aria-label so icon-only buttons satisfy
+    // Lighthouse button-name.
+    const accessibleName = computed(() => {
+      if (props.text) return;
+      return props.alt === 'button' ? props.title || undefined : props.alt;
+    });
+
     const buttonSelector = computed(
       () => props.selector || `js-${kebabCase(buttonTitle.value)}`,
     );
@@ -171,6 +180,7 @@ export default defineComponent({
       styles,
       buttonSelector,
       buttonTitle,
+      accessibleName,
       performAction,
     };
   },
@@ -195,7 +205,7 @@ button:focus {
 }
 
 .link {
-  @apply text-primary-dark;
+  @apply text-primary-dark underline underline-offset-2;
 }
 
 /** ----- DEPRECATED ----- */

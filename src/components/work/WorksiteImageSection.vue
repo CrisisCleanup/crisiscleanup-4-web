@@ -31,12 +31,14 @@
 
 <script lang="ts">
 import _ from 'lodash';
+import { defineAsyncComponent } from 'vue';
 import { useToast } from 'vue-toastification';
 import DragDrop from '../DragDrop.vue';
 import Worksite from '../../models/Worksite';
 import { getErrorMessage } from '../../utils/errors';
-import ImageModal from '../ImageModal.vue';
 import { uploadFile } from '../../utils/file';
+
+const ImageModal = defineAsyncComponent(() => import('../ImageModal.vue'));
 
 interface Props {
   disableImageUpload: boolean;

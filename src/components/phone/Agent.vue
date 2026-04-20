@@ -26,13 +26,11 @@
           <div class="mx-2 text-crisiscleanup-dark-200 hidden md:block">
             {{ $t('phoneDashboard.languages') }}
           </div>
-          <div
-            v-for="l in languages"
-            :key="`l_${l}`"
-            class="flex flex-col tag-container"
-          >
-            <LanguageTag class="tag-item mx-0.5" :language-id="l.id" />
-          </div>
+          <template v-for="l in languages" :key="`l_${l?.id ?? 'x'}`">
+            <div v-if="l?.id" class="flex flex-col tag-container">
+              <LanguageTag class="tag-item mx-0.5" :language-id="l.id" />
+            </div>
+          </template>
           <ccu-icon
             type="edit"
             data-testid="testLanguageEditIcon"

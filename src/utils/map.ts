@@ -8,7 +8,6 @@ import {
 import * as L from 'leaflet';
 import 'leaflet-loading';
 import 'leaflet-pixi-overlay';
-import 'leaflet.heat';
 import 'leaflet/dist/leaflet.css';
 import type Worksite from '../models/Worksite';
 import type {

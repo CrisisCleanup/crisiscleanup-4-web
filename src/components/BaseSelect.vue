@@ -25,6 +25,7 @@
       :placeholder="placeholder"
       :no-options-text="placeholder"
       :classes="multiSelectClasses"
+      :aria-label="ariaLabel || floatLabel || placeholder || undefined"
       v-bind="$attrs"
       @update:model-value="
         (v) => {
@@ -171,6 +172,10 @@ export default defineComponent({
       default: 'sort',
     },
     floatLabel: {
+      type: String,
+      default: '',
+    },
+    ariaLabel: {
       type: String,
       default: '',
     },
@@ -332,10 +337,34 @@ export default defineComponent({
       }
     }
 
+    // @vueform/multiselect renders a .multiselect-clear span that is
+    // aria-hidden but remains focusable. Demote it from the tab order so
+    // assistive tech doesn't land on a hidden control (Lighthouse
+    // aria-hidden-focus).
+    const patchClearTabindex = (root: HTMLElement | null) => {
+      if (!root) return;
+      const nodes = [
+        ...root.querySelectorAll<HTMLElement>(
+          '.multiselect-clear[aria-hidden="true"]',
+        ),
+      ];
+      for (const el of nodes) {
+        if (el.getAttribute('tabindex') !== '-1') {
+          el.setAttribute('tabindex', '-1');
+        }
+      }
+    };
+
     onMounted(() => {
       if (props.floatLabel) {
         inputRef.value.parentElement.classList.add('has-float');
         baseHeight_.value = inputRef.value.parentElement.clientHeight;
+      }
+      const root = inputRef.value?.parentElement as HTMLElement | undefined;
+      if (root) {
+        patchClearTabindex(root);
+        const observer = new MutationObserver(() => patchClearTabindex(root));
+        observer.observe(root, { childList: true, subtree: true });
       }
     });
 
@@ -381,6 +410,6 @@ export default defineComponent({
 }
 
 .multiselect-placeholder {
-  @apply text-crisiscleanup-dark-200;
+  @apply text-crisiscleanup-dark-400;
 }
 </style>

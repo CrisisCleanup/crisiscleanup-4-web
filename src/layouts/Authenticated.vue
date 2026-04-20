@@ -107,11 +107,11 @@
             @auth:logout="logoutApp"
           />
         </div>
-        <div class="main">
+        <main class="main">
           <div class="h-full overflow-auto w-screen md:w-auto">
             <slot />
           </div>
-        </div>
+        </main>
         <template v-if="showAcceptTermsModal">
           <TermsandConditionsModal
             :organization="currentOrganization"

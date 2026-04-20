@@ -122,11 +122,13 @@
       </div>
     </div>
     <div v-if="addingNotes">
-      {{ $t('caseView.note') }}
+      <label for="currentNoteTextarea">{{ $t('caseView.note') }}</label>
       <base-input
+        id="currentNoteTextarea"
         text-area
         data-testid="testCurrentNoteTextarea"
         text-area-auto-resize
+        :aria-label="$t('caseView.note')"
         :value="currentNote"
         :rows="3"
         @update:model-value="
