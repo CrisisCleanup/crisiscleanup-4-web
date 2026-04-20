@@ -1,4 +1,5 @@
 import * as parser from 'parse-address';
+import * as Sentry from '@sentry/vue';
 import { store } from '@/store';
 import type { pitneybowes } from '@/types/pitney-bowes';
 
@@ -15,7 +16,7 @@ const GEOCODER = 'google' as GeocoderType;
 export default {
   async getGooglePlaceDetails(placeId: string) {
     const sessionToken = store.getters['map/autocompleteToken'];
-    return new Promise<google.maps.places.PlaceResult>((resolve) => {
+    return new Promise<google.maps.places.PlaceResult>((resolve, reject) => {
       const div = document.createElement('div');
       const map = new google.maps.Map(div, {
         center: { lat: -33.866, lng: 151.196 },
@@ -28,12 +29,17 @@ export default {
       };
       const service = new google.maps.places.PlacesService(map);
       service.getDetails(request, (place, status) => {
+        // The session token is consumed by getDetails per Google's billing
+        // model; the next predictions burst must use a fresh one.
+        store.commit('map/setAutocompleteToken', null);
+        div.remove();
         if (!place || status !== google.maps.places.PlacesServiceStatus.OK) {
-          throw new Error('getGooglePlaceDetails: Place not found');
+          Sentry.captureMessage(`getGooglePlaceDetails: ${status}`, 'warning');
+          reject(new Error(`getGooglePlaceDetails: ${status}`));
+          return;
         }
 
         resolve(place);
-        div.remove();
       });
     });
   },
@@ -127,8 +133,9 @@ export default {
             input: text,
             sessionToken,
           },
-          (results) => {
-            if (results) {
+          (results, status) => {
+            const PlacesServiceStatus = google.maps.places.PlacesServiceStatus;
+            if (status === PlacesServiceStatus.OK && results) {
               resolve(
                 results.map((result) => {
                   return {
@@ -137,9 +144,18 @@ export default {
                   };
                 }),
               );
-            } else {
-              resolve([]);
+              return;
             }
+            if (status === PlacesServiceStatus.ZERO_RESULTS) {
+              resolve([]);
+              return;
+            }
+            // INVALID_REQUEST / OVER_QUERY_LIMIT / REQUEST_DENIED /
+            // UNKNOWN_ERROR: token may be stale or quota exceeded; clear
+            // so the next call self-heals with a fresh session.
+            store.commit('map/setAutocompleteToken', null);
+            Sentry.captureMessage(`getPlacePredictions: ${status}`, 'warning');
+            resolve([]);
           },
         );
       });
@@ -197,19 +213,21 @@ export default {
       },
     };
   },
-  async getPlaceDetails(address: string, placeId = null) {
+  async getPlaceDetails(address: string, placeId: string | null = null) {
     if (GEOCODER === 'google') {
       return new Promise((resolve, reject) => {
         if (placeId) {
-          this.getGooglePlaceDetails(placeId).then((place) => {
-            const { address_components } = place;
-            if (!address_components) {
-              reject(new Error('No address_components'));
-              return;
-            }
+          this.getGooglePlaceDetails(placeId)
+            .then((place) => {
+              const { address_components } = place;
+              if (!address_components) {
+                reject(new Error('No address_components'));
+                return;
+              }
 
-            resolve(this.getAddress(address_components, place, address));
-          });
+              resolve(this.getAddress(address_components, place, address));
+            })
+            .catch(reject);
         } else {
           const geocoder = new google.maps.Geocoder();
           geocoder.geocode({ address }, (results, status) => {
