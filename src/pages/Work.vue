@@ -328,12 +328,13 @@
     <div class="work-page h-full" :class="{ collapsedForm }">
       <div :key="currentIncidentId" class="work-page__main">
         <div class="relative">
-          <div class="flex items-center">
-            <div
-              v-if="!collapsedUtilityBar"
-              :key="currentIncidentId"
-              class="flex items-center flex-wrap w-full p-3 gap-2"
-            >
+          <div
+            v-if="!collapsedUtilityBar"
+            :key="currentIncidentId"
+            class="flex flex-wrap items-center gap-3 w-full p-3"
+          >
+            <!-- LEFT: view group + count -->
+            <div class="flex items-center gap-3 flex-none">
               <WorksiteNavigationIcons
                 :case-images="caseImages"
                 :showing-feed="showingFeed"
@@ -363,45 +364,83 @@
                     )
                 "
               />
-              <span v-if="allWorksiteCount" class="font-thin">
+              <span
+                v-if="allWorksiteCount"
+                class="inline-flex items-center gap-1 rounded bg-crisiscleanup-smoke px-2 py-1 text-[13px] font-semibold text-black whitespace-nowrap"
+              >
+                <span class="text-crisiscleanup-grey-900 font-normal">
+                  {{ $t('casesVue.cases') }}
+                </span>
                 <span
                   v-if="allWorksiteCount === filteredWorksiteCount"
                   data-testid="testCaseCountContent"
                 >
-                  {{ $t('casesVue.cases') }}
                   {{ numeral(allWorksiteCount) }}
                 </span>
                 <span v-else data-testid="testCaseCountFilteredContent">
-                  {{ $t('casesVue.cases') }}
-                  {{ numeral(filteredWorksiteCount) }} of
+                  {{ numeral(filteredWorksiteCount) }} /
                   {{ numeral(allWorksiteCount) }}
                 </span>
               </span>
-              <WorksiteSearchAndFilters
-                :key="currentIncidentId"
-                :current-incident="currentIncident"
-                :initial-filters="filters"
-                @selected-existing="handleSelectedExisting"
-                @updated-query="onUpdateQuery"
-                @updated-filters="onUpdateFilters"
-                @updated-filter-labels="updateFilterLabels"
-              />
+            </div>
+
+            <!-- CENTER: search + location -->
+            <div
+              class="flex-1 min-w-[200px] flex flex-wrap items-center gap-2 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+            >
+              <div class="flex-1 min-w-[180px]">
+                <WorksiteSearchAndFilters
+                  :key="currentIncidentId"
+                  :current-incident="currentIncident"
+                  :initial-filters="filters"
+                  @selected-existing="handleSelectedExisting"
+                  @updated-query="onUpdateQuery"
+                  @updated-filters="onUpdateFilters"
+                  @updated-filter-labels="updateFilterLabels"
+                />
+              </div>
               <base-select
                 data-testid="testLocationSelect"
                 searchable
                 item-key="id"
                 label="name"
-                :placeholder="$t('casesVue.find_county_city_postal_code')"
+                :placeholder="
+                  $t(
+                    'casesVue.find_county_city_postal_code',
+                    'Find a county, city, or postal code',
+                  )
+                "
                 :options="onLocationSearch"
-                select-classes="bg-white outline-none w-72"
-                wrapper-classes="relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none h-10"
-                class="mr-2"
+                select-classes="bg-white outline-none w-full"
+                wrapper-classes="relative flex items-center box-border cursor-pointer outline-none h-10 w-full"
+                class="flex-none w-full md:w-52"
                 size="small"
                 @update:model-value="
                   (location) => {
                     getAndApplyLocation(location);
                   }
                 "
+              />
+            </div>
+
+            <!-- RIGHT: refine + actions + collapse -->
+            <div
+              class="flex flex-wrap items-center gap-1 flex-none md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+            >
+              <WorksiteRefine
+                v-if="
+                  allWorksiteCount >= 100 &&
+                  !showingTable &&
+                  !showingPhotoMap &&
+                  !showingFeed
+                "
+                :svi-value="sviSliderValue"
+                :date-value="dateSliderValue"
+                :date-from="dateSliderFrom"
+                :date-to="dateSliderTo"
+                :show-svi="!portal?.attr?.hide_svi_slider"
+                @svi="filterSvi"
+                @date="filterDates"
               />
               <WorksiteActions
                 v-if="currentIncidentId"
@@ -419,24 +458,39 @@
                 @toggle-user-locations="toggleUserLocations"
               />
               <spinner v-if="downloadingWorksites" size="small" />
-            </div>
-            <div
-              :class="collapsedUtilityBar ? 'w-full' : ''"
-              class="flex justify-end items-center justify-self-end"
-            >
-              <font-awesome-icon
-                :icon="collapsedUtilityBar ? 'chevron-down' : 'chevron-up'"
-                :alt="
+              <button
+                type="button"
+                class="w-8 h-8 grid place-items-center rounded hover:bg-crisiscleanup-smoke transition"
+                :aria-label="
+                  collapsedUtilityBar
+                    ? $t('actions.show_options')
+                    : $t('actions.hide_options')
+                "
+                :title="
                   collapsedUtilityBar
                     ? $t('actions.show_options')
                     : $t('actions.hide_options')
                 "
                 data-testid="testCollapseUtilityBarIcon"
-                class="rounded-full border p-1 mx-1 mb-1 cursor-pointer justify-end"
-                size="xl"
                 @click="collapsedUtilityBar = !collapsedUtilityBar"
-              />
+              >
+                <font-awesome-icon
+                  :icon="collapsedUtilityBar ? 'chevron-down' : 'chevron-up'"
+                />
+              </button>
             </div>
+          </div>
+          <div v-else class="flex justify-end items-center w-full px-3 py-2">
+            <button
+              type="button"
+              class="w-8 h-8 grid place-items-center rounded hover:bg-crisiscleanup-smoke transition"
+              :aria-label="$t('actions.show_options')"
+              :title="$t('actions.show_options')"
+              data-testid="testCollapseUtilityBarIcon"
+              @click="collapsedUtilityBar = !collapsedUtilityBar"
+            >
+              <font-awesome-icon icon="chevron-down" />
+            </button>
           </div>
           <tag
             v-if="overDueFilterLabel"
@@ -492,48 +546,6 @@
                 </template>
               </template>
             </div>
-          </div>
-          <div
-            v-if="
-              !collapsedUtilityBar &&
-              !showingTable &&
-              !showingPhotoMap &&
-              !showingFeed
-            "
-            class="flex justify-center items-center"
-          >
-            <Slider
-              v-if="allWorksiteCount >= 100 && !portal?.attr?.hide_svi_slider"
-              primary-color="#dadada"
-              data-testid="testSviSliderInput"
-              secondary-color="white"
-              :value="sviSliderValue"
-              :from="$t('svi.most_vulnerable')"
-              :to="$t('svi.everyone')"
-              :from-tooltip="$t(`svi.svi_more_info_link`)"
-              handle-size="12px"
-              track-size="8px"
-              class="pt-1 ml-4"
-              slider-class="w-64"
-              @input="filterSvi"
-            />
-            <Slider
-              v-if="allWorksiteCount >= 100"
-              track-size="8px"
-              data-testid="testUpdatedSliderInput"
-              handle-size="12px"
-              primary-color="#dadada"
-              secondary-color="white"
-              class="pt-1 ml-4"
-              slider-class="w-84"
-              :title="$t('casesVue.updated')"
-              :value="dateSliderValue"
-              :min="0"
-              :max="100"
-              :from="dateSliderFrom"
-              :to="dateSliderTo"
-              @input="filterDates"
-            ></Slider>
           </div>
         </div>
         <div class="work-page__main-content">
@@ -1016,6 +1028,7 @@ import _ from 'lodash';
 import Spinner from '@/components/Spinner.vue';
 import DownloadWorksiteCsv from '@/components/downloads/DownloadWorksiteCsv.vue';
 import WorksiteNavigationIcons from '@/pages/WorksiteNavigationIcons.vue';
+import WorksiteRefine from '@/components/work/WorksiteRefine.vue';
 
 const INTERACTIVE_ZOOM_LEVEL = 12;
 
@@ -1023,6 +1036,7 @@ export default defineComponent({
   name: 'Work',
   components: {
     WorksiteNavigationIcons,
+    WorksiteRefine,
     Spinner,
     AjaxTable,
     BaseButton,

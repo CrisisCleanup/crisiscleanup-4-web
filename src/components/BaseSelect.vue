@@ -450,7 +450,7 @@ export default defineComponent({
 
 <style>
 .multiselect-dropdown {
-  @apply z-header bg-white rounded shadow-crisiscleanup-card border border-crisiscleanup-grey-100 mt-1 overflow-hidden;
+  @apply z-header bg-white rounded shadow-crisiscleanup-card border border-crisiscleanup-grey-100 mt-1 overflow-y-auto;
 }
 
 .multiselect-search {

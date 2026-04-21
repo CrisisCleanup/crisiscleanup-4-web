@@ -24,6 +24,7 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 12 | [Mobile top bar](./12-mobile-top-bar.md) | `src/layouts/Authenticated.vue` (mobile branch) | in-progress (manual verify pending) |
 | 13 | [Mobile dashboards](./13-mobile-dashboards.md) | `src/pages/Dashboard.vue` + `src/pages/dashboards/*` | in-progress (manual verify pending) |
 | 14 | [Chat polish (Spinny + access points)](./14-chat-polish.md) | `src/components/chat/{Chat,ChatMessage}.vue` + `src/components/header/Header.vue` | in-progress (manual verify pending) |
+| 15 | [Work utility bar (view toggles, search, filters, sliders)](./15-work-utility-bar.md) | `src/pages/Work.vue` + `src/pages/WorksiteNavigationIcons.vue` + `src/assets/icons/*.svg` + new `src/components/work/WorksiteRefine.vue` | not-started |
 
 Status values: `not-started` → `in-progress` → `review` → `shipped`. Update this
 row when opening/merging the PR and link it in the *PR* column if you want.

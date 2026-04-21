@@ -1,106 +1,59 @@
 <template>
-  <div class="flex items-center gap-2">
-    <ccu-icon
-      :alt="$t('casesVue.map_view')"
-      data-testid="testMapViewIcon"
-      size="medium"
-      class="cursor-pointer"
-      :class="showingMap ? 'filter-yellow' : 'filter-gray'"
-      type="map"
-      ccu-event="user_ui-view-map"
-      @click="handleShowMap"
-    />
-    <ccu-icon
-      :alt="$t('casesVue.table_view')"
-      data-testid="testTableViewIcon"
-      size="medium"
-      class="cursor-pointer"
-      :class="showingTable ? 'filter-yellow' : 'filter-gray'"
-      type="table"
-      ccu-event="user_ui-view-table"
-      @click="handleShowTable"
-    />
-    <ccu-icon
-      v-if="caseImages.length > 0"
-      :alt="$t('casesVue.photo_map_view')"
-      data-testid="testPhotoMapViewIcon"
-      size="medium"
-      class="cursor-pointer"
+  <div
+    role="tablist"
+    :aria-label="$t('casesVue.view_mode', 'View mode')"
+    class="inline-flex flex-wrap items-center rounded border border-crisiscleanup-grey-100 bg-white overflow-hidden"
+  >
+    <button
+      v-for="tab in visibleTabs"
+      :key="tab.key"
+      type="button"
+      role="tab"
+      :aria-selected="tab.active"
+      :data-testid="tab.testid"
+      :title="tab.label"
+      :aria-label="tab.label"
+      class="w-9 h-9 grid place-items-center transition"
       :class="
-        showingPhotoMap ? 'text-primary-light' : 'text-crisiscleanup-dark-100'
+        tab.active
+          ? 'bg-primary-light text-black'
+          : 'text-crisiscleanup-grey-900 hover:bg-crisiscleanup-smoke'
       "
-      ccu-event="user_ui-view-photo-map"
-      type="image"
-      :fa="true"
-      @click="handleShowPhotoMap"
-    />
-    <ccu-icon
-      v-if="$can('beta_feature.enable_feed')"
-      :alt="$t('casesVue.feed_view')"
-      data-testid="testFeedViewIcon"
-      size="medium"
-      class="cursor-pointer"
-      :class="
-        showingFeed ? 'text-primary-light' : 'text-crisiscleanup-dark-100'
-      "
-      ccu-event="user_ui-view-feed"
-      type="scroll"
-      :fa="true"
-      @click="handleShowFeed"
-    />
-
-    <ccu-icon
-      :alt="$t('casesVue.calendar_view')"
-      data-testid="testCalendarIcon"
-      size="medium"
-      class="cursor-pointer"
-      :class="showingCalendar ? 'filter-yellow' : 'filter-gray'"
-      ccu-event="user_ui-view-calendar"
-      type="calendar"
-      :fa="true"
-      @click="handleShowCalendar"
-    />
-    <ccu-icon
-      :alt="$t('casesVue.calendar_list_view')"
-      data-testid="testCalendarListViewIcon"
-      size="base"
-      class="cursor-pointer"
-      :class="showingCalendarList ? 'filter-yellow' : 'filter-gray'"
-      ccu-event="user_ui-view-calendar-list"
-      type="calendar-list"
-      @click="handleShowCalendarList"
-    />
-    <ccu-icon
-      :alt="$t('casesVue.calendar_map_view')"
-      data-testid="testCalendarMapViewIcon"
-      size="base"
-      class="cursor-pointer"
-      :class="showingCalendarMap ? 'filter-yellow' : 'filter-gray'"
-      ccu-event="user_ui-view-calendar-map"
-      type="calendar-map"
-      @click="handleShowCalendarMap"
-    />
+      @click="tab.emit"
+    >
+      <component :is="tab.icon" class="w-[18px] h-[18px]" aria-hidden="true" />
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Component } from 'vue';
 import useAcl from '@/hooks/useAcl';
-import CcuIcon from '@/components/BaseIcon.vue';
+import LucideMap from '~icons/lucide/map';
+import LucideRows3 from '~icons/lucide/rows-3';
+import LucideImage from '~icons/lucide/image';
+import LucideScrollText from '~icons/lucide/scroll-text';
+import LucideCalendar from '~icons/lucide/calendar';
+import LucideCalendarDays from '~icons/lucide/calendar-days';
+import LucideMapPinned from '~icons/lucide/map-pinned';
 
 interface Props {
-  caseImages: any[];
+  caseImages: unknown[];
   showingFeed: boolean;
   showingMap: boolean;
   showingPhotoMap: boolean;
   showingTable: boolean;
-  showingCalendar: boolean;
-  showingCalendarList: boolean;
-  showingCalendarMap: boolean;
+  showingCalendar?: boolean;
+  showingCalendarList?: boolean;
+  showingCalendarMap?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  showingCalendar: false,
+  showingCalendarList: false,
+  showingCalendarMap: false,
+});
 
-// Define the events that this component emits
 const emit = defineEmits<{
   (e: 'showFeed'): void;
   (e: 'showMap'): void;
@@ -111,34 +64,86 @@ const emit = defineEmits<{
   (e: 'showCalendarMap'): void;
 }>();
 
+const { t } = useI18n();
 const { $can } = useAcl();
 
-// Event handler methods that emit the corresponding events
-const handleShowMap = () => {
-  emit('showMap');
-};
+interface Tab {
+  key: string;
+  icon: Component;
+  active: boolean;
+  visible: boolean;
+  testid: string;
+  label: string;
+  emit: () => void;
+}
 
-const handleShowTable = () => {
-  emit('showTable');
-};
+const tabs = computed<Tab[]>(() => [
+  {
+    key: 'map',
+    icon: LucideMap,
+    active: props.showingMap,
+    visible: true,
+    testid: 'testMapViewIcon',
+    label: t('casesVue.map_view'),
+    emit: () => emit('showMap'),
+  },
+  {
+    key: 'table',
+    icon: LucideRows3,
+    active: props.showingTable,
+    visible: true,
+    testid: 'testTableViewIcon',
+    label: t('casesVue.table_view'),
+    emit: () => emit('showTable'),
+  },
+  {
+    key: 'photo-map',
+    icon: LucideImage,
+    active: props.showingPhotoMap,
+    visible: props.caseImages.length > 0,
+    testid: 'testPhotoMapViewIcon',
+    label: t('casesVue.photo_map_view'),
+    emit: () => emit('showPhotoMap'),
+  },
+  {
+    key: 'feed',
+    icon: LucideScrollText,
+    active: props.showingFeed,
+    visible: Boolean($can && $can('beta_feature.enable_feed')),
+    testid: 'testFeedViewIcon',
+    label: t('casesVue.feed_view'),
+    emit: () => emit('showFeed'),
+  },
+  {
+    key: 'calendar',
+    icon: LucideCalendar,
+    active: props.showingCalendar,
+    visible: true,
+    testid: 'testCalendarIcon',
+    label: t('casesVue.calendar_view'),
+    emit: () => emit('showCalendar'),
+  },
+  {
+    key: 'calendar-list',
+    icon: LucideCalendarDays,
+    active: props.showingCalendarList,
+    visible: true,
+    testid: 'testCalendarListViewIcon',
+    label: t('casesVue.calendar_list_view'),
+    emit: () => emit('showCalendarList'),
+  },
+  {
+    key: 'calendar-map',
+    icon: LucideMapPinned,
+    active: props.showingCalendarMap,
+    visible: true,
+    testid: 'testCalendarMapViewIcon',
+    label: t('casesVue.calendar_map_view'),
+    emit: () => emit('showCalendarMap'),
+  },
+]);
 
-const handleShowPhotoMap = () => {
-  emit('showPhotoMap');
-};
-
-const handleShowFeed = () => {
-  emit('showFeed');
-};
-
-const handleShowCalendar = () => {
-  emit('showCalendar');
-};
-
-const handleShowCalendarList = () => {
-  emit('showCalendarList');
-};
-
-const handleShowCalendarMap = () => {
-  emit('showCalendarMap');
-};
+const visibleTabs = computed(() =>
+  tabs.value.filter((tab: Tab) => tab.visible),
+);
 </script>

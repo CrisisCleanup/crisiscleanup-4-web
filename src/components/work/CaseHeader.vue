@@ -86,16 +86,27 @@
           {{ momentFromNow(worksite.updated_at) }}
         </div>
       </div>
-      <div v-if="worksite && worksite.id" class="flex items-center">
+      <div
+        v-if="worksite && worksite.id"
+        role="toolbar"
+        :aria-label="$t('actions.case_actions', 'Case actions')"
+        class="inline-flex flex-wrap items-center rounded border border-primary-dark/30 overflow-hidden divide-x divide-primary-dark/20 bg-primary-light"
+      >
         <v-popover popper-class="add-list-popover">
-          <ccu-icon
-            :alt="$t('actions.add_to_list')"
+          <button
+            type="button"
+            class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
             data-testid="testAddToListIcon"
-            size="small"
-            class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-            type="sticky-note-solid"
-          />
-
+            :title="$t('actions.add_to_list')"
+            :aria-label="$t('actions.add_to_list')"
+          >
+            <ccu-icon
+              :alt="$t('actions.add_to_list')"
+              size="small"
+              linked
+              type="sticky-note-solid"
+            />
+          </button>
           <template #popper>
             <AddToList
               class="p-1.5"
@@ -106,75 +117,122 @@
           </template>
         </v-popover>
 
-        <ccu-icon
-          :alt="$t('actions.flag')"
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="testFlagIcon"
-          size="small"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          type="flag"
+          :title="$t('actions.flag')"
+          :aria-label="$t('actions.flag')"
           @click="$emit('onFlagCase')"
-        />
-        <ccu-icon
-          :alt="$t('actions.jump_to_case')"
+        >
+          <ccu-icon :alt="$t('actions.flag')" size="small" linked type="flag" />
+        </button>
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="testJumpToCaseIcon"
-          size="small"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          type="go-case"
+          :title="$t('actions.jump_to_case')"
+          :aria-label="$t('actions.jump_to_case')"
           @click="$emit('onJumpToCase')"
-        />
-        <ccu-icon
-          :alt="$t('actions.history')"
+        >
+          <ccu-icon
+            :alt="$t('actions.jump_to_case')"
+            size="small"
+            linked
+            type="go-case"
+          />
+        </button>
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="testHistoryIcon"
-          size="small"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          :fa="true"
-          type="user-group"
+          :title="$t('actions.history')"
+          :aria-label="$t('actions.history')"
           @click="$emit('onShowHistory')"
-        />
-        <ccu-icon
-          :alt="$t('actions.download')"
-          size="small"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          type="download"
+        >
+          <ccu-icon
+            :alt="$t('actions.history')"
+            size="small"
+            linked
+            :fa="true"
+            type="user-group"
+          />
+        </button>
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="cases.icons.download"
+          :title="$t('actions.download')"
+          :aria-label="$t('actions.download')"
           @click="$emit('onDownloadWorksite')"
-        />
-        <ccu-icon
-          :alt="$t('actions.share')"
-          size="small"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          type="share"
+        >
+          <ccu-icon
+            :alt="$t('actions.download')"
+            size="small"
+            linked
+            type="download"
+          />
+        </button>
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="cases.icons.share"
+          :title="$t('actions.share')"
+          :aria-label="$t('actions.share')"
           @click="$emit('onShareWorksite')"
-        />
-        <ccu-icon
-          :alt="$t('actions.print')"
-          size="small"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          type="print"
+        >
+          <ccu-icon
+            :alt="$t('actions.share')"
+            size="small"
+            linked
+            type="share"
+          />
+        </button>
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
+          :class="printIconDisabled ? 'opacity-60 pulse cursor-wait' : ''"
           data-testid="cases.icons.print"
-          :class="printIconDisabled ? 'disabled pulse' : ''"
+          :title="$t('actions.print')"
+          :aria-label="$t('actions.print')"
+          :disabled="printIconDisabled"
           @click="handlePrintWorksite"
-        />
-        <ccu-icon
+        >
+          <ccu-icon
+            :alt="$t('actions.print')"
+            size="small"
+            linked
+            type="print"
+          />
+        </button>
+        <button
           v-if="isViewingWorksite && canEdit"
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="testEditIcon"
-          :alt="$t('actions.edit')"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          size="small"
-          type="edit"
+          :title="$t('actions.edit')"
+          :aria-label="$t('actions.edit')"
           @click="$emit('onEditCase')"
-        />
-        <ccu-icon
+        >
+          <ccu-icon :alt="$t('actions.edit')" size="small" linked type="edit" />
+        </button>
+        <button
           v-if="!isViewingWorksite && canEdit"
+          type="button"
+          class="w-8 h-8 grid place-items-center bg-primary-light hover:bg-primary-dark/20 active:bg-primary-dark/30 transition text-black"
           data-testid="testExitEditIcon"
-          :alt="$t('actions.go_to_work')"
-          class="border p-1.5 bg-primary-light hover-bg-primary-light click-bg-primary-light"
-          size="small"
-          icon-classes="filter-black scale-150"
-          type="cases"
+          :title="$t('actions.go_to_work')"
+          :aria-label="$t('actions.go_to_work')"
           @click="$emit('onExitEditCase')"
-        />
+        >
+          <ccu-icon
+            :alt="$t('actions.go_to_work')"
+            size="small"
+            linked
+            icon-classes="filter-black scale-150"
+            type="cases"
+          />
+        </button>
       </div>
     </div>
   </div>
