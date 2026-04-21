@@ -79,7 +79,7 @@
           @toggle-user-locations="toggleUserLocations"
         />
       </div>
-      <div class="absolute top-36 left-18 mt-2 z-toolbar">
+      <div class="absolute top-36 left-18 mt-2 z-search-dropdown">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"

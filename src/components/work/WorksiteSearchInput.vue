@@ -21,7 +21,7 @@
 
       <div
         v-if="results.length > 0 && isFocused"
-        class="absolute bg-white z-50 h-auto max-h-84 overflow-auto min-w-84"
+        class="absolute bg-white z-search-dropdown h-auto max-h-84 overflow-auto min-w-84 shadow-crisiscleanup-card rounded"
         data-testid="testWorsiteSearchResultsDiv"
       >
         <div v-for="result in results" :key="result.label">

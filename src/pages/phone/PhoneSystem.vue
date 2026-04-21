@@ -62,7 +62,7 @@
           class="w-10 h-10 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
         />
       </div>
-      <div class="absolute top-28 left-12 mt-2 z-toolbar">
+      <div class="absolute top-28 left-12 mt-2 z-search-dropdown">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"
