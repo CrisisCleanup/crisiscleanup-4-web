@@ -1,20 +1,29 @@
 <template>
-  <label class="z-50 flex items-center">
-    <input
-      v-model="radioButtonValue"
-      type="radio"
-      :model-value="label"
-      :name="name"
-      :class="{
-        checked: type === 'boolean' ? modelValue : label === modelValue,
-      }"
-    />
-    <span :class="labelClass">
-      <slot>
-        {{ name }}
-      </slot>
-    </span>
-  </label>
+  <div class="ccu-field flex flex-col gap-1">
+    <label class="z-50 flex items-center">
+      <input
+        v-model="radioButtonValue"
+        type="radio"
+        :model-value="label"
+        :name="name"
+        :class="{
+          checked: type === 'boolean' ? modelValue : label === modelValue,
+        }"
+      />
+      <span :class="labelClass">
+        <slot>
+          {{ name }}
+        </slot>
+      </span>
+    </label>
+    <p
+      v-if="errorMessage"
+      class="text-[11px] text-crisiscleanup-red-900 pl-7"
+      role="alert"
+    >
+      {{ errorMessage }}
+    </p>
+  </div>
 </template>
 
 <script lang="ts">
@@ -42,6 +51,10 @@ export default defineComponent({
     labelClass: {
       type: String,
       default: 'text',
+    },
+    errorMessage: {
+      type: String,
+      default: '',
     },
   },
   setup(props, { emit }) {
@@ -92,7 +105,7 @@ export default defineComponent({
   content: '';
   width: 12px;
   height: 12px;
-  background: #353535;
+  background: theme('colors.primary.dark');
   position: absolute;
   top: 3px;
   left: 3px;

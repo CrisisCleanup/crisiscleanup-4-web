@@ -191,12 +191,13 @@ export default defineComponent({
 button {
   @apply font-sans;
   cursor: pointer;
-  outline: 0;
+  border-radius: 4px;
   transition: all 300ms ease;
 }
 
-button:focus {
-  outline: 0;
+button:focus-visible {
+  outline: 2px solid theme('colors.primary.light');
+  outline-offset: 2px;
 }
 
 /** ----- DEPRECATED ----- */
@@ -224,8 +225,20 @@ button.solid.disabled {
   @apply text-gray-100;
 }
 
+button.danger {
+  @apply bg-crisiscleanup-red-900 border border-crisiscleanup-red-900 text-white;
+}
+
+button.danger:hover {
+  @apply brightness-95;
+}
+
+button.danger.disabled {
+  @apply bg-crisiscleanup-dark-200 border-crisiscleanup-dark-200 text-gray-100;
+}
+
 button.outline {
-  @apply bg-transparent border-black border;
+  @apply bg-transparent border border-crisiscleanup-dark-100;
 }
 
 button.outline:hover {

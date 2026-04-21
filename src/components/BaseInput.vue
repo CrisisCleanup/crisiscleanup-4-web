@@ -1,107 +1,127 @@
 <template>
-  <div class="flex justify-start relative" :class="classes">
+  <div class="ccu-field flex flex-col gap-1.5 relative">
     <label
-      v-if="required && isInvalid && !modelValue"
-      class="text-xs text-crisiscleanup-red-100"
+      v-if="topLabel"
+      :for="fieldId"
+      class="text-[11px] font-bold text-black"
     >
-      {{ $t('info.required') }}
-    </label>
-    <label v-if="topLabel" class="text-xs px-1 text-crisiscleanup-dark-300">
       {{ topLabel }}
     </label>
-    <component
-      :is="textArea ? 'textarea' : 'input'"
-      v-bind="$attrs"
-      ref="input"
-      :class="[inputClasses, defaultInputClasses, selector]"
-      :style="[cssVars, inputStyle]"
-      :type="passwordView || type || 'search'"
-      :value.prop="modelValue"
-      :disabled="disabled || (breakGlass && !glassBroken)"
-      :placeholder="placeholder"
-      :required="required"
-      :hidden="hidden"
-      :pattern="pattern"
-      :autocomplete="autocomplete"
-      :rows="rows"
-      @input="update"
-      @input.stop=""
-      @change="change"
-      @blur="$emit('blur', $event)"
-      @focus="$emit('focus', $event)"
-      @keyup.enter="$emit('enter')"
-      @invalid="isInvalid = true"
-    />
-    <div
-      v-if="breakGlass && !glassBroken && !hidden"
-      class="icon-container flex items-center justify-center"
-      :class="iconClasses"
-      @click="glassBroken = true"
-    >
-      <ccu-icon
-        :alt="$t('actions.edit')"
-        data-testid="testBreakGlassButton"
-        type="edit"
-        size="small"
-        class="js-break-glass"
+    <div class="ccu-field__row flex items-center relative" :class="rowClasses">
+      <component
+        :is="textArea ? 'textarea' : 'input'"
+        :id="fieldId"
+        v-bind="$attrs"
+        ref="input"
+        :class="[inputClasses, defaultInputClasses, selector]"
+        :style="[cssVars, inputStyle]"
+        :type="passwordView || type || 'search'"
+        :value.prop="modelValue"
+        :disabled="disabled || (breakGlass && !glassBroken)"
+        :placeholder="placeholder"
+        :required="required"
+        :hidden="hidden"
+        :pattern="pattern"
+        :autocomplete="autocomplete"
+        :rows="rows"
+        :aria-invalid="Boolean(resolvedError) || undefined"
+        :aria-describedby="resolvedError || hint ? `${fieldId}-msg` : undefined"
+        @input="update"
+        @input.stop=""
+        @change="change"
+        @blur="$emit('blur', $event)"
+        @focus="$emit('focus', $event)"
+        @keyup.enter="$emit('enter')"
+        @invalid="isInvalid = true"
       />
-    </div>
-    <div
-      v-if="faIcon"
-      class="icon-container flex items-center justify-center"
-      :class="iconClasses"
-    >
-      <ccu-icon
-        :fa="true"
-        size="medium"
-        :type="faIcon"
-        :alt="tooltip"
-        :action="
+      <div
+        v-if="breakGlass && !glassBroken && !hidden"
+        class="icon-container flex items-center justify-center"
+        :class="iconClasses"
+        @click="glassBroken = true"
+      >
+        <ccu-icon
+          :alt="$t('actions.edit')"
+          data-testid="testBreakGlassButton"
+          type="edit"
+          size="small"
+          class="js-break-glass"
+        />
+      </div>
+      <div
+        v-if="faIcon"
+        class="icon-container flex items-center justify-center"
+        :class="iconClasses"
+      >
+        <ccu-icon
+          :fa="true"
+          size="medium"
+          :type="faIcon"
+          :alt="tooltip"
+          :action="
+            () => {
+              $emit('iconClicked');
+            }
+          "
+        />
+      </div>
+      <div
+        v-else-if="icon || tooltip"
+        v-tooltip="{
+          content: tooltip,
+          triggers: ['hover'],
+          popperClass: 'interactive-tooltip w-72',
+          html: true,
+        }"
+        class="icon-container flex items-center justify-center"
+        :class="iconClasses"
+      >
+        <ccu-icon
+          :alt="$t('actions.help_alt')"
+          :type="tooltip ? 'info' : icon"
+          :size="iconSize"
+        />
+      </div>
+      <font-awesome-icon
+        v-if="type === 'password'"
+        :alt="$t('info.password')"
+        size="lg"
+        class="cursor-pointer absolute right-0 mr-4"
+        :icon="passwordView === 'text' ? 'eye-slash' : 'eye'"
+        @click="
           () => {
-            $emit('iconClicked');
+            if (passwordView === 'text') {
+              passwordView = 'password';
+            } else {
+              passwordView = 'text';
+            }
           }
         "
       />
+      <slot></slot>
     </div>
-    <div
-      v-else-if="icon || tooltip"
-      v-tooltip="{
-        content: tooltip,
-        triggers: ['hover'],
-        popperClass: 'interactive-tooltip w-72',
-        html: true,
-      }"
-      class="icon-container flex items-center justify-center"
-      :class="iconClasses"
+    <p
+      v-if="resolvedError"
+      :id="`${fieldId}-msg`"
+      class="text-[11px] text-crisiscleanup-red-900"
+      role="alert"
     >
-      <ccu-icon
-        :alt="$t('actions.help_alt')"
-        :type="tooltip ? 'info' : icon"
-        :size="iconSize"
-      />
-    </div>
-    <font-awesome-icon
-      v-if="type === 'password'"
-      :alt="$t('info.password')"
-      size="lg"
-      class="cursor-pointer absolute right-0 mr-4"
-      :icon="passwordView === 'text' ? 'eye-slash' : 'eye'"
-      @click="
-        () => {
-          if (passwordView === 'text') {
-            passwordView = 'password';
-          } else {
-            passwordView = 'text';
-          }
-        }
-      "
-    />
-    <slot></slot>
+      {{ resolvedError }}
+    </p>
+    <p
+      v-else-if="hint"
+      :id="`${fieldId}-msg`"
+      class="text-[11px] text-crisiscleanup-grey-900"
+    >
+      {{ hint }}
+    </p>
   </div>
 </template>
 
 <script lang="ts">
 import { ref, computed, defineComponent } from 'vue';
+import type { PropType } from 'vue';
+import { uniqueId } from 'lodash';
 
 export interface BaseInputProps {
   textAreaAutoResize?: boolean;
@@ -129,6 +149,8 @@ export interface BaseInputProps {
   validator?: ((value: any) => { newValue: any; valid: boolean }) | boolean;
   width?: string;
   height?: string;
+  hint?: string;
+  errorMessage?: string | string[];
 }
 
 export interface BaseInputEmits {
@@ -243,6 +265,14 @@ export default defineComponent({
       type: String,
       default: '40',
     },
+    hint: {
+      type: String,
+      default: '',
+    },
+    errorMessage: {
+      type: [String, Array] as PropType<string | string[]>,
+      default: '',
+    },
   },
   emits: [
     'update:modelValue',
@@ -254,7 +284,8 @@ export default defineComponent({
   ],
 
   setup(props, context) {
-    const id = ref(null);
+    const { t } = useI18n();
+    const fieldId = `base-input-${uniqueId()}`;
     const isInvalid = ref(false);
     const input = ref(null);
     const passwordView = ref(props.type === 'password' ? 'password' : '');
@@ -273,15 +304,32 @@ export default defineComponent({
       };
     });
 
-    const classes = computed(() => ({
-      'border-crisiscleanup-red-100': props.topLabel && isInvalid.value,
-      'flex-col items-start border': Boolean(props.topLabel),
-      'items-center': !props.topLabel,
+    const resolvedError = computed(() => {
+      const custom = Array.isArray(props.errorMessage)
+        ? props.errorMessage[0]
+        : props.errorMessage;
+      if (custom) return custom;
+      if (props.required && isInvalid.value && !props.modelValue) {
+        return t('info.required');
+      }
+      return '';
+    });
+
+    const rowClasses = computed(() => ({
+      'has-error': Boolean(resolvedError.value),
     }));
+
+    const hasAdjacentIcon = computed(() =>
+      Boolean(
+        props.faIcon ||
+          props.icon ||
+          props.tooltip ||
+          (props.breakGlass && !glassBroken.value && !props.hidden),
+      ),
+    );
 
     const defaultInputClasses = computed(() => ({
       'flex-grow': true,
-      'p-1': true,
       'text-base': !props.inputClasses,
       xlarge: props.size === 'xlarge',
       large: props.size === 'large',
@@ -289,9 +337,9 @@ export default defineComponent({
       small: props.size === 'small',
       base: props.size === 0,
       'has-icon': Boolean(props.icon),
+      'has-adjacent-icon': hasAdjacentIcon.value,
       'has-tooltip': Boolean(props.tooltip),
-      invalid: Boolean(isInvalid.value),
-      'border-none': Boolean(props.topLabel),
+      invalid: Boolean(resolvedError.value),
       noscrollbars: Boolean(props.textAreaAutoResize),
     }));
 
@@ -332,12 +380,13 @@ export default defineComponent({
 
     return {
       input,
-      id,
+      fieldId,
       isInvalid,
       passwordView,
       iconClasses,
       glassBroken,
-      classes,
+      rowClasses,
+      resolvedError,
       cssVars,
       defaultInputClasses,
       update,
@@ -357,19 +406,22 @@ textarea:disabled {
 }
 
 input::placeholder {
-  @apply text-crisiscleanup-dark-200;
+  @apply text-crisiscleanup-dark-300;
 }
 
 textarea::placeholder {
-  @apply text-crisiscleanup-dark-200;
+  @apply text-crisiscleanup-dark-300;
 }
 
-input.invalid {
-  @apply border border-crisiscleanup-red-100;
-}
-
+input.invalid,
 textarea.invalid {
-  @apply border border-crisiscleanup-red-100;
+  @apply border border-crisiscleanup-red-900;
+}
+
+input.invalid:focus,
+textarea.invalid:focus {
+  border-color: theme('colors.crisiscleanup-red.900');
+  box-shadow: 0 0 0 2px rgba(206, 0, 0, 0.2);
 }
 
 textarea.noscrollbars {
@@ -381,21 +433,46 @@ input {
   outline: none;
   width: var(--width);
   height: var(--height);
-  border-radius: 0;
-  @apply border;
+  border-radius: 4px;
+  @apply border border-crisiscleanup-dark-100;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  font-size: 14px;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
   -webkit-appearance: none;
   opacity: 1;
 }
 
 textarea {
   outline: none;
-  @apply border;
-  border-radius: 0;
+  @apply border border-crisiscleanup-dark-100;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding: 9px 10px;
+  font-size: 14px;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 
 input:not([type='radio']):not([type='checkbox']) {
   -webkit-appearance: none;
-  border-radius: 0;
+  border-radius: 4px;
+}
+
+input:focus,
+textarea:focus {
+  border-color: theme('colors.primary.light');
+  box-shadow: 0 0 0 2px rgba(254, 206, 9, 0.25);
+}
+
+input:not([type='radio']):not([type='checkbox']).has-adjacent-icon,
+textarea.has-adjacent-icon {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: 0;
 }
 
 input.xlarge {
@@ -425,6 +502,8 @@ textarea.large {
   height: 40px;
   @apply border border-crisiscleanup-dark-100;
   border-left: 0;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 
 .icon-container.large {

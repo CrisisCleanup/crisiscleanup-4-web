@@ -1,6 +1,14 @@
 <template>
-  <div>
+  <div class="ccu-field flex flex-col gap-1.5">
+    <label
+      v-if="topLabel"
+      :for="fieldId"
+      class="text-[11px] font-bold text-black"
+    >
+      {{ topLabel }}
+    </label>
     <Multiselect
+      :id="fieldId"
       ref="input"
       :model-value="modelValue"
       :required="required"
@@ -18,14 +26,13 @@
       :clear-on-blur="false"
       :delay="isAsync ? 0 : undefined"
       :filter-results="isAsync ? false : undefined"
-      :class="[
-        isInvalid && !modelValue ? 'invalid' : '',
-        floatLabel ? 'py-2 pt-3' : '',
-      ]"
+      :class="[resolvedError ? 'invalid' : '', floatLabel ? 'py-2 pt-3' : '']"
       :placeholder="placeholder"
       :no-options-text="placeholder"
       :classes="multiSelectClasses"
       :aria-label="ariaLabel || floatLabel || placeholder || undefined"
+      :aria-invalid="Boolean(resolvedError) || undefined"
+      :aria-describedby="resolvedError || hint ? `${fieldId}-msg` : undefined"
       v-bind="$attrs"
       @update:model-value="
         (v) => {
@@ -72,6 +79,15 @@
       <template #beforelist>
         <slot name="list-header" />
       </template>
+
+      <template #caret="{ isOpen }">
+        <font-awesome-icon
+          icon="chevron-down"
+          class="multiselect-caret-icon text-crisiscleanup-grey-900 text-[12px] mr-3 pointer-events-none transition-transform"
+          :class="{ 'rotate-180': isOpen }"
+          aria-hidden="true"
+        />
+      </template>
     </Multiselect>
     <label
       v-if="floatLabel"
@@ -83,6 +99,21 @@
         {{ floatLabel }}
       </slot>
     </label>
+    <p
+      v-if="resolvedError"
+      :id="`${fieldId}-msg`"
+      class="text-[11px] text-crisiscleanup-red-900"
+      role="alert"
+    >
+      {{ resolvedError }}
+    </p>
+    <p
+      v-else-if="hint"
+      :id="`${fieldId}-msg`"
+      class="text-[11px] text-crisiscleanup-grey-900"
+    >
+      {{ hint }}
+    </p>
   </div>
 </template>
 
@@ -91,7 +122,7 @@ import Multiselect from '@vueform/multiselect';
 import type { PropType } from 'vue';
 import { computed, h, nextTick, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { isEmpty as empty, kebabCase, xor } from 'lodash';
+import { isEmpty as empty, kebabCase, uniqueId, xor } from 'lodash';
 
 export default defineComponent({
   name: 'BaseSelect',
@@ -126,12 +157,12 @@ export default defineComponent({
     containerClasses: {
       type: String,
       default:
-        'border relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-base leading-snug outline-none',
+        'relative mx-auto w-full flex items-center justify-end cursor-pointer bg-white text-[14px] leading-snug outline-none rounded border border-crisiscleanup-dark-100 transition focus-within:border-primary-light focus-within:shadow-[0_0_0_2px_rgba(254,206,9,.25)]',
     },
     wrapperClasses: {
       type: String,
       default:
-        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none min-h-[theme(spacing.12)]',
+        'relative mx-auto w-full flex items-center justify-end box-border cursor-pointer outline-none min-h-[40px]',
     },
     options: {
       type: [Array, Function],
@@ -179,6 +210,18 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    topLabel: {
+      type: String,
+      default: '',
+    },
+    hint: {
+      type: String,
+      default: '',
+    },
+    errorMessage: {
+      type: [String, Array] as PropType<string | string[]>,
+      default: '',
+    },
   },
   setup(props, { emit }) {
     const { t } = useI18n();
@@ -186,6 +229,7 @@ export default defineComponent({
 
     const iconSize = props.multiple ? 'xxs' : 'medium';
     const { indicatorIcon } = props;
+    const fieldId = `base-select-${uniqueId()}`;
     const input = ref(null);
     const inputLabel = ref(null);
     const isFloated_ = ref(false);
@@ -195,6 +239,13 @@ export default defineComponent({
     const currentHeight_ = ref(0);
     const floatDisplacement = ref(0);
     const selected = ref(null);
+
+    const resolvedError = computed(() => {
+      const custom = Array.isArray(props.errorMessage)
+        ? props.errorMessage[0]
+        : props.errorMessage;
+      return custom || '';
+    });
 
     const inputIdSelector = computed(() => {
       const idSpec = props.floatLabel ?? '';
@@ -254,13 +305,12 @@ export default defineComponent({
         ...searchClassesObj,
         ...containerClassesObj,
         ...wrapperClassesObj,
-        optionSelected: 'text-white bg-crisiscleanup-dark-200',
-        optionPointed: 'text-gray-800 bg-crisiscleanup-dark-100',
-        optionSelectedPointed:
-          'text-white bg-crisiscleanup-dark-200 opacity-90',
+        optionSelected: 'bg-primary-light text-black font-bold',
+        optionPointed: 'bg-crisiscleanup-smoke text-black',
+        optionSelectedPointed: 'bg-primary-light text-black font-bold',
         singleLabel:
           'flex items-center h-full max-w-full absolute left-0 top-0 pointer-events-none bg-transparent leading-snug pl-3.5 pr-16 box-border rtl:left-auto rtl:right-0 rtl:pl-0 rtl:pr-3.5',
-        tag: 'text-xs bg-white py-0.5 pl-2 rounded mr-1 mb-1 flex items-center whitespace-nowrap rtl:pl-0 rtl:pr-2 rtl:mr-0 rtl:ml-1 border border-crisiscleanup-dark-100',
+        tag: 'text-[11px] font-bold bg-crisiscleanup-smoke text-black py-0.5 px-2 rounded-full mr-1 mb-1 flex items-center whitespace-nowrap rtl:pr-2 rtl:mr-0 rtl:ml-1 border border-crisiscleanup-grey-100',
       };
     });
 
@@ -371,7 +421,9 @@ export default defineComponent({
     return {
       selected,
       // options,
+      fieldId,
       isInvalid,
+      resolvedError,
       floatDisplacement,
       cancelText,
       inputIdSelector,
@@ -398,7 +450,7 @@ export default defineComponent({
 
 <style>
 .multiselect-dropdown {
-  @apply z-header;
+  @apply z-header bg-white rounded shadow-crisiscleanup-card border border-crisiscleanup-grey-100 mt-1 overflow-hidden;
 }
 
 .multiselect-search {
@@ -409,7 +461,26 @@ export default defineComponent({
   @apply h-full;
 }
 
+.multiselect-option {
+  @apply min-h-[36px] px-3 py-2 text-[14px];
+}
+
 .multiselect-placeholder {
-  @apply text-crisiscleanup-dark-400;
+  @apply text-crisiscleanup-dark-300;
+}
+
+.multiselect-tag {
+  @apply text-[11px] font-bold bg-crisiscleanup-smoke text-black py-0.5 px-2 rounded-full mr-1 mb-1 border border-crisiscleanup-grey-100;
+}
+
+.multiselect-tag-remove {
+  @apply opacity-60 hover:opacity-100 ml-1;
+}
+
+.form-select.invalid {
+  @apply border-crisiscleanup-red-900;
+}
+.form-select.invalid:focus-within {
+  @apply border-crisiscleanup-red-900 shadow-[0_0_0_2px_rgba(206,0,0,0.2)];
 }
 </style>

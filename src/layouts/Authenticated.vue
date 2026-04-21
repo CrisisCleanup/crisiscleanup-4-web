@@ -609,8 +609,8 @@ export default defineComponent({
 @media (min-width: 768px) {
   .layout {
     display: grid;
-    grid-template-columns: 125px 1fr;
-    grid-template-rows: 65px 1fr;
+    grid-template-columns: 96px 1fr;
+    grid-template-rows: 64px 1fr;
     grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
     grid-auto-flow: row;

@@ -11,9 +11,7 @@
         <img
           :src="portal?.logo_url || logo"
           :alt="portal?.name_t ? $t(portal.name_t) : 'Crisis Cleanup'"
-          width="133"
-          height="53"
-          style="height: 53px; width: auto"
+          class="max-w-full h-auto"
           data-testid="testCrisiscleanupLogoIcon"
         />
       </div>
