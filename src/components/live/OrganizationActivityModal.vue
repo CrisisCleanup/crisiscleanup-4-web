@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col w-11/12 p-3 overflow-y-auto rounded-lg shadow-lg relative"
+    class="flex flex-col w-11/12 p-3 overflow-y-auto rounded shadow-crisiscleanup-card relative"
     :style="styles"
     style="max-height: 85vh"
   >

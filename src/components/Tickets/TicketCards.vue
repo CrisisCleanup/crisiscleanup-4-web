@@ -1410,7 +1410,7 @@ onMounted(async () => {
 
 <style scoped>
 .ticket__container {
-  @apply rounded-lg bg-white md:border md:border-gray-600 md:m-4 text-sm shadow-md grid grid-cols-12;
+  @apply rounded bg-white md:border md:border-gray-600 md:m-4 text-sm shadow-crisiscleanup-card grid grid-cols-12;
 
   .cc__user-info {
     @apply hidden md:block col-span-12 md:col-span-3  border-r-2 border-gray-400 overflow-y-auto min-h-full  h-64 md:h-24;

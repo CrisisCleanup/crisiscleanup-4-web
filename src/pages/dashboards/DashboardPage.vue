@@ -202,7 +202,7 @@
         @click.self="showUploadPhotosModal = false"
       >
         <div
-          class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-auto"
+          class="bg-white rounded shadow-crisiscleanup-card max-w-2xl w-full max-h-[90vh] overflow-auto"
         >
           <UploadVolunteerPhotosModal
             :organization-id="currentUser?.organization?.id"

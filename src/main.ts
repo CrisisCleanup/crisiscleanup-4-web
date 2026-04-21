@@ -100,6 +100,7 @@ import BaseButton from './components/BaseButton.vue';
 import BaseInput from './components/BaseInput.vue';
 import BaseText from './components/BaseText.vue';
 import Badge from './components/Badge.vue';
+import BasePill from './components/BasePill.vue';
 import Tag from './components/Tag.vue';
 import Modal from './components/Modal.vue';
 import Authenticated from './layouts/Authenticated.vue';
@@ -267,6 +268,7 @@ const buildApp = (app: VueApp) =>
     .component('BaseLink', BaseLink)
     .component('BaseRadio', BaseRadio)
     .component('Badge', Badge)
+    .component('BasePill', BasePill)
     .component('Tag', Tag)
     .component('TagInput', VueTagsInput)
     .component('AuthenticatedLayout', Authenticated)

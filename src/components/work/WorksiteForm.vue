@@ -242,7 +242,7 @@
       <div class="form-field">
         <div
           v-if="addressSet"
-          class="rounded-lg shadow-lg p-5 border flex justify-between items-center"
+          class="rounded shadow-crisiscleanup-card p-5 border flex justify-between items-center"
         >
           <div class="flex items-start">
             <ccu-icon

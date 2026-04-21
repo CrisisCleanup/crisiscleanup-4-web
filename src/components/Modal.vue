@@ -189,12 +189,15 @@ export default defineComponent({
 .modal-container {
   margin: 0 auto;
   transition: all 0.3s ease;
+  @apply rounded shadow-crisiscleanup-card;
 
   &--fullscreen {
     @apply absolute inset-0;
     max-width: 100%;
     width: 100%;
     height: 100%;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 

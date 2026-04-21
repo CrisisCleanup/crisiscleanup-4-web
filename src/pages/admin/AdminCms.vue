@@ -159,7 +159,7 @@
       :columns="columns"
       :url="tableUrl"
       :query="query"
-      class="mt-6 shadow-lg"
+      class="mt-6 shadow-crisiscleanup-card"
       @row-click="(payload) => editItem(payload)"
     >
       <template #header-actions>

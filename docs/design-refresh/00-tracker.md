@@ -15,8 +15,8 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 03 | [Sidebar](./03-sidebar.md) | `src/components/navigation/{NavMenu,NavButton}.vue` | not-started |
 | 04 | [Buttons](./04-buttons.md) | `src/components/BaseButton.vue` | in-progress (manual verify pending) |
 | 05 | [Inputs & forms](./05-inputs-forms.md) | `src/components/{BaseInput,BaseSelect,BaseRadio}.vue` | in-progress (manual verify pending) |
-| 06 | [Pills & badges](./06-pills-badges.md) | new `src/components/BasePill.vue` + grep migration | not-started |
-| 07 | [Cards & surfaces](./07-cards-surfaces.md) | audit pass across `src/components/` | not-started |
+| 06 | [Pills & badges](./06-pills-badges.md) | new `src/components/BasePill.vue` + grep migration | in-progress (manual verify pending) |
+| 07 | [Cards & surfaces](./07-cards-surfaces.md) | audit pass across `src/components/` | in-progress (manual verify pending) |
 | 08 | [Table + integrated search toolbar](./08-table.md) | `src/components/Table.vue` + caller migration | not-started |
 | 09 | [Input error & hint messaging (bug fix)](./09-input-error-messaging.md) | `src/components/{BaseInput,BaseSelect,BaseRadio}.vue` | in-progress (manual verify pending) |
 | 10 | [Typography base (body 15 px)](./10-typography-base.md) | `src/style.css` | in-progress (shipped w/ 01; manual verify pending) |

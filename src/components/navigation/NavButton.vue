@@ -7,14 +7,13 @@
     :data-testid="`test${route.key}Link`"
   >
     <div :key="route.key" class="flex flex-col items-center relative">
-      <badge
+      <BasePill
         v-if="route.newBadge"
+        variant="new"
         data-testid="testNewBadgeIcon"
-        width="2rem"
-        height="1rem"
-        class="text-white bg-crisiscleanup-red-700 mx-1 absolute -top-0.5 -right-8 p-3"
+        class="absolute -top-0.5 -right-8"
         :title="$t('info.new_badge')"
-        >{{ $t('info.new') }}</badge
+        >{{ $t('info.new') }}</BasePill
       >
       <ccu-icon
         :alt="$t(`nav.${route.key}`)"

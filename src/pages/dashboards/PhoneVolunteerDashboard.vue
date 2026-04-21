@@ -283,7 +283,7 @@ onMounted(async () => {
 
 <style scoped>
 .stats-card {
-  @apply bg-white rounded-lg p-4 shadow-md;
+  @apply bg-white rounded p-4 shadow-crisiscleanup-card;
 }
 
 @media (max-width: 768px) {

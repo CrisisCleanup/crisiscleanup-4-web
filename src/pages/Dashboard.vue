@@ -20,7 +20,7 @@
       >
         <!--Metric Card-->
         <div
-          class="h-full bg-crisiscleanup-lightblue-100 rounded-lg shadow-lg p-5"
+          class="h-full bg-crisiscleanup-lightblue-100 rounded shadow-crisiscleanup-card p-5"
         >
           <div class="flex flex-row items-center">
             <div class="flex-shrink pr-4">
@@ -57,7 +57,7 @@
       >
         <!--Metric Card-->
         <div
-          class="h-full bg-crisiscleanup-yellow-100 rounded-lg shadow-lg relative"
+          class="h-full bg-crisiscleanup-yellow-100 rounded shadow-crisiscleanup-card relative"
           data-testid="testMetricCardTotalClaimedDiv"
         >
           <div class="flex flex-row items-center p-5">
@@ -88,7 +88,7 @@
             </div>
           </div>
           <div
-            class="absolute bottom-0 left-0 border-b-4 rounded-b-lg border-yellow-600"
+            class="absolute bottom-0 left-0 border-b-4 rounded-b border-yellow-600"
             :style="{ width: `${(totalClaimed / totalWorksites) * 100}%` }"
           ></div>
         </div>
@@ -101,7 +101,7 @@
       >
         <!--Metric Card-->
         <div
-          class="h-full bg-orange-400 rounded-lg shadow-lg relative"
+          class="h-full bg-orange-400 rounded shadow-crisiscleanup-card relative"
           data-testid="testMetricCardInProgressDiv"
         >
           <div class="flex flex-row items-center p-5">
@@ -132,7 +132,7 @@
             </div>
           </div>
           <div
-            class="absolute bottom-0 left-0 border-b-4 rounded-b-lg border-orange-600"
+            class="absolute bottom-0 left-0 border-b-4 rounded-b border-orange-600"
             :style="{
               width: `${(totalInProgess / totalWorksites) * 100}%`,
             }"
@@ -147,7 +147,7 @@
       >
         <!--Metric Card-->
         <div
-          class="h-full bg-crisiscleanup-green-100 rounded-lg shadow-lg relative"
+          class="h-full bg-crisiscleanup-green-100 rounded shadow-crisiscleanup-card relative"
           data-testid="testMetricCardClosedDiv"
         >
           <div class="flex flex-row items-center p-5">
@@ -178,7 +178,7 @@
             </div>
           </div>
           <div
-            class="bottom-0 left-0 border-b-4 rounded-b-lg border-green-600 absolute"
+            class="bottom-0 left-0 border-b-4 rounded-b border-green-600 absolute"
             :style="{ width: `${(totalClosed / totalWorksites) * 100}%` }"
           ></div>
         </div>

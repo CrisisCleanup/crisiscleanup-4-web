@@ -1,6 +1,6 @@
 <template>
   <div class="p-4">
-    <div class="bg-white rounded-lg shadow-lg">
+    <div class="bg-white rounded shadow-crisiscleanup-card">
       <!-- Header Section -->
       <div class="border-b border-gray-200 p-6">
         <div class="flex items-center mb-2">
@@ -428,7 +428,7 @@
     </div>
 
     <!-- Historical Downloads Section -->
-    <div class="mt-8 bg-white rounded-lg shadow-lg">
+    <div class="mt-8 bg-white rounded shadow-crisiscleanup-card">
       <div class="border-b border-gray-200 p-6">
         <div class="flex items-center mb-2">
           <ccu-icon
@@ -541,7 +541,7 @@
   <modal
     v-if="showImageModal"
     :title="$t('adminSentimentAnalysis.case_images')"
-    modal-classes="max-w-4xl bg-white shadow-lg"
+    modal-classes="max-w-4xl bg-white shadow-crisiscleanup-card"
     closeable
     @close="closeImageModal"
   >
@@ -593,7 +593,7 @@
           <img
             :src="selectedImage.general_file_url"
             :alt="selectedImage.filename"
-            class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg"
+            class="max-w-full max-h-96 mx-auto rounded shadow-crisiscleanup-card"
           />
           <div class="mt-4 flex justify-center space-x-4">
             <base-button
@@ -621,7 +621,7 @@
   <modal
     v-if="showFileSelectionModal"
     :title="$t('adminSentimentAnalysis.select_files_to_filter')"
-    modal-classes="max-w-4xl bg-white shadow-lg"
+    modal-classes="max-w-4xl bg-white shadow-crisiscleanup-card"
     closeable
     @close="closeFileSelectionModal"
   >

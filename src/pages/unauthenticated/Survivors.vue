@@ -149,7 +149,7 @@
           </div>
           <div
             v-if="addressSet"
-            class="rounded-lg shadow-lg p-5 border flex justify-between items-center"
+            class="rounded shadow-crisiscleanup-card p-5 border flex justify-between items-center"
           >
             <div class="flex items-start">
               <ccu-icon
@@ -220,7 +220,7 @@
 
       <div v-else class="pt-2">
         <div
-          class="rounded-lg shadow-lg p-5 border flex justify-center items-center bg-crisiscleanup-green-600 text-white"
+          class="rounded shadow-crisiscleanup-card p-5 border flex justify-center items-center bg-crisiscleanup-green-600 text-white"
         >
           <ccu-icon
             type="privacy"
