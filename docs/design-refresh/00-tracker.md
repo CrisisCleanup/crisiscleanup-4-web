@@ -21,6 +21,9 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 09 | [Input error & hint messaging (bug fix)](./09-input-error-messaging.md) | `src/components/{BaseInput,BaseSelect,BaseRadio}.vue` | in-progress (manual verify pending) |
 | 10 | [Typography base (body 15 px)](./10-typography-base.md) | `src/style.css` | in-progress (shipped w/ 01; manual verify pending) |
 | 11 | [Select refresh + incident picker trigger](./11-select-incident-picker.md) | `src/components/BaseSelect.vue` + recipe used by spec 02 | in-progress (manual verify pending) |
+| 12 | [Mobile top bar](./12-mobile-top-bar.md) | `src/layouts/Authenticated.vue` (mobile branch) | in-progress (manual verify pending) |
+| 13 | [Mobile dashboards](./13-mobile-dashboards.md) | `src/pages/Dashboard.vue` + `src/pages/dashboards/*` | not-started |
+| 14 | [Chat polish (Spinny + access points)](./14-chat-polish.md) | `src/components/chat/{Chat,ChatMessage}.vue` + `src/components/header/Header.vue` | not-started |
 
 Status values: `not-started` → `in-progress` → `review` → `shipped`. Update this
 row when opening/merging the PR and link it in the *PR* column if you want.

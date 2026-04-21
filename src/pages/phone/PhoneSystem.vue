@@ -1,7 +1,7 @@
 <template>
   <template v-if="mq.mdMinus">
     <div v-if="!isEditing && !isNew">
-      <div class="h-20 absolute top-0 w-24 mt-20 z-toolbar">
+      <div class="h-20 absolute top-0 w-24 mt-28 z-toolbar">
         <PhoneToolBar
           :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
@@ -121,7 +121,7 @@
     <div
       v-else
       :style="{
-        height: worksite ? 'calc(100vh - 10rem)' : 'calc(100vh - 8rem)',
+        height: worksite ? 'calc(100vh - 13rem)' : 'calc(100vh - 11rem)',
       }"
     >
       <CaseHeader
@@ -787,7 +787,9 @@ export default defineComponent({
           const statusRecord = response.response.data;
           if (currentDnisHistoryRecord.value && statusRecord) {
             await axios.patch(
-              `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history/${currentDnisHistoryRecord.value.id}`,
+              `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history/${
+                currentDnisHistoryRecord.value.id
+              }`,
               {
                 status: statusRecord?.id || null,
                 outbound: call?.value?.id || lastCall?.value?.id || null,
@@ -816,7 +818,9 @@ export default defineComponent({
           const statusRecord = response.data;
           if (currentDnisHistoryRecord.value && statusRecord) {
             await axios.patch(
-              `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history/${currentDnisHistoryRecord.value.id}`,
+              `${import.meta.env.VITE_APP_API_BASE_URL}/phone/history/${
+                currentDnisHistoryRecord.value.id
+              }`,
               {
                 status: statusRecord?.id || null,
                 inbound: call?.value?.id || lastCall?.value?.id,
@@ -912,9 +916,7 @@ export default defineComponent({
             };
 
         const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/worksites_download/download_csv`,
+          `${import.meta.env.VITE_APP_API_BASE_URL}/worksites_download/download_csv`,
           {
             params,
             headers: { Accept: 'text/csv' },

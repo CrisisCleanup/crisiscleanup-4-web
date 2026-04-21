@@ -27,7 +27,7 @@
       />
       <WorksiteFeed
         v-else-if="showingFeed"
-        class="h-[calc(100vh-8rem)] mt-16"
+        class="h-[calc(100vh-11rem)] mt-16"
         :current-user-location="currentUserLocation"
         @load-case="loadCase"
       />
@@ -60,7 +60,7 @@
           </span>
         </span>
       </span>
-      <div class="absolute top-4 right-4 flex items-center z-toolbar">
+      <div class="absolute top-16 right-4 flex items-center z-toolbar">
         <WorksiteActions
           v-if="currentIncidentId"
           :key="currentIncidentId"
@@ -79,7 +79,7 @@
           @toggle-user-locations="toggleUserLocations"
         />
       </div>
-      <div class="absolute top-20 left-12 mt-2 z-toolbar">
+      <div class="absolute top-36 left-18 mt-2 z-toolbar">
         <WorksiteSearchInput
           v-if="showingSearchModal"
           :value="mobileSearch"
@@ -89,7 +89,7 @@
           :placeholder="$t('actions.search')"
           skip-validation
           use-recents
-          class="mx-4 py-1 inset-1"
+          class="mx-4 inset-1 bg-white"
           @selected-existing="handleSelectedExisting"
           @input="
             (value: string) => {
@@ -166,7 +166,7 @@
       v-else
       class=""
       :style="{
-        height: worksite ? 'calc(100vh - 10rem)' : 'calc(100vh - 8rem)',
+        height: worksite ? 'calc(100vh - 13rem)' : 'calc(100vh - 11rem)',
       }"
     >
       <CaseHeader

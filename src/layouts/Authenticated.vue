@@ -3,14 +3,123 @@
     <!-- For mobile screens -->
     <template v-if="mq.mdMinus">
       <div class="flex flex-col">
-        <DisasterIcon
-          v-if="currentIncident && currentIncident.incidentImage"
-          :current-incident="currentIncident"
-          data-testid="testDisasterIcon"
-          class="fixed left-4 top-4 z-disaster-icon"
-          @click="showIncidentSelectionModal"
-        />
-        <main>
+        <header
+          class="fixed inset-x-0 top-0 h-12 z-header bg-white border-b border-crisiscleanup-grey-100 flex items-center px-3 gap-2"
+          data-testid="testMobileHeader"
+        >
+          <button
+            type="button"
+            class="flex-1 min-w-0 flex items-center gap-2 px-2 py-1 rounded hover:bg-crisiscleanup-smoke transition"
+            :aria-label="$t('locationVue.select_incident')"
+            data-testid="testMobileIncidentTrigger"
+            @click="showIncidentSelectionModal"
+          >
+            <div
+              class="incident-tile w-7 h-7 flex-none grid place-items-center rounded bg-crisiscleanup-smoke overflow-hidden"
+            >
+              <DisasterIcon
+                v-if="currentIncident?.incident_type"
+                :current-incident="currentIncident"
+                data-testid="testDisasterIcon"
+              />
+            </div>
+            <span
+              v-if="currentIncident?.case_label"
+              class="bg-primary-light text-black text-[11px] font-bold px-1.5 py-0.5 rounded-sm flex-none"
+            >
+              {{ currentIncident.case_label }}
+            </span>
+            <span
+              class="flex-1 min-w-0 truncate font-bold text-[13px] text-left"
+            >
+              {{ currentIncident?.name }}
+            </span>
+            <font-awesome-icon
+              icon="chevron-down"
+              class="text-crisiscleanup-grey-900 text-[12px] flex-none"
+            />
+          </button>
+          <v-popover
+            v-if="currentUser"
+            popper-class="menu-popover"
+            placement="bottom-end"
+          >
+            <button
+              type="button"
+              class="flex items-center gap-1.5 px-1.5 py-1 rounded hover:bg-crisiscleanup-smoke transition max-w-[140px]"
+              :aria-label="currentUser.full_name"
+              data-testid="testMobileUserMenu"
+            >
+              <Avatar
+                :initials="currentUser.first_name"
+                :url="currentUser.profilePictureUrl"
+                :alt="currentUser.full_name"
+                :custom-size="{ width: '28px', height: '28px' }"
+                inner-classes=""
+                data-testid="testAvatarIcon"
+              />
+              <span
+                class="truncate font-bold text-[12px] text-black"
+                data-testid="testMobileUserName"
+              >
+                {{ currentUser.first_name }}
+              </span>
+              <font-awesome-icon
+                icon="caret-down"
+                class="text-crisiscleanup-grey-900 text-[12px] flex-none"
+              />
+            </button>
+            <template #popper="{ hide: hidePopover }">
+              <div class="flex flex-col">
+                <base-button
+                  class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
+                  :text="$t('nav.profile')"
+                  :alt="$t('nav.profile')"
+                  :action="
+                    () => {
+                      $router.push('/profile');
+                      hidePopover();
+                    }
+                  "
+                />
+                <base-button
+                  class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
+                  :text="$t('nav.downloads')"
+                  :alt="$t('nav.downloads')"
+                  :action="
+                    () => {
+                      $router.push('/downloads');
+                      hidePopover();
+                    }
+                  "
+                />
+                <base-button
+                  class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
+                  :text="$t('list.lists')"
+                  :alt="$t('list.lists')"
+                  :action="
+                    () => {
+                      $router.push('/lists');
+                      hidePopover();
+                    }
+                  "
+                />
+                <base-button
+                  class="text-base p-2 hover:bg-crisiscleanup-light-grey cursor-pointer"
+                  :text="$t('actions.logout')"
+                  :alt="$t('actions.logout')"
+                  :action="
+                    () => {
+                      logoutApp();
+                      hidePopover();
+                    }
+                  "
+                />
+              </div>
+            </template>
+          </v-popover>
+        </header>
+        <main class="pt-12 pb-16">
           <slot />
         </main>
         <footer
@@ -168,6 +277,7 @@ import LoginForm from '../components/LoginForm.vue';
 import useSetupLanguage from '@/hooks/useSetupLanguage';
 import useAcl from '@/hooks/useAcl';
 import DisasterIcon from '@/components/DisasterIcon.vue';
+import Avatar from '@/components/Avatar.vue';
 import useDialogs from '@/hooks/useDialogs';
 import {
   useAuthStore,
@@ -198,6 +308,7 @@ export default defineComponent({
     OrganizationInactiveModal,
     AppDownloadLinks,
     DisasterIcon,
+    Avatar,
     LoginForm,
     NavMenu,
     TermsandConditionsModal,
@@ -627,5 +738,16 @@ export default defineComponent({
   .menu-button {
     display: none;
   }
+}
+
+.incident-tile :deep(.standard-icon),
+.incident-tile :deep(.easter-egg) {
+  width: 22px;
+  height: 22px;
+}
+.incident-tile :deep(.disaster-icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
