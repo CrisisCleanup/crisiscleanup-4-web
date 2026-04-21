@@ -221,7 +221,9 @@ onMounted(() => {
 
 <template>
   <DownloadAppBanner />
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-6 p-8">
+  <div
+    class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 mt-4 md:mt-6 p-4 md:p-8"
+  >
     <div>
       <h2 class="font-bold text-lg mb-3 flex justify-between">
         {{ $t('dashboard.disaster_map') }}
@@ -231,7 +233,7 @@ onMounted(() => {
           }}</span></router-link
         >
       </h2>
-      <div class="h-84 bg-gray-200 relative">
+      <div class="h-64 md:h-84 bg-gray-200 relative">
         <SimpleMap
           :map-loading="loadingActionItems"
           data-testid="testSimpleMapContent"
@@ -244,7 +246,6 @@ onMounted(() => {
       </h2>
       <VolunteerChart
         :key="JSON.stringify(engagementData)"
-        class="h-84"
         :data="engagementData"
       />
     </div>
@@ -252,7 +253,7 @@ onMounted(() => {
 
   <div
     v-if="dashboardStatistics"
-    class="grid md:grid-cols-4 grid-cols-3 gap-2 mt-10 p-8"
+    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-6 md:mt-10 p-4 md:p-8"
   >
     <div class="stats-card">
       <p>{{ $t('dashboard.total_value') }}</p>
@@ -313,7 +314,7 @@ onMounted(() => {
       </p>
     </div>
   </div>
-  <div v-if="inboundWorksiteRequests.length > 0" class="p-8">
+  <div v-if="inboundWorksiteRequests.length > 0" class="p-4 md:p-8">
     <h2 class="font-bold text-base mt-10">
       {{ $t('dashboard.case_transfer_requests') }}
     </h2>
@@ -322,7 +323,7 @@ onMounted(() => {
       <div
         v-for="request in inboundWorksiteRequests"
         :key="request.id"
-        class="grid grid-cols-3 items-center justify-start bg-crisiscleanup-light-smoke p-1 m-1"
+        class="grid grid-cols-1 md:grid-cols-3 items-start md:items-center justify-start bg-crisiscleanup-light-smoke p-2 m-1 gap-2 md:gap-0 rounded"
       >
         <div class="flex items-center justify-start gap-3">
           {{ request.case_number }}
@@ -347,7 +348,7 @@ onMounted(() => {
             request.requested_by_org.name
           }}</span>
         </div>
-        <div class="flex gap-2 justify-end">
+        <div class="flex gap-2 justify-start md:justify-end">
           <base-button
             variant="primary"
             class="rounded-full"
@@ -376,7 +377,7 @@ onMounted(() => {
   </div>
   <div
     v-if="claimedWorksites.length > 0 || invitationRequests.length > 0"
-    class="grid md:grid-cols-2 gap-8 mt-5 p-8"
+    class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-4 md:mt-5 p-4 md:p-8"
   >
     <div v-if="claimedWorksites.length > 0">
       <div>
@@ -396,7 +397,7 @@ onMounted(() => {
         <div
           v-for="worksite in claimedWorksites"
           :key="worksite.id"
-          class="grid grid-cols-12 items-center justify-start bg-crisiscleanup-light-smoke p-1 m-1"
+          class="grid grid-cols-12 items-center justify-start bg-crisiscleanup-light-smoke p-2 m-1 gap-2 rounded"
         >
           <div class="flex items-center justify-start gap-1 col-span-6">
             <span class="font-semibold mr-1">{{ worksite.case_number }}</span>

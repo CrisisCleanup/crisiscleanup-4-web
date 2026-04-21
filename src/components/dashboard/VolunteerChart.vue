@@ -1,47 +1,57 @@
 <template>
-  <div v-if="chartData.length > 0" class="flex flex-col items-center w-full">
-    <div class="h-84 w-108">
+  <div v-if="chartData.length > 0" class="flex flex-col w-full gap-3">
+    <div class="w-full h-64 md:h-72">
       <ApexChart
         type="line"
+        height="100%"
+        width="100%"
         :options="chartOptions"
         :series="series"
       ></ApexChart>
     </div>
-    <div
-      class="flex items-center mt-4 flex-grow gap-2 w-full h-full p-1 text-center"
-    >
-      <div class="h-full flex-1 text-xl bg-crisiscleanup-light-smoke p-5">
-        <div class="font-bold">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full text-center">
+      <div class="bg-crisiscleanup-light-smoke p-4 sm:p-5 text-base sm:text-lg">
+        <div class="font-bold text-xl sm:text-2xl">
           {{ chartData[0].velocity.toFixed(2) }}
         </div>
-        <div>{{ $t('volunteerChart.current_engagement') }}</div>
+        <div class="leading-tight">
+          {{ $t('volunteerChart.current_engagement', 'Current engagement') }}
+        </div>
       </div>
       <div
-        class="p-5 text-white h-full flex-1 text-xl"
+        class="p-4 sm:p-5 text-white text-base sm:text-lg"
         :class="{
           'bg-crisiscleanup-green-900': monthlyChange > 0,
           'bg-crisiscleanup-red': monthlyChange < 0,
-          'bg-crisiscleanup-light-smoke': monthlyChange === 0,
+          'bg-crisiscleanup-light-smoke !text-black':
+            monthlyChange === 0 || monthlyChange === null,
         }"
       >
-        <div class="font-bold">{{ monthlyChange?.toFixed(2) }}%</div>
-        <div v-if="monthlyChange < 0">
-          {{ $t('volunteerChart.down_from_last_month') }}
+        <div class="font-bold text-xl sm:text-2xl">
+          {{ (monthlyChange ?? 0).toFixed(2) }}%
         </div>
-        <div v-else-if="monthlyChange > 0">
-          {{ $t('volunteerChart.up_from_last_month') }}
+        <div v-if="monthlyChange < 0" class="leading-tight">
+          {{
+            $t('volunteerChart.down_from_last_month', 'Down from last month')
+          }}
         </div>
-        <div v-else>
-          {{ $t('volunteerChart.no_change_from_last_month') }}
+        <div v-else-if="monthlyChange > 0" class="leading-tight">
+          {{ $t('volunteerChart.up_from_last_month', 'Up from last month') }}
+        </div>
+        <div v-else class="leading-tight">
+          {{
+            $t(
+              'volunteerChart.no_change_from_last_month',
+              'No change from last month',
+            )
+          }}
         </div>
       </div>
     </div>
   </div>
-  <div v-else>
-    <div class="flex items-center justify-center h-84 w-108 opacity-50 text-xl">
-      <div class="text-center">
-        {{ $t('volunteerChart.no_data') }}
-      </div>
+  <div v-else class="w-full h-64 md:h-72 flex items-center justify-center">
+    <div class="opacity-50 text-xl text-center">
+      {{ $t('volunteerChart.no_data', 'No data available') }}
     </div>
   </div>
 </template>

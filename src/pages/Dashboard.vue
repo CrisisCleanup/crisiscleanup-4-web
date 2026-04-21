@@ -2,7 +2,7 @@
   <div
     v-if="!loading"
     :key="currentIncidentId"
-    class="flex flex-col mt-16 md:mt-0 md:pt-2"
+    class="flex flex-col mt-4 md:mt-0 md:pt-2"
     data-testid="testDashboarddiv"
   >
     <div class="flex self-end mr-4 items-center">
@@ -15,14 +15,16 @@
       data-testid="testMetricCardMyClaimedCasesDiv"
     >
       <div
-        class="p-3 cursor-pointer h-full w-full"
+        class="p-2 sm:p-3 cursor-pointer h-full w-full"
         @click="$router.push(`/incident/${currentIncidentId}/work`)"
       >
         <!--Metric Card-->
         <div
-          class="h-full bg-crisiscleanup-lightblue-100 rounded shadow-crisiscleanup-card p-5"
+          class="h-full bg-crisiscleanup-lightblue-100 rounded shadow-crisiscleanup-card p-4 sm:p-5"
         >
-          <div class="flex flex-row items-center">
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-0"
+          >
             <div class="flex-shrink pr-4">
               <div class="rounded-full p-1 bg-crisiscleanup-lightblue-900">
                 <img
@@ -34,7 +36,7 @@
               </div>
             </div>
             <div
-              class="flex-1 text-right md:text-center"
+              class="flex-1 min-w-0 text-left sm:text-right md:text-center"
               data-testid="testMyClaimedCasesDiv"
             >
               <h5 class="uppercase text-grey-900">
@@ -42,7 +44,7 @@
                   currentIncident.name
                 }})
               </h5>
-              <h3 class="text-3xl">
+              <h3 class="text-2xl sm:text-3xl">
                 {{ numeral(claimedWorksites.length) }}
               </h3>
             </div>
@@ -52,7 +54,7 @@
       </div>
 
       <div
-        class="p-3 cursor-pointer h-full w-full"
+        class="p-2 sm:p-3 cursor-pointer h-full w-full"
         @click="$router.push(`/incident/${currentIncidentId}/work`)"
       >
         <!--Metric Card-->
@@ -60,7 +62,9 @@
           class="h-full bg-crisiscleanup-yellow-100 rounded shadow-crisiscleanup-card relative"
           data-testid="testMetricCardTotalClaimedDiv"
         >
-          <div class="flex flex-row items-center p-5">
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center p-4 sm:p-5 gap-3 sm:gap-0"
+          >
             <div class="flex-shrink pr-4">
               <div class="rounded-full p-1 bg-crisiscleanup-yellow-900">
                 <img
@@ -72,15 +76,15 @@
               </div>
             </div>
             <div
-              class="flex-1 text-right md:text-center"
+              class="flex-1 min-w-0 text-left sm:text-right md:text-center"
               data-testid="testMyClaimedCasesDiv"
             >
               <h5 class="uppercase text-grey-900">
                 {{ $t('dashboard.total_claimed') }} ({{ currentIncident.name }})
               </h5>
-              <h3 class="text-3xl">
+              <h3 class="text-2xl sm:text-3xl">
                 {{ numeral(totalClaimed) }}
-                <span class="text-base">
+                <span class="text-sm sm:text-base">
                   ({{ numeral(totalClaimed / totalWorksites, 'percentage') }}
                   {{ $t('dashboard.of_total') }})
                 </span>
@@ -96,7 +100,7 @@
       </div>
 
       <div
-        class="p-3 cursor-pointer h-full w-full"
+        class="p-2 sm:p-3 cursor-pointer h-full w-full"
         @click="$router.push(`/incident/${currentIncidentId}/work`)"
       >
         <!--Metric Card-->
@@ -104,7 +108,9 @@
           class="h-full bg-orange-400 rounded shadow-crisiscleanup-card relative"
           data-testid="testMetricCardInProgressDiv"
         >
-          <div class="flex flex-row items-center p-5">
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center p-4 sm:p-5 gap-3 sm:gap-0"
+          >
             <div class="flex-shrink pr-4">
               <div class="rounded-full p-1 bg-orange-600">
                 <img
@@ -116,15 +122,15 @@
               </div>
             </div>
             <div
-              class="flex-1 text-right md:text-center"
+              class="flex-1 min-w-0 text-left sm:text-right md:text-center"
               data-testid="testInProgressDiv"
             >
               <h5 class="uppercase text-grey-900">
                 {{ $t('dashboard.in_progress') }} ({{ currentIncident.name }})
               </h5>
-              <h3 class="text-3xl">
+              <h3 class="text-2xl sm:text-3xl">
                 {{ numeral(totalInProgess) }}
-                <span class="text-base">
+                <span class="text-sm sm:text-base">
                   ({{ numeral(totalInProgess / totalWorksites, 'percentage') }}
                   {{ $t('dashboard.of_total') }})
                 </span>
@@ -142,7 +148,7 @@
       </div>
 
       <div
-        class="p-3 cursor-pointer h-full w-full"
+        class="p-2 sm:p-3 cursor-pointer h-full w-full"
         @click="$router.push(`/incident/${currentIncidentId}/work`)"
       >
         <!--Metric Card-->
@@ -150,7 +156,9 @@
           class="h-full bg-crisiscleanup-green-100 rounded shadow-crisiscleanup-card relative"
           data-testid="testMetricCardClosedDiv"
         >
-          <div class="flex flex-row items-center p-5">
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center p-4 sm:p-5 gap-3 sm:gap-0"
+          >
             <div class="flex-shrink pr-4">
               <div class="rounded-full p-1 bg-crisiscleanup-green-900">
                 <img
@@ -162,15 +170,15 @@
               </div>
             </div>
             <div
-              class="flex-1 text-right md:text-center"
+              class="flex-1 min-w-0 text-left sm:text-right md:text-center"
               data-testid="testClosedDiv"
             >
               <h5 class="uppercase text-grey-900">
                 {{ $t('dashboard.closed') }} ({{ currentIncident.name }})
               </h5>
-              <h3 class="text-3xl">
+              <h3 class="text-2xl sm:text-3xl">
                 {{ numeral(totalClosed) }}
-                <span class="text-base">
+                <span class="text-sm sm:text-base">
                   ({{ numeral(totalClosed / totalWorksites, 'percentage') }}
                   {{ $t('dashboard.of_total') }})
                 </span>

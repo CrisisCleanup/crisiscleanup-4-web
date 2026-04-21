@@ -123,12 +123,12 @@ onMounted(async () => {
   <TrainingBanner />
   <div class="flex flex-col items-center justify-center">
     <div
-      class="flex md:flex-row flex-col w-full p-2 items-center justify-center margin-auto bg-crisiscleanup-light-smoke my-4 max-w-6xl"
+      class="flex md:flex-row flex-col w-full p-3 gap-3 md:gap-0 items-stretch md:items-center md:justify-center bg-crisiscleanup-light-smoke my-4 max-w-6xl rounded"
     >
       <base-button
         data-testid="testIsNotTakingCallsButton"
         variant="solid"
-        class="py-1 px-4"
+        class="py-1 px-4 w-full md:w-auto"
         :action="
           () => {
             $router.push('/phone?start=true');
@@ -137,59 +137,59 @@ onMounted(async () => {
         :text="$t('phoneDashboard.go_to_calls')"
         :alt="$t('phoneDashboard.go_to_calls')"
       ></base-button>
-      <div class="flex items-center justify-between mr-3">
-        <div class="flex items-start justify-start">
-          <div class="flex ml-4 mr-1">
-            <base-text
-              v-if="currentUser"
-              data-testid="testCurrentUserMobileContent"
-              variant="bodysm"
-              class="w-max"
-            >
-              {{ currentUser.mobile }}
-            </base-text>
-          </div>
-        </div>
-        <div class="py-3 w-full">
-          <div
-            class="flex flex-wrap items-center"
-            data-testid="testPhoneDashboardLanguagesDiv"
+      <div
+        class="flex flex-wrap items-center md:justify-between gap-2 md:gap-0 md:ml-4 md:mr-3 min-w-0"
+      >
+        <div class="flex items-center">
+          <base-text
+            v-if="currentUser"
+            data-testid="testCurrentUserMobileContent"
+            variant="bodysm"
+            class="w-max"
           >
-            <div class="mx-2 text-crisiscleanup-dark-200 hidden md:block">
-              {{ $t('phoneDashboard.languages') }}
-            </div>
-            <div
-              v-for="l in languages"
-              :key="`l_${l}`"
-              class="flex flex-col tag-container"
-            >
-              <LanguageTag class="tag-item mx-0.5" :language-id="l.id" />
-            </div>
-            <ccu-icon
-              type="edit"
-              data-testid="testLanguageEditIcon"
-              size="small"
-              class="mx-1"
-              :alt="$t('actions.edit')"
-              @click="editingAgent = true"
-            />
+            {{ currentUser.mobile }}
+          </base-text>
+        </div>
+        <div
+          class="flex flex-wrap items-center gap-1 min-w-0"
+          data-testid="testPhoneDashboardLanguagesDiv"
+        >
+          <div class="text-crisiscleanup-dark-200 hidden md:block mx-2">
+            {{ $t('phoneDashboard.languages') }}
           </div>
+          <div
+            v-for="l in languages"
+            :key="`l_${l}`"
+            class="flex flex-col tag-container"
+          >
+            <LanguageTag class="tag-item mx-0.5" :language-id="l.id" />
+          </div>
+          <ccu-icon
+            type="edit"
+            data-testid="testLanguageEditIcon"
+            size="small"
+            class="mx-1"
+            :alt="$t('actions.edit')"
+            @click="editingAgent = true"
+          />
         </div>
         <EditAgentModal v-if="editingAgent" @cancel="editingAgent = false" />
       </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl w-full">
-      <div>
+    <div
+      class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl w-full px-2 md:px-0"
+    >
+      <div class="min-w-0 overflow-hidden">
         <div class="text-lg font-semibold px-4">
           {{ $t('phoneDashboard.news') }}
         </div>
         <PhoneCmsItems
-          class="p-2 max-h-none"
+          class="p-2 max-h-64 md:max-h-none"
           data-testid="testPhoneCmsItemsDiv"
           @unread-count="unreadNewsCount = $event"
         ></PhoneCmsItems>
       </div>
-      <div>
+      <div class="min-w-0 overflow-hidden">
         <div>
           <div class="text-lg font-semibold px-4">
             {{ $t('phoneDashboard.stats') }}

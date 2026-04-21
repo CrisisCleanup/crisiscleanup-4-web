@@ -1,108 +1,187 @@
 <template>
-  <div class="flex-1 p-2 sm:p-3 flex flex-col w-full">
-    <div class="flex sm:items-center py-1 border-b border-gray-200">
-      <div class="text-lg">{{ chat.name }}</div>
+  <div
+    class="flex-1 p-3 sm:p-4 flex flex-col w-full bg-white rounded shadow-crisiscleanup-card"
+  >
+    <div
+      class="flex items-center justify-between gap-3 pb-3 border-b border-black/5"
+    >
+      <h2 class="text-[17px] font-bold tracking-tight text-black truncate m-0">
+        {{ chat.name }}
+      </h2>
+      <div
+        v-if="onlineUsersWithData?.length"
+        class="flex items-center gap-1.5 text-[12px] text-crisiscleanup-grey-900 flex-none"
+      >
+        <span
+          class="w-1.5 h-1.5 rounded-full bg-phone-outbound-dark"
+          aria-hidden="true"
+        ></span>
+        <span>
+          <span class="font-semibold text-black">{{
+            onlineUsersWithData.length
+          }}</span>
+          {{ $t('chat.online_now') }}
+        </span>
+      </div>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-2 h-full">
-      <div class="w-full md:w-1/3 bg-crisiscleanup-light-smoke p-2">
-        <Accordion>
-          <AccordionItem name="Online">
-            <template #name>
-              <div>
-                <BaseText variant="h2">
-                  {{ $t('chat.online_now') }} ({{
-                    onlineUsersWithData?.length
-                  }})
-                </BaseText>
-              </div>
-            </template>
-            <div class="overflow-auto h-auto md:h-180">
+    <div class="flex flex-col md:flex-row gap-3 md:gap-6 h-full mt-3">
+      <div class="w-full md:w-[280px] md:flex-none flex flex-col gap-6">
+        <!-- Spinny: gently-branded AI surface, always visible -->
+        <section
+          ref="spinnyAccordion"
+          class="rounded-md p-4 bg-primary-light/[0.08] ring-1 ring-primary-light/30"
+        >
+          <header class="flex items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <ccu-icon type="help" size="small" class="text-primary-dark" />
+              <h3
+                class="m-0 text-[13px] font-bold uppercase tracking-[0.08em] text-black"
+              >
+                {{ $t('chat.spinny_the_sage') }}
+              </h3>
+            </div>
+            <span
+              class="text-[10px] font-bold uppercase tracking-[0.12em] text-primary-dark"
+              aria-hidden="true"
+            >
+              AI
+            </span>
+          </header>
+          <base-input
+            ref="spinnyInputRef"
+            v-model="spinnyQuery"
+            data-testid="testSpinnyInput"
+            icon="search"
+            size="small"
+            :placeholder="$t('chat.ask_spinny_placeholder')"
+            @enter="askSpinny"
+          />
+          <div
+            v-if="faqHistory?.length || isStreamingMessage"
+            class="flex flex-col gap-3 overflow-y-auto mt-3 pr-1 max-h-72 md:max-h-96"
+          >
+            <template
+              v-for="(h, i) in faqHistory"
+              :key="`${h.actor}:${i}:${h.content?.slice?.(0, 16)}`"
+            >
               <div
-                v-for="organization in sortedOrganizations"
-                :key="organization.id"
-                class="organization-group"
+                v-if="h.actor === 'user'"
+                class="text-[13px] text-black leading-snug"
               >
                 <div
-                  class="organization-header flex items-center cursor-pointer"
-                  @click="toggleOrganization(organization.id)"
+                  class="text-[10px] font-bold uppercase tracking-[0.1em] text-crisiscleanup-grey-900 mb-1"
                 >
-                  <span
-                    class="arrow"
-                    :class="{ open: isOpen(organization.id) }"
-                  >
-                    <ccu-icon fa size="md" type="caret-down"></ccu-icon>
-                  </span>
-                  <span class="organization-name">
-                    {{ organization.name }} ({{ organization.users.length }})
-                  </span>
+                  {{ $t('chat.you') }}
                 </div>
-                <div v-if="isOpen(organization.id)" class="users-list">
-                  <div
-                    v-for="user in organization.users"
-                    :key="user.id"
-                    class="flex items-center space-x-2 w-full"
-                  >
-                    <Avatar
-                      v-if="user"
-                      :initials="user.first_name"
-                      :url="
-                        user.profilePictureUrl
-                          ? user.profilePictureUrl
-                          : getUserAvatarLink(user.first_name)
-                      "
-                      data-testid="testAvatarIcon"
-                      :custom-size="{ width: '40px', height: '40px' }"
-                      inner-classes="shadow"
-                    />
-                    <UserDetailsTooltip :user="user.id" :user-object="user" />
-                    <div v-if="mobileOnlineUsers.includes(user.id)">
-                      <font-awesome-icon
-                        icon="mobile-screen"
-                        class="text-green-700"
-                        :title="$t('chat.using_mobile_app')"
-                        :alt="$t('chat.using_mobile_app')"
-                      />
-                    </div>
-                  </div>
-                </div>
+                <div>{{ h.content }}</div>
               </div>
-            </div>
-          </AccordionItem>
-          <AccordionItem
-            body-classes="flex flex-col overflow-hidden max-h-96 md:max-h-144"
-            start-open
-            name="Dynamic FAQ"
-          >
-            <template #name>
-              <div class="flex flex-1">
-                <BaseText variant="h2">
+              <div v-else class="text-[13px] text-black leading-relaxed">
+                <div
+                  class="text-[10px] font-bold uppercase tracking-[0.1em] text-primary-dark mb-1"
+                >
                   {{ $t('chat.spinny_the_sage') }}
-                </BaseText>
+                </div>
+                <MarkdownRenderer :source="h.content" />
               </div>
             </template>
-            <div class="flex flex-col overflow-y-scroll flex-1">
-              <template
-                v-for="h in faqHistory"
-                :key="`${h.actor}:${h.content}`"
+            <div
+              v-if="isStreamingMessage"
+              class="flex items-center gap-2 text-[12px] text-crisiscleanup-grey-900"
+              aria-live="polite"
+            >
+              <span class="inline-flex items-end gap-0.5">
+                <span
+                  class="w-1 h-1 rounded-full bg-primary-dark animate-bounce"
+                  style="animation-delay: 0ms"
+                ></span>
+                <span
+                  class="w-1 h-1 rounded-full bg-primary-dark animate-bounce"
+                  style="animation-delay: 120ms"
+                ></span>
+                <span
+                  class="w-1 h-1 rounded-full bg-primary-dark animate-bounce"
+                  style="animation-delay: 240ms"
+                ></span>
+              </span>
+              {{ $t('chat.spinny_is_thinking') }}
+            </div>
+          </div>
+          <p class="mt-3 text-[11px] text-crisiscleanup-grey-900 leading-snug">
+            {{ $t('chat.ask_a_question_ai_disclaimer') }}
+          </p>
+        </section>
+
+        <!-- Online: typographic list, no surface -->
+        <section>
+          <header class="flex items-center justify-between mb-3">
+            <h3
+              class="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-crisiscleanup-grey-900"
+            >
+              {{ $t('chat.online_now') }}
+            </h3>
+            <span class="text-[11px] font-semibold text-black">
+              {{ onlineUsersWithData?.length || 0 }}
+            </span>
+          </header>
+          <div class="overflow-auto h-auto md:h-180 -mx-1">
+            <div
+              v-for="organization in sortedOrganizations"
+              :key="organization.id"
+              class="mb-3"
+            >
+              <button
+                type="button"
+                class="w-full flex items-center gap-1.5 px-1 py-1 rounded hover:bg-crisiscleanup-smoke text-left"
+                @click="toggleOrganization(organization.id)"
               >
-                <template v-if="h.actor === 'user'">
-                  <ccu-icon class="pt-3 pb-1" type="help" size="large" />
-                </template>
-                <template v-else>
-                  <div class="pl-1">
-                    <MarkdownRenderer :source="h.content" />
-                  </div>
-                </template>
-              </template>
+                <ccu-icon
+                  fa
+                  size="sm"
+                  type="caret-down"
+                  class="transition-transform"
+                  :class="{ 'rotate-180': !isOpen(organization.id) }"
+                ></ccu-icon>
+                <span
+                  class="text-[12px] font-semibold text-black truncate flex-1 min-w-0"
+                >
+                  {{ organization.name }}
+                </span>
+                <span class="text-[11px] text-crisiscleanup-grey-900">
+                  {{ organization.users.length }}
+                </span>
+              </button>
+              <div v-if="isOpen(organization.id)" class="mt-1 pl-1">
+                <div
+                  v-for="user in organization.users"
+                  :key="user.id"
+                  class="flex items-center gap-2 px-1 py-1 rounded hover:bg-crisiscleanup-smoke"
+                >
+                  <Avatar
+                    v-if="user"
+                    :initials="user.first_name"
+                    :url="
+                      user.profilePictureUrl
+                        ? user.profilePictureUrl
+                        : getUserAvatarLink(user.first_name)
+                    "
+                    data-testid="testAvatarIcon"
+                    :custom-size="{ width: '28px', height: '28px' }"
+                    inner-classes=""
+                  />
+                  <UserDetailsTooltip :user="user.id" :user-object="user" />
+                  <font-awesome-icon
+                    v-if="mobileOnlineUsers.includes(user.id)"
+                    icon="mobile-screen"
+                    class="text-phone-outbound-dark ml-auto text-[12px]"
+                    :title="$t('chat.using_mobile_app')"
+                    :alt="$t('chat.using_mobile_app')"
+                  />
+                </div>
+              </div>
             </div>
-            <div class="flex flex-1">
-              <BaseText class="pt-4" variant="h4">
-                {{ $t('chat.ask_a_question_ai_disclaimer') }}
-              </BaseText>
-            </div>
-          </AccordionItem>
-        </Accordion>
+          </div>
+        </section>
       </div>
       <tabs tab-details-classes="" class="flex-1">
         <tab :name="$t('chat.chat')">
@@ -111,7 +190,7 @@
               id="messages"
               ref="messagesBox"
               data-testid="testMessagesContent"
-              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch h-72 md:h-120"
+              class="flex flex-col flex-grow py-2 space-y-2 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch h-72 md:h-120"
               @wheel="handleWheel"
               @ontouchmove="handleWheel"
             >
@@ -131,13 +210,13 @@
                   "
                   class="flex items-center justify-center relative text-center my-5 w-full"
                 >
-                  <div class="flex-grow bg-gray-300 h-px"></div>
+                  <div class="flex-grow bg-crisiscleanup-grey-100 h-px"></div>
                   <span
-                    class="px-3 py-1 bg-white text-gray-800 border border-gray-300 rounded-full text-sm"
+                    class="px-3 text-[11px] font-bold uppercase tracking-wide text-crisiscleanup-grey-900"
                   >
                     {{ moment(message.created_at).format('dddd, MMMM Do') }}
                   </span>
-                  <div class="flex-grow bg-gray-300 h-px"></div>
+                  <div class="flex-grow bg-crisiscleanup-grey-100 h-px"></div>
                 </div>
                 <!-- Chat Message -->
                 <ChatMessage
@@ -151,9 +230,9 @@
               </template>
             </div>
             <div
-              class="border-t-2 pt-1 sm:mb-0"
+              class="mt-4 pt-3 border-t transition-colors"
               :class="
-                urgent ? 'border-crisiscleanup-chat-red' : 'border-gray-200'
+                urgent ? 'border-crisiscleanup-chat-red' : 'border-black/5'
               "
             >
               <div
@@ -179,22 +258,39 @@
                     ['clean'],
                   ]"
                 />
-                <div class="flex items-center justify-between py-2">
+                <div
+                  class="flex items-center justify-between py-2 gap-2 flex-wrap"
+                >
                   <base-checkbox
                     v-model="urgent"
                     data-testid="testIsUrgentCheckbox"
                   >
                     {{ $t('chat.urgent') }}
                   </base-checkbox>
-                  <span
-                    class="italic cursor-pointer"
+                  <button
+                    type="button"
+                    class="text-[11px] underline underline-offset-2 text-crisiscleanup-dark-blue hover:text-black"
                     data-testid="testFocusNewsTabLink"
                     @click="focusNewsTab"
-                    >{{ $t('chat.read_faq_first') }}</span
                   >
+                    {{ $t('chat.read_faq_first') }}
+                  </button>
+                  <button
+                    type="button"
+                    class="flex items-center gap-1.5 px-2 py-1 rounded hover:bg-crisiscleanup-smoke text-[12px]"
+                    data-testid="testAskSpinnyShortcut"
+                    @click="openSpinny"
+                  >
+                    <ccu-icon
+                      type="help"
+                      size="small"
+                      class="text-primary-dark"
+                    />
+                    {{ $t('chat.ask_spinny') }}
+                  </button>
                   <div class="flex">
                     <base-button
-                      class="bg-crisiscleanup-dark-blue"
+                      variant="solid"
                       data-testid="testSendMessageButton"
                       :disabled="!Boolean(currentMessage)"
                       ccu-icon="plane"
@@ -282,8 +378,6 @@ import { DbService, USER_DATABASE } from '@/services/db.service';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
 import { generateUUID } from '@/utils/helpers';
-import Accordion from '@/components/accordion/Accordion.vue';
-import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import Editor from '@/components/Editor.vue';
 
 export default defineComponent({
@@ -294,8 +388,6 @@ export default defineComponent({
     Avatar,
     UserDetailsTooltip,
     ChatMessage,
-    Accordion,
-    AccordionItem,
     MarkdownRenderer,
   },
   props: {
@@ -700,6 +792,24 @@ export default defineComponent({
       online_users_socket?.value?.close();
     });
 
+    const spinnyQuery = ref('');
+    const spinnyInputRef = ref<{ input?: HTMLInputElement | null } | null>(
+      null,
+    );
+    function askSpinny() {
+      const q = spinnyQuery.value?.trim();
+      if (!q) return;
+      submitQuestion(q);
+      spinnyQuery.value = '';
+    }
+    async function openSpinny() {
+      await nextTick();
+      const el = (spinnyInputRef.value as any)?.$el as HTMLElement | undefined;
+      el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+      const input = el?.querySelector?.('input') as HTMLInputElement | null;
+      input?.focus();
+    }
+
     return {
       socket,
       messages,
@@ -725,6 +835,11 @@ export default defineComponent({
       isOpen,
       moment,
       faqHistory,
+      isStreamingMessage,
+      spinnyQuery,
+      spinnyInputRef,
+      askSpinny,
+      openSpinny,
     };
   },
   methods: { getUserAvatarLink },

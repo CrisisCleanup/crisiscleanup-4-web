@@ -120,6 +120,7 @@
     </div>
     <div
       v-else
+      class="flex flex-col overflow-hidden"
       :style="{
         height: worksite ? 'calc(100vh - 13rem)' : 'calc(100vh - 11rem)',
       }"
@@ -196,7 +197,7 @@
         <span class="text-base">{{ $t('actions.history') }}</span>
         <div></div>
       </div>
-      <div class="h-full min-h-0">
+      <div class="flex-1 min-h-0 overflow-y-auto">
         <CaseHistory
           v-if="showHistory"
           data-testid="testHistoryDiv"
@@ -446,7 +447,7 @@
           }}</span>
           <div></div>
         </div>
-        <div class="h-auto min-h-0">
+        <div class="flex-1 min-h-0 overflow-y-auto">
           <CaseHistory
             v-if="showHistory"
             data-testid="testHistoryDiv"
@@ -1614,8 +1615,9 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 .phone-system {
-  @apply grid flex-grow h-full;
+  @apply grid flex-grow h-full overflow-hidden;
   grid-template-columns: minmax(0, auto) minmax(auto, 400px);
+  grid-template-rows: minmax(0, 1fr);
 
   &__actions {
     @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;

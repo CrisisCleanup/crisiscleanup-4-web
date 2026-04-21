@@ -11,17 +11,23 @@
     </div>
     <div v-else class="flex flex-col" data-testid="testMainContent">
       <header
-        class="bg-white border p-6 items-center gap-3 flex justify-between"
+        class="bg-white border p-4 md:p-6 items-start md:items-center gap-3 flex flex-col md:flex-row md:justify-between"
         data-testid="testHeader"
       >
-        <div class="flex items-center gap-2" data-testid="testHeaderLeft">
+        <div
+          class="flex items-center gap-2 min-w-0 w-full md:w-auto"
+          data-testid="testHeaderLeft"
+        >
           <ccu-icon
             :type="`${kebabCase($route.path.split('/').pop())}-dashboard`"
-            class="text-crisiscleanup-dashboard-blue"
+            class="text-crisiscleanup-dashboard-blue flex-none"
             size="xl"
             data-testid="testDashboardIcon"
           />
-          <h1 class="text-2xl" data-testid="testDashboardTitle">
+          <h1
+            class="text-xl md:text-2xl truncate"
+            data-testid="testDashboardTitle"
+          >
             {{ $t(String($route.name)) }}
           </h1>
           <base-button
@@ -29,12 +35,19 @@
             :alt="$t('actions.switch')"
             variant="text-dark"
             data-testid="testSwitchButton"
+            class="ml-auto md:ml-0 flex-none"
           >
             {{ $t('actions.switch') }}
           </base-button>
         </div>
-        <div class="flex items-center" data-testid="testHeaderRight">
-          <RedeployRequest data-testid="testRedeployRequest" />
+        <div
+          class="grid grid-cols-1 sm:grid-cols-3 md:flex md:items-center w-full md:w-auto gap-2 md:gap-0"
+          data-testid="testHeaderRight"
+        >
+          <RedeployRequest
+            data-testid="testRedeployRequest"
+            class="w-full md:w-auto"
+          />
           <base-button
             :text="
               $t('dashboard.upload_volunteer_photos_button') ||
@@ -46,7 +59,7 @@
             "
             data-testid="testUploadVolunteerPhotosButton"
             variant="solid"
-            class="mx-1"
+            class="w-full md:w-auto md:mx-1"
             size="medium"
             :action="
               () => {
@@ -65,7 +78,7 @@
             :alt="$t('usersVue.invite_new_user')"
             data-testid="testInviteNewUserButton"
             variant="solid"
-            class="mx-1"
+            class="w-full md:w-auto md:mx-1"
             size="medium"
             :action="
               () => {
@@ -73,7 +86,11 @@
               }
             "
           />
-          <spinner v-show="loadingActionItems && allDataLoaded" size="lg" />
+          <spinner
+            v-show="loadingActionItems && allDataLoaded"
+            size="lg"
+            class="hidden md:block"
+          />
         </div>
       </header>
 

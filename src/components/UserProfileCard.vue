@@ -16,7 +16,11 @@
         </div>
       </div>
     </div>
-    <div v-for="l in user.languages" :key="`l_${l}`" class="flex gap-2">
+    <div
+      v-for="l in user.languages.filter(Boolean)"
+      :key="`l_${l.id}`"
+      class="flex gap-2"
+    >
       <LanguageTag class="tag-item mx-0.5" :language-id="l.id" />
     </div>
     <div class="space-y-1 text-crisiscleanup-grey-900 mt-4">

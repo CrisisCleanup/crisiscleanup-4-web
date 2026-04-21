@@ -179,7 +179,7 @@ onMounted(async () => {
 
 <template>
   <DownloadAppBannerTeams />
-  <div class="grid md:grid-cols-2 grid-cols-1 min-h-180 gap-4">
+  <div class="grid md:grid-cols-2 grid-cols-1 md:min-h-180 gap-4 p-2 md:p-0">
     <!-- Accordion on the left -->
     <div class="p-2 overflow-x-auto">
       <h2 class="font-semibold text-lg mb-3 flex justify-between">
@@ -241,7 +241,7 @@ onMounted(async () => {
           }}</span></router-link
         >
       </h2>
-      <div class="relative h-84">
+      <div class="relative h-64 md:h-84">
         <SimpleMap
           :map-loading="loadingActionItems"
           data-testid="testSimpleMapContent"

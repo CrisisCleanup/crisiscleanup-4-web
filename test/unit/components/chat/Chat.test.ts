@@ -136,7 +136,9 @@ describe('Chat.vue', () => {
     await flushPromises();
 
     const messageInput = wrapper.find('textarea');
-    const sendMessageButton = wrapper.find('button');
+    const sendMessageButton = wrapper.find(
+      '[data-testid="testSendMessageButton"]',
+    );
 
     await messageInput.setValue('Test message');
     await sendMessageButton.trigger('click');

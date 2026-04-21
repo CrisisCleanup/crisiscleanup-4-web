@@ -121,6 +121,24 @@
         <PhoneIndicator />
       </div>
 
+      <button
+        v-if="can && can('phone_agent')"
+        type="button"
+        class="relative w-9 h-9 flex-none grid place-items-center rounded hover:bg-crisiscleanup-smoke transition"
+        :aria-label="$t('chat.chat')"
+        data-testid="testHeaderChatButton"
+        @click="$emit('open:chat')"
+      >
+        <ccu-icon type="chat" size="md" :alt="$t('chat.chat')" />
+        <span
+          v-if="unreadChatCount > 0"
+          class="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-crisiscleanup-red-900 text-white text-[9px] font-bold flex items-center justify-center leading-none"
+          aria-hidden="true"
+        >
+          {{ unreadChatCount > 9 ? '9+' : unreadChatCount }}
+        </span>
+      </button>
+
       <UserProfileMenu
         data-testid="testLogoutLink"
         @auth:logout="() => $emit('auth:logout')"
@@ -174,7 +192,12 @@ export default defineComponent({
       type: Object as PropType<Incident>,
       default: () => ({}),
     },
+    unreadChatCount: {
+      type: Number,
+      default: 0,
+    },
   },
+  emits: ['update:incident', 'auth:logout', 'open:chat'],
   setup(props) {
     const { component } = useDialogs();
     const { $can } = useAcl();

@@ -1,7 +1,11 @@
 <template>
   <div
-    class="flex items-start space-x-4 chat-message w-full hover:bg-crisiscleanup-light-smoke p-0.5 cursor-pointer"
-    :class="message.is_urgent ? 'bg-[#FF000050]' : ''"
+    class="flex items-start space-x-3 chat-message w-full hover:bg-crisiscleanup-smoke rounded px-2 py-1.5 cursor-pointer transition-colors"
+    :class="
+      message.is_urgent
+        ? 'border-l-2 border-crisiscleanup-red-900 pl-3 -ml-[2px]'
+        : ''
+    "
     @mouseenter="showActions = true"
     @mouseleave="showActions = false"
   >
@@ -34,7 +38,7 @@
           </div>
         </div>
         <div ref="messageContainer" class="text-gray-700 mt-1 w-11/12">
-          <span v-html="message.content"></span>
+          <span v-html="linkedContent"></span>
         </div>
       </div>
       <!-- Existing message content -->
@@ -169,6 +173,14 @@ export default defineComponent({
     const userObject = ref(null);
     const messageContainer = ref(null);
 
+    const linkedContent = computed(() => {
+      const raw = props.message?.content ?? '';
+      return raw.replaceAll(
+        /(?<!["=>])\b(https?:\/\/[^\s"<]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-crisiscleanup-dark-blue underline underline-offset-2 hover:opacity-80">$1</a>',
+      );
+    });
+
     const getUserInitials = (id: number) => {
       const user = User.find(id);
       if (user) {
@@ -232,6 +244,7 @@ export default defineComponent({
       replyContent,
       userObject,
       messageContainer,
+      linkedContent,
     };
   },
 });

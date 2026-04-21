@@ -5,7 +5,7 @@
       data-testid="testRequestRedeployButton"
       variant="outline"
       size="medium"
-      class="mx-1 px-3 py-1"
+      class="w-full md:w-auto md:mx-1 px-3 py-1"
       :text="$t('requestRedeploy.request_redeploy')"
       :alt="$t('requestRedeploy.request_redeploy')"
       @click="showRedeployModal = true"
