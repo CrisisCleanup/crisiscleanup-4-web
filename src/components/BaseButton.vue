@@ -238,7 +238,8 @@ button.danger.disabled {
 }
 
 button.outline {
-  @apply bg-transparent border border-crisiscleanup-dark-100;
+  @apply bg-transparent border-2 border-crisiscleanup-dark-400;
+  outline-style: none;
 }
 
 button.outline:hover {
