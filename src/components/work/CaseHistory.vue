@@ -35,7 +35,7 @@
       <EventTimeline
         v-for="(timeline, user) in timelineUsers"
         :key="user"
-        :user="user"
+        :user="Number(user)"
         :events="timeline"
       />
     </div>
