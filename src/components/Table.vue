@@ -1,308 +1,308 @@
 <template>
-  <div v-if="mq" class="table-grid js-table w-full">
-    <div
-      v-if="!hideHeader && !mq.mdMinus"
-      class="header text-crisiscleanup-grey-700 bg-white"
-      :style="gridStyleHeader"
-    >
-      <div
-        v-if="enableSelection && !mq.mdMinus"
-        class="flex items-center p-2 border-b"
-      >
-        <base-checkbox
-          class="mb-5 js-select-all"
-          data-testid="testSetAllCheckedCheckbox"
-          @update:model-value="setAllChecked"
-        />
-      </div>
-      <div
-        v-if="hasRowDetails && !mq.mdMinus"
-        class="flex items-center p-2 border-b"
-      ></div>
-      <div
-        v-for="column of columns"
-        :key="column.key"
-        :data-testid="`testColumn${column.key}Div`"
-        class="p-2 border-b flex items-center cursor-pointer header-column"
-        :class="column.headerClass || []"
-        :style="column.headerStyle || []"
-        @click="
-          () => {
-            if (column.sortable) {
-              sort(column.sortKey || column.key);
-            }
-          }
-        "
-      >
-        <slot :name="`${column.key}-title`" :column="column">
-          <base-text
-            class="text-crisiscleanup-grey-700"
-            :data-testid="`testColumn${column.key}TitleContent`"
-            :class="column.titleClass && column.titleClass"
-            variant="h3"
-            regular
-          >
-            {{ $t(column.title) }}
-          </base-text>
-        </slot>
-        <div v-if="column.sortable">
-          <ccu-icon
-            v-if="
-              sorter.key === (column.sortKey || column.key) &&
-              sorter.direction === 'asc'
-            "
-            :alt="$t('actions.sort_ascending')"
-            :data-testid="`testColumnSortAscending${column.key}Icon`"
-            size="small"
-            type="up"
-          />
-          <ccu-icon
-            v-else-if="
-              sorter.key === (column.sortKey || column.key) &&
-              sorter.direction === 'desc'
-            "
-            :alt="$t('actions.sort_descending')"
-            :data-testid="`testColumnSortDescending${column.key}Icon`"
-            size="small"
-            type="down"
-          />
-          <ccu-icon
-            v-else
-            :data-testid="`testColumnSortable${column.key}Icon`"
-            :alt="$t('actions.sortable')"
-            size="small"
-            type="updown"
-          />
-        </div>
-      </div>
-      <template v-if="enableColumnSearch">
-        <div
-          v-for="column of columns"
-          :key="`search-${column.key}`"
-          class="p-2 border-b flex items-center cursor-pointer bg-crisiscleanup-light-grey"
-        >
-          <template v-if="column.searchable">
-            <base-select
-              v-if="column.searchSelect"
-              :data-testid="`testColumn${column.key}Search`"
-              class="w-64 bg-white border h-10 border-crisiscleanup-dark-100"
-              :options="column ? column.getSelectValues(data) : []"
-              item-key="value"
-              label="name_t"
-              :model-value="internalColumnSearch[column.key]"
-              @update:model-value="
-                (value) => {
-                  internalColumnSearch[column.key] = value;
-                  onSearch();
-                }
-              "
-            ></base-select>
-            <base-input
-              v-else
-              :data-testid="`testColumn${column.key}TextInput`"
-              :placeholder="column.title"
-              :model-value="internalColumnSearch[column.key]"
-              input-style="width: 100%"
-              @update:model-value="
-                (value) => {
-                  internalColumnSearch[column.key] = value;
-                  onSearch();
-                }
-              "
-            ></base-input>
-          </template>
-        </div>
-      </template>
+  <div v-if="mq" class="ccu-table-card w-full">
+    <div v-if="$slots.toolbar" class="ccu-table-toolbar">
+      <slot name="toolbar" />
     </div>
-    <div class="body bg-white relative" :style="gridStyleBody">
+    <div class="table-grid js-table w-full">
       <div
-        v-if="loading"
-        class="absolute bottom-0 left-0 right-0 top-0 bg-crisiscleanup-light-grey opacity-75 flex items-center justify-center"
-      >
-        <spinner show-quote />
-      </div>
-      <div
-        v-for="item of data"
-        :key="item.id"
-        :data-testid="`testDataItem${item.id}Content`"
-        :style="gridStyleRow"
-        class="hover:bg-crisiscleanup-light-grey border-b js-table-row"
-        :class="{
-          'bg-crisiscleanup-light-grey':
-            selectedItems && selectedItems.has(item.id),
-        }"
-        @click="rowClick(item, $event)"
+        v-if="!hideHeader && !mq.mdMinus"
+        class="header text-crisiscleanup-grey-900 bg-crisiscleanup-smoke"
+        :style="gridStyleHeader"
       >
         <div
           v-if="enableSelection && !mq.mdMinus"
-          class="flex items-center p-2 border-b"
+          class="flex items-center px-3 py-2.5 border-b bg-crisiscleanup-smoke"
         >
           <base-checkbox
-            :model-value="selectedItems.has(item.id)"
-            :data-testid="`testDataItem${item.id}Checkbox`"
-            class="mb-5 js-select-item"
-            @update:model-value="
-              (value) => {
-                setChecked(item, value);
-              }
-            "
+            class="mb-5 js-select-all"
+            data-testid="testSetAllCheckedCheckbox"
+            @update:model-value="setAllChecked"
           />
         </div>
         <div
           v-if="hasRowDetails && !mq.mdMinus"
-          class="flex items-center p-2 lg:border-b md:border-b"
-        >
-          <font-awesome-icon
-            class="cursor-pointer"
-            size="md"
-            :alt="
-              showingDetails.has(item.id)
-                ? $t('actions.hide_options')
-                : $t('actions.show_options')
-            "
-            :icon="showingDetails.has(item.id) ? 'caret-up' : 'caret-down'"
-            @click="setShowingDetails(item)"
-          />
-        </div>
+          class="flex items-center px-3 py-2.5 border-b bg-crisiscleanup-smoke"
+        ></div>
         <div
           v-for="column of columns"
           :key="column.key"
-          :data-testid="`testColumn${column.key && item.id}Column`"
-          class="flex items-center p-2 lg:border-b md:border-b cursor-pointer"
-          :class="column.class || []"
-          :style="column.style || []"
-          @click="handleColumnAction(column, item[column.key], item)"
+          :data-testid="`testColumn${column.key}Div`"
+          class="px-3 py-2.5 border-b bg-crisiscleanup-smoke flex items-center cursor-pointer header-column"
+          :class="column.headerClass || []"
+          :style="column.headerStyle || []"
+          @click="
+            () => {
+              if (column.sortable) {
+                sort(column.sortKey || column.key);
+              }
+            }
+          "
         >
-          <slot :name="column.key" :item="item">
-            <span v-if="mq.mdMinus" class="font-semibold mr-2">
-              {{ column.title }}:
-            </span>
-            <template
-              v-if="
-                item[column.key] || item[column.key] === 0 || column.transformer
-              "
+          <slot :name="`${column.key}-title`" :column="column">
+            <span
+              class="text-[10px] font-bold uppercase tracking-[0.06em] text-crisiscleanup-grey-900"
+              :data-testid="`testColumn${column.key}TitleContent`"
+              :class="column.titleClass && column.titleClass"
             >
-              <span v-if="column.transformer">{{
-                column.transformer(item[column.key], item)
-              }}</span>
-              <span v-else>{{
-                column.subKey
-                  ? item[column.key][column.subKey]
-                  : item[column.key]
-              }}</span>
-            </template>
+              {{ $t(column.title) }}
+            </span>
           </slot>
+          <div v-if="column.sortable">
+            <ccu-icon
+              v-if="
+                sorter.key === (column.sortKey || column.key) &&
+                sorter.direction === 'asc'
+              "
+              :alt="$t('actions.sort_ascending')"
+              :data-testid="`testColumnSortAscending${column.key}Icon`"
+              size="small"
+              type="up"
+            />
+            <ccu-icon
+              v-else-if="
+                sorter.key === (column.sortKey || column.key) &&
+                sorter.direction === 'desc'
+              "
+              :alt="$t('actions.sort_descending')"
+              :data-testid="`testColumnSortDescending${column.key}Icon`"
+              size="small"
+              type="down"
+            />
+            <ccu-icon
+              v-else
+              :data-testid="`testColumnSortable${column.key}Icon`"
+              :alt="$t('actions.sortable')"
+              size="small"
+              type="updown"
+            />
+          </div>
+        </div>
+        <template v-if="enableColumnSearch">
+          <div
+            v-for="column of columns"
+            :key="`search-${column.key}`"
+            class="p-2 border-b flex items-center cursor-pointer bg-crisiscleanup-light-grey"
+          >
+            <template v-if="column.searchable">
+              <base-select
+                v-if="column.searchSelect"
+                :data-testid="`testColumn${column.key}Search`"
+                class="w-64 bg-white border h-10 border-crisiscleanup-dark-100"
+                :options="column ? column.getSelectValues(data) : []"
+                item-key="value"
+                label="name_t"
+                :model-value="internalColumnSearch[column.key]"
+                @update:model-value="
+                  (value) => {
+                    internalColumnSearch[column.key] = value;
+                    onSearch();
+                  }
+                "
+              ></base-select>
+              <base-input
+                v-else
+                :data-testid="`testColumn${column.key}TextInput`"
+                :placeholder="column.title"
+                :model-value="internalColumnSearch[column.key]"
+                input-style="width: 100%"
+                @update:model-value="
+                  (value) => {
+                    internalColumnSearch[column.key] = value;
+                    onSearch();
+                  }
+                "
+              ></base-input>
+            </template>
+          </div>
+        </template>
+      </div>
+      <div class="body bg-white relative" :style="gridStyleBody">
+        <div
+          v-if="loading"
+          class="absolute bottom-0 left-0 right-0 top-0 bg-crisiscleanup-light-grey opacity-75 flex items-center justify-center"
+        >
+          <spinner show-quote />
         </div>
         <div
-          v-if="hasRowDetails"
-          v-show="showingDetails.has(item.id)"
-          :style="`grid-column-start: 1; grid-column-end: ${
-            columns.length + 2
-          };`"
+          v-for="item of data"
+          :key="item.id"
+          :data-testid="`testDataItem${item.id}Content`"
+          :style="gridStyleRow"
+          class="hover:bg-crisiscleanup-light-grey border-b js-table-row text-[13px]"
+          :class="{
+            'bg-crisiscleanup-light-grey':
+              selectedItems && selectedItems.has(item.id),
+          }"
+          @click="rowClick(item, $event)"
         >
-          <slot name="rowDetails" :item="item"></slot>
+          <div
+            v-if="enableSelection && !mq.mdMinus"
+            class="flex items-center p-2"
+          >
+            <base-checkbox
+              :model-value="selectedItems.has(item.id)"
+              :data-testid="`testDataItem${item.id}Checkbox`"
+              class="mb-5 js-select-item"
+              @update:model-value="
+                (value) => {
+                  setChecked(item, value);
+                }
+              "
+            />
+          </div>
+          <div
+            v-if="hasRowDetails && !mq.mdMinus"
+            class="flex items-center p-2"
+          >
+            <font-awesome-icon
+              class="cursor-pointer"
+              size="md"
+              :alt="
+                showingDetails.has(item.id)
+                  ? $t('actions.hide_options')
+                  : $t('actions.show_options')
+              "
+              :icon="showingDetails.has(item.id) ? 'caret-up' : 'caret-down'"
+              @click="setShowingDetails(item)"
+            />
+          </div>
+          <div
+            v-for="column of columns"
+            :key="column.key"
+            :data-testid="`testColumn${column.key && item.id}Column`"
+            class="flex items-center p-2 cursor-pointer"
+            :class="column.class || []"
+            :style="column.style || []"
+            @click="handleColumnAction(column, item[column.key], item)"
+          >
+            <slot :name="column.key" :item="item">
+              <span v-if="mq.mdMinus" class="font-semibold mr-2">
+                {{ column.title }}:
+              </span>
+              <template
+                v-if="
+                  item[column.key] ||
+                  item[column.key] === 0 ||
+                  column.transformer
+                "
+              >
+                <span v-if="column.transformer">{{
+                  column.transformer(item[column.key], item)
+                }}</span>
+                <span v-else>{{
+                  column.subKey
+                    ? item[column.key][column.subKey]
+                    : item[column.key]
+                }}</span>
+              </template>
+            </slot>
+          </div>
+          <div
+            v-if="hasRowDetails"
+            v-show="showingDetails.has(item.id)"
+            :style="`grid-column-start: 1; grid-column-end: ${
+              columns.length + 2
+            };`"
+          >
+            <slot name="rowDetails" :item="item"></slot>
+          </div>
+        </div>
+        <div
+          v-if="data.length === 0"
+          data-testid="testNoItemsFoundDiv"
+          class="p-2 text-crisiscleanup-grey-700 italic"
+        >
+          {{ $t('info.no_items_found') }}
         </div>
       </div>
       <div
-        v-if="data.length === 0"
-        data-testid="testNoItemsFoundDiv"
-        class="p-2 text-crisiscleanup-grey-700 italic"
+        v-if="enablePagination"
+        class="footer flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 border-t border-crisiscleanup-grey-100"
       >
-        {{ $t('info.no_items_found') }}
-      </div>
-    </div>
-    <div
-      v-if="enablePagination"
-      class="footer flex flex-col sm:flex-row sm:items-center justify-between p-4"
-    >
-      <div v-if="!mq.mdMinus" class="flex items-center mb-4 sm:mb-0">
-        <span class="mr-2">{{ $t('tableVue.per_page') }}</span>
-        <base-select
-          :model-value="pagination.pageSize"
-          :options="pageSizes"
-          :clearable="false"
-          open-direction="top"
-          data-testid="testPaginationPagesizeSelect"
-          class="w-32"
-          select-classes="sm:w-24 bg-white border"
-          @update:model-value="onSelectPageSize"
-        />
-      </div>
-      <div v-if="!mq.mdMinus">
-        <div class="flex items-center">
-          <base-button
-            :disabled="isPreviousButtonDisabled"
-            :action="
-              () => {
-                pageChangeHandle('previous');
-              }
-            "
-            :text="$t('tableVue.prev')"
-            :alt="$t('tableVue.prev')"
-            data-testid="testPaginationPrevButton"
-            icon="caret-left"
-            class="mr-3 text-base js-prev"
-          />
-          <div class="js-page-triggers">
-            <template v-for="trigger in paginationTriggers" :key="trigger">
-              <span
-                :class="{
-                  'rounded-full border px-3 py-1 bg-white shadow-inner':
-                    trigger === pagination.current,
-                  [`js-pagination-trigger-${trigger}`]: true,
-                }"
-                class="cursor-pointer mx-4 text-base js-pagination-trigger"
-                @click="
-                  () => {
-                    pageChangeHandle(trigger);
-                  }
-                "
-                >{{ trigger }}</span
-              >
-            </template>
-          </div>
-          <base-button
-            :disabled="isNextButtonDisabled"
-            :action="
-              () => {
-                pageChangeHandle('next');
-              }
-            "
-            :text="$t('tableVue.next')"
-            :alt="$t('tableVue.next')"
-            data-testid="testPaginationNextButton"
-            suffix-icon="caret-right"
-            class="text-base js-next"
+        <div
+          v-if="!mq.mdMinus"
+          class="flex items-center gap-2 text-[12px] text-crisiscleanup-grey-900"
+        >
+          <span>{{ $t('tableVue.per_page') }}</span>
+          <base-select
+            :model-value="pagination.pageSize"
+            :options="pageSizes"
+            :clearable="false"
+            open-direction="top"
+            data-testid="testPaginationPagesizeSelect"
+            class="w-28"
+            select-classes="w-28 bg-white border border-crisiscleanup-grey-100 text-[12px]"
+            @update:model-value="onSelectPageSize"
           />
         </div>
-      </div>
-      <div v-else class="flex items-center justify-between pt-2">
-        <base-button
-          :disabled="isPreviousButtonDisabled"
-          :action="
-            () => {
-              pageChangeHandle('previous');
-            }
-          "
-          variant="solid"
-          :alt="$t('tableVue.prev')"
-          data-testid="testPaginationPrevButton"
-          icon-size="xs"
-          ccu-icon="arrow-left"
-        />
-        <base-button
-          :disabled="isNextButtonDisabled"
-          :action="
-            () => {
-              pageChangeHandle('next');
-            }
-          "
-          variant="solid"
-          :alt="$t('tableVue.next')"
-          data-testid="testPaginationNextButton"
-          icon-size="xs"
-          ccu-icon="arrow-right"
-        />
+        <div v-if="!mq.mdMinus">
+          <div class="flex items-center gap-1 js-page-triggers">
+            <button
+              type="button"
+              :disabled="isPreviousButtonDisabled"
+              data-testid="testPaginationPrevButton"
+              :aria-label="$t('tableVue.prev')"
+              class="ccu-page-btn js-prev"
+              @click="pageChangeHandle('previous')"
+            >
+              <ccu-icon
+                :alt="$t('tableVue.prev')"
+                size="xs"
+                type="arrow-left"
+              />
+            </button>
+            <template v-for="trigger in paginationTriggers" :key="trigger">
+              <button
+                type="button"
+                :class="[
+                  'ccu-page-btn',
+                  `js-pagination-trigger-${trigger}`,
+                  { 'ccu-page-btn--active': trigger === pagination.current },
+                  'js-pagination-trigger',
+                ]"
+                @click="pageChangeHandle(trigger)"
+              >
+                {{ trigger }}
+              </button>
+            </template>
+            <button
+              type="button"
+              :disabled="isNextButtonDisabled"
+              data-testid="testPaginationNextButton"
+              :aria-label="$t('tableVue.next')"
+              class="ccu-page-btn js-next"
+              @click="pageChangeHandle('next')"
+            >
+              <ccu-icon
+                :alt="$t('tableVue.next')"
+                size="xs"
+                type="arrow-right"
+              />
+            </button>
+          </div>
+        </div>
+        <div v-else class="flex items-center justify-between gap-2">
+          <button
+            type="button"
+            :disabled="isPreviousButtonDisabled"
+            data-testid="testPaginationPrevButton"
+            :aria-label="$t('tableVue.prev')"
+            class="ccu-page-btn"
+            @click="pageChangeHandle('previous')"
+          >
+            <ccu-icon :alt="$t('tableVue.prev')" size="xs" type="arrow-left" />
+          </button>
+          <button
+            type="button"
+            :disabled="isNextButtonDisabled"
+            data-testid="testPaginationNextButton"
+            :aria-label="$t('tableVue.next')"
+            class="ccu-page-btn"
+            @click="pageChangeHandle('next')"
+          >
+            <ccu-icon :alt="$t('tableVue.next')" size="xs" type="arrow-right" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -697,4 +697,29 @@ export default defineComponent({
 });
 </script>
 
-<style lang="postcss" scoped></style>
+<style lang="postcss" scoped>
+.ccu-table-card {
+  @apply bg-white rounded shadow-crisiscleanup-card overflow-hidden;
+}
+.ccu-table-toolbar {
+  @apply flex items-center gap-2.5 p-3.5 border-b border-crisiscleanup-grey-100;
+}
+.ccu-page-btn {
+  @apply inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded
+    text-[12px] font-semibold text-crisiscleanup-grey-900
+    transition-colors cursor-pointer;
+}
+.ccu-page-btn:hover {
+  @apply bg-crisiscleanup-smoke text-black;
+}
+.ccu-page-btn:disabled {
+  @apply opacity-40 cursor-not-allowed;
+}
+.ccu-page-btn:disabled:hover {
+  @apply bg-transparent text-crisiscleanup-grey-900;
+}
+.ccu-page-btn--active,
+.ccu-page-btn--active:hover {
+  @apply bg-primary-light text-black;
+}
+</style>

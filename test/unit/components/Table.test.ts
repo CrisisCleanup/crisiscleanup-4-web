@@ -117,13 +117,13 @@ describe('Table component', () => {
     it('disables the previous button on the first page', async () => {
       const wrapper = shallowMount(Table, { props: propsData });
       const prevButton = wrapper.find('.js-prev');
-      expect(prevButton.attributes('disabled')).toBe('true');
+      expect(prevButton.attributes('disabled')).toBeDefined();
     });
 
     it('disables the next button on the last page', async () => {
       const wrapper = shallowMount(Table, { props: propsData });
       const nextButton = wrapper.find('.js-next');
-      expect(nextButton.attributes('disabled')).not.toBe('true');
+      expect(nextButton.attributes('disabled')).toBeUndefined();
 
       await wrapper.setProps({
         pagination: {
@@ -133,7 +133,7 @@ describe('Table component', () => {
         },
       });
 
-      expect(nextButton.attributes('disabled')).toBe('true');
+      expect(nextButton.attributes('disabled')).toBeDefined();
     });
 
     it('changes page when clicking on a pagination trigger', async () => {

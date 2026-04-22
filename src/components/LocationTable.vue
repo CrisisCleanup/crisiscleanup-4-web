@@ -8,6 +8,9 @@
     :loading="loading"
     @change="$emit('change', $event)"
   >
+    <template v-if="$slots.toolbar" #toolbar>
+      <slot name="toolbar" />
+    </template>
     <template #type="slotProps">
       {{ getLocationType(slotProps.item.type) }}
     </template>

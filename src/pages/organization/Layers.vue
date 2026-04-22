@@ -1,47 +1,6 @@
 <template>
   <div class="w-5/6 mx-auto">
     <LayerUploadTool :key="locations" @added-layer="getLocations" />
-    <div class="flex justify-between mb-2">
-      <div class="flex flex-col sm:flex-row items-center">
-        <base-input
-          v-model="currentSearch"
-          data-testid="testGetLocationsSearch"
-          icon="search"
-          class="sm:w-72 w-full sm:mr-4"
-          :placeholder="$t('actions.search')"
-          @update:model-value="getLocations"
-        ></base-input>
-        <div class="flex w-full">
-          <base-select
-            v-model="locationTypeFilter"
-            data-testid="testLocationTypeFilterSelect"
-            :options="
-              locationTypes.map((l) => {
-                return { ...l, name_t: $t(l.name_t) };
-              })
-            "
-            class="w-full sm:w-64 border border-crisiscleanup-dark-100"
-            item-key="id"
-            label="name_t"
-            :placeholder="$t('locationVue.location_type')"
-            select-classes="bg-white border text-xs location-select p-1"
-            @update:model-value="getLocations"
-          />
-          <base-button
-            :text="$t('actions.create_location')"
-            :alt="$t('actions.create_location')"
-            data-testid="testCreateLocationButton"
-            variant="solid"
-            size="small"
-            :action="
-              () => {
-                $router.push('/locations/new');
-              }
-            "
-          />
-        </div>
-      </div>
-    </div>
     <LocationTable
       :locations="locations"
       :meta="locationsMeta"
@@ -50,7 +9,45 @@
       data-testid="testLocationsTable"
       @change="handleTableChange"
       @delete-location="deleteLocation"
-    />
+    >
+      <template #toolbar>
+        <base-input
+          v-model="currentSearch"
+          data-testid="testGetLocationsSearch"
+          icon="search"
+          class="flex-1"
+          :placeholder="$t('actions.search')"
+          @update:model-value="getLocations"
+        ></base-input>
+        <base-select
+          v-model="locationTypeFilter"
+          data-testid="testLocationTypeFilterSelect"
+          :options="
+            locationTypes.map((l) => {
+              return { ...l, name_t: $t(l.name_t) };
+            })
+          "
+          class="w-64 border border-crisiscleanup-dark-100"
+          item-key="id"
+          label="name_t"
+          :placeholder="$t('locationVue.location_type')"
+          select-classes="bg-white border text-xs location-select p-1"
+          @update:model-value="getLocations"
+        />
+        <base-button
+          :text="$t('actions.create_location')"
+          :alt="$t('actions.create_location')"
+          data-testid="testCreateLocationButton"
+          variant="solid"
+          size="sm"
+          :action="
+            () => {
+              $router.push('/locations/new');
+            }
+          "
+        />
+      </template>
+    </LocationTable>
   </div>
 </template>
 
