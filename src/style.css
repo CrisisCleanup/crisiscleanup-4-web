@@ -14,4 +14,80 @@
   input[type='checkbox'] {
     accent-color: theme('colors.primary.dark');
   }
+
+  /*
+   * Status palette — keep in sync with src/icons/icons_templates.ts::colors
+   * and tailwind.config.cjs. The resolveStatusColors unit test asserts the
+   * hex values match byte-for-byte; update all three together.
+   */
+  :root {
+    --cc-status-open-unassigned-unclaimed-fill: #d0021b;
+    --cc-status-open-unassigned-unclaimed-stroke: #e30001;
+    --cc-status-open-unassigned-claimed-fill: #fab92e;
+    --cc-status-open-unassigned-claimed-stroke: #f79820;
+    --cc-status-open-assigned-unclaimed-fill: #d0021b;
+    --cc-status-open-assigned-unclaimed-stroke: #e30001;
+    --cc-status-open-assigned-claimed-fill: #f0f032;
+    --cc-status-open-assigned-claimed-stroke: #85863f;
+    --cc-status-open-partially-completed-unclaimed-fill: #d0021b;
+    --cc-status-open-partially-completed-unclaimed-stroke: #e30001;
+    --cc-status-open-partially-completed-claimed-fill: #0054bb;
+    --cc-status-open-partially-completed-claimed-stroke: #0054bb;
+    --cc-status-open-needs-follow-up-unclaimed-fill: #d0021b;
+    --cc-status-open-needs-follow-up-unclaimed-stroke: #e30001;
+    --cc-status-open-needs-follow-up-claimed-fill: #ea51eb;
+    --cc-status-open-needs-follow-up-claimed-stroke: #e018e1;
+    --cc-status-open-unresponsive-unclaimed-fill: #7f7f7f;
+    --cc-status-open-unresponsive-unclaimed-stroke: #5d5d5d;
+    --cc-status-open-unresponsive-claimed-fill: #7f7f7f;
+    --cc-status-open-unresponsive-claimed-stroke: #5d5d5d;
+    --cc-status-closed-completed-unclaimed-fill: #0fa355;
+    --cc-status-closed-completed-unclaimed-stroke: #09a34f;
+    --cc-status-closed-completed-claimed-fill: #0fa355;
+    --cc-status-closed-completed-claimed-stroke: #09a34f;
+    --cc-status-closed-incomplete-unclaimed-fill: #82d78c;
+    --cc-status-closed-incomplete-unclaimed-stroke: #82d78c;
+    --cc-status-closed-incomplete-claimed-fill: #82d78c;
+    --cc-status-closed-incomplete-claimed-stroke: #82d78c;
+    --cc-status-closed-out-of-scope-unclaimed-fill: #7f7f7f;
+    --cc-status-closed-out-of-scope-unclaimed-stroke: #5d5d5d;
+    --cc-status-closed-out-of-scope-claimed-fill: #7f7f7f;
+    --cc-status-closed-out-of-scope-claimed-stroke: #5d5d5d;
+    --cc-status-closed-done-by-others-unclaimed-fill: #82d78c;
+    --cc-status-closed-done-by-others-unclaimed-stroke: #82d78c;
+    --cc-status-closed-done-by-others-claimed-fill: #82d78c;
+    --cc-status-closed-done-by-others-claimed-stroke: #82d78c;
+    --cc-status-closed-no-help-wanted-unclaimed-fill: #82d78c;
+    --cc-status-closed-no-help-wanted-unclaimed-stroke: #82d78c;
+    --cc-status-closed-no-help-wanted-claimed-fill: #82d78c;
+    --cc-status-closed-no-help-wanted-claimed-stroke: #82d78c;
+    --cc-status-closed-partially-completed-unclaimed-fill: #82d78c;
+    --cc-status-closed-partially-completed-unclaimed-stroke: #82d78c;
+    --cc-status-closed-partially-completed-claimed-fill: #82d78c;
+    --cc-status-closed-partially-completed-claimed-stroke: #82d78c;
+    --cc-status-closed-duplicate-unclaimed-fill: #7f7f7f;
+    --cc-status-closed-duplicate-unclaimed-stroke: #7f7f7f;
+    --cc-status-closed-duplicate-claimed-fill: #82d78c;
+    --cc-status-closed-duplicate-claimed-stroke: #82d78c;
+    --cc-status-closed-marked-for-deletion-unclaimed-fill: #7f7f7f;
+    --cc-status-closed-marked-for-deletion-unclaimed-stroke: #5d5d5d;
+    --cc-status-closed-marked-for-deletion-claimed-fill: #7f7f7f;
+    --cc-status-closed-marked-for-deletion-claimed-stroke: #5d5d5d;
+    --cc-status-closed-rejected-unclaimed-fill: #7f7f7f;
+    --cc-status-closed-rejected-unclaimed-stroke: #5d5d5d;
+    --cc-status-closed-rejected-claimed-fill: #7f7f7f;
+    --cc-status-closed-rejected-claimed-stroke: #5d5d5d;
+    --cc-status-need-unfilled-unclaimed-fill: #d0021b;
+    --cc-status-need-unfilled-unclaimed-stroke: #e30001;
+    --cc-status-need-unfilled-claimed-fill: #fab92e;
+    --cc-status-need-unfilled-claimed-stroke: #f79820;
+    --cc-status-need-filled-unclaimed-fill: #82d78c;
+    --cc-status-need-filled-unclaimed-stroke: #82d78c;
+    --cc-status-need-filled-claimed-fill: #82d78c;
+    --cc-status-need-filled-claimed-stroke: #82d78c;
+    --cc-status-need-overdue-unclaimed-fill: #d0021b;
+    --cc-status-need-overdue-unclaimed-stroke: #e30001;
+    --cc-status-need-overdue-claimed-fill: #ea51eb;
+    --cc-status-need-overdue-claimed-stroke: #e018e1;
+  }
 }

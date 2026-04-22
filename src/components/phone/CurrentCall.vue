@@ -170,7 +170,7 @@ const suggestedScript = computed(() => {
             >
               <div class="flex items-center mb-2">
                 <div
-                  class="cases-svg-container p-1.5 bg-gray-100 rounded mr-2"
+                  class="cases-svg-container p-1.5 bg-gray-100 rounded mr-2 shadow-crisiscleanup-card"
                   data-testid="testWorktypeSVGIcon"
                   v-html="getSVG(c.worktype)"
                 ></div>

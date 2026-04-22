@@ -101,7 +101,7 @@
         >
           <div class="flex items-center">
             <div
-              class="cases-svg-container p-1"
+              class="cases-svg-container p-1 bg-white rounded shadow-crisiscleanup-card"
               data-testid="testWorktypeSVGIcon"
               v-html="getSVG(c.worktype)"
             ></div>

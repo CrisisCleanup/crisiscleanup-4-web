@@ -1,10 +1,16 @@
 <template>
-  <v-popover popper-class="popover menu" placement="bottom-end" class="text-xs">
-    <div
-      class="badge-holder rounded-lg"
+  <v-popover
+    popper-class="popover menu"
+    placement="bottom-end"
+    class="text-xs"
+    @apply-show="onPopoverShow"
+  >
+    <button
+      type="button"
+      class="badge-holder rounded border border-crisiscleanup-grey-100 text-crisiscleanup-dark-500 transition focus-visible:outline-none focus-visible:border-primary-light focus-visible:shadow-[0_0_0_2px_rgba(254,206,9,.25)]"
       data-testid="testCurrentWorkTypeStatusDiv"
-      :class="size === 'sm' ? 'px-1' : 'px-2'"
-      :style="dropdownStyle"
+      :class="size === 'sm' ? 'px-1 min-h-[20px]' : 'px-2 min-h-[28px]'"
+      :style="triggerStyle"
     >
       <div
         v-if="useIcon"
@@ -17,41 +23,42 @@
         {{ getStatusName(currentWorkType.status) }}
       </div>
       <font-awesome-icon
-        class="tooltip-target"
+        class="ml-1 text-[12px] text-crisiscleanup-grey-900"
         :alt="$t('actions.select_status')"
-        :class="size === 'sm' ? '' : 'mx-1'"
-        size="sm"
         icon="chevron-down"
       />
-    </div>
+    </button>
     <template #popper="{ hide }">
       <div
-        class="bg-white border outline-none h-84 w-56 overflow-auto tooltip-content"
-        @keyup="nextItem"
+        ref="panelRef"
+        role="listbox"
+        tabindex="-1"
+        :aria-activedescendant="`status-opt-${currentItem}`"
+        class="bg-white rounded shadow-crisiscleanup-card border border-crisiscleanup-grey-100 mt-1 overflow-auto outline-none max-h-64 w-56 tooltip-content"
+        @keydown="(e) => onPanelKeydown(e, hide)"
       >
         <div
           v-for="status in displayStatuses"
+          :id="`status-opt-${status.selectionKey}`"
           :key="`${status.id}`"
+          role="option"
+          :aria-selected="status.status === currentWorkType.status"
           :data-testid="`testStatus${status.id}Div`"
-          class="cursor-pointer py-1 hover:bg-crisiscleanup-light-grey"
-          :class="{ selected: currentItem === status.selectionKey }"
+          class="cursor-pointer min-h-[24px] px-3 py-0.5 text-[13px] flex items-center transition-colors hover:bg-crisiscleanup-smoke"
+          :class="rowClass(status)"
+          @click="
+            () => {
+              $emit('input', status.status);
+              hide();
+            }
+          "
         >
-          <div
-            class="badge-holder text-xs"
-            @click="
-              () => {
-                $emit('input', status.status);
-                hide();
-              }
-            "
-          >
-            <ColoredCircle
-              class="mx-1 w-4 h-4"
-              :title="getStatusName(status.status)"
-              :color="getColorForStatus(status.status)"
-            />
-            <div>{{ $t(status.status_name_t) }}</div>
-          </div>
+          <ColoredCircle
+            class="mx-1 w-4 h-4"
+            :title="getStatusName(status.status)"
+            :color="getColorForStatus(status.status)"
+          />
+          <div>{{ $t(status.status_name_t) }}</div>
         </div>
       </div>
     </template>
@@ -60,7 +67,7 @@
 
 <script lang="ts">
 import { useStore } from 'vuex';
-import { computed, ref, nextTick, onMounted } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { getColorForStatus, getStatusName, getWorkTypeImage } from '../filters';
 import useWorktypeImages from '../hooks/worksite/useWorktypeImages';
 import ColoredCircle from '@/components/ColoredCircle.vue';
@@ -96,9 +103,11 @@ export default defineComponent({
       default: '',
     },
   },
-  setup(props) {
+  emits: ['input'],
+  setup(props, { emit }: { emit: (event: 'input', payload: string) => void }) {
     const currentItem = ref(1);
-    const svgContainer = ref(null);
+    const svgContainer = ref<HTMLElement | null>(null);
+    const panelRef = ref<HTMLElement | null>(null);
     const store = useStore();
 
     const { getWorktypeSVG } = useWorktypeImages();
@@ -133,28 +142,73 @@ export default defineComponent({
 
       return getWorkTypeImage(props.currentWorkType);
     });
-    const dropdownStyle = computed(() => {
+    const triggerStyle = computed(() => {
+      const fill = getColorForStatus(
+        props.currentWorkType.status,
+        Boolean(props.currentWorkType.claimed_by),
+      );
+      // Tint the fill at 24% alpha for the badge background. Text color is
+      // carried by a Tailwind class (crisiscleanup-dark-500) instead of the
+      // fill itself so pastel statuses (soft green, yellow) stay legible.
       return {
-        color: getColorForStatus(
-          props.currentWorkType.status,
-          Boolean(props.currentWorkType.claimed_by),
-        ),
-        backgroundColor: `${getColorForStatus(
-          props.currentWorkType.status,
-          Boolean(props.currentWorkType.claimed_by),
-        )}3D`,
+        backgroundColor: `${fill}3D`,
       };
     });
 
-    function nextItem(e) {
-      if (e.keyCode === 38 && currentItem.value > 1) {
-        currentItem.value -= 1;
-      } else if (
-        e.keyCode === 40 &&
-        currentItem.value < displayStatuses.value.length
-      ) {
-        currentItem.value += 1;
+    function rowClass(status: { status: string; selectionKey: number }) {
+      const isSelected = status.status === props.currentWorkType.status;
+      const isFocused = currentItem.value === status.selectionKey;
+      return [
+        isSelected && 'bg-primary-light text-black font-bold',
+        isFocused && !isSelected && 'bg-crisiscleanup-smoke',
+        isFocused && 'ring-1 ring-primary-light',
+      ];
+    }
+
+    function onPanelKeydown(e: KeyboardEvent, hide: () => void) {
+      switch (e.key) {
+        case 'ArrowDown': {
+          e.preventDefault();
+          currentItem.value = Math.min(
+            currentItem.value + 1,
+            displayStatuses.value.length,
+          );
+
+          break;
+        }
+        case 'ArrowUp': {
+          e.preventDefault();
+          currentItem.value = Math.max(currentItem.value - 1, 1);
+
+          break;
+        }
+        case 'Enter':
+        case ' ': {
+          e.preventDefault();
+          const picked = displayStatuses.value.find(
+            (s: { selectionKey: number }) =>
+              s.selectionKey === currentItem.value,
+          );
+          if (picked) {
+            emit('input', picked.status);
+            hide();
+          }
+
+          break;
+        }
+        // No default
       }
+    }
+
+    function onPopoverShow() {
+      const current = displayStatuses.value.find(
+        (s: { status: string }) => s.status === props.currentWorkType.status,
+      );
+      currentItem.value = current?.selectionKey ?? 1;
+      nextTick(() => {
+        panelRef.value?.focus();
+        setSVGStyles();
+      });
     }
 
     function setSVGStyles() {
@@ -165,33 +219,27 @@ export default defineComponent({
       }
     }
 
-    onMounted(() => {
-      document.addEventListener('keyup', nextItem);
-      nextTick(() => setSVGStyles());
-    });
-
     return {
       getColorForStatus,
       getWorkTypeImage,
       statuses,
       displayStatuses,
       workTypeImage,
-      dropdownStyle,
+      triggerStyle,
       getStatusName,
-      nextItem,
       currentItem,
+      panelRef,
+      rowClass,
+      onPanelKeydown,
+      onPopoverShow,
+      svgContainer,
     };
   },
 });
 </script>
 
-<style>
-.status-dropdown {
-}
-</style>
-
 <style scoped>
 .badge-holder {
-  @apply flex items-center cursor-pointer;
+  @apply inline-flex items-center cursor-pointer bg-white;
 }
 </style>

@@ -2,7 +2,7 @@ import { parsePhoneNumber } from 'libphonenumber-js';
 import _ from 'lodash';
 import moment from '@/utils/dates';
 import enums from '../store/modules/enums';
-import { colors as iconColors, templates } from '../icons/icons_templates';
+import { resolveStatusColors, templates } from '../icons/icons_templates';
 import Organization from '../models/Organization';
 import type { WorkType } from '@/models/types';
 import { SVG_STROKE_WIDTH } from '@/constants';
@@ -75,42 +75,25 @@ export const getColorForWorkType = (workType: WorkType) => {
   if (!workType) {
     return '';
   }
-
-  const colorsKey = `${workType.status}_${
-    workType.claimed_by ? 'claimed' : 'unclaimed'
-  }`;
-  const colors = iconColors[colorsKey];
-  return colors.fillColor;
+  return resolveStatusColors(workType.status, Boolean(workType.claimed_by))
+    .fill;
 };
 
 export const getColorForStatus = (status: string, claimed = true) => {
-  let colorsKey = `${status}_${claimed ? 'claimed' : 'unclaimed'}`;
-  let colors = iconColors[colorsKey];
-
-  if (!colors) {
-    colorsKey = `open_unassigned_${claimed ? 'claimed' : 'unclaimed'}`;
-    colors = iconColors[colorsKey];
-  }
-
-  return colors.fillColor;
+  return resolveStatusColors(status, claimed).fill;
 };
 
 export const getWorkTypeImage = (workType: WorkType) => {
-  const colorsKey = `${workType.status}_${
-    workType.claimed_by ? 'claimed' : 'unclaimed'
-  }`;
   const worksiteTemplate = templates[workType.work_type] || templates.unknown;
-  const svgColors = iconColors[colorsKey];
-
-  if (svgColors) {
-    return worksiteTemplate
-      .replaceAll('{{fillColor}}', svgColors.fillColor)
-      .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
-      .replaceAll('{{strokeColor}}', svgColors.strokeColor)
-      .replaceAll('{{multiple}}', '');
-  }
-
-  return '';
+  const { fill, stroke } = resolveStatusColors(
+    workType.status,
+    Boolean(workType.claimed_by),
+  );
+  return worksiteTemplate
+    .replaceAll('{{fillColor}}', fill)
+    .replaceAll('{{strokeWidth}}', SVG_STROKE_WIDTH.toString())
+    .replaceAll('{{strokeColor}}', stroke)
+    .replaceAll('{{multiple}}', '');
 };
 
 export const secondsToHm = (seconds: number) => {

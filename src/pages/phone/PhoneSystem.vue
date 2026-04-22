@@ -1,7 +1,9 @@
 <template>
   <template v-if="mq.mdMinus">
     <div v-if="!isEditing && !isNew">
-      <div class="h-20 absolute top-0 w-24 mt-28 z-toolbar">
+      <div
+        class="fixed inset-x-0 top-12 z-toolbar bg-white border-b border-crisiscleanup-grey-100 shadow-sm"
+      >
         <PhoneToolBar
           :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
@@ -46,7 +48,7 @@
           </span>
         </span>
       </span>
-      <div class="absolute top-4 right-4 flex z-toolbar">
+      <div class="absolute top-16 right-4 flex z-toolbar">
         <base-button
           text=""
           data-testid="testSearchButton"
@@ -82,7 +84,7 @@
           "
         />
       </div>
-      <div class="absolute bottom-20 gap-2 right-4 flex flex-col z-toolbar">
+      <div class="fixed bottom-20 gap-2 right-4 flex flex-col z-toolbar">
         <base-button
           data-testid="testAddCaseButton"
           icon="plus"
@@ -109,7 +111,7 @@
         <base-button
           v-if="showingTable"
           data-testid="testShowMapButton"
-          ccu-icon="map"
+          icon="map"
           icon-size="sm"
           :title="$t('casesVue.map_view')"
           :alt="$t('casesVue.map_view')"
@@ -239,36 +241,66 @@
   <template v-else>
     <div class="phone-system">
       <div class="phone-system__main">
-        <div class="phone-system__main-header">
-          <div class="flex py-3 px-2" style="min-width: 80px">
-            <ccu-icon
-              :alt="$t('casesVue.map_view')"
-              data-testid="testPhoneMapViewIcon"
-              size="medium"
-              class="mr-4 cursor-pointer"
-              :class="showingMap ? 'filter-yellow' : 'filter-gray'"
-              type="map"
-              ccu-event="user_ui-view-map"
-              @click="toggleView('showingMap')"
-            />
-            <ccu-icon
-              :alt="$t('casesVue.table_view')"
-              data-testid="testPhoneTableViewIcon"
-              size="medium"
-              class="mr-4 cursor-pointer"
-              :class="showingTable ? 'filter-yellow' : 'filter-gray'"
-              type="table"
-              ccu-event="user_ui-view-table"
-              @click="toggleView('showingTable')"
-            />
-          </div>
-          <span v-if="allWorksiteCount" class="font-thin">
-            <span>
-              {{ $t('casesVue.cases') }}
+        <div
+          class="phone-system__main-header flex flex-wrap items-center gap-3 px-3 py-2"
+        >
+          <!-- LEFT: segmented view toggle + count pill -->
+          <div class="flex items-center gap-3 flex-none">
+            <div
+              role="tablist"
+              :aria-label="$t('casesVue.view_mode', 'View mode')"
+              class="inline-flex items-center rounded border border-crisiscleanup-grey-100 bg-white overflow-hidden"
+            >
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="showingMap"
+                data-testid="testPhoneMapViewIcon"
+                :title="$t('casesVue.map_view')"
+                :aria-label="$t('casesVue.map_view')"
+                class="w-9 h-9 grid place-items-center transition"
+                :class="
+                  showingMap
+                    ? 'bg-primary-light text-black'
+                    : 'text-crisiscleanup-grey-900 hover:bg-crisiscleanup-smoke'
+                "
+                @click="toggleView('showingMap')"
+              >
+                <LucideMap class="w-[18px] h-[18px]" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                role="tab"
+                :aria-selected="showingTable"
+                data-testid="testPhoneTableViewIcon"
+                :title="$t('casesVue.table_view')"
+                :aria-label="$t('casesVue.table_view')"
+                class="w-9 h-9 grid place-items-center transition"
+                :class="
+                  showingTable
+                    ? 'bg-primary-light text-black'
+                    : 'text-crisiscleanup-grey-900 hover:bg-crisiscleanup-smoke'
+                "
+                @click="toggleView('showingTable')"
+              >
+                <LucideRows3 class="w-[18px] h-[18px]" aria-hidden="true" />
+              </button>
+            </div>
+            <span
+              v-if="allWorksiteCount"
+              class="inline-flex items-center gap-1 rounded bg-crisiscleanup-smoke px-2 py-1 text-[13px] font-semibold text-black whitespace-nowrap"
+            >
+              <span class="text-crisiscleanup-grey-900 font-normal">
+                {{ $t('casesVue.cases') }}
+              </span>
               {{ allWorksiteCount }}
             </span>
-          </span>
-          <div class="flex justify-start w-auto">
+          </div>
+
+          <!-- CENTER: search -->
+          <div
+            class="flex-1 min-w-0 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+          >
             <WorksiteSearchInput
               :value="search"
               data-testid="testWorksiteSearch"
@@ -277,7 +309,7 @@
               :placeholder="$t('actions.search')"
               size="medium"
               skip-validation
-              class="mx-2 w-full"
+              class="w-full"
               use-recents
               @selected-existing="onSelectExistingWorksite"
               @focus="collapseGreenPhoneSection"
@@ -289,25 +321,38 @@
               "
             />
           </div>
-          <template v-if="incidentsWithActivePhones.length > 0">
+
+          <!-- RIGHT: active hotlines / prompt -->
+          <div
+            class="min-w-0 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+          >
             <div
-              v-for="incident in incidentsWithActivePhones"
-              :key="incident.id"
-              :data-testid="`testIncidentWithActiveAni${incident.id}Div`"
-              class="flex flex-wrap items-center gap-2"
+              v-if="activeHotlinePills.length > 0"
+              class="flex flex-wrap items-center gap-1.5"
             >
-              {{ incident.short_name }}:
-              <div class="inline-block transform scale-70">
-                <PhoneNumberDisplay
-                  v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
-                  :key="hotlineNumber"
-                  :phone-number="hotlineNumber"
+              <span
+                v-for="pill in activeHotlinePills"
+                :key="pill.id"
+                :data-testid="`testIncidentWithActiveAni${pill.id}Div`"
+                class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary-light text-black text-[11px] font-bold whitespace-nowrap"
+              >
+                <font-awesome-icon
+                  icon="phone"
+                  class="text-[10px] opacity-70"
+                  aria-hidden="true"
                 />
-              </div>
+                <span class="hidden md:inline opacity-60">{{
+                  pill.shortName
+                }}</span>
+                <PhoneNumberDisplay :phone-number="pill.number" type="plain" />
+              </span>
             </div>
-          </template>
-          <div v-else class="flex-grow">
-            {{ $t('homeVue.phone_or_website') }}
+            <div
+              v-else
+              class="text-[12px] text-crisiscleanup-grey-900 whitespace-nowrap"
+            >
+              {{ $t('homeVue.phone_or_website') }}
+            </div>
           </div>
         </div>
         <PhoneToolBar
@@ -564,6 +609,9 @@ import PhoneOverlay from '@/components/phone/PhoneOverlay.vue';
 import useAcl from '@/hooks/useAcl';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import Role from '@/models/Role';
+import LucideMap from '~icons/lucide/map';
+import LucideRows3 from '~icons/lucide/rows-3';
+import { useActiveHotlines } from '@/hooks/useActiveHotlines';
 
 export enum AllowedCallType {
   INBOUND_ONLY = 'INBOUND_ONLY',
@@ -578,6 +626,8 @@ export const PhoneSystemActionQueryParam = {
 export default defineComponent({
   name: 'PhoneSystem',
   components: {
+    LucideMap,
+    LucideRows3,
     PhoneNumberDisplay,
     CaseFlag,
     PhoneOverlay,
@@ -732,6 +782,23 @@ export default defineComponent({
         .where('active_phone_number', (p: unknown) => isValidActiveHotline(p))
         .get(),
     );
+
+    const { incidentsWithActiveHotline } = useActiveHotlines();
+
+    const activeHotlinePills = computed(() => {
+      const pills: { id: string; shortName: string; number: string }[] = [];
+      for (const incident of incidentsWithActiveHotline.value) {
+        const numbers = formatIncidentPhoneNumbers(incident);
+        for (const number of numbers) {
+          pills.push({
+            id: `${incident.id}-${number}`,
+            shortName: incident.short_name,
+            number,
+          });
+        }
+      }
+      return pills;
+    });
 
     function onSelectionChanged(selectedItems) {
       selectedTableItems.value = selectedItems;
@@ -1491,6 +1558,7 @@ export default defineComponent({
       worksiteQuery,
       worksite,
       incidentsWithActivePhones,
+      activeHotlinePills,
       worksiteForm,
       statusTab,
       callTab,

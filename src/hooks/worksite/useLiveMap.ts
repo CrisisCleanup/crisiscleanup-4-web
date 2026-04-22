@@ -25,6 +25,7 @@ import {
 import Location from '../../models/Location';
 import { i18n } from '@/modules/i18n';
 import { colors, templates } from '@/icons/icons_templates';
+import { injectElevationFilter } from '@/hooks/worksite/useWorktypeImages';
 import type {
   LiveGraphics,
   PixiLayer,
@@ -414,7 +415,9 @@ export default (
             .replaceAll('{{strokeColor}}', 'black');
 
           patientMarkerSprite.basicTexture = texture;
-          patientMarkerSprite.detailedTexture = Texture.from(typeSvg);
+          patientMarkerSprite.detailedTexture = Texture.from(
+            injectElevationFilter(typeSvg),
+          );
 
           (layer as L.Layer & PixiLayer)._pixiContainer.addChild(
             patientMarkerSprite,
@@ -550,7 +553,9 @@ export default (
               .replaceAll('{{strokeColor}}', 'black');
 
             patientMarkerSprite.basicTexture = texture;
-            patientMarkerSprite.detailedTexture = Texture.from(typeSvg);
+            patientMarkerSprite.detailedTexture = Texture.from(
+              injectElevationFilter(typeSvg),
+            );
 
             (layer as L.Layer & PixiLayer)._pixiContainer.addChild(
               patientMarkerSprite,

@@ -4,7 +4,8 @@ import * as turf from '@turf/turf';
 import type * as L from 'leaflet';
 import type { Feature, Point, Properties } from '@turf/turf';
 import moment from '@/utils/dates';
-import { templates, colors } from '../../icons/icons_templates';
+import { resolveStatusColors, templates } from '../../icons/icons_templates';
+import { injectElevationFilter } from './useWorktypeImages';
 import type Worksite from '@/models/Worksite';
 import type { PixiLayer } from '@/utils/types/map';
 import { SVG_STROKE_WIDTH } from '@/constants';
@@ -72,12 +73,16 @@ export default (
         const markerTemplate = templates.circle;
         let sprite = new Sprite() as any;
 
-        const workType = marker.key_work_type || marker.work_types[0];
-        const colorsKey = `${workType.status}_${
-          workType.claimed_by ? 'claimed' : 'unclaimed'
-        }`;
-        const spriteColors = colors[colorsKey];
-        const { fillColor, strokeColor } = spriteColors;
+        const workType = marker.key_work_type || marker.work_types?.[0];
+        if (!workType) {
+          // A worksite with no work types reaches the map when the backend
+          // returns a partial record. Skip rather than crash the render loop.
+          return;
+        }
+        const { fill: fillColor, stroke: strokeColor } = resolveStatusColors(
+          workType.status,
+          Boolean(workType.claimed_by),
+        );
 
         const { location } = marker;
         const patientCoords = (
@@ -199,7 +204,10 @@ export default (
               sprite.photos_count > 0 ? templates.camera : '',
             );
 
-          detailedTexture = Texture.from(typeSvg);
+          // Pixi rasterizes the SVG to a texture — re-inject a light baked
+          // shadow so markers still read against map tiles (DOM consumers
+          // get shadow via shadow-crisiscleanup-card on their wrappers).
+          detailedTexture = Texture.from(injectElevationFilter(typeSvg));
           textureCache.set(detailedTextureKey, detailedTexture);
         }
 

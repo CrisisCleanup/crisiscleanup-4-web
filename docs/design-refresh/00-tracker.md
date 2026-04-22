@@ -20,11 +20,14 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 08 | [Table + integrated search toolbar](./08-table.md) | `src/components/Table.vue` + caller migration | not-started |
 | 09 | [Input error & hint messaging (bug fix)](./09-input-error-messaging.md) | `src/components/{BaseInput,BaseSelect,BaseRadio}.vue` | in-progress (manual verify pending) |
 | 10 | [Typography base (body 15 px)](./10-typography-base.md) | `src/style.css` | in-progress (shipped w/ 01; manual verify pending) |
-| 11 | [Select refresh + incident picker trigger](./11-select-incident-picker.md) | `src/components/BaseSelect.vue` + recipe used by spec 02 | in-progress (manual verify pending) |
+| 11 | [Select refresh + incident picker trigger](./11-select-incident-picker.md) | `src/components/BaseSelect.vue` + recipe used by spec 02 | shipped |
 | 12 | [Mobile top bar](./12-mobile-top-bar.md) | `src/layouts/Authenticated.vue` (mobile branch) | in-progress (manual verify pending) |
 | 13 | [Mobile dashboards](./13-mobile-dashboards.md) | `src/pages/Dashboard.vue` + `src/pages/dashboards/*` | in-progress (manual verify pending) |
 | 14 | [Chat polish (Spinny + access points)](./14-chat-polish.md) | `src/components/chat/{Chat,ChatMessage}.vue` + `src/components/header/Header.vue` | in-progress (manual verify pending) |
 | 15 | [Work utility bar (view toggles, search, filters, sliders)](./15-work-utility-bar.md) | `src/pages/Work.vue` + `src/pages/WorksiteNavigationIcons.vue` + `src/assets/icons/*.svg` + new `src/components/work/WorksiteRefine.vue` | not-started |
+| 16 | [Worksite status dropdown refresh](./16-worksite-status-dropdown.md) | `src/components/WorksiteStatusDropdown.vue` | in-progress (manual verify pending) |
+| 17a | [Work-type status palette → tokens](./17a-worktype-status-tokens.md) | `tailwind.config.cjs` + `src/style.css` + `src/icons/icons_templates.ts` + `src/filters/index.ts` + `src/hooks/worksite/useWorktypeImages.ts` | in-progress (manual verify pending) |
+| 17b | [Flatten work-type icon shadow + radius](./17b-worktype-icon-flatten.md) | `src/icons/icons_templates.ts` + `src/hooks/worksite/useWorktypeImages.ts` + pixi callers + DOM wrappers in `WorksiteFeed.vue` / phone / live | in-progress (manual verify pending) |
 
 Status values: `not-started` → `in-progress` → `review` → `shipped`. Update this
 row when opening/merging the PR and link it in the *PR* column if you want.
@@ -39,6 +42,14 @@ run after primitives land. **08 depends on 06** (table status column uses
 inherits the focus ring + error placement fixes). **09 is a bug fix** — can
 ship independently and should, since the current beside-the-input error
 layout is a real regression; it pairs naturally with 05 if grouping.
+
+**Worksite-icon subtrack (16, 17a, 17b):** ship in the order **17a → 16 →
+17b**. 17a is a safe token-move with no visual change — it unblocks 16 from
+reintroducing hex literals and lets 17b's flattened templates pick up the
+refreshed palette without a second migration. 16 depends on spec 11
+(BaseSelect refresh) for the trigger/popper language — spec 11 is shipped, so
+16 is unblocked. 17b is the only spec in this subtrack that changes what
+markers look like on the map; land it last so regressions are attributable.
 
 ## Global principles
 
