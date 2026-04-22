@@ -12,12 +12,11 @@ import GeneralStats from '@/components/phone/GeneralStats.vue';
 import UpdateStatus from '@/components/phone/UpdateStatus.vue';
 import CurrentCall from '@/components/phone/CurrentCall.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
+import BasePill from '@/components/BasePill.vue';
 import Chat from '@/components/chat/Chat.vue';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import moment from '@/utils/dates';
-import BaseText from '@/components/BaseText.vue';
-import Badge from '@/components/Badge.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import PhoneOutbound from '@/models/PhoneOutbound';
 import { useToast } from 'vue-toastification';
@@ -25,6 +24,16 @@ import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 import { useMq } from 'vue3-mq';
 import { useClearCache } from '@/hooks/useClearCache';
+import IconPhoneIncoming from '~icons/lucide/phone-incoming';
+import IconPhoneOutgoing from '~icons/lucide/phone-outgoing';
+import IconTrophy from '~icons/lucide/trophy';
+import IconVideo from '~icons/lucide/video';
+import IconNewspaper from '~icons/lucide/newspaper';
+import IconBarChart from '~icons/lucide/bar-chart-3';
+import IconMessageCircle from '~icons/lucide/message-circle';
+import IconBug from '~icons/lucide/bug';
+import IconStethoscope from '~icons/lucide/stethoscope';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 
 const emit = defineEmits([
   'onCompleteCall',
@@ -56,43 +65,44 @@ const sections = computed(() => {
     {
       view: 'callHistory',
       text: t('phoneDashboard.last_10_calls'),
-      icon: 'phone-history',
+      icon: IconPhoneIncoming,
       alt: t('phoneDashboard.last_10_calls'),
     },
     {
       view: 'manualDialer',
       text: t('phoneDashboard.manual_dialer'),
-      icon: 'manual-dialer',
+      icon: IconPhoneOutgoing,
       alt: t('phoneDashboard.manual_dialer'),
     },
     {
       view: 'leaderboard',
       text: t('phoneDashboard.volunteer_stats'),
-      icon: 'leaderboard',
+      icon: IconTrophy,
       alt: t('phoneDashboard.volunteer_stats'),
     },
     {
       view: 'zoom',
       text: t('phoneDashboard.join_zoom'),
-      icon: 'zoom',
+      icon: IconVideo,
       alt: t('phoneDashboard.join_zoom'),
     },
     {
       view: 'cms',
       text: t('phoneDashboard.news'),
-      icon: 'news',
+      icon: IconNewspaper,
       alt: t('phoneDashboard.news'),
     },
     {
       view: 'generalStats',
       text: t('phoneDashboard.stats'),
-      icon: 'stats',
+      icon: IconBarChart,
       alt: t('phoneDashboard.stats'),
     },
     {
       view: 'chat',
       text: t('chat.chat'),
-      icon: 'chat',
+      icon: IconMessageCircle,
+      alt: t('chat.chat'),
       onOpen: () => {
         updateUserStates({
           chat_last_seen: moment().toISOString(),
@@ -104,16 +114,43 @@ const sections = computed(() => {
     {
       view: 'reportBug',
       text: t('phoneDashboard.report_bug'),
-      icon: 'bug-report',
+      icon: IconBug,
       alt: t('phoneDashboard.report_bug'),
     },
     {
       view: 'phoneDoctor',
       text: t('phoneDashboard.phone_doctor'),
-      icon: 'stethoscope',
+      icon: IconStethoscope,
       alt: t('phoneDashboard.phone_doctor'),
     },
   ];
+});
+
+type PhoneSection = (typeof sections.value)[number];
+
+const mobilePrimaryViews = new Set([
+  'callHistory',
+  'generalStats',
+  'chat',
+  'cms',
+]);
+const mobileSections = computed(() => {
+  const primary = sections.value.filter((s: PhoneSection) =>
+    mobilePrimaryViews.has(s.view),
+  );
+  const overflow = sections.value.filter(
+    (s: PhoneSection) => !mobilePrimaryViews.has(s.view),
+  );
+  return {
+    primary,
+    overflow,
+    more: {
+      view: '__more__',
+      text: t('actions.more', 'More'),
+      icon: IconMoreHorizontal,
+      alt: t('actions.more', 'More'),
+    },
+  };
 });
 
 const { emitter } = useEmitter();
@@ -250,6 +287,27 @@ const reset = async () => {
   $toasted.success(t('phoneDashboard.reset_phone_system_success'));
 };
 
+const isOverflowActive = computed(() =>
+  mobileSections.value.overflow.some(
+    (s: PhoneSection) => s.view === currentView.value,
+  ),
+);
+
+const bannerClass = computed(() => {
+  if (hasCallEnded.value) return 'bg-crisiscleanup-dark-400';
+  if (isInboundCall.value) return 'bg-phone-inbound-dark';
+  if (isOutboundCall.value) return 'bg-phone-outbound-dark';
+  return 'bg-phone-outbound-dark';
+});
+
+const bannerLabel = computed(() => {
+  if (isConnecting.value) return t('phoneDashboard.connecting');
+  if (isInboundCall.value) return t('phoneDashboard.inbound_call');
+  if (isOutboundCall.value) return t('phoneDashboard.outbound_call');
+  if (hasCallEnded.value) return t('phoneDashboard.call_ended');
+  return '';
+});
+
 onMounted(() => {
   // Immediately update once in case component mounts after call has started
   updateElapsedTime();
@@ -272,7 +330,7 @@ onMounted(() => {
   );
 });
 
-const viewToTitleMap = {
+const viewToTitleMap: Record<string, string> = {
   callHistory: t('phoneDashboard.last_10_calls'),
   manualDialer: t('phoneDashboard.manual_dialer'),
   leaderboard: t('phoneDashboard.volunteer_stats'),
@@ -281,6 +339,8 @@ const viewToTitleMap = {
   generalStats: t('phoneDashboard.stats'),
   chat: t('chat.chat'),
   reportBug: t('phoneDashboard.report_bug'),
+  phoneDoctor: t('phoneDashboard.phone_doctor'),
+  __more__: t('actions.more', 'More'),
 };
 
 const useBottomNav = computed(() => {
@@ -319,70 +379,63 @@ const {
     }"
   >
     <div v-if="useBottomNav" class="w-full z-header absolute">
-      <nav class="bg-gray-100 h-14 flex flex-row justify-between">
-        <ul class="flex flex-row w-full items-center">
-          <li
-            v-for="section in sections"
-            :key="section.view"
-            :data-testid="`testPhoneOverlay_${section.view}`"
-            class="p-2 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center list-none"
-            :class="{
-              'border-t-4 border-primary-light font-bold':
-                currentView === section.view,
-            }"
-            @click="
-              () =>
-                currentView === section.view ? closeTab() : updateView(section)
+      <nav
+        class="bg-white border-t border-crisiscleanup-grey-100 h-16 flex flex-row"
+      >
+        <button
+          v-for="section in [...mobileSections.primary, mobileSections.more]"
+          :key="section.view"
+          type="button"
+          :data-testid="`testPhoneOverlay_${section.view}`"
+          class="relative flex-1 flex flex-col items-center justify-center gap-0.5 transition"
+          :class="
+            currentView === section.view ||
+            (section.view === '__more__' && isOverflowActive)
+              ? 'text-black'
+              : 'text-crisiscleanup-dark-400 hover:bg-crisiscleanup-smoke'
+          "
+          @click="
+            () =>
+              currentView === section.view ? closeTab() : updateView(section)
+          "
+        >
+          <component :is="section.icon" class="w-5 h-5" />
+          <span class="text-[10px] uppercase tracking-[0.04em] leading-none">{{
+            section.text
+          }}</span>
+          <span
+            class="w-1 h-1 rounded-full bg-primary-light transition-opacity"
+            :class="
+              currentView === section.view ||
+              (section.view === '__more__' && isOverflowActive)
+                ? 'opacity-100'
+                : 'opacity-0'
             "
+          />
+          <BasePill
+            v-if="section.view === 'generalStats' && callsWaiting > 0"
+            variant="incident"
+            class="absolute top-1 right-2"
+            >{{ callsWaiting }}</BasePill
           >
-            <div class="flex flex-col items-center gap-1">
-              <ccu-icon
-                :type="section.icon"
-                :alt="section.alt"
-                :class="[
-                  currentView === section.view
-                    ? 'filter-primary'
-                    : 'filter-gray',
-                  '!transition-none',
-                ]"
-                size="large"
-              />
-            </div>
-            <!-- Badges for unread counts -->
-            <div
-              v-if="section.view === 'generalStats' && callsWaiting > 0"
-              class="relative"
-            >
-              <badge
-                class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
-                >{{ callsWaiting }}</badge
-              >
-            </div>
-            <div
-              v-if="section.view === 'cms' && unreadNewsCount > 0"
-              class="relative"
-            >
-              <badge
-                class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
-                >{{ unreadNewsCount }}</badge
-              >
-            </div>
-            <div v-if="section.view === 'chat'" class="flex gap-1 relative">
-              <badge
-                v-if="unreadChatCount > 0"
-                class="text-black bg-primary-light text-base absolute top-0 right-0 p-2"
-              >
-                {{ unreadChatCount }}
-              </badge>
-              <badge
-                v-if="unreadUrgentChatCount > 0"
-                class="text-white bg-red-500 text-base absolute top-0 right-0 p-2"
-              >
-                {{ unreadUrgentChatCount }}
-              </badge>
-            </div>
-          </li>
-        </ul>
+          <BasePill
+            v-else-if="section.view === 'cms' && unreadNewsCount > 0"
+            variant="incident"
+            class="absolute top-1 right-2"
+            >{{ unreadNewsCount }}</BasePill
+          >
+          <span
+            v-else-if="section.view === 'chat'"
+            class="absolute top-1 right-2 flex gap-1"
+          >
+            <BasePill v-if="unreadChatCount > 0" variant="incident">{{
+              unreadChatCount
+            }}</BasePill>
+            <BasePill v-if="unreadUrgentChatCount > 0" variant="urgent">{{
+              unreadUrgentChatCount
+            }}</BasePill>
+          </span>
+        </button>
       </nav>
     </div>
     <div
@@ -395,91 +448,89 @@ const {
           class="relative flex flex-col"
           :class="expanded ? 'h-full bg-white' : 'h-12'"
         >
-          <div
+          <header
             v-if="caller"
-            class="p-3 flex flex-col justify-center h-auto bg-crisiscleanup-phone-green text-white"
-            :class="isOnCall ? 'animate-pulse' : ''"
+            class="px-4 py-2 min-h-12 flex flex-wrap items-center justify-between gap-3 text-white"
+            :class="bannerClass"
           >
-            <div
-              class="flex flex-col md:flex-row justify-between items-center gap-4"
-            >
-              <!-- Caller Info Section -->
-              <div class="flex flex-wrap gap-3 items-center">
-                <div class="flex flex-col items-start">
-                  <div v-if="isConnecting" data-testid="testIsConnectingDiv">
-                    {{ $t('phoneDashboard.connecting') }}
-                  </div>
-                  <div v-else-if="isOnCall" data-testid="testIsOnCallDiv">
-                    <div
-                      v-if="isInboundCall"
-                      data-testid="testIsInboundCallDiv"
-                    >
-                      {{ $t('phoneDashboard.inbound_call') }}
-                    </div>
-                    <div
-                      v-if="isOutboundCall"
-                      data-testid="testIsOutboundCallDiv"
-                    >
-                      {{ $t('phoneDashboard.outbound_call') }}
-                    </div>
-                  </div>
-                  <div
-                    v-else-if="hasCallEnded"
-                    data-testid="testIsCompletedDiv"
-                  >
-                    {{ $t('phoneDashboard.call_ended') }}
-                  </div>
-                  <PhoneNumberDisplay
-                    class="w-full md:w-40"
-                    :phone-number="caller.dnis"
-                    type="plain"
-                  />
-                </div>
-
-                <span
-                  class="ml-3 font-light break-words text-xs md:text-sm lg:text-base"
-                >
-                  {{ caller.location_name }} {{ caller.state_name }}
-                </span>
-
-                <span
-                  class="ml-3 md:ml-6 font-light text-xs md:text-sm lg:text-base"
-                >
-                  {{ formattedElapsedTime }}
-                </span>
-              </div>
-
-              <!-- Action Buttons Section -->
-              <div
-                class="flex flex-wrap gap-3 justify-center md:justify-end items-center py-2"
+            <div class="flex items-center gap-3 min-w-0 flex-wrap">
+              <span class="w-2 h-2 rounded-full bg-white flex-none" />
+              <span
+                v-if="isConnecting"
+                data-testid="testIsConnectingDiv"
+                class="text-[13px] font-semibold whitespace-nowrap"
+                >{{ bannerLabel }}</span
               >
-                <base-button
-                  class="p-1"
-                  :action="() => (expanded = !expanded)"
-                  :text="$t('actions.show_details')"
-                  :alt="$t('actions.show_details')"
-                  :suffix-icon="expanded ? 'chevron-up' : 'chevron-down'"
-                />
-                <base-button
-                  v-if="isOnCall"
-                  class="p-1 text-black text-xs md:text-sm"
-                  variant="solid"
-                  :action="endCall"
-                  :text="$t('actions.end_call')"
-                  :alt="$t('actions.end_call')"
-                />
-                <base-button
-                  v-else
-                  class="p-1 text-black text-xs md:text-sm"
-                  variant="solid"
-                  :action="showCompleteCall"
-                  :alt="$t('phoneDashboard.complete_call')"
-                >
-                  {{ $t('phoneDashboard.complete_call') }}
-                </base-button>
-              </div>
+              <span
+                v-else-if="isOnCall && isInboundCall"
+                data-testid="testIsInboundCallDiv"
+                class="text-[13px] font-semibold whitespace-nowrap"
+                >{{ bannerLabel }}</span
+              >
+              <span
+                v-else-if="isOnCall && isOutboundCall"
+                data-testid="testIsOutboundCallDiv"
+                class="text-[13px] font-semibold whitespace-nowrap"
+                >{{ bannerLabel }}</span
+              >
+              <span
+                v-else-if="hasCallEnded"
+                data-testid="testIsCompletedDiv"
+                class="text-[13px] font-semibold whitespace-nowrap"
+                >{{ bannerLabel }}</span
+              >
+              <span
+                v-if="isOnCall"
+                data-testid="testIsOnCallDiv"
+                class="sr-only"
+                >{{ $t('phoneDashboard.on_call') }}</span
+              >
+              <PhoneNumberDisplay
+                :phone-number="caller.dnis"
+                type="plain"
+                class="text-[13px]"
+              />
+              <span
+                v-if="caller.location_name || caller.state_name"
+                class="text-[13px] opacity-80 truncate"
+              >
+                {{ caller.location_name }} {{ caller.state_name }}
+              </span>
+              <span
+                class="text-[13px] opacity-90"
+                style="font-variant-numeric: tabular-nums"
+                >{{ formattedElapsedTime }}</span
+              >
             </div>
-          </div>
+
+            <div class="flex items-center gap-2 flex-none">
+              <base-button
+                class="text-white"
+                variant="text"
+                :action="() => (expanded = !expanded)"
+                :text="$t('actions.show_details')"
+                :alt="$t('actions.show_details')"
+                :suffix-icon="expanded ? 'chevron-up' : 'chevron-down'"
+              />
+              <base-button
+                v-if="isOnCall"
+                class="text-black text-sm"
+                variant="solid"
+                :action="endCall"
+                :text="$t('actions.end_call')"
+                :alt="$t('actions.end_call')"
+              />
+              <base-button
+                v-else
+                class="text-black text-sm"
+                variant="solid"
+                :action="showCompleteCall"
+                :alt="$t('phoneDashboard.complete_call')"
+              >
+                {{ $t('phoneDashboard.complete_call') }}
+              </base-button>
+            </div>
+          </header>
 
           <div v-else></div>
           <template v-if="expanded">
@@ -702,6 +753,21 @@ const {
               <template v-if="currentView === 'phoneDoctor'">
                 <PhoneDoctor class="h-204 bg-white" />
               </template>
+              <template v-if="currentView === '__more__'">
+                <nav class="bg-white h-204 overflow-y-auto">
+                  <button
+                    v-for="section in mobileSections.overflow"
+                    :key="section.view"
+                    type="button"
+                    :data-testid="`testPhoneOverlay_${section.view}_more`"
+                    class="w-full h-12 flex items-center gap-3 px-4 border-b border-crisiscleanup-grey-100 text-left text-crisiscleanup-dark-400 hover:bg-crisiscleanup-smoke transition"
+                    @click="updateView(section)"
+                  >
+                    <component :is="section.icon" class="w-5 h-5 flex-none" />
+                    <span class="text-[14px]">{{ section.text }}</span>
+                  </button>
+                </nav>
+              </template>
             </div>
             <div v-show="!currentView && caller" class="flex-grow">
               <template v-if="showCompleteCallScreen">
@@ -754,122 +820,105 @@ const {
         </div>
       </div>
 
-      <div v-if="!useBottomNav" :class="sideBarExpanded ? 'w-56' : 'w-14'">
-        <nav
-          class="bg-gray-100 h-[calc(100vh-10.5rem)] flex flex-col justify-between"
-        >
-          <ul>
-            <div v-if="isOnCall" class="bg-blue">
-              <div
-                :class="isOnCall"
-                class="h-12 flex items-center justify-center"
-                style="background: #358816"
-              >
-                <BaseText class="font-bold text-white">
-                  {{ $t('phoneDashboard.current_call') }} 00:00:00
-                </BaseText>
-              </div>
-            </div>
-
-            <div class="flex flex-col items-center">
-              <div
-                v-for="section in sections"
-                :key="section.view"
-                :data-testid="`testPhoneOverlay_${section.view}`"
-                class="p-2 bg-white flex items-center gap-2 justify-between cursor-pointer hover:bg-primary-light hover:bg-opacity-30 w-full text-center border-b-4"
-                :class="{
-                  'border-l-4 border-l-primary-light font-bold':
-                    currentView === section.view,
-                  'justify-center': !sideBarExpanded,
-                }"
-                @click="
-                  () =>
-                    currentView === section.view
-                      ? closeTab()
-                      : updateView(section)
-                "
-              >
-                <div class="flex items-center gap-2">
-                  <ccu-icon
-                    :type="section.icon"
-                    :alt="section.alt"
-                    :class="[
-                      currentView === section.view
-                        ? 'filter-primary'
-                        : 'filter-gray',
-                      '!transition-none',
-                    ]"
-                    size="large"
-                  />
-                  <div v-if="sideBarExpanded">{{ $t(section.text) }}</div>
-                </div>
-                <div v-if="section.view === 'generalStats'" class="relative">
-                  <badge
-                    v-if="callsWaiting > 0"
-                    class="ml-2 text-black bg-primary-light text-base"
-                    :class="
-                      sideBarExpanded
-                        ? 'relative p-3'
-                        : 'absolute top-0 right-0 p-2'
-                    "
-                    >{{ callsWaiting }}</badge
-                  >
-                </div>
-                <div v-if="section.view === 'cms'" class="relative">
-                  <badge
-                    v-if="unreadNewsCount > 0"
-                    class="ml-2 text-black bg-primary-light text-base"
-                    :class="
-                      sideBarExpanded
-                        ? 'relative p-3'
-                        : 'absolute top-0 right-0 p-2'
-                    "
-                    >{{ unreadNewsCount }}</badge
-                  >
-                </div>
-                <div v-if="section.view === 'chat'" class="flex gap-1 relative">
-                  <badge
-                    v-if="unreadChatCount > 0"
-                    class="text-black bg-primary-light text-base"
-                    :class="
-                      sideBarExpanded
-                        ? 'relative p-3'
-                        : 'absolute top-0 right-0 p-2'
-                    "
-                  >
-                    {{ unreadChatCount }}
-                  </badge>
-                  <badge
-                    v-if="unreadUrgentChatCount > 0"
-                    class="text-white bg-red-500 text-base"
-                    :class="
-                      sideBarExpanded
-                        ? 'relative p-3'
-                        : 'absolute top-0 right-0 p-2'
-                    "
-                  >
-                    {{ unreadUrgentChatCount }}
-                  </badge>
-                </div>
-              </div>
-            </div>
-          </ul>
+      <aside
+        v-if="!useBottomNav"
+        class="bg-white border-l border-crisiscleanup-grey-100 h-[calc(100vh-10.5rem)] flex flex-col justify-between"
+        :class="sideBarExpanded ? 'w-52' : 'w-12'"
+      >
+        <div>
           <div
-            class="w-full cursor-pointer flex items-center p-3 border border-t-2"
-            :class="sideBarExpanded ? 'justify-between' : 'justify-center'"
-            @click="() => (sideBarExpanded = !sideBarExpanded)"
+            v-if="isOnCall"
+            class="h-10 px-3 flex items-center gap-2 text-white"
+            :class="bannerClass"
           >
-            {{ sideBarExpanded ? 'Collapse' : '' }}
-            <font-awesome-icon
-              :icon="[
-                'fas',
-                sideBarExpanded ? 'chevron-right' : 'chevron-left',
-              ]"
-              class="cursor-pointer"
-            />
+            <span class="w-2 h-2 rounded-full bg-white flex-none" />
+            <span
+              v-if="sideBarExpanded"
+              class="text-[12px] font-semibold uppercase tracking-[0.04em]"
+              >{{ $t('phoneDashboard.current_call') }}</span
+            >
+            <span
+              class="ml-auto text-[13px] font-semibold"
+              style="font-variant-numeric: tabular-nums"
+              >{{ formattedElapsedTime }}</span
+            >
           </div>
-        </nav>
-      </div>
+
+          <nav role="tablist" :aria-label="$t('chat.chat')">
+            <button
+              v-for="section in sections"
+              :key="section.view"
+              type="button"
+              role="tab"
+              :aria-selected="currentView === section.view"
+              :data-testid="`testPhoneOverlay_${section.view}`"
+              :title="section.text"
+              class="relative w-full h-10 flex items-center gap-2 border-b border-crisiscleanup-grey-100 transition"
+              :class="[
+                currentView === section.view
+                  ? 'bg-primary-light text-black font-semibold'
+                  : 'text-crisiscleanup-dark-400 hover:bg-crisiscleanup-smoke',
+                sideBarExpanded ? 'px-3' : 'justify-center px-0',
+              ]"
+              @click="
+                () =>
+                  currentView === section.view
+                    ? closeTab()
+                    : updateView(section)
+              "
+            >
+              <component :is="section.icon" class="w-5 h-5 flex-none" />
+              <span
+                v-if="sideBarExpanded"
+                class="text-[13px] truncate flex-1 text-left"
+                >{{ section.text }}</span
+              >
+              <BasePill
+                v-if="section.view === 'generalStats' && callsWaiting > 0"
+                variant="incident"
+                :class="sideBarExpanded ? '' : 'absolute top-1 right-1'"
+                >{{ callsWaiting }}</BasePill
+              >
+              <BasePill
+                v-else-if="section.view === 'cms' && unreadNewsCount > 0"
+                variant="incident"
+                :class="sideBarExpanded ? '' : 'absolute top-1 right-1'"
+                >{{ unreadNewsCount }}</BasePill
+              >
+              <span
+                v-else-if="section.view === 'chat'"
+                class="flex gap-1"
+                :class="sideBarExpanded ? '' : 'absolute top-1 right-1'"
+              >
+                <BasePill v-if="unreadChatCount > 0" variant="incident">{{
+                  unreadChatCount
+                }}</BasePill>
+                <BasePill v-if="unreadUrgentChatCount > 0" variant="urgent">{{
+                  unreadUrgentChatCount
+                }}</BasePill>
+              </span>
+            </button>
+          </nav>
+        </div>
+
+        <button
+          type="button"
+          class="h-10 border-t border-crisiscleanup-grey-100 flex items-center justify-center gap-2 text-[12px] text-crisiscleanup-dark-400 hover:bg-crisiscleanup-smoke transition"
+          :aria-label="
+            sideBarExpanded
+              ? $t('actions.hide_options')
+              : $t('actions.show_options')
+          "
+          @click="() => (sideBarExpanded = !sideBarExpanded)"
+        >
+          <font-awesome-icon
+            :icon="['fas', sideBarExpanded ? 'chevron-right' : 'chevron-left']"
+          />
+          <span v-if="sideBarExpanded">{{
+            $t('actions.collapse', 'Collapse')
+          }}</span>
+        </button>
+      </aside>
     </div>
   </div>
 </template>

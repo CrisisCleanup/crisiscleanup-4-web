@@ -28,6 +28,7 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 16 | [Worksite status dropdown refresh](./16-worksite-status-dropdown.md) | `src/components/WorksiteStatusDropdown.vue` | in-progress (manual verify pending) |
 | 17a | [Work-type status palette → tokens](./17a-worktype-status-tokens.md) | `tailwind.config.cjs` + `src/style.css` + `src/icons/icons_templates.ts` + `src/filters/index.ts` + `src/hooks/worksite/useWorktypeImages.ts` | in-progress (manual verify pending) |
 | 17b | [Flatten work-type icon shadow + radius](./17b-worktype-icon-flatten.md) | `src/icons/icons_templates.ts` + `src/hooks/worksite/useWorktypeImages.ts` + pixi callers + DOM wrappers in `WorksiteFeed.vue` / phone / live | in-progress (manual verify pending) |
+| 18 | [Phone overlay (sidebar, call banner, agent toolbar)](./18-phone-overlay.md) | `src/components/phone/{PhoneOverlay,Agent}.vue` | not-started |
 
 Status values: `not-started` → `in-progress` → `review` → `shipped`. Update this
 row when opening/merging the PR and link it in the *PR* column if you want.
@@ -92,7 +93,10 @@ Lifted from the bundle README's *Visual Foundations*. Every spec inherits these.
 
 - Token changes in `tailwind.config.cjs` (already match the bundle).
 - Map visuals (`src/components/WorkTypeMap.vue`, pixi overlay).
-- Phone panel rework beyond the header's phone indicator.
+- Phone **content panes** (`Leaderboard`, `GeneralStats`, `PhoneDoctor`,
+  `PhoneCmsItems`, etc.) and the `CurrentCall` related-cases pane —
+  spec 18 refreshes the phone *chrome* (sidebar, call banner, agent
+  toolbar) only; the individual panes are follow-ups.
 - `src/maintenance/` and `src/external/**` (vendored).
 - Dark mode (configured but not active; audit is a separate track).
 - Framework / dependency upgrades.
