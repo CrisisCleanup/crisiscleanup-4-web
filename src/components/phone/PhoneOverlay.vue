@@ -23,7 +23,6 @@ import { useToast } from 'vue-toastification';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 import CallSimulator from '@/components/phone/CallSimulator.vue';
-import useAcl from '@/hooks/useAcl';
 import { useMq } from 'vue3-mq';
 import { useClearCache } from '@/hooks/useClearCache';
 import IconPhoneIncoming from '~icons/lucide/phone-incoming';
@@ -57,11 +56,16 @@ const { caseId } = defineProps({
 const expanded = ref(false);
 const sideBarExpanded = ref(true);
 const { t } = useI18n();
-const { $can } = useAcl();
-const { updateUserStates } = useCurrentUser();
+const { updateUserStates, isAdmin, userPreferences } = useCurrentUser();
 const { currentUser } = useCurrentUser();
 const mq = useMq();
 const { clearCache, isClearing } = useClearCache();
+
+const callSimulatorEnabled = computed(
+  () =>
+    Boolean(isAdmin.value) &&
+    Boolean(userPreferences.value?.enable_call_simulator),
+);
 
 // Sections as a computed property
 const sections = computed(() => {
@@ -127,7 +131,7 @@ const sections = computed(() => {
       icon: IconStethoscope,
       alt: t('phoneDashboard.phone_doctor'),
     },
-    ...($can('development_mode')
+    ...(callSimulatorEnabled.value
       ? [
           {
             view: 'callSimulator',

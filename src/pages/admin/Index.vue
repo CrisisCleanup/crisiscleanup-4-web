@@ -47,6 +47,9 @@ const tabs = reactive<Tab[]>([
   {
     key: 'nav.portal_files',
   },
+  {
+    key: 'nav.debug',
+  },
 ]);
 
 const ccuApi = useApi();

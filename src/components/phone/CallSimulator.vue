@@ -4,14 +4,19 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import BaseButton from '@/components/BaseButton.vue';
 import BaseInput from '@/components/BaseInput.vue';
-import useAcl from '@/hooks/useAcl';
 import useCallSimulator from '@/hooks/phone/useCallSimulator';
 import type { SimulateInput } from '@/hooks/phone/useCallSimulator';
+import useCurrentUser from '@/hooks/useCurrentUser';
 import { store } from '@/store';
 import { getErrorMessage } from '@/utils/errors';
 
 const { t } = useI18n();
-const { $can } = useAcl();
+const { isAdmin, userPreferences } = useCurrentUser();
+const enabled = computed(
+  () =>
+    Boolean(isAdmin.value) &&
+    Boolean(userPreferences.value?.enable_call_simulator),
+);
 const $toasted = useToast();
 const { simulateInbound, simulateOutbound, endSimulation } = useCallSimulator();
 
@@ -98,7 +103,7 @@ async function handleEnd() {
 
 <template>
   <div
-    v-if="$can('development_mode')"
+    v-if="enabled"
     class="call-simulator p-6 overflow-auto"
     data-testid="testCallSimulator"
   >
