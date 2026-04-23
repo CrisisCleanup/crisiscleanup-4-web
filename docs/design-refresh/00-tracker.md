@@ -29,6 +29,7 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 17a | [Work-type status palette → tokens](./17a-worktype-status-tokens.md) | `tailwind.config.cjs` + `src/style.css` + `src/icons/icons_templates.ts` + `src/filters/index.ts` + `src/hooks/worksite/useWorktypeImages.ts` | in-progress (manual verify pending) |
 | 17b | [Flatten work-type icon shadow + radius](./17b-worktype-icon-flatten.md) | `src/icons/icons_templates.ts` + `src/hooks/worksite/useWorktypeImages.ts` + pixi callers + DOM wrappers in `WorksiteFeed.vue` / phone / live | in-progress (manual verify pending) |
 | 18 | [Phone overlay (sidebar, call banner, agent toolbar)](./18-phone-overlay.md) | `src/components/phone/{PhoneOverlay,Agent}.vue` | not-started |
+| 19 | [Phone panes foundation (pane primitives + AI pill)](./19-phone-panes-foundation.md) | new `src/components/phone/foundation/{PaneEmpty,PaneSkeleton,PaneError,PaneDisclosure}.vue` + `BasePill.vue` `ai` variant | not-started |
 
 Status values: `not-started` → `in-progress` → `review` → `shipped`. Update this
 row when opening/merging the PR and link it in the *PR* column if you want.
