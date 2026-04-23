@@ -238,9 +238,11 @@ describe('useCallSimulator', () => {
     expect(hoisted.phoneService.callInfo.callType).toBe('OUTBOUND');
   });
 
-  it('endSimulation clears the store and phoneService.callInfo', async () => {
+  it('endSimulation preserves call/caller so UpdateStatus flow remains reachable', async () => {
     hoisted.mockState['phone/call'] = { id: 1 };
     hoisted.mockState['phone/caller'] = { id: 2 };
+    hoisted.mockState['phone/incomingCall'] = { id: 3 };
+    hoisted.mockState['phone/outgoingCall'] = { id: 4 };
     hoisted.mockState['phone/callState'] = 'ENGAGED-INBOUND';
     hoisted.phoneService.callInfo = {
       callType: 'INBOUND',
@@ -251,9 +253,13 @@ describe('useCallSimulator', () => {
     await endSimulation();
 
     expect(hoisted.mockState['phone/callState']).toBe('AWAY');
-    expect(hoisted.mockState['phone/call']).toBeNull();
-    expect(hoisted.mockState['phone/caller']).toBeNull();
-    expect(hoisted.phoneService.callInfo).toEqual({});
+    expect(hoisted.mockState['phone/incomingCall']).toBeNull();
+    expect(hoisted.mockState['phone/outgoingCall']).toBeNull();
+    // call + caller survive so PhoneOverlay surfaces the "Complete call" button
+    expect(hoisted.mockState['phone/call']).toEqual({ id: 1 });
+    expect(hoisted.mockState['phone/caller']).toEqual({ id: 2 });
+    // callInfo.callType preserved so completeCall's branching still works
+    expect(hoisted.phoneService.callInfo.callType).toBe('INBOUND');
   });
 
   it('throws if neither dnisId nor dnis provided for a create path', async () => {

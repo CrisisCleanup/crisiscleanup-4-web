@@ -200,9 +200,15 @@ export default function useCallSimulator() {
   }
 
   async function endSimulation() {
-    store.commit('phone/clearCall');
+    // Mirror the happy path of phone.service.ts:endCallFunction — null the
+    // inbound/outbound records and flip to AWAY, but keep `call`, `caller`,
+    // and `currentDnisHistoryRecord` so the UI surfaces the "Complete call"
+    // button and the UpdateStatus screen can run. Also preserve
+    // phoneService.callInfo.callType because PhoneSystem.completeCall
+    // branches on it when patching phone/history.
+    store.commit('phone/setIncomingCall', null);
+    store.commit('phone/setOutgoingCall', null);
     store.commit('phone/setState', 'AWAY');
-    phoneService.callInfo = {};
   }
 
   return { simulateInbound, simulateOutbound, endSimulation };
