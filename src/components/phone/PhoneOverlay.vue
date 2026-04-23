@@ -22,6 +22,8 @@ import PhoneOutbound from '@/models/PhoneOutbound';
 import { useToast } from 'vue-toastification';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
+import CallSimulator from '@/components/phone/CallSimulator.vue';
+import useAcl from '@/hooks/useAcl';
 import { useMq } from 'vue3-mq';
 import { useClearCache } from '@/hooks/useClearCache';
 import IconPhoneIncoming from '~icons/lucide/phone-incoming';
@@ -33,6 +35,7 @@ import IconBarChart from '~icons/lucide/bar-chart-3';
 import IconMessageCircle from '~icons/lucide/message-circle';
 import IconBug from '~icons/lucide/bug';
 import IconStethoscope from '~icons/lucide/stethoscope';
+import IconFlaskConical from '~icons/lucide/flask-conical';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 
 const emit = defineEmits([
@@ -54,6 +57,7 @@ const { caseId } = defineProps({
 const expanded = ref(false);
 const sideBarExpanded = ref(true);
 const { t } = useI18n();
+const { $can } = useAcl();
 const { updateUserStates } = useCurrentUser();
 const { currentUser } = useCurrentUser();
 const mq = useMq();
@@ -123,6 +127,16 @@ const sections = computed(() => {
       icon: IconStethoscope,
       alt: t('phoneDashboard.phone_doctor'),
     },
+    ...($can('development_mode')
+      ? [
+          {
+            view: 'callSimulator',
+            text: t('phoneDashboard.call_simulator', 'Call Simulator'),
+            icon: IconFlaskConical,
+            alt: t('phoneDashboard.call_simulator', 'Call Simulator'),
+          },
+        ]
+      : []),
   ];
 });
 
@@ -340,6 +354,7 @@ const viewToTitleMap: Record<string, string> = {
   chat: t('chat.chat'),
   reportBug: t('phoneDashboard.report_bug'),
   phoneDoctor: t('phoneDashboard.phone_doctor'),
+  callSimulator: t('phoneDashboard.call_simulator', 'Call Simulator'),
   __more__: t('actions.more', 'More'),
 };
 
@@ -752,6 +767,9 @@ const {
               </template>
               <template v-if="currentView === 'phoneDoctor'">
                 <PhoneDoctor class="h-204 bg-white" />
+              </template>
+              <template v-if="currentView === 'callSimulator'">
+                <CallSimulator class="h-204 bg-white" />
               </template>
               <template v-if="currentView === '__more__'">
                 <nav class="bg-white h-204 overflow-y-auto">
