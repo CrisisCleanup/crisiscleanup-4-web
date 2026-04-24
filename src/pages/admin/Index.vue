@@ -48,6 +48,10 @@ const tabs = reactive<Tab[]>([
     key: 'nav.portal_files',
   },
   {
+    key: 'nav.admin_phone_history',
+    title: '~~Recent Calls',
+  },
+  {
     key: 'nav.debug',
   },
 ]);

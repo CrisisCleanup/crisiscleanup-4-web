@@ -235,7 +235,7 @@ export const restHandlers = [
   ),
 ];
 
-const server = setupServer(...restHandlers);
+export const server = setupServer(...restHandlers);
 
 // Start server before all tests
 beforeAll(() => {

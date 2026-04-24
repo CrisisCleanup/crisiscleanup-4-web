@@ -106,12 +106,22 @@ export default defineComponent({
         return { height: '300px' };
       },
     },
+    pageSize: {
+      type: Number,
+      default: 100,
+    },
     tableId: {
       type: String,
       default: '',
     },
   },
-  emits: ['rowClick', 'selectionChanged', 'dataFetched'],
+  emits: [
+    'rowClick',
+    'selectionChanged',
+    'dataFetched',
+    'update:items',
+    'error',
+  ],
   setup(props, { emit }) {
     const { emitter } = useEmitter();
 
@@ -122,7 +132,7 @@ export default defineComponent({
     const loading = ref(false);
     const meta = ref<TableMeta>({
       pagination: {
-        pageSize: 100,
+        pageSize: props.pageSize,
         page: 1,
         current: 1,
       },
@@ -141,24 +151,33 @@ export default defineComponent({
         limit: pagination ? pagination.pageSize : 10,
         ...props.query,
       };
-      params.search = props.query.search || search.value;
+      const searchValue = props.query.search || search.value;
+      if (searchValue) {
+        params.search = searchValue;
+      }
       if (sorter && sorter.key) {
         params.sort = `${sorter.direction === 'desc' ? '-' : ''}${sorter.key}`;
       }
 
-      const response = await axios.get(`${props.url}`, {
-        params,
-      });
-      data.value = response.data.results || response.data;
-      meta.value.pagination = {
-        ...pagination,
-        total: response.data.count,
-      };
-      meta.value.sorter = {
-        ...sorter,
-      };
-      loading.value = false;
-      emit('dataFetched', response.data.count);
+      try {
+        const response = await axios.get(`${props.url}`, {
+          params,
+        });
+        data.value = response.data.results || response.data;
+        meta.value.pagination = {
+          ...pagination,
+          total: response.data.count,
+        };
+        meta.value.sorter = {
+          ...sorter,
+        };
+        emit('update:items', data.value);
+        emit('dataFetched', response.data.count);
+      } catch (error_) {
+        emit('error', error_);
+      } finally {
+        loading.value = false;
+      }
     };
 
     onMounted(async () => {
