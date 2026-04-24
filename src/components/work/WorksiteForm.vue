@@ -1306,7 +1306,6 @@ export default defineComponent({
           if (isFavorite.value) {
             await Worksite.api().favorite(worksite.value.id);
           }
-          return worksite.value.id;
         } else {
           const response = await Worksite.api().post('/worksites', {
             ...worksite.value,
