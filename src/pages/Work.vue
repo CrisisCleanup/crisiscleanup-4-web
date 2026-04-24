@@ -2218,7 +2218,9 @@ export default defineComponent({
       }
 
       await init();
-      jumpToCase();
+      if (worksiteId.value) {
+        jumpToCase();
+      }
     });
 
     onBeforeUnmount(() => {
