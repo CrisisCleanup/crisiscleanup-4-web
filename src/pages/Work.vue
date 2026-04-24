@@ -2218,7 +2218,7 @@ export default defineComponent({
       }
 
       await init();
-      if (worksiteId.value) {
+      if (worksiteId.value && route.query.showOnMap) {
         jumpToCase();
       }
     });
