@@ -249,9 +249,7 @@ axios.interceptors.response.use(
   (error) => {
     if (
       error instanceof AxiosError &&
-      [400, 403, 404, 408, 409, 422, 502].includes(
-        error.response?.status as number,
-      )
+      [400, 408, 409, 422, 502].includes(error.response?.status as number)
     ) {
       getAndToastWarningMessage(error);
     }
