@@ -545,7 +545,7 @@ export default defineComponent({
 
     const cssVars = computed(() => {
       let { topHeight } = props;
-      if (worksite.value.flags.length > 0) {
+      if ((worksite.value?.flags ?? []).length > 0) {
         topHeight += 25;
       }
 
@@ -557,7 +557,7 @@ export default defineComponent({
 
     const workTypesClaimedByOrganization = computed(() => {
       if (worksite.value) {
-        return worksite.value.work_types.filter(
+        return (worksite.value.work_types ?? []).filter(
           (type) =>
             currentUser.value.organization.all_affiliates_and_groups.includes(
               type.claimed_by,
@@ -570,7 +570,7 @@ export default defineComponent({
 
     const workTypesClaimedByOthers = computed(() => {
       if (worksite.value) {
-        const list = worksite.value.work_types.filter(
+        const list = (worksite.value.work_types ?? []).filter(
           (type) =>
             type.claimed_by &&
             !currentUser.value.organization.all_affiliates_and_groups.includes(
@@ -597,7 +597,7 @@ export default defineComponent({
     });
 
     const workTypesClaimedByOthersUnrequested = computed(() => {
-      return worksite.value.work_types.filter(
+      return (worksite.value?.work_types ?? []).filter(
         (type) =>
           type.claimed_by &&
           type.claimed_by !== currentUser.value.organization.id &&
@@ -613,7 +613,7 @@ export default defineComponent({
 
     const workTypesUnclaimed = computed(() => {
       if (worksite.value) {
-        return worksite.value.work_types.filter(
+        return (worksite.value.work_types ?? []).filter(
           (type) => type.claimed_by === null,
         );
       }
@@ -771,7 +771,7 @@ export default defineComponent({
     function getFieldsForType(workType) {
       if (incident.value) {
         const availableFields = new Set(
-          worksite.value.form_data.map((data) => data.field_key),
+          (worksite.value.form_data ?? []).map((data) => data.field_key),
         );
         return incident.value.form_fields.filter((field) => {
           const parent = incident.value.form_fields.find((element) => {

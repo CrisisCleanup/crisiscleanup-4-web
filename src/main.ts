@@ -150,7 +150,9 @@ const FormTree = defineAsyncComponent(
 );
 
 const CHUNK_LOAD_ERROR_PATTERN =
-  /preloaderror|failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|unable to preload css/i;
+  /preloaderror|failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|unable to preload css|unexpected token '<'.*<!doctype/i;
+const THIRD_PARTY_SNIPPET_ERROR_PATTERN =
+  /\/ekr\/snippet\.js|new .*inboundfilters|inboundfilters|i is undefined/i;
 
 const CHUNK_RELOAD_KEY = 'ccu:chunk-reload';
 
@@ -321,6 +323,13 @@ const initSentry = (vueApp: VueApp) =>
         event.exception?.values?.[0]?.value ||
         '';
       if (message && CHUNK_LOAD_ERROR_PATTERN.test(message)) return null;
+      const stacktrace = event.exception?.values
+        ?.flatMap((value) => value.stacktrace?.frames ?? [])
+        .map((frame) => frame.filename ?? '')
+        .join('\n');
+      if (THIRD_PARTY_SNIPPET_ERROR_PATTERN.test(`${message}\n${stacktrace}`)) {
+        return null;
+      }
       return event;
     },
   });

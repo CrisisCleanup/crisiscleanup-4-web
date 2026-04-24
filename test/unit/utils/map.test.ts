@@ -4,6 +4,7 @@ import {
   averageGeolocation,
   degreesToRadians,
   findBezierPoints,
+  isValidLatLng,
   randomIntFromInterval,
 } from '@/utils/map';
 
@@ -178,5 +179,12 @@ describe('utils > map', () => {
     const r1 = randomIntFromInterval(1, 10);
     expect(r1).toBeGreaterThanOrEqual(1);
     expect(r1).toBeLessThanOrEqual(10);
+  });
+
+  test('isValidLatLng', () => {
+    expect(isValidLatLng(29.9, -90.1)).toBe(true);
+    expect(isValidLatLng(undefined, -90.1)).toBe(false);
+    expect(isValidLatLng(91, -90.1)).toBe(false);
+    expect(isValidLatLng(29.9, -181)).toBe(false);
   });
 });

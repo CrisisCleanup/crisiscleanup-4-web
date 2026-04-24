@@ -12,7 +12,7 @@
     <div v-if="hasFormHeaderContent" class="form-header">
       <div class="flex p-1">
         <Flag
-          v-for="flag in worksite.flags"
+          v-for="flag in worksite.flags ?? []"
           :key="flag.reason_t"
           :data-testid="`test${flag.reason_t}Flag`"
           :flag-reason="flag.reason_t"
@@ -889,7 +889,7 @@ export default defineComponent({
     }
 
     async function saveNote(n) {
-      const notes = [...worksite.value.notes];
+      const notes = [...(worksite.value.notes ?? [])];
       const noteCreate = {
         id: uniqueId(),
         note: n,
@@ -911,6 +911,21 @@ export default defineComponent({
       updateWorksite(notes, 'notes');
     }
 
+    async function removeFlag(flag) {
+      if (!worksite.value?.id) {
+        console.error('Worksite not found. Cannot remove flag');
+        return;
+      }
+
+      try {
+        await Worksite.api().deleteFlag(worksite.value.id, flag);
+        await initForm();
+      } catch (error) {
+        console.error(error);
+        await $toasted.error(getErrorMessage(error));
+      }
+    }
+
     function getSectionCount(currentField) {
       return currentField.order_label;
     }
@@ -923,8 +938,9 @@ export default defineComponent({
     async function statusValueChange(value, workTypeKey) {
       try {
         await Worksite.api().updateWorkTypeStatus(
-          worksite.value.work_types.find((wt) => wt.work_type === workTypeKey)
-            ?.id,
+          (worksite.value.work_types ?? []).find(
+            (wt) => wt.work_type === workTypeKey,
+          )?.id,
           value,
         );
       } catch (error) {
@@ -1766,6 +1782,7 @@ export default defineComponent({
       ready,
       dynamicFields,
       saveNote,
+      removeFlag,
       getSectionCount,
       clearWorksiteStorage,
       statusValueChange,

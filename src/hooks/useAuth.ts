@@ -312,6 +312,11 @@ const authStore = () => {
         authState.accessToken = undefined;
         authState.accessTokenExpiry = undefined;
         debug('refreshing token: %O', { ...authState });
+        if (!authState.refreshToken) {
+          debug('missing refresh token; moving to anonymous auth state');
+          authState.status = AuthStatus.ANONYMOUS;
+          return;
+        }
         await doRefreshToken().catch((error) =>
           debug('failed to refresh token: %O', error),
         );
@@ -548,7 +553,9 @@ const authStore = () => {
   // Refresh token.
   const doRefreshToken = () => {
     if (!authState.refreshToken) {
-      throw new Error('Missing refresh token!');
+      debug('missing refresh token; skipping refresh request');
+      authState.status = AuthStatus.ANONYMOUS;
+      return Promise.resolve();
     }
     const params = new URLSearchParams({
       client_id: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,

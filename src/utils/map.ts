@@ -128,6 +128,30 @@ PixiSettings.SPRITE_MAX_TEXTURES = Math.min(
   16,
 );
 
+function isRenderablePixiTarget(container: any, renderer: any): boolean {
+  return Boolean(container && renderer && !container.destroyed);
+}
+
+function renderPixiTarget(container: any, renderer: any): void {
+  if (!isRenderablePixiTarget(container, renderer)) return;
+  try {
+    renderer.render(container);
+  } catch (error) {
+    console.warn('renderPixiTarget: ignore', error);
+  }
+}
+
+function patchLayerAnimationCleanup(
+  layer: L.Layer,
+  cancelAnimation: () => void,
+): void {
+  const originalOnRemove = (layer as any).onRemove;
+  (layer as any).onRemove = function patchedOnRemove(...args: unknown[]) {
+    cancelAnimation();
+    return originalOnRemove?.apply(this, args);
+  };
+}
+
 export function getMarkerLayer(
   markers: Worksite[],
   map: L.Map,
@@ -136,10 +160,10 @@ export function getMarkerLayer(
   const pixiContainer = new Container();
   context.pixiContainer = pixiContainer;
 
+  let frame: number | undefined;
   const layer = (function () {
     let firstDraw = true;
     // Let prevCenter;
-    let frame: number | undefined = null;
     const doubleBuffering = /iPad|iPhone|iPod/.test(navigator.userAgent);
     return L.pixiOverlay(
       function (utils) {
@@ -147,7 +171,7 @@ export function getMarkerLayer(
         // Const center = utils.getMap().getCenter();
         if (frame) {
           cancelAnimationFrame(frame);
-          frame = null;
+          frame = undefined;
         }
 
         const container = utils.getContainer();
@@ -172,6 +196,7 @@ export function getMarkerLayer(
         }
 
         function animate(timestamp: number) {
+          if (!isRenderablePixiTarget(container, renderer)) return;
           if (start === null) start = timestamp;
           const progress = timestamp - start;
           let lambda = progress / delta;
@@ -197,7 +222,7 @@ export function getMarkerLayer(
             }
           }
 
-          renderer.render(container);
+          renderPixiTarget(container, renderer);
           if (progress < delta) {
             frame = requestAnimationFrame(animate);
           }
@@ -208,7 +233,7 @@ export function getMarkerLayer(
         }
 
         firstDraw = false;
-        renderer.render(container);
+        renderPixiTarget(container, renderer);
       },
       pixiContainer,
       {
@@ -217,6 +242,12 @@ export function getMarkerLayer(
       },
     );
   })();
+  patchLayerAnimationCleanup(layer, () => {
+    if (frame) {
+      cancelAnimationFrame(frame);
+      frame = undefined;
+    }
+  });
   layer.key = 'marker_layer';
   return layer;
 }
@@ -224,11 +255,11 @@ export function getMarkerLayer(
 export function getLiveLayer() {
   const pixiContainer = new Container();
 
+  let frame: number | undefined;
   const layer = (function () {
     let firstDraw = true;
     let previousZoom: any;
     // Let prevCenter;
-    let frame: number | undefined = null;
     const doubleBuffering = /iPad|iPhone|iPod/.test(navigator.userAgent);
     return L.pixiOverlay(
       function (utils) {
@@ -236,7 +267,7 @@ export function getLiveLayer() {
         // Const center = utils.getMap().getCenter();
         if (frame) {
           cancelAnimationFrame(frame);
-          frame = null;
+          frame = undefined;
         }
 
         const container = utils.getContainer();
@@ -314,6 +345,7 @@ export function getLiveLayer() {
         }
 
         function animate(timestamp: number) {
+          if (!isRenderablePixiTarget(container, renderer)) return;
           if (start === null) start = timestamp;
           const progress = timestamp - start;
           let lambda = progress / delta;
@@ -361,7 +393,7 @@ export function getLiveLayer() {
             }
           }
 
-          renderer.render(container);
+          renderPixiTarget(container, renderer);
           if (progress < delta) {
             frame = requestAnimationFrame(animate);
           }
@@ -374,7 +406,7 @@ export function getLiveLayer() {
         firstDraw = false;
         previousZoom = zoom;
         // PrevCenter = center;
-        renderer.render(container);
+        renderPixiTarget(container, renderer);
       },
       pixiContainer,
       {
@@ -383,6 +415,20 @@ export function getLiveLayer() {
       },
     );
   })();
+  patchLayerAnimationCleanup(layer, () => {
+    if (frame) {
+      cancelAnimationFrame(frame);
+      frame = undefined;
+    }
+    for (const child of pixiContainer.children as Array<
+      PixiDisplayObjectWithCachedProps & Record<string, any>
+    >) {
+      if (child.frame) {
+        cancelAnimationFrame(child.frame);
+        child.frame = undefined;
+      }
+    }
+  });
   layer.key = 'live_layer';
   return layer;
 }
@@ -472,6 +518,19 @@ export function randomIntFromInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+export function isValidLatLng(latitude: unknown, longitude: unknown): boolean {
+  return (
+    typeof latitude === 'number' &&
+    typeof longitude === 'number' &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    longitude >= -180 &&
+    longitude <= 180
+  );
+}
+
 export function getUserLocationLayer(
   userLocations: UserLocation[],
   onUserSelected: (location: UserLocation) => void,
@@ -483,6 +542,9 @@ export function getUserLocationLayer(
   for (const location of userLocations) {
     const user = User.find(location.user_id);
     if (!user || !user.profilePictureUrl) continue;
+    const latitude = Number(location.location?.[1]);
+    const longitude = Number(location.location?.[0]);
+    if (!isValidLatLng(latitude, longitude)) continue;
 
     const createIcon = (iconSize: number) =>
       L.icon({
@@ -491,7 +553,7 @@ export function getUserLocationLayer(
         className: 'rounded-full border-2 border-black bg-white p-1',
       });
 
-    const marker = L.marker([location.location[1], location.location[0]], {
+    const marker = L.marker([latitude, longitude], {
       icon: createIcon(ICON_SIZE),
     });
 

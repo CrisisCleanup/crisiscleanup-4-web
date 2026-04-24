@@ -3,6 +3,7 @@ import {
   mapTileLayer,
   mapAttribution,
   mapTileLayerDark,
+  resetLeafletContainer,
 } from '../../utils/map';
 import { store } from '@/store';
 import { loadGoogleMaps } from '@/utils/googleMaps';
@@ -45,6 +46,7 @@ export default function useMapInstance(
   void loadGoogleMaps().catch(() => {});
 
   // Create map instance
+  resetLeafletContainer(mapId);
   const map = new L.Map(mapId, {
     zoomControl: false,
   }).fitBounds(
@@ -103,13 +105,16 @@ export default function useMapInstance(
 
   let currentLayerIndex = useGoogleMaps ? 0 : 2;
   let currentTileLayer: L.Layer | null = null;
+  const isMapUsable = () => Boolean((map as any)._container);
 
   // Initialize tile layer asynchronously to avoid blocking UI
   setTimeout(() => {
+    if (!isMapUsable()) return;
     try {
       currentTileLayer = mapLayerConfigs[currentLayerIndex]().addTo(map);
     } catch (error) {
       console.error('Failed to create initial tile layer:', error);
+      if (!isMapUsable()) return;
       // Fallback to basic tile layer
       currentLayerIndex = 2;
       currentTileLayer = mapLayerConfigs[currentLayerIndex]().addTo(map);
@@ -117,6 +122,7 @@ export default function useMapInstance(
   }, 0);
 
   const switchTileLayer = () => {
+    if (!isMapUsable()) return;
     if (currentTileLayer) {
       map.removeLayer(currentTileLayer);
     }

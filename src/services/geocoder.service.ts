@@ -157,7 +157,17 @@ export default {
             // UNKNOWN_ERROR: token may be stale or quota exceeded; clear
             // so the next call self-heals with a fresh session.
             store.commit('map/setAutocompleteToken', null);
-            Sentry.captureMessage(`getPlacePredictions: ${status}`, 'warning');
+            if (
+              status === PlacesServiceStatus.OVER_QUERY_LIMIT ||
+              status === PlacesServiceStatus.REQUEST_DENIED
+            ) {
+              Sentry.captureMessage(
+                `getPlacePredictions: ${status}`,
+                'warning',
+              );
+            } else {
+              console.debug(`getPlacePredictions: ${status}`);
+            }
             resolve([]);
           },
         );
