@@ -47,7 +47,7 @@ cross-imports out of `src/components/phone/`).
 
 | Recipe | Markup contract |
 |---|---|
-| Pane card | `bg-white rounded shadow-crisiscleanup-card p-4` on a `bg-crisiscleanup-smoke` page. Interior title is a 12 px uppercase letter-spaced micro-label; content starts 16 px below. |
+| Pane card | `bg-white rounded border border-crisiscleanup-grey-100 p-4` on a `bg-crisiscleanup-smoke` page. Interior title is a 12 px uppercase letter-spaced micro-label; content starts 16 px below. **No drop shadow** — the smoke page + 1 px grey border separates cards without the visual weight of stacked shadows. `shadow-crisiscleanup-card` is reserved for focal surfaces (modals, dropdown poppers, the `PaneSkeleton` `block` variant) where a single surface sits alone. |
 | Pane grid | `grid gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3` for multi-column pane layouts (CurrentCall refresh, stats refresh). Panes never nest grids more than one level deep. |
 | Micro-callout | Single-line emphasis inside a pane (e.g. "3 prior voicemails"). `h-8 px-3 flex items-center gap-2 bg-crisiscleanup-light-smoke rounded text-[13px]` with a `BasePill` on the right. No card shadow. |
 
@@ -165,6 +165,14 @@ const heightClass = computed(
 `animate-pulse` is allowed here only. The tracker bans `animate-pulse`
 as a signal (spec 18 strips it from the call banner) — on skeletons it
 reads as a loading shimmer, which is its textbook use.
+
+The `block` variant intentionally keeps `shadow-crisiscleanup-card`
+(not the `border` treatment the rest of the track uses) because a
+skeleton stands alone on its first render, before the real pane card
+has mounted — a lone card with a border looks like an empty box, but
+a lone card with the signature shadow reads as "content is loading
+here." When real content arrives and replaces the skeleton, it's the
+bordered pane card from the recipe.
 
 ### 3. `PaneError.vue`
 
@@ -296,14 +304,27 @@ In `src/components/BasePill.vue`:
 ```
 
 Usage expectation:
-`<BasePill variant="ai">{{ $t('info.ai_generated') }}</BasePill>`.
-The i18n key `info.ai_generated` is introduced by spec 20 (first
-consumer); this spec does not add the key itself.
+`<BasePill variant="ai">{{ $t('~~AI-generated') }}</BasePill>`.
+Spec 20 is the first consumer; this spec does not add the key itself.
 
 The `ai` variant mirrors the `new` variant's "attention badge"
 language (compact, uppercase, 10 px, tracked) rather than the status
 pill recipe, because it signals *provenance* not *status* — it sits
 next to content, not in a status column.
+
+**Pill variant usage convention** (applies to all phone panes, specs 20–32):
+
+| Purpose | Variant | Why |
+|---|---|---|
+| Emphasis counts ("N calls", "N voicemails") | `dark` | High-contrast count chip, reads as a number badge. |
+| Age / recency tags ("N days") | `incident` | Yellow is the app's accent; reserve it for *one* chip per surface. |
+| AI-derived content marker | `ai` | Spec 19's light-grey badge. |
+| Informational/source tags ("Inbound", "Callback", "Auto") | `open` for inbound-adjacent, `completed` for neutral | Softer palettes; avoids stacking yellow/black on every row. |
+| Status / work-type chips | existing status variants (`claimed`, `in-progress`, `urgent`, `new`) | Unchanged from spec 06. |
+
+Rule of thumb: **one `incident` (yellow) pill per pane**, max. If a row
+already has a yellow chip, subsequent chips on that row should be
+`open` / `completed` / `ai` — not another yellow.
 
 ### 6. Recipes (inline doc, no code)
 
@@ -371,7 +392,8 @@ In `docs/design-refresh/00-tracker.md`:
   and won't regress.
 - `ccu-icon` + `src/assets/icons/attention-red.svg` — reused verbatim
   for `PaneError`.
-- `shadow-crisiscleanup-card`, `crisiscleanup-smoke`,
+- `crisiscleanup-smoke` (page), `crisiscleanup-grey-100` (card border),
+  `shadow-crisiscleanup-card` (reserved for `PaneSkeleton` block + modals/poppers),
   `crisiscleanup-light-smoke`, `crisiscleanup-grey-{100,900}`,
   `crisiscleanup-red-{700,900}`, `primary-light` — all live in
   `tailwind.config.cjs`. Zero new tokens.

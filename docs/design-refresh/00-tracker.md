@@ -29,7 +29,20 @@ Each spec in this folder is a **standalone PR**. Pick one, do it, ship it.
 | 17a | [Work-type status palette → tokens](./17a-worktype-status-tokens.md) | `tailwind.config.cjs` + `src/style.css` + `src/icons/icons_templates.ts` + `src/filters/index.ts` + `src/hooks/worksite/useWorktypeImages.ts` | in-progress (manual verify pending) |
 | 17b | [Flatten work-type icon shadow + radius](./17b-worktype-icon-flatten.md) | `src/icons/icons_templates.ts` + `src/hooks/worksite/useWorktypeImages.ts` + pixi callers + DOM wrappers in `WorksiteFeed.vue` / phone / live | in-progress (manual verify pending) |
 | 18 | [Phone overlay (sidebar, call banner, agent toolbar)](./18-phone-overlay.md) | `src/components/phone/{PhoneOverlay,Agent}.vue` | not-started |
-| 19 | [Phone panes foundation (pane primitives + AI pill)](./19-phone-panes-foundation.md) | new `src/components/phone/foundation/{PaneEmpty,PaneSkeleton,PaneError,PaneDisclosure}.vue` + `BasePill.vue` `ai` variant | not-started |
+| 19 | [Phone panes foundation (pane primitives + AI pill)](./19-phone-panes-foundation.md) | new `src/components/phone/foundation/{PaneEmpty,PaneSkeleton,PaneError,PaneDisclosure}.vue` + `BasePill.vue` `ai` variant | in-progress (manual verify pending) |
+| 20 | [CurrentCall + voicemail panel](./20-currentcall-voicemail.md) | `src/components/phone/CurrentCall.vue` + new `CurrentCallVoicemail.vue` + `src/hooks/phone/useVoicemailContext.ts` + `src/models/PhoneOutbound.ts` (3 new fields) + `PhoneDnisResult` (2 new caller VM fields) | in-progress (manual verify pending) |
+| 21 | [UpdateStatus refresh](./21-updatestatus.md) | `src/components/phone/UpdateStatus.vue` | in-progress (manual verify pending) |
+| 22 | [ActiveCall refresh (audit → delete/shrink)](./22-activecall.md) | Path A executed: `src/components/phone/ActiveCall.vue` deleted, unused import removed from `src/pages/phone/PhoneSystem.vue`. | in-progress (manual verify pending) |
+| 23 | [PhoneToolBar refresh](./23-phonetoolbar.md) | `src/components/phone/PhoneToolBar.vue` + `Agent.vue` (testid pass-through + `border-b` mitigation for spec 18 not yet landing) + two mount-site prop trims in `src/pages/phone/PhoneSystem.vue` | in-progress (manual verify pending) |
+| 24 | [Agent content polish](./24-agent.md) | `src/components/phone/{PhoneIndicator,Agent}.vue` | not-started |
+| 25 | [CallHistory refresh](./25-callhistory.md) | `src/components/phone/CallHistory.vue` | not-started |
+| 26 | [GeneralStats refresh](./26-generalstats.md) | `src/components/phone/GeneralStats.vue` + new `OutboundsModalPanel.vue` (optional extract) | not-started |
+| 27 | [AgentStats refresh](./27-agentstats.md) | `src/components/phone/AgentStats.vue` | not-started |
+| 28 | [Leaderboard refresh](./28-leaderboard.md) | `src/components/phone/Leaderboard.vue` | not-started |
+| 29 | [PhoneDoctor surface polish](./29-phonedoctor.md) | `src/components/phone/PhoneDoctor.vue` (template pass only) | not-started |
+| 30 | [ManualDialer refresh](./30-manualdialer.md) | `src/components/phone/ManualDialer.vue` | not-started |
+| 31 | [PhoneCmsItems refresh](./31-phonecmsitems.md) | `src/components/phone/PhoneCmsItems.vue` | not-started |
+| 32 | [PhoneNews refresh](./32-phonenews.md) | `src/components/phone/PhoneNews.vue` | not-started |
 
 Status values: `not-started` → `in-progress` → `review` → `shipped`. Update this
 row when opening/merging the PR and link it in the *PR* column if you want.
@@ -53,6 +66,21 @@ refreshed palette without a second migration. 16 depends on spec 11
 16 is unblocked. 17b is the only spec in this subtrack that changes what
 markers look like on the map; land it last so regressions are attributable.
 
+**Phone-panes subtrack (19–32):** ship **19 first** (foundational
+primitives — `PaneEmpty`, `PaneSkeleton`, `PaneError`,
+`PaneDisclosure`, `BasePill` `ai` variant). Everything 20–32
+depends on 19. After 19 lands, **20** (CurrentCall + voicemail) is
+the broadest consumer and the highest product priority — it also
+extends `PhoneOutbound` with the backend's new VM fields. Specs
+21–32 are independent of each other and can parallelize once 19
+is merged. Coupling notes: **22** (ActiveCall) audits against the
+post-spec-18 state and usually ends in deletion; **23**
+(PhoneToolBar) and **24** (Agent) are near-no-ops if spec 18 ships
+first and should be deferred until then; **27** (AgentStats) is
+mounted by **25** (CallHistory) — land 27 first or concurrently so
+25's diff stays clean. The subtrack is **additive to** spec 18
+(chrome), not a replacement.
+
 ## Global principles
 
 Lifted from the bundle README's *Visual Foundations*. Every spec inherits these.
@@ -61,6 +89,11 @@ Lifted from the bundle README's *Visual Foundations*. Every spec inherits these.
   for pills and avatars only. No 8+ px radii in product chrome.
 - **Shadows:** one signature — `shadow-crisiscleanup-card`
   (`0 4px 8px 0 rgba(164,177,184,.6)`). Don't invent new shadow sizes.
+  **Reserved for focal single surfaces** — modals, dropdown poppers, and
+  `PaneSkeleton` `block` (which stands alone before content mounts).
+  Pane cards use a 1 px grey border on a smoke page instead; stacking
+  four shadowed cards on one page reads as visual noise. See spec 19's
+  "Pane card" recipe.
 - **Motion:** `transition: all 300ms ease` everywhere. No springs, no bounce,
   no scale-transforms on press.
 - **Color:** primary is `#FECE09` (yellow) solid with black text. No gradients
@@ -94,10 +127,6 @@ Lifted from the bundle README's *Visual Foundations*. Every spec inherits these.
 
 - Token changes in `tailwind.config.cjs` (already match the bundle).
 - Map visuals (`src/components/WorkTypeMap.vue`, pixi overlay).
-- Phone **content panes** (`Leaderboard`, `GeneralStats`, `PhoneDoctor`,
-  `PhoneCmsItems`, etc.) and the `CurrentCall` related-cases pane —
-  spec 18 refreshes the phone *chrome* (sidebar, call banner, agent
-  toolbar) only; the individual panes are follow-ups.
 - `src/maintenance/` and `src/external/**` (vendored).
 - Dark mode (configured but not active; audit is a separate track).
 - Framework / dependency upgrades.

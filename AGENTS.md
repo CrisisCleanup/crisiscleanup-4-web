@@ -109,6 +109,7 @@ Persistent entities live under [src/models/](src/models/) and extend `CCUModel` 
 ### i18n & icons
 
 - Locales loaded at runtime through [src/modules/i18n.ts](src/modules/i18n.ts) / `src/services/i18n.service.ts`.
+- **New translations use `~~`-prefixed English text as the key** — e.g. `$t('~~Play recording')`, `$t('~~{n} prior voicemails', { n: count })`. vue-i18n is configured with `formatFallbackMessages: true`, so named placeholders are interpolated against the key itself when no translation exists. The `~~` prefix is a sentinel that makes "not yet translated" keys trivial to grep for and lets the backend locale sync replace them later without the UI ever showing a raw `phoneDashboard.xxx.yyy`-style key literal. Don't invent new dotted keys (`phoneDashboard.*`, `info.*`, etc.) — reuse existing dotted keys only if they already exist in the backend bundle.
 - `unplugin-icons` with `FileSystemIconLoader` serves disaster glyphs from `src/assets/disaster_icons` as the `ccu-disaster-icons:*` collection.
 - `unplugin-auto-import` auto-imports `vue`, `vue-router`, `vue-i18n`, `vuex`, `@vueuse/core`, `vitest`, and `useApi` — these appear unimported in source but are real. Generated types land in `src/types/auto-imports.d.ts` and globals in `.eslintrc-auto-import.json` (both regenerated on build; do not hand-edit).
 

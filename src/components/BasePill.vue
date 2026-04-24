@@ -20,7 +20,8 @@ export type BasePillVariant =
   | 'urgent'
   | 'new'
   | 'dark'
-  | 'incident';
+  | 'incident'
+  | 'ai';
 
 const props = withDefaults(
   defineProps<{ variant?: BasePillVariant; showDot?: boolean }>(),
@@ -82,5 +83,12 @@ const isSquareVariant = computed(() => props.variant === 'new');
   padding: 2px 8px;
   font-size: 10px;
   letter-spacing: 0.04em;
+}
+.ccu-pill--ai {
+  @apply bg-crisiscleanup-grey-100 text-crisiscleanup-grey-900 uppercase;
+  letter-spacing: 0.04em;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 9999px;
 }
 </style>
