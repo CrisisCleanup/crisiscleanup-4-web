@@ -458,7 +458,7 @@ const {
       </nav>
     </div>
     <div
-      class="top-0 flex absolute right-0 left-0 bottom-0 z-phone-overlay md:h-auto"
+      class="top-0 flex absolute right-0 left-0 bottom-0 z-phone-overlay md:h-auto md:max-h-[calc(100vh-12rem)]"
       :class="expanded && useBottomNav ? 'h-screen w-screen pb-20' : ''"
     >
       <!-- Container for the expand/collapse component -->
@@ -833,7 +833,7 @@ const {
               <template v-else>
                 <CurrentCall
                   :case-id="caseId"
-                  class="p-2 bg-crisiscleanup-green-800/95 h-full"
+                  class="p-4 bg-crisiscleanup-smoke h-full"
                   @set-case="emit('setCase', $event)"
                 />
               </template>
@@ -844,10 +844,10 @@ const {
 
       <aside
         v-if="!useBottomNav"
-        class="bg-white border-l border-crisiscleanup-grey-100 h-[calc(100vh-10.5rem)] flex flex-col justify-between"
+        class="bg-white border-l border-crisiscleanup-grey-100 h-[calc(100vh-12rem)] flex flex-col"
         :class="sideBarExpanded ? 'w-52' : 'w-12'"
       >
-        <div>
+        <div class="flex-1 min-h-0 overflow-y-auto">
           <div
             v-if="isOnCall"
             class="h-10 px-3 flex items-center gap-2 text-white"

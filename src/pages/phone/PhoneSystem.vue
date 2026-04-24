@@ -5,11 +5,8 @@
         class="fixed inset-x-0 top-12 z-toolbar bg-white border-b border-crisiscleanup-grey-100 shadow-sm"
       >
         <PhoneToolBar
-          :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
           :set-allowed-call-type="setAllowedCallType"
-          :select-case="selectCase"
-          :worksite-id="worksiteId"
         />
       </div>
       <PhoneOverlay
@@ -356,11 +353,8 @@
           </div>
         </div>
         <PhoneToolBar
-          :complete-call="completeCall"
           :on-logged-in="onLoggedIn"
           :set-allowed-call-type="setAllowedCallType"
-          :select-case="selectCase"
-          :worksite-id="worksiteId"
           :allowed-call-type="allowCallType"
         />
         <PhoneOverlay
@@ -578,7 +572,6 @@ import Incident from '../../models/Incident';
 const Chat = defineAsyncComponent(
   () => import('../../components/chat/Chat.vue'),
 );
-import ActiveCall from '../../components/phone/ActiveCall.vue';
 import UpdateStatus from '../../components/phone/UpdateStatus.vue';
 import PhoneIndicator from '../../components/phone/PhoneIndicator.vue';
 import useWorksiteMap from '../../hooks/worksite/useWorksiteMapRefactored';
@@ -634,7 +627,6 @@ export default defineComponent({
     WorksiteTable,
     PhoneIndicator,
     UpdateStatus,
-    ActiveCall,
     PhoneToolBar,
     PhoneNews,
     Chat,

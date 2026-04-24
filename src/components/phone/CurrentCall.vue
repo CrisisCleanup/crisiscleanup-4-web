@@ -7,10 +7,15 @@ import { useStore } from 'vuex';
 import type { WorkType } from '@/models/types';
 import useWorktypeImages from '@/hooks/worksite/useWorktypeImages';
 import { getQueryString } from '@/utils/urls';
-const emit = defineEmits(['setCase']);
-const { getWorktypeSVG } = useWorktypeImages();
 import moment from '@/utils/dates';
 import PhoneFaqRAG from '@/components/phone/PhoneFaqRAG.vue';
+import CurrentCallVoicemail from '@/components/phone/CurrentCallVoicemail.vue';
+import BasePill from '@/components/BasePill.vue';
+import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
+import useVoicemailContext from '@/hooks/phone/useVoicemailContext';
+
+const emit = defineEmits(['setCase']);
+const { getWorktypeSVG } = useWorktypeImages();
 const { t } = useI18n();
 
 const { caseId } = defineProps({
@@ -20,24 +25,17 @@ const { caseId } = defineProps({
   },
 });
 
-const {
-  isTakingCalls,
-  isTransitioning,
-  isOnCall,
-  callType,
-  call,
-  caller,
-  callState,
-  isInboundCall,
-  isOutboundCall,
-  setPotentialFailedCall,
-} = useConnectFirst({
-  emit,
-});
+const { callType, call, caller } = useConnectFirst({ emit });
 const store = useStore();
 
 const cases = ref<Record<string, any>[]>([]);
 const currentIncident = store.getters['incident/currentIncidentId'];
+
+const voicemailCtx = useVoicemailContext(call, caller);
+const callerAgeInDays = computed(() =>
+  caller.value ? moment().diff(moment(caller.value.created_at), 'days') : 0,
+);
+
 function getSVG(worktype: WorkType) {
   return getWorktypeSVG(worktype);
 }
@@ -48,7 +46,6 @@ watch(
   () => call.value,
   (newValue) => {
     if (newValue && newValue.dnis1) {
-      // Get the worksites for the phone number within the last 60 days
       const params = {
         phone1_dnis: newValue.dnis1,
         created_at__gte: moment().subtract(60, 'days').toISOString(),
@@ -94,152 +91,148 @@ const suggestedScript = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-sm p-6 w-full">
-    <!-- Details Header Section -->
-    <div
-      class="flex flex-wrap gap-4 items-center mb-6 border-b border-gray-100 pb-4"
+  <div
+    class="w-full h-full min-h-0 flex flex-col gap-4 overflow-y-auto"
+    data-testid="testCurrentCall"
+  >
+    <!-- Call details header -->
+    <section
+      class="bg-white rounded border border-crisiscleanup-grey-100 p-4 flex items-center gap-3 flex-wrap"
     >
-      <div class="font-semibold text-lg text-gray-800">
+      <h2
+        class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900"
+      >
         {{ $t('phoneDashboard.details') }}
-      </div>
+      </h2>
       <div
         v-if="caller"
+        class="ml-auto flex items-center gap-2"
         data-testid="testNumberOfInboundCallsDiv"
-        class="text-sm text-gray-500 flex items-center gap-4"
       >
-        <span class="flex items-center gap-1">
-          <span class="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-          {{
-            `${caller.number_of_inbound_calls} ${$t('phoneDashboard.calls')}`
-          }}
-        </span>
-        <span class="text-gray-400">|</span>
-        <span>
-          {{
-            `${moment().diff(moment(caller.created_at), 'days')} ${$t('phoneDashboard.days')}`
-          }}
-        </span>
+        <BasePill variant="dark">
+          {{ $t('~~{n} calls', { n: caller.number_of_inbound_calls }) }}
+        </BasePill>
+        <BasePill variant="incident">
+          {{ $t('~~{n} days', { n: callerAgeInDays }) }}
+        </BasePill>
       </div>
-    </div>
+    </section>
 
-    <!-- Content Grid Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Suggested Script Section -->
-      <div class="bg-gray-50 rounded-lg p-4">
-        <div
-          class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide flex items-center"
-        >
-          <span
-            class="inline-block w-3 h-3 rounded-full bg-blue-500 mr-2"
-          ></span>
-          {{ $t('phoneDashboard.suggested_script') }}
-        </div>
-        <div
-          class="text-sm text-gray-700 leading-relaxed bg-white rounded-md p-4 shadow-sm"
-          v-html="suggestedScript"
-        ></div>
-      </div>
+    <!-- Suggested Script — full width, extends downward as the script grows -->
+    <section
+      class="bg-white rounded border border-crisiscleanup-grey-100 p-4 flex flex-col gap-3 min-w-0"
+    >
+      <h3
+        class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900"
+      >
+        {{ $t('phoneDashboard.suggested_script') }}
+      </h3>
+      <div
+        class="text-[15px] leading-relaxed text-black min-w-0 prose-script max-h-[50vh] overflow-y-auto pr-1"
+        v-html="suggestedScript"
+      />
+    </section>
 
-      <!-- Cases Section -->
-      <div class="bg-gray-50 rounded-lg p-4">
-        <div
-          class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide flex items-center"
+    <!-- Cases + FAQ — two columns below -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- Existing Cases -->
+      <section
+        class="bg-white rounded border border-crisiscleanup-grey-100 p-4 flex flex-col gap-3 min-w-0"
+      >
+        <h3
+          class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900"
         >
-          <span
-            class="inline-block w-3 h-3 rounded-full bg-purple-500 mr-2"
-          ></span>
           {{ $t('phoneDashboard.existing_cases') }}
-        </div>
+        </h3>
         <div
-          class="h-60 sm:h-80 lg:h-96 overflow-auto bg-white rounded-md shadow-sm custom-scrollbar"
+          v-if="cases.length > 0"
+          class="max-h-80 overflow-auto flex flex-col gap-2 -mx-1 px-1"
         >
-          <div
+          <button
             v-for="c in cases"
-            :key="`${c.id}`"
+            :key="c.id"
+            type="button"
             :data-testid="`test${c.id}Content`"
-            class="m-2"
+            class="text-left p-3 border rounded transition"
+            :class="
+              c.id === caseId
+                ? 'border-primary bg-primary-light'
+                : 'border-crisiscleanup-grey-100 bg-white hover:bg-crisiscleanup-smoke'
+            "
+            @click="() => setCase(c)"
           >
-            <div
-              class="cursor-pointer p-3 border rounded-md transition-all duration-200 hover:shadow-md hover:border-gray-400"
-              :class="
-                c.id === caseId
-                  ? 'border-blue-500 bg-blue-50 shadow-md ring-1 ring-blue-500'
-                  : 'border-gray-200 bg-white'
-              "
-              @click="() => setCase(c)"
-            >
-              <div class="flex items-center mb-2">
-                <div
-                  class="cases-svg-container p-1.5 bg-gray-100 rounded mr-2 shadow-crisiscleanup-card"
-                  data-testid="testWorktypeSVGIcon"
-                  v-html="getSVG(c.worktype)"
-                ></div>
-                <div
-                  class="text-sm font-medium text-gray-800"
-                  data-testid="testCaseNumberDiv"
-                >
-                  {{ c.caseNumber }}
-                </div>
-              </div>
-              <div
-                class="text-sm text-gray-700 mb-1"
-                data-testid="testCaseNameDiv"
+            <div class="flex items-center gap-2 mb-1">
+              <span
+                class="cases-svg-container p-1 bg-crisiscleanup-smoke rounded"
+                data-testid="testWorktypeSVGIcon"
+                v-html="getSVG(c.worktype)"
+              />
+              <span
+                class="text-[13px] font-semibold text-black"
+                data-testid="testCaseNumberDiv"
               >
-                {{ c.name }}
-              </div>
-              <div
-                class="text-xs text-gray-500"
-                data-testid="testCaseAddressStateDiv"
-              >
-                {{ c.address }} {{ c.state }}
-              </div>
+                {{ c.caseNumber }}
+              </span>
             </div>
-          </div>
+            <div class="text-[13px] text-black" data-testid="testCaseNameDiv">
+              {{ c.name }}
+            </div>
+            <div
+              class="text-[12px] text-crisiscleanup-grey-900"
+              data-testid="testCaseAddressStateDiv"
+            >
+              {{ c.address }} {{ c.state }}
+            </div>
+          </button>
         </div>
-      </div>
+        <PaneEmpty
+          v-else
+          :title="$t('~~No recent cases')"
+          :description="
+            $t('~~New cases from this phone number will appear here.')
+          "
+        />
+      </section>
 
-      <!-- FAQ Section -->
-      <div class="bg-gray-50 rounded-lg p-4">
-        <div
-          class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide flex items-center"
+      <!-- FAQ -->
+      <section
+        class="bg-white rounded border border-crisiscleanup-grey-100 p-4 flex flex-col gap-3 min-w-0"
+      >
+        <h3
+          class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900"
         >
-          <span
-            class="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"
-          ></span>
           {{ $t('phoneDashboard.faq') }}
-        </div>
-        <div class="bg-white rounded-md shadow-sm p-4">
-          <PhoneFaqRAG />
-        </div>
-      </div>
+        </h3>
+        <PhoneFaqRAG />
+      </section>
     </div>
+
+    <!-- Voicemail pane (conditional, below grid, scrolls internally) -->
+    <CurrentCallVoicemail
+      v-if="voicemailCtx.hasVoicemail"
+      :key="call?.id ?? 'no-call'"
+      :outbound="call"
+      :caller="caller"
+    />
   </div>
 </template>
 
 <style scoped lang="postcss">
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 rounded;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
-}
-
 .cases-svg-container :deep(svg) {
   width: 20px;
   height: 20px;
+}
+
+.prose-script :deep(p) {
+  margin-bottom: 0.75rem;
+}
+.prose-script :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.prose-script :deep(strong) {
+  @apply font-semibold text-crisiscleanup-grey-900;
+}
+.prose-script :deep(br + strong) {
+  @apply block mt-2;
 }
 </style>

@@ -40,7 +40,9 @@ describe('models > PhoneOutbound', () => {
     const phoneOutbound = new PhoneOutbound();
     expect(phoneOutbound.id).toBe('');
     expect(phoneOutbound.phone_number).toBe('');
-    expect(phoneOutbound.vm_url).toBe('');
+    expect(phoneOutbound.vm_url).toBeNull();
+    expect(phoneOutbound.vm_transcription).toBeNull();
+    expect(phoneOutbound.vm_summary).toBeNull();
     expect(phoneOutbound.call_type).toBe('');
     expect(phoneOutbound.completion).toBe('');
     expect(phoneOutbound.incident_id).toBe('');

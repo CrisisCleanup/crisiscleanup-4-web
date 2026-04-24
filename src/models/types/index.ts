@@ -181,6 +181,14 @@ export interface CmsItem {
 
 export type PhoneDnisResponse = CCUApiListResponse<PhoneDnisResult>;
 
+export interface CallerVmHistoryItem {
+  id: number;
+  source: 'inbound' | 'outbound';
+  created_at: string;
+  vm_summary: string;
+  vm_transcription: string | null;
+}
+
 export interface PhoneDnisResult {
   id: number;
   dnis: number;
@@ -196,6 +204,8 @@ export interface PhoneDnisResult {
   state_name: string;
   timezone: string;
   worksites: any[];
+  caller_vm_count?: number;
+  caller_vm_history?: CallerVmHistoryItem[];
 }
 
 export interface LanguagesResponse {

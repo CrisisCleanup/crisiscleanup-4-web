@@ -20,11 +20,19 @@ export default class PhoneOutbound extends CCUModel {
 
   latest_status!: string;
 
+  vm_url!: string | null;
+
+  vm_transcription!: string | null;
+
+  vm_summary!: string | null;
+
   static fields() {
     return {
       id: this.attr(''),
       phone_number: this.attr(''),
-      vm_url: this.attr(''),
+      vm_url: this.attr(null),
+      vm_transcription: this.attr(null),
+      vm_summary: this.attr(null),
       call_type: this.attr(''),
       completion: this.attr(''),
       incident_id: this.attr(''),
