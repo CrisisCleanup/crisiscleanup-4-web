@@ -14,7 +14,6 @@
     >
       <div
         v-if="useIcon"
-        ref="svgContainer"
         class="case-svg-container flex"
         :class="size === 'sm' ? '' : 'mr-1'"
         v-html="workTypeImage"
@@ -106,7 +105,6 @@ export default defineComponent({
   emits: ['input'],
   setup(props, { emit }: { emit: (event: 'input', payload: string) => void }) {
     const currentItem = ref(1);
-    const svgContainer = ref<HTMLElement | null>(null);
     const panelRef = ref<HTMLElement | null>(null);
     const store = useStore();
 
@@ -207,16 +205,7 @@ export default defineComponent({
       currentItem.value = current?.selectionKey ?? 1;
       nextTick(() => {
         panelRef.value?.focus();
-        setSVGStyles();
       });
-    }
-
-    function setSVGStyles() {
-      if (!svgContainer.value) return;
-      if (props.iconSize) {
-        svgContainer.value.style.minHeight = `${props.iconSize}px`;
-        svgContainer.value.style.minWidth = `${props.iconSize}px`;
-      }
     }
 
     return {
@@ -232,7 +221,6 @@ export default defineComponent({
       rowClass,
       onPanelKeydown,
       onPopoverShow,
-      svgContainer,
     };
   },
 });
