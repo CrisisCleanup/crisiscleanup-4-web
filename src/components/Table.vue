@@ -305,6 +305,9 @@
         </div>
       </div>
     </div>
+    <div v-if="$slots.footer" class="ccu-table-footer">
+      <slot name="footer" />
+    </div>
   </div>
 </template>
 
@@ -703,6 +706,9 @@ export default defineComponent({
 }
 .ccu-table-toolbar {
   @apply flex items-center gap-2.5 p-3.5 border-b border-crisiscleanup-grey-100;
+}
+.ccu-table-footer {
+  @apply flex items-center gap-2.5 p-3.5 border-t border-crisiscleanup-grey-100;
 }
 .ccu-page-btn {
   @apply inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded

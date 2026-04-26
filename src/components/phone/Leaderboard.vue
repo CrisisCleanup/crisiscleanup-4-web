@@ -23,17 +23,20 @@
         </base-select>
       </div>
     </div>
-    <div class="max-h-120 overflow-y-auto">
-      <div
-        v-for="rank in leaderboard"
-        :key="rank.user"
-        class="flex items-center justify-between p-2"
-      >
+    <Table
+      :columns="columns"
+      :data="tableData"
+      :loading="loading"
+      :body-style="{ 'min-height': '20rem', 'max-height': '30rem' }"
+      data-testid="testLeaderboardTable"
+      class="leaderboard-table"
+    >
+      <template #user="{ item }">
         <div class="flex">
           <div class="image">
             <Avatar
-              :initials="rank.user.full_name"
-              :url="rank.user && rank.user.profilePictureUrl"
+              :initials="item.user.full_name"
+              :url="item.user && item.user.profilePictureUrl"
               data-testid="testAvatarIcon"
               size="xsmall"
               inner-classes="shadow"
@@ -44,7 +47,7 @@
               <UserDetailsTooltip
                 :dark="false"
                 :name-class="'text-h3 font-h3 text-crisiscleanup-dark-500 name-tooltip'"
-                :user="rank.user.id"
+                :user="item.user.id"
                 :name-style="nameTextStyle"
                 data-testid="testUserInfoTooltip"
               />
@@ -58,78 +61,74 @@
                 </div>
               </div>
             </div>
-            <div v-if="rank.user.organization" class="info--org">
+            <div v-if="item.user.organization" class="info--org">
               <base-text :style="{ lineHeight: '16px' }" variant="h4" regular>
-                {{ truncate(rank.user.organization.name, 28) }}
+                {{ truncate(item.user.organization.name, 28) }}
               </base-text>
             </div>
-            <div
-              v-if="rank.state"
-              :style="{ lineHeight: '16px' }"
-              :class="`${rank.state[1]}`"
-            >
-              &#8226; {{ rank.state[0] }}
-            </div>
-            <base-text
-              v-if="rank.state_at"
-              :style="{ lineHeight: '16px' }"
-              class="pl-2 text-crisiscleanup-dark-300 opacity-50"
-              variant="h4"
-              regular
-            >
-              {{ momentFromNow(rank.state_at) }}
-            </base-text>
           </div>
         </div>
-        <div class="grid grid-cols-3 gap-x-4">
-          <template v-if="true">
-            <div data-testid="testInboundCountDiv">
-              {{ $t('phoneDashboard.inbound') }}
-            </div>
-            <div data-testid="testOutboundCountDiv">
-              {{ $t('phoneDashboard.outbound') }}
-            </div>
-            <div data-testid="testTotalCountdiv">
-              {{ $t('phoneDashboard.total') }}
-            </div>
-          </template>
+      </template>
+      <template #state="{ item }">
+        <div class="flex flex-col">
           <div
-            v-for="m in ['inbound_calls', 'outbound_calls', 'total']"
-            :key="m"
-            class="metric"
+            v-if="item.state"
+            :style="{ lineHeight: '16px' }"
+            :class="`${item.state[1]}`"
           >
-            <base-text variant="h1" semi-bold>
-              {{ padStart(rank[m], 2, '0') }}
-            </base-text>
+            &#8226; {{ item.state[0] }}
           </div>
+          <base-text
+            v-if="item.state_at"
+            :style="{ lineHeight: '16px' }"
+            class="text-crisiscleanup-dark-300 opacity-50"
+            variant="h4"
+            regular
+          >
+            {{ momentFromNow(item.state_at) }}
+          </base-text>
         </div>
-      </div>
-    </div>
-    <div
-      v-if="previous || next"
-      class="flex items-center justify-between p-2 border-t"
-    >
-      <base-button
-        :disabled="!previous"
-        data-testid="testPreviousButton"
-        class="bg-crisiscleanup-light-smoke w-6 h-6"
-        variant="solid"
-        icon-size="xs"
-        ccu-icon="arrow-left"
-        :alt="$t('actions.previous')"
-        :action="() => loadLeaderboard(null, previous)"
-      />
-      <base-button
-        ccu-icon="arrow-right"
-        data-testid="testNextButton"
-        icon-size="xs"
-        class="bg-crisiscleanup-light-smoke w-6 h-6"
-        variant="solid"
-        :alt="$t('actions.next')"
-        :disabled="!next"
-        :action="() => loadLeaderboard(null, next)"
-      />
-    </div>
+      </template>
+      <template #inbound_calls="{ item }">
+        <base-text variant="h1" semi-bold data-testid="testInboundCountDiv">
+          {{ padStart(item.inbound_calls, 2, '0') }}
+        </base-text>
+      </template>
+      <template #outbound_calls="{ item }">
+        <base-text variant="h1" semi-bold data-testid="testOutboundCountDiv">
+          {{ padStart(item.outbound_calls, 2, '0') }}
+        </base-text>
+      </template>
+      <template #total="{ item }">
+        <base-text variant="h1" semi-bold data-testid="testTotalCountdiv">
+          {{ padStart(item.total, 2, '0') }}
+        </base-text>
+      </template>
+      <template v-if="previous || next" #footer>
+        <div class="flex items-center justify-between w-full">
+          <base-button
+            :disabled="!previous"
+            data-testid="testPreviousButton"
+            class="bg-crisiscleanup-light-smoke w-6 h-6"
+            variant="solid"
+            icon-size="xs"
+            ccu-icon="arrow-left"
+            :alt="$t('actions.previous')"
+            :action="() => loadLeaderboard(null, previous)"
+          />
+          <base-button
+            ccu-icon="arrow-right"
+            data-testid="testNextButton"
+            icon-size="xs"
+            class="bg-crisiscleanup-light-smoke w-6 h-6"
+            variant="solid"
+            :alt="$t('actions.next')"
+            :disabled="!next"
+            :action="() => loadLeaderboard(null, next)"
+          />
+        </div>
+      </template>
+    </Table>
   </div>
 </template>
 
@@ -149,6 +148,7 @@ import User from '../../models/User';
 import Avatar from '../Avatar.vue';
 import UserDetailsTooltip from '../user/DetailsTooltip.vue';
 import LanguageTag from '../tags/LanguageTag.vue';
+import Table from '../Table.vue';
 import { useWebSockets } from '../../hooks/useWebSockets';
 import useEmitter from '../../hooks/useEmitter';
 import { momentFromNow } from '../../filters/index';
@@ -169,7 +169,7 @@ const AGENT_STATES = Object.freeze({
 
 export default defineComponent({
   name: 'Leaderboard',
-  components: { LanguageTag, UserDetailsTooltip, Avatar },
+  components: { LanguageTag, UserDetailsTooltip, Avatar, Table },
   setup() {
     const { emitter } = useEmitter();
     const { t } = useI18n();
@@ -179,6 +179,7 @@ export default defineComponent({
     const resolution = ref(LEADERBOARD_RESOLUTIONS.DAILY);
     const socket = ref(null);
     const agentStats = ref(null);
+    const loading = ref(false);
     const nameTextStyle = {
       lineHeight: '1rem',
       textOverflow: 'ellipsis',
@@ -187,24 +188,32 @@ export default defineComponent({
 
     async function loadLeaderboard(r, url) {
       resolution.value = r;
-      const { data } = await axios.get(
-        url ||
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/phone/leaderboard?resolution=${resolution.value}`,
-      );
-
-      const lb = data.results || data;
-      next.value = data.next;
-      previous.value = data.previous;
-
-      await getUsers(lb.map((ranking) => ranking.user));
-      leaderboard.value = lb;
-      for (const ranking of leaderboard.value) {
-        ranking.user = getUser(ranking.user);
+      const baseUrl = import.meta.env.VITE_APP_API_BASE_URL;
+      let requestUrl;
+      if (url) {
+        const parsed = new URL(url);
+        requestUrl = `${baseUrl}${parsed.pathname}${parsed.search}`;
+      } else {
+        requestUrl = `${baseUrl}/phone/leaderboard?resolution=${resolution.value}`;
       }
+      loading.value = true;
+      try {
+        const { data } = await axios.get(requestUrl);
 
-      buildLeaderboard();
+        const lb = data.results || data;
+        next.value = data.next;
+        previous.value = data.previous;
+
+        await getUsers(lb.map((ranking) => ranking.user));
+        leaderboard.value = lb;
+        for (const ranking of leaderboard.value) {
+          ranking.user = getUser(ranking.user);
+        }
+
+        buildLeaderboard();
+      } finally {
+        loading.value = false;
+      }
     }
 
     async function getUsers(userIds) {
@@ -262,6 +271,40 @@ export default defineComponent({
       socket.value.close();
     });
 
+    const tableData = computed(() =>
+      leaderboard.value
+        .filter((rank) => rank.user && rank.user.id)
+        .map((rank) => ({ ...rank, id: rank.user.id })),
+    );
+
+    const columns = computed(() => [
+      {
+        key: 'user',
+        title: t('~~Agent'),
+        width: '2.5fr',
+      },
+      {
+        key: 'state',
+        title: t('~~Status'),
+        width: '1fr',
+      },
+      {
+        key: 'inbound_calls',
+        title: t('phoneDashboard.inbound'),
+        width: '0.6fr',
+      },
+      {
+        key: 'outbound_calls',
+        title: t('phoneDashboard.outbound'),
+        width: '0.6fr',
+      },
+      {
+        key: 'total',
+        title: t('phoneDashboard.total'),
+        width: '0.6fr',
+      },
+    ]);
+
     const dropdownProps = computed(() => {
       return {
         label: 'name',
@@ -299,6 +342,9 @@ export default defineComponent({
 
     return {
       leaderboard,
+      tableData,
+      columns,
+      loading,
       previous,
       next,
       resolution,
@@ -317,3 +363,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.leaderboard-table :deep(.ccu-table-card) {
+  @apply shadow-none rounded-none;
+}
+</style>
