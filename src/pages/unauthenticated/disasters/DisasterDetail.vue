@@ -150,6 +150,8 @@ onMounted(async () => {
       },
     );
     graphData.value = Object.entries(response.data.widget_data);
+  } catch (error) {
+    getErrorMessage(error);
   } finally {
     loadingReports.value = false;
   }

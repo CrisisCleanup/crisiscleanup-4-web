@@ -50,7 +50,7 @@ export default function useMapInstance(
   const map = new L.Map(mapId, {
     zoomControl: false,
   }).fitBounds(
-    mapBounds || portal.attr.default_map_bounds || DEFAULT_MAP_BOUNDS,
+    mapBounds || portal?.attr?.default_map_bounds || DEFAULT_MAP_BOUNDS,
   );
 
   // Tile layer management
