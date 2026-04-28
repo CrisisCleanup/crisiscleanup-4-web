@@ -1158,6 +1158,10 @@ export default defineComponent({
     }
 
     async function addMarkerToMap(location) {
+      if (!mapUtils.value) {
+        return;
+      }
+
       mapUtils.value.addMarkerToMap(location);
     }
 

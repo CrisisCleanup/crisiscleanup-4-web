@@ -62,7 +62,13 @@ export function useWebSockets<MessageT extends Record<string, any>>(
   }
 
   const send = (message: Record<any, any>) => {
-    socket?.send(JSON.stringify(message));
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      console.error(`Socket send skipped (${name}); socket is not open`);
+      return false;
+    }
+
+    socket.send(JSON.stringify(message));
+    return true;
   };
 
   function close() {

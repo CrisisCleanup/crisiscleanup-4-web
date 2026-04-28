@@ -413,9 +413,10 @@ export default defineComponent({
     const urgent = ref(false);
     const loadingMessages = ref(false);
     const searchLoading = ref(false);
-    let sendToWebsocket: (data: Partial<Message>) => void;
+    let sendToWebsocket: (data: Partial<Message>) => boolean;
     const messagesBox = ref<HTMLDivElement | null>(null);
     const { currentUser, updateUserStates, userStates } = useCurrentUser();
+    const { t } = useI18n();
     const $toasted = useToast();
 
     const conversationId = ref(generateUUID());
@@ -665,12 +666,20 @@ export default defineComponent({
     }
 
     async function sendMessage(parentId = null, content = null) {
-      submitQuestion(content || currentMessage.value);
-      sendToWebsocket({
-        content: content || currentMessage.value,
+      const messageContent = content || currentMessage.value;
+      const sent = sendToWebsocket({
+        content: messageContent,
         is_urgent: urgent.value,
         parent_message_id: parentId,
       } as Partial<Message>);
+      if (!sent) {
+        $toasted.error(
+          t('~~Chat is reconnecting. Please try sending again in a moment.'),
+        );
+        return;
+      }
+
+      submitQuestion(messageContent);
       currentMessage.value = '';
       urgent.value = false;
       await updateUserStates({ [props.stateKey]: moment().toISOString() }, {});

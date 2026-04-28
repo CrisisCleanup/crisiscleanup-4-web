@@ -8,6 +8,7 @@ const mockUpdateUserStates = vi.fn().mockResolvedValue();
 const mockSubmitQuestion = vi.fn();
 const mockFetchConversations = vi.fn().mockResolvedValue();
 const mockDeleteConversation = vi.fn().mockResolvedValue();
+const mockToastError = vi.fn();
 
 vi.mock('@/hooks', () => ({
   useRAGCollections: () => ({
@@ -45,6 +46,12 @@ vi.mock('@/hooks/useWebSockets', () => ({
       send: mockSendToWebsocket,
       close: socket.close,
     };
+  }),
+}));
+
+vi.mock('vue-toastification', () => ({
+  useToast: () => ({
+    error: mockToastError,
   }),
 }));
 
@@ -114,8 +121,10 @@ describe('Chat.vue', () => {
   beforeEach(() => {
     mockDeleteConversation.mockClear();
     mockFetchConversations.mockClear();
-    mockSendToWebsocket.mockClear();
+    mockSendToWebsocket.mockReset();
+    mockSendToWebsocket.mockReturnValue(true);
     mockSubmitQuestion.mockClear();
+    mockToastError.mockClear();
     mockUpdateUserStates.mockClear();
   });
 
@@ -156,6 +165,33 @@ describe('Chat.vue', () => {
         chat_last_seen: expect.any(String),
       }),
       {},
+    );
+
+    wrapper.unmount();
+  });
+
+  it('keeps the draft when the chat websocket is not ready', async () => {
+    mockSendToWebsocket.mockReturnValue(false);
+    const wrapper = buildWrapper();
+
+    await flushPromises();
+
+    const messageInput = wrapper.find('textarea');
+    const sendMessageButton = wrapper.find(
+      '[data-testid="testSendMessageButton"]',
+    );
+
+    await messageInput.setValue('Test message');
+    await sendMessageButton.trigger('click');
+    await flushPromises();
+
+    expect(mockSubmitQuestion).not.toHaveBeenCalled();
+    expect(mockUpdateUserStates).not.toHaveBeenCalled();
+    expect(mockToastError).toHaveBeenCalledWith(
+      '~~Chat is reconnecting. Please try sending again in a moment.',
+    );
+    expect((messageInput.element as HTMLTextAreaElement).value).toBe(
+      'Test message',
     );
 
     wrapper.unmount();

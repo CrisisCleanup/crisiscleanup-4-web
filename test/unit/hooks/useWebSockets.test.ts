@@ -50,6 +50,7 @@ describe('useWebSockets', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     installWebSocketMock();
   });
 
@@ -152,6 +153,24 @@ describe('useWebSockets', () => {
 
     vi.runAllTimers();
     expect(sockets).toHaveLength(1);
+
+    scope.stop();
+  });
+
+  it('only sends when the socket is open', async () => {
+    const { useWebSockets } = await import('@/hooks/useWebSockets');
+    const scope = effectScope();
+    let handle!: ReturnType<typeof UseWebSocketsType>;
+    scope.run(() => {
+      handle = useWebSockets('/ws/test', 'test', () => {});
+    });
+
+    expect(handle.send({ hello: 'world' })).toBe(false);
+    expect(sockets[0].send).not.toHaveBeenCalled();
+
+    sockets[0].readyState = (globalThis as any).WebSocket.OPEN;
+    expect(handle.send({ hello: 'world' })).toBe(true);
+    expect(sockets[0].send).toHaveBeenCalledWith('{"hello":"world"}');
 
     scope.stop();
   });
