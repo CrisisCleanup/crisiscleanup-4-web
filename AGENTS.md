@@ -142,3 +142,6 @@ Tailwind 3 ([tailwind.config.cjs](tailwind.config.cjs)) + PostCSS ([postcss.conf
 - `.envrc.local` is gitignored and typically points direnv at `.env.staging` or `.env.dev`; the dev server needs `VITE_APP_API_BASE_URL`, `VITE_APP_STAGE`, and `VITE_APP_PORTAL_KEY` at minimum to boot usefully.
 - Playwright's `webServer` runs `pnpm preview`, so build the app (`pnpm build`) before `pnpm test:e2e` unless you set `PW_SKIP_WEBSERVER=1` and start your own server.
 - The README and this file are the source of truth for commands; `.cursorrules`, `.cursor/rules/`, and `.github/copilot-instructions.md` do not exist in this repo.
+
+## Testing with Playwright MCP
+If explicitly instructed by the user to test something, you can access the app on http://localhost:8080 and you can login with admindemo@crisiscleanup.org / admin123

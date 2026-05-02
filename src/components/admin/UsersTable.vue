@@ -43,7 +43,7 @@
       <base-link
         v-if="currentUser && currentUser.isAdmin && slotProps.item.organization"
         data-testid="testOrganizationLink"
-        :href="`/admin/organization/${slotProps.item.organization.id}`"
+        :to="`/admin/organization/${slotProps.item.organization.id}`"
         text-variant="bodysm"
         class="px-2"
         >{{ slotProps.item.organization.name }}</base-link

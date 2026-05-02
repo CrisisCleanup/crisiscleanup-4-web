@@ -182,9 +182,11 @@
                           class="mr-1"
                         >
                         </font-awesome-icon>
-                        <a :href="`/organization/users/${slotProps.item.id}`">
+                        <router-link
+                          :to="`/organization/users/${slotProps.item.id}`"
+                        >
                           {{ $t('teams.view_full_profile') }}
-                        </a>
+                        </router-link>
                       </li>
                       <li
                         class="p-2 cursor-pointer hover:bg-crisiscleanup-light-grey"

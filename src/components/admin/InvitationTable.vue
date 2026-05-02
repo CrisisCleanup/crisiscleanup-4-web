@@ -10,7 +10,7 @@
   >
     <template #invitation_token="slotProps">
       <base-link
-        :href="`/invitation_token/${slotProps.item.invitation_token}`"
+        :to="`/invitation_token/${slotProps.item.invitation_token}`"
         text-variant="bodysm"
         class="px-2"
         data-testid="testActivateButton"
@@ -19,7 +19,7 @@
     </template>
     <template #organization="slotProps">
       <base-link
-        :href="`/admin/organization/${slotProps.item.organization}`"
+        :to="`/admin/organization/${slotProps.item.organization}`"
         text-variant="bodysm"
         class="px-2"
         data-testid="testOrganizationLink"

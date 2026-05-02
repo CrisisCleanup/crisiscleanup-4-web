@@ -68,7 +68,7 @@
         <base-link
           v-if="currentUser && currentUser.isAdmin"
           data-testid="testOrganizationLink"
-          :href="`/admin/organization/${slotProps.item.id}`"
+          :to="`/admin/organization/${slotProps.item.id}`"
           text-variant="bodysm"
           class="px-2"
           >{{ $t('actions.edit') }}</base-link

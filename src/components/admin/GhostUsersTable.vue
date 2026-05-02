@@ -11,7 +11,7 @@
     <template #organization_name="slotProps">
       <base-link
         v-if="currentUser && currentUser.isAdmin"
-        :href="`/admin/organization/${slotProps.item.organization}`"
+        :to="`/admin/organization/${slotProps.item.organization}`"
         text-variant="bodysm"
         class="px-2"
         >{{ slotProps.item.organization_name }}</base-link

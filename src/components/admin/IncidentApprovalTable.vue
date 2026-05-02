@@ -136,7 +136,7 @@
           "
         />
         <base-link
-          :href="`/admin/organization/${slotProps.item.organization}`"
+          :to="`/admin/organization/${slotProps.item.organization}`"
           data-testid="testEditOrganizationLink"
           text-variant="bodysm"
         >
