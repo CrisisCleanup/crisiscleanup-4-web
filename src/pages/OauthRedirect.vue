@@ -18,9 +18,15 @@ export default {
     const route = useRoute();
     const authStore = useAuthStore();
 
+    const redirectTarget = () => {
+      const state = route.query.state;
+      return typeof state === 'string' && state.startsWith('/') && state !== '/'
+        ? state
+        : { name: 'nav.dashboard_no_incident' };
+    };
+
     if (authStore.isAuthenticated.value) {
-      // todo: grab redirect url
-      router.push({ name: 'nav.dashboard_no_incident' });
+      router.push(redirectTarget());
     }
 
     // authenticated
@@ -29,9 +35,7 @@ export default {
       (isAuthed) => {
         console.log('redir is authed watch:', isAuthed);
         if (isAuthed) {
-          router.push({
-            name: 'nav.dashboard_no_incident',
-          });
+          router.push(redirectTarget());
         }
       },
       { immediate: true, flush: 'sync' },

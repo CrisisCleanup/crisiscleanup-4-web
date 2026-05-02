@@ -66,6 +66,7 @@ const { currentUser } = useCurrentUser();
 const router = useRouter();
 
 onMounted(async () => {
+  await until(currentUser).toBeTruthy();
   if (!currentUser.value?.isAdmin) {
     return router.push('/dashboard');
   }

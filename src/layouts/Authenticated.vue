@@ -131,10 +131,10 @@
             :key="r.key"
             class="flex flex-col items-center"
           >
-            <a :href="r.to" class="text-white flex flex-col">
+            <router-link :to="r.to" class="text-white flex flex-col">
               <font-awesome-icon :icon="r.icon" class="mb-1" size="small" />
               {{ r.text }}
-            </a>
+            </router-link>
           </div>
           <div class="flex flex-col items-center">
             <a
@@ -156,7 +156,7 @@
         @close="showingMoreLinks = false"
       >
         <div v-for="r in routes" :key="r.key" class="flex items-center">
-          <base-link :href="r.to" class="text-black text-base p-1">
+          <base-link :to="r.to" class="text-black text-base p-1">
             {{ r.text || $t(`nav.${r.key}`) }}
           </base-link>
         </div>
