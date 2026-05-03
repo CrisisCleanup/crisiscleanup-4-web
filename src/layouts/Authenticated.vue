@@ -348,6 +348,13 @@ export default defineComponent({
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
 
+    watch(
+      () => route.fullPath,
+      () => {
+        showingMoreLinks.value = false;
+      },
+    );
+
     router.beforeEach((to, from, next) => {
       store.commit('events/addEvent', {
         event_key: 'user_ui-read_page',

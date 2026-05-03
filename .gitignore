@@ -157,3 +157,5 @@ report.md
 
 # Eslint
 .eslintcache
+
+.playwirght-mcp/*
