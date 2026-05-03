@@ -1,19 +1,28 @@
 <template>
-  <component
-    :is="linkComponent"
+  <router-link
+    v-if="to"
     :to="to"
-    :href="href"
     :class="linkVariant === 'light' ? 'link' : 'link-dark'"
-    :target="target"
+    :target="target || undefined"
   >
     <base-text :variant="textVariant">
       <slot />
     </base-text>
-  </component>
+  </router-link>
+  <a
+    v-else
+    :href="href || undefined"
+    :class="linkVariant === 'light' ? 'link' : 'link-dark'"
+    :target="target || undefined"
+  >
+    <base-text :variant="textVariant">
+      <slot />
+    </base-text>
+  </a>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType } from 'vue';
 
 export default defineComponent({
   name: 'BaseLink',
@@ -35,13 +44,6 @@ export default defineComponent({
       type: String as PropType<'light' | 'dark'>,
       default: 'dark',
     },
-  },
-  setup(props: { to: string | null; href: string }) {
-    const linkComponent = computed(() => (props.to ? 'router-link' : 'a'));
-
-    return {
-      linkComponent,
-    };
   },
 });
 </script>
