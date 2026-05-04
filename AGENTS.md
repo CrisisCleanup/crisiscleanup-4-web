@@ -143,5 +143,5 @@ Tailwind 3 ([tailwind.config.cjs](tailwind.config.cjs)) + PostCSS ([postcss.conf
 - Playwright's `webServer` runs `pnpm preview`, so build the app (`pnpm build`) before `pnpm test:e2e` unless you set `PW_SKIP_WEBSERVER=1` and start your own server.
 - The README and this file are the source of truth for commands; `.cursorrules`, `.cursor/rules/`, and `.github/copilot-instructions.md` do not exist in this repo.
 
-## Testing with Playwright MCP
+## Testing with Agent Browser
 If explicitly instructed by the user to test something, you can access the app on http://localhost:8080 and you can login with admindemo@crisiscleanup.org / admin123
