@@ -1,6 +1,10 @@
 import createDebug from 'debug';
 import { useWebSockets } from '@/hooks/useWebSockets';
-import { createAxiosCasingTransform, generateUUID } from '@/utils/helpers';
+import {
+  createAxiosCasingTransform,
+  generateUUID,
+  toSnakeCase,
+} from '@/utils/helpers';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import type { FunctionalComponent, InjectionKey, Ref } from 'vue';
 import { computed, ref } from 'vue';
@@ -828,9 +832,13 @@ export const useRAGAttentionList = (collectionId: Ref<string | undefined>) => {
     fieldErrors.value = {};
     isUpdating.value = true;
     try {
+      // Backend rejects camelCase keys ("Unknown limit key: 'publicCms'.").
+      // The shared casing transform only camelCases responses, so we
+      // snake_case the request body explicitly before sending.
+      const body = toSnakeCase(patch);
       const { data } = await client.patch(
         `/rag_collections/${collectionId.value}/attention-list`,
-        patch,
+        body,
       );
       await refetch();
       return data as { attentionList: AttentionList; cmetadata: unknown };

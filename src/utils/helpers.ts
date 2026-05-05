@@ -129,6 +129,25 @@ export const toCamelCase = <T>(object: T): CamelCasedPropertiesDeep<T> => {
   return object;
 };
 
+/**
+ * Recursively convert object|array keys to snake_case. Mirrors
+ * {@link toCamelCase} for outbound request bodies. Leaves arrays of
+ * primitives and non-object values untouched.
+ */
+export const toSnakeCase = <T = unknown>(object: T): T => {
+  if (_.isArray(object)) {
+    return object.map((item) => toSnakeCase(item)) as unknown as T;
+  } else if (_.isObject(object)) {
+    return _.transform(
+      object as Record<string, unknown>,
+      (result: Record<string, unknown>, value, key) => {
+        result[_.snakeCase(key)] = toSnakeCase(value);
+      },
+    ) as unknown as T;
+  }
+  return object;
+};
+
 export const createAxiosCasingTransform = (
   options?: Partial<AxiosInstance | AxiosRequestConfig>,
   instance?: AxiosInstance,
