@@ -50,7 +50,7 @@ function handleTotalDashboardCountFetched(count: number) {
       </template>
       <div ref="tabSelector" class="page__selector" :style="selectorStyle" />
     </div>
-    <div class="flex-grow p-3 mb-16">
+    <div class="flex-grow p-3">
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component

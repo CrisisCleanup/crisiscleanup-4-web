@@ -22,6 +22,9 @@ const debug = createDebug('@ccu:hooks:useRAG');
 type RAGSocketMessageType = 'rag.conversation' | 'rag.document' | 'rag.error';
 
 interface RAGSocketMessage<T> {
+  // Additive forward-compat: backend may stamp event_version: 1, 2, ...
+  // We don't branch on it today; just accept and ignore unknown values.
+  event_version?: number;
   type: RAGSocketMessageType;
   message: T;
 }
@@ -37,12 +40,25 @@ interface RAGSocketQuestionMessageBody
   fileIds?: number[];
 }
 
+type RAGAnswerStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'error'
+  | 'finish'
+  | 'rejected';
+
 interface RAGSocketAnswerMessageBody
   extends BaseRAGSocketConversationMessageBody {
   messageId: string;
   answer: string;
-  status: 'pending' | 'in_progress' | 'error' | 'finish' | 'rejected';
+  status: RAGAnswerStatus;
   tools?: Record<string, ToolMessage[]>;
+  // Additive native-runtime fields per RAG integration guide.
+  actions?: unknown[];
+  stepCapHit?: boolean;
+  promptCacheHit?: boolean;
+  cachedPromptTokens?: number;
+  promptTokens?: number;
 }
 
 type RAGSocketConversationMessageBody =
@@ -108,6 +124,14 @@ interface RAGEntry {
   collectionId: string;
   conversationId: string;
   tools?: Record<string, ToolMessage[]>;
+  // Lifecycle of the bubble. Drives "Thinking…" placeholder vs. typewriter.
+  // Optional so historical entries (loaded from /conversations/) render as
+  // finished without needing a backfill.
+  status?: RAGAnswerStatus;
+  stepCapHit?: boolean;
+  promptCacheHit?: boolean;
+  cachedPromptTokens?: number;
+  promptTokens?: number;
 }
 
 interface DocumentMetadata {
@@ -196,6 +220,7 @@ export type {
   Collection as RAGCollection,
   Document as RAGDocument,
   RAGEntry,
+  RAGAnswerStatus,
   ToolMessage as RAGToolMessage,
   CCUDocumentFileItem,
   DocumentFileBranch as RAGDocumentsFileBranch,
@@ -601,6 +626,294 @@ export const useRAGCollections = () => {
   };
 };
 
+// ---------------------------------------------------------------------------
+// Attention-list management (admin)
+//
+// Backed by:
+//   PATCH /rag_collections/{uuid}/attention-list/   — partial-merge config
+//   POST  /rag_collections/{uuid}/sync-attention/   — trigger immediate sync
+//   GET   /rag_collections/{uuid}/                  — read attention_list +
+//                                                     attention_counts
+// ---------------------------------------------------------------------------
+
+interface AttentionListLimits {
+  chatPerUser?: number;
+  blogPerWatchedUser?: number;
+  publicBlog?: number;
+  magazines?: number;
+  cmsPerWatchedUser?: number;
+  publicCms?: number;
+  [key: string]: number | undefined;
+}
+
+interface AttentionListBoosts {
+  watched?: number;
+  [key: string]: number | undefined;
+}
+
+interface AttentionListRecencyDays {
+  watchedChat?: number;
+  watchedBlog?: number;
+  publicBlog?: number;
+  magazine?: number;
+  watchedCms?: number;
+  publicCms?: number;
+  [key: string]: number | undefined;
+}
+
+interface AttentionList {
+  watchedUserIds?: number[];
+  includePublicBlog?: boolean;
+  includeMagazines?: boolean;
+  includeCmsItems?: boolean;
+  cmsTags?: string[];
+  limits?: AttentionListLimits;
+  boosts?: AttentionListBoosts;
+  recencyDays?: AttentionListRecencyDays;
+}
+
+interface AttentionCounts {
+  watchedChat?: number;
+  watchedBlog?: number;
+  publicBlog?: number;
+  magazine?: number;
+  chunksTotal?: number;
+  lastSyncAt?: string | null;
+  [key: string]: number | string | null | undefined;
+}
+
+interface AttentionAwareCollection extends Collection {
+  attentionCounts?: AttentionCounts;
+}
+
+interface SyncAttentionResponse {
+  taskId: string;
+  collectionUuid: string;
+  queuedAt: string;
+}
+
+export type {
+  AttentionList,
+  AttentionCounts,
+  AttentionListLimits,
+  AttentionListBoosts,
+  AttentionListRecencyDays,
+};
+
+/**
+ * Flatten DRF-shaped error payloads into a dotted-key map for inline UI use.
+ *
+ * Backend may return either nested objects:
+ *     { "limits": { "chat_per_user": "Must be a positive integer." } }
+ * or already-flattened dotted keys:
+ *     { "limits.chat_per_user": "Must be a positive integer." }
+ *
+ * Either case maps to `{ "limits.chatPerUser": "..." }` after camelCasing.
+ *
+ * Non-field errors (`detail`, `non_field_errors`) land under the empty string
+ * key so the caller can distinguish them.
+ */
+function flattenAttentionErrors(
+  payload: unknown,
+  prefix = '',
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!payload || typeof payload !== 'object') {
+    if (typeof payload === 'string' && payload) {
+      out[prefix] = payload;
+    }
+    return out;
+  }
+  for (const [rawKey, value] of Object.entries(
+    payload as Record<string, unknown>,
+  )) {
+    const camelKey = rawKey.replaceAll(/_([a-z])/g, (_, c) => c.toUpperCase());
+    const segments = camelKey.split('.');
+    const composed = [prefix, ...segments].filter(Boolean).join('.');
+    if (typeof value === 'string') {
+      out[composed] = value;
+    } else if (Array.isArray(value)) {
+      const first = value.find((v) => typeof v === 'string');
+      if (typeof first === 'string') out[composed] = first;
+    } else if (value && typeof value === 'object') {
+      Object.assign(out, flattenAttentionErrors(value, composed));
+    }
+  }
+  return out;
+}
+
+export const useRAGAttentionList = (collectionId: Ref<string | undefined>) => {
+  const client = axios.create(createAxiosCasingTransform());
+  const toast = useToast();
+  const collectionState = useAxios<AttentionAwareCollection>(
+    collectionId.value
+      ? `/rag_collections/${collectionId.value}`
+      : '/rag_collections/',
+    createAxiosCasingTransform(),
+    {
+      immediate: Boolean(collectionId.value),
+      resetOnExecute: false,
+    },
+  );
+
+  whenever(
+    () => collectionId.value,
+    (newValue) => {
+      if (!newValue) return;
+      collectionState
+        .execute(`/rag_collections/${newValue}`)
+        .catch(getErrorMessage);
+    },
+  );
+
+  const refetch = async () => {
+    if (!collectionId.value) return;
+    await collectionState
+      .execute(`/rag_collections/${collectionId.value}`)
+      .catch(getErrorMessage);
+  };
+
+  const attentionList = computed<AttentionList | undefined>(() => {
+    const cmetadata = collectionState.data.value?.cmetadata as
+      | Record<string, unknown>
+      | null
+      | undefined;
+    return cmetadata?.attentionList as AttentionList | undefined;
+  });
+
+  const hasAttentionList = computed(() => Boolean(attentionList.value));
+
+  const attentionCounts = computed<AttentionCounts | undefined>(
+    () => collectionState.data.value?.attentionCounts,
+  );
+
+  const lastSyncAt = computed<Date | undefined>(() => {
+    const raw = attentionCounts.value?.lastSyncAt;
+    if (!raw || typeof raw !== 'string') return;
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? undefined : d;
+  });
+
+  // Stale tiers per integration guide: red >36h, amber >26h, green otherwise.
+  const stalenessHours = computed<number | undefined>(() => {
+    if (!lastSyncAt.value) return;
+    return (Date.now() - lastSyncAt.value.getTime()) / 3_600_000;
+  });
+
+  const staleness = computed<'fresh' | 'amber' | 'red' | 'never'>(() => {
+    if (lastSyncAt.value === undefined) return 'never';
+    const hrs = stalenessHours.value!;
+    if (hrs > 36) return 'red';
+    if (hrs > 26) return 'amber';
+    return 'fresh';
+  });
+
+  const fieldErrors = ref<Record<string, string>>({});
+  const isUpdating = ref(false);
+  const isSyncing = ref(false);
+
+  /**
+   * Partial-merge update against the attention-list endpoint. Lists
+   * (watchedUserIds, cmsTags) are replaced server-side; nested dicts
+   * (limits, recencyDays, boosts) are deep-merged by key.
+   *
+   * Resolves with the saved config on success. On a 400 with field errors,
+   * `fieldErrors` is populated and the promise rejects with the original
+   * axios error so callers can surface form-level state.
+   */
+  const updateAttentionList = async (patch: Partial<AttentionList>) => {
+    if (!collectionId.value) {
+      throw new Error('No collection selected');
+    }
+    fieldErrors.value = {};
+    isUpdating.value = true;
+    try {
+      const { data } = await client.patch(
+        `/rag_collections/${collectionId.value}/attention-list/`,
+        patch,
+      );
+      await refetch();
+      return data as { attentionList: AttentionList; cmetadata: unknown };
+    } catch (error) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      const body = (error as { response?: { data?: unknown } })?.response?.data;
+      if (status === 400 && body) {
+        fieldErrors.value = flattenAttentionErrors(body);
+      } else {
+        getAndToastErrorMessage(error);
+      }
+      throw error;
+    } finally {
+      isUpdating.value = false;
+    }
+  };
+
+  /**
+   * Trigger an immediate Celery sync. Returns the queued task metadata. The
+   * doc explicitly notes there's no task-result endpoint — callers poll
+   * `refetch()` until `lastSyncAt` advances.
+   */
+  const syncNow = async (): Promise<SyncAttentionResponse | undefined> => {
+    if (!collectionId.value) {
+      throw new Error('No collection selected');
+    }
+    isSyncing.value = true;
+    try {
+      const { data } = await client.post(
+        `/rag_collections/${collectionId.value}/sync-attention/`,
+      );
+      return data as SyncAttentionResponse;
+    } catch (error) {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      // The doc calls out a specific 400 for this endpoint:
+      //   "Configure the attention list first, then sync."
+      // Toast it instead of swallowing it as a generic error.
+      if (status === 400) {
+        toast.warning('Configure the attention list first, then sync.');
+      } else {
+        getAndToastErrorMessage(error);
+      }
+      throw error;
+    } finally {
+      isSyncing.value = false;
+    }
+  };
+
+  /**
+   * State-1 → state-2 migration: PATCH an empty body to install defaults,
+   * then trigger the first sync immediately. Mirrors the doc's recipe.
+   */
+  const enableAttentionList = async () => {
+    await updateAttentionList({});
+    await syncNow().catch(() => {
+      // syncNow already toasted; swallow so the editor still renders.
+    });
+  };
+
+  return {
+    collection: readonly(collectionState.data),
+    attentionList,
+    hasAttentionList,
+    attentionCounts,
+    lastSyncAt,
+    stalenessHours,
+    staleness,
+    fieldErrors: readonly(fieldErrors),
+    isLoading: readonly(collectionState.isLoading),
+    isUpdating: readonly(isUpdating),
+    isSyncing: readonly(isSyncing),
+    refetch,
+    updateAttentionList,
+    syncNow,
+    enableAttentionList,
+  };
+};
+
+// Exported for unit tests.
+export const __ragInternals = { flattenAttentionErrors };
+
 export const RAGWebSocketInjectKey: InjectionKey<{
   socket: ReturnType<typeof useWebSockets>;
   message: Readonly<Ref<AnyRAGSocketMessage | undefined>>;
@@ -667,63 +980,79 @@ export const useRAG = (
       throw new Error('Unexpected question message received');
     }
     const {
-      answer: content,
+      answer: rawAnswer,
       messageId,
       collectionId,
       conversationId,
       status,
       tools,
+      stepCapHit,
+      promptCacheHit,
+      cachedPromptTokens,
+      promptTokens,
     } = data;
     if (status === 'rejected') {
-      debug('Question rejected: %s', content);
+      debug('Question rejected: %s', rawAnswer);
       // Roll back the optimistically-pushed user message.
       if (currentQuestion.value) {
         const rejectedId = currentQuestion.value.messageId;
         history.value = history.value.filter((h) => h.messageId !== rejectedId);
         currentQuestion.value = null;
       }
+      streamingMessage.value = false;
       return;
     }
     // First non-rejected chunk validates the question; clear the staging ref.
     if (currentQuestion.value) {
       currentQuestion.value = null;
     }
-    let answer = content;
-    const isTool = answer
-      .replaceAll('\n', '')
-      .toLowerCase()
-      .startsWith('invoking:');
-    if (latestMessageId.value === messageId) {
-      if (isTool && !(options?.showToolMessages ?? true)) {
-        debug('Skipping tool message: %s', answer);
-        return;
-      }
-      streamingMessage.value = true;
-      debug('appending latest message chunk: %s (%s)', messageId, answer);
-      const newHistory = history.value.slice(0, -1);
-      const newLatest = latestMessage.value!;
 
-      if (status === 'finish') {
-        streamingMessage.value = false;
-      } else {
-        if (status === 'error') {
-          answer = `**Error:** _${answer}_`;
-        }
-        // update latest answer with new content.
-        newLatest.content = answer;
-        history.value = [...newHistory, newLatest];
-      }
+    const aiActor = options?.aiActorName ?? 'aarongpt';
+    const existingIndex = history.value.findIndex(
+      (h) => h.messageId === messageId,
+    );
+    const isFinish = status === 'finish';
+    const isError = status === 'error';
+
+    // Per the RAG integration guide, intermediate in_progress / pending payloads
+    // contain retry attempts and tool-call narration that visibly judder. We
+    // keep the bubble's content empty until `finish`; the chat UI shows a
+    // "Thinking…" placeholder driven off `entry.status`.
+    let renderedContent: string;
+    if (isFinish) {
+      renderedContent = rawAnswer;
+    } else if (isError) {
+      renderedContent = `**Error:** _${rawAnswer}_`;
     } else {
-      streamingMessage.value = true;
-      debug('pushing new message chunk: %s (%s)', messageId, answer);
-      history.value.push({
-        messageId,
-        collectionId,
-        conversationId,
-        actor: options?.aiActorName ?? 'aarongpt',
-        content: answer,
-        tools,
-      });
+      // pending / in_progress
+      renderedContent =
+        existingIndex === -1 ? '' : history.value[existingIndex]!.content;
+    }
+
+    streamingMessage.value = !isFinish && !isError;
+
+    const nextEntry: RAGEntry = {
+      messageId,
+      collectionId,
+      conversationId,
+      actor: aiActor,
+      content: renderedContent,
+      status,
+      ...(tools ? { tools } : {}),
+      ...(stepCapHit ? { stepCapHit } : {}),
+      ...(promptCacheHit === undefined ? {} : { promptCacheHit }),
+      ...(cachedPromptTokens === undefined ? {} : { cachedPromptTokens }),
+      ...(promptTokens === undefined ? {} : { promptTokens }),
+    };
+
+    if (existingIndex === -1) {
+      debug('pushing new message: %s (status=%s)', messageId, status);
+      history.value.push(nextEntry);
+    } else {
+      debug('updating message: %s (status=%s)', messageId, status);
+      const newHistory = [...history.value];
+      newHistory[existingIndex] = nextEntry;
+      history.value = newHistory;
     }
   }
 
