@@ -748,7 +748,7 @@ export const useRAGAttentionList = (collectionId: Ref<string | undefined>) => {
   const collectionState = useAxios<AttentionAwareCollection>(
     collectionId.value
       ? `/rag_collections/${collectionId.value}`
-      : '/rag_collections/',
+      : '/rag_collections',
     createAxiosCasingTransform(),
     {
       immediate: Boolean(collectionId.value),
@@ -829,7 +829,7 @@ export const useRAGAttentionList = (collectionId: Ref<string | undefined>) => {
     isUpdating.value = true;
     try {
       const { data } = await client.patch(
-        `/rag_collections/${collectionId.value}/attention-list/`,
+        `/rag_collections/${collectionId.value}/attention-list`,
         patch,
       );
       await refetch();
@@ -861,7 +861,7 @@ export const useRAGAttentionList = (collectionId: Ref<string | undefined>) => {
     isSyncing.value = true;
     try {
       const { data } = await client.post(
-        `/rag_collections/${collectionId.value}/sync-attention/`,
+        `/rag_collections/${collectionId.value}/sync-attention`,
       );
       return data as SyncAttentionResponse;
     } catch (error) {
