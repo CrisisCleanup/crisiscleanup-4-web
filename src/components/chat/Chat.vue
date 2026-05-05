@@ -808,7 +808,13 @@ export default defineComponent({
     function askSpinny() {
       const q = spinnyQuery.value?.trim();
       if (!q) return;
-      submitQuestion(q);
+      const sent = submitQuestion(q);
+      if (sent === false) {
+        $toasted.error(
+          t('~~Spinny is reconnecting. Please try again in a moment.'),
+        );
+        return;
+      }
       spinnyQuery.value = '';
     }
     async function openSpinny() {

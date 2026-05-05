@@ -88,7 +88,7 @@ describe('useRAG', () => {
     expect(history.value).toEqual([]);
   });
 
-  it.skip('adds a new question to history when submitQuestion is called', async () => {
+  it('adds a new question to history when submitQuestion is called', async () => {
     submitQuestion('Test question');
     await nextTick();
     expect(history.value).toHaveLength(1);

@@ -674,15 +674,19 @@ export const useRAG = (
       status,
       tools,
     } = data;
-    if (currentQuestion.value && status !== 'rejected') {
-      // push current question when we know its been validated
-      history.value.push(currentQuestion.value);
-      currentQuestion.value = null;
-    }
     if (status === 'rejected') {
       debug('Question rejected: %s', content);
-      currentQuestion.value = null;
+      // Roll back the optimistically-pushed user message.
+      if (currentQuestion.value) {
+        const rejectedId = currentQuestion.value.messageId;
+        history.value = history.value.filter((h) => h.messageId !== rejectedId);
+        currentQuestion.value = null;
+      }
       return;
+    }
+    // First non-rejected chunk validates the question; clear the staging ref.
+    if (currentQuestion.value) {
+      currentQuestion.value = null;
     }
     let answer = content;
     const isTool = answer
@@ -735,15 +739,17 @@ export const useRAG = (
   );
 
   const submitQuestion = (value: string, fileIds?: number[]) => {
-    if (!value) return;
+    if (!value) return false;
     const convoId = conversationId.value ?? generateUUID();
-    currentQuestion.value = {
+    const userEntry: RAGEntry = {
       messageId: generateUUID(),
       actor: 'user',
       content: value,
       collectionId: collectionId.value,
       conversationId: convoId,
     };
+    currentQuestion.value = userEntry;
+    history.value.push(userEntry);
     const payload: RAGSocketConversationMessage = {
       type: 'rag.conversation',
       message: {
@@ -753,7 +759,15 @@ export const useRAG = (
         ...(fileIds && { fileIds }),
       },
     };
-    socket.send(payload);
+    const sent = socket.send(payload);
+    if (sent === false) {
+      // Websocket wasn't open; undo the optimistic push so the caller can retry.
+      history.value = history.value.filter(
+        (h) => h.messageId !== userEntry.messageId,
+      );
+      currentQuestion.value = null;
+    }
+    return sent;
   };
 
   return {
