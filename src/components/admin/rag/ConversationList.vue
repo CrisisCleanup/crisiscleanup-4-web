@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { truncate } from 'lodash';
+import moment from '@/utils/dates';
 import useDialogs from '@/hooks/useDialogs';
 
 interface ConversationSummary {
   conversationId: string;
   title: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 const props = defineProps<{
@@ -32,6 +35,9 @@ const onDelete = async (id: string) => {
   });
   if (result === 'yes') emit('delete', id);
 };
+
+const relativeTime = (iso: string | undefined) =>
+  iso ? moment(iso).fromNow() : '';
 </script>
 
 <template>
@@ -39,7 +45,7 @@ const onDelete = async (id: string) => {
     <div class="px-3 py-3 border-b border-slate-200">
       <button
         type="button"
-        class="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700"
+        class="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-slate-300 bg-white hover:border-crisiscleanup-yellow-500 hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700"
         @click="emit('new')"
       >
         <ccu-icon type="active" size="sm" />
@@ -57,30 +63,40 @@ const onDelete = async (id: string) => {
         v-for="conv in conversations"
         :key="conv.conversationId"
         type="button"
-        class="w-full text-left px-3 py-2 border-l-2 transition-colors group"
+        class="w-full text-left pl-3 pr-2 py-2 border-l-2 transition-colors group"
         :class="
           conv.conversationId === currentId
-            ? 'bg-white border-slate-700 text-slate-900'
+            ? 'border-crisiscleanup-yellow-500 bg-crisiscleanup-yellow-100/40 text-slate-900'
             : 'border-transparent text-slate-600 hover:bg-white hover:text-slate-900'
         "
         @click="emit('select', conv.conversationId)"
       >
         <div class="flex items-start gap-2">
-          <span
-            class="flex-1 text-sm truncate"
-            :class="{
-              'font-semibold': conv.conversationId === currentId,
-            }"
-          >
-            {{ truncate(conv.title || $t('~~Untitled'), { length: 80 }) }}
-          </span>
-          <span
-            class="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-red-600"
+          <div class="flex-1 min-w-0">
+            <div
+              class="text-sm truncate"
+              :class="{
+                'font-semibold': conv.conversationId === currentId,
+              }"
+            >
+              {{ truncate(conv.title || $t('~~Untitled'), { length: 80 }) }}
+            </div>
+            <div
+              v-if="conv.updatedAt || conv.createdAt"
+              class="mt-0.5 text-[11px] text-slate-400 truncate"
+            >
+              {{ relativeTime(conv.updatedAt ?? conv.createdAt) }}
+            </div>
+          </div>
+          <button
+            type="button"
+            class="flex-shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 -m-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50"
             :title="t('actions.delete')"
+            :aria-label="t('actions.delete')"
             @click.stop="onDelete(conv.conversationId)"
           >
             <ccu-icon type="cancel" size="xs" />
-          </span>
+          </button>
         </div>
       </button>
     </div>

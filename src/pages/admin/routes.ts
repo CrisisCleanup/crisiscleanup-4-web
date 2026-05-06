@@ -13,6 +13,9 @@ const AdminCms = () => import('./AdminCms.vue');
 const AdminLocalizations = () => import('@/pages/admin/AdminLocalizations.vue');
 const AdminIncidentWizard = () => import('./AdminIncidentWizard.vue');
 const AdminRAG = () => import('./AdminRAG.vue');
+const AdminRAGChat = () => import('./rag/Chat.vue');
+const AdminRAGFiles = () => import('./rag/Files.vue');
+const AdminRAGAttention = () => import('./rag/Attention.vue');
 const AdminReportGenerator = () => import('./AdminReportGenerator.vue');
 const AdminGodMode = () => import('./AdminGodMode.vue');
 const AdminSendBulkSms = () => import('./AdminSendBulkSms.vue');
@@ -93,6 +96,24 @@ const routes = [
         path: 'rag',
         name: 'nav.rag',
         component: AdminRAG,
+        redirect: { name: 'nav.rag_chat' },
+        children: [
+          {
+            path: 'chat',
+            name: 'nav.rag_chat',
+            component: AdminRAGChat,
+          },
+          {
+            path: 'files',
+            name: 'nav.rag_files',
+            component: AdminRAGFiles,
+          },
+          {
+            path: 'attention',
+            name: 'nav.rag_attention',
+            component: AdminRAGAttention,
+          },
+        ],
       },
       {
         path: 'reports',

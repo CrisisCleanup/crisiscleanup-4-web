@@ -7,6 +7,7 @@ const props = defineProps<{
   staleness: 'fresh' | 'amber' | 'red' | 'never';
   lastSyncAt: Date | undefined;
   isSyncing: boolean;
+  isLoading?: boolean;
 }>();
 
 defineEmits<{ (e: 'sync'): void }>();
@@ -119,7 +120,16 @@ const maxSource = computed(() =>
       </div>
     </header>
 
-    <div class="space-y-1.5">
+    <div v-if="isLoading" class="space-y-1.5" aria-hidden="true">
+      <div v-for="i in sources.length" :key="i" class="flex items-center gap-3">
+        <span class="w-32 h-3 rounded bg-slate-100" />
+        <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full w-1/3 bg-slate-200 rounded-full animate-pulse" />
+        </div>
+        <span class="w-12 h-3 rounded bg-slate-100" />
+      </div>
+    </div>
+    <div v-else class="space-y-1.5">
       <div
         v-for="row in sources"
         :key="row.key"
@@ -130,7 +140,7 @@ const maxSource = computed(() =>
         </span>
         <div class="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div
-            class="h-full bg-slate-400 rounded-full"
+            class="h-full bg-crisiscleanup-yellow-500 rounded-full"
             :style="{
               width: `${(sourceCount(row.key) / maxSource) * 100}%`,
             }"

@@ -241,71 +241,106 @@ const formatExt = (filename: string): string => {
         </div>
       </header>
 
-      <!-- Header row -->
+      <!-- Header row (md+) -->
       <div
         v-if="filteredFiles.length > 0"
-        class="grid grid-cols-12 items-center gap-3 px-4 py-2 border-b border-slate-100 text-[11px] uppercase tracking-wide font-semibold text-slate-500 bg-slate-50"
+        class="hidden md:grid grid-cols-12 items-center gap-3 px-4 py-2 border-b border-slate-100 text-[11px] uppercase tracking-wide font-semibold text-slate-500 bg-slate-50"
       >
-        <div class="col-span-1 flex items-center">
+        <div
+          v-tooltip="{
+            content: t(
+              '~~Included in chat retrieval. Uncheck to exclude without deleting.',
+            ),
+            triggers: ['hover', 'focus'],
+            popperClass: 'interactive-tooltip w-auto',
+          }"
+          class="col-span-1 flex items-center gap-1.5"
+        >
           <input
             type="checkbox"
             :checked="allShownActive"
             class="rounded border-slate-300"
             @change="toggleAllShown"
           />
+          <span>{{ $t('~~In scope') }}</span>
         </div>
-        <div class="col-span-7 sm:col-span-7">{{ $t('~~Name') }}</div>
-        <div class="col-span-3 hidden sm:block">{{ $t('~~Folder') }}</div>
+        <div class="col-span-7">{{ $t('~~Name') }}</div>
+        <div class="col-span-3">{{ $t('~~Folder') }}</div>
         <div class="col-span-1 text-right pr-2">&nbsp;</div>
       </div>
 
-      <!-- File rows -->
+      <!-- Skeleton rows -->
       <ul
-        v-if="filteredFiles.length > 0"
+        v-if="isDocumentsLoading && filteredFiles.length === 0"
+        class="divide-y divide-slate-100"
+        aria-hidden="true"
+      >
+        <li v-for="i in 4" :key="i" class="flex items-center gap-3 px-4 py-3">
+          <div class="w-4 h-4 rounded bg-slate-100" />
+          <div class="w-8 h-8 rounded bg-slate-100" />
+          <div class="flex-1 h-3 rounded bg-slate-100" />
+          <div class="hidden sm:block w-32 h-3 rounded bg-slate-100" />
+        </li>
+      </ul>
+
+      <!-- File rows (md+ table, mobile cards) -->
+      <ul
+        v-else-if="filteredFiles.length > 0"
         class="divide-y divide-slate-100 max-h-[60vh] overflow-y-auto"
       >
         <li
           v-for="file in filteredFiles"
           :key="file.id"
-          class="grid grid-cols-12 items-center gap-3 px-4 py-2.5 hover:bg-slate-50 transition-colors cursor-pointer"
+          class="md:grid md:grid-cols-12 md:items-center md:gap-3 md:py-2.5 flex flex-col gap-2 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer"
           @click="toggleFile(file.id)"
         >
-          <div class="col-span-1 flex items-center" @click.stop>
-            <input
-              type="checkbox"
-              :checked="currentActiveFileIds.has(file.id)"
-              class="rounded border-slate-300"
-              @change="toggleFile(file.id)"
-            />
-          </div>
-          <div class="col-span-7 flex items-center gap-2 min-w-0">
-            <span
-              class="flex-shrink-0 inline-flex items-center justify-center w-8 h-8 rounded bg-slate-100 text-[10px] font-bold text-slate-600 uppercase"
+          <!-- Mobile-only top row: ext + name + scope toggle -->
+          <div class="md:contents flex items-center gap-2 min-w-0 w-full">
+            <div class="md:col-span-1 flex items-center" @click.stop>
+              <input
+                type="checkbox"
+                :checked="currentActiveFileIds.has(file.id)"
+                class="rounded border-slate-300"
+                :aria-label="t('~~In scope')"
+                @change="toggleFile(file.id)"
+              />
+            </div>
+            <div class="md:col-span-7 flex items-center gap-2 min-w-0 flex-1">
+              <span
+                class="flex-shrink-0 inline-flex items-center justify-center w-8 h-8 rounded bg-slate-100 text-[10px] font-bold text-slate-600 uppercase"
+              >
+                {{ formatExt(file.filenameOriginal) }}
+              </span>
+              <span
+                class="truncate text-sm text-slate-900"
+                :title="file.filenameOriginal"
+              >
+                {{ file.filenameOriginal }}
+              </span>
+            </div>
+            <div
+              class="md:col-span-3 md:block text-xs text-slate-500 truncate hidden md:visible"
+              :title="file.attr?.virtualPath ?? ''"
             >
-              {{ formatExt(file.filenameOriginal) }}
-            </span>
-            <span
-              class="truncate text-sm text-slate-900"
-              :title="file.filenameOriginal"
-            >
-              {{ file.filenameOriginal }}
-            </span>
+              {{ file.attr?.virtualPath || '—' }}
+            </div>
+            <div class="md:col-span-1 md:text-right">
+              <button
+                type="button"
+                class="opacity-50 hover:opacity-100 text-slate-500 hover:text-slate-900 px-2"
+                :title="t('adminRAG.move_to_folder')"
+                @click.stop="moveFile(file)"
+              >
+                <ccu-icon type="folder" size="xs" fa />
+              </button>
+            </div>
           </div>
+          <!-- Mobile-only folder line -->
           <div
-            class="col-span-3 hidden sm:block text-xs text-slate-500 truncate"
-            :title="file.attr?.virtualPath ?? ''"
+            v-if="file.attr?.virtualPath"
+            class="md:hidden text-xs text-slate-500 pl-10"
           >
-            {{ file.attr?.virtualPath || '—' }}
-          </div>
-          <div class="col-span-1 text-right">
-            <button
-              type="button"
-              class="opacity-50 hover:opacity-100 text-slate-500 hover:text-slate-900 px-2"
-              :title="t('adminRAG.move_to_folder')"
-              @click.stop="moveFile(file)"
-            >
-              <ccu-icon type="folder" size="xs" fa />
-            </button>
+            {{ file.attr.virtualPath }}
           </div>
         </li>
       </ul>

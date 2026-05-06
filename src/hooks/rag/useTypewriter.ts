@@ -66,13 +66,17 @@ export const useTypewriter = (
     timer = window.setTimeout(tick, charDelayMs);
   };
 
-  watch(
-    source,
-    (next: string) => {
-      start(next);
-    },
-    { immediate: true },
-  );
+  // Skip the animation on mount: if the source already has content (e.g. an
+  // entry rehydrated from a saved conversation), paint it instantly. The
+  // typewriter is meant for content that streams in live this session — it
+  // should not replay every time the user reloads the page.
+  if (source.value) {
+    visible.value = source.value;
+  }
+
+  watch(source, (next: string) => {
+    start(next);
+  });
 
   if (enabled) {
     watch(enabled, (on: boolean) => {
