@@ -8,29 +8,47 @@
     <span class="wire-ribbon__time" data-testid="testWireRibbonTime">
       {{ dateline }}
     </span>
-    <template v-for="item in segments" :key="item.title">
-      <span class="wire-ribbon__sep" aria-hidden="true">·</span>
-      <button
-        type="button"
-        class="wire-ribbon__seg"
-        :class="{
-          'wire-ribbon__seg--active': activeFilter === item.filter,
-          'wire-ribbon__seg--dim': activeFilter && activeFilter !== item.filter,
-        }"
-        :data-status="item.statusKey"
-        :data-testid="`testWireRibbon${item.title}Btn`"
-        :disabled="!item.filter"
-        @click="onSegmentClick(item)"
-      >
-        <span class="wire-ribbon__label">{{ item.title }}</span>
-        <span class="wire-ribbon__value">{{ formatNumber(item.count) }}</span>
-      </button>
-    </template>
+    <span class="wire-ribbon__sep" aria-hidden="true">·</span>
+    <div
+      ref="trackEl"
+      class="wire-ribbon__track"
+      :class="{ 'wire-ribbon__track--has-overflow': hasOverflow }"
+    >
+      <template v-for="(item, idx) in segments" :key="item.title">
+        <span v-if="idx > 0" class="wire-ribbon__sep" aria-hidden="true"
+          >·</span
+        >
+        <button
+          type="button"
+          class="wire-ribbon__seg"
+          :class="{
+            'wire-ribbon__seg--active': activeFilter === item.filter,
+            'wire-ribbon__seg--dim':
+              activeFilter && activeFilter !== item.filter,
+          }"
+          :data-status="item.statusKey"
+          :data-testid="`testWireRibbon${item.title}Btn`"
+          :disabled="!item.filter"
+          @click="onSegmentClick(item)"
+        >
+          <span class="wire-ribbon__label">{{ item.title }}</span>
+          <span class="wire-ribbon__value">{{ formatNumber(item.count) }}</span>
+        </button>
+      </template>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onBeforeUnmount } from 'vue';
+import {
+  defineComponent,
+  computed,
+  ref,
+  onBeforeUnmount,
+  onMounted,
+  nextTick,
+  watch,
+} from 'vue';
 import type { PropType } from 'vue';
 
 interface Segment {
@@ -49,16 +67,45 @@ export default defineComponent({
     },
   },
   emits: ['filter'],
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const now = ref<Date>(new Date());
     const activeFilter = ref<string | null>(null);
+    const trackEl = ref<HTMLElement | null>(null);
+    const hasOverflow = ref(false);
 
     const tickId = window.setInterval(() => {
       now.value = new Date();
     }, 30_000);
 
+    // Edge-fade gating: only show the right-side fade when content actually
+    // overflows the visible width. Without this, narrow viewports get a
+    // permanent gradient stripe that looks like a UI bug.
+    const measureOverflow = () => {
+      const el = trackEl.value;
+      if (!el) return;
+      hasOverflow.value = el.scrollWidth - el.clientWidth > 4;
+    };
+
+    let resizeObs: ResizeObserver | null = null;
+    onMounted(() => {
+      measureOverflow();
+      if (trackEl.value && typeof ResizeObserver !== 'undefined') {
+        resizeObs = new ResizeObserver(measureOverflow);
+        resizeObs.observe(trackEl.value);
+      }
+    });
+
+    watch(
+      () => props.segments,
+      () => {
+        nextTick(measureOverflow).catch(() => {});
+      },
+      { deep: true },
+    );
+
     onBeforeUnmount(() => {
       clearInterval(tickId);
+      resizeObs?.disconnect();
     });
 
     const dateline = computed(() => {
@@ -90,7 +137,14 @@ export default defineComponent({
       emit('filter', next);
     };
 
-    return { activeFilter, dateline, formatNumber, onSegmentClick };
+    return {
+      activeFilter,
+      dateline,
+      formatNumber,
+      onSegmentClick,
+      trackEl,
+      hasOverflow,
+    };
   },
 });
 </script>
@@ -98,10 +152,9 @@ export default defineComponent({
 <style scoped lang="postcss">
 .wire-ribbon {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   column-gap: 0.5ch;
-  row-gap: 4px;
   padding: 14px 20px;
   background-color: var(--cc-ink-0);
   border-top: 1px solid var(--cc-ink-3);
@@ -110,9 +163,53 @@ export default defineComponent({
   font-size: var(--ts-ribbon);
   line-height: 1.2;
   color: var(--cc-type-2);
-  overflow-x: auto;
   white-space: nowrap;
-  scrollbar-width: thin;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/*
+ * Track holds the segment buttons; the LIVE/dateline anchor stays fixed
+ * to the left and the segments scroll. On wide displays the segments fit
+ * inline (no scroll). On narrower screens it becomes a swipeable wire
+ * ticker — broadcast aesthetic, never breaks to a second line.
+ */
+.wire-ribbon__track {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  column-gap: 0.5ch;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /*
+   * The right edge fades into the page when the track has off-screen
+   * content. Mask is gated behind .--has-overflow so a fully-fitting
+   * ribbon doesn't carry a phantom gradient stripe.
+   */
+  mask-image: none;
+}
+
+.wire-ribbon__track::-webkit-scrollbar {
+  display: none;
+}
+
+.wire-ribbon__track--has-overflow {
+  mask-image: linear-gradient(
+    to right,
+    black 0,
+    black calc(100% - 48px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 0,
+    black calc(100% - 48px),
+    transparent 100%
+  );
 }
 
 .wire-ribbon__live {
@@ -155,6 +252,7 @@ export default defineComponent({
 }
 
 .wire-ribbon__seg {
+  --seg-status: var(--cc-ink-3);
   display: inline-flex;
   align-items: baseline;
   gap: 0.6ch;
@@ -166,7 +264,7 @@ export default defineComponent({
   cursor: pointer;
   text-decoration: none;
   text-underline-offset: 6px;
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 3px;
   transition:
     color 200ms ease,
     text-decoration-color 200ms ease,
@@ -187,11 +285,37 @@ export default defineComponent({
 }
 
 .wire-ribbon__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55ch;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cc-type-3);
   font-size: calc(var(--ts-ribbon) * 0.92);
+}
+
+/*
+ * Leading color chip — a small filled rectangle in the segment's status
+ * hue. Reads at room distance where a 3px underline disappears. The
+ * chip is the primary color signal; the underline is the reinforcement.
+ */
+.wire-ribbon__label::before {
+  content: '';
+  display: inline-block;
+  width: 0.55em;
+  height: 0.55em;
+  background-color: var(--seg-status);
+  border-radius: 1px;
+  flex-shrink: 0;
+  transform: translateY(0.02em);
+}
+
+.wire-ribbon__seg[data-status='all'] .wire-ribbon__label::before,
+.wire-ribbon__seg[data-status='unknown'] .wire-ribbon__label::before {
+  /* Aggregate cells get a hollow chip — the colored chips belong to status hues. */
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--cc-type-3);
 }
 
 .wire-ribbon__value {
@@ -200,29 +324,32 @@ export default defineComponent({
   font-weight: 800;
   color: var(--cc-type-1);
   letter-spacing: -0.005em;
-  /* Status hue underlines the value, not the cell */
   text-decoration: underline;
-  text-decoration-color: var(--cc-ink-3);
+  text-decoration-color: var(--seg-status);
   text-underline-offset: 4px;
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 3px;
 }
 
-.wire-ribbon__seg[data-status='unclaimed'] .wire-ribbon__value,
-.wire-ribbon__seg[data-status='overdue'] .wire-ribbon__value {
-  text-decoration-color: var(--cc-stat-neg);
+.wire-ribbon__seg[data-status='unclaimed'],
+.wire-ribbon__seg[data-status='overdue'] {
+  --seg-status: var(--cc-stat-neg);
 }
 
-.wire-ribbon__seg[data-status='claimed'] .wire-ribbon__value,
-.wire-ribbon__seg[data-status='in_progress'] .wire-ribbon__value {
-  text-decoration-color: var(--cc-stat-mid);
+.wire-ribbon__seg[data-status='claimed'],
+.wire-ribbon__seg[data-status='in_progress'] {
+  --seg-status: var(--cc-stat-mid);
 }
 
-.wire-ribbon__seg[data-status='partly_done'] .wire-ribbon__value {
-  text-decoration-color: var(--cc-stat-neu);
+.wire-ribbon__seg[data-status='partly_done'] {
+  --seg-status: var(--cc-stat-neu);
 }
 
-.wire-ribbon__seg[data-status='closed'] .wire-ribbon__value {
-  text-decoration-color: var(--cc-stat-pos);
+.wire-ribbon__seg[data-status='closed'] {
+  --seg-status: var(--cc-stat-pos);
+}
+
+.wire-ribbon__seg--active {
+  --seg-status: var(--cc-signal);
 }
 
 .wire-ribbon__seg--active .wire-ribbon__label,
@@ -231,8 +358,7 @@ export default defineComponent({
 }
 
 .wire-ribbon__seg--active .wire-ribbon__value {
-  text-decoration-color: var(--cc-signal);
-  text-decoration-thickness: 3px;
+  text-decoration-thickness: 4px;
 }
 
 .wire-ribbon__seg--dim {
@@ -252,6 +378,27 @@ export default defineComponent({
 @media (prefers-reduced-motion: reduce) {
   .wire-ribbon__pulse {
     animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .wire-ribbon {
+    padding: 10px 14px;
+    column-gap: 0.4ch;
+    font-size: calc(var(--ts-ribbon) * 0.92);
+  }
+
+  .wire-ribbon__live {
+    letter-spacing: 0.08em;
+  }
+
+  .wire-ribbon__time {
+    font-size: calc(var(--ts-ribbon) * 0.82);
+    letter-spacing: 0.02em;
+  }
+
+  .wire-ribbon__label {
+    letter-spacing: 0.06em;
   }
 }
 </style>

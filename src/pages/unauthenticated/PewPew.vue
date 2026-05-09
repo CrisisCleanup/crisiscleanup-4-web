@@ -165,8 +165,9 @@
                 </div>
 
                 <!-- Map Controls -->
+                <!-- Mobile: cap width so the slider doesn't dominate the map. -->
                 <div
-                  class="absolute top-0 left-0 m-2 p-2 bg-cc-ink-1 ring-1 ring-cc-ink-3 z-map-controls w-[calc(100%-1rem)] md:w-auto"
+                  class="absolute top-0 left-0 m-2 px-2 py-1.5 md:p-2 bg-cc-ink-1 ring-1 ring-cc-ink-3 z-map-controls w-[calc(70%-0.5rem)] md:w-auto max-w-xs"
                 >
                   <Slider
                     primary-color="#FECE09"
@@ -260,11 +261,14 @@
               </div>
 
               <!-- Right Rail — live event stream, leaderboard, chart cluster -->
+              <!-- Desktop: rigid 12-row grid for stable kiosk proportions. -->
+              <!-- Mobile: flex-col with content-driven heights so empty -->
+              <!-- panels don't reserve dead space. -->
               <div
-                class="h-full w-full col-span-1 md:col-span-3 grid grid-rows-12 min-h-[600px] md:min-h-0 border-l border-cc-ink-3 overflow-hidden"
+                class="h-full w-full col-span-1 md:col-span-3 flex flex-col md:grid md:grid-rows-12 md:min-h-0 md:border-l md:border-cc-ink-3 border-t md:border-t-0 border-cc-ink-3 overflow-hidden"
               >
                 <div
-                  class="row-span-3 relative overflow-hidden border-b border-cc-ink-3"
+                  class="md:row-span-3 relative overflow-hidden border-b border-cc-ink-3 min-h-[120px] md:min-h-0"
                   data-testid="testLiveEventStreamWrap"
                 >
                   <div class="flex items-center gap-3 px-4 pt-3">
@@ -286,10 +290,10 @@
                   :overlay-styles="overlayStyles"
                   :visible-count="8"
                   data-testid="testLiveLeaderboardDiv"
-                  class="row-span-5 relative"
+                  class="md:row-span-5 relative"
                 />
                 <div
-                  class="row-span-4 border-t border-cc-ink-3"
+                  class="md:row-span-4 border-t border-cc-ink-3 min-h-[280px] md:min-h-0"
                   data-testid="testBottomChartTabsDiv"
                 >
                   <tabs

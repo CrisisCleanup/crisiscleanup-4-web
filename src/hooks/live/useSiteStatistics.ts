@@ -212,16 +212,22 @@ export default function useSiteStatistics(
       count: number,
       titleKey: string,
       filter?: string,
-    ) => ({
-      name,
-      statusKey: key,
-      color: cssVar(key),
-      count,
-      // 4px top accent in the status hue — see plan moment #1.
-      style: `border-top-color: ${cssVar(key)}`,
-      title: i18n.global.t(titleKey),
-      ...(filter ? { filter } : {}),
-    });
+    ) => {
+      // Fall back to the English `name` when the i18n bundle is missing
+      // the key (vue-i18n's `formatFallbackMessages` returns the key itself,
+      // which would render as raw "PEWPEW.ALL_CASES" in the wire ribbon).
+      const translated = i18n.global.t(titleKey);
+      return {
+        name,
+        statusKey: key,
+        color: cssVar(key),
+        count,
+        // 4px top accent in the status hue — see plan moment #1.
+        style: `border-top-color: ${cssVar(key)}`,
+        title: translated === titleKey ? name : translated,
+        ...(filter ? { filter } : {}),
+      };
+    };
 
     mapStatistics.value = [
       make(

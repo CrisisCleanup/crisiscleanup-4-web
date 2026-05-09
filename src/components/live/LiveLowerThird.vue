@@ -39,6 +39,11 @@
         :class="{ 'lower-third__legend-trigger--open': isLegendOpen }"
         :aria-expanded="isLegendOpen"
         :aria-controls="`${uid}-legend-popover`"
+        :aria-label="
+          isLegendOpen
+            ? $t('worksiteMap.hide_legend')
+            : $t('worksiteMap.show_legend')
+        "
         data-testid="testLegendToggleBtn"
         @click="isLegendOpen = !isLegendOpen"
       >

@@ -282,9 +282,21 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 0;
   background-color: var(--cc-ink-0);
   font-family: var(--ff-body);
   color: var(--cc-type-2);
+}
+
+@media (max-width: 767px) {
+  /* Below md the right rail becomes flex-col with content-driven heights;
+     stretching the leaderboard to a fixed cell creates empty dead space. */
+  .leaderboard {
+    height: auto;
+  }
+  .leaderboard__list {
+    flex: none;
+  }
 }
 
 .leaderboard__head {
@@ -329,6 +341,44 @@ export default defineComponent({
   border-bottom: 1px solid var(--cc-ink-3);
   cursor: pointer;
   transition: background-color 200ms ease;
+}
+
+@media (max-width: 640px) {
+  /*
+   * At phone widths the 5-column row crushes the org name to an unreadable
+   * 60-ish px. Reflow as two rows: rank+name+value on top, bar+cases below.
+   */
+  .leaderboard__row {
+    grid-template-columns: 32px 1fr auto;
+    grid-template-areas:
+      'rank name value'
+      '.    bar  cases';
+    row-gap: 6px;
+    column-gap: 10px;
+  }
+
+  .leaderboard__rank {
+    grid-area: rank;
+  }
+
+  .leaderboard__name {
+    grid-area: name;
+  }
+
+  .leaderboard__value {
+    grid-area: value;
+  }
+
+  .leaderboard__bar {
+    grid-area: bar;
+    height: 4px;
+    align-self: center;
+  }
+
+  .leaderboard__cases {
+    grid-area: cases;
+    align-self: center;
+  }
 }
 
 .leaderboard__row:hover,
