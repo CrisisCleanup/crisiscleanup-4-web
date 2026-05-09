@@ -296,6 +296,7 @@
                 </div>
                 <LiveLeaderboard
                   :organizations="organizations"
+                  :loading="organizationsLoading"
                   :query-filter="queryFilter"
                   :overlay-styles="overlayStyles"
                   :visible-count="8"
@@ -471,6 +472,7 @@ export default {
     const markersLength = ref(0);
     const mapUtils = ref<any>(null);
     const organizations = ref<Array<Record<string, any>>>([]);
+    const organizationsLoading = ref(true);
     const showSidebar = ref(false);
 
     // Computed
@@ -727,9 +729,14 @@ export default {
       getRecentIncidents().then((results) => {
         incidents.value = results;
       });
-      getOrganizations().then((o) => {
-        organizations.value = shuffle(o);
-      });
+      organizationsLoading.value = true;
+      getOrganizations()
+        .then((o) => {
+          organizations.value = shuffle(o);
+        })
+        .finally(() => {
+          organizationsLoading.value = false;
+        });
       const emptyArray: (Sprite & WorksiteType)[] = [];
       mapUtils.value = useLiveMap(
         await getAllEvents(),
@@ -793,6 +800,17 @@ export default {
             [] as (Sprite & WorksiteType)[],
           );
           mapUtils?.value?.restartLiveEvents();
+          // Re-fetch the leaderboard for the new incident with a loading
+          // state so the user sees the list rebuild rather than an
+          // out-of-date list flash to empty.
+          organizationsLoading.value = true;
+          getOrganizations()
+            .then((o) => {
+              organizations.value = shuffle(o);
+            })
+            .finally(() => {
+              organizationsLoading.value = false;
+            });
         }
       },
     );
@@ -831,6 +849,7 @@ export default {
       isLoggedIn,
       incidentList,
       organizations,
+      organizationsLoading,
       siteInfoTimerData,
       chartCirculationTimerData,
       currentSiteStats,

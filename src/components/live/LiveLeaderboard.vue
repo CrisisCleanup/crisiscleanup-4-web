@@ -20,17 +20,45 @@
     >
       <span class="section-label">{{ $t('~~Leaderboard') }}</span>
       <span class="leaderboard__rule" aria-hidden="true"></span>
-      <span class="leaderboard__count">{{
-        displayed.length > 0
-          ? $t('~~Top {shown} of {total}', {
-              shown: displayed.length,
-              total: organizations.length,
-            })
-          : $t('~~No data')
-      }}</span>
+      <span class="leaderboard__count">
+        <span
+          v-if="loading"
+          class="leaderboard__loading-pulse"
+          aria-hidden="true"
+        ></span>
+        {{
+          loading
+            ? $t('~~Loading…')
+            : displayed.length > 0
+              ? $t('~~Top {shown} of {total}', {
+                  shown: displayed.length,
+                  total: organizations.length,
+                })
+              : $t('~~No data')
+        }}
+      </span>
     </div>
 
-    <ol class="leaderboard__list">
+    <ol
+      v-if="loading && displayed.length === 0"
+      class="leaderboard__list leaderboard__list--skeleton"
+      aria-label="Loading"
+      data-testid="testLeaderboardSkeleton"
+    >
+      <li
+        v-for="i in 6"
+        :key="`skeleton-${i}`"
+        class="leaderboard__row leaderboard__row--skeleton"
+      >
+        <span class="leaderboard__rank">{{ rank(i - 1) }}</span>
+        <span class="leaderboard__skel leaderboard__skel--name"></span>
+        <span class="leaderboard__skel leaderboard__skel--bar"></span>
+        <span class="leaderboard__skel leaderboard__skel--cases"></span>
+        <span class="leaderboard__skel leaderboard__skel--value"></span>
+      </li>
+    </ol>
+
+    <ol v-else class="leaderboard__list">
       <li
         v-for="(org, idx) in displayed"
         :key="org.id"
@@ -129,6 +157,10 @@ export default defineComponent({
     organizations: {
       type: Array as PropType<OrgRow[]>,
       default: () => [],
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
     queryFilter: {
       type: Object,
@@ -500,9 +532,96 @@ export default defineComponent({
   line-height: 1.4;
 }
 
+/*
+ * Loading state — shimmering skeleton rows so the leaderboard slot
+ * never blinks empty during a refetch (incident swap / cold load).
+ * The skeleton blocks reuse the leaderboard__row grid so the layout
+ * doesn't shift when real rows arrive.
+ */
+.leaderboard__loading-pulse {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--cc-signal);
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: leaderboard-pulse 1200ms cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.leaderboard__row--skeleton {
+  cursor: default;
+}
+
+.leaderboard__skel {
+  display: block;
+  height: 12px;
+  background-color: var(--cc-ink-2);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.leaderboard__skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0,
+    var(--cc-ink-3) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: leaderboard-shimmer 1400ms ease-in-out infinite;
+}
+
+.leaderboard__skel--name {
+  width: min(80%, 200px);
+}
+
+.leaderboard__skel--bar {
+  width: 100%;
+  height: 6px;
+  align-self: center;
+}
+
+.leaderboard__skel--cases {
+  width: 56px;
+}
+
+.leaderboard__skel--value {
+  width: 40px;
+}
+
+@keyframes leaderboard-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes leaderboard-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .leaderboard__bar-fill {
     transition: none;
+  }
+  .leaderboard__loading-pulse,
+  .leaderboard__skel::after {
+    animation: none;
   }
 }
 </style>
