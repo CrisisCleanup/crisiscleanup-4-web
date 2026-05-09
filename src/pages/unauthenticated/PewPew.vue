@@ -18,7 +18,10 @@
 
       <!-- Main Content Area — full-width; engagement + site stats live in -->
       <!-- the top KPI strip, the live event stream lives in the right rail. -->
-      <div class="flex-1 flex flex-col pb-[146px] md:pb-0 overflow-y-auto">
+      <!-- Mobile bottom clearance lives on the chart container itself -->
+      <!-- (mb-[200px] md:mb-0) — the nested h-full flex chain here -->
+      <!-- swallows pb-* on the scroll container. -->
+      <div class="flex-1 flex flex-col md:pb-0 overflow-y-auto">
         <div class="flex flex-col h-full">
           <div class="flex-1 flex flex-col">
             <!-- Top Banner -->
@@ -263,9 +266,10 @@
               <!-- Right Rail — live event stream, leaderboard, chart cluster -->
               <!-- Desktop: rigid 12-row grid for stable kiosk proportions. -->
               <!-- Mobile: flex-col with content-driven heights so empty -->
-              <!-- panels don't reserve dead space. -->
+              <!-- panels don't reserve dead space and the last chart isn't -->
+              <!-- clipped behind the fixed bottom nav. -->
               <div
-                class="h-full w-full col-span-1 md:col-span-3 flex flex-col md:grid md:grid-rows-12 md:min-h-0 md:border-l md:border-cc-ink-3 border-t md:border-t-0 border-cc-ink-3 overflow-hidden"
+                class="md:h-full w-full col-span-1 md:col-span-3 flex flex-col md:grid md:grid-rows-12 md:min-h-0 md:border-l md:border-cc-ink-3 border-t md:border-t-0 border-cc-ink-3 md:overflow-hidden"
               >
                 <div
                   class="md:row-span-3 relative overflow-hidden border-b border-cc-ink-3 min-h-[120px] md:min-h-0"
@@ -293,7 +297,7 @@
                   class="md:row-span-5 relative"
                 />
                 <div
-                  class="md:row-span-4 border-t border-cc-ink-3 min-h-[280px] md:min-h-0"
+                  class="md:row-span-4 border-t border-cc-ink-3 min-h-[280px] md:min-h-0 mb-[200px] md:mb-0"
                   data-testid="testBottomChartTabsDiv"
                 >
                   <tabs
