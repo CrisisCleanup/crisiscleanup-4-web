@@ -277,7 +277,7 @@
                 <!-- (capped at 380px to leave room for the leaderboard). -->
                 <!-- Desktop: absolute layout in the rigid 12-row grid. -->
                 <div
-                  class="md:row-span-3 md:relative md:overflow-hidden border-b border-cc-ink-3 md:min-h-0"
+                  class="md:row-span-4 md:relative md:overflow-hidden border-b border-cc-ink-3 md:min-h-0"
                   data-testid="testLiveEventStreamWrap"
                 >
                   <div class="flex items-center gap-3 px-4 pt-3">
@@ -299,7 +299,7 @@
                   :overlay-styles="overlayStyles"
                   :visible-count="8"
                   data-testid="testLiveLeaderboardDiv"
-                  class="md:row-span-5 relative"
+                  class="md:row-span-4 relative"
                 />
                 <div
                   class="md:row-span-4 border-t border-cc-ink-3 min-h-[280px] md:min-h-0 mb-[200px] md:mb-0"

@@ -181,6 +181,14 @@ export default defineComponent({
   color: var(--cc-type-2);
   font-size: var(--ts-meta);
   overflow: hidden;
+  /*
+   * Container query parent: the rail is narrow even on a 1280-wide
+   * laptop (~360px). Layout decisions should follow the rail width,
+   * not the viewport — viewport-based media queries kept the 4-col
+   * cramped layout active on small desktops where it doesn't fit.
+   */
+  container-type: inline-size;
+  container-name: stream;
 }
 
 .event-stream__rows {
@@ -194,10 +202,9 @@ export default defineComponent({
   grid-template-columns: 8px 56px auto 1fr;
   align-items: baseline;
   column-gap: 12px;
-  padding: 10px 0 10px 8px;
+  padding: 8px 0 8px 8px;
   border-bottom: 1px solid var(--cc-ink-3);
-  line-height: 1.4;
-  min-height: 44px;
+  line-height: 1.35;
 }
 
 .event-stream__newmark {
@@ -265,21 +272,22 @@ export default defineComponent({
   color: var(--cc-stat-neu);
 }
 
-@media (max-width: 640px) {
-  /*
-   * At phone widths the 4-column grid (newmark | time | kind | detail)
-   * crushes the detail line — the actor name, "from", org name, and
-   * past-tense verb run into each other with awkward wrap. Reflow as
-   * two lines: time + kind on top (the "headline"), detail beneath.
-   */
+/*
+ * Two-line "wire feed" layout. Activates whenever the rail is too
+ * narrow for the 4-column grid to read cleanly — phone viewports and
+ * narrow laptops alike (the right rail is ~360px at 1280-wide). Time
+ * and KIND sit on the headline row; the detail fills its own line so
+ * the actor + org + verb don't crash into each other.
+ */
+@container stream (max-width: 480px) {
   .event-stream__row {
     grid-template-columns: 4px auto 1fr;
     grid-template-areas:
       'newmark time kind'
       '.       detail detail';
     column-gap: 10px;
-    row-gap: 4px;
-    padding: 12px 0 12px 8px;
+    row-gap: 2px;
+    padding: 8px 0 8px 8px;
     align-items: baseline;
   }
 
@@ -295,8 +303,6 @@ export default defineComponent({
   .event-stream__kind {
     grid-area: kind;
     font-size: calc(var(--ts-meta) * 0.85);
-    /* Long event keys (USER_READ_WORKSITE) hyphenate cleanly at the
-       underscore boundaries already; avoid wrap by allowing overflow. */
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0;
@@ -306,6 +312,41 @@ export default defineComponent({
     grid-area: detail;
     -webkit-line-clamp: 3;
     line-height: 1.45;
+  }
+}
+
+/* Fallback for browsers without container queries — apply on phones. */
+@supports not (container-type: inline-size) {
+  @media (max-width: 640px) {
+    .event-stream__row {
+      grid-template-columns: 4px auto 1fr;
+      grid-template-areas:
+        'newmark time kind'
+        '.       detail detail';
+      column-gap: 10px;
+      row-gap: 2px;
+      padding: 8px 0 8px 8px;
+      align-items: baseline;
+    }
+    .event-stream__newmark {
+      grid-area: newmark;
+    }
+    .event-stream__time {
+      grid-area: time;
+      font-size: calc(var(--ts-meta) * 0.95);
+    }
+    .event-stream__kind {
+      grid-area: kind;
+      font-size: calc(var(--ts-meta) * 0.85);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+    .event-stream__detail {
+      grid-area: detail;
+      -webkit-line-clamp: 3;
+      line-height: 1.45;
+    }
   }
 }
 
