@@ -196,15 +196,42 @@ export default defineComponent({
   display: block;
 }
 
+/*
+ * Two-line wire-feed row at every width. Line 1 is the headline
+ * (time · KIND in status color); line 2 holds the detail (actor +
+ * from + org + verb) on its own row so it can breathe even at the
+ * widest kiosk rail. This was originally a single-line 4-col grid
+ * — the headline/detail split reads as "newscast under-banner" and
+ * keeps the kind word's status hue from competing with the verb.
+ */
 .event-stream__row {
   position: relative;
   display: grid;
-  grid-template-columns: 8px 56px auto 1fr;
+  grid-template-columns: 4px auto 1fr;
+  grid-template-areas:
+    'newmark time kind'
+    '.       detail detail';
   align-items: baseline;
   column-gap: 12px;
+  row-gap: 2px;
   padding: 8px 0 8px 8px;
   border-bottom: 1px solid var(--cc-ink-3);
   line-height: 1.35;
+}
+
+.event-stream__newmark {
+  grid-area: newmark;
+}
+
+.event-stream__time {
+  grid-area: time;
+}
+
+.event-stream__kind {
+  grid-area: kind;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .event-stream__newmark {
@@ -272,90 +299,14 @@ export default defineComponent({
   color: var(--cc-stat-neu);
 }
 
-/*
- * Two-line "wire feed" layout. Activates whenever the rail is too
- * narrow for the 4-column grid to read cleanly — phone viewports and
- * narrow laptops alike (the right rail is ~360px at 1280-wide). Time
- * and KIND sit on the headline row; the detail fills its own line so
- * the actor + org + verb don't crash into each other.
- */
-@container stream (max-width: 480px) {
-  .event-stream__row {
-    grid-template-columns: 4px auto 1fr;
-    grid-template-areas:
-      'newmark time kind'
-      '.       detail detail';
-    column-gap: 10px;
-    row-gap: 2px;
-    padding: 8px 0 8px 8px;
-    align-items: baseline;
-  }
-
-  .event-stream__newmark {
-    grid-area: newmark;
-  }
-
-  .event-stream__time {
-    grid-area: time;
-    font-size: calc(var(--ts-meta) * 0.95);
-  }
-
-  .event-stream__kind {
-    grid-area: kind;
-    font-size: calc(var(--ts-meta) * 0.85);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-  }
-
-  .event-stream__detail {
-    grid-area: detail;
-    -webkit-line-clamp: 3;
-    line-height: 1.45;
-  }
-}
-
-/* Fallback for browsers without container queries — apply on phones. */
-@supports not (container-type: inline-size) {
-  @media (max-width: 640px) {
-    .event-stream__row {
-      grid-template-columns: 4px auto 1fr;
-      grid-template-areas:
-        'newmark time kind'
-        '.       detail detail';
-      column-gap: 10px;
-      row-gap: 2px;
-      padding: 8px 0 8px 8px;
-      align-items: baseline;
-    }
-    .event-stream__newmark {
-      grid-area: newmark;
-    }
-    .event-stream__time {
-      grid-area: time;
-      font-size: calc(var(--ts-meta) * 0.95);
-    }
-    .event-stream__kind {
-      grid-area: kind;
-      font-size: calc(var(--ts-meta) * 0.85);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      min-width: 0;
-    }
-    .event-stream__detail {
-      grid-area: detail;
-      -webkit-line-clamp: 3;
-      line-height: 1.45;
-    }
-  }
-}
-
 .event-stream__detail {
+  grid-area: detail;
   font-size: var(--ts-meta);
   color: var(--cc-type-2);
   min-width: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   word-break: break-word;

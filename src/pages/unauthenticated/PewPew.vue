@@ -28,7 +28,7 @@
           <div class="flex-1 flex flex-col md:min-h-0 md:overflow-hidden">
             <!-- Top Banner -->
             <div
-              class="min-h-8 md:min-h-12 grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0"
+              class="shrink-0 min-h-8 md:min-h-12 grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0"
             >
               <div
                 class="md:col-span-8 flex justify-center items-center bg-cc-ink-0 border-b border-cc-ink-3 px-3 md:px-6 py-2"
@@ -106,7 +106,7 @@
 
             <!-- Incident Tabs -->
             <div
-              class="incident-tabs h-14 md:h-14 mt-2 md:mt-3 flex overflow-x-auto whitespace-nowrap border-b border-cc-ink-3"
+              class="incident-tabs shrink-0 h-14 md:h-14 mt-2 md:mt-3 flex overflow-x-auto whitespace-nowrap border-b border-cc-ink-3"
             >
               <div
                 class="incident-chip"
@@ -143,6 +143,7 @@
               :engagement="currentEngagement"
               :site-stats="currentSiteStats"
               data-testid="testLiveKpiStripDiv"
+              class="shrink-0"
             />
 
             <!-- Map and Charts Area -->
@@ -302,7 +303,7 @@
                   class="md:row-span-4 relative"
                 />
                 <div
-                  class="md:row-span-4 border-t border-cc-ink-3 min-h-[280px] md:min-h-0 mb-[200px] md:mb-0"
+                  class="md:row-span-4 border-t border-cc-ink-3 min-h-[280px] md:min-h-0 mb-[260px] md:mb-0"
                   data-testid="testBottomChartTabsDiv"
                 >
                   <tabs
