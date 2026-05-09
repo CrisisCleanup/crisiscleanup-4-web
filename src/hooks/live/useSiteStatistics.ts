@@ -5,12 +5,12 @@ import { getQueryString } from '@/utils/urls';
 import { i18n } from '@/modules/i18n';
 import type { SiteStatistic } from '@/hooks/live/types';
 import type Organization from '@/models/Organization';
+import { cssVar, type CaseStatusKey } from '@/utils/statusColors';
 
 export default function useSiteStatistics(
   queryFilter: Record<string, any>,
   organizations: Ref<Organization[]>,
 ) {
-  const statsInterval = ref<ReturnType<typeof setInterval> | undefined>(null);
   const currentSiteStats = ref<SiteStatistic[]>([]);
   const currentEngagement = ref(0);
   const circularBarplotData = ref([]);
@@ -20,12 +20,6 @@ export default function useSiteStatistics(
 
   function formatStatValue(value: string | number) {
     return Number(value).toFixed(0);
-  }
-
-  function countUpStats() {
-    for (const stat of currentSiteStats.value) {
-      stat.value += stat.change_per_second;
-    }
   }
 
   async function fetchEngagementData() {
@@ -52,12 +46,6 @@ export default function useSiteStatistics(
   }
 
   async function fetchSiteStatistics() {
-    if (statsInterval.value) {
-      clearInterval(statsInterval.value);
-    }
-
-    statsInterval.value = null;
-
     const { incident } = queryFilter.value;
     const params = {};
     if (incident) {
@@ -72,15 +60,15 @@ export default function useSiteStatistics(
       }/reports_data/pp_site_stats?${queryString}`,
     );
     if (response.data.length > 0) {
+      // Snap to fresh values; the rAF ticker in `useAnimatedNumber` (KPI primary
+      // cell) handles the visual count-up without driving Vue reactivity each
+      // second. See plan perf #2.
       currentSiteStats.value = response.data;
-      statsInterval.value = setInterval(countUpStats, 1000);
     }
   }
 
   async function fetchCircularBarplotData(date = moment(), interval = 60) {
     const { incident } = queryFilter.value;
-    circularBarplotData.value = [];
-    circularBarplotData.value = [...circularBarplotData.value];
     const d = date.format('YYYY-MM-DD');
 
     const params = {
@@ -99,7 +87,6 @@ export default function useSiteStatistics(
       }/reports_data/daily_calls?${queryString}`,
     );
     circularBarplotData.value = response.data;
-    circularBarplotData.value = [...circularBarplotData.value];
   }
 
   async function getCompletionRateData() {
@@ -218,99 +205,77 @@ export default function useSiteStatistics(
       }/reports_data/worksite_statistics?${queryString}`,
     );
     const incidentStats = response.data;
-    const mapStatisticsColors = [
-      '#ffffff',
-      '#d0021b',
-      '#fab92e',
-      '#f0f032',
-      '#0054bb',
-      '#0fa355',
-      '#d3d3d3',
-    ];
+
+    const make = (
+      name: string,
+      key: CaseStatusKey,
+      count: number,
+      titleKey: string,
+      filter?: string,
+    ) => ({
+      name,
+      statusKey: key,
+      color: cssVar(key),
+      count,
+      // 4px top accent in the status hue — see plan moment #1.
+      style: `border-top-color: ${cssVar(key)}`,
+      title: i18n.global.t(titleKey),
+      ...(filter ? { filter } : {}),
+    });
+
     mapStatistics.value = [
-      {
-        name: 'All Cases',
-        color: mapStatisticsColors[0],
-        count: incidentStats.all.total,
-        style: `border-color: ${mapStatisticsColors[0]}`,
-        title: i18n.global.t('pewPew.all_cases'),
-        filter: '*',
-      },
-      {
-        name: 'Unclaimed',
-        color: mapStatisticsColors[1],
-        count: incidentStats.unclaimed.total,
-        style: `border-color: ${mapStatisticsColors[1]}`,
-        title: i18n.global.t('pewPew.unclaimed'),
-        filter: 'unclaimed',
-      },
-      {
-        name: 'Claimed',
-        color: mapStatisticsColors[2],
-        count: incidentStats.claimed.total,
-        style: `border-color: ${mapStatisticsColors[2]}`,
-        title: i18n.global.t('pewPew.claimed'),
-        filter: 'claimed',
-      },
-      {
-        name: 'In Progress',
-        color: mapStatisticsColors[3],
-        count: incidentStats.assigned.total,
-        style: `border-color: ${mapStatisticsColors[3]}`,
-        title: i18n.global.t('pewPew.in_progress'),
-        filter: 'in_progress',
-      },
-      {
-        name: 'Partly Done',
-        color: mapStatisticsColors[4],
-        count: incidentStats.partial.total,
-        style: `border-color: ${mapStatisticsColors[4]}`,
-        title: i18n.global.t('pewPew.partly_done'),
-        filter: 'partially-completed',
-      },
-      {
-        name: 'Closed',
-        color: mapStatisticsColors[5],
-        count: incidentStats.closed.total,
-        style: `border-color: ${mapStatisticsColors[5]}`,
-        title: i18n.global.t('pewPew.closed'),
-        filter: 'closed',
-      },
-      {
-        name: 'Overdue',
-        color: mapStatisticsColors[6],
-        count: incidentStats.overdue.total,
-        style: `border: none`,
-        title: i18n.global.t('pewPew.overdue'),
-      },
-      {
-        name: 'Total Orgs',
-        color: mapStatisticsColors[6],
-        count: organizations.value.length,
-        style: `border: none`,
-        title: i18n.global.t('pewPew.total_orgs'),
-      },
-      {
-        name: 'Counties Parishes',
-        color: mapStatisticsColors[6],
-        count: 0,
-        style: `border: none`,
-        title: i18n.global.t('pewPew.counties_parishes'),
-      },
-      {
-        name: 'Volunteers',
-        color: mapStatisticsColors[6],
-        count: 0,
-        style: `border: none`,
-        title: i18n.global.t('pewPew.volunteers'),
-      },
-      {
-        name: 'Households',
-        color: mapStatisticsColors[6],
-        count: 0,
-        style: `border: none`,
-        title: i18n.global.t('pewPew.households'),
-      },
+      make(
+        'All Cases',
+        'all',
+        incidentStats.all.total,
+        'pewPew.all_cases',
+        '*',
+      ),
+      make(
+        'Unclaimed',
+        'unclaimed',
+        incidentStats.unclaimed.total,
+        'pewPew.unclaimed',
+        'unclaimed',
+      ),
+      make(
+        'Claimed',
+        'claimed',
+        incidentStats.claimed.total,
+        'pewPew.claimed',
+        'claimed',
+      ),
+      make(
+        'In Progress',
+        'in_progress',
+        incidentStats.assigned.total,
+        'pewPew.in_progress',
+        'in_progress',
+      ),
+      make(
+        'Partly Done',
+        'partly_done',
+        incidentStats.partial.total,
+        'pewPew.partly_done',
+        'partially-completed',
+      ),
+      make(
+        'Closed',
+        'closed',
+        incidentStats.closed.total,
+        'pewPew.closed',
+        'closed',
+      ),
+      make('Overdue', 'overdue', incidentStats.overdue.total, 'pewPew.overdue'),
+      make(
+        'Total Orgs',
+        'unknown',
+        organizations.value.length,
+        'pewPew.total_orgs',
+      ),
+      make('Counties Parishes', 'unknown', 0, 'pewPew.counties_parishes'),
+      make('Volunteers', 'unknown', 0, 'pewPew.volunteers'),
+      make('Households', 'unknown', 0, 'pewPew.households'),
     ];
 
     totalCasesChartData.value = mapStatistics.value.filter(
@@ -334,15 +299,6 @@ export default function useSiteStatistics(
       loadData();
     },
   );
-
-  if (getCurrentScope()) {
-    onScopeDispose(() => {
-      if (statsInterval.value) {
-        clearInterval(statsInterval.value);
-        statsInterval.value = null;
-      }
-    });
-  }
 
   return {
     currentSiteStats,

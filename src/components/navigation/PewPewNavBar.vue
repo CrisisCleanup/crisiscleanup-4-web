@@ -214,9 +214,10 @@ export default defineComponent({
 <style lang="scss">
 .pewpew {
   &__nav {
-    @apply col-span-2 flex flex-col text-xs text-center break-words no-underline;
-    color: white;
-    background: #242c36;
+    @apply col-span-2 flex flex-col text-center break-words no-underline;
+    color: var(--cc-type-1);
+    background: var(--cc-ink-1);
+    border-right: 1px solid var(--cc-ink-3);
 
     a {
       @apply no-underline;
@@ -232,27 +233,33 @@ export default defineComponent({
   }
 
   &__navlink {
-    @apply flex flex-col justify-center items-center m-1 p-2 rounded-lg;
-    color: white;
-    /** this is against accessiblity standards. */
-    font-size: 0.55rem;
-    transition: background-color 300ms;
+    @apply flex flex-col justify-center items-center m-1 p-2;
+    color: var(--cc-type-2);
+    font-family: var(--ff-body);
+    font-size: var(--ts-meta);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
 
     img {
-      @apply w-4 h-4;
+      @apply w-5 h-5;
     }
 
     &:focus,
     &:hover {
-      @apply bg-white bg-opacity-25;
+      background-color: var(--cc-ink-2);
+      color: var(--cc-type-1);
     }
   }
 
   &__navactions {
     & > p {
-      @apply text-white font-bold;
-      /** this is against accessiblity standards. */
-      font-size: 0.55rem;
+      color: var(--cc-type-1);
+      font-family: var(--ff-body);
+      font-weight: 700;
+      font-size: var(--ts-meta);
     }
     & > *:last-child {
       @apply mt-2;

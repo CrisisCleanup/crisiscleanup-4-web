@@ -42,10 +42,7 @@
     <div class="p-1 border-b border-crisiscleanup-dark-300">
       <div class="grid grid-cols-2">
         <div class="col-span-1">
-          <div
-            class="flex text-crisiscleanup-dark-300 text-bodyxsm"
-            data-testid="testPewPewTypeDiv"
-          >
+          <div class="flex modal-meta-label" data-testid="testPewPewTypeDiv">
             {{ $t('pewPew.type') }}
             <ccu-icon
               v-tooltip="{
@@ -70,10 +67,7 @@
           </div>
         </div>
         <div class="col-span-1">
-          <div
-            class="flex text-crisiscleanup-dark-300 text-bodyxsm"
-            data-testid="testPewPewRoleDiv"
-          >
+          <div class="flex modal-meta-label" data-testid="testPewPewRoleDiv">
             {{ $t('pewPew.role') }}
             <ccu-icon
               v-tooltip="{
@@ -101,7 +95,7 @@
       <div class="grid grid-cols-4 gap-1 mt-2">
         <div class="col-span-1">
           <div
-            class="flex text-crisiscleanup-dark-300 truncate text-bodyxsm"
+            class="flex modal-meta-label truncate"
             data-testid="testPewPewIncidentsDiv"
           >
             {{ $t('pewPew.incidents') }}
@@ -123,7 +117,7 @@
         </div>
         <div class="col-span-1">
           <div
-            class="flex text-crisiscleanup-dark-300 truncate text-bodyxsm"
+            class="flex modal-meta-label truncate"
             data-testid="testPewPewCasesDiv"
           >
             {{ $t('pewPew.cases') }}
@@ -145,7 +139,7 @@
         </div>
         <div class="col-span-1">
           <div
-            class="flex text-crisiscleanup-dark-300 truncate text-bodyxsm"
+            class="flex modal-meta-label truncate"
             data-testid="testPewPewCallsDiv"
           >
             {{ $t('pewPew.calls') }}
@@ -167,7 +161,7 @@
         </div>
         <div class="col-span-1">
           <div
-            class="flex text-crisiscleanup-dark-300 truncate text-bodyxsm"
+            class="flex modal-meta-label truncate"
             data-testid="testPewPewValueDiv"
           >
             {{ $t('pewPew.value') }}
@@ -226,7 +220,7 @@
               data-testid="testCallsCountContent"
             >
               {{ nFormatter(slotProps.item.calls || 0)
-              }}<span class="pew-pew-blue">*</span>
+              }}<span class="modal-asterisk">*</span>
             </span>
           </template>
           <template #commercial_value="slotProps">
@@ -235,7 +229,7 @@
               data-testid="testCommercialValueContent"
             >
               ${{ nFormatter(slotProps.item.commercial_value || 0)
-              }}<span class="pew-pew-blue">*</span>
+              }}<span class="modal-asterisk">*</span>
             </span>
           </template>
           <template #reported_count="slotProps">
@@ -256,7 +250,7 @@
               :has-auto-resizing="false"
             />
             <span v-else class="w-8 h-8 flex items-center justify-center">
-              0<span class="pew-pew-blue">*</span>
+              0<span class="modal-asterisk">*</span>
             </span>
           </template>
         </Table>
@@ -473,12 +467,24 @@ export default defineComponent({
 });
 </script>
 <style lang="postcss" scoped>
-.pew-pew-blue {
-  color: #61d5f8;
+.modal-meta-label {
+  font-family: var(--ff-body);
+  font-size: var(--ts-meta);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cc-type-3);
+}
+
+.modal-asterisk {
+  color: var(--cc-signal);
+  margin-left: 1px;
+  font-weight: 700;
 }
 
 .incidents-section,
 .capabilities-section {
-  @apply p-2 border-b border-crisiscleanup-dark-300;
+  @apply p-2;
+  border-bottom: 1px solid var(--cc-ink-3);
 }
 </style>
