@@ -289,13 +289,30 @@ export default defineComponent({
 }
 
 @media (max-width: 767px) {
-  /* Below md the right rail becomes flex-col with content-driven heights;
-     stretching the leaderboard to a fixed cell creates empty dead space. */
+  /*
+   * Below md the right rail is content-driven, so a populated leaderboard
+   * (especially expanded "View all 50") would push the page extremely
+   * long. Cap the list at ~50vh and let it scroll internally; head and
+   * disclaimer stay anchored top/bottom. With ≤8 rows the list collapses
+   * to its content height and there's no internal scrollbar.
+   */
   .leaderboard {
     height: auto;
+    max-height: calc(100vh - 240px);
   }
   .leaderboard__list {
-    flex: none;
+    flex: 1 1 auto;
+    max-height: 50vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .leaderboard__list::-webkit-scrollbar {
+    width: 4px;
+  }
+  .leaderboard__list::-webkit-scrollbar-thumb {
+    background-color: var(--cc-ink-3);
+    border-radius: 2px;
   }
 }
 

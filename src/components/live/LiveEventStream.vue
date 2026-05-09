@@ -71,7 +71,10 @@ export default defineComponent({
     const cards = ref<EventCard[]>([]);
 
     const displayedCards = computed(() => {
-      const limit = mq.sm ? 1 : mq.lgPlus ? 8 : 5;
+      // Civic-bulletin aesthetic — visible activity at every viewport.
+      // The pre-redesign default of "1 row on mobile" made the feed look
+      // dead on a phone even when the back-end was busy.
+      const limit = mq.sm ? 5 : mq.lgPlus ? 8 : 6;
       return cards.value.slice(0, limit);
     });
 
@@ -97,13 +100,42 @@ export default defineComponent({
     };
 
     const statusFamily = (card: EventCard) => {
-      const k = (card.event.attr.patient_status as string) || '';
-      if (!k) return 'neutral';
-      if (k.includes('open-unassigned-unclaimed') || k.includes('overdue')) {
+      // Prefer the worksite's patient_status when present (it's a precise
+      // status string like "open-unassigned-unclaimed"). Fall back to the
+      // event key — most live events on the public dashboard are user_*
+      // actions that don't carry patient_status, and we still want them
+      // tinted by the kind of action they represent.
+      const ps = (card.event.attr.patient_status as string) || '';
+      if (ps) {
+        if (
+          ps.includes('open-unassigned-unclaimed') ||
+          ps.includes('overdue')
+        ) {
+          return 'negative';
+        }
+        if (ps.includes('claimed') || ps.includes('progress')) return 'mid';
+        if (ps.includes('closed') || ps.includes('completed'))
+          return 'positive';
+      }
+
+      const key = (card.event.event_key || '').toLowerCase();
+      if (key.includes('close') || key.includes('complete')) return 'positive';
+      if (
+        key.includes('claim') ||
+        key.includes('update') ||
+        key.includes('assign')
+      ) {
+        return 'mid';
+      }
+      if (
+        key.includes('create') ||
+        key.includes('unclaim') ||
+        key.includes('reject') ||
+        key.includes('delete')
+      ) {
         return 'negative';
       }
-      if (k.includes('claimed') || k.includes('progress')) return 'mid';
-      if (k.includes('closed') || k.includes('completed')) return 'positive';
+      // Reads, logins, and other passive events are neutral.
       return 'neutral';
     };
 
@@ -227,6 +259,54 @@ export default defineComponent({
 
 .event-stream__row[data-status-family='positive'] .event-stream__kind {
   color: var(--cc-stat-pos);
+}
+
+.event-stream__row[data-status-family='neutral'] .event-stream__kind {
+  color: var(--cc-stat-neu);
+}
+
+@media (max-width: 640px) {
+  /*
+   * At phone widths the 4-column grid (newmark | time | kind | detail)
+   * crushes the detail line — the actor name, "from", org name, and
+   * past-tense verb run into each other with awkward wrap. Reflow as
+   * two lines: time + kind on top (the "headline"), detail beneath.
+   */
+  .event-stream__row {
+    grid-template-columns: 4px auto 1fr;
+    grid-template-areas:
+      'newmark time kind'
+      '.       detail detail';
+    column-gap: 10px;
+    row-gap: 4px;
+    padding: 12px 0 12px 8px;
+    align-items: baseline;
+  }
+
+  .event-stream__newmark {
+    grid-area: newmark;
+  }
+
+  .event-stream__time {
+    grid-area: time;
+    font-size: calc(var(--ts-meta) * 0.95);
+  }
+
+  .event-stream__kind {
+    grid-area: kind;
+    font-size: calc(var(--ts-meta) * 0.85);
+    /* Long event keys (USER_READ_WORKSITE) hyphenate cleanly at the
+       underscore boundaries already; avoid wrap by allowing overflow. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  .event-stream__detail {
+    grid-area: detail;
+    -webkit-line-clamp: 3;
+    line-height: 1.45;
+  }
 }
 
 .event-stream__detail {

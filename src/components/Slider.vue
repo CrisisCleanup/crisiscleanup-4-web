@@ -36,7 +36,7 @@
     </div>
     <div class="range-slider mx-2 mb-1" :title="value">
       <input
-        class="range-slider__range flex-auto"
+        class="range-slider__range"
         :class="[sliderClass, { activated: value < max }]"
         type="range"
         :value="value"
@@ -208,6 +208,9 @@ $secondary: var(--secondary-color);
 
 .range-slider__range {
   -webkit-appearance: none;
+  width: 100%;
+  min-width: 0;
+  display: block;
   height: $range-track-height;
   background-color: $primary;
   outline: none;

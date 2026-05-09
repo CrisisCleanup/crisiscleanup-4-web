@@ -21,9 +21,11 @@
       <!-- Mobile bottom clearance lives on the chart container itself -->
       <!-- (mb-[200px] md:mb-0) — the nested h-full flex chain here -->
       <!-- swallows pb-* on the scroll container. -->
-      <div class="flex-1 flex flex-col md:pb-0 overflow-y-auto">
-        <div class="flex flex-col h-full">
-          <div class="flex-1 flex flex-col">
+      <div
+        class="flex-1 flex flex-col md:pb-0 overflow-y-auto md:overflow-hidden"
+      >
+        <div class="flex flex-col h-full md:min-h-0">
+          <div class="flex-1 flex flex-col md:min-h-0 md:overflow-hidden">
             <!-- Top Banner -->
             <div
               class="min-h-8 md:min-h-12 grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0"
@@ -145,7 +147,7 @@
 
             <!-- Map and Charts Area -->
             <div
-              class="flex-grow select-none grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0"
+              class="flex-grow select-none grid grid-cols-1 md:grid-cols-10 mt-1 md:mt-0 md:min-h-0 md:overflow-hidden"
             >
               <!-- Map Section -->
               <div
@@ -271,8 +273,11 @@
               <div
                 class="md:h-full w-full col-span-1 md:col-span-3 flex flex-col md:grid md:grid-rows-12 md:min-h-0 md:border-l md:border-cc-ink-3 border-t md:border-t-0 border-cc-ink-3 md:overflow-hidden"
               >
+                <!-- Mobile: relative wrapper with content-driven height -->
+                <!-- (capped at 380px to leave room for the leaderboard). -->
+                <!-- Desktop: absolute layout in the rigid 12-row grid. -->
                 <div
-                  class="md:row-span-3 relative overflow-hidden border-b border-cc-ink-3 min-h-[120px] md:min-h-0"
+                  class="md:row-span-3 md:relative md:overflow-hidden border-b border-cc-ink-3 md:min-h-0"
                   data-testid="testLiveEventStreamWrap"
                 >
                   <div class="flex items-center gap-3 px-4 pt-3">
@@ -283,7 +288,7 @@
                     ></span>
                   </div>
                   <div
-                    class="absolute left-0 right-0 bottom-0 top-10 px-2 overflow-hidden"
+                    class="px-2 md:absolute md:left-0 md:right-0 md:bottom-0 md:top-10 overflow-y-auto md:overflow-hidden max-h-[380px] md:max-h-none"
                   >
                     <LiveEventStream ref="cards" />
                   </div>
