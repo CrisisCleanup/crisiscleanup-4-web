@@ -104,7 +104,7 @@
 
             <!-- Incident Tabs -->
             <div
-              class="incident-tabs h-12 md:h-14 mt-2 md:mt-3 flex overflow-x-auto whitespace-nowrap border-b border-cc-ink-3"
+              class="incident-tabs h-14 md:h-14 mt-2 md:mt-3 flex overflow-x-auto whitespace-nowrap border-b border-cc-ink-3"
             >
               <div
                 class="incident-chip"
@@ -126,7 +126,7 @@
                 "
               >
                 <DisasterIcon
-                  class="mr-2"
+                  class="mr-2 incident-chip__icon"
                   :data-testid="`testDisaster${i.id}Icon`"
                   :current-incident="i"
                   :alt="i.short_name"
@@ -951,9 +951,46 @@ export default {
     font-size: var(--ts-body);
   }
 
+  /*
+   * Incident tabs — horizontal scroll with hidden scrollbar. On mobile a
+   * right-edge fade signals the cutoff chip as "more →" instead of a
+   * truncation bug. At md+ all chips fit so the mask is dropped to avoid
+   * dimming the rightmost tab unnecessarily.
+   */
+  .incident-tabs {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+  }
+
+  .incident-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .incident-tabs {
+      -webkit-mask-image: linear-gradient(
+        to right,
+        black 0,
+        black calc(100% - 32px),
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to right,
+        black 0,
+        black calc(100% - 32px),
+        transparent 100%
+      );
+    }
+  }
+
   /* Incident chips — replaces .live-tab */
   .incident-chip {
-    @apply inline-flex items-center px-3 md:px-4 h-full no-underline whitespace-nowrap;
+    @apply inline-flex items-center px-4 md:px-4 h-full no-underline whitespace-nowrap;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
     font-family: var(--ff-body);
     font-size: var(--ts-meta);
     font-weight: 600;
@@ -966,6 +1003,15 @@ export default {
       border-color 200ms ease;
     cursor: pointer;
     text-decoration: none !important;
+    min-height: 44px;
+  }
+
+  .incident-chip:first-child {
+    padding-left: 16px;
+  }
+
+  .incident-chip:last-child {
+    padding-right: 32px;
   }
 
   .incident-chip:hover {
@@ -975,6 +1021,34 @@ export default {
   .incident-chip--selected {
     color: var(--cc-type-1);
     border-bottom-color: var(--cc-signal);
+  }
+
+  /*
+   * DisasterIcon renders an inner SVG (.standard-icon / .easter-egg) at
+   * w-10/h-10 = 40px. Override via the wrapper so the icon fits the chip
+   * without crashing into the label. Using > * because the inner classes
+   * are scoped to DisasterIcon and unreachable directly.
+   */
+  .incident-chip__icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .incident-chip__icon > * {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  @media (min-width: 768px) {
+    .incident-chip__icon,
+    .incident-chip__icon > * {
+      width: 32px !important;
+      height: 32px !important;
+    }
   }
 
   /* Map status cells — top accent only, see plan moment #1 */
