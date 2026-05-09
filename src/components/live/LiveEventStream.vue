@@ -65,7 +65,7 @@ interface EventCard {
 export default defineComponent({
   name: 'LiveEventStream',
   setup() {
-    const { t, te } = useI18n();
+    const { t } = useI18n();
     const mq = useMq();
 
     const cards = ref<EventCard[]>([]);
@@ -78,25 +78,29 @@ export default defineComponent({
       return cards.value.slice(0, limit);
     });
 
-    const $t = (text: string, attrs: Record<string, any>) => {
-      if (!text) return '';
-      return te(text) ? t(text, attrs) : text;
-    };
-
+    /*
+     * Match the pattern used by EventTimeline + AdminEventStream:
+     * call t() directly (no te() guard) so vue-i18n's normal fallback
+     * chain runs. The earlier te() guard short-circuited translation
+     * even when the key was a real bundle entry that just hadn't
+     * loaded at first call. Attr values with a `_t` suffix are
+     * themselves translation keys and get resolved recursively.
+     */
     const getEventTitle = (event_key?: string) => {
       if (!event_key) return '';
       const key = `events.${event_key.replace(':', '_')}`;
-      return te(key) ? t(key) : event_key;
+      return t(key);
     };
 
     const getTranslation = (tag: string, attr: Record<string, any>) => {
+      if (!tag) return '';
       const translated_attrs = Object.fromEntries(
         Object.entries(attr).map(([key, value]): [string, unknown] => [
           key,
-          key.endsWith('_t') ? $t(String(value), {}) : value,
+          key.endsWith('_t') ? t(String(value || '')) : value,
         ]),
       );
-      return $t(tag, translated_attrs);
+      return t(tag, translated_attrs);
     };
 
     const statusFamily = (card: EventCard) => {
