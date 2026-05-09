@@ -790,28 +790,29 @@ export default {
     watch(
       () => route.query.incident,
       async (value: string | undefined) => {
-        if (value) {
-          queryFilter.value.incident = value;
-          incidentId.value = value;
-          queryFilter.value = { ...queryFilter.value };
-          lastEventTimestamp.value = null;
-          mapUtils?.value?.reloadMap(
-            await getAllEvents(),
-            [] as (Sprite & WorksiteType)[],
-          );
-          mapUtils?.value?.restartLiveEvents();
-          // Re-fetch the leaderboard for the new incident with a loading
-          // state so the user sees the list rebuild rather than an
-          // out-of-date list flash to empty.
-          organizationsLoading.value = true;
-          getOrganizations()
-            .then((o) => {
-              organizations.value = shuffle(o);
-            })
-            .finally(() => {
-              organizationsLoading.value = false;
-            });
-        }
+        // Clearing the query (clicking "Current") was previously a no-op
+        // because of the `if (value)` guard — the chip stayed pinned to
+        // the old incident. Treat undefined as "reset to all" by clearing
+        // queryFilter.incident and incidentId, then refresh the same
+        // surfaces the populated branch refreshes.
+        const next = value ? String(value) : '';
+        queryFilter.value.incident = next;
+        incidentId.value = next || null;
+        queryFilter.value = { ...queryFilter.value };
+        lastEventTimestamp.value = null;
+        mapUtils?.value?.reloadMap(
+          await getAllEvents(),
+          [] as (Sprite & WorksiteType)[],
+        );
+        mapUtils?.value?.restartLiveEvents();
+        organizationsLoading.value = true;
+        getOrganizations()
+          .then((o) => {
+            organizations.value = shuffle(o);
+          })
+          .finally(() => {
+            organizationsLoading.value = false;
+          });
       },
     );
 
