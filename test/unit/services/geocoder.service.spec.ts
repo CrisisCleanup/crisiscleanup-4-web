@@ -189,7 +189,7 @@ describe('GeocoderService — session token lifecycle', () => {
     expect(sentryCaptureMessageSpy).toHaveBeenCalled();
   });
 
-  it('clears stale token and warns on non-OK predictions status (self-heal)', async () => {
+  it('clears stale token on benign non-OK predictions status without warning (self-heal)', async () => {
     // seed a stale token in the store
     storeState.autocompleteToken = new FakeAutocompleteSessionToken();
     nextPredictionsResult = { results: null, status: 'INVALID_REQUEST' };
@@ -198,8 +198,19 @@ describe('GeocoderService — session token lifecycle', () => {
 
     expect(out).toEqual([]);
     expect(storeState.autocompleteToken).toBeNull();
+    expect(sentryCaptureMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('clears stale token and warns on quota/auth-class predictions status', async () => {
+    storeState.autocompleteToken = new FakeAutocompleteSessionToken();
+    nextPredictionsResult = { results: null, status: 'OVER_QUERY_LIMIT' };
+
+    const out = await GeocoderService.getMatchingAddresses('y', 'USA');
+
+    expect(out).toEqual([]);
+    expect(storeState.autocompleteToken).toBeNull();
     expect(sentryCaptureMessageSpy).toHaveBeenCalledWith(
-      expect.stringContaining('INVALID_REQUEST'),
+      expect.stringContaining('OVER_QUERY_LIMIT'),
       expect.anything(),
     );
   });
