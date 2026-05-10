@@ -326,7 +326,7 @@
                       "
                     >
                       <div class="chart-container h-full">
-                        <LiveCallVolumeChart
+                        <LiveCallClock
                           data-testid="testPpCallTimesChart"
                           class="h-full w-full"
                           :chart-data="circularBarplotData"
@@ -402,7 +402,7 @@ import {
 } from '@/filters';
 import Incident from '@/models/Incident';
 import useSiteStatistics from '@/hooks/live/useSiteStatistics';
-import LiveCallVolumeChart from '@/components/live/LiveCallVolumeChart.vue';
+import LiveCallClock from '@/components/live/LiveCallClock.vue';
 import LiveCompletionRateChart from '@/components/live/LiveCompletionRateChart.vue';
 import LiveTotalCasesChart from '@/components/live/LiveTotalCasesChart.vue';
 import LiveLowerThird from '@/components/live/LiveLowerThird.vue';
@@ -437,7 +437,7 @@ export default {
     PhoneNumberDisplay,
     PewPewNavBar,
     LightTab,
-    LiveCallVolumeChart,
+    LiveCallClock,
     LiveCompletionRateChart,
     LiveTotalCasesChart,
     LiveLowerThird,
@@ -1169,6 +1169,7 @@ export default {
     @apply absolute top-0 bottom-0 left-0 right-0;
     background-color: var(--cc-ink-0);
     border: 1px solid var(--cc-ink-3);
+    overflow: hidden;
   }
 
   /* Scrollbar — ink palette */

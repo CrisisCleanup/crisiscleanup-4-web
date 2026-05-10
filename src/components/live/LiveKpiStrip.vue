@@ -1,8 +1,11 @@
 <template>
   <div class="kpi-strip" data-testid="testKpiStripDiv">
-    <!-- Cell 1: primary engagement — gauge + digit side-by-side. -->
+    <!--
+      Cell 1: primary engagement. Gauge anchors the left, eyebrow + digit +
+      delta stack vertically to its right so the cell uses its width
+      efficiently — no orphan whitespace under the digit.
+    -->
     <div class="kpi-strip__cell kpi-strip__cell--primary">
-      <div class="kpi-strip__eyebrow">{{ engagementLabel }}</div>
       <div class="kpi-strip__primary-row">
         <LiveEngagementGauge
           class="kpi-strip__gauge"
@@ -13,6 +16,7 @@
           aria-valuemax="100"
         />
         <div class="kpi-strip__primary-readout">
+          <div class="kpi-strip__eyebrow">{{ engagementLabel }}</div>
           <div class="kpi-strip__primary-digit">
             <span
               ref="primaryEl"
@@ -200,7 +204,7 @@ export default defineComponent({
 <style scoped lang="postcss">
 .kpi-strip {
   display: grid;
-  grid-template-columns: 4fr 2fr 2fr 2fr 2fr;
+  grid-template-columns: 3fr 2.25fr 2.25fr 2.25fr 2.25fr;
   align-items: stretch;
   background-color: var(--cc-ink-0);
   border-bottom: 1px solid var(--cc-ink-3);
@@ -223,8 +227,7 @@ export default defineComponent({
 }
 
 .kpi-strip__cell--primary {
-  padding-top: 18px;
-  gap: 4px;
+  padding: 12px 20px;
 }
 
 .kpi-strip__eyebrow {
@@ -237,34 +240,40 @@ export default defineComponent({
 }
 
 /*
- * Primary cell uses a horizontal pair: gauge on the left, digit + delta
- * stacked to its right. Saves vertical space vs. the previous gauge-on-its-
- * own-row layout and reads as one composed unit.
+ * Primary cell uses a horizontal pair: gauge anchors the left, eyebrow +
+ * digit + delta stack vertically to its right. The whole cell reads as a
+ * single composed unit with no orphan whitespace beside the digit.
  */
 .kpi-strip__primary-row {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 4px;
+  height: 100%;
 }
 
 .kpi-strip__gauge {
   flex: 0 0 auto;
-  width: clamp(120px, 11vw, 160px);
+  width: clamp(120px, 12vw, 170px);
 }
 
 .kpi-strip__primary-readout {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+
+.kpi-strip__primary-readout .kpi-strip__eyebrow {
+  margin-bottom: 2px;
 }
 
 .kpi-strip__primary-digit {
   display: flex;
   align-items: baseline;
   gap: 4px;
+  line-height: 1;
 }
 
 .kpi-strip__value {
