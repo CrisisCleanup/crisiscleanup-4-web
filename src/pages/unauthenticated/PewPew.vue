@@ -478,10 +478,12 @@ export default {
     // Computed
     const isDarkMode = computed(() => colorMode.value === 'dark');
     const { isAuthenticated: isLoggedIn } = useAuthStore();
+    // Read from `incidents.value` (raw axios fetch) — the Vuex-ORM Incident
+    // store isn't populated on the unauthenticated /pew-pew page.
     const incidentList = computed(() =>
-      Incident.query()
-        .where('active_phone_number', (p: unknown) => isValidActiveHotline(p))
-        .get(),
+      (incidents.value || []).filter((i: { active_phone_number?: unknown }) =>
+        isValidActiveHotline(i.active_phone_number),
+      ),
     );
 
     const {
