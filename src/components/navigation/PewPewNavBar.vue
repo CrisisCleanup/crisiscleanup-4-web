@@ -120,12 +120,31 @@ export default defineComponent({
       const _homeFooterRoutes = _.keyBy(FooterNavigation, 'key');
       const homeRoutes = { ..._homeSideRoutes, ..._homeFooterRoutes };
       return {
-        survivor: { ...homeRoutes.survivor, icon: 'contact' },
-        training: homeRoutes.training,
-        about: { title: 'publicNav.about_us', route: { name: 'nav.about' } },
-        blog: { ...homeRoutes.blog, icon: 'notepad' },
-        terms: homeRoutes.terms,
-        privacy: homeRoutes.privacy,
+        survivor: {
+          ...homeRoutes.survivor,
+          icon: { type: 'handshake', fa: true },
+        },
+        training: {
+          ...homeRoutes.training,
+          icon: { type: 'graduation-cap', fa: true },
+        },
+        about: {
+          title: 'publicNav.about_us',
+          route: { name: 'nav.about' },
+          icon: { type: 'circle-info', fa: true },
+        },
+        blog: {
+          ...homeRoutes.blog,
+          icon: { type: 'newspaper', fa: true },
+        },
+        terms: {
+          ...homeRoutes.terms,
+          icon: { type: 'file-lines', fa: true },
+        },
+        privacy: {
+          ...homeRoutes.privacy,
+          icon: { type: 'shield-halved', fa: true },
+        },
       };
     });
 
