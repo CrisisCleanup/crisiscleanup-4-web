@@ -91,7 +91,7 @@ import {
 import Toast, {
   type PluginOptions as VueToastificationPluginOptions,
 } from 'vue-toastification';
-import { i18n } from '@/modules/i18n';
+import { i18n, interpolateNamedFallback } from '@/modules/i18n';
 
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';
@@ -296,6 +296,31 @@ const buildApp = (app: VueApp) =>
       shareAppContext: true,
     } as VueToastificationPluginOptions);
 
+const installI18nFallbackInterpolation = (app: VueApp) => {
+  // Wrap the global $t so missing-key fallbacks ("~~English with {n}") still
+  // get their named placeholders interpolated. vue-i18n short-circuits its
+  // compiler on the missing-key path with formatFallbackMessages: true, so
+  // the raw key would otherwise leak through to the UI.
+  const props = app.config.globalProperties;
+  const originalT = props.$t;
+  if (typeof originalT === 'function') {
+    props.$t = function patchedT(this: unknown, ...args: unknown[]) {
+      const result = (originalT as (...a: unknown[]) => unknown).apply(
+        this,
+        args,
+      );
+      const named = args[1];
+      if (named && typeof named === 'object' && !Array.isArray(named)) {
+        return interpolateNamedFallback(
+          result,
+          named as Record<string, unknown>,
+        );
+      }
+      return result;
+    } as typeof originalT;
+  }
+};
+
 const initSentry = (vueApp: VueApp) =>
   Sentry.init({
     app: vueApp,
@@ -337,6 +362,7 @@ const initSentry = (vueApp: VueApp) =>
 const entrypoint =
   import.meta.env.VITE_APP_ENTRY === 'maintenance' ? MaintenanceApp : App;
 const app = buildApp(createApp(entrypoint));
+installI18nFallbackInterpolation(app);
 
 if (import.meta.env.PROD) {
   initSentry(app);
