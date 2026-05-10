@@ -36,7 +36,15 @@
           <div
             class="pewpew__navlink flex flex-col md:flex-row items-center md:items-start"
           >
+            <component
+              :is="r.lucide"
+              v-if="r.lucide"
+              :data-testid="`test${r.title}Button`"
+              class="pewpew__navicon"
+              aria-hidden="true"
+            />
             <ccu-icon
+              v-else
               :linked="true"
               :data-testid="`test${r.title}Button`"
               v-bind="r.iconProps"
@@ -48,7 +56,15 @@
           <div
             class="pewpew__navlink flex flex-col md:flex-row items-center md:items-start"
           >
+            <component
+              :is="r.lucide"
+              v-if="r.lucide"
+              :data-testid="`test${r.title}Icon`"
+              class="pewpew__navicon"
+              aria-hidden="true"
+            />
             <ccu-icon
+              v-else
               :data-testid="`test${r.title}Icon`"
               :linked="true"
               v-bind="r.iconProps"
@@ -83,6 +99,12 @@
 import _ from 'lodash';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
+import LucideHandshake from '~icons/lucide/handshake';
+import LucideGraduationCap from '~icons/lucide/graduation-cap';
+import LucideInfo from '~icons/lucide/info';
+import LucideNewspaper from '~icons/lucide/newspaper';
+import LucideFileText from '~icons/lucide/file-text';
+import LucideShield from '~icons/lucide/shield';
 import useNavigation from '@/hooks/useNavigation';
 import useAcl from '@/hooks/useAcl';
 import User from '@/models/User';
@@ -120,31 +142,16 @@ export default defineComponent({
       const _homeFooterRoutes = _.keyBy(FooterNavigation, 'key');
       const homeRoutes = { ..._homeSideRoutes, ..._homeFooterRoutes };
       return {
-        survivor: {
-          ...homeRoutes.survivor,
-          icon: { type: 'handshake', fa: true },
-        },
-        training: {
-          ...homeRoutes.training,
-          icon: { type: 'graduation-cap', fa: true },
-        },
+        survivor: { ...homeRoutes.survivor, lucide: LucideHandshake },
+        training: { ...homeRoutes.training, lucide: LucideGraduationCap },
         about: {
           title: 'publicNav.about_us',
           route: { name: 'nav.about' },
-          icon: { type: 'circle-info', fa: true },
+          lucide: LucideInfo,
         },
-        blog: {
-          ...homeRoutes.blog,
-          icon: { type: 'newspaper', fa: true },
-        },
-        terms: {
-          ...homeRoutes.terms,
-          icon: { type: 'file-lines', fa: true },
-        },
-        privacy: {
-          ...homeRoutes.privacy,
-          icon: { type: 'shield-halved', fa: true },
-        },
+        blog: { ...homeRoutes.blog, lucide: LucideNewspaper },
+        terms: { ...homeRoutes.terms, lucide: LucideFileText },
+        privacy: { ...homeRoutes.privacy, lucide: LucideShield },
       };
     });
 
@@ -264,6 +271,13 @@ export default defineComponent({
 
     img {
       @apply w-5 h-5;
+    }
+
+    .pewpew__navicon {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.75;
+      color: currentColor;
     }
 
     &:focus,
