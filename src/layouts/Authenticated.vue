@@ -124,27 +124,29 @@
         </main>
         <footer
           style="width: 100svw"
-          class="pt-3 pb-3 bg-zinc-800 text-white fixed inset-x-0 bottom-0 flex justify-around items-center z-header"
+          class="ccu-mobile-nav fixed inset-x-0 bottom-0 z-header flex justify-around items-stretch"
         >
-          <div
+          <router-link
             v-for="r in mobileRoutes"
             :key="r.key"
-            class="flex flex-col items-center"
+            :to="r.to"
+            class="ccu-mobile-nav__link flex flex-col items-center justify-center"
           >
-            <router-link :to="r.to" class="text-white flex flex-col">
-              <font-awesome-icon :icon="r.icon" class="mb-1" size="small" />
-              {{ r.text }}
-            </router-link>
-          </div>
-          <div class="flex flex-col items-center">
-            <a
-              class="text-white flex flex-col"
-              @click="showingMoreLinks = true"
-            >
-              <font-awesome-icon icon="bars" class="mb-1" />
-              {{ $t('nav.more') }}</a
-            >
-          </div>
+            <component
+              :is="r.lucide"
+              class="ccu-mobile-nav__icon"
+              aria-hidden="true"
+            />
+            <span class="ccu-mobile-nav__label">{{ r.text }}</span>
+          </router-link>
+          <button
+            type="button"
+            class="ccu-mobile-nav__link flex flex-col items-center justify-center"
+            @click="showingMoreLinks = true"
+          >
+            <LucideMenu class="ccu-mobile-nav__icon" aria-hidden="true" />
+            <span class="ccu-mobile-nav__label">{{ $t('nav.more') }}</span>
+          </button>
         </footer>
       </div>
       <modal
@@ -270,6 +272,11 @@ import Language from '@/models/Language';
 import Report from '@/models/Report';
 import Role from '@/models/Role';
 import PhoneStatus from '@/models/PhoneStatus';
+import LucideLayoutDashboard from '~icons/lucide/layout-dashboard';
+import LucideBriefcase from '~icons/lucide/briefcase';
+import LucidePhone from '~icons/lucide/phone';
+import LucideUser from '~icons/lucide/user';
+import LucideMenu from '~icons/lucide/menu';
 import NavMenu from '../components/navigation/NavMenu.vue';
 import TermsandConditionsModal from '../components/modals/TermsandConditionsModal.vue';
 import Header from '../components/header/Header.vue';
@@ -313,6 +320,7 @@ export default defineComponent({
     NavMenu,
     TermsandConditionsModal,
     Header,
+    LucideMenu,
   },
   setup() {
     const mq = useMq();
@@ -438,19 +446,19 @@ export default defineComponent({
           key: 'dashboard',
           text: t('nav.dashboard'),
           to: `/incident/${currentIncidentId.value}/dashboard`,
-          icon: 'dashboard',
+          lucide: LucideLayoutDashboard,
         },
         {
           name: 'nav.work',
           key: 'work',
           to: `/incident/${currentIncidentId.value}/work`,
-          icon: 'briefcase',
+          lucide: LucideBriefcase,
           text: t('nav.work'),
         },
         {
           name: 'nav.phone',
           key: 'phone',
-          icon: 'phone',
+          lucide: LucidePhone,
           text: t('nav.phone'),
           to: `/incident/${currentIncidentId.value}/phone`,
           disabled: !$can || !$can('phone_agent'),
@@ -458,7 +466,7 @@ export default defineComponent({
         {
           name: 'nav.profile',
           key: 'profile',
-          icon: 'user',
+          lucide: LucideUser,
           text: t('nav.profile'),
           to: '/profile',
         },
@@ -756,5 +764,53 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.ccu-mobile-nav {
+  background-color: theme('colors.crisiscleanup-dark.900');
+  border-top: 1px solid theme('colors.crisiscleanup-dark.500');
+  padding-top: 6px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+.ccu-mobile-nav__link {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 4px;
+  color: theme('colors.crisiscleanup-dark.200');
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  gap: 4px;
+  position: relative;
+  transition: color 160ms ease;
+}
+
+.ccu-mobile-nav__link:hover {
+  color: white;
+}
+
+.ccu-mobile-nav__link.router-link-active {
+  color: theme('colors.primary.light');
+}
+
+.ccu-mobile-nav__link.router-link-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background-color: theme('colors.primary.light');
+}
+
+.ccu-mobile-nav__icon {
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.75;
+}
+
+.ccu-mobile-nav__label {
+  line-height: 1;
 }
 </style>
