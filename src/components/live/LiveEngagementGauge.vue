@@ -56,7 +56,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import {
+  defineComponent,
+  computed,
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+} from 'vue';
 
 const VIEW_W = 200;
 const VIEW_H = 110;
@@ -106,13 +113,54 @@ export default defineComponent({
       Math.max(0, Math.min(100, Number(props.value) || 0)),
     );
 
-    // stroke-dasharray hides the unfilled portion of the same path, so
-    // we don't need a separate filled-arc element with a different `d`.
-    const dashOffset = computed(
-      () => ARC_LEN - (ARC_LEN * clampedValue.value) / 100,
-    );
+    // animatedValue is the rAF-driven position used for both the fill arc
+    // and the needle. It eases toward clampedValue and carries a tiny sine
+    // jitter so the gauge reads as "live" rather than frozen.
+    const animatedValue = ref(clampedValue.value);
+    let raf = 0;
 
-    const needleTip = computed(() => polar(ARC_RADIUS - 8, clampedValue.value));
+    const startTicker = () => {
+      const reduce =
+        typeof window !== 'undefined' &&
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      let last = performance.now();
+      const tick = (now: number) => {
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        const target = clampedValue.value;
+        const k = 1 - Math.exp(-dt * 4);
+        animatedValue.value += (target - animatedValue.value) * k;
+        if (!reduce) {
+          const t = now / 1000;
+          const jitter =
+            0.35 * Math.sin(t * 2.4) + 0.18 * Math.sin(t * 5.7 + 1.3);
+          animatedValue.value += jitter * 0.06;
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    onMounted(() => {
+      animatedValue.value = clampedValue.value;
+      startTicker();
+    });
+    onBeforeUnmount(() => cancelAnimationFrame(raf));
+
+    // If the prop is replaced before the ticker mounts (SSR / fast HMR)
+    // keep the seeded value in sync so the first paint isn't at zero.
+    watch(clampedValue, (v) => {
+      if (raf === 0) animatedValue.value = v;
+    });
+
+    const dashOffset = computed(() => {
+      const v = Math.max(0, Math.min(100, animatedValue.value));
+      return ARC_LEN - (ARC_LEN * v) / 100;
+    });
+
+    const needleTip = computed(() =>
+      polar(ARC_RADIUS - 8, Math.max(0, Math.min(100, animatedValue.value))),
+    );
 
     return {
       VIEW_W,
@@ -149,7 +197,6 @@ export default defineComponent({
   stroke: var(--cc-signal);
   stroke-width: 6;
   stroke-linecap: butt;
-  transition: stroke-dashoffset 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .engagement-gauge__ticks line {
@@ -169,19 +216,9 @@ export default defineComponent({
   stroke: var(--cc-type-1);
   stroke-width: 1.5;
   stroke-linecap: round;
-  transition:
-    x2 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    y2 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .engagement-gauge__hub {
   fill: var(--cc-type-1);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .engagement-gauge__fill,
-  .engagement-gauge__needle {
-    transition: none;
-  }
 }
 </style>

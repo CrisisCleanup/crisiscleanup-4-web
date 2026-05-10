@@ -424,6 +424,38 @@ export default (
           );
         }
 
+        // Backend stopped populating `actor_blurred_location` on live
+        // events, which silently drained the laser pool — the arc draw
+        // at the bottom of this function requires both endpoints.
+        // Synthesize an invisible origin offset 1.5–3.5° from the patient
+        // so the arc still fires inward.
+        if (!actorMarkerSprite && patientMarkerSprite) {
+          const dest = marker[`${marker.map_destination}_blurred_location`];
+          const pCoords =
+            dest?.coordinates ??
+            marker.patient_blurred_location?.coordinates ??
+            marker.recipient_blurred_location?.coordinates;
+          const pixiLayer = layer as L.Layer & PixiLayer;
+          if (pCoords && pixiLayer.utils?.latLngToLayerPoint) {
+            const r = 1.5 + Math.random() * 2;
+            const theta = Math.random() * Math.PI * 2;
+            const synthCoords = pixiLayer.utils.latLngToLayerPoint([
+              pCoords[1] + r * Math.sin(theta),
+              pCoords[0] + r * Math.cos(theta),
+            ]);
+            actorMarkerSprite = new Sprite() as Sprite & LiveSprite;
+            actorMarkerSprite.x = synthCoords.x;
+            actorMarkerSprite.y = synthCoords.y;
+            actorMarkerSprite.x0 = synthCoords.x;
+            actorMarkerSprite.y0 = synthCoords.y;
+            actorMarkerSprite.anchor.set(0.5, 0.5);
+            actorMarkerSprite.interactive = false;
+            actorMarkerSprite.visible = false;
+            actorMarkerSprite.type = 'actor';
+            actorMarkerSprite.live = true;
+          }
+        }
+
         (layer as L.Layer & PixiLayer)._renderer.render(
           (layer as L.Layer & PixiLayer)._pixiContainer,
         );
