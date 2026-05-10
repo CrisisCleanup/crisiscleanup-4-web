@@ -522,28 +522,40 @@ export default {
     });
 
     // Methods
+    /**
+     * Build the params object for an `/all_events` worksite-events fetch.
+     * `limit` is the only difference between the fast initial fetch and the
+     * larger background pull, so the param shape is shared.
+     */
+    function buildAllEventsParams(limit: number, sinceDays?: number) {
+      const windowStart = sinceDays
+        ? moment.max(
+            moment(queryFilter.value.start_date),
+            moment().add(-sinceDays, 'days'),
+          )
+        : moment(queryFilter.value.start_date);
+      return {
+        limit,
+        event_key__in: 'user_create_worksite',
+        sort: 'created_at',
+        incident_id: queryFilter.value.incident || '',
+        created_at__gte: windowStart.toISOString(),
+        created_at__lte: queryFilter.value.end_date.toISOString(),
+      };
+    }
+
+    /**
+     * Bounded initial fetch — fast first paint. Cap to last 7 days OR 5,000
+     * events. Larger window comes in via getBackgroundEvents() once the page
+     * is interactive.
+     */
     async function getAllEvents() {
       try {
         mapLoading.value = true;
         if (queryFilter.value.incident) {
-          // Bounded initial fetch: cap to last 7 days OR 5,000 events
-          // (whichever the API hits first). Was unbounded at 60_000, which
-          // jammed the page on slow links. See plan perf #1.
-          const initialWindowStart = moment.max(
-            moment(queryFilter.value.start_date),
-            moment().add(-7, 'days'),
+          const queryString = getQueryString(
+            buildAllEventsParams(5000, 7) as Record<string, any>,
           );
-          const params: Record<string, any> = {
-            limit: 5000,
-            event_key__in: Object.keys({
-              user_create_worksite: true,
-            }).join(','),
-            sort: 'created_at',
-            incident_id: queryFilter.value.incident || '',
-            created_at__gte: initialWindowStart.toISOString(),
-            created_at__lte: queryFilter.value.end_date.toISOString(),
-          };
-          const queryString = getQueryString(params);
           const response = await axios.get(
             `${import.meta.env.VITE_APP_API_BASE_URL}/all_events?${queryString}`,
           );
@@ -562,6 +574,24 @@ export default {
       } finally {
         mapLoading.value = false;
       }
+    }
+
+    /**
+     * Background fetch — fires after the page is interactive. Pulls the
+     * full 30-day, 30k-event window so the map reads as busy as it actually
+     * is. Resolves to the larger set; the caller passes it to
+     * `mapUtils.reloadMap` which re-runs `setupMap` to repopulate the
+     * worksite layer. The laser-firing live-events queue is not reset.
+     */
+    async function getBackgroundEvents() {
+      if (!queryFilter.value.incident) return [];
+      const queryString = getQueryString(
+        buildAllEventsParams(30_000) as Record<string, any>,
+      );
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/all_events?${queryString}`,
+      );
+      return response.data.results;
     }
 
     async function getLatestEvents() {
@@ -784,6 +814,21 @@ export default {
       );
       mapUtils.value.restartLiveEvents();
       startTabCirculationTimer(10_000);
+
+      // Pull the larger 30-day, 30k-event window in the background so the
+      // map reads as busy as the back-end actually is. Bounded fetch above
+      // gave us a fast first paint with up to 5,000 events; this swap is
+      // non-blocking and only reloads the worksite layer (laser-firing
+      // live-event queue is preserved by setupMap).
+      getBackgroundEvents()
+        .then((extra) => {
+          if (extra.length > 0) {
+            mapUtils.value?.reloadMap(extra);
+          }
+        })
+        .catch(() => {
+          /* swallow — the bounded fetch already populated the map */
+        });
     });
 
     // Watchers
@@ -812,6 +857,17 @@ export default {
           })
           .finally(() => {
             organizationsLoading.value = false;
+          });
+        // Background-pull the wider window for the new incident, same as
+        // initial mount.
+        getBackgroundEvents()
+          .then((extra) => {
+            if (extra.length > 0) {
+              mapUtils.value?.reloadMap(extra);
+            }
+          })
+          .catch(() => {
+            /* swallow */
           });
       },
     );
