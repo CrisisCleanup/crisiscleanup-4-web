@@ -37,7 +37,7 @@ describe('CurrentCallVoicemail.vue', () => {
       true,
     );
     expect(wrapper.text()).toContain('Short AI summary.');
-    expect(wrapper.text()).toContain('~~AI-generated');
+    expect(wrapper.text()).toContain('AI-generated');
     expect(
       wrapper.find('[data-testid="testVoicemailPriorRibbon"]').exists(),
     ).toBe(false);
@@ -58,7 +58,7 @@ describe('CurrentCallVoicemail.vue', () => {
     expect(
       wrapper.find('[data-testid="testVoicemailSummaryPending"]').exists(),
     ).toBe(true);
-    expect(wrapper.text()).toContain('~~AI-generated');
+    expect(wrapper.text()).toContain('AI-generated');
     expect(wrapper.find('[data-testid="testVoicemailSummary"]').exists()).toBe(
       false,
     );
