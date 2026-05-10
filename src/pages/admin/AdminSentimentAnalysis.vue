@@ -1184,7 +1184,7 @@ const getStatusText = (item: {
   if (item.completed) return t('sentiment.completed');
   if (isStuck(item)) return t('sentiment.stuck');
   if (item.metadata?.status === 'pending') return t('sentiment.pending');
-  if (item.metadata?.error_message) return t('sentiment.error');
+  if (item.metadata?.error_message) return t('info.error');
   return t('sentiment.unknown');
 };
 
