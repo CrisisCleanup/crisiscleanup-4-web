@@ -246,7 +246,7 @@ const authStore = () => {
       debug('recv 401; user not authenticated.');
       authState.userId = undefined;
       authState.status = AuthStatus.ANONYMOUS;
-      await authorize(route?.path, true);
+      await authorize(route?.fullPath, true);
     }
   });
 
@@ -281,7 +281,7 @@ const authStore = () => {
 
       // * -> LOGOUT
       if (movedToLogout) {
-        await doLogout().finally(async () => authorize(route?.path));
+        await doLogout().finally(async () => authorize(route?.fullPath));
         return;
       }
 
@@ -300,7 +300,7 @@ const authStore = () => {
 
       // INIT/AUTHENTICATED/REFRESHING -> ANONYMOUS
       if (movedToAnon) {
-        await authorize(route?.path);
+        await authorize(route?.fullPath);
         return;
       }
 
@@ -425,7 +425,7 @@ const authStore = () => {
    */
   whenever(requiresAuthorization, async () => {
     debug('requires authorization; redirecting to login.');
-    await authorize(route?.path, true);
+    await authorize(route?.fullPath, true);
   });
 
   // Transition to authenticated when we have valid tokens.

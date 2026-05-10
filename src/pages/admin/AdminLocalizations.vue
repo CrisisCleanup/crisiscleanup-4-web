@@ -250,14 +250,15 @@ interface LocalizationText {
   id?: string;
   localization: string;
   text: string;
-  language: string;
+  // String when blank/seeded; numeric Language id once selected or pre-filled.
+  language: string | number;
 }
 
 export default defineComponent({
   name: 'AdminLocalizations',
   components: { BaseSelect, BaseButton, BaseInput, BaseCheckbox, AjaxTable },
   setup() {
-    const languages = Language.all();
+    const languages = computed(() => Language.all());
     const { t } = useI18n();
     const { component } = useDialogs();
     const store = useStore();
@@ -266,6 +267,7 @@ export default defineComponent({
     const $toasted = useToast();
 
     const { translate } = useTranslation();
+    const route = useRoute();
 
     const tableUrl = `${
       import.meta.env.VITE_APP_API_BASE_URL
@@ -480,11 +482,56 @@ export default defineComponent({
       localizationTexts.value = response.data.results;
     }
 
+    async function applyDeepLinkPrefill() {
+      const q = route.query;
+      const group = typeof q.group === 'string' ? q.group : '';
+      const label = typeof q.label === 'string' ? q.label : '';
+      const text = typeof q.text === 'string' ? q.text : '';
+      const subtag = typeof q.language === 'string' ? q.language : '';
+      const idRaw = typeof q.language_id === 'string' ? q.language_id : '';
+      if (!group && !label && !text && !subtag && !idRaw) return;
+
+      if (group) currentLocalization.value.group = group;
+      if (label) currentLocalization.value.label = label;
+
+      // Languages + portal load asynchronously elsewhere; wait for whichever
+      // we need before resolving the row's language id.
+      const ready = computed<boolean>(
+        () =>
+          languages.value.length > 0 &&
+          (!!subtag || !!idRaw || !!portal.value?.default_language),
+      );
+      await until(ready).toBeTruthy();
+
+      // Language.id is numeric at runtime; coerce so the dropdown's
+      // strict-equality match and autoTranslate's id comparison both work.
+      let language: string | number = '';
+      if (idRaw) {
+        const n = Number(idRaw);
+        language = Number.isFinite(n) ? n : idRaw;
+      } else {
+        const sub = subtag || portal.value!.default_language;
+        const match = Language.query().where('subtag', sub).first();
+        if (match?.id == undefined) {
+          console.warn(
+            `[AdminLocalizations] No Language record matches subtag "${sub}".`,
+          );
+        } else {
+          language = match.id;
+        }
+      }
+
+      localizationTexts.value = [{ localization: '', text, language }];
+
+      if (q.generate_translations === 'true') void autoTranslate();
+    }
+
     onMounted(async () => {
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/admins/localizations/groups`,
       );
       groups.value = response.data;
+      void applyDeepLinkPrefill();
     });
 
     return {
