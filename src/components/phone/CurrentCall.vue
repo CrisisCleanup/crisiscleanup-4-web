@@ -188,9 +188,7 @@ const suggestedScript = computed(() => {
         <PaneEmpty
           v-else
           :title="$t('currentCall.no_recent_cases')"
-          :description="
-            $t('currentCall.new_cases_appear_here')
-          "
+          :description="$t('currentCall.new_cases_appear_here')"
         />
       </section>
 

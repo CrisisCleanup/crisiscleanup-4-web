@@ -3,9 +3,22 @@ import { mount } from '@vue/test-utils';
 import CurrentCallVoicemail from '@/components/phone/CurrentCallVoicemail.vue';
 import { commonComponentStubs } from '../../../helpers';
 
+const i18nTranslations: Record<string, string> = {
+  'currentVM.voicemail': 'Voicemail',
+  'currentVM.ai_generated': 'AI-generated',
+  'currentVM.n_prior_vm': '{n} prior voicemails from this caller',
+  'currentVM.play_recording': 'Play recording',
+  'currentVM.transcript': 'Transcript',
+  'currentVM.prior_vm': 'Prior voicemails',
+  'currentVM.inbound': 'Inbound',
+  'currentVM.callback': 'Callback',
+};
+
 const i18nStub = {
-  $t: (k: string, p?: Record<string, any>) =>
-    p ? `${k} ${JSON.stringify(p)}` : k,
+  $t: (k: string, p?: Record<string, any>) => {
+    const translated = i18nTranslations[k] ?? k;
+    return p ? `${translated} ${JSON.stringify(p)}` : translated;
+  },
 };
 
 function factory(outbound: any, caller?: any) {

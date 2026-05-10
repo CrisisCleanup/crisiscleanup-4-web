@@ -20,9 +20,7 @@
         class="ml-auto"
         data-testid="testVoicemailPriorRibbon"
       >
-        {{
-          $t('currentVM.n_prior_vm', { n: ctx.priorCount })
-        }}
+        {{ $t('currentVM.n_prior_vm', { n: ctx.priorCount }) }}
       </BasePill>
     </header>
 

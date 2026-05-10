@@ -63,7 +63,9 @@
               variant="solid"
               size="medium"
               class="px-6 py-2"
-              :text="analyzing ? t('info.analyzing') : t('actions.find_stories')"
+              :text="
+                analyzing ? t('info.analyzing') : t('actions.find_stories')
+              "
               :alt="t('actions.find_stories')"
               :show-spinner="analyzing"
             />
@@ -107,19 +109,25 @@
             <div class="text-2xl font-bold text-blue-600">
               {{ resultsSummary.totalCases }}
             </div>
-            <div class="text-sm text-gray-600">{{ t('sentiment.total_stories') }}</div>
+            <div class="text-sm text-gray-600">
+              {{ t('sentiment.total_stories') }}
+            </div>
           </div>
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-green-600">
               {{ resultsSummary.casesWithImages }}
             </div>
-            <div class="text-sm text-gray-600">{{ t('sentiment.with_photos') }}</div>
+            <div class="text-sm text-gray-600">
+              {{ t('sentiment.with_photos') }}
+            </div>
           </div>
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-purple-600">
               {{ resultsSummary.avgSentiment }}
             </div>
-            <div class="text-sm text-gray-600">{{ t('sentiment.avg_rating') }}</div>
+            <div class="text-sm text-gray-600">
+              {{ t('sentiment.avg_rating') }}
+            </div>
           </div>
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-gray-600">
@@ -167,7 +175,7 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {{ t('actions.select) }}
+                  {{ t('actions.select') }}
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
@@ -380,7 +388,8 @@
             {{
               Math.min(pagination.offset + pagination.limit, pagination.total)
             }}
-            {{ t('sentiment.of') }} {{ pagination.total }} {{ t('sentiment.results') }}
+            {{ t('sentiment.of') }} {{ pagination.total }}
+            {{ t('sentiment.results') }}
           </div>
           <div class="flex space-x-2">
             <base-button
