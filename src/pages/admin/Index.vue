@@ -49,7 +49,7 @@ const tabs = reactive<Tab[]>([
   },
   {
     key: 'nav.admin_phone_history',
-    title: '~~Recent Calls',
+    title: 'nav.recent_calls',
   },
   {
     key: 'nav.debug',

@@ -7,43 +7,43 @@
           <font-awesome-icon
             :icon="['fas', 'heart']"
             class="text-green-500 mr-3 text-2xl"
-            :alt="t('~~Story Analysis')"
+            :alt="t('sentiment.story_analysis')"
           />
           <h1 class="text-2xl font-bold text-gray-900">
-            {{ t('~~Story Analysis') }}
+            {{ t('sentiment.story_analysis') }}
           </h1>
         </div>
         <p class="text-gray-600">
-          {{ t('~~Find uplifting survivor stories') }}
+          {{ t('sentiment.find_survivor_stories') }}
         </p>
       </div>
 
       <!-- Filters Section -->
       <div class="p-6 border-b border-gray-200">
         <h3 class="text-lg font-semibold mb-4 text-gray-900">
-          {{ t('~~Filters') }}
+          {{ t('sentiment.filters') }}
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('~~Disaster') }}
+              {{ t('sentiment.disaster') }}
             </label>
             <base-select
               v-model="selectedIncident"
               :options="incidents"
-              :placeholder="t('~~Select a disaster')"
+              :placeholder="t('actions.select_incident')"
               item-key="id"
               label="name"
             />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              {{ t('~~Photo Filter') }}
+              {{ t('sentiment.photo_filter') }}
             </label>
             <base-select
               v-model="imagesOnly"
               :options="imageFilterOptions"
-              :placeholder="t('~~Select photo filter')"
+              :placeholder="t('sentiment.select_photo_filter')"
               item-key="value"
               label="label"
               select-classes="bg-white border border-gray-300 w-full h-10"
@@ -63,8 +63,10 @@
               variant="solid"
               size="medium"
               class="px-6 py-2"
-              :text="analyzing ? t('~~Analyzing...') : t('~~Find Stories')"
-              :alt="t('~~Find Stories')"
+              :text="
+                analyzing ? t('info.analyzing') : t('actions.find_stories')
+              "
+              :alt="t('actions.find_stories')"
               :show-spinner="analyzing"
             />
             <base-button
@@ -73,8 +75,8 @@
               variant="outline"
               size="medium"
               class="px-6 py-2"
-              :text="t('~~Download List')"
-              :alt="t('~~Download List')"
+              :text="t('actions.download_list')"
+              :alt="t('actions.download_list')"
             />
             <base-button
               :action="downloadZip"
@@ -82,8 +84,8 @@
               variant="solid"
               size="medium"
               class="px-6 py-2 bg-blue-600 hover:bg-blue-700"
-              :text="t('~~Download Package')"
-              :alt="t('~~Download Package')"
+              :text="t('actions.download_package')"
+              :alt="t('actions.download_package')"
             />
           </div>
           <div v-if="analyzing" class="flex items-center text-blue-600">
@@ -91,7 +93,7 @@
               :icon="['fas', 'spinner']"
               class="animate-spin mr-2"
             />
-            <span class="text-sm">{{ t('~~Processing...') }}</span>
+            <span class="text-sm">{{ t('info.processing') }}</span>
           </div>
         </div>
       </div>
@@ -100,33 +102,39 @@
       <div v-if="showSummary" class="p-6 bg-blue-50 border-b border-gray-200">
         <h4 class="text-lg font-semibold mb-3 text-gray-900 flex items-center">
           <font-awesome-icon :icon="['fas', 'chart-line']" class="mr-2" />
-          {{ t('~~Analysis Results') }}
+          {{ t('sentiment.analysis_results') }}
         </h4>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-blue-600">
               {{ resultsSummary.totalCases }}
             </div>
-            <div class="text-sm text-gray-600">{{ t('~~Total Stories') }}</div>
+            <div class="text-sm text-gray-600">
+              {{ t('sentiment.total_stories') }}
+            </div>
           </div>
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-green-600">
               {{ resultsSummary.casesWithImages }}
             </div>
-            <div class="text-sm text-gray-600">{{ t('~~With Photos') }}</div>
+            <div class="text-sm text-gray-600">
+              {{ t('sentiment.with_photos') }}
+            </div>
           </div>
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-purple-600">
               {{ resultsSummary.avgSentiment }}
             </div>
-            <div class="text-sm text-gray-600">{{ t('~~Average Rating') }}</div>
+            <div class="text-sm text-gray-600">
+              {{ t('sentiment.avg_rating') }}
+            </div>
           </div>
           <div class="bg-white p-4 rounded-lg">
             <div class="text-2xl font-bold text-gray-600">
               {{ resultsSummary.processingTime }}s
             </div>
             <div class="text-sm text-gray-600">
-              {{ t('~~Processing Time') }}
+              {{ t('sentiment.processing_time') }}
             </div>
           </div>
         </div>
@@ -136,13 +144,13 @@
       <div v-if="hasResults" class="p-6">
         <div class="flex items-center justify-between mb-4">
           <h4 class="text-lg font-semibold text-gray-900">
-            {{ t('~~Results') }}
+            {{ t('sentiment.results') }}
           </h4>
           <div class="flex items-center space-x-4">
             <base-input
               v-model="searchText"
               type="text"
-              :placeholder="t('~~Search results...')"
+              :placeholder="t('sentiment.search_results')"
               class="w-64"
               size="medium"
             />
@@ -150,10 +158,10 @@
               v-model="selectAll"
               @update:model-value="toggleSelectAll"
             >
-              {{ t('~~Select All') }}
+              {{ t('actions.select_all') }}
             </base-checkbox>
             <span class="text-sm text-gray-600">
-              {{ selectedWorksites.length }} {{ t('~~Selected') }}
+              {{ selectedWorksites.length }} {{ t('sentiment.selected') }}
             </span>
           </div>
         </div>
@@ -167,14 +175,14 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {{ t('~~Select') }}
+                  {{ t('actions.select') }}
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   @click="handleSort('case_number')"
                 >
                   <div class="flex items-center">
-                    {{ t('~~Case Number') }}
+                    {{ t('sentiment.case_number') }}
                     <font-awesome-icon
                       v-if="sortField === 'case_number'"
                       :icon="[
@@ -190,7 +198,7 @@
                   @click="handleSort('survivor_initials')"
                 >
                   <div class="flex items-center">
-                    {{ t('~~Survivor Initials') }}
+                    {{ t('sentiment.survivor_initials') }}
                     <font-awesome-icon
                       v-if="sortField === 'survivor_initials'"
                       :icon="[
@@ -206,7 +214,7 @@
                   @click="handleSort('city')"
                 >
                   <div class="flex items-center">
-                    {{ t('~~Location') }}
+                    {{ t('sentiment.location') }}
                     <font-awesome-icon
                       v-if="sortField === 'city'"
                       :icon="[
@@ -222,7 +230,7 @@
                   @click="handleSort('sentiment_score')"
                 >
                   <div class="flex items-center">
-                    {{ t('~~Story Rating') }}
+                    {{ t('sentiment.story_rating') }}
                     <font-awesome-icon
                       v-if="sortField === 'sentiment_score'"
                       :icon="[
@@ -236,14 +244,14 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {{ t('~~Note') }}
+                  {{ t('sentiment.note') }}
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   @click="handleSort('claimed_organizations')"
                 >
                   <div class="flex items-center">
-                    {{ t('~~Organizations') }}
+                    {{ t('sentiment.organizations') }}
                     <font-awesome-icon
                       v-if="sortField === 'claimed_organizations'"
                       :icon="[
@@ -257,12 +265,12 @@
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {{ t('~~Photos') }}
+                  {{ t('caseForm.photos') }}
                 </th>
                 <th
                   class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {{ t('~~Actions') }}
+                  {{ t('sentiment.actions') }}
                 </th>
               </tr>
             </thead>
@@ -313,7 +321,7 @@
                     <div
                       v-if="!expandedNotes.has(worksite.worksite_id)"
                       class="truncate cursor-pointer hover:text-blue-600"
-                      :title="t('~~Click to expand')"
+                      :title="t('actions.click_expand')"
                       @click="toggleNoteExpansion(worksite.worksite_id)"
                     >
                       {{ worksite.note }}
@@ -325,7 +333,7 @@
                     >
                       {{ worksite.note }}
                       <span class="text-blue-600 text-xs ml-2"
-                        >[{{ t('~~Click to collapse') }}]</span
+                        >[{{ t('actions.click_collapse') }}]</span
                       >
                     </div>
                   </div>
@@ -348,11 +356,11 @@
                     variant="outline"
                     size="small"
                     class="px-3 py-1"
-                    :text="`${worksite.images.length} ${t('~~Photos')}`"
-                    :alt="t('~~View Photos')"
+                    :text="`${worksite.images.length} ${t('caseForm.photos')}`"
+                    :alt="t('actions.view_photos')"
                   />
                   <span v-else class="text-sm text-gray-400">{{
-                    t('~~No Photos')
+                    t('sentiment.no_photos')
                   }}</span>
                 </td>
                 <td class="px-4 py-4 whitespace-nowrap">
@@ -361,8 +369,8 @@
                     variant="outline"
                     size="small"
                     class="px-3 py-1"
-                    :text="t('~~View')"
-                    :alt="t('~~View Case')"
+                    :text="t('actions.view')"
+                    :alt="t('actions.view_case')"
                   />
                 </td>
               </tr>
@@ -376,11 +384,12 @@
           class="mt-6 flex items-center justify-between"
         >
           <div class="text-sm text-gray-700">
-            {{ t('~~Showing') }} {{ pagination.offset + 1 }} -
+            {{ t('sentiment.showing') }} {{ pagination.offset + 1 }} -
             {{
               Math.min(pagination.offset + pagination.limit, pagination.total)
             }}
-            {{ t('~~of') }} {{ pagination.total }} {{ t('~~Results') }}
+            {{ t('sentiment.of') }} {{ pagination.total }}
+            {{ t('sentiment.results') }}
           </div>
           <div class="flex space-x-2">
             <base-button
@@ -389,8 +398,8 @@
               variant="outline"
               size="small"
               class="px-3 py-1"
-              :text="t('~~Previous')"
-              :alt="t('~~Previous Page')"
+              :text="t('actions.previous')"
+              :alt="t('actions.previous_page_alt')"
             />
             <base-button
               :action="() => changePage(pagination.offset + pagination.limit)"
@@ -400,8 +409,8 @@
               variant="outline"
               size="small"
               class="px-3 py-1"
-              :text="t('~~Next')"
-              :alt="t('~~Next Page')"
+              :text="t('actions.next')"
+              :alt="t('actions.next_page_alt')"
             />
           </div>
         </div>
@@ -418,10 +427,10 @@
             class="text-yellow-500 mb-4 text-2xl"
           />
           <h3 class="text-lg font-semibold text-yellow-800 mb-2">
-            {{ t('~~No Results Found') }}
+            {{ t('sentiment.no_results_found') }}
           </h3>
           <p class="text-yellow-700">
-            {{ t('~~Try adjusting your filters or search criteria') }}
+            {{ t('sentiment.adjust_filters_or_search') }}
           </p>
         </div>
       </div>
@@ -435,14 +444,14 @@
             type="history"
             size="large"
             class="text-blue-500 mr-3"
-            :alt="t('~~Download History')"
+            :alt="t('sentiment.download_history')"
           />
           <h2 class="text-xl font-bold text-gray-900">
-            {{ t('~~Download History') }}
+            {{ t('sentiment.download_history') }}
           </h2>
         </div>
         <p class="text-gray-600">
-          {{ t('~~View and download previously generated packages') }}
+          {{ t('sentiment.view_download_old_packages') }}
         </p>
       </div>
 
@@ -518,14 +527,14 @@
                 variant="solid"
                 size="small"
                 class="px-3 py-1 bg-green-600 hover:bg-green-700"
-                :text="t('~~Download')"
-                :alt="t('~~Download Batch')"
+                :text="t('actions.download')"
+                :alt="t('actions.download_batch')"
               />
               <span
                 v-else-if="isStuck(slotProps.item)"
                 class="text-red-600 text-sm"
               >
-                {{ t('~~Stuck') }}
+                {{ t('sentiment.stuck') }}
               </span>
               <span v-else class="text-blue-600 text-sm">
                 {{ $t('adminSentimentAnalysis.processing') }}
@@ -604,10 +613,10 @@
               class="px-6 py-2 bg-purple-600 hover:bg-purple-700"
               :text="
                 applyingFilter
-                  ? t('~~Applying Filter...')
-                  : t('~~Apply Monet Filter')
+                  ? t('info.applying_filter...')
+                  : t('sentiment.apply_monet_filter')
               "
-              :alt="t('~~Apply Monet Filter')"
+              :alt="t('sentiment.apply_monet_filter')"
               :show-spinner="applyingFilter"
               ccu-icon="paint-brush"
             />
@@ -670,16 +679,16 @@
           variant="outline"
           size="medium"
           class="px-6 py-2"
-          :text="t('~~Cancel')"
-          :alt="t('~~Cancel')"
+          :text="t('actions.cancel')"
+          :alt="t('actions.cancel')"
         />
         <base-button
           :action="confirmFileSelection"
           variant="solid"
           size="medium"
           class="px-6 py-2"
-          :text="t('~~Confirm Selection')"
-          :alt="t('~~Confirm Selection')"
+          :text="t('sentiment.confirm_selection')"
+          :alt="t('sentiment.confirm_selection')"
         />
       </div>
     </template>
@@ -799,8 +808,8 @@ const selectedImage = computed(() => {
 });
 
 const imageFilterOptions = computed(() => [
-  { value: 'true', label: t('~~Only with Photos') },
-  { value: 'false', label: t('~~All Cases') },
+  { value: 'true', label: t('sentiment.only_with_photos') },
+  { value: 'false', label: t('sentiment.all_cases') },
 ]);
 
 // Table setup for batch history
@@ -810,13 +819,13 @@ const batchTableUrl = computed(
 const batchQuery = ref({ batch_type: 'worksite_positive_sentiment_zip' });
 
 const batchColumns = makeTableColumns([
-  ['id', '0.5fr', t('~~Batch ID')],
-  ['created_at', '0.5fr', t('~~Created At')],
-  ['incident_info', '1fr', t('~~Incident & Cases')],
-  ['status', '0.5fr', t('~~Status')],
-  ['progress', '1fr', t('~~Progress')],
-  ['total_items', '0.5fr', t('~~Total Items')],
-  ['actions', '1fr', t('~~Actions')],
+  ['id', '0.5fr', t('sentiment.batch_id')],
+  ['created_at', '0.5fr', t('sentiment.created_at')],
+  ['incident_info', '1fr', t('sentiment.incident_cases')],
+  ['status', '0.5fr', t('sentiment.status')],
+  ['progress', '1fr', t('sentiment.progress')],
+  ['total_items', '0.5fr', t('sentiment.total_items')],
+  ['actions', '1fr', t('sentiment.actions')],
 ]);
 
 // Methods
@@ -1181,11 +1190,11 @@ const getStatusText = (item: {
   metadata: { status: string; error_message: string };
   created_at: string;
 }) => {
-  if (item.completed) return t('~~Completed');
-  if (isStuck(item)) return t('~~Stuck');
-  if (item.metadata?.status === 'pending') return t('~~Pending');
-  if (item.metadata?.error_message) return t('~~Error');
-  return t('~~Unknown');
+  if (item.completed) return t('sentiment.completed');
+  if (isStuck(item)) return t('sentiment.stuck');
+  if (item.metadata?.status === 'pending') return t('sentiment.pending');
+  if (item.metadata?.error_message) return t('info.error');
+  return t('sentiment.unknown');
 };
 
 const getProgressPercentage = (item: {

@@ -110,10 +110,10 @@ const suggestedScript = computed(() => {
         data-testid="testNumberOfInboundCallsDiv"
       >
         <BasePill variant="dark">
-          {{ $t('~~{n} calls', { n: caller.number_of_inbound_calls }) }}
+          {{ $t('currentCall.n_calls', { n: caller.number_of_inbound_calls }) }}
         </BasePill>
         <BasePill variant="incident">
-          {{ $t('~~{n} days', { n: callerAgeInDays }) }}
+          {{ $t('currentCall.n_days', { n: callerAgeInDays }) }}
         </BasePill>
       </div>
     </section>
@@ -187,10 +187,8 @@ const suggestedScript = computed(() => {
         </div>
         <PaneEmpty
           v-else
-          :title="$t('~~No recent cases')"
-          :description="
-            $t('~~New cases from this phone number will appear here.')
-          "
+          :title="$t('currentCall.no_recent_cases')"
+          :description="$t('currentCall.new_cases_appear_here')"
         />
       </section>
 

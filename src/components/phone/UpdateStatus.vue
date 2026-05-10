@@ -53,7 +53,7 @@
         data-testid="testCallNoteTextarea"
         rows="4"
         class="w-full border border-crisiscleanup-grey-100 rounded px-3 py-2 text-[15px] leading-snug resize-y min-h-[96px] focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-primary transition"
-        :placeholder="$t('~~Add any context the next volunteer should know.')"
+        :placeholder="$t('updateStatus.add_context')"
       />
     </section>
 

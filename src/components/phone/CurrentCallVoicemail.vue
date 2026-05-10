@@ -1,7 +1,7 @@
 <template>
   <section
     class="bg-white rounded border border-crisiscleanup-grey-100 flex flex-col max-h-[32rem] min-h-0 overflow-hidden"
-    :aria-label="$t('~~Voicemail')"
+    :aria-label="$t('currentVM.voicemail')"
   >
     <header
       class="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-crisiscleanup-grey-100"
@@ -9,10 +9,10 @@
       <h2
         class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900"
       >
-        {{ $t('~~Voicemail') }}
+        {{ $t('currentVM.voicemail') }}
       </h2>
       <BasePill v-if="ctx.summary || ctx.isSummaryPending" variant="ai">
-        {{ $t('~~AI-generated') }}
+        {{ $t('currentVM.ai_generated') }}
       </BasePill>
       <BasePill
         v-if="ctx.priorCount > 1"
@@ -20,9 +20,7 @@
         class="ml-auto"
         data-testid="testVoicemailPriorRibbon"
       >
-        {{
-          $t('~~{n} prior voicemails from this caller', { n: ctx.priorCount })
-        }}
+        {{ $t('currentVM.n_prior_vm', { n: ctx.priorCount }) }}
       </BasePill>
     </header>
 
@@ -48,7 +46,7 @@
         <PaneDisclosure
           v-if="ctx.audioUrl"
           name="voicemail-audio"
-          :title="$t('~~Play recording')"
+          :title="$t('currentVM.play_recording')"
           :start-open="false"
           data-testid="testVoicemailAudioDisclosure"
         >
@@ -64,7 +62,7 @@
         <PaneDisclosure
           v-if="ctx.transcription"
           name="voicemail-transcript"
-          :title="$t('~~Transcript')"
+          :title="$t('currentVM.transcript')"
           :start-open="false"
         >
           <p
@@ -89,7 +87,7 @@
         <h3
           class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900 flex items-center gap-2"
         >
-          {{ $t('~~Prior voicemails') }}
+          {{ $t('currentVM.prior_vm') }}
           <BasePill variant="dark">{{ ctx.priorHistory.length }}</BasePill>
         </h3>
         <ul class="flex flex-col">
@@ -108,10 +106,10 @@
                 variant="open"
                 class="ml-auto"
               >
-                {{ $t('~~Inbound') }}
+                {{ $t('currentVM.inbound') }}
               </BasePill>
               <BasePill v-else variant="completed" class="ml-auto">
-                {{ $t('~~Callback') }}
+                {{ $t('currentVM.callback') }}
               </BasePill>
             </div>
             <p class="text-[13px] leading-snug text-black whitespace-pre-line">
@@ -120,7 +118,7 @@
             <PaneDisclosure
               v-if="item.vm_transcription"
               :name="`voicemail-history-transcript-${item.id}`"
-              :title="$t('~~Transcript')"
+              :title="$t('currentVM.transcript')"
               :start-open="false"
             >
               <p class="text-[13px] leading-snug whitespace-pre-line">

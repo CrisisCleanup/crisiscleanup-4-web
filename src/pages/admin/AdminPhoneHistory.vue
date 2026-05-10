@@ -7,22 +7,22 @@
         <BaseInput
           v-model="filters.search"
           class="w-full lg:w-80"
-          :top-label="$t('~~Search')"
-          :placeholder="$t('~~Search calls')"
+          :top-label="$t('actions.search')"
+          :placeholder="$t('phoneHistory.search_calls')"
           data-testid="testAdminPhoneHistorySearchInput"
         />
         <BaseInput
           v-model="filters.created_at__gte"
           class="w-full lg:w-56"
           type="date"
-          :top-label="$t('~~Started after')"
+          :top-label="$t('phoneHistory.started_after')"
           data-testid="testAdminPhoneHistoryStartDateInput"
         />
         <BaseInput
           v-model="filters.created_at__lte"
           class="w-full lg:w-56"
           type="date"
-          :top-label="$t('~~Started before')"
+          :top-label="$t('phoneHistory.started_before')"
           data-testid="testAdminPhoneHistoryEndDateInput"
         />
         <BaseButton
@@ -97,10 +97,10 @@
             :action="() => loadRecording(item)"
             :text="
               recordingLoading[item.id]
-                ? $t('~~Loading')
-                : $t('~~Play recording')
+                ? $t('info.loading')
+                : $t('phoneHistory.play_recording')
             "
-            :alt="$t('~~Play recording')"
+            :alt="$t('phoneHistory.play_recording')"
             :disabled="recordingLoading[item.id]"
             :show-spinner="recordingLoading[item.id]"
             :selector="`testAdminPhoneHistoryRecordingButton_${item.id}`"
@@ -119,7 +119,7 @@
             class="flex items-center gap-2 text-[12px] text-crisiscleanup-red-900"
             :data-testid="`testAdminPhoneHistoryRecordingError_${item.id}`"
           >
-            <span>{{ $t('~~Recording unavailable') }}</span>
+            <span>{{ $t('phoneHistory.recording_unavailable') }}</span>
             <button
               type="button"
               class="underline"
@@ -181,16 +181,16 @@ const recordingLoading = reactive<Record<string | number, boolean>>({});
 const recordingErrors = reactive<Record<string | number, boolean>>({});
 
 const columns = makeTableColumns([
-  ['created_at', '0.8fr', '~~Started', { sortable: true }],
-  ['end_at', '0.8fr', '~~Ended', { sortable: true }],
-  ['direction', '0.55fr', '~~Direction'],
-  ['dnis', '0.8fr', '~~Caller phone', { sortable: true }],
-  ['user', '0.85fr', '~~Agent', { sortable: true }],
-  ['incident', '0.85fr', '~~Incident'],
-  ['status', '0.7fr', '~~Status'],
-  ['notes', '1fr', '~~Notes'],
-  ['session_id', '1fr', '~~Session ID', { sortable: true }],
-  ['recording', '1fr', '~~Recording'],
+  ['created_at', '0.8fr', 'phoneHistory.started', { sortable: true }],
+  ['end_at', '0.8fr', 'phoneHistory.ended', { sortable: true }],
+  ['direction', '0.55fr', 'phoneHistory.direction'],
+  ['dnis', '0.8fr', 'phoneHistory.caller_phone', { sortable: true }],
+  ['user', '0.85fr', 'phoneHistory.agent', { sortable: true }],
+  ['incident', '0.85fr', 'phoneHistory.incident'],
+  ['status', '0.7fr', 'phoneHistory.status'],
+  ['notes', '1fr', 'phoneHistory.notes'],
+  ['session_id', '1fr', 'phoneHistory.session_id', { sortable: true }],
+  ['recording', '1fr', 'phoneHistory.recording'],
 ]);
 
 const tableQuery = computed(() => {
