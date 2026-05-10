@@ -113,10 +113,11 @@ export default defineComponent({
       Math.max(0, Math.min(100, Number(props.value) || 0)),
     );
 
-    // animatedValue is the rAF-driven position used for both the fill arc
-    // and the needle. It eases toward clampedValue and carries a tiny sine
-    // jitter so the gauge reads as "live" rather than frozen.
+    // animatedValue is the rAF-driven position used for both the fill
+    // arc and the needle. It is the eased base + a small sine wobble so
+    // the gauge reads as "live" rather than frozen on the kiosk wall.
     const animatedValue = ref(clampedValue.value);
+    let easedBase = clampedValue.value;
     let raf = 0;
 
     const startTicker = () => {
@@ -129,12 +130,14 @@ export default defineComponent({
         last = now;
         const target = clampedValue.value;
         const k = 1 - Math.exp(-dt * 4);
-        animatedValue.value += (target - animatedValue.value) * k;
-        if (!reduce) {
+        easedBase += (target - easedBase) * k;
+        if (reduce) {
+          animatedValue.value = easedBase;
+        } else {
           const t = now / 1000;
-          const jitter =
-            0.35 * Math.sin(t * 2.4) + 0.18 * Math.sin(t * 5.7 + 1.3);
-          animatedValue.value += jitter * 0.06;
+          const wobble =
+            1.8 * Math.sin(t * 2.3) + 0.9 * Math.sin(t * 5.7 + 1.3);
+          animatedValue.value = easedBase + wobble;
         }
         raf = requestAnimationFrame(tick);
       };
@@ -142,15 +145,19 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      easedBase = clampedValue.value;
       animatedValue.value = clampedValue.value;
       startTicker();
     });
     onBeforeUnmount(() => cancelAnimationFrame(raf));
 
-    // If the prop is replaced before the ticker mounts (SSR / fast HMR)
-    // keep the seeded value in sync so the first paint isn't at zero.
+    // Seed the eased base when the prop changes before the ticker is
+    // running (SSR / fast HMR) so the first paint isn't at zero.
     watch(clampedValue, (v) => {
-      if (raf === 0) animatedValue.value = v;
+      if (raf === 0) {
+        easedBase = v;
+        animatedValue.value = v;
+      }
     });
 
     const dashOffset = computed(() => {
