@@ -64,9 +64,10 @@ describe('LiveKpiStrip', () => {
     const primary = wrapper.find('.kpi-strip__cell--primary');
     expect(primary.exists()).toBe(true);
     expect(primary.text()).toContain('64');
-    // The thin horizontal track and fill exist as a single bar (no gauge SVG).
-    expect(primary.find('.kpi-strip__bar').exists()).toBe(true);
-    expect(primary.find('svg').exists()).toBe(false);
+    // The semicircular SVG gauge replaces the earlier flat bar — see plan.
+    expect(primary.find('[data-testid="testEngagementGauge"]').exists()).toBe(
+      true,
+    );
   });
 
   it('shows up to 4 supporting cells (top of the list)', () => {

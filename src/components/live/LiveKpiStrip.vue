@@ -1,33 +1,30 @@
 <template>
   <div class="kpi-strip" data-testid="testKpiStripDiv">
-    <!-- Cell 1: primary engagement (4 cols, with horizontal bar — replaces gauge) -->
+    <!-- Cell 1: primary engagement — gauge + digit side-by-side. -->
     <div class="kpi-strip__cell kpi-strip__cell--primary">
       <div class="kpi-strip__eyebrow">{{ engagementLabel }}</div>
       <div class="kpi-strip__primary-row">
-        <span
-          ref="primaryEl"
-          class="kpi-strip__value kpi-strip__value--primary"
-        >
-          {{ formatPercent(engagement) }}
-        </span>
-        <span class="kpi-strip__primary-suffix">%</span>
+        <LiveEngagementGauge
+          class="kpi-strip__gauge"
+          :value="engagement"
+          role="progressbar"
+          :aria-valuenow="Math.round(engagement)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        />
+        <div class="kpi-strip__primary-readout">
+          <div class="kpi-strip__primary-digit">
+            <span
+              ref="primaryEl"
+              class="kpi-strip__value kpi-strip__value--primary"
+            >
+              {{ formatPercent(engagement) }}
+            </span>
+            <span class="kpi-strip__primary-suffix">%</span>
+          </div>
+          <div class="kpi-strip__delta">{{ engagementSubtitle }}</div>
+        </div>
       </div>
-      <div
-        class="kpi-strip__bar"
-        :class="{ 'kpi-strip__bar--full': engagement >= 100 }"
-        role="progressbar"
-        :aria-valuenow="Math.round(engagement)"
-        aria-valuemin="0"
-        aria-valuemax="100"
-      >
-        <div
-          class="kpi-strip__bar-fill"
-          :style="{
-            transform: `scaleX(${Math.max(0, Math.min(100, engagement)) / 100})`,
-          }"
-        ></div>
-      </div>
-      <div class="kpi-strip__delta">{{ engagementSubtitle }}</div>
     </div>
 
     <!-- Cells 2-5: supporting site stats. Animation reserved for the most -->
@@ -65,6 +62,7 @@ import {
 } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAnimatedNumber } from '@/hooks/useAnimatedNumber';
+import LiveEngagementGauge from '@/components/live/LiveEngagementGauge.vue';
 import type { SiteStatistic } from '@/hooks/live/types';
 
 interface SiteStatRow extends SiteStatistic {
@@ -75,6 +73,7 @@ interface SiteStatRow extends SiteStatistic {
 
 export default defineComponent({
   name: 'LiveKpiStrip',
+  components: { LiveEngagementGauge },
   props: {
     engagement: {
       type: Number,
@@ -237,10 +236,35 @@ export default defineComponent({
   color: var(--cc-type-3);
 }
 
+/*
+ * Primary cell uses a horizontal pair: gauge on the left, digit + delta
+ * stacked to its right. Saves vertical space vs. the previous gauge-on-its-
+ * own-row layout and reads as one composed unit.
+ */
 .kpi-strip__primary-row {
   display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.kpi-strip__gauge {
+  flex: 0 0 auto;
+  width: clamp(120px, 11vw, 160px);
+}
+
+.kpi-strip__primary-readout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.kpi-strip__primary-digit {
+  display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
 }
 
 .kpi-strip__value {
@@ -270,23 +294,6 @@ export default defineComponent({
   font-weight: 800;
   color: var(--cc-type-3);
   margin-right: 0.1ch;
-}
-
-.kpi-strip__bar {
-  position: relative;
-  height: 4px;
-  width: 100%;
-  background-color: var(--cc-ink-3);
-  overflow: hidden;
-  margin-top: 4px;
-}
-
-.kpi-strip__bar-fill {
-  position: absolute;
-  inset: 0;
-  background-color: var(--cc-signal);
-  transform-origin: left center;
-  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .kpi-strip__delta {
@@ -320,9 +327,6 @@ export default defineComponent({
 @media (prefers-reduced-motion: reduce) {
   .kpi-strip__cell--ticking::before {
     animation: none;
-  }
-  .kpi-strip__bar-fill {
-    transition: none;
   }
 }
 
