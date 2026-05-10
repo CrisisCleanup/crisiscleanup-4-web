@@ -1,8 +1,8 @@
 <template>
-  <div class="flex flex-col" :style="[cssVars]">
-    <div class="flex justify-between">
+  <div class="ccu-slider flex flex-col" :style="[cssVars]">
+    <div class="ccu-slider__labels flex justify-between">
       <span
-        class="text-crisiscleanup-grey-900 text-sm mx-1 flex items-center justify-start"
+        class="ccu-slider__label ccu-slider__label--from flex items-center justify-start"
       >
         <span class="cursor-pointer" @click="$emit('input', Number(1))">{{
           from
@@ -24,22 +24,22 @@
         <span
           v-if="title"
           :data-testid="`testSlider${title}Input`"
-          class="text-crisiscleanup-grey-900 text-sm mx-1 font-bold"
+          class="ccu-slider__label ccu-slider__label--title font-bold"
           >{{ title }}</span
         >
       </div>
       <span
-        class="text-crisiscleanup-grey-900 text-sm items-center justify-start mx-1 cursor-pointer"
+        class="ccu-slider__label ccu-slider__label--to items-center justify-start cursor-pointer"
         @click="$emit('input', Number(max))"
         >{{ to }}</span
       >
     </div>
-    <div class="range-slider mx-2 mb-1" :title="value">
+    <div class="range-slider" :title="localValue">
       <input
         class="range-slider__range"
-        :class="[sliderClass, { activated: value < max }]"
+        :class="[sliderClass, { activated: localValue < max }]"
         type="range"
-        :value="value"
+        :value="localValue"
         :min="min"
         :max="max"
         :step="step"
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 export default defineComponent({
   name: 'Slider',
@@ -90,11 +90,11 @@ export default defineComponent({
     },
     handleSize: {
       type: String,
-      default: '5px',
+      default: '14px',
     },
     trackSize: {
       type: String,
-      default: '3px',
+      default: '4px',
     },
     sliderClass: {
       type: String,
@@ -111,159 +111,190 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    function update(e) {
-      const { value } = e.target;
-      emit('input', Number(value));
+    // Mirror the input position locally so the gradient track always
+    // reflects what the user is dragging — some callers (e.g. the SVI
+    // filter) hardcode `:value` and only emit downstream effects, so
+    // relying solely on `props.value` would freeze the visual fill.
+    const localValue = ref(props.value);
+    watch(
+      () => props.value,
+      (v) => {
+        localValue.value = v;
+      },
+    );
+
+    function update(e: Event) {
+      const target = e.target as HTMLInputElement;
+      const v = Number(target.value);
+      localValue.value = v;
+      emit('input', v);
     }
 
     const cssVars = computed(() => {
+      const range = Math.max(1, props.max - props.min);
+      const filled = Math.min(
+        100,
+        Math.max(0, ((localValue.value - props.min) / range) * 100),
+      );
       return {
         '--primary-color': props.primaryColor,
         '--secondary-color': props.secondaryColor,
         '--handle-size': props.handleSize,
         '--track-size': props.trackSize,
+        '--ccu-slider-fill-pct': `${filled}%`,
       };
     });
 
     return {
       update,
       cssVars,
+      localValue,
     };
   },
 });
 </script>
 
 <style scoped lang="scss">
-// Range Slider
 $handle-size: var(--handle-size);
 $track-size: var(--track-size);
-
-$range-handle-size: $handle-size !default;
-$range-track-height: $track-size !default;
-
 $primary: var(--primary-color);
-$secondary: var(--secondary-color);
+// Track unfilled portion derives from currentColor so the slider reads
+// on both dark (white-ish text) and light (dark text) parents. Callers
+// can override with `--ccu-slider-track-bg` if they want a specific tone.
+$track-bg: var(
+  --ccu-slider-track-bg,
+  color-mix(in srgb, currentColor 22%, transparent)
+);
 
-.activated.range-slider__range {
-  // Range Handle
-  &::-webkit-slider-thumb {
-    box-shadow:
-      0 0 0 3px white,
-      0 0 0 6px #fece09;
-    @apply bg-primary-light;
-    &:hover {
-      @apply bg-primary-light;
-    }
-  }
-
-  &:active::-webkit-slider-thumb {
-    @apply bg-primary-light;
-  }
-
-  &::-moz-range-thumb {
-    box-shadow:
-      0 0 0 3px white,
-      0 0 0 6px #fece09;
-    @apply bg-primary-light;
-    &:hover {
-      @apply bg-primary-light;
-    }
-  }
-
-  &:active::-moz-range-thumb {
-    @apply bg-primary-light;
-  }
+.ccu-slider__labels {
+  margin-bottom: 6px;
+  font-family: var(--ff-body, 'Public Sans', system-ui, sans-serif);
+  font-size: 12px;
+  letter-spacing: 0.04em;
 }
 
-.range-slider__range {
-  // Range Handle
-  &::-webkit-slider-thumb {
-    box-shadow:
-      0 0 0 3px $secondary,
-      0 0 0 5px $primary;
-    @apply bg-primary-light;
-    &:hover {
-      @apply bg-primary-light;
-    }
-  }
+.ccu-slider__label {
+  color: var(--cc-type-3, #6b6b6b);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
 
-  &:active::-webkit-slider-thumb {
-    @apply bg-primary-light;
-  }
+.ccu-slider__label--from,
+.ccu-slider__label--to {
+  color: inherit;
+  opacity: 0.85;
+  transition: opacity 160ms ease;
+}
 
-  &::-moz-range-thumb {
-    box-shadow:
-      0 0 0 3px $secondary,
-      0 0 0 5px $primary;
-    @apply bg-primary-light;
-    &:hover {
-      @apply bg-primary-light;
-    }
-  }
+.ccu-slider__label--from:hover,
+.ccu-slider__label--to:hover {
+  opacity: 1;
+}
 
-  &:active::-moz-range-thumb {
-    @apply bg-primary-light;
-  }
+.ccu-slider__label--title {
+  color: var(--cc-type-1, currentColor);
+  font-size: 12px;
+}
+
+.range-slider {
+  padding: 0 calc(#{$handle-size} / 2);
 }
 
 .range-slider__range {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   min-width: 0;
   display: block;
-  height: $range-track-height;
-  background-color: $primary;
+  height: $track-size;
+  background: linear-gradient(
+    to right,
+    $primary 0%,
+    $primary var(--ccu-slider-fill-pct, 100%),
+    $track-bg var(--ccu-slider-fill-pct, 100%),
+    $track-bg 100%
+  );
+  border-radius: calc(#{$track-size} / 2);
   outline: none;
   padding: 0;
   margin: 0;
-
-  // Range Handle
-  &::-webkit-slider-thumb {
-    appearance: none;
-    width: $range-handle-size;
-    height: $range-handle-size;
-    box-shadow:
-      0 0 0 3px $secondary,
-      0 0 0 5px $primary;
-    border-radius: 50%;
-    background-color: $primary;
-    cursor: pointer;
-    transition: background 0.15s ease-in-out;
-
-    &:hover {
-      background-color: $primary;
-    }
-  }
-
-  &:active::-webkit-slider-thumb {
-    background-color: $primary;
-  }
-
-  &::-moz-range-thumb {
-    width: $range-handle-size;
-    height: $range-handle-size;
-    border: 0;
-    border-radius: 50%;
-    background-color: $primary;
-    cursor: pointer;
-    transition: background 0.15s ease-in-out;
-    box-shadow:
-      0 0 0 3px $secondary,
-      0 0 0 5px $primary;
-
-    &:hover {
-      background-color: $primary;
-    }
-  }
-
-  &:active::-moz-range-thumb {
-    background-color: $primary;
-  }
+  cursor: pointer;
+  transition: filter 160ms ease;
 }
 
-// Firefox Overrides
-::-moz-range-track {
+.range-slider__range:hover {
+  filter: brightness(1.05);
+}
+
+/* Activated: brand yellow takes over the filled track + thumb gets a soft
+   halo so callers using a neutral primary-color (e.g. #dadada on the work
+   page) still get a clear "this slider is on" signal. */
+.range-slider__range.activated {
+  background: linear-gradient(
+    to right,
+    #fece09 0%,
+    #fece09 var(--ccu-slider-fill-pct, 100%),
+    $track-bg var(--ccu-slider-fill-pct, 100%),
+    $track-bg 100%
+  );
+}
+
+.range-slider__range.activated::-webkit-slider-thumb {
+  background-color: #fece09;
+  box-shadow:
+    0 0 0 4px rgba(254, 206, 9, 0.25),
+    0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.range-slider__range.activated::-moz-range-thumb {
+  background-color: #fece09;
+  box-shadow:
+    0 0 0 4px rgba(254, 206, 9, 0.25),
+    0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.range-slider__range::-webkit-slider-thumb {
+  appearance: none;
+  width: $handle-size;
+  height: $handle-size;
+  border-radius: 50%;
   background-color: $primary;
+  border: 2px solid var(--cc-ink-0, #fff);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.range-slider__range:hover::-webkit-slider-thumb,
+.range-slider__range:active::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+
+.range-slider__range::-moz-range-thumb {
+  width: $handle-size;
+  height: $handle-size;
+  border-radius: 50%;
+  background-color: $primary;
+  border: 2px solid var(--cc-ink-0, #fff);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  transition: transform 160ms ease;
+}
+
+.range-slider__range:hover::-moz-range-thumb,
+.range-slider__range:active::-moz-range-thumb {
+  transform: scale(1.1);
+}
+
+.range-slider__range:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 4px;
+}
+
+::-moz-range-track {
+  background: transparent;
   border: 0;
 }
 

@@ -27,15 +27,22 @@ export const i18n = getI18n();
  */
 export const interpolateNamedFallback = (
   result: unknown,
-  named?: Record<string, string | number | boolean>,
+  named?: Record<string, unknown>,
 ): unknown => {
-  if (typeof result !== 'string' || !named) return result;
-  if (!result.includes('{')) return result;
-  return result.replaceAll(/{(\w+)}/g, (match, name: string) => {
-    const v = named[name];
-    if (typeof v === 'string') return v;
-    if (typeof v === 'number') return v.toString();
-    if (typeof v === 'boolean') return v ? 'true' : 'false';
-    return match;
-  });
+  if (typeof result !== 'string') return result;
+  let out = result;
+  if (named && out.includes('{')) {
+    out = out.replaceAll(/{(\w+)}/g, (match, name: string) => {
+      const v = named[name];
+      if (typeof v === 'string') return v;
+      if (typeof v === 'number') return v.toString();
+      if (typeof v === 'boolean') return v ? 'true' : 'false';
+      return match;
+    });
+  }
+  // Strip the `~~` source-code sentinel so the rendered UI never shows it.
+  // Authors write `$t('~~Vulnerability filter')` to keep missing keys
+  // greppable; the user-facing text is the part after the prefix.
+  if (out.startsWith('~~')) out = out.slice(2);
+  return out;
 };

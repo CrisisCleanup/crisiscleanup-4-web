@@ -297,27 +297,38 @@ const buildApp = (app: VueApp) =>
     } as VueToastificationPluginOptions);
 
 const installI18nFallbackInterpolation = (app: VueApp) => {
-  // Wrap the global $t so missing-key fallbacks ("~~English with {n}") still
-  // get their named placeholders interpolated. vue-i18n short-circuits its
-  // compiler on the missing-key path with formatFallbackMessages: true, so
-  // the raw key would otherwise leak through to the UI.
-  const props = app.config.globalProperties;
-  const originalT = props.$t;
-  if (typeof originalT === 'function') {
-    props.$t = function patchedT(this: unknown, ...args: unknown[]) {
-      const result = (originalT as (...a: unknown[]) => unknown).apply(
-        this,
-        args,
-      );
+  // Wrap the global `$t` AND the i18n composer's `t` so missing-key
+  // fallbacks ("~~English with {n}") still get their named placeholders
+  // interpolated AND the `~~` source-code sentinel stripped before reaching
+  // the UI. vue-i18n short-circuits its compiler on the missing-key path
+  // with formatFallbackMessages: true, so the raw key would otherwise leak
+  // through.
+  const wrap = <T extends (...args: unknown[]) => unknown>(originalT: T): T => {
+    return function patchedT(this: unknown, ...args: unknown[]) {
+      const result = originalT.apply(this, args);
       const named = args[1];
-      if (named && typeof named === 'object' && !Array.isArray(named)) {
-        return interpolateNamedFallback(
-          result,
-          named as Record<string, unknown>,
-        );
-      }
-      return result;
-    } as typeof originalT;
+      const namedObj =
+        named && typeof named === 'object' && !Array.isArray(named)
+          ? (named as Record<string, unknown>)
+          : undefined;
+      return interpolateNamedFallback(result, namedObj);
+    } as T;
+  };
+
+  const props = app.config.globalProperties;
+  if (typeof props.$t === 'function') {
+    props.$t = wrap(
+      props.$t as (...a: unknown[]) => unknown,
+    ) as typeof props.$t;
+  }
+
+  // `useI18n()` returns the global composer by default (legacy: false), so
+  // patching `i18n.global.t` covers component-level `t()` calls too.
+  const composer = i18n.global as unknown as {
+    t: (...a: unknown[]) => unknown;
+  };
+  if (typeof composer.t === 'function') {
+    composer.t = wrap(composer.t.bind(composer));
   }
 };
 

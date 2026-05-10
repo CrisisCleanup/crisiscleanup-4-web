@@ -173,11 +173,15 @@
                 <!-- Map Controls -->
                 <!-- Mobile: cap width so the slider doesn't dominate the map. -->
                 <div
-                  class="absolute top-0 left-0 m-2 px-2 py-1.5 md:p-2 bg-cc-ink-1 ring-1 ring-cc-ink-3 z-map-controls w-[calc(70%-0.5rem)] md:w-auto max-w-xs"
+                  class="svi-control absolute top-0 left-0 m-2 bg-cc-ink-1 ring-1 ring-cc-ink-3 z-map-controls"
                 >
+                  <div class="svi-control__eyebrow">
+                    {{ $t('~~Vulnerability filter') }}
+                  </div>
                   <Slider
                     primary-color="#FECE09"
                     data-testid="testSviSliderDiv"
+                    slider-class="w-full"
                     :value="100"
                     :from="$t('svi.most_vulnerable')"
                     :to="$t('svi.everyone')"
@@ -1172,6 +1176,30 @@ export default {
     background-color: var(--cc-ink-0);
     border: 1px solid var(--cc-ink-3);
     overflow: hidden;
+  }
+
+  .svi-control {
+    color: var(--cc-type-2);
+    width: 17rem;
+    max-width: calc(100% - 1rem);
+    padding: 10px 14px 12px;
+  }
+
+  .svi-control__eyebrow {
+    font-family: var(--ff-body);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cc-type-3);
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .svi-control {
+      width: calc(70% - 0.5rem);
+      padding: 8px 12px 10px;
+    }
   }
 
   /* Scrollbar — ink palette */

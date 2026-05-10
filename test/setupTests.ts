@@ -28,16 +28,21 @@ vi.mock('@/modules/i18n', () => ({
   },
   interpolateNamedFallback: (
     result: unknown,
-    named?: Record<string, string | number>,
+    named?: Record<string, unknown>,
   ) => {
-    if (typeof result !== 'string' || !named) return result;
-    if (!result.includes('{')) return result;
-    return result.replaceAll(/{(\w+)}/g, (match: string, name: string) => {
-      const v = named[name];
-      if (typeof v === 'string') return v;
-      if (typeof v === 'number') return v.toString();
-      return match;
-    });
+    if (typeof result !== 'string') return result;
+    let out = result;
+    if (named && out.includes('{')) {
+      out = out.replaceAll(/{(\w+)}/g, (match: string, name: string) => {
+        const v = named[name];
+        if (typeof v === 'string') return v;
+        if (typeof v === 'number') return v.toString();
+        if (typeof v === 'boolean') return v ? 'true' : 'false';
+        return match;
+      });
+    }
+    if (out.startsWith('~~')) out = out.slice(2);
+    return out;
   },
 }));
 vi.mock('@geoman-io/leaflet-geoman-free', () => {
