@@ -47,7 +47,7 @@
               />
             </div>
             <div class="text-lg mb-3 opacity-60">
-              {{ moment(incident.start_at).format('MMMM Y') }}
+              {{ moment(incident.start_at).format('MMMM YYYY') }}
             </div>
             <div
               v-if="

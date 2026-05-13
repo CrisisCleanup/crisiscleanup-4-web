@@ -174,7 +174,7 @@ onMounted(async () => {
       </div>
       <div class="text-2xl font-semibold">{{ incident.name }}</div>
       <div class="text-sm">
-        {{ moment(incident.start_at).format('MMMM Y') }}
+        {{ moment(incident.start_at).format('MMMM YYYY') }}
       </div>
       <div
         v-if="
