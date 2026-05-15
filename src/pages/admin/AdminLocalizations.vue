@@ -73,6 +73,9 @@
         >
           {{ $t('adminLocalizations.available_frontend') }}
         </base-checkbox>
+        <div class="text-xs mb-2">
+          {{ $t('adminLocalizations.localization_auto_url') }}
+        </div>
       </div>
       <div class="col-span-2">
         <div class="mb-3 flex items-center justify-between">
