@@ -459,6 +459,7 @@ const RANDOM_QUOTES = [
   'spinner.darkest_night_end_sun_rise',
   'spinner.plans_useless_planning_indispensable',
   'spinner.janitor_supplies',
+  'spinner.water_portal',
 ];
 
 export default defineComponent({
