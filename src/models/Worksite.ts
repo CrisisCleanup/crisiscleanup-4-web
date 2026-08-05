@@ -138,7 +138,10 @@ export default class Worksite extends CCUModel {
   }
 
   static getWorkType(workTypes, filters, organization) {
-    // TODO: Unit Test
+    // Prefer Cleanup phase (incident_phases id 4) over LTR when choosing
+    // the display/icon work type — matches API select_key_work_type.
+    const CLEANUP_PHASE_ID = 4;
+
     let currentFilteredTypes: string[] = [];
     if (filters && filters.fields) {
       currentFilteredTypes = Object.keys(filters.fields).filter((fieldKey) =>
@@ -146,42 +149,31 @@ export default class Worksite extends CCUModel {
       );
     }
 
-    const filterByClaimedOrg = (array) => {
-      return array
-        .filter((type) => type.claimed_by === (organization && organization.id))
-        .sort((a, b) => {
-          return (
-            enums.getters.workTypeCommercialValues[b.work_type] -
-            enums.getters.workTypeCommercialValues[a.work_type]
-          );
-        });
+    const byCommercialValueDesc = (a, b) =>
+      (enums.getters.workTypeCommercialValues[b.work_type] || 0) -
+      (enums.getters.workTypeCommercialValues[a.work_type] || 0);
+
+    const pickFromTier = (array) => {
+      if (!array || array.length === 0) {
+        return;
+      }
+      const sorted = [...array].sort(byCommercialValueDesc);
+      const cleanup = sorted.filter((type) => type.phase === CLEANUP_PHASE_ID);
+      return (cleanup.length > 0 ? cleanup : sorted)[0];
     };
 
-    const filterByUnclaimed = (array) => {
-      return array
-        .filter((type) => type.claimed_by === null)
-        .sort((a, b) => {
-          return (
-            enums.getters.workTypeCommercialValues[b.work_type] -
-            enums.getters.workTypeCommercialValues[a.work_type]
-          );
-        });
-    };
-
-    const allWorkTypes = [...workTypes].sort((a, b) => {
-      return (
-        enums.getters.workTypeCommercialValues[b.work_type] -
-        enums.getters.workTypeCommercialValues[a.work_type]
+    const filterByClaimedOrg = (array) =>
+      array.filter(
+        (type) => type.claimed_by === (organization && organization.id),
       );
-    });
-    const workTypesInFilter = [...workTypes]
-      .filter((type) => currentFilteredTypes.includes(type.work_type))
-      .sort((a, b) => {
-        return (
-          enums.getters.workTypeCommercialValues[b.work_type] -
-          enums.getters.workTypeCommercialValues[a.work_type]
-        );
-      });
+
+    const filterByUnclaimed = (array) =>
+      array.filter((type) => type.claimed_by === null);
+
+    const allWorkTypes = [...workTypes];
+    const workTypesInFilter = allWorkTypes.filter((type) =>
+      currentFilteredTypes.includes(type.work_type),
+    );
 
     if (allWorkTypes.length === 1) {
       return allWorkTypes[0];
@@ -192,26 +184,18 @@ export default class Worksite extends CCUModel {
     }
 
     if (workTypesInFilter.length > 1) {
-      if (filterByClaimedOrg(workTypesInFilter).length > 0) {
-        return filterByClaimedOrg(workTypesInFilter)[0];
-      }
-
-      if (filterByUnclaimed(workTypesInFilter).length > 0) {
-        return filterByUnclaimed(workTypesInFilter)[0];
-      }
-
-      return workTypesInFilter[0];
+      return (
+        pickFromTier(filterByClaimedOrg(workTypesInFilter)) ||
+        pickFromTier(filterByUnclaimed(workTypesInFilter)) ||
+        pickFromTier(workTypesInFilter)
+      );
     }
 
-    if (filterByClaimedOrg(allWorkTypes).length > 0) {
-      return filterByClaimedOrg(allWorkTypes)[0];
-    }
-
-    if (filterByUnclaimed(allWorkTypes).length > 0) {
-      return filterByUnclaimed(allWorkTypes)[0];
-    }
-
-    return allWorkTypes[0];
+    return (
+      pickFromTier(filterByClaimedOrg(allWorkTypes)) ||
+      pickFromTier(filterByUnclaimed(allWorkTypes)) ||
+      pickFromTier(allWorkTypes)
+    );
   }
 
   static apiConfig = {

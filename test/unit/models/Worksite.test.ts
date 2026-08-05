@@ -168,6 +168,9 @@ describe('models > Worksite', () => {
           type2: 5,
           type3: 15,
           type4: 20,
+          fence: 3316,
+          muck_out: 13_752,
+          rebuild: 68_853,
         },
       };
     });
@@ -313,6 +316,35 @@ describe('models > Worksite', () => {
         organization,
       );
       expect(result.work_type).toBe('type3');
+    });
+
+    test('prefers highest-value unclaimed cleanup over higher-value LTR', () => {
+      // Shape of worksite 446362
+      const workTypes = [
+        { work_type: 'fence', claimed_by: null, phase: 4 },
+        { work_type: 'muck_out', claimed_by: null, phase: 4 },
+        { work_type: 'rebuild', claimed_by: null, phase: 5 },
+      ];
+      const result = Worksite.getWorkType(workTypes, {}, { id: 1 });
+      expect(result.work_type).toBe('muck_out');
+    });
+
+    test('falls back to LTR when no cleanup work types exist', () => {
+      const workTypes = [
+        { work_type: 'rebuild', claimed_by: null, phase: 5 },
+        { work_type: 'type1', claimed_by: null, phase: 5 },
+      ];
+      const result = Worksite.getWorkType(workTypes, {}, { id: 1 });
+      expect(result.work_type).toBe('rebuild');
+    });
+
+    test('my-org claimed cleanup beats higher-value unclaimed LTR', () => {
+      const workTypes = [
+        { work_type: 'muck_out', claimed_by: 1, phase: 4 },
+        { work_type: 'rebuild', claimed_by: null, phase: 5 },
+      ];
+      const result = Worksite.getWorkType(workTypes, {}, { id: 1 });
+      expect(result.work_type).toBe('muck_out');
     });
   });
 

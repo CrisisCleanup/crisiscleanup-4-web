@@ -30,6 +30,8 @@ export interface WorkType {
   case_number?: string;
   commercial_value: number;
   recur_default: string;
+  /** Incident phase id; cleanup = 4, ltr = 5 */
+  phase?: number;
 }
 
 export interface CaseFlag {
