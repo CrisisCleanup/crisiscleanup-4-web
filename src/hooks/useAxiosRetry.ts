@@ -36,6 +36,21 @@ export interface AxiosRetryProps<T = unknown> {
    * @param error interceptor response.
    */
   retryHandler: (error: AxiosError<T>) => Promise<Partial<AxiosRequestConfig>>;
+  /**
+   * Max times a single request is retried before its error is rethrown.
+   *
+   * @remarks
+   * Guards against retry loops when a response passes the predicate for
+   * reasons the retry handler cannot fix (e.g. an upstream service
+   * returning 401 regardless of our credentials).
+   * @default 1
+   */
+  maxRetries?: number;
+}
+
+interface RetryableRequestConfig extends AxiosRequestConfig {
+  /** Number of times this request has already been retried. */
+  __retryCount?: number;
 }
 
 /**
@@ -43,7 +58,12 @@ export interface AxiosRetryProps<T = unknown> {
  * @param props retry options.
  */
 export const useAxiosRetry = <T = unknown>(props: AxiosRetryProps<T>) => {
-  const { instance = axios, responsePredicate, retryHandler } = props;
+  const {
+    instance = axios,
+    responsePredicate,
+    retryHandler,
+    maxRetries = 1,
+  } = props;
   const processing = ref(false);
   const subscribers = ref<
     Array<(retryConfig?: Partial<AxiosRequestConfig>) => unknown>
@@ -53,35 +73,46 @@ export const useAxiosRetry = <T = unknown>(props: AxiosRetryProps<T>) => {
     undefined,
     (error: AxiosError<T>) => {
       if (!responsePredicate(error)) throw error;
+      const retryCount =
+        (error.config as RetryableRequestConfig)?.__retryCount ?? 0;
+      if (retryCount >= maxRetries) {
+        debug('retry limit reached (%d); rethrowing: %O', retryCount, error);
+        throw error;
+      }
       debug('intercepted response: %O', error);
       // if not processing yet, invoke handler
       if (!processing.value) {
         processing.value = true;
-        // Not sure what eslints deal is here, it's cleary being caught.
-        // eslint-disable-next-line promise/catch-or-return
+        const flush = (retryConfig?: Partial<AxiosRequestConfig>) => {
+          // Snapshot and reset synchronously, before dispatching retries:
+          // a retry that fails re-enters this interceptor, and must start a
+          // new cycle rather than be queued and dropped by the reset.
+          const pending = subscribers.value;
+          subscribers.value = [];
+          processing.value = false;
+          debug('flushing %d retry subscribers', pending.length);
+          for (const cb of pending) cb(retryConfig);
+        };
         retryHandler(error)
-          .then(async (retryConfig) =>
-            Promise.allSettled(
-              subscribers.value.map((cb) => cb(retryConfig)),
-            ).catch((error_) => getErrorMessage(error_)),
-          )
-          .catch((error) => {
-            console.error(error);
-            getErrorMessage(error);
-          })
-          .finally(() => {
-            debug('finalizing retry subscribers:', subscribers.value);
-            processing.value = false;
-            subscribers.value = [];
+          .then((retryConfig) => flush(retryConfig))
+          .catch((handlerError) => {
+            console.error(handlerError);
+            getErrorMessage(handlerError);
+            // Still flush so queued requests settle (bounded by maxRetries)
+            // instead of hanging forever.
+            flush();
           });
       }
       // add retry subscriber
       return new Promise((resolve) => {
-        subscribers.value.push((retryConfig?: Partial<AxiosRequestConfig>) =>
-          resolve(
-            instance(defu(retryConfig, error.config!) as AxiosRequestConfig),
-          ),
-        );
+        subscribers.value.push((retryConfig?: Partial<AxiosRequestConfig>) => {
+          const config = defu(
+            retryConfig,
+            error.config!,
+          ) as RetryableRequestConfig;
+          config.__retryCount = retryCount + 1;
+          resolve(instance(config));
+        });
       });
     },
     { synchronous: true },
