@@ -5,7 +5,7 @@
   >
     <div class="flex flex-col items-center p-3">
       <img
-        class="h-32 w-32 rounded-full my-5"
+        class="h-32 w-32 rounded-full object-cover object-center my-5"
         :src="user.profilePictureUrl"
         alt="profileUser.profile_picture"
       />
