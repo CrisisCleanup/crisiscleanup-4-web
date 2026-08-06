@@ -1,4 +1,5 @@
 import * as L from 'leaflet';
+import 'leaflet.heat';
 import type { Container } from 'pixi.js';
 import type { LatLng, HeatLayer } from 'leaflet';
 import { getMarkerLayer } from '../../utils/map';
