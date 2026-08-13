@@ -47,24 +47,19 @@ describe('Slider.vue', () => {
     expect(wrapper.emitted('input')[0]).toEqual([7]);
   });
 
-  it.todo(
-    'emits input event with correct value when from label is clicked',
-    async () => {
-      const wrapper = mount(Slider, {
-        props: {
-          from: '1',
-        },
-      });
+  it('emits input event with correct value when from label is clicked', async () => {
+    const wrapper = mount(Slider, {
+      props: {
+        from: '1',
+      },
+    });
 
-      const fromLabel = wrapper.find(
-        '.text-crisiscleanup-grey-900.cursor-pointer',
-      );
-      await fromLabel.trigger('click');
+    const fromLabel = wrapper.find('.ccu-slider__label--from .cursor-pointer');
+    await fromLabel.trigger('click');
 
-      expect(wrapper.emitted('input')).toBeTruthy();
-      expect(wrapper.emitted('input')[0]).toEqual([1]);
-    },
-  );
+    expect(wrapper.emitted('input')).toBeTruthy();
+    expect(wrapper.emitted('input')[0]).toEqual([1]);
+  });
 
   it('emits input event with correct value when to label is clicked', async () => {
     const wrapper = mount(Slider, {
@@ -74,9 +69,7 @@ describe('Slider.vue', () => {
       },
     });
 
-    const toLabel = wrapper.find(
-      '.text-crisiscleanup-grey-900.cursor-pointer:last-child',
-    );
+    const toLabel = wrapper.find('.ccu-slider__label--to');
     await toLabel.trigger('click');
 
     expect(wrapper.emitted('input')).toBeTruthy();

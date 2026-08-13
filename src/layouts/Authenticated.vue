@@ -392,20 +392,10 @@ export default defineComponent({
       return next();
     });
 
-    router.onError((error, to) => {
-      if (
-        error?.message?.includes(
-          'Failed to fetch dynamically imported module',
-        ) ||
-        error?.message?.includes('Importing a module script failed')
-      ) {
-        if (to?.fullPath) {
-          window.location = to.fullPath;
-        } else {
-          window.location.reload();
-        }
-      }
-    });
+    // NOTE: stale-chunk load errors are handled once, globally, in router.ts.
+    // A second handler here had no reload guard, which caused an infinite
+    // hard-reload loop whenever chunks failed persistently (stale cached
+    // index.html after a deploy).
     loadDebug('Loading started...');
     const onPageReadyUnSub = whenever(hasCurrentIncident, () => {
       loadDebug('Loading finished...');

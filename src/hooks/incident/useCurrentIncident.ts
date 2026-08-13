@@ -34,6 +34,7 @@ export const useCurrentIncident = () => {
     item: currentIncident,
     isLoading: isCurrentIncidentLoading,
     hasItem: hasCurrentIncident,
+    error: currentIncidentError,
     fetchInstance,
   } = useModelInstance(Incident, userIncidentId);
 
@@ -100,18 +101,6 @@ export const useCurrentIncident = () => {
     { flush: 'post' },
   );
 
-  // feed fetched recent incident into state update.
-  watch(recentIncidentState.state, async (newValue) => {
-    debug('fell back to fetching recent incident to set incident id %o', {
-      routeIncidentId: routeIncidentId.value,
-      userIncidentId: userIncidentId.value,
-      fetched: newValue,
-    });
-    if (newValue && newValue !== currentIncidentId.value) {
-      await updateUserIncident(newValue);
-    }
-  });
-
   /**
    * Update the current incident id for the user.
    *
@@ -126,6 +115,32 @@ export const useCurrentIncident = () => {
       ? updateRouteIncidentId(newIncidentId)
       : updateUserIncident(newIncidentId));
   };
+
+  // feed fetched recent incident into state update.
+  // updateCurrentIncidentId (not updateUserIncident) so a bad incident id in
+  // the route is replaced too; otherwise the route id re-syncs the bad value
+  // back into user states.
+  watch(recentIncidentState.state, async (newValue) => {
+    debug('fell back to fetching recent incident to set incident id %o', {
+      routeIncidentId: routeIncidentId.value,
+      userIncidentId: userIncidentId.value,
+      fetched: newValue,
+    });
+    if (newValue && newValue !== currentIncidentId.value) {
+      await updateCurrentIncidentId(newValue);
+    }
+  });
+
+  // when the current incident cannot be fetched (deleted incident, revoked
+  // access, corrupt states), fall back to the most recent incident instead
+  // of leaving the app stuck behind the loading spinner forever.
+  whenever(logicAnd(currentIncidentError, hasCurrentUser), () => {
+    debug(
+      'current incident %s failed to load; falling back to recent incident',
+      currentIncidentId.value,
+    );
+    recentIncidentState.execute().catch(getErrorMessage);
+  });
 
   const loadRecentIncident = async () => {
     await recentIncidentState.execute().catch(getErrorMessage);
