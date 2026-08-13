@@ -151,15 +151,22 @@ const currentStoreStore = () => {
       debug('cannot update current user without a current user.');
       return;
     }
-    await Promise.any([
+    // Await BOTH the local store write and the API call. Promise.any resolved
+    // as soon as the (instant) local write finished, so callers could reload
+    // the page before the PATCH reached the server (e.g. the stuck-spinner
+    // "reset user states" button).
+    const results = await Promise.allSettled([
       User.update({
         where: currentUser.value.id,
         data: userData,
-      }).catch(getErrorMessage),
-      User.api()
-        .patch(`/users/${currentUser.value.id}`, userData, { save: false })
-        .catch(getErrorMessage),
-    ]).catch(getErrorMessage);
+      }),
+      User.api().patch(`/users/${currentUser.value.id}`, userData, {
+        save: false,
+      }),
+    ]);
+    for (const result of results) {
+      if (result.status === 'rejected') getErrorMessage(result.reason);
+    }
   };
 
   const updateCurrentUserStates = async (states: Record<string, unknown>) => {
@@ -168,22 +175,25 @@ const currentStoreStore = () => {
       debug('cannot update current user without a current user.');
       return;
     }
-    await Promise.any([
+    // Await BOTH writes; see updateCurrentUser for why Promise.any is unsafe
+    // here.
+    const results = await Promise.allSettled([
       User.update({
         where: currentUser.value.id,
         data: {
           states,
         },
-      }).catch(getErrorMessage),
-      axios
-        .post(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/users/${
-            currentUser.value.id
-          }/states`,
-          { states },
-        )
-        .catch(getErrorMessage),
-    ]).catch(getErrorMessage);
+      }),
+      axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/users/${
+          currentUser.value.id
+        }/states`,
+        { states },
+      ),
+    ]);
+    for (const result of results) {
+      if (result.status === 'rejected') getErrorMessage(result.reason);
+    }
   };
 
   /**
