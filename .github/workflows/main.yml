@@ -112,9 +112,10 @@ jobs:
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     needs: [versions]
-    # TODO: testing on PRs doesnt make sense like this.
-    # Could setup feature branch deployments though.
-    if: ((github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'pull_request')
+    # E2E is off: the test environment does not exist any more.
+    # To turn E2E on again, replace the condition below with:
+    # if: ((github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event_name == 'pull_request')
+    if: false
     continue-on-error: true
     strategy:
       fail-fast: false
