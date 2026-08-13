@@ -24,7 +24,9 @@ export const useUserIncident = (
       | string
       | undefined;
     const _id = Number(_userIncidentId);
-    const id = Number.isNaN(_id) ? undefined : _id;
+    // guard against corrupt states: Number(null) is 0, which would otherwise
+    // be treated as a real incident id and fetched forever.
+    const id = Number.isNaN(_id) || _id <= 0 ? undefined : _id;
     debug('Resolved incident id from user state %s', _id);
     return id;
   });

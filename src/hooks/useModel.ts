@@ -7,7 +7,7 @@ import {
   computedEager,
 } from '@vueuse/core';
 import { type Model } from '@vuex-orm/core';
-import { readonly, ref, type Ref, shallowRef, computed } from 'vue';
+import { readonly, ref, type Ref, shallowRef, computed, watch } from 'vue';
 import createDebug from 'debug';
 import { getErrorMessage } from '@/utils/errors';
 
@@ -24,6 +24,7 @@ export interface UseModel<T extends Model> {
   hasItem: Readonly<Ref<boolean>>;
   itemId: Readonly<Ref<number | undefined>>;
   isLoading: Readonly<Ref<boolean>>;
+  error: Readonly<Ref<unknown>>;
   fetchInstance: (delay?: number) => Promise<unknown>;
   item: T;
 }
@@ -60,17 +61,30 @@ export const useModelInstance = <ModelT extends typeof Model>(
   );
 
   // if eager, ensure incident data exists in store.
+  // Auto-fetch at most ONCE per id, no matter the outcome: a failed request
+  // (404/403), or a response that never lands the entity in the store, would
+  // otherwise retrigger forever (fetch -> not loading, still no item ->
+  // fetch ...).
+  const lastAttemptedId = ref<number | undefined>();
   const shouldFetch = computed(
     () =>
       !hasItem.value &&
       !itemState.isLoading.value &&
-      itemId.value !== undefined,
+      itemId.value !== undefined &&
+      itemId.value !== lastAttemptedId.value,
   );
+
+  // A new target id is a new fetch: clear any previous attempt and failure.
+  watch(itemId, () => {
+    itemState.error.value = undefined;
+    lastAttemptedId.value = undefined;
+  });
 
   if (!lazy) {
     whenever(
       shouldFetch,
       async () => {
+        lastAttemptedId.value = itemId.value;
         debug(
           'retrieving data for (model=%s, itemId=%s)',
           model.value.entity,
@@ -90,6 +104,7 @@ export const useModelInstance = <ModelT extends typeof Model>(
     hasItem,
     itemId: readonly(itemId),
     isLoading: readonly(itemState.isLoading),
+    error: readonly(itemState.error),
     fetchInstance: (delay?: number) => itemState.execute(delay),
     item: item as InstanceType<ModelT>,
   };
