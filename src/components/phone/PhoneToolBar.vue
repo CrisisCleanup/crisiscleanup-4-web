@@ -1,7 +1,6 @@
 <template>
   <Agent
     :allowed-call-type="allowedCallType"
-    class="md:-mt-2 mt-14"
     @on-logged-in="onLoggedIn"
     @set-allowed-call-type="setAllowedCallType"
   />

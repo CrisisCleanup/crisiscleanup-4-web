@@ -10,32 +10,12 @@
       {{ $t('phoneDashboard.no_late_outbound_calls') }}
     </base-text>
     <div class="flex flex-col items-center gap-2 w-full max-w-md">
-      <div class="grid grid-cols-6 gap-1">
-        <base-select
-          v-model="selectedCountryCode"
-          data-testid="testCountryCodeSelect"
-          :options="countryCodes"
-          indicator-icon="caret-down"
-          class="col-span-2"
-          item-key="code"
-          label="code"
-          :placeholder="$t('phoneDashboard.code')"
-        >
-          <template #option="{ option }">
-            <div class="flex items-center">
-              <font-awesome-icon :icon="option.icon" class="w-6 h-4 mr-2" />
-              <div>{{ option.code }}</div>
-            </div>
-          </template>
-        </base-select>
-        <PhoneNumberInput
-          v-model="phone"
-          data-testid="testPhoneNumberTextInput"
-          size="large"
-          class="col-span-4 text-sm"
-          :placeholder="$t('phoneDashboard.phone_number')"
-        />
-      </div>
+      <PhoneNumberComboInput
+        v-model="phone"
+        v-model:country-code="selectedCountryCode"
+        :country-codes="countryCodes"
+        :placeholder="$t('phoneDashboard.phone_number')"
+      />
       <base-button
         variant="solid"
         data-testid="testDialingButton"
@@ -71,15 +51,14 @@
 import { defineComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useEmitter from '../../hooks/useEmitter';
-import BaseInput from '@/components/BaseInput.vue';
 import moment from '@/utils/dates';
-import PhoneNumberInput from '@/components/PhoneNumberInput.vue';
+import PhoneNumberComboInput from '@/components/PhoneNumberComboInput.vue';
 import { useActiveHotlines } from '@/hooks/useActiveHotlines';
 import useAcl from '@/hooks/useAcl';
 
 export default defineComponent({
   name: 'EnhancedManualDialer',
-  components: { PhoneNumberInput, BaseInput },
+  components: { PhoneNumberComboInput },
   props: {
     dialing: {
       type: Boolean,

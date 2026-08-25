@@ -1,9 +1,10 @@
 <template>
   <TitledCard :title="$t('phoneDashboard.last_10_calls')">
-    <div class="card-container overflow-auto h-full">
-      <AgentStats />
+    <div class="card-container h-full min-h-0 flex flex-col">
+      <AgentStats class="flex-none" />
       <AjaxTable
         :url="callHistoryUrl"
+        class="flex-1 min-h-0 flex flex-col"
         :body-style="{ overflow: 'auto', ...tableBodyStyle }"
         :columns="historyCols"
         enable-search

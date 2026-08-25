@@ -1,7 +1,7 @@
 <template>
   <div class="shadow-crisiscleanup-card card" data-testid="testLeaderboardDiv">
     <div
-      class="flex justify-between items-center py-4 px-6 border-b border-opacity-20 border-gray-400"
+      class="flex-none flex justify-between items-center py-4 px-6 border-b border-opacity-20 border-gray-400"
     >
       <base-text variant="h3" bold>
         {{ $t('phoneDashboard.leaderboard') }}
@@ -27,7 +27,6 @@
       :columns="columns"
       :data="tableData"
       :loading="loading"
-      :body-style="{ 'min-height': '20rem', 'max-height': '30rem' }"
       data-testid="testLeaderboardTable"
       class="leaderboard-table"
     >
@@ -186,8 +185,8 @@ export default defineComponent({
       whiteSpace: 'nowrap',
     };
 
-    async function loadLeaderboard(r, url) {
-      resolution.value = r;
+    async function loadLeaderboard(r, url, silent = false) {
+      resolution.value = r ?? resolution.value;
       const baseUrl = import.meta.env.VITE_APP_API_BASE_URL;
       let requestUrl;
       if (url) {
@@ -196,7 +195,9 @@ export default defineComponent({
       } else {
         requestUrl = `${baseUrl}/phone/leaderboard?resolution=${resolution.value}`;
       }
-      loading.value = true;
+      if (!silent) {
+        loading.value = true;
+      }
       try {
         const { data } = await axios.get(requestUrl);
 
@@ -212,7 +213,9 @@ export default defineComponent({
 
         buildLeaderboard();
       } finally {
-        loading.value = false;
+        if (!silent) {
+          loading.value = false;
+        }
       }
     }
 
@@ -263,12 +266,25 @@ export default defineComponent({
       socket.value = s;
     });
 
+    const POLL_INTERVAL_MS = 60_000;
+    let pollId: ReturnType<typeof setInterval> | undefined;
+
     onMounted(async () => {
       await loadLeaderboard(resolution.value);
+      // The websocket only pushes agent states; call counts come from the
+      // REST endpoint, so refresh them in the background while open.
+      pollId = setInterval(() => {
+        if (!loading.value && !previous.value) {
+          loadLeaderboard(resolution.value, undefined, true);
+        }
+      }, POLL_INTERVAL_MS);
     });
 
     onBeforeUnmount(() => {
       socket.value.close();
+      if (pollId) {
+        clearInterval(pollId);
+      }
     });
 
     const tableData = computed(() =>
@@ -365,7 +381,17 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.leaderboard-table :deep(.ccu-table-card) {
-  @apply shadow-none rounded-none;
+/* The Table root carries .ccu-table-card; flex it so only the rows scroll,
+   keeping the column header and pagination footer in place. */
+.leaderboard-table {
+  @apply flex-1 min-h-0 flex flex-col shadow-none rounded-none;
+}
+
+.leaderboard-table :deep(.table-grid) {
+  @apply flex-1 min-h-0 flex flex-col;
+}
+
+.leaderboard-table :deep(.table-grid > .body) {
+  @apply flex-1 min-h-0;
 }
 </style>

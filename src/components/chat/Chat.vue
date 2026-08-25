@@ -25,8 +25,14 @@
       </div>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-3 md:gap-6 h-full mt-3">
-      <div class="w-full md:w-[280px] md:flex-none flex flex-col gap-6">
+    <div
+      class="flex flex-col md:flex-row gap-3 md:gap-6 mt-3"
+      :class="fill ? 'flex-1 min-h-0' : 'h-full'"
+    >
+      <div
+        class="w-full md:w-[280px] md:flex-none flex flex-col gap-6"
+        :class="fill ? 'min-h-0' : ''"
+      >
         <!-- Spinny: gently-branded AI surface, always visible -->
         <section
           ref="spinnyAccordion"
@@ -113,8 +119,10 @@
         </section>
 
         <!-- Online: typographic list, no surface -->
-        <section>
-          <header class="flex items-center justify-between mb-3">
+        <section
+          :class="fill ? 'md:flex-1 md:min-h-0 md:flex md:flex-col' : ''"
+        >
+          <header class="flex items-center justify-between mb-3 flex-none">
             <h3
               class="m-0 text-[11px] font-bold uppercase tracking-[0.1em] text-crisiscleanup-grey-900"
             >
@@ -124,7 +132,10 @@
               {{ onlineUsersWithData?.length || 0 }}
             </span>
           </header>
-          <div class="overflow-auto h-auto md:h-180 -mx-1">
+          <div
+            class="overflow-auto -mx-1"
+            :class="fill ? 'h-auto md:flex-1 md:min-h-0' : 'h-auto md:h-180'"
+          >
             <div
               v-for="organization in sortedOrganizations"
               :key="organization.id"
@@ -183,14 +194,19 @@
           </div>
         </section>
       </div>
-      <tabs tab-details-classes="" class="flex-1">
+      <tabs
+        :tab-details-classes="fill ? 'flex-1 min-h-0' : ''"
+        class="flex-1"
+        :class="fill ? 'min-w-0 min-h-0 flex flex-col chat-tabs--fill' : ''"
+      >
         <tab :name="$t('chat.chat')">
           <div class="message-container flex flex-col h-full">
             <div
               id="messages"
               ref="messagesBox"
               data-testid="testMessagesContent"
-              class="flex flex-col flex-grow py-2 space-y-2 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch h-72 md:h-120"
+              class="flex flex-col flex-grow py-2 space-y-2 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+              :class="fill ? 'h-72 md:h-auto md:min-h-0' : 'h-72 md:h-120'"
               @wheel="handleWheel"
               @ontouchmove="handleWheel"
             >
@@ -306,7 +322,7 @@
         <tab :name="$t('chat.favorites')">
           <div class="flex flex-col h-full">
             <div
-              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+              class="flex flex-col flex-grow min-h-0 py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
             >
               <ChatMessage
                 v-for="favorite in favorites"
@@ -333,7 +349,7 @@
               "
             />
             <div
-              class="flex flex-col flex-grow py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
+              class="flex flex-col flex-grow min-h-0 py-2 space-y-1 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
             >
               <ChatMessage
                 v-for="chat in searchResults"
@@ -398,6 +414,13 @@ export default defineComponent({
     stateKey: {
       type: String,
       default: 'chat_last_seen',
+    },
+    // Fill a bounded parent (flex column) and scroll the lists internally
+    // instead of using fixed heights. Off by default for unbounded
+    // containers like the Work page popout.
+    fill: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, { emit }) {
@@ -910,5 +933,11 @@ export default defineComponent({
 }
 .message-container {
   @apply flex flex-col;
+}
+
+/* In fill mode the active tab pane must span the tab-details area so the
+   message list and composer can split it. */
+.chat-tabs--fill :deep(.tab) {
+  height: 100%;
 }
 </style>

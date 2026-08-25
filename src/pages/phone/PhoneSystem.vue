@@ -1,129 +1,129 @@
 <template>
   <template v-if="mq.mdMinus">
-    <div v-if="!isEditing && !isNew">
+    <div
+      v-if="!isEditing && !isNew"
+      class="fixed inset-x-0 top-12 bottom-16 flex flex-col"
+    >
       <div
-        class="fixed inset-x-0 top-12 z-toolbar bg-white border-b border-crisiscleanup-grey-100 shadow-sm"
+        class="flex-none z-toolbar bg-white border-b border-crisiscleanup-grey-100 shadow-sm"
       >
         <PhoneToolBar
           :on-logged-in="onLoggedIn"
           :set-allowed-call-type="setAllowedCallType"
         />
       </div>
-      <PhoneOverlay
-        :case-id="worksiteId"
-        :selected-chat="selectedChat"
-        @on-complete-call="completeCall"
-        @set-case="selectCase"
-        @on-report-bug="reportBug"
-      />
-      <SimpleMap
-        :key="showingMap"
-        :map-loading="mapLoading"
-        class="mb-16"
-        zoom-buttons-class="mt-20"
-      />
-      <WorksiteTable
-        v-if="showingTable"
-        class="mt-28"
-        :worksite-query="worksiteQuery"
-        @selection-changed="onSelectionChanged"
-        @row-click="
-          (worksite) => {
-            worksiteId = worksite.id;
-            isEditing = true;
-          }
-        "
-      />
-      <span
-        v-if="allWorksiteCount"
-        class="font-thin w-screen absolute flex items-center justify-center mt-4 mr-6 z-toolbar"
-      >
-        <span class="bg-black rounded p-2 text-white">
-          <span data-testid="testCaseCountContent">
-            {{ allWorksiteCount }}
-            {{ $t('casesVue.cases') }}
+      <div class="relative flex-1 min-h-0">
+        <div class="absolute inset-x-0 top-0 bottom-16">
+          <SimpleMap :key="showingMap" :map-loading="mapLoading" />
+        </div>
+        <div
+          v-if="showingTable"
+          class="absolute inset-x-0 top-0 bottom-16 z-popover overflow-y-auto bg-white"
+        >
+          <WorksiteTable
+            :worksite-query="worksiteQuery"
+            @selection-changed="onSelectionChanged"
+            @row-click="
+              (worksite) => {
+                worksiteId = worksite.id;
+                isEditing = true;
+              }
+            "
+          />
+        </div>
+        <span
+          v-if="allWorksiteCount"
+          class="font-thin w-full absolute flex items-center justify-center mt-4 z-toolbar"
+        >
+          <span class="bg-black rounded p-2 text-white">
+            <span data-testid="testCaseCountContent">
+              {{ allWorksiteCount }}
+              {{ $t('casesVue.cases') }}
+            </span>
           </span>
         </span>
-      </span>
-      <div class="absolute top-16 right-4 flex z-toolbar">
-        <base-button
-          text=""
-          data-testid="testSearchButton"
-          icon="search"
-          icon-size="sm"
-          :title="$t('actions.search')"
-          :alt="$t('actions.search')"
-          :action="
-            () => {
-              showingSearchModal = !showingSearchModal;
-            }
-          "
-          class="w-10 h-10 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
-        />
-      </div>
-      <div class="absolute top-28 left-12 mt-2 z-search-dropdown">
-        <WorksiteSearchInput
-          v-if="showingSearchModal"
-          :value="mobileSearch"
-          data-testid="testWorksiteSearch"
-          size="large"
-          display-property="name"
-          :placeholder="$t('actions.search')"
-          skip-validation
-          use-recents
-          class="mx-4 py-1 inset-1"
-          @selected-existing="onSelectExistingWorksite"
-          @focus="collapseGreenPhoneSection"
-          @input="
-            (value: string) => {
-              mobileSearch = value;
-            }
-          "
-        />
-      </div>
-      <div class="fixed bottom-20 gap-2 right-4 flex flex-col z-toolbar">
-        <base-button
-          data-testid="testAddCaseButton"
-          icon="plus"
-          icon-size="sm"
-          :title="$t('actions.add_case')"
-          :alt="$t('actions.add_case')"
-          :action="
-            () => {
-              isNew = true;
-            }
-          "
-          class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
-        />
-        <base-button
-          v-if="showingMap"
-          data-testid="testShowTableButton"
-          ccu-icon="table"
-          icon-size="sm"
-          :title="$t('actions.table_view_alt')"
-          :alt="$t('actions.table_view_alt')"
-          :action="() => toggleView('showingTable')"
-          class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
-        />
-        <base-button
-          v-if="showingTable"
-          data-testid="testShowMapButton"
-          icon="map"
-          icon-size="sm"
-          :title="$t('casesVue.map_view')"
-          :alt="$t('casesVue.map_view')"
-          :action="() => toggleView('showingMap')"
-          class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+        <div class="absolute top-4 right-4 flex z-toolbar">
+          <base-button
+            text=""
+            data-testid="testSearchButton"
+            icon="search"
+            icon-size="sm"
+            :title="$t('actions.search')"
+            :alt="$t('actions.search')"
+            :action="
+              () => {
+                showingSearchModal = !showingSearchModal;
+              }
+            "
+            class="w-10 h-10 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+          />
+        </div>
+        <div class="absolute top-16 left-12 mt-2 z-search-dropdown">
+          <WorksiteSearchInput
+            v-if="showingSearchModal"
+            :value="mobileSearch"
+            data-testid="testWorksiteSearch"
+            size="large"
+            display-property="name"
+            :placeholder="$t('actions.search')"
+            skip-validation
+            use-recents
+            class="mx-4 py-1 inset-1"
+            @selected-existing="onSelectExistingWorksite"
+            @focus="collapseGreenPhoneSection"
+            @input="
+              (value: string) => {
+                mobileSearch = value;
+              }
+            "
+          />
+        </div>
+        <div class="absolute bottom-20 gap-2 right-4 flex flex-col z-toolbar">
+          <base-button
+            data-testid="testAddCaseButton"
+            icon="plus"
+            icon-size="sm"
+            :title="$t('actions.add_case')"
+            :alt="$t('actions.add_case')"
+            :action="
+              () => {
+                isNew = true;
+              }
+            "
+            class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+          />
+          <base-button
+            v-if="showingMap"
+            data-testid="testShowTableButton"
+            ccu-icon="table"
+            icon-size="sm"
+            :title="$t('actions.table_view_alt')"
+            :alt="$t('actions.table_view_alt')"
+            :action="() => toggleView('showingTable')"
+            class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+          />
+          <base-button
+            v-if="showingTable"
+            data-testid="testShowMapButton"
+            icon="map"
+            icon-size="sm"
+            :title="$t('casesVue.map_view')"
+            :alt="$t('casesVue.map_view')"
+            :action="() => toggleView('showingMap')"
+            class="w-12 h-12 border-crisiscleanup-dark-100 border-t border-l border-r bg-white shadow-xl text-xl text-crisiscleanup-dark-400"
+          />
+        </div>
+        <PhoneOverlay
+          :case-id="worksiteId"
+          :selected-chat="selectedChat"
+          class="absolute inset-0 z-phone-overlay pointer-events-none"
+          @on-complete-call="completeCall"
+          @set-case="selectCase"
+          @on-report-bug="reportBug"
         />
       </div>
     </div>
-    <div
-      v-else
-      class="flex flex-col overflow-hidden"
-      :style="{
-        height: worksite ? 'calc(100vh - 13rem)' : 'calc(100vh - 11rem)',
-      }"
-    >
+    <div v-else class="fixed inset-x-0 top-12 bottom-16 flex flex-col bg-white">
       <CaseHeader
         v-if="worksite"
         data-testid="testCaseHeaderDiv"
@@ -296,7 +296,7 @@
 
           <!-- CENTER: search -->
           <div
-            class="flex-1 min-w-0 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+            class="flex-1 min-w-0 pl-3 border-l border-crisiscleanup-grey-100"
           >
             <WorksiteSearchInput
               :value="search"
@@ -320,9 +320,7 @@
           </div>
 
           <!-- RIGHT: active hotlines / prompt -->
-          <div
-            class="min-w-0 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
-          >
+          <div class="min-w-0 pl-3 border-l border-crisiscleanup-grey-100">
             <div
               v-if="activeHotlinePills.length > 0"
               class="flex flex-wrap items-center gap-1.5"
@@ -338,9 +336,7 @@
                   class="text-[10px] opacity-70"
                   aria-hidden="true"
                 />
-                <span class="hidden md:inline opacity-60">{{
-                  pill.shortName
-                }}</span>
+                <span class="opacity-60">{{ pill.shortName }}</span>
                 <PhoneNumberDisplay :phone-number="pill.number" type="plain" />
               </span>
             </div>
@@ -357,55 +353,63 @@
           :set-allowed-call-type="setAllowedCallType"
           :allowed-call-type="allowCallType"
         />
-        <PhoneOverlay
-          :case-id="worksiteId"
-          :selected-chat="selectedChat"
-          @on-complete-call="completeCall"
-          @set-case="selectCase"
-          @on-report-bug="reportBug"
-        />
-        <div class="phone-system__main-content">
-          <div v-show="showingMap" class="phone-system__main-content--map">
-            <SimpleMap
-              :key="showingMap"
-              :map-loading="mapLoading"
-              show-zoom-buttons
-              :available-work-types="availableWorkTypes"
-              @on-zoom-in="zoomIn"
-              @on-zoom-out="zoomOut"
-              @on-zoom-incident-center="goToIncidentCenter"
-              @on-zoom-interactive="goToInteractive"
-            />
-          </div>
-          <div v-show="showingTable" class="phone-system__main-content--table">
-            <div class="justify-end items-center hidden md:flex">
-              <base-button
-                class="ml-3 my-3 border p-1 px-4 bg-white"
-                data-testid="testUnclaimButton"
-                :class="
-                  selectedTableItems && selectedTableItems.size === 0
-                    ? 'text-crisiscleanup-grey-700'
-                    : ''
-                "
-                :disabled="selectedTableItems && selectedTableItems.size === 0"
-                :action="showUnclaimModal"
-                :text="$t('actions.unclaim')"
-                :alt="$t('actions.unclaim')"
-              >
-              </base-button>
+        <div class="phone-system__stage">
+          <div class="phone-system__main-content">
+            <div v-show="showingMap" class="phone-system__main-content--map">
+              <SimpleMap
+                :key="showingMap"
+                :map-loading="mapLoading"
+                show-zoom-buttons
+                :available-work-types="availableWorkTypes"
+                @on-zoom-in="zoomIn"
+                @on-zoom-out="zoomOut"
+                @on-zoom-incident-center="goToIncidentCenter"
+                @on-zoom-interactive="goToInteractive"
+              />
             </div>
-            <WorksiteTable
-              :worksite-query="worksiteQuery"
-              :body-style="{ height: 'calc(100vh - 24rem)' }"
-              @selection-changed="onSelectionChanged"
-              @row-click="
-                (worksite) => {
-                  worksiteId = worksite.id;
-                  isEditing = true;
-                }
-              "
-            />
+            <div
+              v-show="showingTable"
+              class="phone-system__main-content--table"
+            >
+              <div class="flex justify-end items-center flex-none">
+                <base-button
+                  class="ml-3 my-3 border p-1 px-4 bg-white"
+                  data-testid="testUnclaimButton"
+                  :class="
+                    selectedTableItems && selectedTableItems.size === 0
+                      ? 'text-crisiscleanup-grey-700'
+                      : ''
+                  "
+                  :disabled="
+                    selectedTableItems && selectedTableItems.size === 0
+                  "
+                  :action="showUnclaimModal"
+                  :text="$t('actions.unclaim')"
+                  :alt="$t('actions.unclaim')"
+                >
+                </base-button>
+              </div>
+              <WorksiteTable
+                class="flex-1 min-h-0 flex flex-col"
+                :worksite-query="worksiteQuery"
+                @selection-changed="onSelectionChanged"
+                @row-click="
+                  (worksite) => {
+                    worksiteId = worksite.id;
+                    isEditing = true;
+                  }
+                "
+              />
+            </div>
           </div>
+          <PhoneOverlay
+            :case-id="worksiteId"
+            :selected-chat="selectedChat"
+            class="absolute inset-0 z-phone-overlay pointer-events-none"
+            @on-complete-call="completeCall"
+            @set-case="selectCase"
+            @on-report-bug="reportBug"
+          />
         </div>
       </div>
       <div class="phone-system__form h-full min-h-0">
@@ -486,7 +490,10 @@
           }}</span>
           <div></div>
         </div>
-        <div class="flex-1 min-h-0 overflow-y-auto">
+        <div
+          class="flex-1 min-h-0 flex flex-col"
+          :class="showHistory || showFlags ? 'overflow-y-auto' : ''"
+        >
           <CaseHistory
             v-if="showHistory"
             data-testid="testHistoryDiv"
@@ -522,7 +529,7 @@
             disable-claim-and-save
             :is-editing="isEditing"
             :data-prefill="prefillData"
-            class="border shadow"
+            class="border shadow flex-1 min-h-0"
             @jump-to-case="jumpToCase"
             @saved-worksite="
               (worksite) => {
@@ -1614,113 +1621,47 @@ export default defineComponent({
 });
 </script>
 
-<style lang="postcss">
-.phone-system {
-  &__action {
-    &-content {
-      @apply right-20 sm:right-12 h-auto;
-      width: 35vw;
-
-      &--caller {
-        width: 50vw;
-        height: max-content;
-      }
-      &--dialer {
-        @apply h-full;
-      }
-      &--chat {
-      }
-      &--news {
-        height: 60vh;
-        width: 50vw;
-      }
-      &--history {
-        @apply h-full;
-        width: 50vw;
-      }
-      &--stats {
-      }
-      &--leaderboard {
-        height: 60vh;
-        width: 50vw;
-      }
-      &--reset {
-        @apply h-full;
-      }
-    }
-  }
-}
-
-@media screen and (max-width: theme('screens.sm')) {
-  .phone-system {
-    &__action {
-      &-content {
-        width: 80vw;
-
-        &--caller {
-        }
-        &--dialer {
-        }
-        &--chat {
-        }
-        &--news {
-        }
-        &--history {
-        }
-        &--stats {
-        }
-        &--leaderboard {
-        }
-        &--reset {
-        }
-      }
-    }
-  }
-}
-</style>
-
 <style lang="postcss" scoped>
 .phone-system {
   @apply grid flex-grow h-full overflow-hidden;
   grid-template-columns: minmax(0, auto) minmax(auto, 400px);
   grid-template-rows: minmax(0, 1fr);
 
-  &__actions {
-    @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;
-  }
-
-  &__action {
-    @apply shadow
-      w-20
-      h-20
-      sm:w-12
-      sm:h-12
-      my-2
-      sm:my-1
-      bg-white
-      cursor-pointer
-      z-50;
-  }
-
   /* Container for map */
   &__main {
-    @apply flex flex-col;
+    @apply flex flex-col min-w-0 min-h-0;
 
     &-header {
       @apply flex items-center;
     }
 
     &-content {
-      @apply flex-grow;
+      @apply absolute inset-0;
 
       &--map {
         @apply relative h-full select-none;
       }
 
       &--table {
-        @apply p-2 h-full shadow;
+        @apply p-2 h-full shadow flex flex-col;
+
+        :deep(.ccu-table-card) {
+          @apply flex-1 min-h-0 flex flex-col;
+        }
+
+        :deep(.table-grid) {
+          @apply flex-1 min-h-0 flex flex-col;
+        }
+
+        :deep(.table-grid .body) {
+          @apply flex-1 min-h-0;
+        }
       }
     }
+  }
+
+  &__stage {
+    @apply relative flex-1 min-h-0;
   }
 
   /* Container for case form */
@@ -1733,39 +1674,6 @@ export default defineComponent({
 
     &-toggler {
       @apply flex items-center justify-between px-2;
-    }
-
-    &-body {
-      @apply flex-grow relative h-full flex flex-col md:flex-row;
-    }
-  }
-}
-
-/* Mobile styles */
-@media screen and (max-width: theme('screens.sm')) {
-  .phone-system {
-    @apply flex flex-col;
-
-    &__actions {
-      @apply mt-40;
-    }
-
-    &__action {
-      @apply shadow
-      w-12
-      h-12
-      my-1
-      bg-white
-      cursor-pointer
-      z-50;
-    }
-
-    &__main {
-      @apply h-1/2;
-    }
-
-    &__form {
-      @apply h-1/2;
     }
   }
 }

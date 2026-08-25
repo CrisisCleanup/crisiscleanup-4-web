@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white p-2 text-xs flex md:justify-end w-screen md:w-full flex-wrap border-b border-crisiscleanup-grey-100"
+    class="bg-white p-2 text-xs flex md:justify-end w-full flex-wrap border-b border-crisiscleanup-grey-100"
     data-testid="testPhoneToolBarDiv"
   >
     <div class="flex items-center justify-center">
