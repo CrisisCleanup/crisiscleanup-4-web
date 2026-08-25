@@ -522,7 +522,7 @@
               <base-button
                 class="underline"
                 type="link"
-                :action="() => (filters = {})"
+                :action="clearFilters"
                 :alt="$t('actions.clear_all')"
               >
                 {{ $t('actions.clear_all') }}
@@ -1023,6 +1023,7 @@ import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters
 import BaseButton from '@/components/BaseButton.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { momentFromNow } from '@/filters';
+import { packWorksiteFilters } from '@/utils/data_filters/worksiteFilters';
 import User from '@/models/User';
 import _ from 'lodash';
 import Spinner from '@/components/Spinner.vue';
@@ -1172,7 +1173,21 @@ export default defineComponent({
           showPhotoMap();
         }
 
-        if (states.appliedFilters) {
+        if (states.filters) {
+          filters.value = {
+            ...states.filters,
+          };
+          // Derive the applied query from the persisted filters so a stale
+          // appliedFilters blob can never restrict the query while the
+          // filters UI shows nothing.
+          try {
+            filterQuery.value = packWorksiteFilters(states.filters);
+          } catch (error) {
+            console.error('Error packing saved filters', error);
+            filterQuery.value = states.appliedFilters || {};
+          }
+        } else if (states.appliedFilters) {
+          // Legacy states saved without a filters blob.
           filterQuery.value = states.appliedFilters;
         }
 
@@ -1182,12 +1197,6 @@ export default defineComponent({
 
         if (states.dateLevel) {
           dateSliderValue.value = states.dateLevel;
-        }
-
-        if (states.filters) {
-          filters.value = {
-            ...states.filters,
-          };
         }
       }
     }
@@ -2011,6 +2020,16 @@ export default defineComponent({
       });
     }
 
+    function clearFilters() {
+      filters.value = {};
+      filterQuery.value = {};
+      filterLabels.value = [];
+      updateUserState({
+        appliedFilters: {},
+        filters: {},
+      });
+    }
+
     function updateFilterLabels(labels: any) {
       filterLabels.value = labels;
     }
@@ -2151,7 +2170,7 @@ export default defineComponent({
             () => {
               updateUserState({ mapViewPort: mapUtils?.getMap().getBounds() });
             },
-            1000,
+            5000,
             {},
           ),
         );
@@ -2296,6 +2315,7 @@ export default defineComponent({
       showMobileMap,
       onUpdateQuery,
       onUpdateFilters,
+      clearFilters,
       loadCase,
       workTypesClaimedByOrganization,
       printWorksite,

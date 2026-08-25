@@ -47,7 +47,7 @@
             :text="$t('actions.clear_filters')"
             :alt="$t('actions.clear_filters')"
             class="text-yellow-500 text-underline w-32"
-            :action="clearAllFilters"
+            :action="clearAndApplyFilters"
           />
         </div>
       </div>
@@ -1191,6 +1191,14 @@ export default defineComponent({
       };
     }
 
+    function clearAndApplyFilters() {
+      clearAllFilters();
+      // Emit the cleared filters right away so the applied query and the
+      // persisted user states are cleared too; without this, cancelling
+      // after a clear leaves the old filters applied.
+      updateFilters();
+    }
+
     onMounted(() => {
       if (Object.keys(props.currentFilters).length === 0) {
         clearAllFilters();
@@ -1322,6 +1330,7 @@ export default defineComponent({
       expandSection,
       getFieldsForType,
       clearAllFilters,
+      clearAndApplyFilters,
       getStatusName,
       filterLabels,
       datePickerDefaultProps,
