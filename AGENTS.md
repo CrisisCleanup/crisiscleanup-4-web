@@ -78,6 +78,22 @@ pnpm clean                   # rm dist, coverage, playwright output
 pnpm repair:prune-pnpm       # clean + nuke node_modules + prune pnpm store
 ```
 
+## Deployment
+
+The main deployment approach is the "Deploy Site (Manual)" workflow
+([.github/workflows/deploy-site-manual.yml](.github/workflows/deploy-site-manual.yml)),
+run from `master`:
+
+```bash
+gh workflow run deploy-site-manual.yml -f stage=<env> -f dry_run=false
+gh run list --workflow=deploy-site-manual.yml   # then: gh run watch <id>
+```
+
+- `stage` is one of `development`, `staging`, `production`, `production-au`.
+- `dry_run` defaults to `true`, which builds and shows the S3 sync without a
+  deploy. Pass `dry_run=false` to sync to S3 and invalidate CloudFront.
+- Do not trigger `deploy-site.yml` by hand; it exists for `workflow_call` use.
+
 ## Architecture
 
 Vue 3 + TypeScript SPA built with Vite. Entry is [src/main.ts](src/main.ts); the root component is swapped to `src/maintenance/App.vue` when `VITE_APP_ENTRY=maintenance`. The `@/*` import alias maps to `./src/*` (see [tsconfig.json](tsconfig.json) and [vite.config.ts](vite.config.ts)).
