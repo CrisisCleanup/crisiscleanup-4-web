@@ -296,9 +296,16 @@ const columns = computed<Partial<TableSorterObject>[]>(() => {
       width: '8%',
     },
     {
+      title: t('~~Phone'),
+      key: 'phone',
+      sortKey: 'requesterPhone',
+      sortable: true,
+      width: '8%',
+    },
+    {
       title: t('helpdesk.description'),
       key: 'description',
-      width: '25%',
+      width: '17%',
     },
     {
       title: t('helpdesk.full_ticket'),
@@ -354,6 +361,7 @@ const getTicketsWithUsers = () => {
       requesterName: matchingUser?.ccu_user
         ? `${matchingUser?.ccu_user?.first_name} ${matchingUser?.ccu_user?.last_name}`
         : matchingUser.name,
+      requesterPhone: matchingUser?.phone || matchingUser?.ccu_user?.mobile,
     };
   });
 };
@@ -654,6 +662,18 @@ onMounted(() => {
         <BaseText>
           <span v-if="mq.mdMinus" class="font-bold">Requester:</span>
           {{ slotProps.item.requesterName }}
+        </BaseText>
+      </template>
+
+      <template #phone="slotProps">
+        <BaseText>
+          <span v-if="mq.mdMinus" class="font-bold">Phone: </span>
+          <PhoneNumberDisplay
+            v-if="slotProps.item.requesterPhone"
+            :phone-number="slotProps.item.requesterPhone"
+            type="plain"
+          />
+          <span v-else>-</span>
         </BaseText>
       </template>
 

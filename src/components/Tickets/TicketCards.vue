@@ -23,6 +23,7 @@ import InvitationTable from '@/components/admin/InvitationTable.vue';
 import InvitationRequestTable from '@/components/admin/InvitationRequestTable.vue';
 import { useAuthStore } from '@/hooks';
 import { getUserAvatarLink } from '@/utils/urls';
+import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 
 const mq = useMq();
 const ccuApi = useApi();
@@ -1227,6 +1228,16 @@ onMounted(async () => {
           >)
         </BaseText>
         <hr />
+        <BaseText v-if="zendeskUser?.phone || ccUser?.mobile">
+          <span class="text-base font-bold">
+            {{ t('~~Requester phone') }}:
+          </span>
+          <PhoneNumberDisplay
+            :phone-number="zendeskUser?.phone || ccUser?.mobile"
+            type="plain"
+          />
+        </BaseText>
+        <hr v-if="zendeskUser?.phone || ccUser?.mobile" />
         <BaseText>
           <span class="text-base font-bold">
             {{ t('helpdesk.subject_line') }}
