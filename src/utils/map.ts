@@ -20,14 +20,16 @@ import type { UserLocation } from '@/models/types';
 const INTERACTIVE_ZOOM_LEVEL = 12;
 const ICON_SIZE = 40;
 
-export const mapTileLayer =
-  'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
+// CARTO raster basemaps require a key since 2026; without it the tiles
+// carry an "API key required" watermark. The key is public by design
+// (it is visible in every tile request) and is tied to this project.
+const cartoBasemapsKey = 'cb1_27c8_1_3327d078a975cc6a7015188f';
 
-export const mapTileLayerDark =
-  'https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png';
+export const mapTileLayer = `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=${cartoBasemapsKey}`;
 
-export const mapTileLayerSatellite =
-  'https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';
+export const mapTileLayerDark = `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png?key=${cartoBasemapsKey}`;
+
+export const mapTileLayerSatellite = `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key=${cartoBasemapsKey}`;
 
 export const googleMapsLayer =
   'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
