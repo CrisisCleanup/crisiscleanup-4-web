@@ -460,6 +460,11 @@ const RANDOM_QUOTES = [
   'spinner.plans_useless_planning_indispensable',
   'spinner.janitor_supplies',
   'spinner.water_portal',
+  'spinner.big_waist',
+  'spinner.dog_bowl',
+  'spinner.longer_rulers',
+  'spinner.reverse_psychology',
+  'spinner.reverse_tony',
 ];
 
 export default defineComponent({
