@@ -303,9 +303,16 @@ const columns = computed<Partial<TableSorterObject>[]>(() => {
       width: '8%',
     },
     {
+      title: t('~~Location'),
+      key: 'location',
+      sortKey: 'requesterLocation',
+      sortable: true,
+      width: '8%',
+    },
+    {
       title: t('helpdesk.description'),
       key: 'description',
-      width: '17%',
+      width: '9%',
     },
     {
       title: t('helpdesk.full_ticket'),
@@ -346,6 +353,9 @@ const processedUsers = () => {
   } else console.log('Error Processing Users');
 };
 
+// Zendesk custom ticket field "County, State".
+const LOCATION_FIELD_ID = 32_308_472_678_669;
+
 const getTicketsWithUsers = () => {
   ticketsWithUsers.value = tickets.value.map((ticket: Ticket) => {
     const matchingUser = usersRelatedToTickets.value.data.find(
@@ -362,6 +372,9 @@ const getTicketsWithUsers = () => {
         ? `${matchingUser?.ccu_user?.first_name} ${matchingUser?.ccu_user?.last_name}`
         : matchingUser.name,
       requesterPhone: matchingUser?.phone || matchingUser?.ccu_user?.mobile,
+      requesterLocation: ticket.custom_fields?.find(
+        (field) => field.id === LOCATION_FIELD_ID,
+      )?.value,
     };
   });
 };
@@ -674,6 +687,13 @@ onMounted(() => {
             type="plain"
           />
           <span v-else>-</span>
+        </BaseText>
+      </template>
+
+      <template #location="slotProps">
+        <BaseText>
+          <span v-if="mq.mdMinus" class="font-bold">Location: </span
+          >{{ slotProps.item.requesterLocation || '-' }}
         </BaseText>
       </template>
 

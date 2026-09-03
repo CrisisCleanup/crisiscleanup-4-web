@@ -2,7 +2,7 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import _ from 'lodash';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useMq } from 'vue3-mq';
 import Table from '../Table.vue';
@@ -179,6 +179,16 @@ const userStats = [
   },
 ];
 const ccUser = ref(props.ticketData.user.ccu_user);
+// Zendesk custom ticket field "County, State".
+const LOCATION_FIELD_ID = 32_308_472_678_669;
+const requesterLocation = computed<string | undefined>(
+  () =>
+    (
+      props.ticketData?.custom_fields as
+        | { id: number; value: string | null }[]
+        | undefined
+    )?.find((field) => field.id === LOCATION_FIELD_ID)?.value ?? undefined,
+);
 const zendeskUser = ref(props.ticketData.user);
 
 // const ccUserEntries = computed(() => {
@@ -1238,6 +1248,13 @@ onMounted(async () => {
           />
         </BaseText>
         <hr v-if="zendeskUser?.phone || ccUser?.mobile" />
+        <BaseText v-if="requesterLocation">
+          <span class="text-base font-bold">
+            {{ t('~~Requester location') }}:
+          </span>
+          {{ requesterLocation }}
+        </BaseText>
+        <hr v-if="requesterLocation" />
         <BaseText>
           <span class="text-base font-bold">
             {{ t('helpdesk.subject_line') }}
