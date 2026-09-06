@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { whenever } from '@vueuse/core';
 import { useStore } from 'vuex';
 import { DialogWrapper } from 'vue3-promise-dialog';
+import ErrorBoundary from '@/components/ErrorBoundary.vue';
 import axios from 'axios';
 import { hash } from './utils/promise';
 import { useProvideZendesk, useAuthStore } from '@/hooks';
@@ -16,6 +17,7 @@ export default defineComponent({
   name: 'App',
   components: {
     DialogWrapper,
+    ErrorBoundary,
   },
   setup() {
     const route = useRoute();
@@ -161,7 +163,13 @@ export default defineComponent({
 
 <template>
   <component :is="layout">
-    <router-view />
+    <!--
+      Wraps only the routed view: DialogWrapper stays outside so a page
+      failure cannot take the dialog host down with it.
+    -->
+    <ErrorBoundary>
+      <router-view />
+    </ErrorBoundary>
     <DialogWrapper :transition-attrs="{ name: 'dialog' }" />
   </component>
 </template>
