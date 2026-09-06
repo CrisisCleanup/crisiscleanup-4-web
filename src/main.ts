@@ -1,7 +1,7 @@
 import { version } from '@/../package.json';
 import { createApp, defineAsyncComponent, type App as VueApp } from 'vue';
 import './style.css';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import * as Sentry from '@sentry/vue';
@@ -88,10 +88,10 @@ import {
   faLinkedin,
   faXTwitter,
 } from '@fortawesome/free-brands-svg-icons';
-import Toast, {
-  type PluginOptions as VueToastificationPluginOptions,
-} from 'vue-toastification';
+import Toast from 'vue-toastification';
 import { i18n, interpolateNamedFallback } from '@/modules/i18n';
+import { initializeErrorInterceptor } from '@/modules/axios';
+import { toastOptions } from '@/modules/toast';
 
 import App from './App.vue';
 import MaintenanceApp from './maintenance/App.vue';
@@ -129,10 +129,7 @@ import BaseRadio from './components/BaseRadio.vue';
 import Unauthenticated from './layouts/Unauthenticated.vue';
 import BaseLink from './components/BaseLink.vue';
 import TreeMenu from '@/components/TreeMenu.vue';
-import {
-  getAndToastWarningMessage,
-  shouldReportToSentry,
-} from '@/utils/errors';
+import { shouldReportToSentry } from '@/utils/errors';
 
 const Datepicker = defineAsyncComponent(async () => {
   await import('@vuepic/vue-datepicker/dist/main.css');
@@ -246,18 +243,7 @@ library.add(
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_APP_API_BASE_URL;
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (
-      error instanceof AxiosError &&
-      [400, 408, 409, 422, 502].includes(error.response?.status as number)
-    ) {
-      getAndToastWarningMessage(error);
-    }
-    throw error;
-  },
-);
+initializeErrorInterceptor();
 const buildApp = (app: VueApp) =>
   app
     .component('FontAwesomeIcon', FontAwesomeIcon as any)
@@ -291,10 +277,7 @@ const buildApp = (app: VueApp) =>
     .use(Vue3Mq)
     .use(router)
     .use(i18n)
-    .use(Toast, {
-      timeout: 10_000,
-      shareAppContext: true,
-    } as VueToastificationPluginOptions);
+    .use(Toast, toastOptions);
 
 const installI18nFallbackInterpolation = (app: VueApp) => {
   // Wrap the global `$t` AND the i18n composer's `t` so missing-key

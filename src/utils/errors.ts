@@ -1,12 +1,37 @@
 import * as Sentry from '@sentry/vue';
 import { i18n } from '@/modules/i18n';
 import { useToast } from 'vue-toastification';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import createDebug from 'debug';
 
 const debug = createDebug('@ccu:utils:errors');
 
 const EXPECTED_AXIOS_STATUSES = new Set([400, 403, 404, 409, 422]);
+
+/**
+ * Shared with the interceptor in `@/modules/axios`, so a local catch and the
+ * global notice produce identical text and dedupe into one toast.
+ */
+export const CONNECTIVITY_ERROR_KEY =
+  '~~Connection problem. Check your internet connection and try again.';
+
+/** Message for a request the caller deliberately aborted. */
+export const CANCELLED_REQUEST_KEY = '~~Request cancelled.';
+
+/**
+ * A request the caller aborted (unmount, superseded query). `CanceledError`
+ * extends `AxiosError` and carries no `response`, so check this before any
+ * `!error.response` test or every unmount looks like an outage.
+ *
+ * Lives here, not in `@/modules/axios`: that module imports this one, and the
+ * reverse would be an import cycle.
+ */
+export function isCancelledRequest(error: unknown): boolean {
+  return (
+    axios.isCancel(error) ||
+    (error instanceof AxiosError && error.code === AxiosError.ERR_CANCELED)
+  );
+}
 const STALE_ASSET_ERROR_PATTERN =
   /preloaderror|failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|unable to preload css|unexpected token '<'.*<!doctype/i;
 const EXPECTED_AXIOS_MESSAGE_PATTERN = /network error|request aborted/i;
@@ -77,10 +102,16 @@ export function getErrorMessage(error: any): string {
           );
         }
       }
+    } else if (isCancelledRequest(error)) {
+      // An abort, not an outage — don't blame the user's connection.
+      debug('Cancelled request %o', error);
+      return t(CANCELLED_REQUEST_KEY);
     } else {
-      // Error related to setting up the request
+      // No response: offline, DNS failure, CORS or timeout. The old
+      // `error.message ?? t(...)` never reached its fallback (AxiosError
+      // always has a message), so it leaked raw strings like "Network Error".
       debug('Fallback network error %o', error);
-      return error.message ?? t('info.network_error');
+      return t(CONNECTIVITY_ERROR_KEY);
     }
   }
   // Fallback for non-Axios errors
