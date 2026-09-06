@@ -100,6 +100,17 @@ const sortByRecentIncidentEntries = computed(() => {
 
 onMounted(async () => {
   loading.value = true;
+  try {
+    await loadArchivedIncidents();
+  } finally {
+    // Without this the rejection skips `loading.value = false` and the page
+    // is stuck on its spinner forever. The ErrorBoundary in App.vue swaps in
+    // a retry panel, but the page should not depend on it to stop spinning.
+    loading.value = false;
+  }
+});
+
+async function loadArchivedIncidents() {
   const response: AxiosResponse<{ results: Incident[] }> = await axios.get(
     `${
       import.meta.env.VITE_APP_API_BASE_URL
@@ -121,8 +132,7 @@ onMounted(async () => {
     acc[year].push(incident);
     return acc;
   }, {});
-  loading.value = false;
-});
+}
 </script>
 
 <style scoped></style>
