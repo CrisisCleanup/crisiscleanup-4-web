@@ -8,6 +8,12 @@ import { defineConfig, devices } from '@playwright/test';
 // require('dotenv').config();
 
 /**
+ * Specs that run signed out. They are owned by the `chromium-unauth` project
+ * and excluded from the authenticated ones so they run exactly once.
+ */
+const UNAUTHENTICATED_TESTS = /connectivity\.test\.ts/;
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
@@ -71,22 +77,33 @@ export default defineConfig({
       testMatch: /.*\.setup\.ts/,
     },
 
+    // Specs that must run signed OUT. Declaring no `dependencies` keeps the
+    // auth setup from gating them, so they work without TEST_APP_* credentials.
+    {
+      name: 'chromium-unauth',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: UNAUTHENTICATED_TESTS,
+    },
+
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
       dependencies: ['chromium-setup'],
+      testIgnore: UNAUTHENTICATED_TESTS,
     },
 
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
       dependencies: ['firefox-setup'],
+      testIgnore: UNAUTHENTICATED_TESTS,
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
       dependencies: ['webkit-setup'],
+      testIgnore: UNAUTHENTICATED_TESTS,
     },
 
     /* Test against mobile viewports. */
@@ -116,6 +133,9 @@ export default defineConfig({
     : [
         {
           command:
+            // Port 8080 is load-bearing: the CrisisCleanup API's CORS
+            // allow-list covers localhost:8080 but not arbitrary ports, so a
+            // different port makes every request fail for the wrong reason.
             'echo "Starting WEB SERVER on port 8080" && pnpm run preview --port 8080',
           url: 'http://localhost:8080',
           timeout: 120 * 1000,
