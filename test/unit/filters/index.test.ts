@@ -1,6 +1,6 @@
 import { describe, expect, type Mock, test, vi } from 'vitest';
 import { isValidActiveHotline, getIncidentPhoneNumbers } from '@/filters';
-import { parsePhoneNumber } from 'libphonenumber-js';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 vi.mock('libphonenumber-js');
 
@@ -28,9 +28,11 @@ describe('filters >> isValidActiveHotline', () => {
 
 describe('filters >> getIncidentPhoneNumbers', () => {
   beforeEach(() => {
-    (parsePhoneNumber as Mock).mockImplementation((mobile: string) => ({
-      formatNational: vi.fn(() => mobile),
-    }));
+    (parsePhoneNumberFromString as Mock).mockImplementation(
+      (mobile: string) => ({
+        formatNational: vi.fn(() => mobile),
+      }),
+    );
   });
 
   test('with an array of phone numbers', () => {

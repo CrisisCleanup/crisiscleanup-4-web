@@ -1,4 +1,4 @@
-import { parsePhoneNumber } from 'libphonenumber-js';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import _ from 'lodash';
 import moment from '@/utils/dates';
 import enums from '../store/modules/enums';
@@ -135,7 +135,8 @@ export const startCase = (value: string) => _.startCase(value);
 export const snakeCase = (value: string) => _.snakeCase(value);
 
 export const formatNationalNumber = (mobile: string) => {
-  const _number = parsePhoneNumber(mobile, 'US');
+  // Returns undefined instead of throwing on text that is not a phone number.
+  const _number = parsePhoneNumberFromString(mobile, 'US');
   if (_number) {
     return _number.formatNational();
   }
