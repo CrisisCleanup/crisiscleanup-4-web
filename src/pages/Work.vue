@@ -428,17 +428,12 @@
               class="flex flex-wrap items-center gap-1 flex-none md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
             >
               <WorksiteRefine
-                v-if="
-                  allWorksiteCount >= 100 &&
-                  !showingTable &&
-                  !showingPhotoMap &&
-                  !showingFeed
-                "
+                v-if="!showingTable && !showingPhotoMap && !showingFeed"
                 :svi-value="sviSliderValue"
                 :date-value="dateSliderValue"
                 :date-from="dateSliderFrom"
                 :date-to="dateSliderTo"
-                :show-svi="!portal?.attr?.hide_svi_slider"
+                :show-svi="showSviSlider"
                 @svi="filterSvi"
                 @date="filterDates"
               />
@@ -1137,6 +1132,14 @@ export default defineComponent({
     const availableWorkTypes = ref({});
     const sviSliderValue = ref(100);
     const dateSliderValue = ref(100);
+    // The SVI slider only helps when cases have enough distinct SVI values.
+    const MIN_UNIQUE_SVI_VALUES = 5;
+    const uniqueSviCount = ref<number>(0);
+    const showSviSlider = computed(
+      () =>
+        !portal?.attr?.hide_svi_slider &&
+        uniqueSviCount.value >= MIN_UNIQUE_SVI_VALUES,
+    );
     let mapUtils: MapUtils | null;
     const unreadChatCount = ref(0);
     const unreadUrgentChatCount = ref(0);
@@ -1303,6 +1306,11 @@ export default defineComponent({
       });
       mapLoading.value = false;
       allWorksiteCount.value = response.results.length;
+      uniqueSviCount.value = new Set(
+        response.results
+          .map((w: { svi?: number | null }) => w.svi)
+          .filter((svi: number | null | undefined) => svi != undefined),
+      ).size;
       return response.results;
     }
 
@@ -1528,7 +1536,7 @@ export default defineComponent({
     function filterSvi(value: number) {
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
-      if (container?.children?.length < 100) return;
+      if (!showSviSlider.value) return;
 
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         dateSliderValue.value = 100;
@@ -1602,7 +1610,6 @@ export default defineComponent({
     function filterDates(value: number) {
       const layer = mapUtils?.getCurrentMarkerLayer();
       const container = layer?._pixiContainer;
-      if (container?.children?.length < 100) return;
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         filterSvi(100);
       }
@@ -2292,6 +2299,7 @@ export default defineComponent({
       currentIncidentId,
       incidentName,
       allWorksiteCount,
+      showSviSlider,
       filteredWorksiteCount,
       isEditing,
       isViewing,
