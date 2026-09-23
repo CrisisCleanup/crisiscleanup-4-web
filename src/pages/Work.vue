@@ -2086,9 +2086,13 @@ export default defineComponent({
 
     async function init({ force = false }: { force?: boolean } = {}) {
       // Skip re-entrant calls (onLoadMarkers → loadStatesForUser → showMap
-      // → nextTick(init)) and redundant calls once the map exists.
+      // → nextTick(init)) and redundant calls once the map exists. A map
+      // whose container is no longer in the page is stale: the map view is
+      // behind a v-if, so Table view removes #map and Map view adds a new one.
       if (isInitializingMap) return;
-      if (mapUtils && !force) return;
+      if (mapUtils && !force && mapUtils.getMap().getContainer().isConnected) {
+        return;
+      }
       isInitializingMap = true;
 
       if (mapUtils) {
