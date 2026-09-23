@@ -22,13 +22,17 @@ import {
 } from '@/filters';
 import type User from '@/models/User';
 import useEmitter from '@/hooks/useEmitter';
-import webIcon from '@/assets/icons/web.svg';
-import iosIcon from '@/assets/icons/ios.svg';
-import androidIcon from '@/assets/icons/android.svg';
 import { useToast } from 'vue-toastification';
 import type { CCUApiListResponse } from '@/models/types';
 import type Incident from '@/models/Incident';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import {
+  APP_PLATFORM_FIELD_ID,
+  REQUESTER_LOCATION_FIELD_ID,
+  getAppTypeIcons,
+  getRequesterPhone,
+  getTicketFieldValue,
+} from '@/utils/zendeskTickets';
 
 const mq = useMq();
 const { emitter } = useEmitter();
@@ -353,9 +357,6 @@ const processedUsers = () => {
   } else console.log('Error Processing Users');
 };
 
-// Zendesk custom ticket field "County, State".
-const LOCATION_FIELD_ID = 32_308_472_678_669;
-
 const getTicketsWithUsers = () => {
   ticketsWithUsers.value = tickets.value.map((ticket: Ticket) => {
     const matchingUser = usersRelatedToTickets.value.data.find(
@@ -365,16 +366,18 @@ const getTicketsWithUsers = () => {
       ...ticket,
       user: matchingUser,
       agentName: agents.value.find((a) => a.id === ticket.assignee_id)?.name,
-      appPlatform: ticket.custom_fields?.find(
-        (field) => field.id === 17_295_140_815_757,
-      )?.value,
+      appPlatform: getTicketFieldValue(
+        ticket.custom_fields,
+        APP_PLATFORM_FIELD_ID,
+      ),
       requesterName: matchingUser?.ccu_user
         ? `${matchingUser?.ccu_user?.first_name} ${matchingUser?.ccu_user?.last_name}`
-        : matchingUser.name,
-      requesterPhone: matchingUser?.phone || matchingUser?.ccu_user?.mobile,
-      requesterLocation: ticket.custom_fields?.find(
-        (field) => field.id === LOCATION_FIELD_ID,
-      )?.value,
+        : matchingUser?.name,
+      requesterPhone: getRequesterPhone(ticket, matchingUser),
+      requesterLocation: getTicketFieldValue(
+        ticket.custom_fields,
+        REQUESTER_LOCATION_FIELD_ID,
+      ),
     };
   });
 };
@@ -409,8 +412,8 @@ const getTicketStats = () => {
       }
 
       if (
-        ticket.custom_fields?.find((field) => field.id === 17_295_140_815_757)
-          .value === 'web'
+        getTicketFieldValue(ticket.custom_fields, APP_PLATFORM_FIELD_ID) ===
+        'web'
       ) {
         return 'web';
       }
@@ -487,22 +490,6 @@ function handleTableChange(value: TableChangeEmitItem) {
 
 const findAgentName = (id) => {
   return agents.value.find((a) => a.id === id)?.name;
-};
-
-const getAppTypeIcons = (appPlatform: string, ticketSubject: string) => {
-  if (appPlatform === 'web') {
-    return webIcon;
-  }
-
-  if (ticketSubject.includes('file:///var/containers/Bundle/Application')) {
-    return iosIcon;
-  }
-
-  if (ticketSubject.includes('android_res')) {
-    return androidIcon;
-  }
-
-  return webIcon;
 };
 
 const isFullscreen = computed(() => {

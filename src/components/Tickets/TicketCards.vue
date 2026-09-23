@@ -24,6 +24,14 @@ import InvitationRequestTable from '@/components/admin/InvitationRequestTable.vu
 import { useAuthStore } from '@/hooks';
 import { getUserAvatarLink } from '@/utils/urls';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
+import {
+  APP_PLATFORM_FIELD_ID,
+  REQUESTER_LOCATION_FIELD_ID,
+  getAppTypeIcons,
+  getRequesterPhone,
+  getTicketFieldValue,
+  type TicketCustomField,
+} from '@/utils/zendeskTickets';
 
 const mq = useMq();
 const ccuApi = useApi();
@@ -179,15 +187,23 @@ const userStats = [
   },
 ];
 const ccUser = ref(props.ticketData.user.ccu_user);
-// Zendesk custom ticket field "County, State".
-const LOCATION_FIELD_ID = 32_308_472_678_669;
-const requesterLocation = computed<string | undefined>(
-  () =>
-    (
-      props.ticketData?.custom_fields as
-        | { id: number; value: string | null }[]
-        | undefined
-    )?.find((field) => field.id === LOCATION_FIELD_ID)?.value ?? undefined,
+const ticketCustomFields = computed(
+  () => props.ticketData?.custom_fields as TicketCustomField[] | undefined,
+);
+const requesterLocation = computed(() =>
+  getTicketFieldValue(ticketCustomFields.value, REQUESTER_LOCATION_FIELD_ID),
+);
+const requesterPhone = computed(() =>
+  getRequesterPhone(
+    { custom_fields: ticketCustomFields.value },
+    props.ticketData?.user as Parameters<typeof getRequesterPhone>[1],
+  ),
+);
+const appTypeIcon = computed(() =>
+  getAppTypeIcons(
+    getTicketFieldValue(ticketCustomFields.value, APP_PLATFORM_FIELD_ID),
+    (props.ticketData?.description as string | undefined) ?? '',
+  ),
 );
 const zendeskUser = ref(props.ticketData.user);
 
@@ -1222,6 +1238,17 @@ onMounted(async () => {
           {{ momentFromNow(ticketData.created_at) }}
         </BaseText>
         <hr />
+        <BaseText class="flex items-center gap-2">
+          <span class="text-base font-bold">
+            {{ t('helpdesk.app_platform') }}:
+          </span>
+          <img
+            :src="appTypeIcon"
+            :alt="t('helpdesk.app_platform')"
+            width="36"
+          />
+        </BaseText>
+        <hr />
         <BaseText v-if="firstComment">
           <span class="text-base font-bold">
             {{ t('helpdesk.submitting_page') }}
@@ -1238,16 +1265,13 @@ onMounted(async () => {
           >)
         </BaseText>
         <hr />
-        <BaseText v-if="zendeskUser?.phone || ccUser?.mobile">
+        <BaseText v-if="requesterPhone">
           <span class="text-base font-bold">
             {{ t('~~Requester phone') }}:
           </span>
-          <PhoneNumberDisplay
-            :phone-number="zendeskUser?.phone || ccUser?.mobile"
-            type="plain"
-          />
+          <PhoneNumberDisplay :phone-number="requesterPhone" type="plain" />
         </BaseText>
-        <hr v-if="zendeskUser?.phone || ccUser?.mobile" />
+        <hr v-if="requesterPhone" />
         <BaseText v-if="requesterLocation">
           <span class="text-base font-bold">
             {{ t('~~Requester location') }}:
