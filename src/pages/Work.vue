@@ -1287,7 +1287,6 @@ export default defineComponent({
         ...worksiteQuery.value,
       });
       mapLoading.value = false;
-      filteredWorksiteCount.value = response.results.length;
 
       if ($can('beta_feature.enable_feed') || $can('development_mode')) {
         loadCaseImagesCached({
@@ -1314,13 +1313,21 @@ export default defineComponent({
       return response.results;
     }
 
+    // Filter changes can start several reloads at once. Only the newest one
+    // may set the map and the count; an older response that arrives last
+    // would otherwise overwrite them.
+    let mapDataRequestId = 0;
+
     async function reloadMap() {
+      const requestId = ++mapDataRequestId;
       if (mapUtils) {
         mapUtils?.removeLayer('temp_markers');
       }
 
       const allWorksites = await getAllWorksites();
       const markers = await getWorksites();
+      if (requestId !== mapDataRequestId) return;
+      filteredWorksiteCount.value = markers.length;
       mapUtils?.reloadMap(
         allWorksites,
         markers.map((m: Worksite) => m.id),
@@ -2107,10 +2114,14 @@ export default defineComponent({
         mapUtils = null;
       }
 
+      const requestId = ++mapDataRequestId;
       const [allWorksites, markers] = await Promise.all([
         getAllWorksites(),
         getWorksites(),
       ]);
+      if (requestId === mapDataRequestId) {
+        filteredWorksiteCount.value = markers.length;
+      }
 
       if (route.query.work_type__claimed_by) {
         Organization.api().get(
@@ -2168,6 +2179,8 @@ export default defineComponent({
           false,
           bounds,
         );
+        // A reload started while init waited: show its newer data.
+        if (requestId !== mapDataRequestId) reloadMap();
       } catch (error) {
         console.error('Error setting mapUtils', error);
       } finally {
