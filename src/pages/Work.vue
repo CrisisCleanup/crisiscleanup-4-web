@@ -1318,6 +1318,11 @@ export default defineComponent({
     // would otherwise overwrite them.
     let mapDataRequestId = 0;
 
+    // Count each case once. The API listed a case once for each work type
+    // that matched a work type filter.
+    const countCases = (markers: Worksite[]) =>
+      new Set(markers.map((m) => m.id)).size;
+
     async function reloadMap() {
       const requestId = ++mapDataRequestId;
       if (mapUtils) {
@@ -1327,7 +1332,7 @@ export default defineComponent({
       const allWorksites = await getAllWorksites();
       const markers = await getWorksites();
       if (requestId !== mapDataRequestId) return;
-      filteredWorksiteCount.value = markers.length;
+      filteredWorksiteCount.value = countCases(markers);
       mapUtils?.reloadMap(
         allWorksites,
         markers.map((m: Worksite) => m.id),
@@ -2144,7 +2149,7 @@ export default defineComponent({
         getWorksites(),
       ]);
       if (requestId === mapDataRequestId) {
-        filteredWorksiteCount.value = markers.length;
+        filteredWorksiteCount.value = countCases(markers);
       }
 
       if (route.query.work_type__claimed_by) {
