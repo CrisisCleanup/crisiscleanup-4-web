@@ -18,9 +18,13 @@ export default {
     const route = useRoute();
     const authStore = useAuthStore();
 
+    // Never go back to a callback URL: its code is already used.
     const redirectTarget = () => {
       const state = route.query.state;
-      return typeof state === 'string' && state.startsWith('/') && state !== '/'
+      return typeof state === 'string' &&
+        state.startsWith('/') &&
+        state !== '/' &&
+        !state.startsWith('/o/callback')
         ? state
         : { name: 'nav.dashboard_no_incident' };
     };

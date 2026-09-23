@@ -8,6 +8,18 @@ export function generateRandomString(): string {
   return [...array].map((dec) => ('0' + dec.toString(16)).slice(-2)).join('');
 }
 
+/**
+ * The page to return to after login. Never the callback page: its code is
+ * already used, and exchanging it again fails and starts a login loop.
+ */
+export function getAuthorizeState(from?: string): string {
+  if (from === undefined || from.startsWith('/o/callback')) {
+    return '/dashboard';
+  }
+
+  return from;
+}
+
 export async function pkceChallengeFromVerifier(v: string): Promise<string> {
   const hashed = sha256(v);
   return Base64Url.stringify(hashed);

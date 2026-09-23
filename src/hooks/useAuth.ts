@@ -12,7 +12,11 @@ import { logicAnd, logicNot, logicOr } from '@vueuse/math';
 import { useAxios } from '@vueuse/integrations/useAxios';
 import createDebug from 'debug';
 import moment from '@/utils/dates';
-import { generateRandomString, pkceChallengeFromVerifier } from '@/utils/oauth';
+import {
+  generateRandomString,
+  getAuthorizeState,
+  pkceChallengeFromVerifier,
+} from '@/utils/oauth';
 import { getErrorMessage } from '@/utils/errors';
 import { useAxiosRetry } from '@/hooks/useAxiosRetry';
 import { useToast } from 'vue-toastification';
@@ -195,11 +199,22 @@ const authStore = () => {
     },
   });
 
-  // Code verifier state.
-  const verifierStorage = useStorage('code-verifier', '', localStorage, {
+  // Code verifier state. One per tab: with localStorage, two tabs that log in
+  // at the same time overwrite each other's verifier and the exchange fails.
+  const verifierStorage = useStorage('code-verifier', '', sessionStorage, {
     writeDefaults: false,
     deep: false,
   });
+
+  // A failed code exchange gets one retry with a new code before logout.
+  // Logout ends the API session, which also signs out the other open tabs.
+  const codeExchangeRetried = useStorage<boolean>(
+    'code-exchange-retried',
+    false,
+    sessionStorage,
+    { writeDefaults: false },
+  );
+  let isCodeExchange = false;
 
   const route = useRoute();
   const router = useRouter();
@@ -329,6 +344,7 @@ const authStore = () => {
   watch(exchangeState.data, async (response) => {
     debug('got token response from exchange: %O', toValue(response));
     if (response?.access_token) {
+      codeExchangeRetried.value = false;
       authState.accessToken = response.access_token;
       authState.accessTokenExpiry = moment().add(
         response.expires_in - 100,
@@ -355,6 +371,14 @@ const authStore = () => {
 
   // Logout on exchange error.
   whenever(exchangeState.error, async (exchangeError) => {
+    if (isCodeExchange && !codeExchangeRetried.value) {
+      debug('code exchange failed; requesting a new code: %O', exchangeError);
+      codeExchangeRetried.value = true;
+      const state = route?.query?.state;
+      await authorize(typeof state === 'string' ? state : undefined, true);
+      return;
+    }
+
     debug('exchange failed; logging out. Error: %O', exchangeError);
     authState.status = AuthStatus.LOGOUT;
   });
@@ -398,12 +422,10 @@ const authStore = () => {
       tokensState.data.value && tokensState.data.value?.results?.length === 0,
   );
 
-  // Current session is not authenticated.
-  const isMissingSession = computed(
-    () =>
-      tokensState.error.value &&
-      (tokensState.error as Ref<AxiosError>).value.response?.status === 401,
-  );
+  // Current session is not authenticated, or its tokens could not be read.
+  // Any error counts: on a network error or a 5xx, waiting leaves the page
+  // on the loading spinner forever.
+  const isMissingSession = computed(() => Boolean(tokensState.error.value));
 
   // Current state requires authorization.
   const requiresAuthorization = logicAnd(
@@ -478,7 +500,7 @@ const authStore = () => {
 
     verifierStorage.value = generateRandomString();
     const challenge = await pkceChallengeFromVerifier(verifierStorage.value);
-    const state = from ?? '/dashboard';
+    const state = getAuthorizeState(from);
     const url = buildAuthorizeUrl({
       clientId: import.meta.env.VITE_APP_CRISISCLEANUP_WEB_CLIENT_ID,
       challenge,
@@ -509,6 +531,7 @@ const authStore = () => {
       code_verifier: verifierStorage.value,
     });
 
+    isCodeExchange = true;
     await exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
@@ -562,6 +585,7 @@ const authStore = () => {
       grant_type: 'refresh_token',
       refresh_token: authState.refreshToken,
     });
+    isCodeExchange = false;
     return exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
@@ -612,6 +636,7 @@ const authStore = () => {
       // code_verifier: verifierStorage.value,
     });
 
+    isCodeExchange = false;
     await exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
