@@ -67,7 +67,39 @@
       @close="showingLayers = false"
     >
       <div class="my-2 max-h-84 overflow-auto">
-        <Accordion>
+        <base-input
+          data-testid="testLayersSearchInput"
+          :model-value="search"
+          icon="search"
+          :placeholder="$t('actions.search')"
+          @update:model-value="(value) => (search = value)"
+        />
+        <div v-if="search.trim()" class="my-2">
+          <div v-for="location in searchedLayers" :key="`${location.id}`">
+            <base-checkbox
+              :model-value="appliedLocations.has(location.id)"
+              :ccu-event="
+                appliedLocations.has(location.id)
+                  ? 'user_ui-turn-off_layer'
+                  : 'user_ui-turn-on_layer'
+              "
+              data-testid="testLayersSearchResultCheckbox"
+              @update:model-value="
+                (value) => {
+                  applyLocation(location.id, value);
+                }
+              "
+              >{{ location.name }}
+            </base-checkbox>
+          </div>
+          <div
+            v-if="searchedLayers.length === 0"
+            class="text-crisiscleanup-dark-300"
+          >
+            {{ $t('~~No matching layers') }}
+          </div>
+        </div>
+        <Accordion v-else>
           <AccordionItem
             :name="$t('locationTypes.boundary_political_home_primary_division')"
           >
@@ -303,244 +335,283 @@
           <div class="px-4 py-1 font-bold">
             {{ $t('casesVue.standard_layers') }}
           </div>
-
-          <v-menu placement="right-start" trigger="hover" instant-move>
-            <div
-              class="menu-item"
-              data-testid="testBoundaryPoliticalUsStateDiv"
-            >
-              {{ $t('locationTypes.boundary_political_home_primary_division') }}
-            </div>
-
-            <template #popper>
-              <v-menu placement="right-start" trigger="hover" instant-move>
-                <div class="locations-popover">
-                  <div v-for="state in usStates" :key="`${state.id}`">
-                    <base-checkbox
-                      :model-value="appliedLocations.has(state.id)"
-                      :ccu-event="
-                        appliedLocations.has(state.id)
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testBoundaryPoliticalUsStateCheckbox"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(state.id, value);
-                        }
-                      "
-                      >{{ state.name }}</base-checkbox
-                    >
-                  </div>
-                </div>
-              </v-menu>
-            </template>
-          </v-menu>
-          <v-menu placement="right-start" trigger="hover" instant-move>
-            <div
-              class="menu-item"
-              data-testid="testBoundaryPoliticalUsCongressDiv"
-            >
-              {{
-                $t('locationTypes.boundary_political_home_electoral_district')
-              }}
-            </div>
-
-            <template #popper>
-              <v-menu placement="right-start" trigger="hover" instant-move>
-                <div class="locations-popover">
-                  <div v-for="district in districts" :key="`${district.id}`">
-                    <base-checkbox
-                      :model-value="appliedLocations.has(district.id)"
-                      :ccu-event="
-                        appliedLocations.has(district.id)
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testBoundaryPoliticalUsCongressCheckbox"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(district.id, value);
-                        }
-                      "
-                      >{{ district.name }}</base-checkbox
-                    >
-                  </div>
-                </div>
-              </v-menu>
-            </template>
-          </v-menu>
-          <v-menu placement="right-start" trigger="hover" instant-move>
-            <div
-              class="menu-item"
-              data-testid="testBoundaryPoliticalUsCountyDiv"
-            >
-              {{ $t('locationTypes.boundary_political_home_local_division') }}
-            </div>
-
-            <template #popper>
-              <v-menu placement="right-start" trigger="hover" instant-move>
-                <div class="locations-popover">
-                  <div v-for="county in counties" :key="`${county.id}`">
-                    <base-checkbox
-                      :model-value="appliedLocations.has(county.id)"
-                      :ccu-event="
-                        appliedLocations.has(county.id)
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testBoundaryPoliticalUsCountyCheckbox"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(county.id, value);
-                        }
-                      "
-                      >{{ county.name }}</base-checkbox
-                    >
-                  </div>
-                </div>
-              </v-menu>
-            </template>
-          </v-menu>
-          <v-menu placement="right-start" trigger="hover" instant-move>
-            <div class="menu-item" data-testid="testIncidentDiv">
-              {{ $t('casesVue.incident') }}
-            </div>
-
-            <template #popper>
-              <v-menu placement="right-start" trigger="hover" instant-move>
-                <div class="locations-popover">
-                  <div
-                    v-for="location in currentIncident.locationModels"
-                    :key="location.id"
-                  >
-                    <base-checkbox
-                      :model-value="appliedLocations.has(location.id)"
-                      :ccu-event="
-                        appliedLocations.has(location.id)
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testIncidentCheckbox"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(location.id, value);
-                        }
-                      "
-                      >{{ location.name }}</base-checkbox
-                    >
-                  </div>
-                  <div
-                    v-if="
-                      currentOrganization &&
-                      currentOrganization.primary_location
-                    "
-                  >
-                    <base-checkbox
-                      :model-value="
-                        appliedLocations.has(
-                          currentOrganization.primary_location,
-                        )
-                      "
-                      :ccu-event="
-                        appliedLocations.has(
-                          currentOrganization.primary_location,
-                        )
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testPrimaryResponseAreaCheckbox"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(
-                            currentOrganization.primary_location,
-                            value,
-                          );
-                        }
-                      "
-                      >{{ $t('casesVue.primary_response_area') }}</base-checkbox
-                    >
-                  </div>
-                  <div
-                    v-if="
-                      currentOrganization &&
-                      currentOrganization.secondary_location
-                    "
-                  >
-                    <base-checkbox
-                      :model-value="
-                        appliedLocations.has(
-                          currentOrganization.secondary_location,
-                        )
-                      "
-                      :ccu-event="
-                        appliedLocations.has(
-                          currentOrganization.secondary_location,
-                        )
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testSecondaryResponseAreaCheckbox"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(
-                            currentOrganization.secondary_location,
-                            value,
-                          );
-                        }
-                      "
-                      >{{
-                        $t('casesVue.secondary_response_area')
-                      }}</base-checkbox
-                    >
-                  </div>
-                </div>
-              </v-menu>
-            </template>
-          </v-menu>
-          <v-menu placement="right-start" trigger="hover" instant-move>
-            <div class="menu-item">
-              {{ $t('casesVue.my_layers') }}
-            </div>
-
-            <template #popper>
-              <v-menu placement="right-start" trigger="hover" instant-move>
-                <div class="locations-popover">
-                  <div
-                    v-for="location in organizationLocations"
-                    :key="`${location.id}`"
-                  >
-                    <base-checkbox
-                      :model-value="appliedLocations.has(location.id)"
-                      :ccu-event="
-                        appliedLocations.has(location.id)
-                          ? 'user_ui-turn-off_layer'
-                          : 'user_ui-turn-on_layer'
-                      "
-                      data-testid="testFiltersButton"
-                      @update:model-value="
-                        (value) => {
-                          applyLocation(location.id, value);
-                        }
-                      "
-                      >{{ location.name }}</base-checkbox
-                    >
-                  </div>
-                </div>
-              </v-menu>
-            </template>
-          </v-menu>
-          <v-menu placement="right-start" trigger="hover" instant-move>
-            <div class="menu-item">
+          <div class="px-4 py-1">
+            <base-input
+              data-testid="testLayersSearchInput"
+              :model-value="search"
+              icon="search"
+              :placeholder="$t('actions.search')"
+              @update:model-value="(value) => (search = value)"
+            />
+          </div>
+          <div v-if="search.trim()" class="locations-popover">
+            <div v-for="location in searchedLayers" :key="`${location.id}`">
               <base-checkbox
-                :model-value="showingUserLocations"
-                data-testid="testShowUserLocationsCheckbox"
-                @update:model-value="toggleUserLocations"
-              >
-                {{ $t('casesVue.show_user_locations') }}
+                :model-value="appliedLocations.has(location.id)"
+                :ccu-event="
+                  appliedLocations.has(location.id)
+                    ? 'user_ui-turn-off_layer'
+                    : 'user_ui-turn-on_layer'
+                "
+                data-testid="testLayersSearchResultCheckbox"
+                @update:model-value="
+                  (value) => {
+                    applyLocation(location.id, value);
+                  }
+                "
+                >{{ location.name }}
               </base-checkbox>
             </div>
-          </v-menu>
+            <div
+              v-if="searchedLayers.length === 0"
+              class="text-crisiscleanup-dark-300"
+            >
+              {{ $t('~~No matching layers') }}
+            </div>
+          </div>
+          <template v-else>
+            <v-menu placement="right-start" trigger="hover" instant-move>
+              <div
+                class="menu-item"
+                data-testid="testBoundaryPoliticalUsStateDiv"
+              >
+                {{
+                  $t('locationTypes.boundary_political_home_primary_division')
+                }}
+              </div>
+
+              <template #popper>
+                <v-menu placement="right-start" trigger="hover" instant-move>
+                  <div class="locations-popover">
+                    <div v-for="state in usStates" :key="`${state.id}`">
+                      <base-checkbox
+                        :model-value="appliedLocations.has(state.id)"
+                        :ccu-event="
+                          appliedLocations.has(state.id)
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testBoundaryPoliticalUsStateCheckbox"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(state.id, value);
+                          }
+                        "
+                        >{{ state.name }}</base-checkbox
+                      >
+                    </div>
+                  </div>
+                </v-menu>
+              </template>
+            </v-menu>
+            <v-menu placement="right-start" trigger="hover" instant-move>
+              <div
+                class="menu-item"
+                data-testid="testBoundaryPoliticalUsCongressDiv"
+              >
+                {{
+                  $t('locationTypes.boundary_political_home_electoral_district')
+                }}
+              </div>
+
+              <template #popper>
+                <v-menu placement="right-start" trigger="hover" instant-move>
+                  <div class="locations-popover">
+                    <div v-for="district in districts" :key="`${district.id}`">
+                      <base-checkbox
+                        :model-value="appliedLocations.has(district.id)"
+                        :ccu-event="
+                          appliedLocations.has(district.id)
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testBoundaryPoliticalUsCongressCheckbox"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(district.id, value);
+                          }
+                        "
+                        >{{ district.name }}</base-checkbox
+                      >
+                    </div>
+                  </div>
+                </v-menu>
+              </template>
+            </v-menu>
+            <v-menu placement="right-start" trigger="hover" instant-move>
+              <div
+                class="menu-item"
+                data-testid="testBoundaryPoliticalUsCountyDiv"
+              >
+                {{ $t('locationTypes.boundary_political_home_local_division') }}
+              </div>
+
+              <template #popper>
+                <v-menu placement="right-start" trigger="hover" instant-move>
+                  <div class="locations-popover">
+                    <div v-for="county in counties" :key="`${county.id}`">
+                      <base-checkbox
+                        :model-value="appliedLocations.has(county.id)"
+                        :ccu-event="
+                          appliedLocations.has(county.id)
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testBoundaryPoliticalUsCountyCheckbox"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(county.id, value);
+                          }
+                        "
+                        >{{ county.name }}</base-checkbox
+                      >
+                    </div>
+                  </div>
+                </v-menu>
+              </template>
+            </v-menu>
+            <v-menu placement="right-start" trigger="hover" instant-move>
+              <div class="menu-item" data-testid="testIncidentDiv">
+                {{ $t('casesVue.incident') }}
+              </div>
+
+              <template #popper>
+                <v-menu placement="right-start" trigger="hover" instant-move>
+                  <div class="locations-popover">
+                    <div
+                      v-for="location in currentIncident.locationModels"
+                      :key="location.id"
+                    >
+                      <base-checkbox
+                        :model-value="appliedLocations.has(location.id)"
+                        :ccu-event="
+                          appliedLocations.has(location.id)
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testIncidentCheckbox"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(location.id, value);
+                          }
+                        "
+                        >{{ location.name }}</base-checkbox
+                      >
+                    </div>
+                    <div
+                      v-if="
+                        currentOrganization &&
+                        currentOrganization.primary_location
+                      "
+                    >
+                      <base-checkbox
+                        :model-value="
+                          appliedLocations.has(
+                            currentOrganization.primary_location,
+                          )
+                        "
+                        :ccu-event="
+                          appliedLocations.has(
+                            currentOrganization.primary_location,
+                          )
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testPrimaryResponseAreaCheckbox"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(
+                              currentOrganization.primary_location,
+                              value,
+                            );
+                          }
+                        "
+                        >{{
+                          $t('casesVue.primary_response_area')
+                        }}</base-checkbox
+                      >
+                    </div>
+                    <div
+                      v-if="
+                        currentOrganization &&
+                        currentOrganization.secondary_location
+                      "
+                    >
+                      <base-checkbox
+                        :model-value="
+                          appliedLocations.has(
+                            currentOrganization.secondary_location,
+                          )
+                        "
+                        :ccu-event="
+                          appliedLocations.has(
+                            currentOrganization.secondary_location,
+                          )
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testSecondaryResponseAreaCheckbox"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(
+                              currentOrganization.secondary_location,
+                              value,
+                            );
+                          }
+                        "
+                        >{{
+                          $t('casesVue.secondary_response_area')
+                        }}</base-checkbox
+                      >
+                    </div>
+                  </div>
+                </v-menu>
+              </template>
+            </v-menu>
+            <v-menu placement="right-start" trigger="hover" instant-move>
+              <div class="menu-item">
+                {{ $t('casesVue.my_layers') }}
+              </div>
+
+              <template #popper>
+                <v-menu placement="right-start" trigger="hover" instant-move>
+                  <div class="locations-popover">
+                    <div
+                      v-for="location in organizationLocations"
+                      :key="`${location.id}`"
+                    >
+                      <base-checkbox
+                        :model-value="appliedLocations.has(location.id)"
+                        :ccu-event="
+                          appliedLocations.has(location.id)
+                            ? 'user_ui-turn-off_layer'
+                            : 'user_ui-turn-on_layer'
+                        "
+                        data-testid="testFiltersButton"
+                        @update:model-value="
+                          (value) => {
+                            applyLocation(location.id, value);
+                          }
+                        "
+                        >{{ location.name }}</base-checkbox
+                      >
+                    </div>
+                  </div>
+                </v-menu>
+              </template>
+            </v-menu>
+            <v-menu placement="right-start" trigger="hover" instant-move>
+              <div class="menu-item">
+                <base-checkbox
+                  :model-value="showingUserLocations"
+                  data-testid="testShowUserLocationsCheckbox"
+                  @update:model-value="toggleUserLocations"
+                >
+                  {{ $t('casesVue.show_user_locations') }}
+                </base-checkbox>
+              </div>
+            </v-menu>
+          </template>
         </template>
       </v-popover>
 
@@ -577,6 +648,7 @@ import { useCurrentUser } from '@/hooks';
 import Location from '@/models/Location';
 import { Menu as VMenu } from 'floating-vue';
 import BaseCheckbox from '@/components/BaseCheckbox.vue';
+import { searchLayers } from '@/utils/layers';
 
 export default defineComponent({
   name: 'WorksiteActions',
@@ -627,6 +699,20 @@ export default defineComponent({
     const currentIncident = computed(() => {
       return Incident.find(props.currentIncidentId);
     });
+    // All layers in one list, so a search finds a county without opening
+    // the county menu.
+    const searchedLayers = computed(() =>
+      searchLayers(
+        [
+          ...usStates.value,
+          ...districts.value,
+          ...counties.value,
+          ...(currentIncident.value?.locationModels ?? []),
+          ...organizationLocations.value,
+        ],
+        search.value,
+      ),
+    );
 
     async function applyLocation(locationId, value) {
       emit('applyLocation', {
@@ -796,6 +882,8 @@ export default defineComponent({
       mq,
       toggleUserLocations,
       showingUserLocations,
+      search,
+      searchedLayers,
     };
   },
 });
