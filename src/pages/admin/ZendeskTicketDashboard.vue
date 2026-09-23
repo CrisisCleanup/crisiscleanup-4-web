@@ -469,6 +469,11 @@ const getAgentList = () => {
 emitter.on('closeTicketModal', () => {
   ticketModal.value = false;
 });
+// TicketCards emits this after a reply or a status change.
+emitter.on('reFetchActiveTicket', fetchTickets);
+onBeforeUnmount(() => {
+  emitter.off('reFetchActiveTicket', fetchTickets);
+});
 // watch(ticketsWithUsers, (newValue, oldValue) => {
 //   console.log('ticket data has changed', newValue, oldValue);
 // });
@@ -491,12 +496,6 @@ function handleTableChange(value: TableChangeEmitItem) {
 const findAgentName = (id) => {
   return agents.value.find((a) => a.id === id)?.name;
 };
-
-const isFullscreen = computed(() => {
-  const screenWidth = window.innerWidth;
-  // Assuming md breakpoint is 768px
-  return screenWidth < 768;
-});
 
 onMounted(() => {
   isLoading.value = true;
@@ -729,79 +728,64 @@ onMounted(() => {
   <modal
     v-if="ticketModal"
     closeable
-    :title="'Ticket: ' + activeTicket.id"
-    :fullscreen="isFullscreen"
-    :class="[mq.md ? 'px-10' : '', mq.lgPlus ? 'p-5' : '']"
-    modal-header-classes="sticky top-0 bg-white"
-    modal-classes="overflow-auto h-full"
+    :fullscreen="mq.mdMinus"
+    modal-classes="w-full max-w-7xl h-full overflow-auto bg-crisiscleanup-smoke"
+    modal-header-classes="sticky top-0 z-10 bg-white"
+    :class="mq.lgPlus ? 'p-5' : ''"
     @close="showTicketModal()"
   >
     <template #header>
       <div
-        class="title flex p-3 justify-between border-b"
-        :class="mq.mdPlus ? 'flex-row items-center' : 'flex-col'"
+        class="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 border-b border-crisiscleanup-grey-100"
       >
+        <h2 class="text-[20px] font-semibold text-black">
+          {{ t('~~Ticket #{id}', { id: activeTicket.id }) }}
+        </h2>
         <div
-          :class="mq.mdPlus ? 'border-r' : 'border-b'"
-          class="flex justify-between items-center"
+          v-if="incidentsWithActiveHotline?.length"
+          class="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]"
+          data-testid="testTicketHotlines"
         >
-          <div class="px-2">Ticket: {{ activeTicket.id }}</div>
-          <BaseButton
-            v-if="!mq.mdPlus"
-            :action="() => showTicketModal()"
-            size="sm"
-            variant="primary"
-            class="rounded m-2 p-2"
-            icon="x"
-          />
-        </div>
-        <div
-          v-if="incidentsWithActiveHotline"
-          class="title flex p-3 justify-between"
-          :class="mq.mdPlus ? 'flex-row items-center' : 'flex-col'"
-        >
-          <div
+          <span
+            class="text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900"
+          >
+            {{ t('~~Hotlines') }}
+          </span>
+          <span
             v-for="incident in incidentsWithActiveHotline"
             :key="incident.id"
-            class="px-2"
+            class="flex items-center gap-1"
           >
-            {{ incident.short_name }}
+            <span class="font-semibold text-black">{{
+              incident.short_name
+            }}</span>
             <PhoneNumberDisplay
               v-for="hotlineNumber in formatIncidentPhoneNumbers(incident)"
               :key="hotlineNumber"
               :phone-number="hotlineNumber"
+              type="plain"
             />
-          </div>
-        </div>
-        <div
-          v-else
-          class="h-full flex items-center justify-center text-center m-5 font-bold text-crisiscleanup-dark-300 text-xl"
-        >
-          No Active hotlines or Error retrieving hotlines
+          </span>
         </div>
         <BaseButton
-          v-if="mq.mdPlus"
+          class="ml-auto"
+          variant="text"
+          size="medium"
+          icon="times"
+          icon-size="lg"
+          data-testid="testCloseTicketButton"
+          :alt="t('actions.close')"
           :action="() => showTicketModal()"
-          size="sm"
-          variant="primary"
-          class="rounded p-2"
-          icon="x"
         />
       </div>
     </template>
     <template #default>
       <TicketCards
-        v-if="
-          activeTicket.description &&
-          usersRelatedToTickets &&
-          currentUser &&
-          agents
-        "
+        v-if="activeTicket.description && usersRelatedToTickets && currentUser"
         :key="`${activeTicket.id}`"
         :current-user="currentUser"
         :agents="agents"
         :ticket-data="activeTicket"
-        @change="fetchTickets"
       />
     </template>
     <template #footer><span></span></template>

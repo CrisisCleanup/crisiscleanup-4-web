@@ -1,6 +1,28 @@
 import webIcon from '@/assets/icons/web.svg';
 import iosIcon from '@/assets/icons/ios.svg';
 import androidIcon from '@/assets/icons/android.svg';
+import type { BasePillVariant } from '@/components/BasePill.vue';
+
+const TICKET_STATUS_PILLS: Record<string, BasePillVariant> = {
+  new: 'claimed',
+  open: 'open',
+  pending: 'completed',
+  hold: 'completed',
+  solved: 'in-progress',
+  closed: 'in-progress',
+};
+
+/** The BasePill variant for a Zendesk ticket status. */
+export function getTicketStatusPillVariant(status?: string): BasePillVariant {
+  return (status && TICKET_STATUS_PILLS[status]) || 'dark';
+}
+
+/** True when a Zendesk attachment can show as an image thumbnail. */
+export function isImageAttachment(attachment: {
+  content_type?: string;
+}): boolean {
+  return attachment.content_type?.startsWith('image/') ?? false;
+}
 
 // Zendesk custom ticket field IDs.
 export const APP_PLATFORM_FIELD_ID = 17_295_140_815_757;

@@ -2,21 +2,23 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import _ from 'lodash';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { useToast } from 'vue-toastification';
-import { useMq } from 'vue3-mq';
 import Table from '../Table.vue';
 import LanguageTag from '../tags/LanguageTag.vue';
 import Modal from '@/components/Modal.vue';
-import BaseText from '@/components/BaseText.vue';
 import BaseButton from '@/components/BaseButton.vue';
-import BaseInput from '@/components/BaseInput.vue';
 import BaseSelect from '@/components/BaseSelect.vue';
-import UserRolesSelect from '@/components/UserRolesSelect.vue';
+import BasePill from '@/components/BasePill.vue';
+import Avatar from '@/components/Avatar.vue';
+import CopyText from '@/components/CopyText.vue';
 import AdminEventStream from '@/components/admin/AdminEventStream.vue';
 import JsonWrapper from '@/components/JsonWrapper.vue';
+import PaneDisclosure from '@/components/phone/foundation/PaneDisclosure.vue';
+import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
 import Language from '@/models/Language';
-import { momentFromNow, capitalize, formatDateString } from '@/filters';
+import Role from '@/models/Role';
+import { momentFromNow, capitalize } from '@/filters';
 import useEmitter from '@/hooks/useEmitter';
 import { getErrorMessage } from '@/utils/errors';
 import InvitationTable from '@/components/admin/InvitationTable.vue';
@@ -30,10 +32,11 @@ import {
   getAppTypeIcons,
   getRequesterPhone,
   getTicketFieldValue,
+  getTicketStatusPillVariant,
+  isImageAttachment,
   type TicketCustomField,
 } from '@/utils/zendeskTickets';
 
-const mq = useMq();
 const ccuApi = useApi();
 
 const commentsContainer = ref<HTMLDivElement | null>(null);
@@ -97,6 +100,8 @@ const StatusEnum = {
   PENDING: 'pending',
   SOLVED: 'solved',
 };
+const REPLY_STATUSES = [StatusEnum.OPEN, StatusEnum.PENDING, StatusEnum.SOLVED];
+
 const props = withDefaults(defineProps<TicketCardsProps>(), {
   ticketData: undefined,
   agents: () => [],
@@ -108,14 +113,17 @@ const axiosInstance = axios.create({
 });
 const { loginWithMagicLinkToken } = useAuthStore();
 const languages = Language.all();
-const extraInfo = ref<boolean>(false);
-const expanded = ref<boolean>(false);
-const isLoading = ref<boolean>(false);
 const currentUserID = ref<number>();
 const comments = ref<Comment[]>([]);
-const firstComment = ref();
+const firstComment = ref<Comment>();
 const ticketReply = ref<string>('');
 const selectedAgent = ref<string>('');
+// A reply keeps the ticket status by default. A new ticket becomes open.
+const replyStatus = ref<string>(
+  REPLY_STATUSES.includes(props.ticketData?.status as string)
+    ? (props.ticketData?.status as string)
+    : StatusEnum.OPEN,
+);
 const workSiteColumns = [
   {
     key: 'id',
@@ -161,32 +169,11 @@ const macroColumns = [
     searchable: false,
     width: '60%',
   },
-  // {
-  //   key: 'actions',
-  //   title: 'Actions',
-  //   sortable: true,
-  //   searchable: false,
-  //   width: '1fr',
-  // },
 ];
 const macroModalVisibility = ref(false);
 const eventsModal = ref(false);
-const userStats = [
-  {
-    org: null,
-    roles: null,
-    ccAge: null,
-    lastActive: null,
-    timezone: null,
-    email: null,
-    phone: null,
-    totalTickets: null,
-    signInCount: null,
-    // os: null,
-    // browser: null,
-  },
-];
 const ccUser = ref(props.ticketData.user.ccu_user);
+const zendeskUser = ref(props.ticketData.user);
 const ticketCustomFields = computed(
   () => props.ticketData?.custom_fields as TicketCustomField[] | undefined,
 );
@@ -199,19 +186,30 @@ const requesterPhone = computed(() =>
     props.ticketData?.user as Parameters<typeof getRequesterPhone>[1],
   ),
 );
+const appPlatform = computed(() =>
+  getTicketFieldValue(ticketCustomFields.value, APP_PLATFORM_FIELD_ID),
+);
 const appTypeIcon = computed(() =>
   getAppTypeIcons(
-    getTicketFieldValue(ticketCustomFields.value, APP_PLATFORM_FIELD_ID),
+    appPlatform.value,
     (props.ticketData?.description as string | undefined) ?? '',
   ),
 );
-const zendeskUser = ref(props.ticketData.user);
+const statusPillVariant = computed(() =>
+  getTicketStatusPillVariant(ticketTestData.value?.status as string),
+);
+const zendeskTicketUrl = computed(
+  () =>
+    `https://crisiscleanup.zendesk.com/agent/tickets/${props.ticketData?.id}`,
+);
+const requesterName = computed<string>(() =>
+  ccUser.value
+    ? `${ccUser.value.first_name} ${ccUser.value.last_name}`
+    : zendeskUser.value?.name,
+);
 
-// const ccUserEntries = computed(() => {
-//   return Object.entries(ccUser.value);
-// });
 const profilePictureUrl = computed(() => {
-  if (ccUser.value.files && ccUser.value.files.length > 0) {
+  if (ccUser.value?.files && ccUser.value.files.length > 0) {
     const profilePictures = ccUser.value.files.filter(
       (file: Record<string, unknown>) =>
         file.file_type_t === 'fileTypes.user_profile_picture',
@@ -221,11 +219,13 @@ const profilePictureUrl = computed(() => {
     }
   }
 
-  return getUserAvatarLink(ccUser.value.first_name);
+  return getUserAvatarLink(requesterName.value);
 });
 const submittedFrom = computed(() => {
   const _separator = 'Submitted from:';
-  const parsed = props.ticketData.description.split(_separator)[1]?.trim();
+  const parsed = (props.ticketData?.description as string | undefined)
+    ?.split(_separator)[1]
+    ?.trim();
   return parsed || '';
 });
 const assignedUser = computed(() => {
@@ -235,8 +235,63 @@ const assignedUser = computed(() => {
   >;
 });
 const ticketAssigneeName = computed(() => {
-  return assignedUser.value ? assignedUser.value.name : 'None';
+  return assignedUser.value ? assignedUser.value.name : t('~~Unassigned');
 });
+
+// Crisis Cleanup account rows. Only rows with a value show.
+const accountDetails = computed(() => {
+  if (!ccUser.value) return [];
+  const rows = [
+    {
+      label: t('~~Organization'),
+      value: ccUser.value.organization?.name,
+    },
+    {
+      label: t('~~Account email'),
+      value:
+        ccUser.value.email?.toLowerCase() ===
+        zendeskUser.value?.email?.toLowerCase()
+          ? undefined
+          : ccUser.value.email,
+    },
+    {
+      label: t('~~Joined'),
+      value: ccUser.value.accepted_terms_timestamp
+        ? momentFromNow(ccUser.value.accepted_terms_timestamp)
+        : undefined,
+    },
+    {
+      label: t('~~Last sign-in'),
+      value: ccUser.value.last_sign_in_at
+        ? momentFromNow(ccUser.value.last_sign_in_at)
+        : undefined,
+    },
+    { label: t('~~Sign-ins'), value: ccUser.value.sign_in_count },
+  ];
+  return rows.filter(
+    (row) => row.value !== undefined && row.value !== null && row.value !== '',
+  );
+});
+const accountMobile = computed(() =>
+  ccUser.value?.mobile && ccUser.value.mobile !== requesterPhone.value
+    ? ccUser.value.mobile
+    : undefined,
+);
+const userLanguages = computed(() =>
+  ccUser.value
+    ? languages.filter(
+        (item) =>
+          item.id === ccUser.value.primary_language ||
+          item.id === ccUser.value.secondary_language,
+      )
+    : [],
+);
+const roleNames = computed<string[]>(() =>
+  ((ccUser.value?.active_roles ?? []) as number[]).flatMap((roleId) => {
+    const role = Role.find(roleId);
+    return role ? [t(role.name_t)] : [];
+  }),
+);
 
 const createIssue = () => {
   getAllPictures();
@@ -311,6 +366,10 @@ ${attachmentsArray.value.join('\n')}
   window.open(url, '_blank');
 };
 
+const openInZendesk = () => {
+  window.open(zendeskTicketUrl.value, '_blank', 'noopener');
+};
+
 const fetchActiveTicket = () => {
   axiosInstance
     .get(`/tickets/${ticketTestData.value.id}`, {})
@@ -325,7 +384,7 @@ const fetchActiveTicket = () => {
 
 const replyToTicket = (replyStatus: string) => {
   if (replyStatus === StatusEnum.SOLVED && !assignedUser.value) {
-    axiosInstance
+    return axiosInstance
       .put(`/tickets/${props.ticketData.id}`, {
         ticket: {
           assignee_id: currentUserID.value!,
@@ -342,7 +401,9 @@ const replyToTicket = (replyStatus: string) => {
         selectedAgent.value = '';
       })
       .catch((error: Error) => {
-        toast.error(t('helpdesk.reassign_failure')` ${getErrorMessage(error)}`);
+        toast.error(
+          `${t('helpdesk.reassign_failure')} ${getErrorMessage(error)}`,
+        );
       })
       .then(() => {
         // Ticket has been successfully reassigned, now proceed with the ticket reply
@@ -367,70 +428,53 @@ const replyToTicket = (replyStatus: string) => {
       })
       .catch((error: Error) => {
         toast.error(
-          t('helpdesk.reply_unsuccessful')` ${getErrorMessage(error)}`,
+          `${t('helpdesk.reply_unsuccessful')} ${getErrorMessage(error)}`,
         );
       });
-  } else
-    axiosInstance
-      .put(`/tickets/${props.ticketData.id}`, {
-        ticket: {
-          status: replyStatus,
-          comment: {
-            body: ticketReply.value,
-            author_id: currentUserID.value,
-          },
+  }
+
+  return axiosInstance
+    .put(`/tickets/${props.ticketData.id}`, {
+      ticket: {
+        status: replyStatus,
+        comment: {
+          body: ticketReply.value,
+          author_id: currentUserID.value,
         },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success(t('helpdesk.reply_success'));
-        }
+      },
+    })
+    .then((response) => {
+      if (response.status === 200) {
+        toast.success(t('helpdesk.reply_success'));
+      }
 
-        if (replyStatus === StatusEnum.OPEN) {
-          getComments();
-        } else {
-          emitter.emit('closeTicketModal');
-        }
+      if (replyStatus === StatusEnum.OPEN) {
+        getComments();
+      } else {
+        emitter.emit('closeTicketModal');
+      }
 
-        if (props.ticketData?.assignee_id) {
-          fetchActiveTicket();
-          ticketReply.value = '';
-        } else {
-          reAssignTicket(currentUserID.value);
-        }
-      })
-      .then(() => {
-        emitter.emit('reFetchActiveTicket');
-      })
-      .catch((error: Error) => {
-        toast.error(
-          t('helpdesk.reply_unsuccessful')` ${getErrorMessage(error)}`,
-        );
-      });
-};
-
-const deleteTicket = () => {
-  toast.info('helpdesk.coming_soon');
-  // axiosInstance
-  //   .delete(`/Tickets/${props.ticketData.id}.json`).then((response: AxiosResponse<unknown>) => {
-  //   if (response.status === 200) {
-  // toast.success(
-  // 	t('helpdesk.sucessfully_deleted')` ${replyStatus}`
-  // )
-  // }
-
-  // emitter.emit('closeTicketModal');
-  // })
-  //   .catch((error: Error) => {
-  // toast.error(t('helpdesk.delete_unsucessful')` ${getErrorMessage(e)}`)
-  // console.log(error);
-  // });
+      if (props.ticketData?.assignee_id) {
+        fetchActiveTicket();
+        ticketReply.value = '';
+      } else {
+        reAssignTicket(currentUserID.value);
+      }
+    })
+    .then(() => {
+      emitter.emit('reFetchActiveTicket');
+    })
+    .catch((error: Error) => {
+      toast.error(
+        `${t('helpdesk.reply_unsuccessful')} ${getErrorMessage(error)}`,
+      );
+    });
 };
 
 const reAssignTicket = (agentId?: number) => {
   const _assigneeId = agentId || selectedAgent.value;
 
-  axiosInstance
+  return axiosInstance
     .put(`/tickets/${props.ticketData.id}`, {
       ticket: {
         assignee_id: _assigneeId,
@@ -447,48 +491,43 @@ const reAssignTicket = (agentId?: number) => {
       selectedAgent.value = '';
     })
     .catch((error: Error) => {
-      toast.error(t('helpdesk.reassign_failure')` ${getErrorMessage(error)}`);
+      toast.error(
+        `${t('helpdesk.reassign_failure')} ${getErrorMessage(error)}`,
+      );
     });
 };
 
 const getAgentIdForCurrentUser = () => {
   const agent = props.agents.find(
-    (agent) => agent.name === props.currentUser.full_name,
+    (agent) => agent.name === props.currentUser?.full_name,
   );
   const generalAgent = props.agents.find(
     (agent) => agent.name === 'Crisis Cleanup Helpdesk',
   );
-  currentUserID.value = agent ? agent.id : generalAgent.id;
+  // The agents can still be loading: leave the id unset instead of throwing.
+  currentUserID.value = (agent ?? generalAgent)?.id as number | undefined;
 };
 
 const getComments = () => {
   axiosInstance
     .get(`/tickets/${props.ticketData.id}/comments`, {})
-    .then((response: AxiosResponse<unknown>) => {
+    .then(async (response: AxiosResponse<unknown>) => {
       comments.value = response.data.comments;
       firstComment.value = comments.value[0];
+      await nextTick();
+      if (commentsContainer.value) {
+        commentsContainer.value.scrollTop =
+          commentsContainer.value.scrollHeight;
+      }
     })
-    .then(() => {
-      commentsContainer.value.scrollTop = commentsContainer.value.scrollHeight;
-    });
+    .catch(getErrorMessage);
 };
 
-const getCommentHighlights = (item) => {
-  if (item.author_id === currentUserID.value) {
-    return 'text-black border shadow-md';
-  }
+const isAgentComment = (comment: Comment) =>
+  props.agents.some((agent) => agent.id === comment.author_id);
 
-  if (
-    props.agents.some(
-      (agent) =>
-        agent.id === item.author_id && agent.id !== currentUserID.value,
-    )
-  ) {
-    return 'text-black border shadow-md'; // No specific class for the condition, returning an empty string
-  }
-
-  return 'bg-gray-300';
-};
+const commentAuthor = (comment: Comment) =>
+  getAgentById(comment.author_id) ?? zendeskUser.value.name;
 
 const showEventsModal = () => {
   eventsModal.value = !eventsModal.value;
@@ -500,23 +539,22 @@ const showMacroModal = () => {
 
 const executeMacro = (macro) => {
   showMacroModal();
-  let appendedReply = ticketReply.value + '\n' + macro.template;
+  let appendedReply = [ticketReply.value, macro.template]
+    .filter(Boolean)
+    .join('\n');
 
   for (const [zendeskVariable, myVariable] of Object.entries(
     zendeskVariables,
   )) {
-    appendedReply = appendedReply.replace(zendeskVariable, myVariable);
+    appendedReply = appendedReply.replaceAll(
+      zendeskVariable,
+      String(myVariable ?? ''),
+    );
   }
 
   ticketReply.value = appendedReply;
 
-  toast.success(t('helpdesk.macro_success')` ${macro.title}`);
-};
-
-const formatKey = (key: string) => {
-  return key
-    .replaceAll(/([A-Z])/g, ' $1')
-    .replace(/^./, (str) => str.toUpperCase());
+  toast.success(`${t('helpdesk.macro_success')} ${macro.title}`);
 };
 
 async function loginAs(userId: string) {
@@ -530,35 +568,14 @@ async function loginAs(userId: string) {
   window.location.reload();
 }
 
-async function getCcuStats() {
-  if (ccUser.value) {
-    userStats[0] = {
-      org: ccUser.value.organization?.name ?? '',
-      email: ccUser.value.email ?? '',
-      phone: ccUser.value.mobile ?? '',
-      ccAge: momentFromNow(ccUser.value.accepted_terms_timestamp),
-      signInCount: ccUser.value.sign_in_count,
-      lastActive: momentFromNow(ccUser.value.last_sign_in_at),
-      // os: `${ccUser.value.states.userAgent?.os?.name} ${ccUser.value.states.userAgent?.os?.version}`,
-      // browser: `${ccUser.value.states.userAgent?.browser?.name} ${ccUser.value.states.userAgent?.browser?.version}`,
-    };
-  } else
-    console.log('Error Loading CCuser or CCuser doesnt exist for this user');
-}
-
-const removeSubmittedFromFooter = (body) => {
+const removeSubmittedFromFooter = (body?: string) => {
   const delimiter = '------------------';
-  const parts = body.split(delimiter);
+  const parts = (body ?? '').split(delimiter);
   return parts[0].trim();
 };
 
-const getAgentById = (id: number) => {
-  const _agentMap = props.agents
-    ?.map((u) => ({ [u.id]: u.name }))
-    .reduce((prev, current) => ({ ...prev, ...current }), {});
-
-  return _agentMap[id];
-};
+const getAgentById = (id: number) =>
+  props.agents?.find((agent) => agent.id === id)?.name as string | undefined;
 
 const onMacroSearch = computed(() => {
   const lowerCasedSearchValue = macroSearch.value.toLowerCase().trim();
@@ -680,18 +697,6 @@ async function getWorksiteForUser() {
   worksites.value = response.data.results;
 }
 
-const accountType = computed(() => {
-  const _accountType = {
-    ghostUser: ghostUser.value,
-    ccUser: ccUser.value,
-    worksite: worksites.value,
-    invitations: invitations.value,
-    invitationRequests: invitationRequests.value,
-  };
-
-  return _accountType;
-});
-
 const openWorkSitePage = (incidentId: number, worksiteId: number) => {
   const url = `https://crisiscleanup.org/incident/${incidentId}/work/${worksiteId}?showOnMap=true`;
   window.open(url, '_blank');
@@ -700,11 +705,6 @@ const openWorkSitePage = (incidentId: number, worksiteId: number) => {
 const worksiteModal = ref(false);
 const showWorksiteModal = () => {
   worksiteModal.value = !worksiteModal.value;
-};
-
-const mobileExtraUserInfo = ref(false);
-const showExtraUserInfoModal = () => {
-  mobileExtraUserInfo.value = !mobileExtraUserInfo.value;
 };
 
 const crisisCleanupRepos = ref([
@@ -742,8 +742,7 @@ const { isFinished: isInvitationFinished, data: _invitations } = ccuApi(
   },
 );
 whenever(isInvitationFinished, () => {
-  invitations.value = _invitations.value.results;
-  console.log('These are the invitations', invitations.value);
+  invitations.value = _invitations.value?.results ?? [];
 });
 
 const { isFinished: isInvitationRequestsFinished, data: _invitationRequests } =
@@ -754,8 +753,7 @@ const { isFinished: isInvitationRequestsFinished, data: _invitationRequests } =
     },
   );
 whenever(isInvitationRequestsFinished, () => {
-  console.log('These are the invitation requests', _invitationRequests);
-  invitationRequests.value = _invitationRequests.value.results;
+  invitationRequests.value = _invitationRequests.value?.results ?? [];
 });
 
 const invitationRequestsModalVisibility = ref(false);
@@ -768,6 +766,17 @@ const invitationsModalVisibility = ref(false);
 const showInvitationsModal = () => {
   invitationsModalVisibility.value = !invitationsModalVisibility.value;
 };
+
+// A requester with no account, case, ghost user, or invitation.
+const hasNoAccount = computed(
+  () =>
+    !ccUser.value &&
+    worksites.value.length === 0 &&
+    ghostUser.value.length === 0 &&
+    invitations.value.length === 0 &&
+    invitationRequests.value.length === 0,
+);
+
 const tableWidthMQ = computed(() => {
   return {
     height: '670px',
@@ -775,857 +784,564 @@ const tableWidthMQ = computed(() => {
   };
 });
 onMounted(async () => {
-  isLoading.value = true;
   getAgentIdForCurrentUser();
-  await getCcuStats();
   getComments();
   getMacros();
   await getWorksiteForUser();
   await getGhostUser();
-  isLoading.value = false;
 });
 </script>
 
 <template>
-  <div class="ticket__container">
+  <div class="ticket" data-testid="testTicketCards">
+    <div class="flex flex-col gap-4 min-w-0">
+      <!-- Summary -->
+      <section class="ticket-card p-4 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <BasePill
+            :variant="statusPillVariant"
+            show-dot
+            data-testid="testTicketStatusPill"
+          >
+            {{ capitalize(ticketTestData.status) }}
+          </BasePill>
+          <span class="text-[13px] text-crisiscleanup-grey-900">
+            {{ t('helpdesk.ticket_created_at') }}
+            {{ momentFromNow(ticketData.created_at) }}
+          </span>
+          <img
+            :src="appTypeIcon"
+            :alt="t('helpdesk.app_platform')"
+            :title="appPlatform ?? t('helpdesk.app_platform')"
+            class="h-5 w-5"
+          />
+          <div class="ml-auto flex flex-wrap gap-2">
+            <BaseButton
+              variant="outline"
+              size="small"
+              data-testid="testCreateGithubIssueButton"
+              :text="t('helpdesk.create_github_issue')"
+              :action="showRepoSelection"
+            />
+            <BaseButton
+              variant="outline"
+              size="small"
+              data-testid="testOpenInZendeskButton"
+              :text="t('~~Open in Zendesk')"
+              :action="openInZendesk"
+            />
+          </div>
+        </div>
+        <h2 class="text-[16px] font-bold text-black break-words">
+          {{ ticketData.raw_subject || ticketData.subject }}
+        </h2>
+        <dl v-if="firstComment || submittedFrom" class="ticket-details">
+          <template v-if="submittedFrom">
+            <dt>{{ t('helpdesk.submitting_page') }}</dt>
+            <dd>{{ submittedFrom }}</dd>
+          </template>
+          <template v-if="firstComment?.metadata?.system?.ip_address">
+            <dt>{{ t('helpdesk.ip_address') }}</dt>
+            <dd>
+              <CopyText
+                :text="firstComment.metadata.system.ip_address"
+                icon-class="ml-1"
+              >
+                {{ firstComment.metadata.system.ip_address }}
+              </CopyText>
+            </dd>
+          </template>
+          <template v-if="firstComment?.metadata?.system?.location">
+            <dt>{{ t('~~Network location') }}</dt>
+            <dd>
+              <a
+                class="ticket-link"
+                :href="`https://www.google.com/maps/search/?api=1&query=${firstComment.metadata.system.latitude},${firstComment.metadata.system.longitude}`"
+                target="_blank"
+                rel="noopener"
+                :title="firstComment.metadata.system.location"
+                >{{ firstComment.metadata.system.location }}</a
+              >
+            </dd>
+          </template>
+        </dl>
+      </section>
+
+      <!-- Conversation -->
+      <section class="ticket-card flex flex-col min-h-0">
+        <header class="ticket-card__header">
+          <h3 class="ticket-eyebrow">{{ t('helpdesk.comments') }}</h3>
+          <BasePill v-if="comments.length > 0" variant="dark" class="ml-auto">
+            {{ comments.length }}
+          </BasePill>
+        </header>
+        <div
+          ref="commentsContainer"
+          class="px-4 py-2 scroll-smooth lg:max-h-[32rem] lg:overflow-y-auto"
+        >
+          <PaneEmpty
+            v-if="comments.length === 0"
+            :title="t('~~No comments yet')"
+          />
+          <article
+            v-for="comment in comments"
+            :key="comment.id"
+            class="ticket-comment"
+            :class="{ 'ticket-comment--requester': !isAgentComment(comment) }"
+            data-testid="testTicketComment"
+          >
+            <Avatar
+              :initials="commentAuthor(comment)"
+              :url="getUserAvatarLink(commentAuthor(comment))"
+              :custom-size="{ width: '32px', height: '32px' }"
+            />
+            <div class="min-w-0 flex-1 flex flex-col gap-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-[13px] font-semibold text-black">
+                  {{ commentAuthor(comment) }}
+                </span>
+                <BasePill v-if="isAgentComment(comment)" variant="dark">
+                  {{ t('~~Agent') }}
+                </BasePill>
+                <BasePill v-if="comment.public === false" variant="claimed">
+                  {{ t('~~Internal note') }}
+                </BasePill>
+                <span
+                  class="ml-auto text-[12px] text-crisiscleanup-grey-900"
+                  :title="comment.created_at"
+                >
+                  {{ momentFromNow(comment.created_at) }}
+                </span>
+              </div>
+              <p
+                class="text-[15px] leading-snug text-black whitespace-pre-line break-words"
+              >
+                {{ removeSubmittedFromFooter(comment.body) }}
+              </p>
+              <div
+                v-if="comment.attachments?.length"
+                class="flex flex-wrap gap-2 pt-1"
+              >
+                <a
+                  v-for="attachment in comment.attachments"
+                  :key="attachment.id"
+                  :href="attachment.content_url"
+                  target="_blank"
+                  rel="noopener"
+                  :title="attachment.file_name"
+                >
+                  <img
+                    v-if="isImageAttachment(attachment)"
+                    :src="attachment.content_url"
+                    :alt="attachment.file_name"
+                    class="h-16 w-16 object-cover rounded border border-crisiscleanup-grey-100"
+                  />
+                  <span v-else class="ticket-file">
+                    {{ attachment.file_name }}
+                  </span>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Reply -->
+      <section class="ticket-card p-4 flex flex-col gap-3">
+        <div class="flex items-center gap-2">
+          <h3 class="ticket-eyebrow">{{ t('~~Reply') }}</h3>
+          <BaseButton
+            class="ml-auto"
+            variant="outline"
+            size="small"
+            data-testid="testApplyMacroButton"
+            :text="t('actions.apply_macro')"
+            :action="showMacroModal"
+          />
+        </div>
+        <textarea
+          v-model="ticketReply"
+          class="ticket-textarea"
+          rows="6"
+          data-testid="testTicketReplyTextarea"
+          :aria-label="t('~~Reply')"
+          :placeholder="t('~~Write a reply to the requester')"
+        />
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-[13px] text-crisiscleanup-grey-900">
+            {{ t('~~Submit as') }}
+          </span>
+          <div role="radiogroup" class="flex gap-1">
+            <button
+              v-for="status in REPLY_STATUSES"
+              :key="status"
+              type="button"
+              role="radio"
+              class="ticket-status-option"
+              :class="{
+                'ticket-status-option--active': replyStatus === status,
+              }"
+              :aria-checked="replyStatus === status"
+              :data-testid="`testReplyStatus-${status}`"
+              @click="replyStatus = status"
+            >
+              {{ capitalize(status) }}
+            </button>
+          </div>
+          <BaseButton
+            class="ml-auto"
+            variant="solid"
+            size="medium"
+            data-testid="testSubmitReplyButton"
+            :text="
+              t('~~Submit as {status}', { status: capitalize(replyStatus) })
+            "
+            :action="() => replyToTicket(replyStatus)"
+          />
+        </div>
+      </section>
+    </div>
+
+    <aside class="flex flex-col gap-4 min-w-0">
+      <!-- Requester -->
+      <section class="ticket-card p-4 flex flex-col gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <Avatar
+            :initials="requesterName"
+            :url="profilePictureUrl"
+            :custom-size="{ width: '48px', height: '48px' }"
+          />
+          <div class="min-w-0">
+            <p class="text-[15px] font-semibold text-black truncate">
+              {{ requesterName }}
+            </p>
+            <CopyText
+              v-if="zendeskUser.email"
+              :text="zendeskUser.email"
+              icon-class="ml-1"
+            >
+              <span class="text-[13px] text-crisiscleanup-grey-900 break-all">
+                {{ zendeskUser.email }}
+              </span>
+            </CopyText>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5" data-testid="testAccountTypePills">
+          <BasePill v-if="ccUser" variant="open">
+            {{ t('helpdesk.user_account') }}
+          </BasePill>
+          <button
+            v-if="worksites.length > 0"
+            type="button"
+            class="ticket-pill-button"
+            @click="showWorksiteModal"
+          >
+            <BasePill variant="in-progress">
+              {{ t('helpdesk.survivor_account') }}
+            </BasePill>
+          </button>
+          <BasePill v-if="ghostUser.length > 0" variant="claimed">
+            {{ t('helpdesk.ghost_user') }}
+          </BasePill>
+          <button
+            v-if="invitations.length > 0"
+            type="button"
+            class="ticket-pill-button"
+            @click="showInvitationsModal"
+          >
+            <BasePill variant="urgent">
+              {{ t('helpdesk.invitation') }}
+            </BasePill>
+          </button>
+          <button
+            v-if="invitationRequests.length > 0"
+            type="button"
+            class="ticket-pill-button"
+            @click="showInvitationRequestsModal"
+          >
+            <BasePill variant="dark">
+              {{ t('helpdesk.invitation_request') }}
+            </BasePill>
+          </button>
+          <BasePill v-if="hasNoAccount" variant="completed">
+            {{ t('helpdesk.no_role') }}
+          </BasePill>
+        </div>
+
+        <dl class="ticket-details">
+          <template v-if="requesterPhone">
+            <dt>{{ t('~~Phone') }}</dt>
+            <dd>
+              <PhoneNumberDisplay :phone-number="requesterPhone" type="plain" />
+            </dd>
+          </template>
+          <template v-if="accountMobile">
+            <dt>{{ t('~~Account mobile') }}</dt>
+            <dd>
+              <PhoneNumberDisplay :phone-number="accountMobile" type="plain" />
+            </dd>
+          </template>
+          <template v-if="requesterLocation">
+            <dt>{{ t('~~Location') }}</dt>
+            <dd>{{ requesterLocation }}</dd>
+          </template>
+          <template v-for="row in accountDetails" :key="row.label">
+            <dt>{{ row.label }}</dt>
+            <dd>{{ row.value }}</dd>
+          </template>
+          <template v-if="userLanguages.length > 0">
+            <dt>{{ t('helpdesk.languages') }}</dt>
+            <dd class="flex flex-wrap gap-1">
+              <LanguageTag
+                v-for="language in userLanguages"
+                :key="language.id"
+                :language-id="language.id"
+              />
+            </dd>
+          </template>
+          <template v-if="roleNames.length > 0">
+            <dt>{{ t('helpdesk.roles') }}</dt>
+            <dd class="flex flex-wrap gap-1">
+              <BasePill v-for="role in roleNames" :key="role" variant="dark">
+                {{ role }}
+              </BasePill>
+            </dd>
+          </template>
+        </dl>
+
+        <BaseButton
+          v-if="ccUser"
+          class="w-full"
+          variant="solid"
+          size="medium"
+          data-testid="testLoginAsButton"
+          :text="t('actions.login_as')"
+          :action="() => loginAs(ccUser.id)"
+        />
+      </section>
+
+      <!-- Assignment -->
+      <section class="ticket-card p-4 flex flex-col gap-3">
+        <h3 class="ticket-eyebrow">{{ t('helpdesk.assigned_to') }}</h3>
+        <p class="text-[15px] font-semibold text-black">
+          {{ ticketAssigneeName }}
+        </p>
+        <div class="flex items-start gap-2">
+          <BaseSelect
+            class="flex-1 min-w-0"
+            :model-value="selectedAgent"
+            label="name"
+            item-key="id"
+            :options="agents"
+            :placeholder="t('helpdesk.select_agent')"
+            @update:model-value="(v) => (selectedAgent = v)"
+          />
+          <BaseButton
+            variant="outline"
+            size="medium"
+            data-testid="testAssignTicketButton"
+            :disabled="!selectedAgent"
+            :text="t('actions.assign')"
+            :action="() => reAssignTicket()"
+          />
+        </div>
+      </section>
+
+      <!-- Account activity -->
+      <section v-if="ccUser" class="ticket-card flex flex-col min-h-0">
+        <header class="ticket-card__header">
+          <h3 class="ticket-eyebrow">{{ t('~~Recent activity') }}</h3>
+          <BaseButton
+            class="ml-auto"
+            variant="text"
+            size="small"
+            :text="t('actions.show_more')"
+            :action="showEventsModal"
+          />
+        </header>
+        <div class="px-4 py-3 text-xs max-h-80 overflow-auto">
+          <AdminEventStream :user="ccUser.id" :limit="5" />
+        </div>
+      </section>
+
+      <section v-if="ccUser" class="ticket-card overflow-hidden">
+        <PaneDisclosure
+          name="ticket-account-json"
+          :title="t('helpdesk.more_user_details')"
+        >
+          <JsonWrapper :json-data="ccUser" />
+        </PaneDisclosure>
+      </section>
+    </aside>
+
     <modal
       v-if="invitationsModalVisibility"
       closeable
       :title="t('helpdesk.invitation')"
-      class="p-0 md:p-10"
-      :fullscreen="true"
-      modal-classes="mx-2"
+      modal-classes="bg-white w-full max-w-5xl"
       @close="showInvitationsModal()"
     >
-      <template #default>
-        <InvitationTable :invitations="invitations" />
-      </template>
+      <InvitationTable :invitations="invitations" />
+      <template #footer><span></span></template>
     </modal>
 
     <modal
       v-if="invitationRequestsModalVisibility"
       closeable
       :title="t('helpdesk.invitation_request')"
-      class="p-0 md:p-10"
-      :fullscreen="true"
-      modal-classes="mx-2"
+      modal-classes="bg-white w-full max-w-5xl"
       @close="showInvitationRequestsModal()"
     >
-      <template #default>
-        <InvitationRequestTable :requests="invitationRequests" />
-      </template>
+      <InvitationRequestTable :requests="invitationRequests" />
+      <template #footer><span></span></template>
     </modal>
-    <!--    <Teleport to="#user-content">-->
-    <div v-if="ccUser" class="cc__user-info">
-      <div class="cc_user">
-        <img
-          :alt="t('helpdesk.user_picture')"
-          :src="profilePictureUrl"
-          class="w-full"
-        />
-        <BaseText>{{ ccUser.first_name + ' ' + ccUser.last_name }}</BaseText>
-      </div>
-      <div>
-        <div v-if="accountType.ccUser" style="color: #3498db" class="user-type">
-          {{ t('helpdesk.user_account') }}
-        </div>
-
-        <div
-          v-if="accountType.worksite.length > 0"
-          :style="`background-color: #27AE60; color: #ffffff`"
-          class="user-type cursor-pointer"
-          @click="showWorksiteModal"
-        >
-          {{ t('helpdesk.survivor_account') }}
-        </div>
-        <div
-          v-if="accountType.ghostUser.length > 0"
-          style="color: #f39c12"
-          class="user-type"
-        >
-          {{ t('helpdesk.ghost_user') }}
-        </div>
-        <div
-          v-if="accountType.invitations.length > 0"
-          :style="`background-color: #FF5733; color: #ffffff`"
-          class="user-type cursor-pointer"
-          @click="showInvitationsModal"
-        >
-          {{ t('helpdesk.invitation') }}
-        </div>
-        <div
-          v-if="accountType.invitationRequests.length > 0"
-          :style="`background-color: #9966CC; color: #ffffff`"
-          class="user-type cursor-pointer"
-          @click="showInvitationRequestsModal"
-        >
-          {{ t('helpdesk.invitation_request') }}
-        </div>
-      </div>
-      <div class="flex items-center justify-center border-y-2 border-gray-400">
-        <BaseButton
-          :action="() => loginAs(props.ticketData.user.ccu_user?.id)"
-          :text="t('actions.login_as')"
-          variant="primary"
-          class="p-2 mx-4 my-4 text-xl rounded-md w-full"
-        />
-      </div>
-      <div>
-        <div
-          v-for="stats in userStats"
-          :key="stats.org"
-          class="info flex flex-col mx-4 my-2"
-        >
-          <BaseText v-for="(value, key) in stats" :key="key">
-            <template v-if="!value" #default><span></span></template>
-            <template v-else #default>
-              <span class="font-bold text-xl">{{ formatKey(key) }}: </span>
-              <span class="text-lg">{{ value }}</span>
-            </template>
-          </BaseText>
-        </div>
-        <div class="flex flex-col px-4 py-2">
-          <span class="font-bold text-xl"> {{ t('helpdesk.languages') }}</span>
-          <div
-            v-for="l in languages.filter(
-              (item) =>
-                item.id === ccUser.primary_language ||
-                item.id === ccUser.secondary_language,
-            )"
-            :key="`l_${l}`"
-            class="flex flex-col tag-container"
-          >
-            <LanguageTag class="tag-item p-2 mx-0.5" :language-id="l.id" />
-          </div>
-        </div>
-
-        <div class="flex flex-col px-4">
-          <span class="font-bold text-xl"> {{ t('helpdesk.roles') }} </span>
-          <UserRolesSelect
-            v-if="ccUser.roles"
-            style="pointer-events: none"
-            class="w-full flex-grow border border-crisiscleanup-dark-100"
-            data-testid="testUserRolesSelect"
-            :user="ccUser"
-          />
-        </div>
-        <div class="flex items-center justify-center">
-          <BaseButton
-            :action="() => (extraInfo = !extraInfo)"
-            variant="primary"
-            :text="t('helpdesk.more_user_details')"
-            class="p-2 mx-4 my-3 text-xl rounded-md w-full"
-          />
-        </div>
-        <div v-if="extraInfo">
-          <JsonWrapper :json-data="ccUser" />
-        </div>
-      </div>
-
-      <div class="events m-2 text-xs border p-2 flex flex-col gap-2">
-        <AdminEventStream :user="ccUser.id" :limit="5" class="overflow-auto" />
-        <div class="flex items-center justify-center">
-          <BaseButton
-            :action="() => showEventsModal()"
-            :text="t('actions.show_more')"
-            variant="primary"
-            class="p-2 mx-4 my-4 text-xl rounded-md w-full"
-          />
-        </div>
-      </div>
-      <modal
-        v-if="eventsModal"
-        closeable
-        title="Events"
-        class="md:p-10"
-        @close="showEventsModal()"
-      >
-        <template #default>
-          <div class="p-4">
-            <AdminEventStream :user="ccUser.id" />
-          </div>
-        </template>
-      </modal>
-    </div>
-    <div v-if="!ccUser" class="cc__user-info">
-      <div>
-        <div
-          v-if="accountType.worksite.length > 0"
-          :style="`background-color: #27AE60; color: #ffffff`"
-          class="user-type cursor-pointer"
-          @click="showWorksiteModal"
-        >
-          {{ t('helpdesk.survivor_account') }}
-        </div>
-        <div
-          v-if="accountType.ghostUser.length > 0"
-          :style="`border-color: #F39C12; color: #F39C12`"
-          class="user-type"
-        >
-          {{ t('helpdesk.ghost_user') }}
-        </div>
-
-        <div
-          v-if="
-            accountType.ghostUser.length === 0 &&
-            accountType.worksite.length === 0
-          "
-          :style="`border-color: #B2BEB5; color: #B2BEB5`"
-          class="user-type"
-        >
-          {{ t('helpdesk.no_role') }}
-        </div>
-
-        <div
-          v-if="accountType.invitations.length > 0"
-          :style="`background-color: #FF5733; color: #ffffff`"
-          class="user-type cursor-pointer"
-          @click="showInvitationsModal"
-        >
-          {{ t('helpdesk.invitation') }}
-        </div>
-        <div
-          v-if="accountType.invitationRequests.length > 0"
-          :style="`background-color: #9966CC; color: #ffffff`"
-          class="user-type cursor-pointer"
-          @click="showInvitationRequestsModal"
-        >
-          {{ t('helpdesk.invitation_request') }}
-        </div>
-      </div>
-    </div>
-
-    <!--    </Teleport>-->
-
-    <!--    <modal-->
-    <!--      v-if="mobileExtraUserInfo"-->
-    <!--      closeable-->
-    <!--      :title="t('helpdesk.more_user_details')"-->
-    <!--      class="md:p-10"-->
-    <!--      @close="showExtraUserInfoModal()"-->
-    <!--    >-->
-    <!--      <template #default>-->
-    <!--<div id="user-content"></div>-->
-    <!--      </template>-->
-    <!--    </modal>-->
-
-    <modal
-      v-if="mobileExtraUserInfo"
-      closeable
-      :title="t('helpdesk.more_user_details')"
-      :fullscreen="true"
-      :class="[mq.md ? 'px-10' : '', mq.lgPlus ? 'p-5' : '']"
-      modal-header-classes="sticky top-0 bg-white"
-      modal-classes="overflow-auto"
-      modal-body-classes="p-1"
-      @close="showExtraUserInfoModal()"
-    >
-      <template #default>
-        <div v-if="ccUser" class="cc__user-info2">
-          <div class="flex flex-col justify-center items-center">
-            <div class="cc_user">
-              <img
-                :alt="t('helpdesk.user_picture')"
-                :src="profilePictureUrl"
-                class="w-full"
-              />
-              <BaseText>{{
-                ccUser.first_name + ' ' + ccUser.last_name
-              }}</BaseText>
-            </div>
-          </div>
-
-          <div>
-            <div
-              v-if="accountType.ccUser"
-              style="color: #3498db"
-              class="user-type"
-            >
-              {{ t('helpdesk.user_account') }}
-            </div>
-
-            <div
-              v-if="accountType.worksite.length > 0"
-              :style="`background-color: #27AE60; color: #ffffff`"
-              class="user-type cursor-pointer"
-              @click="showWorksiteModal"
-            >
-              {{ t('helpdesk.survivor_account') }}
-            </div>
-            <div
-              v-if="accountType.ghostUser.length > 0"
-              style="color: #f39c12"
-              class="user-type"
-            >
-              {{ t('helpdesk.ghost_user') }}
-            </div>
-          </div>
-          <div
-            class="flex items-center justify-center border-y-2 border-gray-400"
-          >
-            <BaseButton
-              :action="() => loginAs(props.ticketData.user.ccu_user?.id)"
-              :text="t('actions.login_as')"
-              variant="primary"
-              class="p-2 mx-4 my-4 text-xl rounded-md w-full"
-            />
-          </div>
-          <div>
-            <div
-              v-for="stats in userStats"
-              :key="stats.org"
-              class="info flex flex-col mx-4 my-2"
-            >
-              <BaseText v-for="(value, key) in stats" :key="key">
-                <template v-if="!value" #default><span></span></template>
-                <template v-else #default>
-                  <span class="font-bold text-xl">{{ formatKey(key) }}: </span>
-                  <span class="text-lg">{{ value }}</span>
-                </template>
-              </BaseText>
-            </div>
-            <div class="flex flex-col px-4 py-2">
-              <span class="font-bold text-xl">
-                {{ t('helpdesk.languages') }}</span
-              >
-              <div
-                v-for="l in languages.filter(
-                  (item) =>
-                    item.id === ccUser.primary_language ||
-                    item.id === ccUser.secondary_language,
-                )"
-                :key="`l_${l}`"
-                class="flex flex-col tag-container"
-              >
-                <LanguageTag class="tag-item p-2 mx-0.5" :language-id="l.id" />
-              </div>
-            </div>
-
-            <div class="flex flex-col px-4">
-              <span class="font-bold text-xl"> {{ t('helpdesk.roles') }} </span>
-              <UserRolesSelect
-                v-if="ccUser.roles"
-                style="pointer-events: none"
-                class="w-full flex-grow border border-crisiscleanup-dark-100"
-                data-testid="testUserRolesSelect"
-                :user="ccUser"
-              />
-            </div>
-            <div class="flex items-center justify-center">
-              <BaseButton
-                :action="() => (extraInfo = !extraInfo)"
-                variant="primary"
-                :text="t('helpdesk.more_user_details')"
-                class="p-2 mx-4 my-3 text-xl rounded-md w-full"
-              />
-            </div>
-            <div v-if="extraInfo">
-              <JsonWrapper :json-data="ccUser" />
-            </div>
-          </div>
-          <modal
-            v-if="eventsModal"
-            closeable
-            title="Events"
-            class="md:p-10"
-            @close="showEventsModal()"
-          >
-            <template #default>
-              <div class="p-4">
-                <AdminEventStream :user="ccUser.id" />
-              </div>
-            </template>
-          </modal>
-        </div>
-        <div v-if="!ccUser" class="cc__user-info2">
-          <div>
-            <div
-              v-if="accountType.worksite.length > 0"
-              :style="`background-color: #27AE60; color: #ffffff`"
-              class="user-type cursor-pointer"
-              @click="showWorksiteModal"
-            >
-              {{ t('helpdesk.survivor_account') }}
-            </div>
-            <div
-              v-if="accountType.ghostUser.length > 0"
-              :style="`border-color: #F39C12; color: #F39C12`"
-              class="user-type"
-            >
-              {{ t('helpdesk.ghost_user') }}
-            </div>
-
-            <div
-              v-if="
-                accountType.ghostUser.length === 0 &&
-                accountType.worksite.length === 0
-              "
-              :style="`border-color: #B2BEB5; color: #B2BEB5`"
-              class="user-type"
-            >
-              {{ t('helpdesk.no_role') }}
-            </div>
-          </div>
-        </div>
-      </template>
-    </modal>
-
-    <div class="col-span-12 md:col-span-9">
-      <div class="ticket__header">
-        <div class="submitter-info">
-          <BaseText>
-            {{ zendeskUser.name }}
-          </BaseText>
-          <hr />
-          <BaseText>
-            {{ zendeskUser.email }}
-          </BaseText>
-        </div>
-        <BaseButton class="github-link" @click="showRepoSelection()">
-          <span class="hidden md:block">{{
-            t('helpdesk.create_github_issue')
-          }}</span>
-          <span class="block md:hidden"
-            ><img src="@/assets/icons/github.svg" height="48" width="48"
-          /></span>
-        </BaseButton>
-        <modal
-          v-if="repoSelection"
-          closeable
-          title="Crisis Cleanup Repo Selection"
-          @close="showRepoSelection()"
-          @ok="createIssue()"
-        >
-          <template #default>
-            <div class="p-4">
-              <BaseSelect
-                :model-value="selectedRepo"
-                select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded py-2"
-                :placeholder="t('helpdesk.select_a_repo')"
-                :options="crisisCleanupRepos"
-                @update:model-value="(v) => (selectedRepo = v)"
-              />
-            </div>
-          </template>
-        </modal>
-        <a
-          :href="`https://crisiscleanup.zendesk.com/agent/tickets/${ticketData.id}`"
-          target="_blank"
-          class="md:text-[.9vw] ticket-link"
-        >
-          <span class="hidden md:block">{{ t('helpdesk.zendesk_link') }}</span>
-          <span class="block md:hidden"
-            ><img src="@/assets/icons/zendesk.svg" height="26" width="26"
-          /></span>
-        </a>
-        <BaseButton
-          v-if="mq.mdMinus"
-          class="extra-info"
-          :action="showExtraUserInfoModal"
-          text="Extra Info"
-          variant="primary"
-        />
-        <div :class="[ticketTestData.status + '-tag', 'ticket-status text-xl']">
-          {{ capitalize(ticketTestData.status) }}
-        </div>
-      </div>
-
-      <div class="subject-date__container">
-        <BaseText>
-          <span class="text-base font-bold">
-            {{ t('helpdesk.ticket_created_at') }}:</span
-          >
-          {{ momentFromNow(ticketData.created_at) }}
-        </BaseText>
-        <hr />
-        <BaseText class="flex items-center gap-2">
-          <span class="text-base font-bold">
-            {{ t('helpdesk.app_platform') }}:
-          </span>
-          <img
-            :src="appTypeIcon"
-            :alt="t('helpdesk.app_platform')"
-            width="36"
-          />
-        </BaseText>
-        <hr />
-        <BaseText v-if="firstComment">
-          <span class="text-base font-bold">
-            {{ t('helpdesk.submitting_page') }}
-          </span>
-          [{{ submittedFrom }}]
-          <span class="font-bold">{{ t('helpdesk.ip_address') }}</span> [{{
-            firstComment?.metadata?.system?.ip_address
-          }}] (<a
-            class="underline text-blue"
-            :href="`https://www.google.com/maps/search/?api=1&query=${firstComment.metadata?.system?.latitude},${firstComment.metadata?.system?.longitude}`"
-            target="_blank"
-            title="{{firstComment.metadata?.system?.location}}"
-            >{{ firstComment.metadata?.system?.location }}</a
-          >)
-        </BaseText>
-        <hr />
-        <BaseText v-if="requesterPhone">
-          <span class="text-base font-bold">
-            {{ t('~~Requester phone') }}:
-          </span>
-          <PhoneNumberDisplay :phone-number="requesterPhone" type="plain" />
-        </BaseText>
-        <hr v-if="requesterPhone" />
-        <BaseText v-if="requesterLocation">
-          <span class="text-base font-bold">
-            {{ t('~~Requester location') }}:
-          </span>
-          {{ requesterLocation }}
-        </BaseText>
-        <hr v-if="requesterLocation" />
-        <BaseText>
-          <span class="text-base font-bold">
-            {{ t('helpdesk.subject_line') }}
-          </span>
-          {{
-            expanded
-              ? removeSubmittedFromFooter(ticketData?.description)
-              : ticketData?.raw_subject
-          }}
-        </BaseText>
-        <BaseText
-          v-if="
-            removeSubmittedFromFooter(ticketData?.description).length >
-            ticketData?.raw_subject.length
-          "
-          class="m-2 text-primary-light"
-          @click="() => (expanded = !expanded)"
-        >
-          {{ expanded ? t('actions.show_less') : t('actions.show_more') }}
-        </BaseText>
-      </div>
-      <div ref="commentsContainer" class="comments__container">
-        <BaseText class="comments__header">{{
-          t('helpdesk.comments')
-        }}</BaseText>
-        <div
-          v-for="(comment, comment_idx) in comments"
-          :key="comment_idx"
-          class="comments__items"
-          :class="getCommentHighlights(comment)"
-        >
-          <BaseText class="text-3xl font-bold">
-            {{ getAgentById(comment.author_id) ?? zendeskUser.name }}
-          </BaseText>
-          <BaseText>{{ removeSubmittedFromFooter(comment.body) }}</BaseText>
-
-          <div v-if="comment.attachments[0]" class="attachments-container">
-            <span class="attachments__header">
-              {{ t('helpdesk.attachments') }}</span
-            >
-            <div class="attachments__items">
-              <div
-                v-for="(attachment, attachment_idx) in comment.attachments"
-                :key="attachment_idx"
-                class="flex flex-col items-center justify-center border"
-              >
-                <a :href="attachment.content_url" target="_blank">
-                  <img :src="attachment.content_url" class="w-14 h-14" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-12">
-        <div class="ticket-reply">
-          <BaseInput
-            v-model="ticketReply"
-            text-area
-            class="reply-box"
-            input-classes="resize-none row-span-4"
-            :rows="mq.mdMinus ? 4 : 6"
-            placeholder="Ticket Reply"
-          />
-          <BaseButton
-            class="apply-macro__button"
-            :action="showMacroModal"
-            :text="t('actions.apply_macro')"
-            variant="primary"
-          />
-          <modal
-            v-if="macroModalVisibility"
-            closeable
-            :title="t('helpdesk.macros')"
-            :fullscreen="true"
-            :class="[mq.md ? 'px-10' : '', mq.lgPlus ? 'p-5' : '']"
-            modal-header-classes="sticky top-0 bg-white"
-            modal-classes="overflow-auto"
-            @close="showMacroModal()"
-          >
-            <template #default>
-              <base-input
-                v-model="macroSearch"
-                icon="search"
-                class="m-2 pr-8 searchOverride"
-                :placeholder="t('helpdesk.search_macros')"
-              ></base-input>
-              <Table
-                :columns="macroColumns"
-                :data="onMacroSearch"
-                :body-style="tableWidthMQ"
-                @row-click="(v) => executeMacro(v)"
-              >
-                <template #template="slotProps">
-                  <div class="flex flex-col">
-                    <span v-if="mq.mdMinus" class="font-bold">{{
-                      $t('helpdesk.template')
-                    }}</span>
-                    <div
-                      class="overflow-auto px-4 pt-2"
-                      :class="h - [slotProps.item.template.length]"
-                    >
-                      {{ slotProps.item.template }}
-                    </div>
-                  </div>
-                </template>
-              </Table>
-            </template>
-          </modal>
-        </div>
-        <div class="assigned-to__container">
-          <div class="header">
-            <BaseText variant="h1"
-              >{{ t('helpdesk.assigned_to') }}
-              <span class="font-bold text-xl">{{ ticketAssigneeName }}</span>
-            </BaseText>
-          </div>
-          <BaseSelect
-            :model-value="selectedAgent"
-            select-classes="w-full absolute inset-0 outline-none focus:ring-0 appearance-none border-0 text-base font-sans bg-white rounded py-2"
-            class="agent-selection"
-            label="name"
-            :placeholder="t('helpdesk.select_agent')"
-            item-key="id"
-            :options="agents"
-            @update:model-value="(v) => (selectedAgent = v)"
-          />
-
-          <BaseButton
-            variant="primary"
-            :text="t('actions.assign')"
-            class="reassign-button"
-            :action="reAssignTicket"
-          />
-        </div>
-      </div>
-
-      <div class="reply-as">
-        <div class="buttons__container">
-          <BaseButton
-            size="md"
-            :text="mq.mdMinus ? '' : t('actions.delete')"
-            :class="['w-full rounded-md text-xl border']"
-            icon="trash"
-            icon-size="lg"
-            :action="() => deleteTicket()"
-          />
-          <template
-            v-for="status in ['open', 'pending', 'solved']"
-            :key="status"
-          >
-            <BaseButton
-              size="md"
-              :text="status.charAt(0).toUpperCase() + status.slice(1)"
-              :class="[status, 'w-full rounded-md text-xl']"
-              :action="() => replyToTicket(status)"
-            />
-          </template>
-        </div>
-      </div>
-    </div>
 
     <modal
       v-if="worksiteModal"
       closeable
       :title="t('helpdesk.worksite')"
-      class="p-10"
+      modal-classes="bg-white w-full max-w-3xl"
       @close="showWorksiteModal()"
     >
-      <template #default>
-        <Table
-          :columns="workSiteColumns"
-          :data="worksites"
-          :body-style="{ height: '400px' }"
-          @row-click="(v) => openWorkSitePage(v.incident, v.id)"
+      <Table
+        :columns="workSiteColumns"
+        :data="worksites"
+        :body-style="{ height: '400px' }"
+        @row-click="(v) => openWorkSitePage(v.incident, v.id)"
+      />
+      <template #footer><span></span></template>
+    </modal>
+
+    <modal
+      v-if="eventsModal && ccUser"
+      closeable
+      :title="t('~~Recent activity')"
+      modal-classes="bg-white w-full max-w-4xl"
+      modal-body-classes="p-4 max-h-[75vh] overflow-auto"
+      @close="showEventsModal()"
+    >
+      <AdminEventStream :user="ccUser.id" />
+      <template #footer><span></span></template>
+    </modal>
+
+    <modal
+      v-if="repoSelection"
+      closeable
+      :title="t('helpdesk.create_github_issue')"
+      modal-classes="bg-white w-full max-w-md"
+      @close="showRepoSelection()"
+      @ok="createIssue()"
+    >
+      <div class="p-4">
+        <BaseSelect
+          :model-value="selectedRepo"
+          :placeholder="t('helpdesk.select_a_repo')"
+          :options="crisisCleanupRepos"
+          :clearable="false"
+          @update:model-value="(v) => (selectedRepo = v)"
         />
-      </template>
+      </div>
+    </modal>
+
+    <modal
+      v-if="macroModalVisibility"
+      closeable
+      :title="t('helpdesk.macros')"
+      modal-classes="bg-white w-full max-w-5xl h-[85vh] flex flex-col"
+      modal-body-classes="flex flex-col gap-3 p-4 h-full min-h-0"
+      @close="showMacroModal()"
+    >
+      <input
+        v-model="macroSearch"
+        type="search"
+        class="ticket-search"
+        data-testid="testMacroSearchInput"
+        :aria-label="t('helpdesk.search_macros')"
+        :placeholder="t('helpdesk.search_macros')"
+      />
+      <Table
+        :columns="macroColumns"
+        :data="onMacroSearch"
+        :body-style="tableWidthMQ"
+        @row-click="(v) => executeMacro(v)"
+      >
+        <template #template="slotProps">
+          <p class="whitespace-pre-line text-[13px] leading-snug">
+            {{ slotProps.item.template }}
+          </p>
+        </template>
+      </Table>
+      <template #footer><span></span></template>
     </modal>
   </div>
 </template>
 
 <style scoped>
-.ticket__container {
-  @apply rounded bg-white md:border md:border-gray-600 md:m-4 text-sm shadow-crisiscleanup-card grid grid-cols-12;
+.ticket {
+  @apply grid grid-cols-1 gap-4 p-4 bg-crisiscleanup-smoke text-left lg:grid-cols-[minmax(0,1fr)_22rem];
+}
 
-  .cc__user-info {
-    @apply hidden md:block col-span-12 md:col-span-3  border-r-2 border-gray-400 overflow-y-auto min-h-full  h-64 md:h-24;
-    .cc_user {
-      @apply border rounded-md m-4 text-center;
-    }
+.ticket-card {
+  @apply bg-white rounded border border-crisiscleanup-grey-100 min-w-0;
+}
+
+.ticket-card__header {
+  @apply flex items-center gap-2 px-4 pt-4 pb-3 border-b border-crisiscleanup-grey-100;
+}
+
+.ticket-eyebrow {
+  @apply text-[12px] uppercase tracking-[0.04em] font-semibold text-crisiscleanup-grey-900;
+}
+
+.ticket-details {
+  @apply grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 text-[13px];
+
+  dt {
+    @apply text-crisiscleanup-grey-900;
   }
 
-  .cc__user-info2 {
-    @apply overflow-y-auto min-h-full h-full md:h-24 w-full;
-    .cc_user {
-      @apply border rounded-md m-4 text-center w-3/4;
-    }
-  }
-
-  .user-type {
-    @apply border rounded-md text-center p-2 mx-4 my-2 text-xl;
-  }
-  .ticket__header {
-    @apply grid grid-cols-9 grid-rows-2 md:grid-rows-1 md:grid-cols-4 px-4 py-2 row-span-2 flex gap-2 border-b-2 border-gray-400;
-
-    .submitter-info {
-      @apply row-start-1 col-span-5 md:col-span-1 text-left;
-    }
-    .github-link {
-      @apply row-start-2 md:row-end-1 col-span-3 md:col-span-1 border border-black rounded-md font-bold text-center flex justify-center items-center;
-    }
-
-    .ticket-link {
-      @apply row-start-2 md:row-end-1  col-span-3 md:col-span-1 text-center flex items-center rounded-md justify-center bg-primary-light;
-    }
-    .extra-info {
-      @apply row-start-2 md:row-end-1 col-span-3 md:col-span-1 text-center flex items-center rounded-md justify-center bg-primary-light;
-    }
-    .ticket-status {
-      @apply col-span-4 md:col-span-1 text-center flex items-center rounded-md justify-center font-bold;
-    }
-  }
-
-  .subject-date__container {
-    @apply px-4 py-2 text-left row-span-2 border-b-2 border-gray-400;
-  }
-
-  .comments__container {
-    @apply text-left px-4 py-2 overflow-y-scroll row-span-4 h-60 scroll-smooth;
-
-    .comments__header {
-      @apply text-base font-bold;
-    }
-
-    .comments__items {
-      @apply rounded-lg p-2 m-4;
-
-      .attachments-container {
-        @apply my-4 border-t-4;
-
-        .attachments__header {
-          @apply font-bold text-black;
-        }
-
-        .attachments__items {
-          @apply flex gap-4 my-4;
-        }
-      }
-    }
-  }
-
-  .ticket-reply {
-    @apply grid grid-cols-12 col-span-8 px-4 py-2 border-y-2 border-gray-400;
-
-    .reply-box {
-      @apply w-full h-full col-span-9 md:col-span-12 row-span-4;
-    }
-    .apply-macro__button {
-      @apply rounded-md col-span-3 row-span-4 md:row-span-1 md:col-span-12 m-2 md:my-2 p-1 md:text-[.8vw];
-    }
-  }
-
-  .assigned-to__container {
-    @apply grid grid-cols-12 col-span-4 px-4 p-2 row-span-2 border-b-2 md:border-y-2 md:border-l-2 border-gray-400 flex items-center justify-center;
-
-    .header {
-      @apply flex gap-2 items-center justify-center col-span-12 my-2;
-    }
-
-    .agent-selection {
-      @apply col-span-8 md:col-span-12  my-2;
-    }
-
-    .reassign-button {
-      @apply col-span-4 md:col-span-12 p-1 rounded-md m-2 md:my-2 md:text-[.8vw];
-    }
-  }
-
-  .reply-as {
-    .reply-as__header {
-      @apply text-base font-bold;
-    }
-
-    @apply flex flex-col gap-2 px-4 py-2 col-span-6 row-span-2;
-
-    .buttons__container {
-      @apply flex gap-2 grid grid-cols-1 sm:grid-cols-2 grid-rows-2 md:grid-rows-1 md:grid-cols-4;
-    }
+  dd {
+    @apply text-black min-w-0 break-words;
   }
 }
-.searchOverride {
-  width: 100% !important;
-  min-width: 100%;
+
+.ticket-link {
+  @apply text-primary-dark underline underline-offset-2;
 }
 
-.new {
-  color: #c19700;
-  background: #fff59c;
+.ticket-comment {
+  @apply flex gap-3 py-3 border-b border-crisiscleanup-grey-100 last:border-b-0;
+
+  &--requester {
+    @apply bg-crisiscleanup-smoke -mx-4 px-4;
+  }
 }
 
-.open {
-  color: #0042ed;
-  background: #9cb8ff;
+.ticket-file {
+  @apply inline-flex items-center h-8 px-3 rounded border border-crisiscleanup-grey-100 bg-white text-[13px] text-black;
 }
 
-.solved {
-  color: #f21b1b;
-  background: #ffa296;
+.ticket-textarea,
+.ticket-search {
+  @apply w-full border border-crisiscleanup-grey-100 rounded px-3 py-2 text-[15px] leading-snug focus:outline-none focus:ring-2 focus:ring-primary-light focus:border-primary-light;
+  transition: all 300ms ease;
 }
 
-.pending {
-  color: #6b6b6b;
-  background: #e8e4e4;
+.ticket-textarea {
+  @apply resize-y min-h-[96px];
 }
 
-.new-tag {
-  color: #c19700;
+.ticket-status-option {
+  @apply h-9 px-3 text-[13px] rounded border border-crisiscleanup-grey-100 bg-white hover:bg-crisiscleanup-smoke;
+  transition: all 300ms ease;
+
+  &--active {
+    @apply border-primary-light bg-primary-light font-semibold text-black hover:bg-primary-light;
+  }
 }
 
-.open-tag {
-  color: #0042ed;
-}
-
-.solved-tag {
-  color: #f21b1b;
-}
-
-.pending-tag {
-  color: #6b6b6b;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  @apply bg-primary-light;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #ffb249;
+.ticket-pill-button {
+  @apply rounded-full focus:outline-none focus:ring-2 focus:ring-primary-light;
 }
 </style>

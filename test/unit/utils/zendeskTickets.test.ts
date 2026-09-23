@@ -4,7 +4,33 @@ import {
   REQUESTER_PHONE_FIELD_ID,
   getRequesterPhone,
   getTicketFieldValue,
+  getTicketStatusPillVariant,
+  isImageAttachment,
 } from '@/utils/zendeskTickets';
+
+describe('zendeskTickets >> getTicketStatusPillVariant', () => {
+  test('gives each Zendesk status its own pill color', () => {
+    expect(getTicketStatusPillVariant('new')).toBe('claimed');
+    expect(getTicketStatusPillVariant('open')).toBe('open');
+    expect(getTicketStatusPillVariant('pending')).toBe('completed');
+    expect(getTicketStatusPillVariant('hold')).toBe('completed');
+    expect(getTicketStatusPillVariant('solved')).toBe('in-progress');
+    expect(getTicketStatusPillVariant('closed')).toBe('in-progress');
+  });
+
+  test('uses the dark pill for an unknown status', () => {
+    expect(getTicketStatusPillVariant('archived')).toBe('dark');
+    expect(getTicketStatusPillVariant()).toBe('dark');
+  });
+});
+
+describe('zendeskTickets >> isImageAttachment', () => {
+  test('is true only for image content types', () => {
+    expect(isImageAttachment({ content_type: 'image/png' })).toBe(true);
+    expect(isImageAttachment({ content_type: 'application/pdf' })).toBe(false);
+    expect(isImageAttachment({})).toBe(false);
+  });
+});
 
 describe('zendeskTickets >> getTicketFieldValue', () => {
   test('returns the value of the matching custom field', () => {
