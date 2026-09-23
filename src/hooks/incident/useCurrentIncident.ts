@@ -126,9 +126,15 @@ export const useCurrentIncident = () => {
       userIncidentId: userIncidentId.value,
       fetched: newValue,
     });
-    if (newValue && newValue !== currentIncidentId.value) {
-      await updateCurrentIncidentId(newValue);
+    if (!newValue) return;
+    if (newValue === currentIncidentId.value) {
+      // The incident that failed to load is the most recent one, so the id
+      // does not change and nothing fetches it again. Try once more.
+      await fetchInstance();
+      return;
     }
+
+    await updateCurrentIncidentId(newValue);
   });
 
   // when the current incident cannot be fetched (deleted incident, revoked
