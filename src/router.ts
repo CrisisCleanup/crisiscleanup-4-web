@@ -8,6 +8,7 @@ import PhoneRoutes from './pages/phone/routes';
 import AdminRoutes from './pages/admin/routes';
 import OrganizationRoutes from './pages/organization/routes';
 import UnauthenticatedRoutes from './pages/unauthenticated/routes';
+import { reloadForStaleChunk } from './utils/staleChunkReload';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -210,23 +211,10 @@ const router = createRouter({
 const CHUNK_LOAD_ROUTER_ERROR =
   /failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|chunkloaderror/i;
 
-const CHUNK_RELOAD_KEY = 'ccu:chunk-reload';
-
 router.onError((error) => {
   const message = (error as Error)?.message ?? '';
   if (!CHUNK_LOAD_ROUTER_ERROR.test(message)) return;
-  if (sessionStorage.getItem(CHUNK_RELOAD_KEY) === '1') return;
-  sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
-  window.location.reload();
-});
-
-// A successful navigation means chunks load again: re-arm the one-shot
-// stale-chunk reload so the NEXT deploy can also auto-recover. Without this,
-// the flag stayed set for the whole tab session and later stale chunks left
-// the app silently unable to navigate.
-router.afterEach((to, from, failure) => {
-  if (failure) return;
-  sessionStorage.removeItem(CHUNK_RELOAD_KEY);
+  reloadForStaleChunk();
 });
 
 export default router;

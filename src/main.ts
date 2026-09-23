@@ -133,6 +133,7 @@ import {
   getAndToastWarningMessage,
   shouldReportToSentry,
 } from '@/utils/errors';
+import { reloadForStaleChunk } from '@/utils/staleChunkReload';
 
 const Datepicker = defineAsyncComponent(async () => {
   await import('@vuepic/vue-datepicker/dist/main.css');
@@ -153,14 +154,6 @@ const CHUNK_LOAD_ERROR_PATTERN =
   /preloaderror|failed to fetch dynamically imported module|importing a module script failed|is not a valid javascript mime type|unable to preload css|unexpected token '<'.*<!doctype/i;
 const THIRD_PARTY_SNIPPET_ERROR_PATTERN =
   /\/ekr\/snippet\.js|new .*inboundfilters|inboundfilters|i is undefined/i;
-
-const CHUNK_RELOAD_KEY = 'ccu:chunk-reload';
-
-function reloadForStaleChunk() {
-  if (sessionStorage.getItem(CHUNK_RELOAD_KEY) === '1') return;
-  sessionStorage.setItem(CHUNK_RELOAD_KEY, '1');
-  window.location.reload();
-}
 
 window.addEventListener('vite:preloadError', reloadForStaleChunk);
 
