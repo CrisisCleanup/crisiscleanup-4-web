@@ -2098,6 +2098,22 @@ export default defineComponent({
 
     let isInitializingMap = false;
 
+    // Save the map position at most once every 5 s. The delayed call gets the
+    // map it was made for: when it runs, mapUtils can be null or a new map.
+    const saveMapViewPort = _.throttle((map: L.Map) => {
+      updateUserState({ mapViewPort: map.getBounds() });
+    }, 5000);
+
+    // Leaving Map view removes #map on the next render. Save a pending
+    // position now, while the map still has its size.
+    watch(
+      showingMap,
+      (showing: boolean) => {
+        if (!showing) saveMapViewPort.flush();
+      },
+      { flush: 'sync' },
+    );
+
     async function init({ force = false }: { force?: boolean } = {}) {
       // Skip re-entrant calls (onLoadMarkers → loadStatesForUser → showMap
       // → nextTick(init)) and redundant calls once the map exists. A map
@@ -2110,6 +2126,14 @@ export default defineComponent({
       isInitializingMap = true;
 
       if (mapUtils) {
+        // Save the last position before the map goes. On an incident
+        // change (force), it belongs to the previous incident: drop it.
+        if (force) {
+          saveMapViewPort.cancel();
+        } else {
+          saveMapViewPort.flush();
+        }
+
         destroyLeafletMap(mapUtils.getMap());
         mapUtils = null;
       }
@@ -2188,16 +2212,8 @@ export default defineComponent({
       }
 
       nextTick(() => {
-        mapUtils?.getMap().on(
-          'moveend',
-          L.Util.throttle(
-            () => {
-              updateUserState({ mapViewPort: mapUtils?.getMap().getBounds() });
-            },
-            5000,
-            {},
-          ),
-        );
+        const map = mapUtils?.getMap();
+        map?.on('moveend', () => saveMapViewPort(map));
       });
     }
 
@@ -2268,6 +2284,7 @@ export default defineComponent({
 
     onBeforeUnmount(() => {
       if (mapUtils) {
+        saveMapViewPort.flush();
         destroyLeafletMap(mapUtils.getMap());
         mapUtils = null;
       }
