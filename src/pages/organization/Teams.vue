@@ -286,7 +286,7 @@ export default defineComponent({
           'id,name,address,case_number,work_types,city,state,county,flags,location,incident,postal_code,reported_by,form_data',
       };
 
-      Worksite.api().get(`/worksites?${getQueryString(params)}`, {
+      await Worksite.api().get(`/worksites?${getQueryString(params)}`, {
         dataKey: 'results',
       });
     };
