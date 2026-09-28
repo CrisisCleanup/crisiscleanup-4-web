@@ -230,7 +230,7 @@
           </Table>
         </div>
       </tab>
-      <tab :name="`${$t('teams.manage_cases')} (${assignedWorksites?.length})`">
+      <tab :name="`${$t('teams.manage_cases')} (${assignedCaseCount})`">
         <div class="flex items-center justify-between p-2">
           <base-button
             class="my-1 text-primary-dark"
@@ -322,7 +322,7 @@
                 width: '10%',
               },
             ]"
-            :body-style="{ height: '300px' }"
+            :body-style="{ height: 'clamp(300px, calc(100vh - 24rem), 640px)' }"
             :data="assignedWorksites"
             enable-selection
             @selection-changed="
@@ -745,6 +745,12 @@ export default defineComponent({
         })
         .get(),
     );
+    const assignedCaseCount = computed(() => {
+      const caseNumbers = (team.value?.assigned_work_types || [])
+        .map((workType) => workType.case_number)
+        .filter(Boolean);
+      return new Set(caseNumbers).size;
+    });
     const mapAssignedWorkTypes = computed(() =>
       assignedWorksites.value.map((worksite) => {
         const workType = Worksite.getWorkType(
@@ -785,6 +791,15 @@ export default defineComponent({
         },
       );
       worksites.value = (results.entities?.worksites || []) as Worksite[];
+    };
+
+    const refreshTeamCases = async () => {
+      if (!team.value?.id) {
+        return;
+      }
+      await Team.api().get(`/teams/${team.value.id}`);
+      await getClaimedWorksites();
+      ctx.emit('reload');
     };
 
     const renameTeam = async () => {
@@ -901,8 +916,7 @@ export default defineComponent({
       casesToAdd.value = [];
       showAddCasesModal.value = false;
       currentCaseSearch.value = '';
-      await getClaimedWorksites();
-      ctx.emit('reload');
+      await refreshTeamCases();
     };
 
     const removeFromTeam = async (userIds: number[]) => {
@@ -946,7 +960,7 @@ export default defineComponent({
           );
         }),
       );
-      ctx.emit('reload');
+      await refreshTeamCases();
     };
 
     const toggleView = (
@@ -1109,6 +1123,7 @@ export default defineComponent({
       assignableWorksites,
       mapWorkTypes,
       assignedWorksites,
+      assignedCaseCount,
       mapAssignedWorkTypes,
       allTeamUsers,
       currentIncidentId,

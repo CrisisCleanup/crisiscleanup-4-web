@@ -70,7 +70,7 @@
                 <div class="flex justify-between items-center w-full">
                   <base-text>{{ team.name }}</base-text>
                   <base-text
-                    >{{ getAssignedWorkTypes(team)?.length }}
+                    >{{ getAssignedCaseCount(team) }}
                     {{ $t('teams.cases_assigned') }}
                   </base-text>
                 </div>
@@ -260,6 +260,10 @@ export default defineComponent({
       });
     };
 
+    const getAssignedCaseCount = (team: Team) => {
+      return new Set(getAssignedWorkTypes(team).map((wt) => wt.case_number)).size;
+    };
+
     const getCaseCompletion = (team: Team) => {
       const workTypes = getAssignedWorkTypes(team);
       if (workTypes && workTypes.length > 0) {
@@ -282,7 +286,7 @@ export default defineComponent({
           'id,name,address,case_number,work_types,city,state,county,flags,location,incident,postal_code,reported_by,form_data',
       };
 
-      Worksite.api().get(`/worksites?${getQueryString(params)}`, {
+      await Worksite.api().get(`/worksites?${getQueryString(params)}`, {
         dataKey: 'results',
       });
     };
@@ -358,6 +362,7 @@ export default defineComponent({
       getData,
       onSearch,
       getAssignedWorkTypes,
+      getAssignedCaseCount,
       getCaseCompletion,
       getClaimedWorksites,
       filterUnassignedUserEquipment,
