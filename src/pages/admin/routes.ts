@@ -25,6 +25,7 @@ const AdminSentimentAnalysis = () => import('./AdminSentimentAnalysis.vue');
 const AdminPortalFiles = () => import('./AdminPortalFiles.vue');
 const AdminDebug = () => import('./AdminDebug.vue');
 const AdminPhoneHistory = () => import('./AdminPhoneHistory.vue');
+const AdminVoiceConsole = () => import('./AdminVoiceConsole.vue');
 
 const routes = [
   {
@@ -154,6 +155,11 @@ const routes = [
         path: 'phone_history',
         name: 'nav.admin_phone_history',
         component: AdminPhoneHistory,
+      },
+      {
+        path: 'voice_console',
+        name: 'nav.voice_console',
+        component: AdminVoiceConsole,
       },
       {
         path: 'debug',

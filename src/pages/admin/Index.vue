@@ -52,6 +52,9 @@ const tabs = reactive<Tab[]>([
     title: 'nav.recent_calls',
   },
   {
+    key: 'nav.voice_console',
+  },
+  {
     key: 'nav.debug',
   },
 ]);

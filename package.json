@@ -125,6 +125,7 @@
     "leaflet.markercluster": "^1.5.3",
     "libphonenumber-js": "^1.11.7",
     "litepie-datepicker": "^1.0.14",
+    "livekit-client": "2.22.3",
     "lodash": "^4.17.21",
     "markdown-it": "^14.1.0",
     "markdown-it-anchor": "^9.1.0",
