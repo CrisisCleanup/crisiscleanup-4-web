@@ -83,6 +83,9 @@ export const KIND_LABELS: Record<string, string> = {
 export function formatValue(value: unknown): string {
   if (value === null || value === undefined || value === '') return '—';
   if (typeof value === 'object') {
+    // A missed case carries a short summary next to the case details.
+    if ('summary' in value)
+      return String((value as { summary: string }).summary);
     const { address, city, state, postal_code } = value as Record<
       string,
       string
@@ -98,4 +101,136 @@ export function caseUrl(review: VoiceReview) {
   return review.worksite && review.incident_id
     ? `/incident/${review.incident_id}/work/${review.worksite.id}/edit`
     : undefined;
+}
+
+/** The parts of an incident form field that the auditor uses. */
+export interface FormFieldInfo {
+  field_key: string;
+  html_type: string;
+  if_selected_then_work_type?: string | null;
+}
+
+/** One change to make in the case form, before the admin saves it. */
+export interface FormChange {
+  target: 'worksite' | 'form';
+  key: string;
+  value: unknown;
+}
+
+const YES_NO_TYPES = new Set(['checkbox', 'h5']);
+
+function toFormValue(field: FormFieldInfo, raw: unknown) {
+  if (YES_NO_TYPES.has(field.html_type)) {
+    return (
+      raw === true || ['true', 'yes', '1'].includes(String(raw).toLowerCase())
+    );
+  }
+  return raw;
+}
+
+/**
+ * The case form changes for one suggestion, or undefined when the form
+ * cannot hold it (a missed callback, a wrong incident, ...). After an
+ * address change the caller must find the new map location.
+ */
+export function formChanges(
+  correction: Pick<VoiceCorrection, 'kind' | 'field'>,
+  value: unknown,
+  formFields: FormFieldInfo[],
+): FormChange[] | undefined {
+  const { kind, field } = correction;
+  if (['name', 'phone', 'email'].includes(kind)) {
+    return [{ target: 'worksite', key: field, value }];
+  }
+  if (kind === 'address') {
+    const parts = (value ?? {}) as Record<string, string>;
+    return ADDRESS_PARTS.map((part) => ({
+      target: 'worksite',
+      key: part,
+      value: parts[part] ?? '',
+    }));
+  }
+  if (kind === 'form_field') {
+    const formField = formFields.find((f) => f.field_key === field);
+    return formField
+      ? [{ target: 'form', key: field, value: toFormValue(formField, value) }]
+      : undefined;
+  }
+  if (kind === 'work_type') {
+    // A work type comes from its form section and the questions in it.
+    const linked = formFields.filter(
+      (f) => f.if_selected_then_work_type === field,
+    );
+    if (value === 'remove') {
+      return linked.length > 0
+        ? linked.map((f) => ({
+            target: 'form',
+            key: f.field_key,
+            value: YES_NO_TYPES.has(f.html_type) ? false : '',
+          }))
+        : undefined;
+    }
+    const section =
+      linked.find((f) => f.html_type === 'h5') ??
+      linked.find((f) => f.html_type === 'checkbox');
+    return section
+      ? [{ target: 'form', key: section.field_key, value: true }]
+      : undefined;
+  }
+  return undefined;
+}
+
+/** Case details the reviewer took from a call that made no case. */
+export interface MissedCaseDetails {
+  name: string;
+  phone1: string;
+  phone2: string;
+  email: string;
+  address: Record<(typeof ADDRESS_PARTS)[number], string> | null;
+  form_answers: { key: string; value: string }[];
+  notes: string;
+}
+
+export function missedCaseDetails(
+  correction: VoiceCorrection,
+): MissedCaseDetails | undefined {
+  const value = correction.suggested_value as
+    | { details?: MissedCaseDetails }
+    | undefined;
+  return typeof value === 'object' && value?.details
+    ? value.details
+    : undefined;
+}
+
+/** Values for a new case form (`WorksiteForm` `dataPrefill`). */
+export function missedCasePrefill(
+  details: MissedCaseDetails | undefined,
+  formFields: FormFieldInfo[],
+): Record<string, unknown> {
+  if (!details) return {};
+  const byKey = new Map(formFields.map((f) => [f.field_key, f]));
+  return {
+    name: details.name,
+    phone1: details.phone1,
+    phone2: details.phone2,
+    email: details.email,
+    ...details.address,
+    form_data: details.form_answers
+      .filter((answer) => byKey.has(answer.key))
+      .map((answer) => ({
+        field_key: answer.key,
+        field_value: toFormValue(byKey.get(answer.key)!, answer.value),
+      })),
+    // Pending notes are saved after the case is created.
+    notes: details.notes
+      ? [
+          {
+            id: 'voice-review-note',
+            note: details.notes,
+            created_at: new Date().toISOString(),
+            pending: true,
+          },
+        ]
+      : [],
+  };
 }

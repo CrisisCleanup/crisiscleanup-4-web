@@ -626,6 +626,12 @@ export default defineComponent({
       type: Object,
       default: () => ({}),
     },
+    // Off for forms outside the Work page (the Call Auditor), so they do not
+    // read, overwrite, or clear the Work page's unsaved new-case draft.
+    useDraft: {
+      type: Boolean,
+      default: true,
+    },
     formClasses: {
       type: String,
       default: 'h-full',
@@ -799,7 +805,9 @@ export default defineComponent({
       } else {
         worksite.value[key] = value;
         worksite.value = { ...worksite.value };
-        StorageService.setItem('currentWorksite', worksite.value);
+        if (props.useDraft) {
+          StorageService.setItem('currentWorksite', worksite.value);
+        }
       }
     }
 
@@ -849,7 +857,7 @@ export default defineComponent({
         addressSet.value = true;
       } else {
         worksite.value = {
-          ...StorageService.getItem('currentWorksite'),
+          ...(props.useDraft ? StorageService.getItem('currentWorksite') : {}),
           ...props.dataPrefill,
         };
 
@@ -884,7 +892,9 @@ export default defineComponent({
         return map;
       }, {});
 
-      StorageService.removeItem('currentWorksite');
+      if (props.useDraft) {
+        StorageService.removeItem('currentWorksite');
+      }
       ready.value = true;
     }
 
@@ -1818,6 +1828,7 @@ export default defineComponent({
       locateMe,
       searchWorksitesNameResults,
       updateWorksite,
+      findPotentialGeocode,
       currentIncident,
       addressSet,
       searchWorksitesResults,

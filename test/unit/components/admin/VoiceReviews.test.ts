@@ -16,7 +16,7 @@ vi.mock('vue-router', async (importOriginal) => ({
 const baseUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_reviews`;
 const stubs = {
   components: { BaseButton },
-  stubs: { Spinner: true, RouterLink: true },
+  stubs: { Spinner: true, RouterLink: true, VoiceReviewCaseForm: true },
 };
 
 function correction(overrides: Record<string, unknown> = {}) {

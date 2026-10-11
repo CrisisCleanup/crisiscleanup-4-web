@@ -39,6 +39,24 @@
         />
       </div>
       <div v-else class="flex flex-wrap gap-2">
+        <BaseButton
+          v-if="canUseInForm && !inForm"
+          variant="outline"
+          size="small"
+          data-testid="testVoiceCorrectionUseInForm"
+          :action="() => emit('use')"
+          :text="t('~~Use in form')"
+          :alt="t('~~Use in form')"
+        />
+        <BaseButton
+          v-if="canCreateCase"
+          variant="solid"
+          size="small"
+          data-testid="testVoiceCorrectionCreateCase"
+          :action="() => emit('create')"
+          :text="t('~~Create case')"
+          :alt="t('~~Create case')"
+        />
         <template v-if="correction.simple">
           <BaseButton
             variant="solid"
@@ -127,7 +145,16 @@
     </div>
 
     <p
-      v-if="!correction.simple && correction.status === 'open'"
+      v-if="inForm && correction.status === 'open'"
+      class="mt-2 font-semibold text-crisiscleanup-green-900"
+      data-testid="testVoiceCorrectionInForm"
+    >
+      {{ t('~~In the form. Check it, then save the case.') }}
+    </p>
+    <p
+      v-else-if="
+        !correction.simple && !canUseInForm && correction.status === 'open'
+      "
       class="mt-2 text-crisiscleanup-dark-300"
     >
       {{
@@ -166,9 +193,16 @@ const props = defineProps<{
   correction: VoiceCorrection;
   caseHref?: string;
   problem?: string;
+  /** The case form next to the review can hold this suggestion. */
+  canUseInForm?: boolean;
+  /** The suggestion is in the case form, not saved yet. */
+  inForm?: boolean;
+  canCreateCase?: boolean;
 }>();
 const emit = defineEmits<{
   act: [action: CorrectionAction, value?: unknown];
+  use: [];
+  create: [];
 }>();
 
 const { t } = useI18n();
