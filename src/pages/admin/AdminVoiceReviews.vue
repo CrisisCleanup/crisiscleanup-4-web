@@ -65,6 +65,15 @@
                 @change="pendingCount = undefined"
               />
             </label>
+            <label class="flex items-center gap-1 pb-1">
+              <input
+                v-model="includeReviewed"
+                type="checkbox"
+                data-testid="testVoiceReviewForce"
+                @change="pendingCount = undefined"
+              />
+              {{ t('~~Include calls already reviewed') }}
+            </label>
             <BaseButton
               variant="outline"
               size="small"
@@ -254,6 +263,9 @@ const kindFilter = ref('');
 const selectedId = computed(() => Number(route.params.reviewId) || undefined);
 const since = ref(moment().subtract(7, 'day').format('YYYY-MM-DD'));
 const pendingCount = ref<number>();
+// Review again calls that have a review (the API's force option). Open
+// issues are replaced; fixed and dismissed ones stay.
+const includeReviewed = ref(false);
 
 // The API lists open issues by default; an empty correction_status asks
 // for fixed and dismissed issues too.
@@ -352,7 +364,7 @@ async function backfill(dryRun: boolean) {
   try {
     const { data } = await axios.post<{ count: number }>(
       voiceReviewUrl('backfill'),
-      { since: since.value, dry_run: dryRun },
+      { since: since.value, dry_run: dryRun, force: includeReviewed.value },
     );
     if (dryRun) {
       pendingCount.value = data.count;

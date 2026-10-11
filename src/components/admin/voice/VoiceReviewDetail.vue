@@ -9,6 +9,15 @@
         ← {{ t('~~All calls') }}
       </button>
       <div class="flex flex-wrap items-center gap-2">
+        <BaseButton
+          v-if="review"
+          variant="outline"
+          size="small"
+          data-testid="testVoiceReviewAgain"
+          :action="reviewAgain"
+          :text="t('~~Review again')"
+          :alt="t('~~Review again')"
+        />
         <a
           v-if="caseHref"
           :href="caseHref"
@@ -370,6 +379,23 @@ async function act(
     if (action === 'apply') reloadCaseForm();
   } catch (error) {
     problems.value[correction.id] = getErrorMessage(error);
+  }
+}
+
+// Run the reviewer again on this call, for example after the reviewer
+// changed. Open issues are replaced; fixed and dismissed ones stay.
+async function reviewAgain() {
+  if (!review.value) return;
+  try {
+    await axios.post(voiceReviewUrl('backfill'), {
+      session: review.value.session.id,
+      force: true,
+    });
+    $toasted.success(
+      t('~~The call is queued for review. Reload in a minute for the result.'),
+    );
+  } catch (error) {
+    $toasted.error(getErrorMessage(error));
   }
 }
 

@@ -456,3 +456,36 @@ describe('VoiceReviewDetail missed case duplicates', () => {
     expect(box.get('a').attributes('href')).toBe('/incident/248/work/77/edit');
   });
 });
+
+describe('Call Auditor review again', () => {
+  it('re-runs one call and can include reviewed calls in a backfill', async () => {
+    const posted: unknown[] = [];
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(review()))),
+      rest.post(`${baseUrl}/backfill`, async (req, res, ctx) => {
+        posted.push(await req.json());
+        return res(ctx.json({ dry_run: false, count: 1, session_ids: [3] }));
+      }),
+    );
+    const detail = mount(VoiceReviewDetail, {
+      props: { reviewId: 7 },
+      global: stubs,
+    });
+    await flushPromises();
+    await detail.get(testId('testVoiceReviewAgain')).trigger('click');
+    await flushPromises();
+    expect(posted).toEqual([{ session: 3, force: true }]);
+
+    server.use(
+      rest.get(baseUrl, (_req, res, ctx) =>
+        res(ctx.json({ count: 0, results: [] })),
+      ),
+    );
+    const list = mount(AdminVoiceReviews, { global: stubs });
+    await flushPromises();
+    await list.get(testId('testVoiceReviewForce')).setValue(true);
+    await list.get(testId('testVoiceReviewCheck')).trigger('click');
+    await flushPromises();
+    expect(posted.at(-1)).toMatchObject({ dry_run: true, force: true });
+  });
+});
