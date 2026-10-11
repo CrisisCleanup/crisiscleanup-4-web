@@ -673,6 +673,10 @@ export default defineComponent({
       postal_code: t('caseForm.postal_code_required'),
     };
 
+    // Required values a saved case was missing when it loaded. These old gaps
+    // do not block a save; a value the user empties in this edit does.
+    const emptyAtLoad = ref(new Set<string>());
+
     const shouldSelectOnMap = ref(false);
     const isWrongLocation = ref(false);
     const hideDetailedAddressFields = ref(true);
@@ -757,9 +761,13 @@ export default defineComponent({
         location: { coordinates } = {},
       } = worksite.value;
       const hasLatLon = Boolean(coordinates && coordinates.length === 2);
-      const hasValidAddress = Boolean(
-        address && city && state && county && postalCode,
-      );
+      const hasValidAddress = Object.entries({
+        address,
+        city,
+        state,
+        county,
+        postal_code: postalCode,
+      }).every(([key, value]) => Boolean(value) || emptyAtLoad.value.has(key));
       return hasLatLon && hasValidAddress;
     });
 
@@ -891,6 +899,14 @@ export default defineComponent({
         map[object.field_key] = object.field_value;
         return map;
       }, {});
+
+      emptyAtLoad.value = new Set(
+        worksite.value.id
+          ? Object.keys(fieldToErrorMessageMap).filter(
+              (key) => !worksite.value[key],
+            )
+          : [],
+      );
 
       if (props.useDraft) {
         StorageService.removeItem('currentWorksite');
@@ -1179,6 +1195,23 @@ export default defineComponent({
       updatedFiles.value = imageList;
     }
 
+    // Browser checks on the inputs. For a saved case, an empty required input
+    // is checked in saveWorksite against emptyAtLoad instead, so only format
+    // problems (an invalid email, for example) block here.
+    function reportFormValidity() {
+      if (!worksite.value.id) {
+        return form.value.reportValidity();
+      }
+      const controls = [
+        ...form.value.querySelectorAll('input, select, textarea'),
+      ] as HTMLInputElement[];
+      const invalid = controls.find(
+        (control) => !control.validity.valid && !control.validity.valueMissing,
+      );
+      invalid?.reportValidity();
+      return !invalid;
+    }
+
     async function saveWorksite(reload = true, isRetry = false) {
       let firstErrorField;
       let firstErrorMessage = '';
@@ -1186,7 +1219,7 @@ export default defineComponent({
       for (const [field, errorMessage] of Object.entries(
         fieldToErrorMessageMap,
       )) {
-        if (!worksite.value[field]) {
+        if (!worksite.value[field] && !emptyAtLoad.value.has(field)) {
           // enable select on map to show hidden advanced fields
           if (
             !shouldSelectOnMap.value &&
@@ -1202,9 +1235,7 @@ export default defineComponent({
       }
 
       const isValid =
-        form.value.reportValidity() &&
-        isAddressValid.value &&
-        !firstErrorMessage;
+        reportFormValidity() && isAddressValid.value && !firstErrorMessage;
 
       if (!isValid) {
         if (!firstErrorField && !isAddressValid.value) {
@@ -1479,9 +1510,8 @@ export default defineComponent({
     }
 
     async function claimAndSaveWorksite() {
-      await saveWorksite(false);
-      const isValid = form.value.reportValidity();
-      if (!isValid) {
+      const savedId = await saveWorksite(false);
+      if (!savedId) {
         return;
       }
 
