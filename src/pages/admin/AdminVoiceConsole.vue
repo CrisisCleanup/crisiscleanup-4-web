@@ -48,6 +48,7 @@
           >
             {{ t('voiceConsole.model', 'Model') }}
             <select
+              :key="configLoaded ? 'ready' : 'loading'"
               v-model="settings.model"
               class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
               data-testid="testVoiceModelSelect"
@@ -519,6 +520,7 @@ const canStartCall = computed(
   () =>
     configLoaded.value &&
     !settingsLocked.value &&
+    config.value.models.includes(settings.model) &&
     voices.value.includes(settings.voice),
 );
 const callSettings = computed(() => ({
@@ -637,9 +639,11 @@ onMounted(async () => {
     ]);
     config.value = configResponse.data;
     scenarios.value = scenarioResponse.data.scenarios;
-    settings.model = config.value.models.includes(config.value.default_model)
-      ? config.value.default_model
-      : (config.value.models[0] ?? '');
+    settings.model = config.value.models.includes('gpt-live-1')
+      ? 'gpt-live-1'
+      : config.value.models.includes(config.value.default_model)
+        ? config.value.default_model
+        : (config.value.models[0] ?? '');
     settings.backend = backendOptions.value.includes(
       config.value.default_backend ?? '',
     )

@@ -107,6 +107,76 @@ describe('AdminVoiceConsole model settings', () => {
     wrapper.unmount();
   });
 
+  it('prefers GPT-Live when the API defaults to Realtime Mini', async () => {
+    vi.mocked(axios.get).mockImplementation(async (url) => ({
+      data: url.endsWith('/config')
+        ? {
+            ...apiConfig,
+            models: ['gpt-realtime-2.1-mini', 'gpt-live-1'],
+            default_model: 'gpt-realtime-2.1-mini',
+            default_voice: 'echo',
+            default_backend: 'responses',
+          }
+        : { scenarios: [] },
+    }));
+    const wrapper = mountConsole();
+    await flushPromises();
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceModelSelect"]')
+        .element.value,
+    ).toBe('gpt-live-1');
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceVoiceSelect"]')
+        .element.value,
+    ).toBe('marin');
+    await wrapper
+      .get('[data-testid="testVoiceStartCallButton"]')
+      .trigger('click');
+    expect(connect).toHaveBeenCalledWith({
+      language: 'en',
+      model: 'gpt-live-1',
+      voice: 'marin',
+      backend: 'responses',
+      flow: 'questions',
+    });
+    wrapper.unmount();
+  });
+
+  it.each([
+    {
+      models: ['gpt-realtime-2.1-mini', 'gemini-live'],
+      default_model: 'gemini-live',
+      expected: 'gemini-live',
+    },
+    {
+      models: ['gpt-realtime-2.1-mini'],
+      default_model: 'gpt-live-1',
+      expected: 'gpt-realtime-2.1-mini',
+    },
+    { models: [], default_model: 'gpt-live-1', expected: '' },
+  ])(
+    'uses an available fallback when GPT-Live is absent: $expected',
+    async ({ models, default_model, expected }) => {
+      vi.mocked(axios.get).mockImplementation(async (url) => ({
+        data: url.endsWith('/config')
+          ? { ...apiConfig, models, default_model }
+          : { scenarios: [] },
+      }));
+      const wrapper = mountConsole();
+      await flushPromises();
+      expect(
+        wrapper.get<HTMLSelectElement>('[data-testid="testVoiceModelSelect"]')
+          .element.value,
+      ).toBe(expected);
+      expect(
+        wrapper.get<HTMLButtonElement>(
+          '[data-testid="testVoiceStartCallButton"]',
+        ).element.disabled,
+      ).toBe(models.length === 0);
+      wrapper.unmount();
+    },
+  );
+
   it('allows the fields flow for Responses and forces questions again for Decisions', async () => {
     const wrapper = mountConsole();
     await flushPromises();
