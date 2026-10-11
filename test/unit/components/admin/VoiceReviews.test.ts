@@ -274,3 +274,31 @@ describe('VoiceReviewDetail actions', () => {
     );
   });
 });
+
+describe('AdminVoiceReviews issue type filter', () => {
+  it('asks the API for one kind of issue', async () => {
+    const queries: Record<string, string | null>[] = [];
+    server.use(
+      rest.get(baseUrl, (req, res, ctx) => {
+        queries.push({
+          correction_status: req.url.searchParams.get('correction_status'),
+          kind: req.url.searchParams.get('kind') ?? '',
+        });
+        return res(ctx.json({ reviews: [] }));
+      }),
+    );
+    const wrapper = mount(AdminVoiceReviews, { global: stubs });
+    await flushPromises();
+
+    await wrapper.get(testId('testVoiceReviewKindFilter')).setValue('address');
+    await flushPromises();
+    await wrapper.get(testId('testVoiceReviewFilter')).setValue('all');
+    await flushPromises();
+
+    expect(queries).toEqual([
+      { correction_status: 'open', kind: '' },
+      { correction_status: 'open', kind: 'address' },
+      { correction_status: '', kind: 'address' },
+    ]);
+  });
+});

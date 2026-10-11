@@ -22,11 +22,29 @@
               v-model="view"
               class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
               data-testid="testVoiceReviewFilter"
-              @change="load"
             >
               <option value="open">{{ t('~~Calls with open issues') }}</option>
               <option value="all">{{ t('~~All reviewed calls') }}</option>
               <option value="failed">{{ t('~~Failed reviews') }}</option>
+            </select>
+          </label>
+          <label
+            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+          >
+            {{ t('~~Issue type') }}
+            <select
+              v-model="kindFilter"
+              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
+              data-testid="testVoiceReviewKindFilter"
+            >
+              <option value="">{{ t('~~All issue types') }}</option>
+              <option
+                v-for="(label, key) in KIND_LABELS"
+                :key="key"
+                :value="key"
+              >
+                {{ t(label) }}
+              </option>
             </select>
           </label>
 
@@ -154,14 +172,18 @@ const reviews = ref<VoiceReview[]>([]);
 const loading = ref(false);
 type View = 'open' | 'all' | 'failed';
 const view = ref<View>('open');
+// An issue kind (see KIND_LABELS), or '' for every kind.
+const kindFilter = ref('');
 const selectedId = ref<number>();
 const since = ref(moment().subtract(7, 'day').format('YYYY-MM-DD'));
 const pendingCount = ref<number>();
 
+// The API lists open issues by default; an empty correction_status asks
+// for fixed and dismissed issues too.
 const FILTER_PARAMS: Record<View, Record<string, string>> = {
   open: { correction_status: 'open' },
-  all: {},
-  failed: { status: 'failed' },
+  all: { correction_status: '' },
+  failed: { status: 'failed', correction_status: '' },
 };
 
 function openKinds(review: VoiceReview) {
@@ -188,7 +210,12 @@ async function load() {
   try {
     const { data } = await axios.get<{ reviews: VoiceReview[] }>(
       voiceReviewUrl(),
-      { params: FILTER_PARAMS[view.value as View] },
+      {
+        params: {
+          ...FILTER_PARAMS[view.value as View],
+          ...(kindFilter.value ? { kind: kindFilter.value } : {}),
+        },
+      },
     );
     reviews.value = data.reviews;
   } catch (error) {
@@ -225,4 +252,6 @@ async function closeReview() {
 }
 
 onMounted(load);
+// One request per filter change, whatever events the select fires.
+watch([view, kindFilter], load);
 </script>
