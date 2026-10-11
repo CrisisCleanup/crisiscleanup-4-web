@@ -152,7 +152,10 @@ describe('AdminVoiceReviews', () => {
     server.use(
       rest.get(baseUrl, (req, res, ctx) => {
         expect(req.url.searchParams.get('correction_status')).toBe('open');
-        return res(ctx.json({ reviews: [review()] }));
+        // The paged table asks for one page and reads the total count.
+        expect(req.url.searchParams.get('offset')).toBe('0');
+        expect(req.url.searchParams.get('limit')).toBe('50');
+        return res(ctx.json({ count: 120, results: [review()] }));
       }),
       rest.post(`${baseUrl}/backfill`, async (req, res, ctx) => {
         const body = await req.json();
@@ -169,9 +172,20 @@ describe('AdminVoiceReviews', () => {
     const wrapper = mount(AdminVoiceReviews, { global: stubs });
     await flushPromises();
 
-    const row = wrapper.get(testId('testVoiceReviewRow'));
+    const row = wrapper.get(testId('testDataItem7Content'));
     expect(row.text()).toContain('R12');
     expect(row.text()).toContain('Name');
+    expect(
+      wrapper.get(testId('testVoiceReviewCount')).attributes('data-count'),
+    ).toBe('120');
+
+    await row.trigger('click');
+    await flushPromises();
+    expect(wrapper.find(testId('testVoiceReviewDetail')).exists()).toBe(true);
+    await wrapper
+      .get(testId('testVoiceReviewDetail') + ' button')
+      .trigger('click');
+    await flushPromises();
 
     await wrapper.get(testId('testVoiceReviewCheck')).trigger('click');
     await flushPromises();
@@ -284,7 +298,7 @@ describe('AdminVoiceReviews issue type filter', () => {
           correction_status: req.url.searchParams.get('correction_status'),
           kind: req.url.searchParams.get('kind') ?? '',
         });
-        return res(ctx.json({ reviews: [] }));
+        return res(ctx.json({ count: 0, results: [] }));
       }),
     );
     const wrapper = mount(AdminVoiceReviews, { global: stubs });

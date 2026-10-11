@@ -91,62 +91,57 @@
             <BaseButton
               variant="outline"
               size="small"
-              :action="load"
+              :action="refresh"
               :text="t('actions.refresh', 'Refresh')"
               :alt="t('actions.refresh', 'Refresh')"
             />
           </form>
         </div>
 
-        <Spinner v-if="loading" />
-        <PaneEmpty
-          v-else-if="reviews.length === 0"
-          :title="t('~~Nothing to review')"
-          :description="t('~~Calls show here after the reviewer checks them.')"
-        />
-        <table v-else class="w-full">
-          <thead
-            class="text-left text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            <tr>
-              <th class="py-1">{{ t('~~When') }}</th>
-              <th>{{ t('~~Case') }}</th>
-              <th>{{ t('~~Open issues') }}</th>
-              <th>{{ t('~~Summary') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="review in reviews"
-              :key="review.id"
-              class="cursor-pointer border-b border-crisiscleanup-grey-100 align-top hover:bg-crisiscleanup-grey-100/40"
-              data-testid="testVoiceReviewRow"
-              @click="selectedId = review.id"
+        <p
+          class="mb-2 text-crisiscleanup-dark-300"
+          data-testid="testVoiceReviewCount"
+          :data-count="total"
+        >
+          {{ t('~~{n} calls', { n: total }) }}
+        </p>
+        <!-- A new key per filter: back to page 1 and one request. -->
+        <AjaxTable
+          :key="JSON.stringify(query)"
+          :url="voiceReviewUrl()"
+          :query="query"
+          :columns="columns"
+          :page-size="50"
+          :body-style="{ height: '60vh' }"
+          table-id="voiceReviews"
+          data-testid="testVoiceReviewTable"
+          @data-fetched="(count: number) => (total = count)"
+          @row-click="(review: VoiceReview) => (selectedId = review.id)"
+        >
+          <template #when="{ item }">
+            {{ formatWhen(item.session.ended_at ?? item.reviewed_at) }}
+          </template>
+          <template #case="{ item }">
+            {{ item.worksite?.case_number ?? t('~~No case') }}
+          </template>
+          <template #issues="{ item }">
+            <span
+              v-for="issueKind in openKinds(item)"
+              :key="issueKind"
+              class="mb-1 mr-1 inline-block rounded bg-crisiscleanup-yellow-100 px-1.5 text-xs"
             >
-              <td class="whitespace-nowrap py-1.5 pr-3">
-                {{ formatWhen(review.session.ended_at ?? review.reviewed_at) }}
-              </td>
-              <td class="pr-3">
-                {{ review.worksite?.case_number ?? t('~~No case') }}
-              </td>
-              <td class="pr-3">
-                <span
-                  v-for="kind in openKinds(review)"
-                  :key="kind"
-                  class="mb-1 mr-1 inline-block rounded bg-crisiscleanup-yellow-100 px-1.5 text-xs"
-                >
-                  {{ t(KIND_LABELS[kind] ?? kind) }}
-                </span>
-                <span v-if="review.status === 'failed'" class="text-xs">
-                  {{ t('~~Review failed') }}
-                </span>
-              </td>
-              <td class="text-crisiscleanup-dark-300">
-                {{ review.summary || review.error }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              {{ t(KIND_LABELS[issueKind] ?? issueKind) }}
+            </span>
+            <span v-if="item.status === 'failed'" class="text-xs">
+              {{ t('~~Review failed') }}
+            </span>
+          </template>
+          <template #summary="{ item }">
+            <span class="text-crisiscleanup-dark-300">
+              {{ item.summary || item.error }}
+            </span>
+          </template>
+        </AjaxTable>
       </div>
     </section>
   </div>
@@ -155,7 +150,9 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { useToast } from 'vue-toastification';
-import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
+import AjaxTable from '@/components/AjaxTable.vue';
+import useEmitter from '@/hooks/useEmitter';
+import { makeTableColumns } from '@/utils/table';
 import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import {
   KIND_LABELS,
@@ -168,8 +165,8 @@ import moment from '@/utils/dates';
 const { t } = useI18n();
 const $toasted = useToast();
 
-const reviews = ref<VoiceReview[]>([]);
-const loading = ref(false);
+const { emitter } = useEmitter();
+const total = ref(0);
 type View = 'open' | 'all' | 'failed';
 const view = ref<View>('open');
 // An issue kind (see KIND_LABELS), or '' for every kind.
@@ -185,6 +182,23 @@ const FILTER_PARAMS: Record<View, Record<string, string>> = {
   all: { correction_status: '' },
   failed: { status: 'failed', correction_status: '' },
 };
+
+// AjaxTable adds offset and limit, and loads again when this changes.
+const query = computed(() => ({
+  ...FILTER_PARAMS[view.value as View],
+  ...(kindFilter.value ? { kind: kindFilter.value } : {}),
+}));
+
+const columns = makeTableColumns([
+  ['when', '10rem', t('~~When')],
+  ['case', '8rem', t('~~Case')],
+  ['issues', '1fr', t('~~Open issues')],
+  ['summary', '2fr', t('~~Summary')],
+]);
+
+function refresh() {
+  emitter.emit('refreshTable-voiceReviews');
+}
 
 function openKinds(review: VoiceReview) {
   return [
@@ -203,26 +217,6 @@ function formatWhen(iso: string | null) {
         minute: '2-digit',
       })
     : '—';
-}
-
-async function load() {
-  loading.value = true;
-  try {
-    const { data } = await axios.get<{ reviews: VoiceReview[] }>(
-      voiceReviewUrl(),
-      {
-        params: {
-          ...FILTER_PARAMS[view.value as View],
-          ...(kindFilter.value ? { kind: kindFilter.value } : {}),
-        },
-      },
-    );
-    reviews.value = data.reviews;
-  } catch (error) {
-    $toasted.error(getErrorMessage(error));
-  } finally {
-    loading.value = false;
-  }
 }
 
 async function backfill(dryRun: boolean) {
@@ -246,12 +240,8 @@ async function backfill(dryRun: boolean) {
   }
 }
 
-async function closeReview() {
+function closeReview() {
+  // The table mounts again and loads the list with any changes.
   selectedId.value = undefined;
-  await load();
 }
-
-onMounted(load);
-// One request per filter change, whatever events the select fires.
-watch([view, kindFilter], load);
 </script>
