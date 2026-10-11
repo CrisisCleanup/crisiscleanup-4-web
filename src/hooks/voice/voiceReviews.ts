@@ -180,6 +180,21 @@ export function formChanges(
   return undefined;
 }
 
+/** Where a wrong-incident case can move (checked by the API against the
+ * incident areas that contain the case location). */
+export function incidentMove(
+  correction: VoiceCorrection,
+): { incidentId: number; name: string } | undefined {
+  const value = correction.suggested_value as
+    | { incident_id?: number; incident_name?: string }
+    | undefined;
+  return correction.kind === 'wrong_incident' &&
+    typeof value === 'object' &&
+    value?.incident_id
+    ? { incidentId: value.incident_id, name: value.incident_name ?? '' }
+    : undefined;
+}
+
 /** Case details the reviewer took from a call that made no case. */
 export interface MissedCaseDetails {
   name: string;

@@ -13,6 +13,11 @@ import {
 } from '@/hooks/voice/voiceReviews';
 import { server } from '../../../setupTests';
 
+const confirmDialog = vi.hoisted(() => vi.fn());
+vi.mock('@/hooks/useDialogs', () => ({
+  default: () => ({ confirm: confirmDialog }),
+}));
+
 vi.mock('vue-router', async (importOriginal) => ({
   ...(await importOriginal<typeof VueRouter>()),
   useRouter: () => ({ resolve: (path: string) => ({ href: path }) }),
@@ -164,9 +169,14 @@ function testId(id: string) {
 // what the auditor puts in it.
 function stubCaseForm() {
   const applyChanges = vi.fn();
+  const moveToIncident = vi.fn(() => Promise.resolve('T7'));
   const props: Record<string, unknown>[] = [];
   const stub = defineComponent({
-    props: { incidentId: Number, worksiteId: Number, missedCase: Object },
+    props: {
+      incidentId: { type: Number, default: undefined },
+      worksiteId: { type: Number, default: undefined },
+      missedCase: { type: Object, default: undefined },
+    },
     emits: ['saved'],
     setup(
       componentProps: Record<string, unknown>,
@@ -179,7 +189,12 @@ function stubCaseForm() {
       },
     ) {
       props.push({ ...componentProps });
-      expose({ applyChanges, reload: vi.fn(), formFields: FIELDS });
+      expose({
+        applyChanges,
+        moveToIncident,
+        reload: vi.fn(),
+        formFields: FIELDS,
+      });
       return () =>
         h('button', {
           'data-testid': 'testStubSave',
@@ -187,7 +202,7 @@ function stubCaseForm() {
         });
     },
   });
-  return { stub, applyChanges, props };
+  return { stub, applyChanges, moveToIncident, props };
 }
 
 describe('VoiceReviewDetail with the case form', () => {
@@ -278,5 +293,58 @@ describe('VoiceReviewDetail with the case form', () => {
     await wrapper.get(testId('testStubSave')).trigger('click');
     await flushPromises();
     expect(linked).toEqual([{ worksite_id: 99 }]);
+  });
+});
+
+describe('VoiceReviewDetail wrong incident', () => {
+  it('moves the case after the admin confirms, and records the move', async () => {
+    const wrong = correction({
+      kind: 'wrong_incident',
+      field: 'incident',
+      suggested_value: {
+        summary: 'Tulsa Tornado',
+        incident_id: 501,
+        incident_name: 'Tulsa Tornado',
+      },
+    });
+    const resolved: unknown[] = [];
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
+        res(ctx.json(review({ corrections: [wrong] }))),
+      ),
+      rest.post(`${baseUrl}/corrections/1/resolve`, async (req, res, ctx) => {
+        resolved.push(await req.json());
+        return res(ctx.json({ ...wrong, status: 'resolved' }));
+      }),
+    );
+    const { stub, moveToIncident } = stubCaseForm();
+    const wrapper = mount(VoiceReviewDetail, {
+      props: { reviewId: 7 },
+      global: {
+        components: { BaseButton },
+        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
+      },
+    });
+    await flushPromises();
+
+    confirmDialog.mockResolvedValueOnce('no');
+    await wrapper.get(testId('testVoiceCorrectionMove')).trigger('click');
+    await flushPromises();
+    expect(moveToIncident).not.toHaveBeenCalled();
+
+    confirmDialog.mockResolvedValueOnce('yes');
+    await wrapper.get(testId('testVoiceCorrectionMove')).trigger('click');
+    await flushPromises();
+    expect(moveToIncident).toHaveBeenCalledWith(501);
+    expect(resolved).toEqual([
+      {
+        applied_value: {
+          incident_id: 501,
+          incident_name: 'Tulsa Tornado',
+          case_number: 'T7',
+          summary: 'Tulsa Tornado (T7)',
+        },
+      },
+    ]);
   });
 });

@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { useToast } from 'vue-toastification';
 import Incident from '@/models/Incident';
+import Worksite from '@/models/Worksite';
 import VoiceReviewMiniMap from './VoiceReviewMiniMap.vue';
 import { getErrorMessage } from '@/utils/errors';
 import {
@@ -48,6 +49,7 @@ interface CaseFormApi {
   worksite?: { location?: { coordinates?: number[] } };
   dynamicFields: Record<string, unknown>;
   updateWorksite: (value: unknown, key: string) => void;
+  saveWorksite: (reload?: boolean) => Promise<number | false | undefined>;
   findPotentialGeocode: () => Promise<void>;
 }
 
@@ -118,6 +120,23 @@ async function applyChanges(changes: FormChange[], geocode = false) {
   if (geocode) await api.findPotentialGeocode();
 }
 
+/**
+ * Move the case to another incident and save it, as the Work page does when
+ * an address is in another disaster. The API gives it a new case number and
+ * moves its form answers and work types. Returns the new case number.
+ */
+async function moveToIncident(incidentId: number) {
+  const api = form.value;
+  if (!api?.ready) return;
+  api.updateWorksite(incidentId, 'incident');
+  const savedId = await api.saveWorksite(false);
+  // The save response updates the store; the form's copy keeps the old number.
+  return savedId
+    ? (Worksite.find(String(savedId)) as { case_number?: string } | null)
+        ?.case_number
+    : undefined;
+}
+
 /** Load the case again, after the API changed it. Unsaved edits are lost. */
 function reload() {
   formKey.value += 1;
@@ -135,5 +154,5 @@ watch(
 
 watch(() => props.incidentId, loadIncident, { immediate: true });
 
-defineExpose({ applyChanges, reload, formFields });
+defineExpose({ applyChanges, moveToIncident, reload, formFields });
 </script>

@@ -83,12 +83,14 @@
             :can-use-in-form="canUseInForm(correction)"
             :in-form="usedInForm.has(correction.id)"
             :can-create-case="canCreateCase(correction)"
+            :move-to="moveTarget(correction)?.name"
             @act="
               (action: CorrectionAction, value?: unknown) =>
                 act(correction, action, value)
             "
             @use="useInForm(correction)"
             @create="startNewCase(correction)"
+            @move="moveIncident(correction)"
           />
         </section>
 
@@ -162,6 +164,7 @@ import Incident from '@/models/Incident';
 import {
   caseUrl,
   formChanges,
+  incidentMove,
   missedCaseDetails,
   voiceReviewUrl,
   type MissedCaseDetails,
@@ -170,6 +173,7 @@ import {
   type VoiceReviewWithTranscript,
 } from '@/hooks/voice/voiceReviews';
 import { getErrorMessage } from '@/utils/errors';
+import useDialogs from '@/hooks/useDialogs';
 
 const props = defineProps<{ reviewId: number }>();
 const emit = defineEmits<{ back: [] }>();
@@ -177,6 +181,7 @@ const emit = defineEmits<{ back: [] }>();
 const { t } = useI18n();
 const $toasted = useToast();
 const router = useRouter();
+const { confirm: confirmDialog } = useDialogs();
 
 const review = ref<VoiceReviewWithTranscript>();
 // Why an apply did not go through, shown on the correction itself.
@@ -255,6 +260,47 @@ async function useInForm(correction: VoiceCorrection) {
   if (!changes || !caseForm.value) return;
   await caseForm.value.applyChanges(changes, correction.kind === 'address');
   usedInForm.value = new Set(usedInForm.value).add(correction.id);
+}
+
+function moveTarget(correction: VoiceCorrection) {
+  return review.value?.worksite &&
+    !newCase.value &&
+    correction.status === 'open'
+    ? incidentMove(correction)
+    : undefined;
+}
+
+async function moveIncident(correction: VoiceCorrection) {
+  const target = moveTarget(correction);
+  if (!target || !caseForm.value) return;
+  const answer = await confirmDialog({
+    title: t('~~Move case'),
+    content: t(
+      '~~Move case {number} to {name}? It gets a new case number. Unsaved edits in the form are saved too.',
+      { number: review.value?.worksite?.case_number, name: target.name },
+    ),
+    actions: {
+      no: { text: t('actions.cancel'), type: 'outline' },
+      yes: { text: t('~~Move case'), type: 'solid' },
+    },
+  });
+  if (answer !== 'yes') return;
+  const caseNumber = await caseForm.value.moveToIncident(target.incidentId);
+  if (!caseNumber) return;
+  try {
+    await axios.post(voiceReviewUrl(`corrections/${correction.id}/resolve`), {
+      applied_value: {
+        incident_id: target.incidentId,
+        incident_name: target.name,
+        case_number: caseNumber,
+        summary: `${target.name} (${caseNumber})`,
+      },
+    });
+    usedInForm.value = new Set();
+    await load();
+  } catch (error) {
+    $toasted.error(getErrorMessage(error));
+  }
 }
 
 function startNewCase(correction: VoiceCorrection) {

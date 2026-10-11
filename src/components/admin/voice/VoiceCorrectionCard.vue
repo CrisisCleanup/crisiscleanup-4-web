@@ -19,7 +19,7 @@
       </div>
 
       <div v-if="correction.status !== 'open'" class="text-xs font-semibold">
-        {{ t(STATUS_LABELS[correction.status] ?? correction.status) }}
+        {{ statusLabel }}
       </div>
       <div v-else-if="editing" class="flex gap-2">
         <BaseButton
@@ -47,6 +47,15 @@
           :action="() => emit('use')"
           :text="t('~~Use in form')"
           :alt="t('~~Use in form')"
+        />
+        <BaseButton
+          v-if="moveTo"
+          variant="solid"
+          size="small"
+          data-testid="testVoiceCorrectionMove"
+          :action="() => emit('move')"
+          :text="t('~~Move to {name}', { name: moveTo })"
+          :alt="t('~~Move to {name}', { name: moveTo })"
         />
         <BaseButton
           v-if="canCreateCase"
@@ -112,7 +121,11 @@
         {{ formatValue(correction.before_value ?? correction.current_value) }}
       </span>
       <span class="text-crisiscleanup-dark-300">
-        {{ correction.status === 'applied' ? t('~~After') : t('~~Suggested') }}
+        {{
+          correction.status === 'applied' || correction.applied_value
+            ? t('~~After')
+            : t('~~Suggested')
+        }}
       </span>
       <div v-if="editing" class="flex flex-col gap-1">
         <template v-if="isAddress">
@@ -198,11 +211,14 @@ const props = defineProps<{
   /** The suggestion is in the case form, not saved yet. */
   inForm?: boolean;
   canCreateCase?: boolean;
+  /** Name of the incident this case can move to with one click. */
+  moveTo?: string;
 }>();
 const emit = defineEmits<{
   act: [action: CorrectionAction, value?: unknown];
   use: [];
   create: [];
+  move: [];
 }>();
 
 const { t } = useI18n();
@@ -221,6 +237,14 @@ const afterText = computed(() => {
   const verb = value === 'remove' ? t('~~Remove') : t('~~Add');
   return `${verb} ${field}`;
 });
+
+const statusLabel = computed(() =>
+  props.correction.kind === 'wrong_incident' &&
+  props.correction.status === 'resolved' &&
+  props.correction.applied_value
+    ? t('~~Moved')
+    : t(STATUS_LABELS[props.correction.status] ?? props.correction.status),
+);
 
 const editing = ref(false);
 const draft = ref('');
