@@ -293,3 +293,32 @@ export interface MissedCaseResult {
   duplicates?: DuplicateMatch[];
   error?: string;
 }
+
+/** Google's version of an address (POST /admins/voice_reviews/geocode). */
+export interface FoundAddress {
+  address: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  county: string;
+  /** [longitude, latitude] */
+  location: [number, number];
+  what3words: string;
+  pluscode: string;
+}
+
+/** The case fields that follow a found address, besides its four parts. */
+export function addressExtras(found: FoundAddress): FormChange[] {
+  return [
+    ...(found.county
+      ? [{ target: 'worksite' as const, key: 'county', value: found.county }]
+      : []),
+    {
+      target: 'worksite',
+      key: 'location',
+      value: { type: 'Point', coordinates: found.location },
+    },
+    { target: 'worksite', key: 'what3words', value: found.what3words },
+    { target: 'worksite', key: 'pluscode', value: found.pluscode },
+  ];
+}

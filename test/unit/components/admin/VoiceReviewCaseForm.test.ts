@@ -348,3 +348,102 @@ describe('VoiceReviewDetail wrong incident', () => {
     ]);
   });
 });
+
+describe('VoiceReviewDetail address in the form', () => {
+  const heard = {
+    address: '4410 McBay Rd',
+    city: 'Pensacola',
+    state: 'FL',
+    postal_code: '32507',
+  };
+  const addressReview = () =>
+    review({
+      corrections: [
+        correction({
+          kind: 'address',
+          simple: true,
+          field: 'address',
+          suggested_value: heard,
+        }),
+      ],
+    });
+
+  it("geocodes first and fills the form with Google's version", async () => {
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
+        res(ctx.json(addressReview())),
+      ),
+      rest.post(`${baseUrl}/geocode`, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            address: '4410 McVay Road',
+            city: 'Pensacola',
+            state: 'Florida',
+            postal_code: '32507',
+            county: 'Escambia County',
+            location: [-87.39, 30.35],
+            what3words: 'index.home.raft',
+            pluscode: '86F7X2XQ+XX',
+          }),
+        ),
+      ),
+    );
+    const { stub, applyChanges } = stubCaseForm();
+    const wrapper = mount(VoiceReviewDetail, {
+      props: { reviewId: 7 },
+      global: {
+        components: { BaseButton },
+        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
+      },
+    });
+    await flushPromises();
+    await wrapper.get(testId('testVoiceCorrectionUseInForm')).trigger('click');
+    await flushPromises();
+
+    const [changes, geocode] = applyChanges.mock.calls[0];
+    expect(geocode).toBe(false);
+    expect(changes).toEqual(
+      expect.arrayContaining([
+        { target: 'worksite', key: 'address', value: '4410 McVay Road' },
+        { target: 'worksite', key: 'county', value: 'Escambia County' },
+        {
+          target: 'worksite',
+          key: 'location',
+          value: { type: 'Point', coordinates: [-87.39, 30.35] },
+        },
+        { target: 'worksite', key: 'what3words', value: 'index.home.raft' },
+        { target: 'worksite', key: 'pluscode', value: '86F7X2XQ+XX' },
+      ]),
+    );
+  });
+
+  it('does not change the form when Google cannot find the address', async () => {
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
+        res(ctx.json(addressReview())),
+      ),
+      rest.post(`${baseUrl}/geocode`, (_req, res, ctx) =>
+        res(
+          ctx.status(404),
+          ctx.json({ error: 'Google could not find this address.' }),
+        ),
+      ),
+    );
+    const { stub, applyChanges } = stubCaseForm();
+    const wrapper = mount(VoiceReviewDetail, {
+      props: { reviewId: 7 },
+      global: {
+        components: { BaseButton },
+        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
+      },
+    });
+    await flushPromises();
+    await wrapper.get(testId('testVoiceCorrectionUseInForm')).trigger('click');
+    await flushPromises();
+
+    expect(applyChanges).not.toHaveBeenCalled();
+    expect(wrapper.find(testId('testVoiceCorrectionProblem')).exists()).toBe(
+      true,
+    );
+  });
+});

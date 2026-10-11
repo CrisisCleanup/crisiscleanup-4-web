@@ -172,12 +172,14 @@ import VoiceReviewCaseForm from './VoiceReviewCaseForm.vue';
 import Incident from '@/models/Incident';
 import {
   caseUrl,
+  addressExtras,
   formChanges,
   incidentMove,
   missedCaseDetails,
   voiceReviewUrl,
   type MissedCaseDetails,
   type CorrectionAction,
+  type FoundAddress,
   type VoiceCorrection,
   type VoiceReviewWithTranscript,
 } from '@/hooks/voice/voiceReviews';
@@ -261,13 +263,29 @@ function canCreateCase(correction: VoiceCorrection) {
 }
 
 async function useInForm(correction: VoiceCorrection) {
-  const changes = formChanges(
-    correction,
-    correction.suggested_value,
-    caseForm.value?.formFields ?? [],
-  );
-  if (!changes || !caseForm.value) return;
-  await caseForm.value.applyChanges(changes, correction.kind === 'address');
+  if (!caseForm.value) return;
+  const fields = caseForm.value.formFields ?? [];
+  let changes = formChanges(correction, correction.suggested_value, fields);
+  if (correction.kind === 'address') {
+    // Find the address with Google first, and fill the form only with
+    // Google's version: street spelling, county, pin, what3words, plus code.
+    try {
+      const { data } = await axios.post<FoundAddress>(
+        voiceReviewUrl('geocode'),
+        correction.suggested_value,
+      );
+      changes = [
+        ...(formChanges(correction, data, fields) ?? []),
+        ...addressExtras(data),
+      ];
+    } catch (error) {
+      problems.value[correction.id] = getErrorMessage(error);
+      return;
+    }
+  }
+  if (!changes) return;
+  await caseForm.value.applyChanges(changes, false);
+  delete problems.value[correction.id];
   usedInForm.value = new Set(usedInForm.value).add(correction.id);
 }
 
