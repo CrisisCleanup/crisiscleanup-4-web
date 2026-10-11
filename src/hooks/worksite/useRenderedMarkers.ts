@@ -85,6 +85,11 @@ export default (
         );
 
         const { location } = marker;
+        if (!location?.coordinates) {
+          // A case can lack a map location (a failed geocode). Leave it off
+          // the map; it stays in the case list with its wrong-location flag.
+          return;
+        }
         const patientCoords = (
           layer as L.Layer & PixiLayer
         ).utils.latLngToLayerPoint([
