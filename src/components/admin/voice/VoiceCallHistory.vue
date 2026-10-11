@@ -87,6 +87,17 @@
           ← {{ t('voiceConsole.all_calls', 'All calls') }}
         </button>
         <div class="flex gap-3">
+          <router-link
+            v-if="selected.review_id"
+            class="font-semibold underline"
+            data-testid="testVoiceCallAuditorLink"
+            :to="{
+              name: 'nav.voice_reviews',
+              params: { reviewId: selected.review_id },
+            }"
+          >
+            {{ t('~~View in auditor') }}
+          </router-link>
           <button type="button" class="underline" @click="exportJson">
             {{ t('voiceConsole.export_json', 'Export JSON') }}
           </button>
@@ -155,6 +166,8 @@ interface SessionRow {
 interface SessionDetail extends SessionRow {
   transcript: string;
   error: string;
+  /** The Call Auditor review of this call, if the call has one. */
+  review_id?: number | null;
   usage?: {
     backend_model?: string;
     backend?: string;

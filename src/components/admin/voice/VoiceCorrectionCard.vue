@@ -183,6 +183,23 @@
     >
       {{ correction.evidence }}
     </blockquote>
+    <div
+      v-if="duplicates.length > 0"
+      class="mt-2 rounded bg-crisiscleanup-chat-blue p-2 text-crisiscleanup-dashboard-blue"
+      data-testid="testVoiceCorrectionDuplicates"
+    >
+      <span class="font-semibold">{{ t('~~Possible duplicate:') }}</span>
+      <a
+        v-for="match in duplicates"
+        :key="match.id"
+        :href="duplicateUrl(match)"
+        target="_blank"
+        rel="noopener"
+        class="ml-2 underline"
+      >
+        {{ match.case_number }} · {{ match.name }} ↗
+      </a>
+    </div>
     <p
       v-if="problem"
       class="mt-2 text-crisiscleanup-red-700"
@@ -197,6 +214,8 @@
 import {
   ADDRESS_PARTS,
   KIND_LABELS,
+  duplicateUrl,
+  possibleDuplicates,
   formatValue,
   type CorrectionAction,
   type VoiceCorrection,
@@ -245,6 +264,8 @@ const statusLabel = computed(() =>
     ? t('~~Moved')
     : t(STATUS_LABELS[props.correction.status] ?? props.correction.status),
 );
+
+const duplicates = computed(() => possibleDuplicates(props.correction));
 
 const editing = ref(false);
 const draft = ref('');

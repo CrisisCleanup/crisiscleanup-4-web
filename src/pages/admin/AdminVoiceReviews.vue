@@ -98,16 +98,71 @@
           </form>
         </div>
 
-        <p
-          class="mb-2 text-crisiscleanup-dark-300"
-          data-testid="testVoiceReviewCount"
-          :data-count="total"
+        <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <p
+            class="text-crisiscleanup-dark-300"
+            data-testid="testVoiceReviewCount"
+            :data-count="total"
+          >
+            {{ t('~~{n} calls', { n: total }) }}
+          </p>
+          <BaseButton
+            v-if="bulkIds.length > 0"
+            variant="solid"
+            size="small"
+            data-testid="testVoiceReviewBulkCreate"
+            :action="createMissedCases"
+            :text="t('~~Create {n} cases', { n: bulkIds.length })"
+            :alt="t('~~Create {n} cases', { n: bulkIds.length })"
+          />
+        </div>
+        <div
+          v-if="bulkResults.length > 0"
+          class="mb-3 rounded border border-crisiscleanup-grey-100 p-3"
+          data-testid="testVoiceReviewBulkResults"
         >
-          {{ t('~~{n} calls', { n: total }) }}
-        </p>
+          <div
+            v-for="result in bulkResults"
+            :key="result.id"
+            class="mb-1"
+            :data-status="result.status"
+          >
+            <template v-if="result.status === 'created'">
+              {{ t('~~Created case') }}
+              <a
+                :href="
+                  router.resolve(
+                    `/incident/${result.incident_id}/work/${result.worksite_id}/edit`,
+                  ).href
+                "
+                target="_blank"
+                rel="noopener"
+                class="underline"
+              >
+                {{ result.case_number }} ↗
+              </a>
+            </template>
+            <template v-else-if="result.status === 'duplicate'">
+              {{ t('~~Not created: possible duplicate of') }}
+              <a
+                v-for="match in result.duplicates"
+                :key="match.id"
+                :href="router.resolve(duplicateUrl(match)).href"
+                target="_blank"
+                rel="noopener"
+                class="mr-2 underline"
+              >
+                {{ match.case_number }} ({{ match.name }}) ↗
+              </a>
+            </template>
+            <template v-else>
+              {{ t('~~Not created:') }} {{ result.error }}
+            </template>
+          </div>
+        </div>
         <!-- A new key per filter: back to page 1 and one request. -->
         <AjaxTable
-          :key="JSON.stringify(query)"
+          :key="`${JSON.stringify(query)}-${tableVersion}`"
           :url="voiceReviewUrl()"
           :query="query"
           :columns="columns"
@@ -115,8 +170,11 @@
           :body-style="{ height: '60vh' }"
           table-id="voiceReviews"
           data-testid="testVoiceReviewTable"
+          enable-selection
           @data-fetched="(count: number) => (total = count)"
-          @row-click="(review: VoiceReview) => (selectedId = review.id)"
+          @update:items="(items: VoiceReview[]) => (pageItems = items)"
+          @selection-changed="(ids: Set<number>) => (selectedIds = ids)"
+          @row-click="openReview"
         >
           <template #when="{ item }">
             {{ formatWhen(item.session.ended_at ?? item.reviewed_at) }}
@@ -131,6 +189,13 @@
               class="mb-1 mr-1 inline-block rounded bg-crisiscleanup-yellow-100 px-1.5 text-xs"
             >
               {{ t(KIND_LABELS[issueKind] ?? issueKind) }}
+            </span>
+            <span
+              v-if="hasPossibleDuplicate(item)"
+              class="mb-1 mr-1 inline-block rounded bg-crisiscleanup-chat-blue px-1.5 text-xs text-crisiscleanup-dashboard-blue"
+              data-testid="testVoiceReviewDuplicatePill"
+            >
+              {{ t('~~Possible duplicate') }}
             </span>
             <span v-if="item.status === 'failed'" class="text-xs">
               {{ t('~~Review failed') }}
@@ -156,9 +221,14 @@ import { makeTableColumns } from '@/utils/table';
 import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import {
   KIND_LABELS,
+  duplicateUrl,
+  openMissedCase,
+  possibleDuplicates,
   voiceReviewUrl,
+  type MissedCaseResult,
   type VoiceReview,
 } from '@/hooks/voice/voiceReviews';
+import useDialogs from '@/hooks/useDialogs';
 import { getErrorMessage } from '@/utils/errors';
 import moment from '@/utils/dates';
 
@@ -166,12 +236,22 @@ const { t } = useI18n();
 const $toasted = useToast();
 
 const { emitter } = useEmitter();
+const { confirm: confirmDialog } = useDialogs();
+const route = useRoute();
+const router = useRouter();
+// The page's rows and the checked rows, for bulk case creation.
+const pageItems = ref<VoiceReview[]>([]);
+const selectedIds = ref(new Set<number>());
+const bulkResults = ref<(MissedCaseResult & { id: number })[]>([]);
+// A new value remounts the table: reload, page one, no checked rows.
+const tableVersion = ref(0);
 const total = ref(0);
 type View = 'open' | 'all' | 'failed';
 const view = ref<View>('open');
 // An issue kind (see KIND_LABELS), or '' for every kind.
 const kindFilter = ref('');
-const selectedId = ref<number>();
+// The review in the URL (/admin/voice_reviews/<id>), so it can be linked.
+const selectedId = computed(() => Number(route.params.reviewId) || undefined);
 const since = ref(moment().subtract(7, 'day').format('YYYY-MM-DD'));
 const pendingCount = ref<number>();
 
@@ -198,6 +278,55 @@ const columns = makeTableColumns([
 
 function refresh() {
   emitter.emit('refreshTable-voiceReviews');
+}
+
+function openReview(review: VoiceReview) {
+  void router.push({
+    name: 'nav.voice_reviews',
+    params: { reviewId: review.id },
+  });
+}
+
+function hasPossibleDuplicate(review: VoiceReview) {
+  const missed = openMissedCase(review);
+  return Boolean(missed && possibleDuplicates(missed).length > 0);
+}
+
+// The open missed-case issues of the checked calls that have no case.
+const bulkIds = computed(() =>
+  pageItems.value
+    .filter((review: VoiceReview) => selectedIds.value.has(review.id))
+    .map((review: VoiceReview) => openMissedCase(review)?.id)
+    .filter((id: number | undefined): id is number => typeof id === 'number'),
+);
+
+async function createMissedCases() {
+  const ids = bulkIds.value;
+  const answer = await confirmDialog({
+    title: t('~~Create cases'),
+    content: t(
+      '~~Create {n} cases from these calls? Each survivor gets the usual text message. Possible duplicates are not created.',
+      { n: ids.length },
+    ),
+    actions: {
+      no: { text: t('actions.cancel'), type: 'outline' },
+      yes: { text: t('~~Create cases'), type: 'solid' },
+    },
+  });
+  if (answer !== 'yes') return;
+  try {
+    const { data } = await axios.post<{
+      results: Record<string, MissedCaseResult>;
+    }>(voiceReviewUrl('create_missed_cases'), { correction_ids: ids });
+    bulkResults.value = Object.entries(data.results).map(([id, result]) => ({
+      id: Number(id),
+      ...result,
+    }));
+    tableVersion.value += 1;
+    selectedIds.value = new Set();
+  } catch (error) {
+    $toasted.error(getErrorMessage(error));
+  }
 }
 
 function openKinds(review: VoiceReview) {
@@ -242,6 +371,6 @@ async function backfill(dryRun: boolean) {
 
 function closeReview() {
   // The table mounts again and loads the list with any changes.
-  selectedId.value = undefined;
+  void router.push({ name: 'nav.voice_reviews' });
 }
 </script>

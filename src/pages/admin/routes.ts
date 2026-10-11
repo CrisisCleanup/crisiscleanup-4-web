@@ -163,7 +163,8 @@ const routes = [
         component: AdminVoiceConsole,
       },
       {
-        path: 'voice_reviews',
+        // An optional review id opens that review, so it can be linked.
+        path: 'voice_reviews/:reviewId?',
         name: 'nav.voice_reviews',
         component: AdminVoiceReviews,
       },

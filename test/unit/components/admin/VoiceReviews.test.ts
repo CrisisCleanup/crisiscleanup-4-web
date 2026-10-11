@@ -1,16 +1,38 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { rest } from 'msw';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as VueRouter from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import AdminVoiceReviews from '@/pages/admin/AdminVoiceReviews.vue';
+import AjaxTable from '@/components/AjaxTable.vue';
 import { formatValue } from '@/hooks/voice/voiceReviews';
 import { server } from '../../../setupTests';
 
-vi.mock('vue-router', async (importOriginal) => ({
-  ...(await importOriginal<typeof VueRouter>()),
-  useRouter: () => ({ resolve: (path: string) => ({ href: path }) }),
+// A reactive route and a push that sets its params, like the real router.
+const nav = vi.hoisted(() => ({
+  route: undefined as unknown as { params: Record<string, unknown> },
+  push: vi.fn(),
+}));
+vi.mock('vue-router', async (importOriginal) => {
+  const { reactive } = await import('vue');
+  nav.route = reactive({ params: {} });
+  nav.push.mockImplementation((to: { params?: Record<string, unknown> }) => {
+    nav.route.params = to.params ?? {};
+  });
+  return {
+    ...(await importOriginal<typeof VueRouter>()),
+    useRouter: () => ({
+      resolve: (path: string) => ({ href: path }),
+      push: nav.push,
+    }),
+    useRoute: () => nav.route,
+  };
+});
+
+const confirmDialog = vi.hoisted(() => vi.fn());
+vi.mock('@/hooks/useDialogs', () => ({
+  default: () => ({ confirm: confirmDialog }),
 }));
 
 const baseUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_reviews`;
@@ -181,6 +203,11 @@ describe('AdminVoiceReviews', () => {
 
     await row.trigger('click');
     await flushPromises();
+    // The review opens at its own URL, so it can be linked.
+    expect(nav.push).toHaveBeenLastCalledWith({
+      name: 'nav.voice_reviews',
+      params: { reviewId: 7 },
+    });
     expect(wrapper.find(testId('testVoiceReviewDetail')).exists()).toBe(true);
     await wrapper
       .get(testId('testVoiceReviewDetail') + ' button')
@@ -314,5 +341,118 @@ describe('AdminVoiceReviews issue type filter', () => {
       { correction_status: 'open', kind: 'address' },
       { correction_status: '', kind: 'address' },
     ]);
+  });
+});
+
+const DUPLICATE = {
+  id: 77,
+  case_number: 'Q77',
+  name: 'John Smith',
+  match_reasons: ['same_address'],
+  incident: { id: 248, name: 'Medium Flood' },
+};
+
+function missedReview(id: number, duplicates: unknown[] = []) {
+  return {
+    ...review([
+      correction({
+        id: id * 10,
+        kind: 'missed_case',
+        simple: false,
+        field: '',
+        suggested_value: { summary: 'Tree on roof', duplicates },
+      }),
+    ]),
+    id,
+    worksite: undefined,
+  };
+}
+
+describe('AdminVoiceReviews missed cases', () => {
+  beforeEach(() => {
+    nav.route.params = {};
+  });
+
+  it('marks a possible duplicate and bulk-creates the checked missed cases', async () => {
+    const posted: unknown[] = [];
+    server.use(
+      rest.get(baseUrl, (_req, res, ctx) =>
+        res(
+          ctx.json({
+            count: 2,
+            results: [missedReview(1, [DUPLICATE]), missedReview(2)],
+          }),
+        ),
+      ),
+      rest.post(`${baseUrl}/create_missed_cases`, async (req, res, ctx) => {
+        posted.push(await req.json());
+        return res(
+          ctx.json({
+            results: {
+              10: { status: 'duplicate', duplicates: [DUPLICATE] },
+              20: {
+                status: 'created',
+                worksite_id: 5,
+                case_number: 'Q501',
+                incident_id: 248,
+              },
+            },
+          }),
+        );
+      }),
+    );
+    const wrapper = mount(AdminVoiceReviews, { global: stubs });
+    await flushPromises();
+
+    expect(
+      wrapper
+        .get(testId('testDataItem1Content'))
+        .find(testId('testVoiceReviewDuplicatePill'))
+        .exists(),
+    ).toBe(true);
+    expect(
+      wrapper
+        .get(testId('testDataItem2Content'))
+        .find(testId('testVoiceReviewDuplicatePill'))
+        .exists(),
+    ).toBe(false);
+    expect(wrapper.find(testId('testVoiceReviewBulkCreate')).exists()).toBe(
+      false,
+    );
+
+    wrapper
+      .findComponent(AjaxTable)
+      .vm.$emit('selectionChanged', new Set([1, 2]));
+    await flushPromises();
+    confirmDialog.mockResolvedValueOnce('yes');
+    await wrapper.get(testId('testVoiceReviewBulkCreate')).trigger('click');
+    await flushPromises();
+
+    expect(posted).toEqual([{ correction_ids: [10, 20] }]);
+    const results = wrapper.get(testId('testVoiceReviewBulkResults'));
+    const created = results.get('[data-status="created"] a');
+    expect(created.text()).toContain('Q501');
+    expect(created.attributes('href')).toBe('/incident/248/work/5/edit');
+    const link = results.get('[data-status="duplicate"] a');
+    expect(link.attributes('href')).toBe('/incident/248/work/77/edit');
+    expect(link.attributes('target')).toBe('_blank');
+  });
+});
+
+describe('VoiceReviewDetail missed case duplicates', () => {
+  it('links the possible duplicate on the card', async () => {
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
+        res(ctx.json(missedReview(7, [DUPLICATE]))),
+      ),
+    );
+    const wrapper = mount(VoiceReviewDetail, {
+      props: { reviewId: 7 },
+      global: stubs,
+    });
+    await flushPromises();
+    const box = wrapper.get(testId('testVoiceCorrectionDuplicates'));
+    expect(box.text()).toContain('Q77');
+    expect(box.get('a').attributes('href')).toBe('/incident/248/work/77/edit');
   });
 });

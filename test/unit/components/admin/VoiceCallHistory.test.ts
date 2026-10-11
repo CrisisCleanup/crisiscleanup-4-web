@@ -95,3 +95,16 @@ describe('VoiceCallHistory', () => {
     expect(wrapper.text()).not.toContain('Live billed time');
   });
 });
+
+describe('VoiceCallHistory auditor link', () => {
+  it('links a reviewed call to the Call Auditor', async () => {
+    const wrapper = await mountDetail({ review_id: 12 });
+    expect(
+      wrapper.find('[data-testid="testVoiceCallAuditorLink"]').exists(),
+    ).toBe(true);
+    const without = await mountDetail({ review_id: undefined });
+    expect(
+      without.find('[data-testid="testVoiceCallAuditorLink"]').exists(),
+    ).toBe(false);
+  });
+});

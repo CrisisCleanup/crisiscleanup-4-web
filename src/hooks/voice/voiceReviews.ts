@@ -249,3 +249,47 @@ export function missedCasePrefill(
       : [],
   };
 }
+
+/** An existing case that may be the same request as a missed call. */
+export interface DuplicateMatch {
+  id: number;
+  case_number: string;
+  name: string;
+  match_reasons: string[];
+  incident: { id: number; name: string };
+}
+
+/** Possible duplicates the API found for a missed case. */
+export function possibleDuplicates(
+  correction: VoiceCorrection,
+): DuplicateMatch[] {
+  const value = correction.suggested_value as
+    | { duplicates?: DuplicateMatch[] }
+    | undefined;
+  return correction.kind === 'missed_case' && typeof value === 'object'
+    ? (value?.duplicates ?? [])
+    : [];
+}
+
+/** The open missed-case issue of a call without a case, if any. */
+export function openMissedCase(review: VoiceReview) {
+  return review.worksite
+    ? undefined
+    : review.corrections.find(
+        (c) => c.kind === 'missed_case' && c.status === 'open',
+      );
+}
+
+export function duplicateUrl(match: DuplicateMatch) {
+  return `/incident/${match.incident.id}/work/${match.id}/edit`;
+}
+
+/** One result of POST create_missed_cases. */
+export interface MissedCaseResult {
+  status: 'created' | 'duplicate' | 'skipped' | 'failed';
+  case_number?: string;
+  worksite_id?: number;
+  incident_id?: number;
+  duplicates?: DuplicateMatch[];
+  error?: string;
+}
