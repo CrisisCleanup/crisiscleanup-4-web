@@ -12,6 +12,8 @@ export interface CallConfig {
   model: string;
   voice: string;
   is_test?: boolean;
+  flow?: string;
+  backend?: string;
 }
 
 export interface TranscriptLine {
@@ -28,6 +30,7 @@ export interface ToolCall {
   arguments: string;
   output: string;
   is_error: boolean;
+  error?: string;
   ms: number | null;
 }
 
@@ -47,6 +50,8 @@ export interface ResponseMetrics {
   output_tokens: number;
   cached_tokens: number;
   estimated_cost_usd: number | null;
+  gpt_live_session_seconds?: number | null;
+  gpt_live_voice_cost_usd?: number | null;
 }
 
 export interface FinalizedCase {
@@ -182,6 +187,8 @@ export function callToText(state: CallState): string {
       `Model: ${state.config.model} · voice ${state.config.voice} · ${state.config.language}`,
     );
   }
+  if (state.config?.backend) lines.push(`Backend: ${state.config.backend}`);
+  if (state.config?.flow) lines.push(`Flow: ${state.config.flow}`);
   if (state.finalized) lines.push(`Case: ${state.finalized.case_number}`);
   lines.push('');
   for (const line of state.transcript.filter((l) => l.final)) {
@@ -191,7 +198,7 @@ export function callToText(state: CallState): string {
     lines.push('', 'Tool calls:');
     for (const tool of state.tools) {
       lines.push(
-        `[${tool.at}] ${tool.name}(${tool.arguments}) -> ${tool.output}`,
+        `[${tool.at}] ${tool.name}(${tool.arguments}) -> ${tool.error || tool.output}`,
       );
     }
   }

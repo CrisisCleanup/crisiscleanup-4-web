@@ -31,7 +31,7 @@
               <th>{{ t('voiceConsole.line', 'Line') }}</th>
               <th>{{ t('voiceConsole.outcome', 'Outcome') }}</th>
               <th>{{ t('voiceConsole.length', 'Length') }}</th>
-              <th>{{ t('voiceConsole.cost', 'Cost') }}</th>
+              <th>{{ t('~~Est. model cost') }}</th>
               <th>{{ t('voiceConsole.case', 'Case') }}</th>
             </tr>
           </thead>
@@ -40,7 +40,7 @@
               v-for="session in sessions"
               :key="session.id"
               class="cursor-pointer border-b border-crisiscleanup-grey-100 hover:bg-crisiscleanup-grey-100/40"
-              @click="open(session.id)"
+              @click="openSession(session.id)"
             >
               <td class="py-1.5">{{ formatWhen(session.created_at) }}</td>
               <td>
@@ -63,7 +63,12 @@
                 }}
               </td>
               <td class="tabular-nums">
-                {{ formatCost(session.estimated_cost_usd) }}
+                {{
+                  session.model === 'gpt-live-1' &&
+                  typeof session.estimated_cost_usd !== 'number'
+                    ? t('~~Not estimated')
+                    : formatCost(session.estimated_cost_usd)
+                }}
               </td>
               <td>{{ session.case_number || '—' }}</td>
             </tr>
@@ -77,7 +82,7 @@
         <button
           type="button"
           class="font-semibold underline"
-          @click="selected = null"
+          @click="selected = undefined"
         >
           ← {{ t('voiceConsole.all_calls', 'All calls') }}
         </button>
@@ -150,13 +155,21 @@ interface SessionRow {
 interface SessionDetail extends SessionRow {
   transcript: string;
   error: string;
+  usage?: {
+    backend_model?: string;
+    backend?: string;
+    gpt_live_session_seconds?: number | null;
+    gpt_live_voice_cost_usd?: number | null;
+    backend_cost_usd?: number | null;
+    total_cost_usd?: number | null;
+  };
 }
 
 const { t } = useI18n();
 const $toasted = useToast();
 
 const sessions = ref<SessionRow[]>([]);
-const selected = ref<SessionDetail | null>(null);
+const selected = ref<SessionDetail>();
 const loading = ref(false);
 
 const OUTCOMES: Record<string, string> = {
@@ -198,7 +211,9 @@ function formatWhen(iso: string) {
 async function load() {
   loading.value = true;
   try {
-    const { data } = await axios.get(voiceConsoleUrl('sessions'));
+    const { data } = await axios.get<{ sessions: SessionRow[] }>(
+      voiceConsoleUrl('sessions'),
+    );
     sessions.value = data.sessions;
   } catch (error) {
     $toasted.error(getErrorMessage(error));
@@ -207,9 +222,11 @@ async function load() {
   }
 }
 
-async function open(id: number) {
+async function openSession(id: number) {
   try {
-    const { data } = await axios.get(voiceConsoleUrl(`sessions/${id}`));
+    const { data } = await axios.get<SessionDetail>(
+      voiceConsoleUrl(`sessions/${id}`),
+    );
     selected.value = data;
   } catch (error) {
     $toasted.error(getErrorMessage(error));
@@ -235,11 +252,53 @@ const detailRows = computed(() => {
       t('voiceConsole.length', 'Length'),
       s.duration_seconds === null ? '—' : formatClock(s.duration_seconds),
     ],
-    [
+  ];
+  if (s.usage?.backend_model) {
+    rows.push([t('~~Backend model'), s.usage.backend_model]);
+  }
+  if (s.usage?.backend) {
+    const backends: Record<string, string> = {
+      decisions: 'Decisions',
+      responses: 'Responses',
+    };
+    rows.push([
+      t('~~Backend API'),
+      backends[s.usage.backend] ?? s.usage.backend,
+    ]);
+  }
+  const isGptLive =
+    s.model === 'gpt-live-1' ||
+    (s.usage &&
+      ('gpt_live_session_seconds' in s.usage ||
+        'gpt_live_voice_cost_usd' in s.usage));
+  if (isGptLive) {
+    rows.push(
+      [
+        t('~~Live billed time'),
+        typeof s.usage?.gpt_live_session_seconds === 'number'
+          ? `${s.usage.gpt_live_session_seconds.toFixed(2)} s`
+          : '—',
+      ],
+      [t('~~Est. voice cost'), formatCost(s.usage?.gpt_live_voice_cost_usd)],
+      [
+        t('~~Backend cost'),
+        typeof s.usage?.backend_cost_usd === 'number'
+          ? formatCost(s.usage.backend_cost_usd)
+          : t('~~Not estimated'),
+      ],
+      [
+        t('~~Total cost'),
+        typeof s.usage?.total_cost_usd === 'number'
+          ? formatCost(s.usage.total_cost_usd)
+          : t('~~Not estimated'),
+      ],
+    );
+  } else {
+    rows.push([
       t('voiceConsole.estimated_cost', 'Est. cost'),
       formatCost(s.estimated_cost_usd),
-    ],
-  ];
+    ]);
+  }
   if (s.error) rows.push([t('voiceConsole.error', 'Error'), s.error]);
   return rows;
 });
@@ -248,7 +307,7 @@ function exportJson() {
   if (selected.value) {
     downloadText(
       `${selected.value.call_id}.json`,
-      JSON.stringify(selected.value, null, 2),
+      JSON.stringify(selected.value, undefined, 2),
       'application/json',
     );
   }

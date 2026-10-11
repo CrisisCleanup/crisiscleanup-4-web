@@ -31,7 +31,7 @@
               >{{ tool.name }}</span
             >
             <span class="block truncate text-xs text-crisiscleanup-dark-300">
-              {{ tool.output }}
+              {{ tool.error || tool.output }}
             </span>
           </span>
           <span
@@ -46,7 +46,7 @@
         >
         <pre
           class="mb-2 ml-8 whitespace-pre-wrap break-words rounded bg-crisiscleanup-grey-100/40 p-2 text-xs"
-          >{{ tool.output }}</pre
+          >{{ tool.error || tool.output }}</pre
         >
       </details>
     </li>

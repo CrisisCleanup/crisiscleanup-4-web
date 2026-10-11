@@ -40,6 +40,8 @@ export interface CallSettings {
   language: string;
   model: string;
   voice: string;
+  flow: string;
+  backend: string;
 }
 
 interface SimulatedReply {

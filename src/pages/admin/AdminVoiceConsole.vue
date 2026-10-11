@@ -20,9 +20,10 @@
       <section
         class="flex flex-col gap-3 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
       >
-        <div
-          class="grid grid-cols-2 gap-3 md:grid-cols-4"
-          :class="{ 'pointer-events-none opacity-60': isLive }"
+        <fieldset
+          class="grid min-w-0 grid-cols-2 gap-3 border-0 p-0 md:grid-cols-4"
+          :disabled="settingsLocked"
+          :class="{ 'opacity-60': settingsLocked }"
         >
           <label
             class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
@@ -65,12 +66,51 @@
           >
             {{ t('voiceConsole.voice', 'Voice') }}
             <select
+              :key="settings.model"
               v-model="settings.voice"
               class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
               data-testid="testVoiceVoiceSelect"
             >
               <option v-for="voice in voices" :key="voice" :value="voice">
                 {{ voice }}
+              </option>
+            </select>
+          </label>
+          <label
+            v-if="isGptLive"
+            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+          >
+            {{ t('~~Backend') }}
+            <select
+              v-model="settings.backend"
+              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
+              data-testid="testVoiceBackendSelect"
+            >
+              <option
+                v-for="backend in backendOptions"
+                :key="backend"
+                :value="backend"
+              >
+                {{ backend === 'decisions' ? 'Decisions' : 'Responses' }}
+              </option>
+            </select>
+          </label>
+          <label
+            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+          >
+            {{ t('~~Intake flow') }}
+            <select
+              v-model="settings.flow"
+              :disabled="usesDecisions"
+              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
+              data-testid="testVoiceFlowSelect"
+            >
+              <option v-for="flow in flowOptions" :key="flow" :value="flow">
+                {{
+                  flow === 'questions'
+                    ? t('~~Server asks the questions')
+                    : t('~~Model fills the form')
+                }}
               </option>
             </select>
           </label>
@@ -85,6 +125,34 @@
               }}</span
             >
           </div>
+        </fieldset>
+
+        <div
+          v-if="isGptLive"
+          class="rounded bg-crisiscleanup-grey-100/40 p-3 text-sm"
+          data-testid="testVoiceModelInfo"
+        >
+          <p>
+            {{
+              t(
+                '~~GPT-Live (gpt-live-1) handles the spoken conversation. Luna (gpt-6-luna) runs the tools that read and save case information.',
+              )
+            }}
+          </p>
+          <p v-if="usesDecisions" class="mt-1">
+            {{
+              t(
+                '~~Decisions routes each request before Luna runs the allowed tools. This backend uses the questions flow.',
+              )
+            }}
+          </p>
+          <p v-else class="mt-1">
+            {{
+              t(
+                '~~Responses connects GPT-Live to Luna through the native Live backend. You can compare either intake flow.',
+              )
+            }}
+          </p>
         </div>
 
         <div
@@ -93,7 +161,7 @@
           <BaseButton
             variant="solid"
             :action="startCall"
-            :disabled="isLive || status === 'connecting'"
+            :disabled="!canStartCall"
             :text="
               isLive
                 ? t('voiceConsole.on_call', 'On call')
@@ -233,7 +301,11 @@
               variant="solid"
               size="small"
               :action="runSimulated"
-              :disabled="simulation.running || !facts.trim()"
+              :disabled="
+                simulation.running ||
+                !facts.trim() ||
+                (!isLive && !canStartCall)
+              "
               :text="t('voiceConsole.run_simulated_call', 'Run simulated call')"
               :alt="t('voiceConsole.run_simulated_call', 'Run simulated call')"
               data-testid="testVoiceRunSimulationButton"
@@ -300,12 +372,27 @@
         <VoiceMetrics
           v-else-if="activeTab === 'metrics'"
           :metrics="call.metrics"
+          :model="call.config?.model || settings.model"
         />
         <VoiceCallHistory v-else />
         <p v-if="call.config" class="mt-3 text-xs text-crisiscleanup-dark-300">
           {{ t('voiceConsole.agent_running', 'Agent running') }}
           {{ call.config.model }} · {{ call.config.voice }} ·
           {{ call.config.language }}
+          <span v-if="call.config.backend">
+            ·
+            {{
+              call.config.backend === 'decisions' ? 'Decisions' : 'Responses'
+            }}</span
+          >
+          <span v-if="call.config.flow">
+            ·
+            {{
+              call.config.flow === 'questions'
+                ? t('~~Server asks the questions')
+                : t('~~Model fills the form')
+            }}</span
+          >
         </p>
       </aside>
     </div>
@@ -338,6 +425,11 @@ interface ConsoleConfig {
   default_model: string;
   openai_voices: string[];
   google_voices: string[];
+  gpt_live_voices?: string[];
+  flows?: string[];
+  default_flow?: string;
+  backends?: string[];
+  default_backend?: string;
   default_voice: string;
   default_google_voice: string;
 }
@@ -377,7 +469,14 @@ const config = ref<ConsoleConfig>({
   default_voice: '',
   default_google_voice: '',
 });
-const settings = reactive({ language: 'en', model: '', voice: '' });
+const settings = reactive({
+  language: 'en',
+  model: '',
+  voice: '',
+  flow: 'questions',
+  backend: 'responses',
+});
+const configLoaded = ref(false);
 const scenarios = ref<Scenario[]>([]);
 const scenarioKey = ref('');
 const facts = ref('');
@@ -398,15 +497,49 @@ const target = computed(() =>
     (x: ConsoleConfig['targets'][number]) => x.key === 'local',
   ),
 );
+const isGptLive = computed(() => settings.model === 'gpt-live-1');
 const isGemini = computed(() => settings.model.startsWith('gemini'));
-const voices = computed(() =>
-  isGemini.value ? config.value.google_voices : config.value.openai_voices,
+const voices = computed(() => {
+  if (isGptLive.value) return config.value.gpt_live_voices ?? [];
+  return isGemini.value
+    ? config.value.google_voices
+    : config.value.openai_voices;
+});
+const backendOptions = computed(() => config.value.backends ?? ['responses']);
+const flowOptions = computed(
+  () => config.value.flows ?? ['fields', 'questions'],
 );
+const usesDecisions = computed(
+  () => isGptLive.value && settings.backend === 'decisions',
+);
+const settingsLocked = computed(
+  () => isLive.value || status.value === 'connecting',
+);
+const canStartCall = computed(
+  () =>
+    configLoaded.value &&
+    !settingsLocked.value &&
+    voices.value.includes(settings.voice),
+);
+const callSettings = computed(() => ({
+  ...settings,
+  backend: isGptLive.value ? settings.backend : 'responses',
+  flow: usesDecisions.value ? 'questions' : settings.flow,
+}));
 
-watch(isGemini, () => {
-  settings.voice = isGemini.value
-    ? config.value.default_google_voice
-    : config.value.default_voice;
+function resetVoice() {
+  const preferred = isGptLive.value
+    ? 'marin'
+    : isGemini.value
+      ? config.value.default_google_voice
+      : config.value.default_voice;
+  settings.voice = voices.value.includes(preferred)
+    ? preferred
+    : (voices.value[0] ?? '');
+}
+watch(() => settings.model, resetVoice);
+watch(usesDecisions, (enabled: boolean) => {
+  if (enabled) settings.flow = 'questions';
 });
 
 const AGENT_STATES: Record<string, string> = {
@@ -460,14 +593,14 @@ watch(
 
 async function startCall() {
   try {
-    await connect({ ...settings });
+    await connect(callSettings.value);
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }
 }
 
 async function runSimulated() {
-  await runSimulation(facts.value, { ...settings });
+  await runSimulation(facts.value, callSettings.value);
 }
 
 function loadScenario() {
@@ -507,9 +640,18 @@ onMounted(async () => {
     settings.model = config.value.models.includes(config.value.default_model)
       ? config.value.default_model
       : (config.value.models[0] ?? '');
-    settings.voice = settings.model.startsWith('gemini')
-      ? config.value.default_google_voice
-      : config.value.default_voice;
+    settings.backend = backendOptions.value.includes(
+      config.value.default_backend ?? '',
+    )
+      ? config.value.default_backend!
+      : (backendOptions.value[0] ?? 'responses');
+    settings.flow = usesDecisions.value
+      ? 'questions'
+      : flowOptions.value.includes(config.value.default_flow ?? '')
+        ? config.value.default_flow!
+        : (flowOptions.value[0] ?? 'questions');
+    resetVoice();
+    configLoaded.value = true;
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }

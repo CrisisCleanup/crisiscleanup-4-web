@@ -62,10 +62,14 @@
     </dl>
     <p class="text-xs text-crisiscleanup-dark-300">
       {{
-        t(
-          'voiceConsole.cost_note',
-          'The cost covers the realtime model tokens only, not telephony or LiveKit.',
-        )
+        isGptLive
+          ? t(
+              '~~GPT-Live bills active session time, including silence, at $0.05/min. The voice estimate excludes Luna, telephony, and LiveKit.',
+            )
+          : t(
+              'voiceConsole.cost_note',
+              'The cost covers the realtime model tokens only, not telephony or LiveKit.',
+            )
       }}
     </p>
   </div>
@@ -79,11 +83,22 @@ import {
   summarizeMetrics,
 } from '@/hooks/voice/voiceConsoleState';
 
-const props = defineProps<{ metrics: ResponseMetrics[] }>();
+const props = defineProps<{ metrics: ResponseMetrics[]; model?: string }>();
 
 const { t } = useI18n();
 
 const summary = computed(() => summarizeMetrics(props.metrics));
+const isGptLive = computed(
+  () =>
+    props.model === 'gpt-live-1' ||
+    props.metrics.some(
+      (metric: ResponseMetrics) =>
+        'gpt_live_session_seconds' in metric ||
+        'gpt_live_voice_cost_usd' in metric,
+    ),
+);
+// Each event carries cumulative usage, so only the latest value applies.
+const latest = computed(() => props.metrics.at(-1));
 
 const stats = computed(() => [
   {
@@ -98,10 +113,30 @@ const stats = computed(() => [
     label: t('voiceConsole.slowest', 'Slowest'),
     value: formatSeconds(summary.value.slowest),
   },
-  {
-    label: t('voiceConsole.estimated_cost', 'Est. cost'),
-    value: formatCost(summary.value.cost),
-  },
+  ...(isGptLive.value
+    ? [
+        {
+          label: t('~~Live billed time'),
+          value:
+            typeof latest.value?.gpt_live_session_seconds === 'number'
+              ? `${latest.value.gpt_live_session_seconds.toFixed(2)} s`
+              : '—',
+        },
+        {
+          label: t('~~Est. voice cost'),
+          value: formatCost(latest.value?.gpt_live_voice_cost_usd),
+        },
+        {
+          label: t('~~Luna cost'),
+          value: t('~~Not estimated'),
+        },
+      ]
+    : [
+        {
+          label: t('voiceConsole.estimated_cost', 'Est. cost'),
+          value: formatCost(summary.value.cost),
+        },
+      ]),
 ]);
 
 const tokens = computed(() => [

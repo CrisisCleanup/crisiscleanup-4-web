@@ -1,0 +1,206 @@
+import { flushPromises, mount } from '@vue/test-utils';
+import axios from 'axios';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import AdminVoiceConsole from '@/pages/admin/AdminVoiceConsole.vue';
+import { createCallState } from '@/hooks/voice/voiceConsoleState';
+
+vi.mock('axios');
+const { connect, runSimulation, consoleState } = vi.hoisted(() => ({
+  connect: vi.fn(),
+  runSimulation: vi.fn(),
+  consoleState: { current: undefined as unknown },
+}));
+vi.mock('@/hooks/voice/useVoiceConsole', () => ({
+  voiceConsoleUrl: (path: string) => `/admins/voice_console/${path}`,
+  useVoiceConsole: () => consoleState.current,
+}));
+vi.mock('vue-toastification', () => ({ useToast: () => ({ error: vi.fn() }) }));
+
+const apiConfig = {
+  targets: [{ key: 'local', label: 'Local', url: 'ws://localhost', agent: '' }],
+  languages: { en: 'English', es: 'Español' },
+  models: ['gpt-live-1', 'gpt-realtime-2.1-mini', 'gemini-live'],
+  default_model: 'gpt-live-1',
+  openai_voices: ['echo', 'alloy'],
+  google_voices: ['Puck', 'Charon'],
+  gpt_live_voices: ['marin', 'aster'],
+  default_voice: 'marin',
+  default_google_voice: 'Puck',
+  flows: ['fields', 'questions'],
+  default_flow: 'questions',
+  backends: ['responses', 'decisions'],
+  default_backend: 'decisions',
+};
+
+const buttonStub = {
+  props: ['action', 'disabled', 'text'],
+  template: '<button :disabled="disabled" @click="action">{{ text }}</button>',
+};
+function mountConsole() {
+  return mount(AdminVoiceConsole, {
+    global: {
+      stubs: {
+        BaseButton: buttonStub,
+        BaseCheckbox: true,
+        VoiceCasePanel: true,
+        VoiceToolLog: true,
+        VoiceMetrics: true,
+        VoiceCallHistory: true,
+      },
+    },
+  });
+}
+
+describe('AdminVoiceConsole model settings', () => {
+  const status = ref('idle');
+  beforeEach(() => {
+    vi.clearAllMocks();
+    status.value = 'idle';
+    consoleState.current = {
+      call: reactive(createCallState()),
+      status,
+      agentState: ref(''),
+      elapsed: ref(0),
+      muted: ref(false),
+      log: ref([]),
+      simulation: reactive({ running: false, status: '' }),
+      connect,
+      disconnect: vi.fn(),
+      setMuted: vi.fn(),
+      runSimulation,
+      stopSimulation: vi.fn(),
+    };
+    vi.mocked(axios.get).mockImplementation(async (url) => ({
+      data: url.endsWith('/config') ? apiConfig : { scenarios: [] },
+    }));
+  });
+
+  it('uses server defaults, explains Live and Luna, and sends Decisions with questions', async () => {
+    const wrapper = mountConsole();
+    await flushPromises();
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceVoiceSelect"]')
+        .element.value,
+    ).toBe('marin');
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceBackendSelect"]')
+        .element.value,
+    ).toBe('decisions');
+    const flow = wrapper.get<HTMLSelectElement>(
+      '[data-testid="testVoiceFlowSelect"]',
+    );
+    expect(flow.element.value).toBe('questions');
+    expect(flow.element.disabled).toBe(true);
+    expect(wrapper.text()).toContain('gpt-live-1');
+    expect(wrapper.text()).toContain('gpt-6-luna');
+    expect(wrapper.text()).toContain('Decisions');
+    await wrapper
+      .get('[data-testid="testVoiceStartCallButton"]')
+      .trigger('click');
+    expect(connect).toHaveBeenCalledWith({
+      language: 'en',
+      model: 'gpt-live-1',
+      voice: 'marin',
+      backend: 'decisions',
+      flow: 'questions',
+    });
+    wrapper.unmount();
+  });
+
+  it('allows the fields flow for Responses and forces questions again for Decisions', async () => {
+    const wrapper = mountConsole();
+    await flushPromises();
+    const backend = wrapper.get('[data-testid="testVoiceBackendSelect"]');
+    const flow = wrapper.get<HTMLSelectElement>(
+      '[data-testid="testVoiceFlowSelect"]',
+    );
+    await backend.setValue('responses');
+    expect(flow.element.disabled).toBe(false);
+    await flow.setValue('fields');
+    await wrapper
+      .get('[data-testid="testVoiceStartCallButton"]')
+      .trigger('click');
+    expect(connect).toHaveBeenLastCalledWith(
+      expect.objectContaining({ backend: 'responses', flow: 'fields' }),
+    );
+    await backend.setValue('decisions');
+    expect(flow.element.value).toBe('questions');
+    expect(flow.element.disabled).toBe(true);
+    wrapper.unmount();
+  });
+
+  it('switches voice families and sends Responses for non-Live models', async () => {
+    const wrapper = mountConsole();
+    await flushPromises();
+    const model = wrapper.get('[data-testid="testVoiceModelSelect"]');
+    await model.setValue('gpt-realtime-2.1-mini');
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceVoiceSelect"]')
+        .element.value,
+    ).toBe('echo');
+    expect(
+      wrapper.find('[data-testid="testVoiceBackendSelect"]').exists(),
+    ).toBe(false);
+    await wrapper
+      .get('[data-testid="testVoiceStartCallButton"]')
+      .trigger('click');
+    expect(connect).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        model: 'gpt-realtime-2.1-mini',
+        voice: 'echo',
+        backend: 'responses',
+      }),
+    );
+    await model.setValue('gemini-live');
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceVoiceSelect"]')
+        .element.value,
+    ).toBe('Puck');
+    await model.setValue('gpt-live-1');
+    expect(
+      wrapper.get<HTMLSelectElement>('[data-testid="testVoiceVoiceSelect"]')
+        .element.value,
+    ).toBe('marin');
+    wrapper.unmount();
+  });
+
+  it('sends the same valid settings for a simulated call', async () => {
+    const wrapper = mountConsole();
+    await flushPromises();
+    await wrapper
+      .get('[data-testid="testVoiceFacts"]')
+      .setValue('Synthetic caller facts');
+    await wrapper
+      .get('[data-testid="testVoiceRunSimulationButton"]')
+      .trigger('click');
+    expect(runSimulation).toHaveBeenCalledWith(
+      'Synthetic caller facts',
+      expect.objectContaining({
+        model: 'gpt-live-1',
+        backend: 'decisions',
+        flow: 'questions',
+        voice: 'marin',
+      }),
+    );
+    wrapper.unmount();
+  });
+
+  it('prevents calls before configuration is available and locks settings while connecting', async () => {
+    const wrapper = mountConsole();
+    expect(
+      wrapper.get<HTMLButtonElement>('[data-testid="testVoiceStartCallButton"]')
+        .element.disabled,
+    ).toBe(true);
+    await flushPromises();
+    status.value = 'connecting';
+    await flushPromises();
+    expect(wrapper.get<HTMLFieldSetElement>('fieldset').element.disabled).toBe(
+      true,
+    );
+    expect(
+      wrapper.get<HTMLButtonElement>('[data-testid="testVoiceStartCallButton"]')
+        .element.disabled,
+    ).toBe(true);
+    wrapper.unmount();
+  });
+});

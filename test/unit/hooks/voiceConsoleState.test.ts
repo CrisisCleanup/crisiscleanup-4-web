@@ -170,6 +170,45 @@ describe('voiceConsoleState', () => {
     expect(text).toContain('[0:03] end_call({}) -> noted');
   });
 
+  it('exports the backend, intake flow, and Decisions error details', () => {
+    const state = createCallState('voice-console-test');
+    applyConsoleEvent(
+      state,
+      {
+        kind: 'config',
+        data: {
+          language: 'en',
+          model: 'gpt-live-1',
+          voice: 'marin',
+          backend: 'decisions',
+          flow: 'questions',
+        },
+      },
+      '0:00',
+    );
+    applyConsoleEvent(
+      state,
+      {
+        kind: 'tools',
+        data: [
+          {
+            name: 'decisions_backend',
+            arguments: '{}',
+            output: '',
+            error: 'Synthetic backend error',
+            is_error: true,
+            ms: 100,
+          },
+        ],
+      },
+      '0:10',
+    );
+    const text = callToText(state);
+    expect(text).toContain('Backend: decisions');
+    expect(text).toContain('Flow: questions');
+    expect(text).toContain('Synthetic backend error');
+  });
+
   it('formats clock, seconds, and cost', () => {
     expect(formatClock(95)).toBe('1:35');
     expect(formatSeconds(0.369)).toBe('369 ms');
