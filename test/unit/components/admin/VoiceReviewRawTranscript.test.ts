@@ -96,4 +96,26 @@ describe('VoiceReviewRawTranscript', () => {
     await wrapper.get(testId('testVoiceRawTranscriptHide')).trigger('click');
     expect(wrapper.emitted('update:hidden')).toEqual([[true]]);
   });
+
+  it('scrolls to the marked words only when asked to', async () => {
+    // jsdom has no layout: say the list shows, and watch the scrolling.
+    const scrollTo = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+      value: scrollTo,
+      configurable: true,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+      get: () => document.body,
+      configurable: true,
+    });
+    const wrapper = mountPanel({
+      evidence: 'Caller: "John, J-O-H-N"',
+      scroll: false,
+    });
+    await nextTick();
+    expect(scrollTo).not.toHaveBeenCalled();
+    await wrapper.setProps({ scroll: true });
+    await nextTick();
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+  });
 });

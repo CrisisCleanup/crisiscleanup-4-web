@@ -110,6 +110,7 @@
           class="lg:sticky lg:top-2"
           :transcript="review.transcript"
           :evidence="selectedEvidence"
+          :scroll="hoveredId === undefined || hoveredId === selectedId"
         />
       </div>
 

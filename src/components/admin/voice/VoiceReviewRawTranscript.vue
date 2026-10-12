@@ -96,6 +96,8 @@ const props = defineProps<{
   transcript: string;
   /** The words the chosen finding quotes, to mark. */
   evidence?: string;
+  /** Scroll to the marked words. Off while a finding is only hovered. */
+  scroll?: boolean;
   /** Hidden by the reviewer (wide screens only). */
   hidden?: boolean;
 }>();
@@ -128,9 +130,12 @@ async function copy() {
 
 // Keep the quoted line in view inside the transcript, not the page.
 watch(
-  () => match.value?.lineId,
-  async (lineId?: number) => {
-    if (lineId === undefined) return;
+  () => [match.value?.lineId, props.scroll] as const,
+  async ([lineId, scroll]: readonly [
+    number | undefined,
+    boolean | undefined,
+  ]) => {
+    if (lineId === undefined || !scroll) return;
     await nextTick();
     const list = listEl.value;
     const line = list?.querySelector<HTMLElement>(`[data-line-id="${lineId}"]`);

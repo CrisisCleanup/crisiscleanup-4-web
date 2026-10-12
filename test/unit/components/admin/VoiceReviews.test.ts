@@ -189,6 +189,30 @@ describe('VoiceReviewDetail raw transcript', () => {
     );
   });
 
+  it('marks the quote of a hovered finding but scrolls only for a chosen one', async () => {
+    const scrollTo = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+      value: scrollTo,
+      configurable: true,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+      get: () => document.body,
+      configurable: true,
+    });
+    const wrapper = mountReviewPane(review());
+    await flushPromises();
+    await wrapper.get(testId('testVoiceCorrection')).trigger('mouseenter');
+    await flushPromises();
+    expect(wrapper.find(testId('testVoiceRawEvidenceMark')).exists()).toBe(
+      true,
+    );
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    await wrapper.get(testId('testVoiceCorrection')).trigger('click');
+    await flushPromises();
+    expect(scrollTo).toHaveBeenCalledTimes(1);
+  });
+
   it('keeps the choice to hide it, and brings it back', async () => {
     const wrapper = mountReviewPane(review());
     await flushPromises();
