@@ -1,8 +1,18 @@
 <template>
   <div
-    class="mb-2 rounded border border-crisiscleanup-grey-100 p-3"
-    :class="{ 'opacity-60': correction.status !== 'open' }"
+    class="mb-2 rounded border p-3"
+    :class="[
+      active
+        ? 'border-primary-dark ring-1 ring-primary-dark'
+        : 'border-crisiscleanup-grey-100',
+      { 'bg-crisiscleanup-smoke/60': correction.status !== 'open' },
+    ]"
+    :data-correction-id="correction.id"
+    :data-active="active || undefined"
     data-testid="testVoiceCorrection"
+    @mouseenter="emit('hover', true)"
+    @mouseleave="emit('hover', false)"
+    @click="emit('select')"
   >
     <div class="flex flex-wrap items-center justify-between gap-2">
       <div class="font-semibold">
@@ -16,13 +26,51 @@
         <span class="ml-2 text-xs font-normal text-crisiscleanup-dark-300">
           {{ t('~~{n}% sure', { n: Math.round(correction.confidence * 100) }) }}
         </span>
+        <span
+          v-if="correction.auto"
+          class="ml-2 rounded bg-crisiscleanup-chat-blue px-1.5 py-0.5 text-xs font-semibold text-crisiscleanup-dashboard-blue"
+          data-testid="testVoiceCorrectionAuto"
+        >
+          {{ t('~~Auto') }}
+        </span>
+        <span
+          v-if="correction.left_for_review"
+          class="ml-2 rounded bg-crisiscleanup-yellow-100 px-1.5 py-0.5 text-xs font-semibold"
+          :title="correction.left_for_review"
+          data-testid="testVoiceCorrectionLeft"
+        >
+          {{ t('~~Left for review') }}
+        </span>
       </div>
 
-      <div v-if="correction.status !== 'open'" class="text-xs font-semibold">
-        {{ statusLabel }}
+      <div
+        v-if="correction.status !== 'open'"
+        class="flex flex-wrap items-center gap-2 text-xs"
+      >
+        <span class="font-semibold" data-testid="testVoiceCorrectionStatus">
+          {{ statusLabel }}
+        </span>
+        <span
+          v-if="byText"
+          class="text-crisiscleanup-dark-300"
+          data-testid="testVoiceCorrectionBy"
+        >
+          {{ byText }}
+        </span>
+        <BaseButton
+          v-if="correction.can_undo"
+          variant="outline"
+          size="small"
+          class="max-md:!min-h-[40px]"
+          data-testid="testVoiceCorrectionUndo"
+          :action="() => emit('undo')"
+          :text="t('~~Undo')"
+          :alt="t('~~Undo')"
+        />
       </div>
       <div v-else-if="editing" class="flex gap-2">
         <BaseButton
+          class="max-md:!min-h-[40px]"
           variant="solid"
           size="small"
           data-testid="testVoiceCorrectionApplyEdit"
@@ -31,6 +79,7 @@
           :alt="t('~~Apply edit')"
         />
         <BaseButton
+          class="max-md:!min-h-[40px]"
           variant="outline"
           size="small"
           :action="() => (editing = false)"
@@ -41,6 +90,7 @@
       <div v-else class="flex flex-wrap gap-2">
         <BaseButton
           v-if="canUseInForm && !inForm"
+          class="max-md:!min-h-[40px]"
           variant="outline"
           size="small"
           data-testid="testVoiceCorrectionUseInForm"
@@ -50,6 +100,7 @@
         />
         <BaseButton
           v-if="moveTo"
+          class="max-md:!min-h-[40px]"
           variant="solid"
           size="small"
           data-testid="testVoiceCorrectionMove"
@@ -59,6 +110,7 @@
         />
         <BaseButton
           v-if="canCreateCase"
+          class="max-md:!min-h-[40px]"
           variant="solid"
           size="small"
           data-testid="testVoiceCorrectionCreateCase"
@@ -68,6 +120,7 @@
         />
         <template v-if="correction.simple">
           <BaseButton
+            class="max-md:!min-h-[40px]"
             variant="solid"
             size="small"
             data-testid="testVoiceCorrectionApply"
@@ -76,6 +129,7 @@
             :alt="t('~~Accept')"
           />
           <BaseButton
+            class="max-md:!min-h-[40px]"
             variant="outline"
             size="small"
             data-testid="testVoiceCorrectionEdit"
@@ -96,6 +150,7 @@
             {{ t('~~Edit case') }} ↗
           </a>
           <BaseButton
+            class="max-md:!min-h-[40px]"
             variant="outline"
             size="small"
             data-testid="testVoiceCorrectionResolve"
@@ -105,14 +160,55 @@
           />
         </template>
         <BaseButton
+          class="max-md:!min-h-[40px]"
           variant="outline"
           size="small"
           data-testid="testVoiceCorrectionDismiss"
-          :action="() => emit('act', 'dismiss')"
+          :action="startDismiss"
           :text="t('~~Dismiss')"
           :alt="t('~~Dismiss')"
         />
       </div>
+    </div>
+
+    <div
+      v-if="choosingReason && correction.status === 'open'"
+      class="mt-2 flex flex-wrap items-center gap-2"
+      data-testid="testVoiceCorrectionReasonPicker"
+    >
+      <label class="flex items-center gap-2">
+        {{ t('~~Why?') }}
+        <select
+          v-model="reason"
+          class="min-h-[40px] rounded border p-1.5 text-sm"
+          data-testid="testVoiceCorrectionReason"
+        >
+          <option
+            v-for="(label, key) in DISMISS_REASONS"
+            :key="key"
+            :value="key"
+          >
+            {{ t(label) }}
+          </option>
+        </select>
+      </label>
+      <BaseButton
+        variant="solid"
+        size="small"
+        class="max-md:!min-h-[40px]"
+        data-testid="testVoiceCorrectionDismissConfirm"
+        :action="confirmDismiss"
+        :text="t('~~Dismiss')"
+        :alt="t('~~Dismiss')"
+      />
+      <BaseButton
+        variant="outline"
+        size="small"
+        class="max-md:!min-h-[40px]"
+        :action="() => (choosingReason = false)"
+        :text="t('actions.cancel', 'Cancel')"
+        :alt="t('actions.cancel', 'Cancel')"
+      />
     </div>
 
     <div class="mt-2 grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1">
@@ -176,6 +272,25 @@
         )
       }}
     </p>
+    <p
+      v-if="correction.left_for_review"
+      class="mt-2 text-crisiscleanup-dark-300"
+      data-testid="testVoiceCorrectionLeftReason"
+    >
+      {{ correction.left_for_review }}
+    </p>
+    <p
+      v-if="correction.status === 'dismissed' && correction.dismiss_reason"
+      class="mt-2 text-crisiscleanup-dark-300"
+      data-testid="testVoiceCorrectionDismissReason"
+    >
+      {{ t('~~Dismissed:') }}
+      {{
+        DISMISS_REASONS[correction.dismiss_reason as DismissReason]
+          ? t(DISMISS_REASONS[correction.dismiss_reason as DismissReason])
+          : correction.dismiss_reason
+      }}
+    </p>
     <p v-if="correction.reason" class="mt-2">{{ correction.reason }}</p>
     <blockquote
       v-if="correction.evidence"
@@ -213,11 +328,14 @@
 <script setup lang="ts">
 import {
   ADDRESS_PARTS,
+  DISMISS_REASONS,
   KIND_LABELS,
+  correctionStatusLabel,
   duplicateUrl,
   possibleDuplicates,
   formatValue,
   type CorrectionAction,
+  type DismissReason,
   type VoiceCorrection,
 } from '@/hooks/voice/voiceReviews';
 
@@ -232,21 +350,20 @@ const props = defineProps<{
   canCreateCase?: boolean;
   /** Name of the incident this case can move to with one click. */
   moveTo?: string;
+  /** Hovered or chosen with the keyboard; its evidence shows in the call. */
+  active?: boolean;
 }>();
 const emit = defineEmits<{
   act: [action: CorrectionAction, value?: unknown];
   use: [];
   create: [];
   move: [];
+  undo: [];
+  hover: [over: boolean];
+  select: [];
 }>();
 
 const { t } = useI18n();
-
-const STATUS_LABELS: Record<string, string> = {
-  applied: '~~Applied',
-  resolved: '~~Fixed by hand',
-  dismissed: '~~Dismissed',
-};
 
 // A work type suggestion is "add" or "remove"; show it with the work type.
 const afterText = computed(() => {
@@ -257,13 +374,28 @@ const afterText = computed(() => {
   return `${verb} ${field}`;
 });
 
-const statusLabel = computed(() =>
-  props.correction.kind === 'wrong_incident' &&
-  props.correction.status === 'resolved' &&
-  props.correction.applied_value
-    ? t('~~Moved')
-    : t(STATUS_LABELS[props.correction.status] ?? props.correction.status),
+const statusLabel = computed(() => t(correctionStatusLabel(props.correction)));
+
+const byText = computed(() =>
+  props.correction.acted_by_name
+    ? t('~~by {name}', { name: props.correction.acted_by_name })
+    : '',
 );
+
+// Dismissing asks why first, so the audit shows what the reviewer got wrong.
+const choosingReason = ref(false);
+const reason = ref<DismissReason>('reviewer_wrong');
+
+function startDismiss() {
+  if (props.correction.status === 'open') choosingReason.value = true;
+}
+
+function confirmDismiss() {
+  emit('act', 'dismiss', reason.value);
+  choosingReason.value = false;
+}
+
+defineExpose({ startDismiss });
 
 const duplicates = computed(() => possibleDuplicates(props.correction));
 
@@ -289,6 +421,9 @@ function applyEdit() {
 
 watch(
   () => props.correction.status,
-  () => (editing.value = false),
+  () => {
+    editing.value = false;
+    choosingReason.value = false;
+  },
 );
 </script>

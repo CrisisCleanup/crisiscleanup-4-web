@@ -1,342 +1,241 @@
 <template>
-  <div class="text-sm" data-testid="testVoiceCallHistory">
-    <template v-if="!selected">
-      <div class="mb-2 flex items-center justify-between">
-        <span
-          class="text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-        >
-          {{ t('voiceConsole.last_50_calls', 'Last 50 calls') }}
-        </span>
-        <BaseButton
-          variant="outline"
-          size="small"
-          :action="load"
-          :text="t('actions.refresh', 'Refresh')"
-          :alt="t('actions.refresh', 'Refresh')"
-        />
-      </div>
-      <Spinner v-if="loading" />
-      <PaneEmpty
-        v-else-if="sessions.length === 0"
-        :title="t('voiceConsole.no_calls_title', 'No calls yet')"
-        :description="t('voiceConsole.no_calls', 'Finished calls show here.')"
-      />
-      <div v-else class="max-h-[55vh] overflow-y-auto">
-        <table class="w-full">
-          <thead
-            class="sticky top-0 bg-white text-left text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            <tr>
-              <th class="py-1">{{ t('voiceConsole.when', 'When') }}</th>
-              <th>{{ t('voiceConsole.line', 'Line') }}</th>
-              <th>{{ t('voiceConsole.outcome', 'Outcome') }}</th>
-              <th>{{ t('voiceConsole.length', 'Length') }}</th>
-              <th>{{ t('~~Est. model cost') }}</th>
-              <th>{{ t('voiceConsole.case', 'Case') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="session in sessions"
-              :key="session.id"
-              class="cursor-pointer border-b border-crisiscleanup-grey-100 hover:bg-crisiscleanup-grey-100/40"
-              @click="openSession(session.id)"
-            >
-              <td class="py-1.5">{{ formatWhen(session.created_at) }}</td>
-              <td>
-                {{ (session.language || 'en').toUpperCase() }}
-                <span
-                  v-if="session.is_test"
-                  class="text-xs text-crisiscleanup-dark-300"
-                >
-                  {{ t('voiceConsole.test', 'test') }}
-                </span>
-              </td>
-              <td :class="outcomeClass(session.status)">
-                {{ outcome(session) }}
-              </td>
-              <td class="tabular-nums">
-                {{
-                  session.duration_seconds === null
-                    ? '—'
-                    : formatClock(session.duration_seconds)
-                }}
-              </td>
-              <td class="tabular-nums">
-                {{
-                  session.model === 'gpt-live-1' &&
-                  typeof session.estimated_cost_usd !== 'number'
-                    ? t('~~Not estimated')
-                    : formatCost(session.estimated_cost_usd)
-                }}
-              </td>
-              <td>{{ session.case_number || '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </template>
-
-    <div v-else data-testid="testVoiceCallDetail">
-      <div class="mb-3 flex items-center justify-between">
-        <button
-          type="button"
-          class="font-semibold underline"
-          @click="selected = undefined"
-        >
-          ← {{ t('voiceConsole.all_calls', 'All calls') }}
-        </button>
-        <div class="flex gap-3">
-          <router-link
-            v-if="selected.review_id"
-            class="font-semibold underline"
-            data-testid="testVoiceCallAuditorLink"
-            :to="{
-              name: 'nav.voice_reviews',
-              params: { reviewId: selected.review_id },
-            }"
-          >
-            {{ t('~~View in auditor') }}
-          </router-link>
-          <button type="button" class="underline" @click="exportJson">
-            {{ t('voiceConsole.export_json', 'Export JSON') }}
-          </button>
-          <button type="button" class="underline" @click="exportText">
-            {{ t('voiceConsole.export_text', 'Export text') }}
-          </button>
-        </div>
-      </div>
-      <dl class="mb-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-        <template v-for="[label, value] in detailRows" :key="label">
-          <dt class="text-crisiscleanup-dark-300">{{ label }}</dt>
-          <dd>{{ value }}</dd>
-        </template>
-        <template v-if="selected.case_number && selected.incident_id">
-          <dt class="text-crisiscleanup-dark-300">
-            {{ t('voiceConsole.case', 'Case') }}
-          </dt>
-          <dd>
-            <router-link
-              class="underline"
-              :to="`/incident/${selected.incident_id}/work/${selected.worksite_id}/edit`"
-            >
-              {{ selected.case_number }}
-            </router-link>
-          </dd>
-        </template>
-      </dl>
-      <pre
-        class="max-h-[45vh] overflow-auto whitespace-pre-wrap rounded bg-crisiscleanup-grey-100/40 p-3 text-xs"
-        >{{
-          selected.transcript ||
-          t('voiceConsole.no_transcript', '(no transcript saved)')
-        }}</pre
+  <div class="voice-list text-sm" data-testid="testVoiceCallHistory">
+    <VoiceHistoryStrip ref="strip" :include-test="includeTest" />
+    <div class="mb-3 grid grid-cols-2 items-end gap-3 md:flex md:flex-wrap">
+      <label
+        class="col-span-2 flex min-w-[10rem] flex-1 flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
       >
+        {{ t('~~Search') }}
+        <input
+          v-model="search"
+          type="search"
+          class="mt-1 min-h-[40px] rounded border p-1.5 text-sm normal-case text-black"
+          :placeholder="t('~~Call, case or incident')"
+          data-testid="testVoiceHistorySearch"
+        />
+      </label>
+      <label
+        class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+      >
+        {{ t('~~Outcome') }}
+        <select
+          v-model="status"
+          class="mt-1 min-h-[40px] rounded border p-1.5 text-sm normal-case text-black"
+          data-testid="testVoiceHistoryStatus"
+        >
+          <option value="">{{ t('~~Any outcome') }}</option>
+          <option
+            v-for="(label, key) in SESSION_STATUSES"
+            :key="key"
+            :value="key"
+          >
+            {{ t(label) }}
+          </option>
+        </select>
+      </label>
+      <label
+        class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+      >
+        {{ t('~~Case') }}
+        <select
+          v-model="hasCase"
+          class="mt-1 min-h-[40px] rounded border p-1.5 text-sm normal-case text-black"
+          data-testid="testVoiceHistoryHasCase"
+        >
+          <option value="">{{ t('~~With or without') }}</option>
+          <option value="true">{{ t('~~With a case') }}</option>
+          <option value="false">{{ t('~~Without a case') }}</option>
+        </select>
+      </label>
+      <label
+        class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+      >
+        {{ t('~~Flag') }}
+        <select
+          v-model="flag"
+          class="mt-1 min-h-[40px] rounded border p-1.5 text-sm normal-case text-black"
+          data-testid="testVoiceHistoryFlag"
+        >
+          <option value="">{{ t('~~Any flag') }}</option>
+          <option v-for="(item, key) in FLAGS" :key="key" :value="key">
+            {{ t(item.label) }}
+          </option>
+        </select>
+      </label>
+      <label
+        class="col-span-2 flex min-h-[40px] items-center gap-2 md:col-span-1"
+      >
+        <input
+          v-model="includeTest"
+          type="checkbox"
+          data-testid="testVoiceHistoryIncludeTest"
+        />
+        {{ t('~~Include test calls') }}
+      </label>
+      <BaseButton
+        variant="outline"
+        size="small"
+        class="col-span-2 max-md:!min-h-[40px] md:col-span-1"
+        :action="refresh"
+        :text="t('actions.refresh', 'Refresh')"
+        :alt="t('actions.refresh', 'Refresh')"
+      />
     </div>
+    <p
+      class="mb-2 text-crisiscleanup-dark-300"
+      data-testid="testVoiceHistoryCount"
+      :data-count="total"
+    >
+      {{ t('~~{n} calls', { n: total }) }}
+    </p>
+    <!-- A new key per filter: back to page 1 and one request. -->
+    <AjaxTable
+      :key="JSON.stringify(query)"
+      :url="sessionsUrl()"
+      :query="query"
+      :columns="columns"
+      :page-size="100"
+      :body-style="{ maxHeight: '60vh', minHeight: '8rem' }"
+      class="voice-table"
+      table-id="voiceHistory"
+      data-testid="testVoiceHistoryTable"
+      @data-fetched="(count: number) => (total = count)"
+      @row-click="
+        (row: SessionRow) => router.push(callRoute(row.id, undefined, 'calls'))
+      "
+    >
+      <template #created_at="{ item }">
+        <span class="flex flex-wrap items-center gap-x-2">
+          <span class="font-semibold md:font-normal">{{
+            formatWhen(item.created_at)
+          }}</span>
+          <span v-if="item.is_test" class="text-xs text-crisiscleanup-dark-300">
+            {{ t('voiceConsole.test', 'test') }}
+          </span>
+        </span>
+      </template>
+      <template #status="{ item }">
+        <span :class="outcomeClass(item.status)">{{
+          outcomeLabel(item, t)
+        }}</span>
+      </template>
+      <template #cases="{ item }">
+        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+          >{{ t('~~Case') }}:</span
+        >
+        <VoiceCaseLinks :session="item" />
+      </template>
+      <template #flags="{ item }">
+        <VoiceFlagPills :flags="item.flags ?? []" />
+      </template>
+      <template #open_issues="{ item }">
+        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+          >{{ t('~~Open issues') }}:</span
+        >
+        <router-link
+          v-if="item.review_id && item.open_issues > 0"
+          :to="callRoute(item.id, 'review', 'calls')"
+          class="rounded bg-crisiscleanup-yellow-100 px-1.5 text-xs underline max-md:inline-flex max-md:min-h-[40px] max-md:items-center"
+          data-testid="testVoiceHistoryIssues"
+          @click.stop
+        >
+          {{ t('~~{n} open', { n: item.open_issues }) }}
+        </router-link>
+        <span v-else-if="item.review_id" class="text-crisiscleanup-dark-300">
+          {{ t('~~None') }}
+        </span>
+        <span v-else class="text-crisiscleanup-dark-300">—</span>
+      </template>
+      <template #duration_seconds="{ item }">
+        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+          >{{ t('~~Length') }}:</span
+        >
+        <span class="tabular-nums">
+          {{
+            item.duration_seconds === null
+              ? '—'
+              : formatClock(item.duration_seconds)
+          }}
+        </span>
+      </template>
+      <template #estimated_cost_usd="{ item }">
+        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+          >{{ t('~~Est. model cost') }}:</span
+        >
+        <span class="tabular-nums">
+          {{ costLabel(item, t) }}
+        </span>
+      </template>
+    </AjaxTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
-import axios from 'axios';
-import { useToast } from 'vue-toastification';
-import { voiceConsoleUrl } from '@/hooks/voice/useVoiceConsole';
-import { formatClock, formatCost } from '@/hooks/voice/voiceConsoleState';
-import { getErrorMessage } from '@/utils/errors';
-import { downloadText } from './download';
-
-interface SessionRow {
-  id: number;
-  call_id: string;
-  created_at: string;
-  duration_seconds: number | null;
-  status: string;
-  referral: string;
-  language: string;
-  is_test: boolean;
-  model: string;
-  voice: string;
-  estimated_cost_usd: number | null;
-  incident: string | null;
-  incident_id: number | null;
-  case_number: string | null;
-  worksite_id: number | null;
-}
-
-interface SessionDetail extends SessionRow {
-  transcript: string;
-  error: string;
-  /** The Call Auditor review of this call, if the call has one. */
-  review_id?: number | null;
-  usage?: {
-    backend_model?: string;
-    backend?: string;
-    gpt_live_session_seconds?: number | null;
-    gpt_live_voice_cost_usd?: number | null;
-    backend_cost_usd?: number | null;
-    total_cost_usd?: number | null;
-  };
-}
+import { useMq } from 'vue3-mq';
+import AjaxTable from '@/components/AjaxTable.vue';
+import { makeTableColumns } from '@/utils/table';
+import { formatClock } from '@/hooks/voice/voiceConsoleState';
+import {
+  FLAGS,
+  SESSION_STATUSES,
+  callRoute,
+  costLabel,
+  formatWhen,
+  outcomeClass,
+  outcomeLabel,
+  sessionsUrl,
+  type SessionRow,
+} from '@/hooks/voice/voiceSessions';
+import useEmitter from '@/hooks/useEmitter';
+import VoiceCaseLinks from './VoiceCaseLinks.vue';
+import VoiceFlagPills from './VoiceFlagPills.vue';
+import VoiceHistoryStrip from './VoiceHistoryStrip.vue';
 
 const { t } = useI18n();
-const $toasted = useToast();
+const mq = useMq();
+const router = useRouter();
+const { emitter } = useEmitter();
 
-const sessions = ref<SessionRow[]>([]);
-const selected = ref<SessionDetail>();
-const loading = ref(false);
+const total = ref(0);
 
-const OUTCOMES: Record<string, string> = {
-  completed: 'Case',
-  referred: 'Referred',
-  abandoned: 'Abandoned',
-  failed: 'Failed',
-  in_progress: 'In progress',
-};
+const search = ref('');
+const status = ref('');
+const hasCase = ref('');
+const flag = ref('');
+// Test calls are off, like the metrics, so the list adds up to the numbers.
+const includeTest = ref(false);
+const searchText = refDebounced(search, 400);
 
-function outcome(session: SessionRow) {
-  const label = t(
-    `voiceConsole.status_${session.status}`,
-    OUTCOMES[session.status] ?? session.status,
-  );
-  return session.status === 'referred' && session.referral
-    ? `${label} · ${session.referral}`
-    : label;
+// AjaxTable adds offset and limit.
+const query = computed(() => ({
+  ...(searchText.value.trim() ? { search: searchText.value.trim() } : {}),
+  ...(status.value ? { status: status.value } : {}),
+  ...(hasCase.value ? { has_case: hasCase.value } : {}),
+  ...(flag.value ? { flag: flag.value } : {}),
+  include_test: String(includeTest.value),
+}));
+
+const columns = makeTableColumns([
+  ['created_at', '9.5rem', t('voiceConsole.when', 'When')],
+  ['status', '8rem', t('voiceConsole.outcome', 'Outcome')],
+  ['cases', '9rem', t('voiceConsole.case', 'Case')],
+  ['flags', '1fr', t('~~Flags')],
+  ['open_issues', '6rem', t('~~Open issues')],
+  ['duration_seconds', '5rem', t('voiceConsole.length', 'Length')],
+  ['estimated_cost_usd', '6.5rem', t('~~Est. model cost')],
+]);
+
+const strip = ref<InstanceType<typeof VoiceHistoryStrip>>();
+
+function refresh() {
+  emitter.emit('refreshTable-voiceHistory');
+  void strip.value?.load();
 }
 
-function outcomeClass(status: string) {
-  return {
-    'text-crisiscleanup-green-900 font-semibold': status === 'completed',
-    'text-crisiscleanup-red-700 font-semibold': status === 'failed',
-    'text-crisiscleanup-dark-300':
-      status === 'abandoned' || status === 'in_progress',
-  };
-}
-
-function formatWhen(iso: string) {
-  return new Date(iso).toLocaleString([], {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
-}
-
-async function load() {
-  loading.value = true;
-  try {
-    const { data } = await axios.get<{ sessions: SessionRow[] }>(
-      voiceConsoleUrl('sessions'),
-    );
-    sessions.value = data.sessions;
-  } catch (error) {
-    $toasted.error(getErrorMessage(error));
-  } finally {
-    loading.value = false;
-  }
-}
-
-async function openSession(id: number) {
-  try {
-    const { data } = await axios.get<SessionDetail>(
-      voiceConsoleUrl(`sessions/${id}`),
-    );
-    selected.value = data;
-  } catch (error) {
-    $toasted.error(getErrorMessage(error));
-  }
-}
-
-const detailRows = computed(() => {
-  const s = selected.value;
-  if (!s) return [];
-  const rows: [string, string][] = [
-    [t('voiceConsole.room', 'Room'), s.call_id],
-    [
-      t('voiceConsole.started', 'Started'),
-      new Date(s.created_at).toLocaleString(),
-    ],
-    [t('voiceConsole.outcome', 'Outcome'), outcome(s)],
-    [t('voiceConsole.disaster', 'Disaster'), s.incident ?? '—'],
-    [
-      t('voiceConsole.model', 'Model'),
-      s.model ? `${s.model} · ${s.voice}` : '—',
-    ],
-    [
-      t('voiceConsole.length', 'Length'),
-      s.duration_seconds === null ? '—' : formatClock(s.duration_seconds),
-    ],
-  ];
-  if (s.usage?.backend_model) {
-    rows.push([t('~~Backend model'), s.usage.backend_model]);
-  }
-  if (s.usage?.backend) {
-    const backends: Record<string, string> = {
-      decisions: 'Decisions',
-      responses: 'Responses',
-    };
-    rows.push([
-      t('~~Backend API'),
-      backends[s.usage.backend] ?? s.usage.backend,
-    ]);
-  }
-  const isGptLive =
-    s.model === 'gpt-live-1' ||
-    (s.usage &&
-      ('gpt_live_session_seconds' in s.usage ||
-        'gpt_live_voice_cost_usd' in s.usage));
-  if (isGptLive) {
-    rows.push(
-      [
-        t('~~Live billed time'),
-        typeof s.usage?.gpt_live_session_seconds === 'number'
-          ? `${s.usage.gpt_live_session_seconds.toFixed(2)} s`
-          : '—',
-      ],
-      [t('~~Est. voice cost'), formatCost(s.usage?.gpt_live_voice_cost_usd)],
-      [
-        t('~~Backend cost'),
-        typeof s.usage?.backend_cost_usd === 'number'
-          ? formatCost(s.usage.backend_cost_usd)
-          : t('~~Not estimated'),
-      ],
-      [
-        t('~~Total cost'),
-        typeof s.usage?.total_cost_usd === 'number'
-          ? formatCost(s.usage.total_cost_usd)
-          : t('~~Not estimated'),
-      ],
-    );
-  } else {
-    rows.push([
-      t('voiceConsole.estimated_cost', 'Est. cost'),
-      formatCost(s.estimated_cost_usd),
-    ]);
-  }
-  if (s.error) rows.push([t('voiceConsole.error', 'Error'), s.error]);
-  return rows;
+// Back from a call page, where issues may have been fixed: load the list again.
+let shownBefore = false;
+onActivated(() => {
+  if (shownBefore) refresh();
+  shownBefore = true;
 });
-
-function exportJson() {
-  if (selected.value) {
-    downloadText(
-      `${selected.value.call_id}.json`,
-      JSON.stringify(selected.value, undefined, 2),
-      'application/json',
-    );
-  }
-}
-
-function exportText() {
-  if (selected.value) {
-    downloadText(
-      `${selected.value.call_id}.txt`,
-      selected.value.transcript || '',
-      'text/plain',
-    );
-  }
-}
-
-onMounted(load);
-
-defineExpose({ load });
 </script>

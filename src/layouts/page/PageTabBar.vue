@@ -6,6 +6,7 @@ const props = defineProps<{
   tabs: Tab[];
 }>();
 
+const route = useRoute();
 const tabContainer = ref(null);
 const tabSelector = ref(null);
 const { selectorStyle, setTab, activeIndex, state } = useTabs({
@@ -50,7 +51,13 @@ function handleTotalDashboardCountFetched(count: number) {
       </template>
       <div ref="tabSelector" class="page__selector" :style="selectorStyle" />
     </div>
-    <div class="flex-grow p-3">
+    <!-- A page with meta.fillHeight gets the height that is left on the
+           screen, to fit its content in. Other pages are as tall as their
+           content. -->
+    <div
+      class="flex-grow p-3"
+      :class="{ 'flex min-h-0 flex-col': route.meta.fillHeight }"
+    >
       <router-view v-slot="{ Component }">
         <keep-alive>
           <component

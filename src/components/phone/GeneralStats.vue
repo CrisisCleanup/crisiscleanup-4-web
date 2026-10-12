@@ -44,6 +44,7 @@
             class="tag-item mx-1"
             :language-id="slotProps.item.language"
           />
+          <OutboundDuplicateTag :outbound="slotProps.item" />
         </template>
       </AjaxTable>
     </div>
@@ -145,6 +146,7 @@ import Language from '@/models/Language';
 import { useWebSockets } from '@/hooks/useWebSockets';
 import AjaxTable from '@/components/AjaxTable.vue';
 import LanguageTag from '@/components/tags/LanguageTag.vue';
+import OutboundDuplicateTag from '@/components/phone/OutboundDuplicateTag.vue';
 import moment from '@/utils/dates';
 import { makeTableColumns } from '@/utils/table';
 import Incident from '@/models/Incident';
@@ -161,6 +163,7 @@ export default defineComponent({
     PhoneOutboundFilters,
     AjaxTable,
     LanguageTag,
+    OutboundDuplicateTag,
   },
   emits: ['onRemainingCallbacks', 'onRemainingCalldowns'],
   setup(props, context) {

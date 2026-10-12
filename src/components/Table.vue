@@ -713,7 +713,7 @@ export default defineComponent({
 .ccu-page-btn {
   @apply inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded
     text-[12px] font-semibold text-crisiscleanup-grey-900
-    transition-colors cursor-pointer;
+    transition-colors cursor-pointer max-md:min-h-[40px] max-md:min-w-[40px];
 }
 .ccu-page-btn:hover {
   @apply bg-crisiscleanup-smoke text-black;

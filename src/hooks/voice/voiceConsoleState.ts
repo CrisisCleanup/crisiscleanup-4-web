@@ -1,5 +1,5 @@
 /**
- * Call state for the admin Voice Console, kept free of LiveKit so it can be
+ * Call state for the admin AI Call Console, kept free of LiveKit so it can be
  * unit tested. The voice agent (crisiscleanup-3-api voice_intake/agent.py)
  * sends JSON events on the `cc.intake` text stream; `applyConsoleEvent` folds
  * them into this state.

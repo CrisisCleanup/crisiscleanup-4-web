@@ -1,10 +1,8 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises } from '@vue/test-utils';
 import { rest } from 'msw';
 import { describe, expect, it, vi } from 'vitest';
 import type * as VueRouter from 'vue-router';
 import { defineComponent, h } from 'vue';
-import BaseButton from '@/components/BaseButton.vue';
-import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import {
   formChanges,
   missedCasePrefill,
@@ -12,6 +10,7 @@ import {
   type MissedCaseDetails,
 } from '@/hooks/voice/voiceReviews';
 import { server } from '../../../setupTests';
+import { mountReviewPane } from '../../fixtures/voiceReviewPane';
 
 const confirmDialog = vi.hoisted(() => vi.fn());
 vi.mock('@/hooks/useDialogs', () => ({
@@ -209,20 +208,13 @@ describe('VoiceReviewDetail with the case form', () => {
   it('puts a work type in the form and marks it fixed when the case saves', async () => {
     const resolved: string[] = [];
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(review()))),
       rest.post(`${baseUrl}/corrections/1/resolve`, (req, res, ctx) => {
         resolved.push(req.url.pathname);
         return res(ctx.json(correction({ status: 'resolved' })));
       }),
     );
     const { stub, applyChanges, props } = stubCaseForm();
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: {
-        components: { BaseButton },
-        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
-      },
-    });
+    const wrapper = mountReviewPane(review(), {}, stub);
     await flushPromises();
     expect(props[0]).toMatchObject({ incidentId: 248, worksiteId: 55 });
 
@@ -249,36 +241,27 @@ describe('VoiceReviewDetail with the case form', () => {
       suggested_value: { summary: 'Tree on roof', details: DETAILS },
     });
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
-        res(
-          ctx.json(
-            review({
-              worksite: undefined,
-              session: {
-                id: 3,
-                call_id: 'call-3',
-                status: 'abandoned',
-                language: 'en',
-                ended_at: undefined,
-              },
-              corrections: [missed],
-            }),
-          ),
-        ),
-      ),
       rest.post(`${baseUrl}/corrections/1/link_case`, async (req, res, ctx) => {
         linked.push(await req.json());
         return res(ctx.json({ ...missed, status: 'resolved' }));
       }),
     );
     const { stub, props } = stubCaseForm();
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: {
-        components: { BaseButton },
-        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
-      },
-    });
+    const wrapper = mountReviewPane(
+      review({
+        worksite: undefined,
+        session: {
+          id: 3,
+          call_id: 'call-3',
+          status: 'abandoned',
+          language: 'en',
+          ended_at: undefined,
+        },
+        corrections: [missed],
+      }),
+      {},
+      stub,
+    );
     await flushPromises();
     expect(wrapper.find(testId('testStubSave')).exists()).toBe(false);
 
@@ -309,22 +292,13 @@ describe('VoiceReviewDetail wrong incident', () => {
     });
     const resolved: unknown[] = [];
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
-        res(ctx.json(review({ corrections: [wrong] }))),
-      ),
       rest.post(`${baseUrl}/corrections/1/resolve`, async (req, res, ctx) => {
         resolved.push(await req.json());
         return res(ctx.json({ ...wrong, status: 'resolved' }));
       }),
     );
     const { stub, moveToIncident } = stubCaseForm();
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: {
-        components: { BaseButton },
-        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
-      },
-    });
+    const wrapper = mountReviewPane(review({ corrections: [wrong] }), {}, stub);
     await flushPromises();
 
     confirmDialog.mockResolvedValueOnce('no');
@@ -370,9 +344,6 @@ describe('VoiceReviewDetail address in the form', () => {
 
   it("geocodes first and fills the form with Google's version", async () => {
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
-        res(ctx.json(addressReview())),
-      ),
       rest.post(`${baseUrl}/geocode`, (_req, res, ctx) =>
         res(
           ctx.json({
@@ -389,13 +360,7 @@ describe('VoiceReviewDetail address in the form', () => {
       ),
     );
     const { stub, applyChanges } = stubCaseForm();
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: {
-        components: { BaseButton },
-        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
-      },
-    });
+    const wrapper = mountReviewPane(addressReview(), {}, stub);
     await flushPromises();
     await wrapper.get(testId('testVoiceCorrectionUseInForm')).trigger('click');
     await flushPromises();
@@ -419,9 +384,6 @@ describe('VoiceReviewDetail address in the form', () => {
 
   it('does not change the form when Google cannot find the address', async () => {
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
-        res(ctx.json(addressReview())),
-      ),
       rest.post(`${baseUrl}/geocode`, (_req, res, ctx) =>
         res(
           ctx.status(404),
@@ -430,13 +392,7 @@ describe('VoiceReviewDetail address in the form', () => {
       ),
     );
     const { stub, applyChanges } = stubCaseForm();
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: {
-        components: { BaseButton },
-        stubs: { Spinner: true, VoiceReviewCaseForm: stub },
-      },
-    });
+    const wrapper = mountReviewPane(addressReview(), {}, stub);
     await flushPromises();
     await wrapper.get(testId('testVoiceCorrectionUseInForm')).trigger('click');
     await flushPromises();

@@ -32,9 +32,13 @@ export default defineComponent({
 
     const eventsInterval = ref<ReturnType<typeof setInterval> | null>(null);
 
-    const pageTitle = computed(
-      () => `${t(route.name?.toString() || '')}: Crisis Cleanup`,
-    );
+    // A route can set meta.title (a `~~` literal) when its name is no label.
+    const pageTitle = computed(() => {
+      const { title } = route.meta;
+      const label =
+        typeof title === 'string' ? title : route.name?.toString() || '';
+      return `${t(label)}: Crisis Cleanup`;
+    });
     useTitle(pageTitle);
 
     async function pushCurrentEvents(): Promise<void> {
