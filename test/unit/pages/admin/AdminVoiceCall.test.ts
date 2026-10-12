@@ -195,19 +195,79 @@ describe('AdminVoiceCall header', () => {
     expect(wrapper.findAll('[data-flag]').map((pill) => pill.text())).toEqual([
       '~~Callback offered',
     ]);
-    expect(linkTo(wrapper, 'testVoiceCallHistoryLink')).toEqual({
-      name: 'nav.voice_console',
-      query: { view: 'calls' },
-    });
-    expect(linkTo(wrapper, 'testVoiceCallAuditorListLink')).toEqual({
-      name: 'nav.voice_reviews',
-    });
   });
 
   it('does not ask for a review when the call has none', async () => {
     serve(session({ review_id: null, open_issues: 0 }));
     await mountPage();
     expect(requested).toEqual(['/admins/voice_console/sessions/3']);
+  });
+});
+
+const HISTORY_LINK = {
+  to: { name: 'nav.voice_console', query: { view: 'calls' } },
+  label: '~~Call history',
+};
+const AUDITOR_LINK = {
+  to: { name: 'nav.voice_reviews' },
+  label: '~~Call Auditor',
+};
+
+function links(wrapper: Awaited<ReturnType<typeof mountPage>>) {
+  const read = (id: string) => ({
+    to: linkTo(wrapper, id),
+    label: wrapper.get(testId(id)).text().replace('← ', ''),
+  });
+  return {
+    back: read('testVoiceCallBackLink'),
+    other: read('testVoiceCallOtherListLink'),
+  };
+}
+
+describe('AdminVoiceCall back link', () => {
+  it('goes back to the call history when it has no origin', async () => {
+    serve(session(), review());
+    const wrapper = await mountPage();
+    expect(wrapper.get(testId('testVoiceCallBackLink')).text()).toBe(
+      '← ~~Call history',
+    );
+    expect(links(wrapper)).toEqual({ back: HISTORY_LINK, other: AUDITOR_LINK });
+  });
+
+  it('goes back to the call history when it came from there', async () => {
+    nav.route.query = { from: 'calls' };
+    serve(session(), review());
+    expect(links(await mountPage())).toEqual({
+      back: HISTORY_LINK,
+      other: AUDITOR_LINK,
+    });
+  });
+
+  it('goes back to the Call Auditor when it came from there', async () => {
+    nav.route.query = { from: 'auditor' };
+    serve(session(), review());
+    const wrapper = await mountPage();
+    expect(wrapper.get(testId('testVoiceCallBackLink')).text()).toBe(
+      '← ~~Call Auditor',
+    );
+    expect(links(wrapper)).toEqual({ back: AUDITOR_LINK, other: HISTORY_LINK });
+  });
+
+  it('ignores an origin it does not know', async () => {
+    nav.route.query = { from: 'nonsense' };
+    serve(session(), review());
+    expect(links(await mountPage()).back).toEqual(HISTORY_LINK);
+  });
+
+  it('keeps the origin when the tab changes', async () => {
+    nav.route.query = { from: 'auditor' };
+    serve(session(), review());
+    const wrapper = await mountPage();
+    await wrapper.get(testId('testVoiceCallTab-debug')).trigger('click');
+    expect(nav.replace).toHaveBeenLastCalledWith({
+      query: { from: 'auditor', tab: 'debug' },
+    });
+    expect(links(wrapper).back).toEqual(AUDITOR_LINK);
   });
 });
 

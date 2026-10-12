@@ -157,12 +157,25 @@ export function formatWhen(iso: string | null | undefined) {
 
 export type CallTab = 'review' | 'conversation' | 'debug';
 
-/** The page of one call (`/admin/voice_calls/<id>`), on a tab if given. */
-export function callRoute(sessionId: number, tab?: CallTab) {
+/** The list a person opened the call page from, for its Back link. */
+export type CallOrigin = 'auditor' | 'calls';
+
+/** The origin named in a URL query value; the call history when none. */
+export function callOrigin(value: unknown): CallOrigin {
+  return value === 'auditor' ? 'auditor' : 'calls';
+}
+
+/**
+ * The page of one call (`/admin/voice_calls/<id>`), on a tab if given, with
+ * the list it was opened from (`?from=`) so that Back returns there.
+ */
+export function callRoute(sessionId: number, tab?: CallTab, from?: CallOrigin) {
   return {
     name: 'nav.voice_call',
     params: { sessionId },
-    ...(tab ? { query: { tab } } : {}),
+    ...(tab || from
+      ? { query: { ...(tab ? { tab } : {}), ...(from ? { from } : {}) } }
+      : {}),
   };
 }
 

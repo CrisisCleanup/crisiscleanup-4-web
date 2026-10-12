@@ -28,16 +28,17 @@
     </div>
 
     <section
-      v-if="view === 'metrics'"
-      class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
-    >
-      <VoiceOverviewMetrics />
-    </section>
-    <section
-      v-else-if="view === 'calls'"
+      v-if="view === 'calls'"
       class="min-w-0 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
     >
       <VoiceCallHistory />
+    </section>
+
+    <section
+      v-else-if="view === 'metrics'"
+      class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
+    >
+      <VoiceOverviewMetrics />
     </section>
 
     <div v-show="view === 'test'" class="flex flex-col gap-4">
@@ -550,19 +551,19 @@ const tabs = computed(() => [
 ]);
 
 // The page sections. The section is in the URL (?view=calls) so it links.
-type View = 'metrics' | 'calls' | 'test';
+type View = 'calls' | 'metrics' | 'test';
 const route = useRoute();
 const router = useRouter();
 const views = computed(() => [
-  { key: 'metrics' as const, label: t('~~Overall metrics') },
   { key: 'calls' as const, label: t('voiceConsole.history', 'Call history') },
+  { key: 'metrics' as const, label: t('~~Overall metrics') },
   { key: 'test' as const, label: t('~~Test a call') },
 ]);
 const view = computed<View>({
   get: () =>
-    (['metrics', 'calls', 'test'] as const).find(
+    (['calls', 'metrics', 'test'] as const).find(
       (key) => key === route.query.view,
-    ) ?? 'metrics',
+    ) ?? 'calls',
   set: (key: View) => {
     void router.replace({ query: { ...route.query, view: key } });
   },

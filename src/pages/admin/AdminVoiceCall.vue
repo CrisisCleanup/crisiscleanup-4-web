@@ -8,18 +8,18 @@
     >
       <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-1">
         <router-link
-          :to="{ name: 'nav.voice_console', query: { view: 'calls' } }"
+          :to="backLink.to"
           class="inline-flex min-h-[40px] items-center font-semibold underline"
-          data-testid="testVoiceCallHistoryLink"
+          data-testid="testVoiceCallBackLink"
         >
-          ← {{ t('~~Call history') }}
+          ← {{ backLink.label }}
         </router-link>
         <router-link
-          :to="{ name: 'nav.voice_reviews' }"
+          :to="otherLink.to"
           class="inline-flex min-h-[40px] items-center font-semibold underline"
-          data-testid="testVoiceCallAuditorListLink"
+          data-testid="testVoiceCallOtherListLink"
         >
-          {{ t('~~Call Auditor') }}
+          {{ otherLink.label }}
         </router-link>
         <BaseButton
           class="ml-auto max-md:!min-h-[40px]"
@@ -183,10 +183,12 @@ import { useVoiceCall } from '@/hooks/voice/useVoiceCall';
 import { formatClock } from '@/hooks/voice/voiceConsoleState';
 import { queueReview } from '@/hooks/voice/voiceReviews';
 import {
+  callOrigin,
   costLabel,
   formatWhen,
   outcomeClass,
   outcomeLabel,
+  type CallOrigin,
   type CallTab,
 } from '@/hooks/voice/voiceSessions';
 import { getErrorMessage } from '@/utils/errors';
@@ -208,6 +210,26 @@ onDeactivated(() => {
   isActive.value = false;
   stopWaiting();
 });
+
+// Back returns to the list the person came from (?from=), kept across tabs.
+// With no origin, that is the call history.
+const LISTS = computed<Record<CallOrigin, { to: object; label: string }>>(
+  () => ({
+    calls: {
+      to: { name: 'nav.voice_console', query: { view: 'calls' } },
+      label: t('~~Call history'),
+    },
+    auditor: {
+      to: { name: 'nav.voice_reviews' },
+      label: t('~~Call Auditor'),
+    },
+  }),
+);
+const origin = computed(() => callOrigin(route.query.from));
+const backLink = computed(() => LISTS.value[origin.value]);
+const otherLink = computed(
+  () => LISTS.value[origin.value === 'auditor' ? 'calls' : 'auditor'],
+);
 
 const TABS: CallTab[] = ['review', 'conversation', 'debug'];
 

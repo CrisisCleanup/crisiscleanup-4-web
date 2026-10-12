@@ -310,18 +310,48 @@ describe('AdminVoiceConsole sections', () => {
     }));
   });
 
-  it('opens on the overall metrics, with the test call kept hidden', async () => {
+  it('opens on the call history, with the test call kept hidden', async () => {
     nav.query = {};
     const wrapper = mountConsole();
     await flushPromises();
+    expect(wrapper.findComponent({ name: 'VoiceCallHistory' }).exists()).toBe(
+      true,
+    );
     expect(
       wrapper.findComponent({ name: 'VoiceOverviewMetrics' }).exists(),
-    ).toBe(true);
+    ).toBe(false);
     // v-show hides the section but keeps the call alive.
     expect(
       wrapper.get('[data-testid="testVoiceConsoleTestNotice"]').element
         .parentElement?.style.display,
     ).toBe('none');
+    wrapper.unmount();
+  });
+
+  it('lists the sections as call history, overall metrics, test a call', async () => {
+    nav.query = {};
+    const wrapper = mountConsole();
+    await flushPromises();
+    const tabs = wrapper.findAll('[data-testid^="testVoiceConsoleView-"]');
+    expect(tabs.map((tab) => tab.attributes('data-testid'))).toEqual([
+      'testVoiceConsoleView-calls',
+      'testVoiceConsoleView-metrics',
+      'testVoiceConsoleView-test',
+    ]);
+    expect(tabs[0].attributes('aria-selected')).toBe('true');
+    wrapper.unmount();
+  });
+
+  it('shows the overall metrics for ?view=metrics', async () => {
+    nav.query = { view: 'metrics' };
+    const wrapper = mountConsole();
+    await flushPromises();
+    expect(
+      wrapper.findComponent({ name: 'VoiceOverviewMetrics' }).exists(),
+    ).toBe(true);
+    expect(wrapper.findComponent({ name: 'VoiceCallHistory' }).exists()).toBe(
+      false,
+    );
     wrapper.unmount();
   });
 

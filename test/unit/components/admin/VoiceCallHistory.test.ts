@@ -1,6 +1,6 @@
 import { RouterLinkStub, flushPromises, mount } from '@vue/test-utils';
 import { rest } from 'msw';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import VoiceCallHistory from '@/components/admin/voice/VoiceCallHistory.vue';
 import { server } from '../../../setupTests';
 
@@ -11,7 +11,48 @@ vi.mock('vue-router', async (importOriginal) => ({
 }));
 
 const sessionsUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_console/sessions`;
+const metricsUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_console/metrics`;
 const stubs = { BaseButton: true, Spinner: true, RouterLink: RouterLinkStub };
+
+const WINDOWS = ['1h', '3h', '24h', '7d', '30d'];
+function metric(
+  key: string,
+  label: string,
+  format: string,
+  current: number,
+  previous: number,
+) {
+  return {
+    key,
+    label,
+    format,
+    values: Object.fromEntries(WINDOWS.map((w) => [w, current])),
+    previous: Object.fromEntries(WINDOWS.map((w) => [w, previous])),
+  };
+}
+const METRICS = [
+  metric('calls', 'Calls', 'count', 30, 20),
+  metric('cases_created', 'Cases created', 'count', 9, 9),
+  metric('case_rate', 'Case rate', 'percent', 0.625, 0.5),
+  metric('open_issues', 'Open issues', 'count', 2, 4),
+];
+const metricQueries: Record<string, string>[] = [];
+
+beforeEach(() => {
+  metricQueries.length = 0;
+  server.use(
+    rest.get(metricsUrl, (req, res, ctx) => {
+      metricQueries.push(Object.fromEntries(req.url.searchParams));
+      return res(
+        ctx.json({
+          generated_at: '2026-10-10T12:00:00Z',
+          windows: WINDOWS,
+          metrics: METRICS,
+        }),
+      );
+    }),
+  );
+});
 
 function testId(id: string) {
   return `[data-testid="${id}"]`;
@@ -164,6 +205,7 @@ describe('VoiceCallHistory rows', () => {
     expect(nav.push).toHaveBeenCalledWith({
       name: 'nav.voice_call',
       params: { sessionId: 1 },
+      query: { from: 'calls' },
     });
     // The list has no detail of its own any more.
     expect(wrapper.find(testId('testVoiceCallDetail')).exists()).toBe(false);
@@ -177,7 +219,73 @@ describe('VoiceCallHistory rows', () => {
     expect(link.props('to')).toEqual({
       name: 'nav.voice_call',
       params: { sessionId: 1 },
-      query: { tab: 'review' },
+      query: { tab: 'review', from: 'calls' },
     });
+  });
+});
+
+describe('VoiceCallHistory metrics strip', () => {
+  async function mountList() {
+    server.use(
+      rest.get(sessionsUrl, (_req, res, ctx) =>
+        res(ctx.json({ count: 0, results: [] })),
+      ),
+    );
+    const wrapper = mount(VoiceCallHistory, { global: { stubs } });
+    await flushPromises();
+    return wrapper;
+  }
+
+  it('shows the calls, case rate and open issues of the last day', async () => {
+    const wrapper = await mountList();
+    const strip = wrapper.get(testId('testVoiceHistoryStrip'));
+    const cards = strip.findAll('[data-testid^="testVoiceCard-"]');
+    expect(cards.map((card) => card.attributes('data-testid'))).toEqual([
+      'testVoiceCard-calls',
+      'testVoiceCard-case_rate',
+      'testVoiceCard-open_issues',
+    ]);
+    expect(
+      cards.map((card) => card.get(testId('testVoiceCardValue')).text()),
+    ).toEqual(['30', '62.5%', '2']);
+    // The change against the day before; fewer open issues is good.
+    const deltas = cards.map((card) => card.get(testId('testVoiceCardDelta')));
+    expect(deltas.map((delta) => delta.text())).toEqual([
+      expect.stringContaining('+50%'),
+      expect.stringContaining('+12.5 pts'),
+      expect.stringContaining('-50%'),
+    ]);
+    expect(deltas.map((delta) => delta.attributes('data-tone'))).toEqual([
+      'good',
+      'good',
+      'good',
+    ]);
+    expect(metricQueries).toEqual([{ include_test: 'false' }]);
+  });
+
+  it('links to the overall metrics', async () => {
+    const wrapper = await mountList();
+    const link = wrapper
+      .get(testId('testVoiceHistoryStrip'))
+      .getComponent(RouterLinkStub)
+      .props('to');
+    expect(link).toEqual({
+      name: 'nav.voice_console',
+      query: { view: 'metrics' },
+    });
+  });
+
+  it('follows the Include test calls toggle', async () => {
+    const wrapper = await mountList();
+    await wrapper.get(testId('testVoiceHistoryIncludeTest')).setValue(true);
+    await flushPromises();
+    expect(metricQueries.at(-1)).toEqual({ include_test: 'true' });
+  });
+
+  it('shows no cards when the metrics do not load, and the list still works', async () => {
+    server.use(rest.get(metricsUrl, (_req, res, ctx) => res(ctx.status(500))));
+    const wrapper = await mountList();
+    expect(wrapper.findAll('[data-testid^="testVoiceCard-"]')).toHaveLength(0);
+    expect(wrapper.find(testId('testVoiceHistoryCount')).exists()).toBe(true);
   });
 });

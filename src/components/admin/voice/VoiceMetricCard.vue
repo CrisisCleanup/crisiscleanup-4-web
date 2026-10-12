@@ -3,7 +3,7 @@
     :is="selectable ? 'button' : 'div'"
     class="flex min-h-[40px] min-w-0 flex-col gap-1 rounded border bg-white text-left"
     :class="[
-      large ? 'p-4' : 'p-3',
+      large ? 'p-4' : compact ? 'p-2' : 'p-3',
       selected
         ? 'border-crisiscleanup-dashboard-blue ring-1 ring-crisiscleanup-dashboard-blue'
         : 'border-crisiscleanup-grey-100',
@@ -20,7 +20,7 @@
     </span>
     <span
       class="break-words font-semibold tabular-nums"
-      :class="large ? 'text-3xl' : 'text-xl'"
+      :class="large ? 'text-3xl' : compact ? 'text-lg' : 'text-xl'"
       data-testid="testVoiceCardValue"
     >
       {{ formatMetricValue(metric.values[windowKey], metric.format) }}
@@ -35,12 +35,15 @@
     >
       {{ ARROWS[delta.direction] }}
       {{ delta.direction === 'flat' ? '' : delta.text }}
-      <span class="text-crisiscleanup-dark-300">
+      <span
+        class="text-crisiscleanup-dark-300"
+        :class="{ 'max-sm:hidden': compact }"
+      >
         {{ t('~~vs the {window} before', { window: windowKey }) }}
       </span>
     </span>
     <span
-      v-if="hint"
+      v-if="hint && !compact"
       class="text-xs text-crisiscleanup-dark-300"
       data-testid="testVoiceCardHint"
     >
@@ -62,6 +65,8 @@ const props = defineProps<{
   metric: Metric;
   windowKey: MetricWindow;
   large?: boolean;
+  /** A small card for a strip: no hint, a short change line on a phone. */
+  compact?: boolean;
   /** The card is a button that picks its trend series. */
   selectable?: boolean;
   selected?: boolean;

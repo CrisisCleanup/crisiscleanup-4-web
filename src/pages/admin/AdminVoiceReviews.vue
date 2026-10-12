@@ -313,7 +313,7 @@ onActivated(() => {
 });
 
 function openReview(review: VoiceReview) {
-  void router.push(callRoute(review.session.id, 'review'));
+  void router.push(callRoute(review.session.id, 'review', 'auditor'));
 }
 
 // The call page replaces the old review page; an old link goes on to it.
@@ -323,7 +323,7 @@ watch(
     if (!id) return;
     try {
       const { data } = await axios.get<VoiceReview>(voiceReviewUrl(String(id)));
-      await router.replace(callRoute(data.session.id, 'review'));
+      await router.replace(callRoute(data.session.id, 'review', 'auditor'));
     } catch (error) {
       $toasted.error(getErrorMessage(error));
       await router.replace({ name: 'nav.voice_reviews' });

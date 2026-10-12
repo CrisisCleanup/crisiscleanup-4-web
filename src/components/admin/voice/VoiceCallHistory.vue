@@ -1,5 +1,6 @@
 <template>
   <div class="text-sm" data-testid="testVoiceCallHistory">
+    <VoiceHistoryStrip ref="strip" :include-test="includeTest" />
     <div class="mb-3 grid grid-cols-2 items-end gap-3 md:flex md:flex-wrap">
       <label
         class="col-span-2 flex min-w-[10rem] flex-1 flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
@@ -98,7 +99,9 @@
       table-id="voiceHistory"
       data-testid="testVoiceHistoryTable"
       @data-fetched="(count: number) => (total = count)"
-      @row-click="(row: SessionRow) => router.push(callRoute(row.id))"
+      @row-click="
+        (row: SessionRow) => router.push(callRoute(row.id, undefined, 'calls'))
+      "
     >
       <template #created_at="{ item }">
         <span class="flex flex-wrap items-center gap-x-2">
@@ -130,7 +133,7 @@
         >
         <router-link
           v-if="item.review_id && item.open_issues > 0"
-          :to="callRoute(item.id, 'review')"
+          :to="callRoute(item.id, 'review', 'calls')"
           class="rounded bg-crisiscleanup-yellow-100 px-1.5 text-xs underline max-md:inline-flex max-md:min-h-[40px] max-md:items-center"
           data-testid="testVoiceHistoryIssues"
           @click.stop
@@ -185,6 +188,7 @@ import {
 import useEmitter from '@/hooks/useEmitter';
 import VoiceCaseLinks from './VoiceCaseLinks.vue';
 import VoiceFlagPills from './VoiceFlagPills.vue';
+import VoiceHistoryStrip from './VoiceHistoryStrip.vue';
 
 const { t } = useI18n();
 const mq = useMq();
@@ -220,8 +224,11 @@ const columns = makeTableColumns([
   ['estimated_cost_usd', '6.5rem', t('~~Est. model cost')],
 ]);
 
+const strip = ref<InstanceType<typeof VoiceHistoryStrip>>();
+
 function refresh() {
   emitter.emit('refreshTable-voiceHistory');
+  void strip.value?.load();
 }
 
 // Back from a call page, where issues may have been fixed: load the list again.

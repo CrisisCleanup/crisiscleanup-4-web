@@ -200,7 +200,7 @@ describe('AdminVoiceReviews', () => {
     expect(nav.push).toHaveBeenLastCalledWith({
       name: 'nav.voice_call',
       params: { sessionId: 3 },
-      query: { tab: 'review' },
+      query: { tab: 'review', from: 'auditor' },
     });
 
     await wrapper.get(testId('testVoiceReviewCheck')).trigger('click');
@@ -230,7 +230,7 @@ describe('AdminVoiceReviews old links', () => {
     expect(nav.replace).toHaveBeenCalledWith({
       name: 'nav.voice_call',
       params: { sessionId: 3 },
-      query: { tab: 'review' },
+      query: { tab: 'review', from: 'auditor' },
     });
   });
 
