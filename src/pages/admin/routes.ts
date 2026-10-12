@@ -27,6 +27,7 @@ const AdminDebug = () => import('./AdminDebug.vue');
 const AdminPhoneHistory = () => import('./AdminPhoneHistory.vue');
 const AdminVoiceConsole = () => import('./AdminVoiceConsole.vue');
 const AdminVoiceReviews = () => import('./AdminVoiceReviews.vue');
+const AdminMisplacedWorksites = () => import('./AdminMisplacedWorksites.vue');
 
 const routes = [
   {
@@ -167,6 +168,11 @@ const routes = [
         path: 'voice_reviews/:reviewId?',
         name: 'nav.voice_reviews',
         component: AdminVoiceReviews,
+      },
+      {
+        path: 'misplaced_worksites',
+        name: 'nav.misplaced_worksites',
+        component: AdminMisplacedWorksites,
       },
       {
         path: 'debug',

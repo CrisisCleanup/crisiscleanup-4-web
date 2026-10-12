@@ -12,6 +12,10 @@ import useAcl from '@/hooks/useAcl';
 import type { Tab } from '@/hooks/useTabs';
 import { useCurrentUser } from '@/hooks';
 import moment from '@/utils/dates';
+import {
+  fetchMisplacedWorksites,
+  misplacedCount,
+} from '@/hooks/useMisplacedWorksites';
 
 const tabs = reactive<Tab[]>([
   {
@@ -59,6 +63,10 @@ const tabs = reactive<Tab[]>([
     title: '~~Call Auditor',
   },
   {
+    key: 'nav.misplaced_worksites',
+    title: '~~Misplaced Worksites',
+  },
+  {
     key: 'nav.debug',
   },
 ]);
@@ -77,6 +85,8 @@ onMounted(async () => {
   if (!currentUser.value?.isAdmin) {
     return router.push('/dashboard');
   }
+  // The API caches the check, so this is cheap after the first visit.
+  fetchMisplacedWorksites().catch(() => {});
   if (!$can('development_mode')) {
     const { isFinished: isBugsFinished, data: _bugsData } = ccuApi(
       '/bug_reports',
@@ -125,6 +135,15 @@ watch(ticketCountData, () => {
   const ticketTab = tabs.find((tab: Tab) => tab.key === 'nav.admin_tickets');
   if (ticketTab) {
     ticketTab.title = `Tickets (${ticketCountData.value.count})`;
+  }
+});
+
+watch(misplacedCount, (count) => {
+  const misplacedTab = tabs.find(
+    (tab: Tab) => tab.key === 'nav.misplaced_worksites',
+  );
+  if (misplacedTab && count !== undefined) {
+    misplacedTab.title = `Misplaced Worksites (${count})`;
   }
 });
 
