@@ -1,7 +1,7 @@
 /**
  * Overall metrics of the voice intake line (`/admins/voice_console/metrics`):
- * one table of metrics over 1 hour, 3 hours, a day, a week and 30 days, each
- * with the change since the window before it, and a trend of buckets.
+ * each metric over 1 hour, 3 hours, a day, a week and 30 days, with the change
+ * since the window before it, and a trend of buckets for one window.
  */
 import axios from 'axios';
 import { getErrorMessage } from '@/utils/errors';
@@ -79,6 +79,49 @@ export const METRIC_GROUPS: { title: string; keys: string[] }[] = [
   { title: '~~Cost', keys: ['cost_usd', 'cost_per_case'] },
 ];
 
+/** The metrics that get a large card at the top. */
+export const HEADLINE_KEYS = [
+  'calls',
+  'cases_created',
+  'case_rate',
+  'callback_accept_rate',
+  'open_issues',
+  'cost_per_case',
+];
+
+/** The series the trend chart can draw, in the order of its picker. */
+export const TREND_SERIES: TrendSeries[] = [
+  'calls',
+  'cases_created',
+  'callback_offers',
+  'errors',
+  'open_issues',
+];
+
+/** One plain line on what a metric means. */
+export const METRIC_HINTS: Record<string, string> = {
+  calls: '~~Every call to the line, including status checks',
+  intake_calls: '~~Calls that were not only a status check',
+  cases_created: '~~Cases the line saved from calls',
+  second_cases: '~~Extra cases saved on the same call',
+  case_rate: '~~Cases created per intake call',
+  abandoned: '~~Callers who hung up before a case was saved',
+  missed_cases: '~~Cases the reviewer found the line should have saved',
+  avg_duration: '~~How long a call lasts, on average',
+  callback_offers: '~~Calls where the line offered a callback',
+  callback_accept_rate: '~~Callback offers that the caller accepted',
+  callback_requests: '~~Calls where the caller asked for a callback',
+  errors: '~~Calls that ended with an error',
+  save_retries: '~~Calls where saving a case needed another try',
+  approximate_locations: '~~Calls saved with a guessed address',
+  reviews_done: '~~Calls the Call Auditor has reviewed',
+  open_issues: '~~Problems found in calls that are not fixed yet',
+  auto_fixes: '~~Problems the Call Auditor fixed by itself',
+  manual_fixes: '~~Problems a person fixed',
+  cost_usd: '~~Voice model and Luna cost of the calls',
+  cost_per_case: '~~Estimated cost for each case created',
+};
+
 /** A rise in these is bad news. */
 const UP_IS_BAD = new Set([
   'abandoned',
@@ -98,7 +141,7 @@ export interface MetricGroup {
   metrics: Metric[];
 }
 
-/** The metrics in table groups; unknown keys go last, in a group of their own. */
+/** The metrics in groups; unknown keys go last, in a group of their own. */
 export function groupMetrics(metrics: Metric[]): MetricGroup[] {
   const byKey = new Map(metrics.map((metric) => [metric.key, metric]));
   const known = new Set(METRIC_GROUPS.flatMap((group) => group.keys));
@@ -207,13 +250,20 @@ export function bucketLabel(start: string, window: MetricWindow): string {
     : date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 
+export const DEFAULT_WINDOW: MetricWindow = '24h';
+
 /**
  * Load the metrics and the trend, and load them again every minute while
- * the page is visible.
+ * the page is visible. The window is in the URL (?window=7d) so it links.
  */
 export function useVoiceOverview() {
+  const route = useRoute();
+  const router = useRouter();
+  const fromUrl = Object.keys(WINDOW_LABELS).find(
+    (key) => key === route.query.window,
+  ) as MetricWindow | undefined;
   const includeTest = ref(false);
-  const windowKey = ref<MetricWindow>('24h');
+  const windowKey = ref<MetricWindow>(fromUrl ?? DEFAULT_WINDOW);
   const overview = ref<MetricsResponse>();
   const trend = ref<TrendBucket[]>([]);
   const loading = ref(false);
@@ -254,9 +304,10 @@ export function useVoiceOverview() {
     }
   }
 
-  // The window only changes the trend.
+  // Every window is in the metrics already: a new window only loads the trend.
   async function changeWindow(next: MetricWindow) {
     windowKey.value = next;
+    void router.replace({ query: { ...route.query, window: next } });
     try {
       await loadTrend();
     } catch (error_) {

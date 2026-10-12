@@ -64,98 +64,56 @@
 
     <Spinner v-if="!overview && loading" />
 
-    <div
-      v-if="overview"
-      class="max-w-full overflow-x-auto rounded border border-crisiscleanup-grey-100"
-      data-testid="testVoiceOverviewScroll"
-    >
-      <table class="w-full min-w-[620px] border-collapse">
-        <thead>
-          <tr
-            class="text-left text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            <th
-              scope="col"
-              class="sticky left-0 z-10 bg-crisiscleanup-smoke px-3 py-2"
-            >
-              {{ t('~~Metric') }}
-            </th>
-            <th
-              v-for="key in windows"
-              :key="key"
-              scope="col"
-              class="px-3 py-2 text-right"
-              :class="
-                key === windowKey
-                  ? 'bg-primary-light/60'
-                  : 'bg-crisiscleanup-smoke'
-              "
-            >
-              {{ key }}
-            </th>
-          </tr>
-        </thead>
-        <tbody v-for="group in groups" :key="group.title">
-          <tr>
-            <th
-              scope="colgroup"
-              :colspan="windows.length + 1"
-              class="px-3 pb-1 pt-3 text-left text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-            >
-              <span class="sticky left-3">{{ t(group.title) }}</span>
-            </th>
-          </tr>
-          <tr
+    <template v-if="overview">
+      <section
+        class="grid grid-cols-2 gap-3 md:grid-cols-3"
+        :aria-label="t('~~Headline metrics')"
+        data-testid="testVoiceHeadlines"
+      >
+        <VoiceMetricCard
+          v-for="metric in headlines"
+          :key="metric.key"
+          :metric="metric"
+          :window-key="windowKey"
+          :selected="isSelected(metric)"
+          :selectable="isSeries(metric)"
+          large
+          @select="selectSeries(metric)"
+        />
+      </section>
+
+      <section
+        v-for="group in groups"
+        :key="group.title"
+        :data-testid="`testVoiceGroup-${group.title}`"
+      >
+        <h2
+          class="mb-2 text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+        >
+          {{ t(group.title) }}
+        </h2>
+        <div class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+          <VoiceMetricCard
             v-for="metric in group.metrics"
             :key="metric.key"
-            class="border-t border-crisiscleanup-grey-100"
-            :data-testid="`testVoiceMetricRow-${metric.key}`"
-          >
-            <th
-              scope="row"
-              class="sticky left-0 z-10 max-w-[9rem] bg-white px-3 py-2 text-left font-normal shadow-[1px_0_0_0_theme(colors.crisiscleanup-grey.100)] md:max-w-none md:whitespace-nowrap"
-            >
-              {{ metric.label }}
-            </th>
-            <td
-              v-for="key in windows"
-              :key="key"
-              class="whitespace-nowrap px-3 py-2 text-right tabular-nums"
-              :class="{ 'bg-primary-light/30': key === windowKey }"
-              :data-testid="`testVoiceMetricCell-${metric.key}-${key}`"
-            >
-              <span class="font-semibold" data-testid="testVoiceMetricValue">
-                {{ formatMetricValue(metric.values[key], metric.format) }}
-              </span>
-              <span
-                v-if="deltaFor(metric, key)"
-                class="ml-1 whitespace-nowrap text-xs"
-                :class="DELTA_CLASSES[deltaFor(metric, key)!.tone]"
-                :data-tone="deltaFor(metric, key)!.tone"
-                :title="t('~~Compared with the same time just before')"
-                data-testid="testVoiceMetricDelta"
-              >
-                {{ ARROWS[deltaFor(metric, key)!.direction] }}
-                {{
-                  deltaFor(metric, key)!.direction === 'flat'
-                    ? ''
-                    : deltaFor(metric, key)!.text
-                }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <p v-if="overview" class="text-xs text-crisiscleanup-dark-300">
-      {{
-        t(
-          '~~Arrows compare each window with the same length of time just before it. Green is better, red is worse.',
-        )
-      }}
-    </p>
+            :metric="metric"
+            :window-key="windowKey"
+            :selected="isSelected(metric)"
+            :selectable="isSeries(metric)"
+            @select="selectSeries(metric)"
+          />
+        </div>
+      </section>
+      <p class="text-xs text-crisiscleanup-dark-300">
+        {{
+          t(
+            '~~Arrows compare the time frame with the same length of time just before it. Green is better, red is worse.',
+          )
+        }}
+      </p>
+    </template>
 
-    <section v-if="overview" data-testid="testVoiceTrend">
+    <section v-if="overview" ref="trendEl" data-testid="testVoiceTrend">
       <div class="mb-2 flex flex-wrap items-end justify-between gap-2">
         <h2 class="text-lg font-semibold">
           {{
@@ -218,11 +176,121 @@
         </div>
       </template>
     </section>
+    <section v-if="overview" data-testid="testVoiceCompare">
+      <button
+        type="button"
+        class="min-h-[40px] rounded px-1 font-semibold text-primary-dark underline"
+        :aria-expanded="showCompare"
+        data-testid="testVoiceCompareToggle"
+        @click="showCompare = !showCompare"
+      >
+        {{ t('~~Compare all time frames') }}
+        {{ showCompare ? '▴' : '▾' }}
+      </button>
+      <div v-if="showCompare" class="mt-2 flex flex-col gap-2">
+        <div
+          v-if="overview"
+          class="max-w-full overflow-x-auto rounded border border-crisiscleanup-grey-100"
+          data-testid="testVoiceOverviewScroll"
+        >
+          <table class="w-full min-w-[620px] border-collapse">
+            <thead>
+              <tr
+                class="text-left text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+              >
+                <th
+                  scope="col"
+                  class="sticky left-0 z-10 bg-crisiscleanup-smoke px-3 py-2"
+                >
+                  {{ t('~~Metric') }}
+                </th>
+                <th
+                  v-for="key in windows"
+                  :key="key"
+                  scope="col"
+                  class="px-3 py-2 text-right"
+                  :class="
+                    key === windowKey
+                      ? 'bg-primary-light/60'
+                      : 'bg-crisiscleanup-smoke'
+                  "
+                >
+                  {{ key }}
+                </th>
+              </tr>
+            </thead>
+            <tbody v-for="group in tableGroups" :key="group.title">
+              <tr>
+                <th
+                  scope="colgroup"
+                  :colspan="windows.length + 1"
+                  class="px-3 pb-1 pt-3 text-left text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+                >
+                  <span class="sticky left-3">{{ t(group.title) }}</span>
+                </th>
+              </tr>
+              <tr
+                v-for="metric in group.metrics"
+                :key="metric.key"
+                class="border-t border-crisiscleanup-grey-100"
+                :data-testid="`testVoiceMetricRow-${metric.key}`"
+              >
+                <th
+                  scope="row"
+                  class="sticky left-0 z-10 max-w-[9rem] bg-white px-3 py-2 text-left font-normal shadow-[1px_0_0_0_theme(colors.crisiscleanup-grey.100)] md:max-w-none md:whitespace-nowrap"
+                >
+                  {{ metric.label }}
+                </th>
+                <td
+                  v-for="key in windows"
+                  :key="key"
+                  class="whitespace-nowrap px-3 py-2 text-right tabular-nums"
+                  :class="{ 'bg-primary-light/30': key === windowKey }"
+                  :data-testid="`testVoiceMetricCell-${metric.key}-${key}`"
+                >
+                  <span
+                    class="font-semibold"
+                    data-testid="testVoiceMetricValue"
+                  >
+                    {{ formatMetricValue(metric.values[key], metric.format) }}
+                  </span>
+                  <span
+                    v-if="deltaFor(metric, key)"
+                    class="ml-1 whitespace-nowrap text-xs"
+                    :class="DELTA_CLASSES[deltaFor(metric, key)!.tone]"
+                    :data-tone="deltaFor(metric, key)!.tone"
+                    :title="t('~~Compared with the same time just before')"
+                    data-testid="testVoiceMetricDelta"
+                  >
+                    {{ ARROWS[deltaFor(metric, key)!.direction] }}
+                    {{
+                      deltaFor(metric, key)!.direction === 'flat'
+                        ? ''
+                        : deltaFor(metric, key)!.text
+                    }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p v-if="overview" class="text-xs text-crisiscleanup-dark-300">
+          {{
+            t(
+              '~~Arrows compare each window with the same length of time just before it. Green is better, red is worse.',
+            )
+          }}
+        </p>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import VoiceMetricCard from '@/components/admin/voice/VoiceMetricCard.vue';
 import {
+  HEADLINE_KEYS,
+  TREND_SERIES,
   WINDOW_LABELS,
   bucketLabel,
   formatMetricValue,
@@ -256,6 +324,8 @@ const SERIES_LABELS: Record<TrendSeries, string> = {
   open_issues: '~~Open issues',
 };
 const series = ref<TrendSeries>('calls');
+const showCompare = ref(false);
+const trendEl = ref<HTMLElement>();
 
 const ARROWS = { up: '▲', down: '▼', flat: '–' };
 const DELTA_CLASSES = {
@@ -267,7 +337,32 @@ const DELTA_CLASSES = {
 const windows = computed<MetricWindow[]>(
   () => overview.value?.windows ?? ['1h', '3h', '24h', '7d', '30d'],
 );
-const groups = computed(() => groupMetrics(overview.value?.metrics ?? []));
+const metrics = computed(() => overview.value?.metrics ?? []);
+// The headline metrics have large cards; the groups hold the rest.
+const headlines = computed(() =>
+  HEADLINE_KEYS.flatMap((key) =>
+    metrics.value.filter((metric: Metric) => metric.key === key),
+  ),
+);
+const tableGroups = computed(() => groupMetrics(metrics.value));
+const groups = computed(() =>
+  groupMetrics(
+    metrics.value.filter(
+      (metric: Metric) => !HEADLINE_KEYS.includes(metric.key),
+    ),
+  ),
+);
+
+function isSeries(metric: Metric) {
+  return TREND_SERIES.includes(metric.key as TrendSeries);
+}
+function isSelected(metric: Metric) {
+  return isSeries(metric) && metric.key === series.value;
+}
+function selectSeries(metric: Metric) {
+  series.value = metric.key as TrendSeries;
+  trendEl.value?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' });
+}
 
 function deltaFor(metric: Metric, key: MetricWindow) {
   return metricDelta(metric, metric.values[key], metric.previous?.[key]);
