@@ -6,6 +6,8 @@
  * with one click; the rest describe a hand edit.
  */
 
+import type { SpeechTurn } from './voiceSessions';
+
 export interface VoiceCorrection {
   id: number;
   kind: string;
@@ -21,6 +23,14 @@ export interface VoiceCorrection {
   applied_value: unknown;
   acted_by: number | null;
   acted_at: string | null;
+  /** The Call Auditor applied it without a person. */
+  auto?: boolean;
+  acted_by_name?: string;
+  /** Why an automatic fix did not run: the finding waits for a person. */
+  left_for_review?: string | null;
+  dismiss_reason?: string;
+  /** The case still has what the fix wrote, so the fix can be undone. */
+  can_undo?: boolean;
 }
 
 export interface VoiceReview {
@@ -39,6 +49,9 @@ export interface VoiceReview {
   };
   incident_id: number | null;
   worksite: { id: number; case_number: string } | null;
+  /** Every case of the call; a second address makes a second case. */
+  cases?: { id: number; case_number: string; incident_id: number }[];
+  flags?: string[];
   corrections: VoiceCorrection[];
 }
 
@@ -47,9 +60,24 @@ export interface VoiceReviewWithTranscript extends VoiceReview {
   transcript: string;
   /** A 30-minute link to the call recording, or null if none was stored. */
   audio_url: string | null;
+  /** The spoken turns with their time in the recording, when the API has them. */
+  speech_turns?: SpeechTurn[];
 }
 
-export type CorrectionAction = 'apply' | 'dismiss' | 'resolve';
+export type CorrectionAction = 'apply' | 'dismiss' | 'resolve' | 'undo';
+
+export type DismissReason =
+  | 'reviewer_wrong'
+  | 'already_fixed'
+  | 'not_needed'
+  | 'other';
+
+export const DISMISS_REASONS: Record<DismissReason, string> = {
+  reviewer_wrong: '~~The reviewer was wrong',
+  already_fixed: '~~Already fixed',
+  not_needed: '~~Not needed',
+  other: '~~Other',
+};
 
 export function voiceReviewUrl(path = '') {
   return `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_reviews${
@@ -95,6 +123,45 @@ export function formatValue(value: unknown): string {
       .join(', ');
   }
   return typeof value === 'string' ? value : JSON.stringify(value);
+}
+
+/** What a finished correction says about who did it. */
+export function correctionStatusLabel(correction: VoiceCorrection): string {
+  if (
+    correction.kind === 'wrong_incident' &&
+    correction.status === 'resolved' &&
+    correction.applied_value
+  ) {
+    return '~~Moved';
+  }
+  if (correction.status === 'resolved' && correction.auto) {
+    return correction.kind === 'missed_case'
+      ? '~~Linked automatically'
+      : '~~Fixed automatically';
+  }
+  return (
+    (
+      {
+        applied: '~~Applied',
+        resolved: '~~Fixed by hand',
+        dismissed: '~~Dismissed',
+      } as Record<string, string>
+    )[correction.status] ?? correction.status
+  );
+}
+
+/** A reviewed call's cases; old reviews list only the first. */
+export function reviewCases(review: VoiceReview) {
+  if (review.cases?.length) return review.cases;
+  return review.worksite && review.incident_id
+    ? [
+        {
+          id: review.worksite.id,
+          case_number: review.worksite.case_number,
+          incident_id: review.incident_id,
+        },
+      ]
+    : [];
 }
 
 export function caseUrl(review: VoiceReview) {
@@ -321,4 +388,15 @@ export function addressExtras(found: FoundAddress): FormChange[] {
     { target: 'worksite', key: 'what3words', value: found.what3words },
     { target: 'worksite', key: 'pluscode', value: found.pluscode },
   ];
+}
+
+/** The answer of POST auto_fix. */
+export interface AutoFixResult {
+  /** Reviews the auto-fixer looked at. */
+  reviews: number;
+  /** Missed cases linked to a case that already exists. */
+  linked: number;
+  /** Findings applied to cases. */
+  applied: number;
+  dry_run: boolean;
 }

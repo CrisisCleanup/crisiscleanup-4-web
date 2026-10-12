@@ -3,7 +3,7 @@
     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
       <button
         type="button"
-        class="font-semibold underline"
+        class="font-semibold underline max-md:min-h-[40px]"
         @click="emit('back')"
       >
         ← {{ t('~~All calls') }}
@@ -11,6 +11,7 @@
       <div class="flex flex-wrap items-center gap-2">
         <BaseButton
           v-if="review"
+          class="max-md:!min-h-[40px]"
           variant="outline"
           size="small"
           data-testid="testVoiceReviewAgain"
@@ -19,20 +20,20 @@
           :alt="t('~~Review again')"
         />
         <a
-          v-if="caseHref"
-          :href="caseHref"
+          v-for="link in caseLinks"
+          :key="link.id"
+          :href="link.href"
           target="_blank"
           rel="noopener"
-          class="rounded border border-crisiscleanup-dark-100 px-2 py-1 text-xs font-semibold"
+          class="inline-flex min-h-[40px] items-center rounded border border-crisiscleanup-dark-100 px-2 py-1 text-xs font-semibold"
           data-testid="testVoiceReviewOpenCase"
         >
-          {{
-            t('~~Edit case {number}', { number: review?.worksite?.case_number })
-          }}
+          {{ t('~~Edit case {number}', { number: link.case_number }) }}
           ↗
         </a>
         <BaseButton
           v-if="openSimple.length > 0"
+          class="max-md:!min-h-[40px]"
           variant="solid"
           size="small"
           data-testid="testVoiceReviewApplySimple"
@@ -48,8 +49,9 @@
       <div class="min-w-0">
         <audio
           v-if="review.audio_url"
+          ref="audioEl"
           controls
-          preload="none"
+          preload="metadata"
           class="mb-3 w-full"
           :src="review.audio_url"
           data-testid="testVoiceReviewAudio"
@@ -58,9 +60,24 @@
           {{ t('~~No recording was saved for this call.') }}
         </p>
 
-        <dl class="mb-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+        <dl class="mb-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1">
           <dt class="text-crisiscleanup-dark-300">{{ t('~~Case') }}</dt>
-          <dd>{{ review.worksite?.case_number ?? t('~~No case') }}</dd>
+          <dd data-testid="testVoiceReviewCases">
+            <template v-if="caseLinks.length > 0">
+              <span
+                v-for="(link, index) in caseLinks"
+                :key="link.id"
+                data-testid="testVoiceReviewCaseNumber"
+              >
+                <template v-if="index > 0">, </template>{{ link.case_number }}
+              </span>
+            </template>
+            <template v-else>{{ t('~~No case') }}</template>
+          </dd>
+          <template v-if="review.flags?.length">
+            <dt class="text-crisiscleanup-dark-300">{{ t('~~Flags') }}</dt>
+            <dd><VoiceFlagPills :flags="review.flags" /></dd>
+          </template>
           <dt class="text-crisiscleanup-dark-300">{{ t('~~Call') }}</dt>
           <dd>{{ review.session.call_id }} · {{ review.session.status }}</dd>
           <dt class="text-crisiscleanup-dark-300">{{ t('~~Reviewer') }}</dt>
@@ -77,6 +94,16 @@
           :description="t('~~The case matches what the caller said.')"
         />
 
+        <p
+          v-if="review.corrections.length > 0"
+          class="mb-2 hidden text-xs text-crisiscleanup-dark-300 md:block"
+          data-testid="testVoiceReviewKeysHint"
+        >
+          {{
+            t('~~Keys: j and k move between findings, a accepts, d dismisses.')
+          }}
+        </p>
+
         <section v-for="group in groups" :key="group.title" class="mb-4">
           <h3
             class="mb-2 text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
@@ -86,6 +113,8 @@
           <VoiceCorrectionCard
             v-for="correction in group.items"
             :key="correction.id"
+            :ref="(card: unknown) => setCard(correction.id, card)"
+            :active="activeId === correction.id"
             :correction="correction"
             :case-href="caseHref"
             :problem="problems[correction.id]"
@@ -93,6 +122,11 @@
             :in-form="usedInForm.has(correction.id)"
             :can-create-case="canCreateCase(correction)"
             :move-to="moveTarget(correction)?.name"
+            @hover="
+              (over: boolean) => (hoveredId = over ? correction.id : undefined)
+            "
+            @select="selectedId = correction.id"
+            @undo="undo(correction)"
             @act="
               (action: CorrectionAction, value?: unknown) =>
                 act(correction, action, value)
@@ -103,15 +137,19 @@
           />
         </section>
 
-        <details>
-          <summary class="cursor-pointer font-semibold">
-            {{ t('~~Transcript') }}
-          </summary>
-          <pre
-            class="mt-2 max-h-[45vh] overflow-auto whitespace-pre-wrap rounded bg-crisiscleanup-grey-100/40 p-3 text-xs"
-            >{{ review.transcript || t('~~(no transcript saved)') }}</pre
+        <section>
+          <h3
+            class="mb-2 text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
           >
-        </details>
+            {{ t('~~Transcript') }}
+          </h3>
+          <VoiceReviewTranscript
+            :turns="turns"
+            :match="match"
+            :can-seek="Boolean(review.audio_url)"
+            @seek="seekTo"
+          />
+        </section>
       </div>
 
       <div v-if="showForm" class="min-w-0">
@@ -122,7 +160,7 @@
           {{ t('~~Disaster for the new case') }}
           <select
             v-model="newCase.incidentId"
-            class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
+            class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
             data-testid="testVoiceReviewNewCaseIncident"
           >
             <option
@@ -168,10 +206,13 @@ import axios from 'axios';
 import { useToast } from 'vue-toastification';
 import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
 import VoiceCorrectionCard from './VoiceCorrectionCard.vue';
+import VoiceFlagPills from './VoiceFlagPills.vue';
+import VoiceReviewTranscript from './VoiceReviewTranscript.vue';
 import VoiceReviewCaseForm from './VoiceReviewCaseForm.vue';
 import Incident from '@/models/Incident';
 import {
   caseUrl,
+  reviewCases,
   addressExtras,
   formChanges,
   incidentMove,
@@ -183,6 +224,17 @@ import {
   type VoiceCorrection,
   type VoiceReviewWithTranscript,
 } from '@/hooks/voice/voiceReviews';
+import {
+  caseEditPath,
+  sessionsUrl,
+  type SessionDetail,
+  type SpeechTurn,
+} from '@/hooks/voice/voiceSessions';
+import {
+  findEvidence,
+  parseSpeechTurns,
+  seekSeconds,
+} from '@/hooks/voice/voiceTranscript';
 import { getErrorMessage } from '@/utils/errors';
 import useDialogs from '@/hooks/useDialogs';
 
@@ -203,6 +255,15 @@ const caseHref = computed(() => {
   const path = review.value && caseUrl(review.value);
   return path ? router.resolve(path).href : undefined;
 });
+// Every case of the call: a second address makes a second case.
+const caseLinks = computed(() =>
+  review.value
+    ? reviewCases(review.value).map((item) => ({
+        ...item,
+        href: router.resolve(caseEditPath(item)).href,
+      }))
+    : [],
+);
 const openSimple = computed(
   () =>
     review.value?.corrections.filter(
@@ -222,6 +283,62 @@ const groups = computed(() => {
     },
   ].filter((group) => group.items.length > 0);
 });
+
+// The words of the call, with their time in the recording when known.
+const sessionTurns = ref<SpeechTurn[]>([]);
+const turns = computed<SpeechTurn[]>(() => {
+  const given = review.value?.speech_turns?.length
+    ? review.value.speech_turns
+    : sessionTurns.value;
+  return given.length > 0
+    ? given
+    : parseSpeechTurns(review.value?.transcript ?? '');
+});
+const audioEl = ref<HTMLAudioElement>();
+
+// The finding under the mouse, or chosen with the keyboard.
+const hoveredId = ref<number>();
+const selectedId = ref<number>();
+const activeId = computed(() => hoveredId.value ?? selectedId.value);
+const match = computed(() => {
+  const active = review.value?.corrections.find(
+    (c: VoiceCorrection) => c.id === activeId.value,
+  );
+  return active?.evidence
+    ? findEvidence(turns.value, active.evidence)
+    : undefined;
+});
+const cards = new Map<number, { startDismiss: () => void }>();
+function setCard(id: number, card: unknown) {
+  if (card) cards.set(id, card as { startDismiss: () => void });
+  else cards.delete(id);
+}
+
+function seekTo(line: { turn: SpeechTurn; index: number; count: number }) {
+  const audio = audioEl.value;
+  if (!audio) return;
+  const go = () => {
+    const seconds = seekSeconds(
+      line.turn,
+      line.index,
+      line.count,
+      audio.duration,
+    );
+    if (seconds === undefined) return;
+    audio.currentTime = seconds;
+    void audio.play?.();
+  };
+  // The length of the recording is not known until its start has loaded.
+  if (
+    typeof line.turn.offset_seconds !== 'number' &&
+    !Number.isFinite(audio.duration)
+  ) {
+    audio.addEventListener('loadedmetadata', go, { once: true });
+    audio.load();
+  } else {
+    go();
+  }
+}
 
 const caseForm = ref<InstanceType<typeof VoiceReviewCaseForm>>();
 // Suggestions put in the case form; marked fixed when the case saves.
@@ -377,9 +494,42 @@ async function load() {
       voiceReviewUrl(String(props.reviewId)),
     );
     review.value = data;
+    void loadSessionTurns(data.session.id);
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }
+}
+
+let turnsLoadedFor: number | undefined;
+// Only the console call has the time of each line; the review can go without.
+async function loadSessionTurns(sessionId: number) {
+  if (turnsLoadedFor === sessionId) return;
+  turnsLoadedFor = sessionId;
+  try {
+    const { data } = await axios.get<SessionDetail>(
+      sessionsUrl(String(sessionId)),
+    );
+    sessionTurns.value = data.speech_turns ?? [];
+  } catch {
+    sessionTurns.value = [];
+  }
+}
+
+async function undo(correction: VoiceCorrection) {
+  const answer = await confirmDialog({
+    title: t('~~Undo this fix'),
+    content: t(
+      '~~Put the case back to what it was before this fix? If someone changed the case since, the undo stops.',
+    ),
+    actions: {
+      no: { text: t('actions.cancel'), type: 'outline' },
+      yes: { text: t('~~Undo'), type: 'solid' },
+    },
+  });
+  if (answer !== 'yes') return;
+  await act(correction, 'undo');
+  // The undo can unlink a case, so the call shows its cases again.
+  if (!problems.value[correction.id]) await load();
 }
 
 async function act(
@@ -387,14 +537,18 @@ async function act(
   action: CorrectionAction,
   value?: unknown,
 ) {
+  // A dismissal carries its reason; the other actions carry a value.
+  let body: Record<string, unknown> = {};
+  if (action === 'dismiss' && value) body = { reason: value };
+  else if (action !== 'dismiss' && value !== undefined) body = { value };
   try {
     const { data } = await axios.post<VoiceCorrection>(
       voiceReviewUrl(`corrections/${correction.id}/${action}`),
-      value === undefined ? {} : { value },
+      body,
     );
     Object.assign(correction, data);
     delete problems.value[correction.id];
-    if (action === 'apply') reloadCaseForm();
+    if (action === 'apply' || action === 'undo') reloadCaseForm();
   } catch (error) {
     problems.value[correction.id] = getErrorMessage(error);
   }
@@ -434,6 +588,77 @@ async function applySimple() {
     $toasted.error(getErrorMessage(error));
   }
 }
+
+// Keys, unless the person is typing: j and k move between findings, a
+// accepts the one-click fix, d starts a dismissal.
+const orderedIds = computed(() =>
+  groups.value.flatMap((group: { items: VoiceCorrection[] }) =>
+    group.items.map((c: VoiceCorrection) => c.id),
+  ),
+);
+
+function moveSelection(step: 1 | -1) {
+  const ids = orderedIds.value;
+  if (ids.length === 0) return;
+  const at =
+    selectedId.value === undefined ? -1 : ids.indexOf(selectedId.value);
+  const next =
+    at === -1
+      ? step === 1
+        ? 0
+        : ids.length - 1
+      : Math.min(ids.length - 1, Math.max(0, at + step));
+  selectedId.value = ids[next];
+  void nextTick(() =>
+    document
+      .querySelector(`[data-correction-id="${ids[next]}"]`)
+      ?.scrollIntoView?.({ block: 'nearest' }),
+  );
+}
+
+function isTyping(target: EventTarget | null) {
+  const element = target as HTMLElement | null;
+  return Boolean(
+    element?.isContentEditable ||
+      ['INPUT', 'TEXTAREA', 'SELECT'].includes(element?.tagName ?? ''),
+  );
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    isTyping(event.target) ||
+    !review.value
+  ) {
+    return;
+  }
+  const selected = review.value.corrections.find(
+    (c: VoiceCorrection) => c.id === selectedId.value,
+  );
+  switch (event.key) {
+    case 'j': {
+      moveSelection(1);
+      break;
+    }
+    case 'k': {
+      moveSelection(-1);
+      break;
+    }
+    case 'a': {
+      if (selected?.simple && selected.status === 'open') {
+        void act(selected, 'apply');
+      }
+      break;
+    }
+    case 'd': {
+      if (selected?.status === 'open') cards.get(selected.id)?.startDismiss();
+      break;
+    }
+  }
+}
+useEventListener(window, 'keydown', onKeydown);
 
 watch(() => props.reviewId, load, { immediate: true });
 </script>

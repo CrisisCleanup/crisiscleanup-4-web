@@ -20,7 +20,7 @@
             {{ t('~~Show') }}
             <select
               v-model="view"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
+              class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
               data-testid="testVoiceReviewFilter"
             >
               <option value="open">{{ t('~~Calls with open issues') }}</option>
@@ -34,7 +34,7 @@
             {{ t('~~Issue type') }}
             <select
               v-model="kindFilter"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
+              class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
               data-testid="testVoiceReviewKindFilter"
             >
               <option value="">{{ t('~~All issue types') }}</option>
@@ -48,6 +48,16 @@
             </select>
           </label>
 
+          <router-link
+            :to="{ name: 'nav.voice_console', query: { view: 'metrics' } }"
+            class="inline-flex min-h-[40px] items-center font-semibold underline"
+            data-testid="testVoiceReviewMetricsLink"
+          >
+            {{ t('~~Overall metrics') }} →
+          </router-link>
+
+          <VoiceAutoFix @done="refresh" />
+
           <form
             class="flex flex-wrap items-end gap-2"
             data-testid="testVoiceReviewBackfill"
@@ -60,7 +70,7 @@
               <input
                 v-model="since"
                 type="date"
-                class="mt-1 rounded border p-1 text-sm normal-case text-black"
+                class="mt-1 rounded border p-1 max-md:min-h-[40px] text-sm normal-case text-black"
                 data-testid="testVoiceReviewSince"
                 @change="pendingCount = undefined"
               />
@@ -75,6 +85,7 @@
               {{ t('~~Include calls already reviewed') }}
             </label>
             <BaseButton
+              class="max-md:!min-h-[40px]"
               variant="outline"
               size="small"
               data-testid="testVoiceReviewCheck"
@@ -84,6 +95,7 @@
             />
             <BaseButton
               v-if="pendingCount"
+              class="max-md:!min-h-[40px]"
               variant="solid"
               size="small"
               data-testid="testVoiceReviewQueue"
@@ -98,6 +110,7 @@
               {{ t('~~No calls need a review.') }}
             </span>
             <BaseButton
+              class="max-md:!min-h-[40px]"
               variant="outline"
               size="small"
               :action="refresh"
@@ -117,6 +130,7 @@
           </p>
           <BaseButton
             v-if="bulkIds.length > 0"
+            class="max-md:!min-h-[40px]"
             variant="solid"
             size="small"
             data-testid="testVoiceReviewBulkCreate"
@@ -189,7 +203,7 @@
             {{ formatWhen(item.session.ended_at ?? item.reviewed_at) }}
           </template>
           <template #case="{ item }">
-            {{ item.worksite?.case_number ?? t('~~No case') }}
+            {{ caseNumbers(item) || t('~~No case') }}
           </template>
           <template #issues="{ item }">
             <span
@@ -227,12 +241,14 @@ import { useToast } from 'vue-toastification';
 import AjaxTable from '@/components/AjaxTable.vue';
 import useEmitter from '@/hooks/useEmitter';
 import { makeTableColumns } from '@/utils/table';
+import VoiceAutoFix from '@/components/admin/voice/VoiceAutoFix.vue';
 import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import {
   KIND_LABELS,
   duplicateUrl,
   openMissedCase,
   possibleDuplicates,
+  reviewCases,
   voiceReviewUrl,
   type MissedCaseResult,
   type VoiceReview,
@@ -297,6 +313,12 @@ function openReview(review: VoiceReview) {
     name: 'nav.voice_reviews',
     params: { reviewId: review.id },
   });
+}
+
+function caseNumbers(review: VoiceReview) {
+  return reviewCases(review)
+    .map((item) => item.case_number)
+    .join(', ');
 }
 
 function hasPossibleDuplicate(review: VoiceReview) {
