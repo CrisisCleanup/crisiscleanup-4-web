@@ -9,84 +9,144 @@
         class="text-xs text-crisiscleanup-grey-900"
         data-testid="testVoiceProjectionBasis"
       >
-        {{
-          t('~~At the last {window} rate', {
-            window: t(WINDOW_LABELS[windowKey]),
-          })
-        }}
+        {{ t('~~Based on the last 7 days, by hour of day') }}
       </p>
     </div>
 
     <p
-      v-if="!projection"
+      v-if="!forecast"
       class="text-crisiscleanup-dark-300"
       data-testid="testVoiceProjectionEmpty"
     >
       —
       <span class="text-xs">{{
-        t('~~No calls or no cost in this time.')
+        profile
+          ? t('~~No calls in the last 7 days.')
+          : t('~~The projection is not available now.')
       }}</span>
     </p>
-    <dl v-else class="grid grid-cols-2 gap-3 md:grid-cols-4">
-      <div
-        v-for="item in items"
-        :key="item.id"
-        class="flex min-w-0 flex-col gap-1"
-      >
-        <dt class="text-xs font-semibold text-crisiscleanup-grey-900">
-          {{ t(item.label) }}
-        </dt>
-        <dd
-          class="break-words text-xl font-semibold tabular-nums"
-          :data-testid="`testVoiceProjection-${item.id}`"
+    <template v-else>
+      <dl class="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <div
+          v-for="item in items"
+          :key="item.id"
+          class="flex min-w-0 flex-col gap-1"
         >
-          {{ item.value }}
-        </dd>
+          <dt class="text-xs font-semibold text-crisiscleanup-grey-900">
+            {{ t(item.label) }}
+          </dt>
+          <dd
+            class="break-words text-xl font-semibold tabular-nums"
+            :data-testid="`testVoiceProjection-${item.id}`"
+          >
+            {{ item.value }}
+          </dd>
+        </div>
+      </dl>
+
+      <div class="flex flex-col gap-1" data-testid="testVoiceProjectionHours">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h4 class="text-xs font-semibold text-crisiscleanup-grey-900">
+            {{
+              t('~~Typical {measure} by hour of day', {
+                measure: t(chartBy === 'cost' ? '~~cost' : '~~calls'),
+              })
+            }}
+          </h4>
+          <div
+            class="inline-flex overflow-hidden rounded border border-crisiscleanup-grey-100"
+            role="group"
+            :aria-label="t('~~Chart shows')"
+          >
+            <button
+              v-for="option in CHART_OPTIONS"
+              :key="option.key"
+              type="button"
+              class="min-h-[40px] px-3 text-xs font-semibold"
+              :class="
+                option.key === chartBy
+                  ? 'bg-primary-light text-black'
+                  : 'bg-white text-crisiscleanup-grey-900 hover:bg-crisiscleanup-smoke'
+              "
+              :aria-pressed="option.key === chartBy"
+              :data-testid="`testVoiceProjectionChart-${option.key}`"
+              @click="chartBy = option.key"
+            >
+              {{ t(option.label) }}
+            </button>
+          </div>
+        </div>
+        <div
+          class="flex h-24 min-w-0 items-end gap-px border-b border-crisiscleanup-grey-100"
+          role="img"
+          :aria-label="
+            t('~~Typical {measure} by hour of day', {
+              measure: t(chartBy === 'cost' ? '~~cost' : '~~calls'),
+            })
+          "
+        >
+          <span
+            v-for="bar in bars"
+            :key="bar.hour"
+            class="flex h-full min-w-px flex-1 items-end"
+            :class="{ 'bg-primary-light/50': bar.current }"
+          >
+            <span
+              class="w-full rounded-t-sm"
+              :class="
+                bar.current
+                  ? 'bg-primary-dark'
+                  : 'bg-crisiscleanup-dashboard-blue'
+              "
+              :style="{ height: `${bar.height}%` }"
+              :title="`${bar.label}: ${bar.text}`"
+              data-testid="testVoiceProjectionBar"
+              :data-hour="bar.hour"
+              :data-current="bar.current"
+            />
+          </span>
+        </div>
+        <div class="flex text-[10px] text-crisiscleanup-dark-300">
+          <span v-for="bar in bars" :key="bar.hour" class="min-w-px flex-1">
+            <span v-if="bar.hour % 6 === 0" class="whitespace-nowrap">
+              {{ bar.label }}
+            </span>
+          </span>
+        </div>
+        <p class="text-xs text-crisiscleanup-dark-300">
+          {{
+            t(
+              '~~Times in your time zone ({zone}). The highlighted hour is now.',
+              {
+                zone,
+              },
+            )
+          }}
+        </p>
       </div>
-    </dl>
 
-    <p
-      v-if="projection?.change"
-      class="text-xs"
-      :class="DELTA_CLASSES[projection.change.tone]"
-      :data-tone="projection.change.tone"
-      data-testid="testVoiceProjectionChange"
-    >
-      {{ ARROWS[projection.change.direction] }}
-      {{ projection.change.direction === 'flat' ? '' : projection.change.text }}
-      <span class="text-crisiscleanup-dark-300">
-        {{ t('~~vs the {window} before', { window: windowKey }) }}
-      </span>
-    </p>
+      <label class="flex flex-col gap-1 text-xs">
+        <span class="font-semibold text-crisiscleanup-grey-900">
+          {{ t('~~Expected calls per day') }}
+        </span>
+        <input
+          v-model="expectedText"
+          type="text"
+          inputmode="decimal"
+          class="min-h-[40px] w-full max-w-[12rem] rounded border p-1.5 text-sm"
+          :placeholder="String(Math.round(forecast.callsPerDay))"
+          data-testid="testVoiceExpectedCalls"
+        />
+        <span class="text-crisiscleanup-dark-300">
+          {{
+            t(
+              '~~Leave empty to use the typical calls per day of the last 7 days. The hours of the day keep their shape.',
+            )
+          }}
+        </span>
+      </label>
+    </template>
 
-    <label v-if="projection" class="flex flex-col gap-1 text-xs">
-      <span class="font-semibold text-crisiscleanup-grey-900">
-        {{ t('~~Expected calls per day') }}
-      </span>
-      <input
-        v-model="expectedText"
-        type="text"
-        inputmode="decimal"
-        class="min-h-[40px] w-full max-w-[12rem] rounded border p-1.5 text-sm"
-        :placeholder="String(Math.round(projection.callsPerDay))"
-        data-testid="testVoiceExpectedCalls"
-      />
-      <span class="text-crisiscleanup-dark-300">
-        {{
-          t(
-            '~~Leave empty to use the calls per day of this time frame. Cost per call times the calls you expect.',
-          )
-        }}
-      </span>
-    </label>
-
-    <p
-      v-if="isShortWindow"
-      class="text-xs text-crisiscleanup-dark-300"
-      data-testid="testVoiceProjectionShortHint"
-    >
-      {{ t('~~Short window: projection is rough') }}
-    </p>
     <p class="text-xs text-crisiscleanup-dark-300">
       {{ t('~~Model cost only (voice + Luna). Excludes phone and LiveKit.') }}
     </p>
@@ -95,27 +155,19 @@
 
 <script setup lang="ts">
 import {
-  SHORT_WINDOWS,
-  WINDOW_LABELS,
+  browserTimeZone,
+  forecastCost,
   formatMetricValue,
+  hourLabel,
   parseExpectedCalls,
-  projectCost,
-  type Metric,
-  type MetricWindow,
+  type CostProfile,
+  type HourAverage,
 } from '@/hooks/voice/voiceMetrics';
 
 const props = defineProps<{
-  metrics: Metric[];
-  windowKey: MetricWindow;
+  profile?: CostProfile;
 }>();
 const { t } = useI18n();
-
-const ARROWS = { up: '▲', down: '▼', flat: '–' };
-const DELTA_CLASSES = {
-  good: 'text-crisiscleanup-green-900',
-  bad: 'text-crisiscleanup-red-700',
-  neutral: 'text-crisiscleanup-dark-300',
-};
 
 // The expected calls per day stay on this device between visits.
 const STORAGE_KEY = 'voiceCostExpectedCallsPerDay';
@@ -136,32 +188,54 @@ watch(expectedText, (text: string) => {
   }
 });
 
-function metricNamed(key: string) {
-  return props.metrics.find((metric: Metric) => metric.key === key);
-}
-
-const projection = computed(() =>
-  projectCost({
-    cost: metricNamed('cost_usd')?.values[props.windowKey],
-    calls: metricNamed('calls')?.values[props.windowKey],
-    window: props.windowKey,
-    previousCost: metricNamed('cost_usd')?.previous?.[props.windowKey],
-    expectedCallsPerDay: parseExpectedCalls(expectedText.value),
-  }),
+const zone = browserTimeZone();
+const forecast = computed(() =>
+  props.profile
+    ? forecastCost(props.profile, {
+        zone,
+        expectedCallsPerDay: parseExpectedCalls(expectedText.value),
+      })
+    : undefined,
 );
-const isShortWindow = computed(() => SHORT_WINDOWS.includes(props.windowKey));
 
 const items = computed(() => {
-  const value = projection.value;
+  const value = forecast.value;
   if (!value) return [];
   return [
-    { id: 'day', label: '~~Per day', amount: value.perDay },
-    { id: 'week', label: '~~Per week', amount: value.perWeek },
-    { id: 'month', label: '~~Per month (30 days)', amount: value.perMonth },
-    { id: 'call', label: '~~Per call', amount: value.perCall },
+    { id: 'today', label: '~~Today (projected)', amount: value.today },
+    { id: 'day', label: '~~Typical day', amount: value.perDay },
+    { id: 'week', label: '~~Week', amount: value.perWeek },
+    { id: 'month', label: '~~30 days', amount: value.perMonth },
+    { id: 'call', label: '~~Cost per call', amount: value.perCall },
   ].map((item) => ({
     ...item,
     value: formatMetricValue(item.amount, 'usd'),
+  }));
+});
+
+const CHART_OPTIONS = [
+  { key: 'cost', label: '~~Cost' },
+  { key: 'calls', label: '~~Calls' },
+] as const;
+const chartBy = ref<(typeof CHART_OPTIONS)[number]['key']>('cost');
+
+const bars = computed(() => {
+  const value = forecast.value;
+  if (!value) return [];
+  const amounts = value.hourly.map(
+    (hour: HourAverage) => hour[chartBy.value as keyof HourAverage],
+  );
+  const peak = Math.max(0, ...amounts);
+  return amounts.map((amount: number, hour: number) => ({
+    hour,
+    label: hourLabel(hour),
+    text:
+      chartBy.value === 'cost'
+        ? formatMetricValue(amount, 'usd')
+        : (Math.round(amount * 10) / 10).toLocaleString(),
+    current: hour === value.currentHour,
+    // An hour with some activity always shows a sliver.
+    height: peak ? Math.max(amount > 0 ? 3 : 0, (amount / peak) * 100) : 0,
   }));
 });
 </script>

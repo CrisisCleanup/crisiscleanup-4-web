@@ -5,9 +5,15 @@ import {
   groupMetrics,
   metricDelta,
   parseExpectedCalls,
-  projectCost,
+  forecastCost,
+  groupByLocalHour,
+  hourLabel,
+  projectToday,
+  scaleToExpectedCalls,
+  typicalDay,
   timeAgo,
   withCostPerCall,
+  type CostProfile,
   type Metric,
 } from '@/hooks/voice/voiceMetrics';
 
@@ -150,88 +156,252 @@ describe('bucketLabel', () => {
   });
 });
 
-describe('projectCost', () => {
-  it('projects the rate of a one hour window', () => {
-    // $0.50 in an hour over 10 calls.
-    const projection = projectCost({ cost: 0.5, calls: 10, window: '1h' });
-    expect(projection).toMatchObject({
-      perDay: 12,
-      perWeek: 84,
-      perMonth: 360,
-      perCall: 0.05,
-      callsPerDay: 240,
-      usesExpectedCalls: false,
-    });
+/** A profile of the 168 hours before `end`, with calls and cost per hour. */
+function profileBefore(
+  end: string,
+  hour: (start: Date) => { calls: number; cost_usd: number },
+): CostProfile {
+  const last = Date.parse(end);
+  return {
+    days: 7,
+    hours: Array.from({ length: 168 }, (_, index) => {
+      const start = new Date(last - (168 - index) * 3_600_000);
+      return { start: start.toISOString(), ...hour(start) };
+    }),
+  };
+}
+
+/** Calls rise from 6 to 9 in the evening (UTC) and cost $0.05 a call. */
+function eveningProfile(end: string) {
+  return profileBefore(end, (start) => {
+    const calls = start.getUTCHours() >= 18 && start.getUTCHours() < 21 ? 4 : 0;
+    return { calls, cost_usd: calls * 0.05 };
+  });
+}
+
+describe('groupByLocalHour', () => {
+  it('groups the hours of the profile by the hour of day in the zone', () => {
+    const profile = eveningProfile('2026-10-12T15:00:00Z');
+    const utc = groupByLocalHour(profile, 'UTC');
+    expect(utc).toHaveLength(24);
+    expect(utc.map((hour) => hour.calls)).toEqual(
+      Array.from({ length: 24 }, (_, hour) =>
+        hour >= 18 && hour < 21 ? 4 : 0,
+      ),
+    );
+    expect(utc[18].cost).toBeCloseTo(0.2);
+
+    // New York is UTC-4 in October: 18 to 21 UTC is 14 to 17 there.
+    const newYork = groupByLocalHour(profile, 'America/New_York');
+    expect(
+      newYork.flatMap((hour, index) => (hour.calls ? [index] : [])),
+    ).toEqual([14, 15, 16]);
+    expect(newYork[14]).toEqual(utc[18]);
   });
 
-  it('scales by the length of the window', () => {
-    expect(projectCost({ cost: 3, calls: 3, window: '3h' })?.perDay).toBe(24);
-    expect(projectCost({ cost: 12, calls: 5, window: '24h' })?.perDay).toBe(12);
-    expect(projectCost({ cost: 70, calls: 40, window: '7d' })?.perDay).toBe(10);
-    expect(projectCost({ cost: 300, calls: 90, window: '30d' })).toMatchObject({
-      perDay: 10,
-      perWeek: 70,
-      perMonth: 300,
-      callsPerDay: 3,
+  it('takes the mean of hours that fall in the same local hour', () => {
+    const profile = profileBefore('2026-10-12T00:00:00Z', (start) => {
+      const day = start.getUTCDate();
+      return { calls: day, cost_usd: day / 10 };
     });
+    // Days 5 to 11 of October: the mean day is 8.
+    const [midnight] = groupByLocalHour(profile, 'UTC');
+    expect(midnight.calls).toBeCloseTo(8);
+    expect(midnight.cost).toBeCloseTo(0.8);
   });
 
-  it('has no projection without calls or cost', () => {
-    const window = '24h';
-    expect(projectCost({ cost: 5, calls: 0, window })).toBeUndefined();
-    expect(projectCost({ cost: 0, calls: 5, window })).toBeUndefined();
-    expect(projectCost({ cost: null, calls: 5, window })).toBeUndefined();
-    expect(projectCost({ cost: 5, calls: null, window })).toBeUndefined();
-    expect(projectCost({ cost: undefined, calls: undefined, window })).toBe(
-      undefined,
+  it('counts a repeated hour as it is when clocks go back', () => {
+    // 1 AM happens twice on 2026-11-01 in New York (EDT, then EST).
+    const profile = profileBefore('2026-11-02T05:00:00Z', () => ({
+      calls: 1,
+      cost_usd: 0.5,
+    }));
+    const hourly = groupByLocalHour(profile, 'America/New_York');
+    const hours = profile.hours.filter((hour) =>
+      hour.start.startsWith('2026-11-01T0'),
+    );
+    expect(hours).toHaveLength(10);
+    // Every local hour has a mean of 1 call: 8 hours of 1 AM, divided by 8.
+    expect(hourly.every((hour) => hour.calls === 1 && hour.cost === 0.5)).toBe(
+      true,
     );
   });
 
-  it('compares the daily rate with the window before; up is bad', () => {
-    const rise = projectCost({
-      cost: 12,
-      calls: 5,
-      window: '24h',
-      previousCost: 8,
-    });
-    expect(rise?.change).toEqual({
-      direction: 'up',
-      text: '+50%',
-      tone: 'bad',
-    });
-    const fall = projectCost({
-      cost: 6,
-      calls: 5,
-      window: '7d',
-      previousCost: 12,
-    });
-    expect(fall?.change).toMatchObject({ direction: 'down', tone: 'good' });
-    expect(
-      projectCost({ cost: 6, calls: 5, window: '7d', previousCost: 0 })?.change
-        ?.text,
-    ).toBe('new');
-    expect(
-      projectCost({ cost: 6, calls: 5, window: '7d', previousCost: null })
-        ?.change,
-    ).toBeUndefined();
+  it('keeps a mean when clocks go forward and an hour is missing', () => {
+    // 2 AM does not exist on 2026-03-08 in New York.
+    const profile = profileBefore('2026-03-09T04:00:00Z', () => ({
+      calls: 2,
+      cost_usd: 1,
+    }));
+    const hourly = groupByLocalHour(profile, 'America/New_York');
+    expect(hourly.every((hour) => hour.calls === 2 && hour.cost === 1)).toBe(
+      true,
+    );
   });
 
-  it('projects cost per call times the expected calls per day', () => {
-    // $12.50 over 30 calls in a day is $0.41667 a call.
-    const projection = projectCost({
-      cost: 12.5,
-      calls: 30,
-      window: '24h',
-      previousCost: 10,
-      expectedCallsPerDay: 60,
+  it('puts a half hour zone hour in the local hour it starts in', () => {
+    // 18:00 UTC is 23:30 in Kolkata (UTC+5:30).
+    const hourly = groupByLocalHour(
+      eveningProfile('2026-10-12T15:00:00Z'),
+      'Asia/Kolkata',
+    );
+    expect(
+      hourly.flatMap((hour, index) => (hour.calls ? [index] : [])),
+    ).toEqual([0, 1, 23]);
+  });
+
+  it('is empty for an hour with no profile hours', () => {
+    const hourly = groupByLocalHour({ days: 7, hours: [] }, 'UTC');
+    expect(hourly).toEqual(
+      Array.from({ length: 24 }, () => ({ calls: 0, cost: 0 })),
+    );
+  });
+});
+
+describe('typicalDay and scaleToExpectedCalls', () => {
+  const hourly = Array.from({ length: 24 }, (_, hour) => ({
+    calls: hour < 12 ? 2 : 0,
+    cost: hour < 12 ? 0.5 : 0,
+  }));
+
+  it('adds up the 24 hours', () => {
+    expect(typicalDay(hourly)).toEqual({ calls: 24, cost: 6 });
+  });
+
+  it('sizes the day to the expected calls and keeps its shape', () => {
+    const scaled = scaleToExpectedCalls(hourly, 48);
+    expect(typicalDay(scaled)).toEqual({ calls: 48, cost: 12 });
+    expect(scaled[0]).toEqual({ calls: 4, cost: 1 });
+    expect(scaled[12]).toEqual({ calls: 0, cost: 0 });
+  });
+
+  it('leaves a day with no calls as it is', () => {
+    const quiet = hourly.map(() => ({ calls: 0, cost: 0 }));
+    expect(scaleToExpectedCalls(quiet, 50)).toBe(quiet);
+  });
+});
+
+describe('projectToday', () => {
+  const zone = 'America/New_York';
+
+  it('adds the cost so far today to the typical cost of the hours left', () => {
+    // 2026-10-12T15:30Z is 11:30 in New York. Today began at 04:00Z.
+    const profile = eveningProfile('2026-10-12T15:00:00Z');
+    const hourly = groupByLocalHour(profile, zone);
+    // Today so far (local 0 to 10) had no calls. Left: 14, 15, 16 at $0.20.
+    expect(
+      projectToday(profile, hourly, Date.parse('2026-10-12T15:30:00Z'), zone),
+    ).toBeCloseTo(0.6);
+
+    // At 19:30Z (15:30 local) the 14 o'clock hour is spent: $0.20 so far.
+    const later = eveningProfile('2026-10-12T19:00:00Z');
+    expect(
+      projectToday(
+        later,
+        groupByLocalHour(later, zone),
+        Date.parse('2026-10-12T19:30:00Z'),
+        zone,
+      ),
+    ).toBeCloseTo(0.2 + 0.4);
+  });
+
+  it('counts the hours of the local day, not of the UTC day', () => {
+    // 02:30Z on Oct 13 is 22:30 on Oct 12 in New York: 22:00 and 23:00 are
+    // left. The profile hour of 2026-10-12T20Z (16:00 local) cost $1 and
+    // counts for today; the hour of 03:00Z Oct 12 (23:00 on Oct 11) does not.
+    const profile = profileBefore('2026-10-13T02:00:00Z', (start) => ({
+      calls: 1,
+      cost_usd: start.toISOString() === '2026-10-12T20:00:00.000Z' ? 1 : 0.1,
+    }));
+    const hourly = groupByLocalHour(profile, zone);
+    const soFar = profile.hours
+      .filter(
+        (hour) =>
+          hour.start >= '2026-10-12T04:00' && hour.start < '2026-10-13T02:00',
+      )
+      .reduce((total, hour) => total + hour.cost_usd, 0);
+    expect(soFar).toBeCloseTo(1 + 0.1 * 21);
+    expect(
+      projectToday(profile, hourly, Date.parse('2026-10-13T02:30:00Z'), zone),
+    ).toBeCloseTo(soFar + hourly[22].cost + hourly[23].cost);
+  });
+
+  it('follows the real hours on a day with a clock change', () => {
+    // 2026-11-01 in New York has 25 hours. At 00:30 EDT (04:30Z) all of them
+    // are left, and the repeated 1 AM counts twice.
+    const profile = profileBefore('2026-11-01T04:00:00Z', () => ({
+      calls: 1,
+      cost_usd: 1,
+    }));
+    const hourly = groupByLocalHour(profile, zone);
+    expect(
+      projectToday(profile, hourly, Date.parse('2026-11-01T04:30:00Z'), zone),
+    ).toBeCloseTo(25);
+  });
+});
+
+describe('forecastCost', () => {
+  const zone = 'America/New_York';
+  const now = Date.parse('2026-10-12T15:30:00Z');
+  const profile = eveningProfile('2026-10-12T15:00:00Z');
+
+  it('projects the typical day, week and 30 days', () => {
+    // 12 calls and $0.60 a day at $0.05 a call.
+    const forecast = forecastCost(profile, { now, zone });
+    expect(forecast).toMatchObject({
+      callsPerDay: 12,
+      usesExpectedCalls: false,
+      currentHour: 11,
     });
-    expect(projection?.perDay).toBeCloseTo(25);
-    expect(projection?.perWeek).toBeCloseTo(175);
-    expect(projection?.perMonth).toBeCloseTo(750);
-    expect(projection?.perCall).toBeCloseTo(12.5 / 30);
-    expect(projection?.usesExpectedCalls).toBe(true);
-    // The rate of the window is no longer what is shown: no change.
-    expect(projection?.change).toBeUndefined();
+    expect(forecast?.perDay).toBeCloseTo(0.6);
+    expect(forecast?.perWeek).toBeCloseTo(4.2);
+    expect(forecast?.perMonth).toBeCloseTo(18);
+    expect(forecast?.perCall).toBeCloseTo(0.05);
+    expect(forecast?.today).toBeCloseTo(0.6);
+    expect(forecast?.hourly[14].cost).toBeCloseTo(0.2);
+  });
+
+  it('sizes the projection to the expected calls, not what was spent', () => {
+    // Twice the calls: twice the cost for the hours left. The cost so far
+    // today is a fact and stays.
+    const spent = profileBefore('2026-10-12T15:00:00Z', (start) => {
+      const calls =
+        start.getUTCHours() >= 18 && start.getUTCHours() < 21 ? 4 : 0;
+      const today = start.getTime() >= Date.parse('2026-10-12T04:00:00Z');
+      return { calls, cost_usd: calls * 0.05 + (today ? 0.01 : 0) };
+    });
+    const typical = forecastCost(spent, { now, zone });
+    const doubled = forecastCost(spent, { now, zone, expectedCallsPerDay: 24 });
+    expect(doubled?.usesExpectedCalls).toBe(true);
+    expect(doubled?.callsPerDay).toBe(12);
+    expect(doubled?.perCall).toBe(typical?.perCall);
+    // 11 hours of today so far cost $0.01 each: $0.11.
+    expect(typical?.today).toBeCloseTo(0.11 + 0.6);
+    expect(doubled?.today).toBeCloseTo(0.11 + 1.2);
+    expect(doubled?.perDay).toBeCloseTo((typical?.perDay ?? 0) * 2);
+    expect(doubled?.perMonth).toBeCloseTo((doubled?.perDay ?? 0) * 30);
+    expect(doubled?.hourly[14].calls).toBeCloseTo(8);
+  });
+
+  it('is undefined when the profile has no calls or no cost', () => {
+    expect(forecastCost({ days: 7, hours: [] }, { now, zone })).toBeUndefined();
+    const quiet = profileBefore('2026-10-12T15:00:00Z', () => ({
+      calls: 0,
+      cost_usd: 0,
+    }));
+    expect(forecastCost(quiet, { now, zone })).toBeUndefined();
+    const free = profileBefore('2026-10-12T15:00:00Z', () => ({
+      calls: 1,
+      cost_usd: 0,
+    }));
+    expect(forecastCost(free, { now, zone })).toBeUndefined();
+  });
+});
+
+describe('hourLabel', () => {
+  it('names an hour of the day', () => {
+    expect(hourLabel(0)).toMatch(/^(12\s?AM|0|00)$/);
+    expect(hourLabel(18)).toMatch(/^(6\s?PM|18)$/);
   });
 });
 

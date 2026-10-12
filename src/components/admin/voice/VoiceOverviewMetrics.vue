@@ -105,8 +105,7 @@
         </div>
         <VoiceCostProjection
           v-if="group.title === COST_GROUP"
-          :metrics="metrics"
-          :window-key="windowKey"
+          :profile="costProfile"
         />
       </section>
       <p class="text-xs text-crisiscleanup-dark-300">
@@ -317,6 +316,7 @@ const {
   window: windowKey,
   overview,
   trend,
+  costProfile,
   loading,
   error,
   updatedAgo,

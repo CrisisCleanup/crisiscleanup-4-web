@@ -136,7 +136,6 @@ const UP_IS_BAD = new Set([
   'open_issues',
   'cost_per_case',
   'cost_per_call',
-  'cost_projection',
   'callback_offers',
 ]);
 /** A rise or fall in these says nothing about how the line does. */
@@ -296,32 +295,164 @@ export function metricDelta(
   return { direction, text, tone };
 }
 
-/** How many hours each window spans. */
-export const WINDOW_HOURS: Record<MetricWindow, number> = {
-  '1h': 1,
-  '3h': 3,
-  '24h': 24,
-  '7d': 24 * 7,
-  '30d': 24 * 30,
-};
-
-/** Windows this short swing a lot, so a projection from them is rough. */
-export const SHORT_WINDOWS: MetricWindow[] = ['1h', '3h'];
-
-const DAYS_IN_WEEK = 7;
 const DAYS_IN_MONTH = 30;
+const HOUR_MS = 3_600_000;
 
-export interface CostProjection {
+/** One hour of the cost profile: the calls and model cost that hour had. */
+export interface CostProfileHour {
+  /** ISO start of the hour, in UTC. */
+  start: string;
+  calls: number;
+  cost_usd: number;
+}
+
+/** `/admins/voice_console/metrics/cost_profile`: the last full hours. */
+export interface CostProfile {
+  days: number;
+  hours: CostProfileHour[];
+}
+
+/** The average calls and cost of one hour of the day. */
+export interface HourAverage {
+  calls: number;
+  cost: number;
+}
+
+/** The time zone of this browser, such as "America/New_York". */
+export function browserTimeZone(): string {
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+
+const zoneFormats = new Map<string, Intl.DateTimeFormat>();
+
+/**
+ * The hour of the day (0-23) and the date at a moment in a time zone. Intl
+ * knows the daylight saving rules, so no fixed offset is needed. A zone with
+ * a half hour offset puts a whole UTC hour in the local hour it starts in.
+ */
+function localTime(moment: number, zone: string) {
+  let format = zoneFormats.get(zone);
+  if (!format) {
+    format = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+    });
+    zoneFormats.set(zone, format);
+  }
+  const parts = Object.fromEntries(
+    format.formatToParts(moment).map((part) => [part.type, part.value]),
+  );
+  return {
+    hour: Number(parts.hour),
+    day: `${parts.year}-${parts.month}-${parts.day}`,
+  };
+}
+
+/**
+ * The typical calls and cost of each hour of the day (index 0 to 23, in the
+ * zone): the mean of the profile hours that fall in that local hour. A day
+ * that has the hour twice (clocks go back) or not at all (clocks go forward)
+ * still gives a fair mean, as it divides by the hours found.
+ */
+export function groupByLocalHour(
+  profile: CostProfile,
+  zone = browserTimeZone(),
+): HourAverage[] {
+  const sums = Array.from({ length: 24 }, () => ({
+    calls: 0,
+    cost: 0,
+    hours: 0,
+  }));
+  for (const hour of profile.hours) {
+    const slot = sums[localTime(Date.parse(hour.start), zone).hour];
+    slot.calls += hour.calls;
+    slot.cost += hour.cost_usd;
+    slot.hours += 1;
+  }
+  return sums.map(({ calls, cost, hours }) => ({
+    calls: hours ? calls / hours : 0,
+    cost: hours ? cost / hours : 0,
+  }));
+}
+
+function sum<T extends object>(rows: T[], key: keyof T & string) {
+  return rows.reduce((total, row) => total + (row[key] as number), 0);
+}
+
+/** A typical day: the 24 hourly averages added up. */
+export function typicalDay(hourly: HourAverage[]): HourAverage {
+  return { calls: sum(hourly, 'calls'), cost: sum(hourly, 'cost') };
+}
+
+/**
+ * The hourly averages with the time of day kept, but sized so that a day has
+ * `expectedCallsPerDay` calls. Unchanged when the profile has no calls.
+ */
+export function scaleToExpectedCalls(
+  hourly: HourAverage[],
+  expectedCallsPerDay: number,
+): HourAverage[] {
+  const typicalCalls = sum(hourly, 'calls');
+  if (!typicalCalls) return hourly;
+  const factor = expectedCallsPerDay / typicalCalls;
+  return hourly.map(({ calls, cost }) => ({
+    calls: calls * factor,
+    cost: cost * factor,
+  }));
+}
+
+/** The start of the UTC hour that a moment is in, as the profile hours are. */
+function hourStart(moment: Date | number): number {
+  return Math.floor(Number(moment) / HOUR_MS) * HOUR_MS;
+}
+
+/**
+ * The cost of today: what the profile hours of today (local date) cost so
+ * far, plus the typical cost of each hour left, the current hour included.
+ */
+export function projectToday(
+  profile: CostProfile,
+  hourly: HourAverage[],
+  now: Date | number,
+  zone = browserTimeZone(),
+): number {
+  const current = hourStart(now);
+  const today = localTime(current, zone).day;
+  const soFar = profile.hours
+    .filter((hour) => {
+      const start = Date.parse(hour.start);
+      return start < current && localTime(start, zone).day === today;
+    })
+    .reduce((total, hour) => total + hour.cost_usd, 0);
+  let rest = 0;
+  for (let at = current; ; at += HOUR_MS) {
+    const local = localTime(at, zone);
+    if (local.day !== today) break;
+    rest += hourly[local.hour].cost;
+  }
+  return soFar + rest;
+}
+
+export interface CostForecast {
+  /** Cost so far today plus the typical cost of the hours left. */
+  today: number;
   perDay: number;
   perWeek: number;
   perMonth: number;
+  /** Cost of the profile over its calls. */
   perCall: number;
-  /** Calls per day at the rate of the window. */
+  /** Typical calls per day of the profile, before any expected calls. */
   callsPerDay: number;
-  /** The projection used the caller's expected calls, not the window's rate. */
+  /** The hourly shape is sized to the caller's expected calls. */
   usesExpectedCalls: boolean;
-  /** Daily run rate against the window before; not given for expected calls. */
-  change?: MetricDelta;
+  /** Typical calls and cost of each local hour of the day. */
+  hourly: HourAverage[];
+  /** The local hour of the day (0-23) that the current hour is. */
+  currentHour: number;
 }
 
 /** A positive number of calls per day from text; undefined for anything else. */
@@ -331,44 +462,50 @@ export function parseExpectedCalls(text: string): number | undefined {
 }
 
 /**
- * What the cost of a window comes to per day, week (7 days) and month
- * (30 days) if the line keeps that rate. With `expectedCallsPerDay` the
- * projection is the cost of one call times those calls instead. Undefined when
- * the window has no calls or no cost.
+ * What the line costs on a typical day (the mean of the profile by hour of
+ * day), the week (7 typical days) and the month (30), and what today comes
+ * to. With `expectedCallsPerDay` the hours keep their shape but add up to
+ * those calls. Undefined when the profile has no calls or no cost.
  */
-export function projectCost(input: {
-  cost: number | null | undefined;
-  calls: number | null | undefined;
-  window: MetricWindow;
-  previousCost?: number | null;
-  expectedCallsPerDay?: number;
-}): CostProjection | undefined {
-  const { cost, calls, window, previousCost, expectedCallsPerDay } = input;
-  if (!cost || !calls || cost < 0 || calls < 0) return undefined;
-  const daysInWindow = WINDOW_HOURS[window] / 24;
-  const callsPerDay = calls / daysInWindow;
-  const perCall = cost / calls;
-  const usesExpectedCalls = expectedCallsPerDay !== undefined;
-  const perDay = usesExpectedCalls
-    ? perCall * expectedCallsPerDay
-    : cost / daysInWindow;
-  const change =
-    usesExpectedCalls || previousCost === null || previousCost === undefined
-      ? undefined
-      : metricDelta(
-          { key: 'cost_projection', format: 'usd' },
-          perDay,
-          previousCost / daysInWindow,
-        );
+export function forecastCost(
+  profile: CostProfile,
+  options: {
+    now?: Date | number;
+    zone?: string;
+    expectedCallsPerDay?: number;
+  } = {},
+): CostForecast | undefined {
+  const { now = Date.now(), zone = browserTimeZone() } = options;
+  const totalCalls = sum(profile.hours, 'calls');
+  const totalCost = sum(profile.hours, 'cost_usd');
+  if (totalCalls <= 0 || totalCost <= 0) return undefined;
+
+  const typical = groupByLocalHour(profile, zone);
+  const { expectedCallsPerDay } = options;
+  const hourly =
+    expectedCallsPerDay === undefined
+      ? typical
+      : scaleToExpectedCalls(typical, expectedCallsPerDay);
+  const perDay = typicalDay(hourly).cost;
   return {
+    today: projectToday(profile, hourly, now, zone),
     perDay,
-    perWeek: perDay * DAYS_IN_WEEK,
+    perWeek: perDay * 7,
     perMonth: perDay * DAYS_IN_MONTH,
-    perCall,
-    callsPerDay,
-    usesExpectedCalls,
-    change,
+    perCall: totalCost / totalCalls,
+    callsPerDay: typicalDay(typical).calls,
+    usesExpectedCalls: expectedCallsPerDay !== undefined,
+    hourly,
+    currentHour: localTime(hourStart(now), zone).hour,
   };
+}
+
+/** "12 AM", "6 PM" (or "18" where the locale uses 24 hours). */
+export function hourLabel(hour: number): string {
+  return new Date(Date.UTC(2000, 0, 1, hour)).toLocaleTimeString([], {
+    hour: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 
 /** "just now", "42 s ago", "3 min ago". */
@@ -390,7 +527,7 @@ export function bucketLabel(start: string, window: MetricWindow): string {
 export const DEFAULT_WINDOW: MetricWindow = '24h';
 
 /**
- * Load the metrics and the trend, and load them again every minute while
+ * Load the metrics, the trend and the cost profile, and load them again every minute while
  * the page is visible. The window is in the URL (?window=7d) so it links.
  */
 export function useVoiceOverview() {
@@ -403,6 +540,7 @@ export function useVoiceOverview() {
   const windowKey = ref<MetricWindow>(fromUrl ?? DEFAULT_WINDOW);
   const overview = ref<MetricsResponse>();
   const trend = ref<TrendBucket[]>([]);
+  const costProfile = ref<CostProfile>();
   const loading = ref(false);
   const error = ref('');
   const updatedAt = ref<Date>();
@@ -422,6 +560,21 @@ export function useVoiceOverview() {
     trend.value = data.buckets;
   }
 
+  // The projection is extra: without a profile the rest of the page still works.
+  async function loadCostProfile() {
+    try {
+      const { data } = await axios.get<CostProfile>(
+        metricsUrl('cost_profile'),
+        {
+          params: { include_test: includeTest.value },
+        },
+      );
+      costProfile.value = data;
+    } catch {
+      costProfile.value = undefined;
+    }
+  }
+
   async function load() {
     loading.value = true;
     error.value = '';
@@ -431,6 +584,7 @@ export function useVoiceOverview() {
           params: { include_test: includeTest.value },
         }),
         loadTrend(),
+        loadCostProfile(),
       ]);
       overview.value = metrics.data;
       updatedAt.value = new Date();
@@ -477,6 +631,7 @@ export function useVoiceOverview() {
     window: windowKey,
     overview,
     trend,
+    costProfile,
     loading,
     error,
     updatedAt,
