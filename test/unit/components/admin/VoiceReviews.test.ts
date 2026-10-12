@@ -3,7 +3,8 @@ import { rest } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as VueRouter from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
-import AdminVoiceReviews from '@/pages/admin/AdminVoiceReviews.vue';
+import VoiceAuditorList from '@/components/admin/voice/VoiceAuditorList.vue';
+import AdminVoiceReviewLink from '@/pages/admin/AdminVoiceReviewLink.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { formatValue } from '@/hooks/voice/voiceReviews';
 import { server } from '../../../setupTests';
@@ -162,7 +163,7 @@ describe('VoiceReviewDetail', () => {
   });
 });
 
-describe('AdminVoiceReviews', () => {
+describe('VoiceAuditorList', () => {
   it('lists open issues and counts earlier calls before it queues them', async () => {
     const posted: unknown[] = [];
     server.use(
@@ -170,7 +171,7 @@ describe('AdminVoiceReviews', () => {
         expect(req.url.searchParams.get('correction_status')).toBe('open');
         // The paged table asks for one page and reads the total count.
         expect(req.url.searchParams.get('offset')).toBe('0');
-        expect(req.url.searchParams.get('limit')).toBe('50');
+        expect(req.url.searchParams.get('limit')).toBe('100');
         return res(ctx.json({ count: 120, results: [review()] }));
       }),
       rest.post(`${baseUrl}/backfill`, async (req, res, ctx) => {
@@ -185,7 +186,7 @@ describe('AdminVoiceReviews', () => {
         );
       }),
     );
-    const wrapper = mount(AdminVoiceReviews, { global: stubs });
+    const wrapper = mount(VoiceAuditorList, { global: stubs });
     await flushPromises();
 
     const row = wrapper.get(testId('testDataItem7Content'));
@@ -214,7 +215,7 @@ describe('AdminVoiceReviews', () => {
   });
 });
 
-describe('AdminVoiceReviews old links', () => {
+describe('AdminVoiceReviewLink old links', () => {
   beforeEach(() => {
     nav.route.params = {};
     nav.replace.mockReset();
@@ -225,7 +226,7 @@ describe('AdminVoiceReviews old links', () => {
       rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(review()))),
     );
     nav.route.params = { reviewId: '7' };
-    mount(AdminVoiceReviews, { global: stubs });
+    mount(AdminVoiceReviewLink, { global: stubs });
     await flushPromises();
     expect(nav.replace).toHaveBeenCalledWith({
       name: 'nav.voice_call',
@@ -241,21 +242,12 @@ describe('AdminVoiceReviews old links', () => {
       ),
     );
     nav.route.params = { reviewId: '7' };
-    mount(AdminVoiceReviews, { global: stubs });
+    mount(AdminVoiceReviewLink, { global: stubs });
     await flushPromises();
-    expect(nav.replace).toHaveBeenCalledWith({ name: 'nav.voice_reviews' });
-  });
-
-  it('shows the list when there is no review id', async () => {
-    server.use(
-      rest.get(baseUrl, (_req, res, ctx) =>
-        res(ctx.json({ count: 0, results: [] })),
-      ),
-    );
-    const wrapper = mount(AdminVoiceReviews, { global: stubs });
-    await flushPromises();
-    expect(nav.replace).not.toHaveBeenCalled();
-    expect(wrapper.find(testId('testVoiceReviewTable')).exists()).toBe(true);
+    expect(nav.replace).toHaveBeenCalledWith({
+      name: 'nav.voice_console',
+      query: { view: 'auditor' },
+    });
   });
 });
 
@@ -333,7 +325,7 @@ describe('VoiceReviewDetail actions', () => {
   });
 });
 
-describe('AdminVoiceReviews issue type filter', () => {
+describe('VoiceAuditorList issue type filter', () => {
   it('asks the API for one kind of issue', async () => {
     const queries: Record<string, string | null>[] = [];
     server.use(
@@ -345,7 +337,7 @@ describe('AdminVoiceReviews issue type filter', () => {
         return res(ctx.json({ count: 0, results: [] }));
       }),
     );
-    const wrapper = mount(AdminVoiceReviews, { global: stubs });
+    const wrapper = mount(VoiceAuditorList, { global: stubs });
     await flushPromises();
 
     await wrapper.get(testId('testVoiceReviewKindFilter')).setValue('address');
@@ -385,7 +377,7 @@ function missedReview(id: number, duplicates: unknown[] = []) {
   };
 }
 
-describe('AdminVoiceReviews missed cases', () => {
+describe('VoiceAuditorList missed cases', () => {
   beforeEach(() => {
     nav.route.params = {};
   });
@@ -418,7 +410,7 @@ describe('AdminVoiceReviews missed cases', () => {
         );
       }),
     );
-    const wrapper = mount(AdminVoiceReviews, { global: stubs });
+    const wrapper = mount(VoiceAuditorList, { global: stubs });
     await flushPromises();
 
     expect(
@@ -486,7 +478,7 @@ describe('Call Auditor review again', () => {
         res(ctx.json({ count: 0, results: [] })),
       ),
     );
-    const list = mount(AdminVoiceReviews, { global: stubs });
+    const list = mount(VoiceAuditorList, { global: stubs });
     await flushPromises();
     await list.get(testId('testVoiceReviewForce')).setValue(true);
     await list.get(testId('testVoiceReviewCheck')).trigger('click');

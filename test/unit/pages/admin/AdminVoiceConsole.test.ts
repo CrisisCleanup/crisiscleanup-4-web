@@ -18,14 +18,24 @@ vi.mock('vue-toastification', () => ({ useToast: () => ({ error: vi.fn() }) }));
 
 // The page section is in the URL (?view=...).
 const nav = vi.hoisted(() => ({
-  query: {} as Record<string, string>,
+  route: undefined as unknown as { query: Record<string, string> },
   replace: vi.fn(),
 }));
-vi.mock('vue-router', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('vue-router')>()),
-  useRoute: () => ({ query: nav.query }),
-  useRouter: () => ({ replace: nav.replace }),
-}));
+vi.mock('vue-router', async (importOriginal) => {
+  const { reactive: makeReactive } = (await import('vue')) as unknown as {
+    reactive: typeof reactive;
+  };
+  nav.route = makeReactive({ query: {} });
+  // Like the real router, a replace changes the query of the route.
+  nav.replace.mockImplementation((to: { query: Record<string, string> }) => {
+    nav.route.query = to.query;
+  });
+  return {
+    ...(await importOriginal<typeof import('vue-router')>()),
+    useRoute: () => nav.route,
+    useRouter: () => ({ replace: nav.replace }),
+  };
+});
 
 const apiConfig = {
   targets: [{ key: 'local', label: 'Local', url: 'ws://localhost', agent: '' }],
@@ -57,6 +67,7 @@ function mountConsole() {
         VoiceToolLog: true,
         VoiceMetrics: true,
         VoiceCallHistory: true,
+        VoiceAuditorList: true,
         VoiceOverviewMetrics: true,
       },
     },
@@ -67,7 +78,7 @@ describe('AdminVoiceConsole model settings', () => {
   const status = ref('idle');
   beforeEach(() => {
     vi.clearAllMocks();
-    nav.query = { view: 'test' };
+    nav.route.query = { view: 'test' };
     status.value = 'idle';
     consoleState.current = {
       call: reactive(createCallState()),
@@ -311,7 +322,7 @@ describe('AdminVoiceConsole sections', () => {
   });
 
   it('opens on the call history, with the test call kept hidden', async () => {
-    nav.query = {};
+    nav.route.query = {};
     const wrapper = mountConsole();
     await flushPromises();
     expect(wrapper.findComponent({ name: 'VoiceCallHistory' }).exists()).toBe(
@@ -328,22 +339,84 @@ describe('AdminVoiceConsole sections', () => {
     wrapper.unmount();
   });
 
-  it('lists the sections as call history, overall metrics, test a call', async () => {
-    nav.query = {};
+  it('lists the sections as call history, call auditor, overall metrics, test a call', async () => {
+    nav.route.query = {};
     const wrapper = mountConsole();
     await flushPromises();
     const tabs = wrapper.findAll('[data-testid^="testVoiceConsoleView-"]');
     expect(tabs.map((tab) => tab.attributes('data-testid'))).toEqual([
       'testVoiceConsoleView-calls',
+      'testVoiceConsoleView-auditor',
       'testVoiceConsoleView-metrics',
       'testVoiceConsoleView-test',
+    ]);
+    expect(tabs.map((tab) => tab.text())).toEqual([
+      'Call history',
+      '~~Call Auditor',
+      '~~Overall metrics',
+      '~~Test a call',
     ]);
     expect(tabs[0].attributes('aria-selected')).toBe('true');
     wrapper.unmount();
   });
 
+  it('fits the lists to the screen and lets the other sections be as tall as their content', async () => {
+    const fills = async (view: string) => {
+      nav.route.query = { view };
+      const wrapper = mountConsole();
+      await flushPromises();
+      const root = wrapper.get('[data-testid="testAdminVoiceConsole"]');
+      const result = root.classes('voice-console-fill');
+      wrapper.unmount();
+      return result;
+    };
+    expect(await fills('calls')).toBe(true);
+    expect(await fills('auditor')).toBe(true);
+    expect(await fills('metrics')).toBe(false);
+    expect(await fills('test')).toBe(false);
+  });
+
+  it('shows the call auditor for ?view=auditor', async () => {
+    nav.route.query = { view: 'auditor' };
+    const wrapper = mountConsole();
+    await flushPromises();
+    expect(wrapper.findComponent({ name: 'VoiceAuditorList' }).exists()).toBe(
+      true,
+    );
+    expect(wrapper.findComponent({ name: 'VoiceCallHistory' }).exists()).toBe(
+      false,
+    );
+    expect(
+      wrapper
+        .get('[data-testid="testVoiceConsoleView-auditor"]')
+        .attributes('aria-selected'),
+    ).toBe('true');
+    wrapper.unmount();
+  });
+
+  it('keeps a section, and so its filters, when another tab is opened', async () => {
+    nav.route.query = { view: 'auditor' };
+    const wrapper = mountConsole();
+    await flushPromises();
+    const auditor = () => wrapper.findComponent({ name: 'VoiceAuditorList' });
+    const instance = auditor().vm;
+    await wrapper
+      .get('[data-testid="testVoiceConsoleView-calls"]')
+      .trigger('click');
+    expect(nav.replace).toHaveBeenCalledWith({ query: { view: 'calls' } });
+    // The auditor is hidden, not removed.
+    expect(auditor().vm).toBe(instance);
+    expect(auditor().element.parentElement?.style.display).toBe('none');
+    await wrapper
+      .get('[data-testid="testVoiceConsoleView-auditor"]')
+      .trigger('click');
+    expect(auditor().vm).toBe(instance);
+    expect(auditor().element.parentElement?.style.display).toBe('');
+    wrapper.unmount();
+  });
+
   it('shows the overall metrics for ?view=metrics', async () => {
-    nav.query = { view: 'metrics' };
+    nav.route.query = { view: 'metrics' };
     const wrapper = mountConsole();
     await flushPromises();
     expect(
@@ -356,7 +429,7 @@ describe('AdminVoiceConsole sections', () => {
   });
 
   it('shows the call history for ?view=calls and puts the section in the URL', async () => {
-    nav.query = { view: 'calls' };
+    nav.route.query = { view: 'calls' };
     const wrapper = mountConsole();
     await flushPromises();
     expect(wrapper.findComponent({ name: 'VoiceCallHistory' }).exists()).toBe(

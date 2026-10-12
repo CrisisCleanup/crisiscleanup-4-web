@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm" data-testid="testVoiceCallHistory">
+  <div class="voice-list text-sm" data-testid="testVoiceCallHistory">
     <VoiceHistoryStrip ref="strip" :include-test="includeTest" />
     <div class="mb-3 grid grid-cols-2 items-end gap-3 md:flex md:flex-wrap">
       <label
@@ -94,8 +94,9 @@
       :url="sessionsUrl()"
       :query="query"
       :columns="columns"
-      :page-size="25"
+      :page-size="100"
       :body-style="{ maxHeight: '60vh', minHeight: '8rem' }"
+      class="voice-table"
       table-id="voiceHistory"
       data-testid="testVoiceHistoryTable"
       @data-fetched="(count: number) => (total = count)"

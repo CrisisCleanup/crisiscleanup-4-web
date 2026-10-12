@@ -1,6 +1,11 @@
 import { RouterLinkStub, flushPromises, mount } from '@vue/test-utils';
 import { rest } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMemoryHistory,
+  createRouter,
+  type RouteRecordRaw,
+} from 'vue-router';
 import type * as VueRouter from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
 import AdminVoiceCall from '@/pages/admin/AdminVoiceCall.vue';
@@ -209,7 +214,7 @@ const HISTORY_LINK = {
   label: '~~Call history',
 };
 const AUDITOR_LINK = {
-  to: { name: 'nav.voice_reviews' },
+  to: { name: 'nav.voice_console', query: { view: 'auditor' } },
   label: '~~Call Auditor',
 };
 
@@ -420,15 +425,47 @@ describe('AdminVoiceCall without a review', () => {
 });
 
 describe('admin routes', () => {
-  it('has a page for one call next to the auditor, under the admin layout', () => {
-    const [admin] = adminRoutes;
-    const children = admin.children as { path: string; name: string }[];
+  const [admin] = adminRoutes;
+  const children = admin.children as {
+    path: string;
+    name?: string;
+    meta?: { title?: string };
+  }[];
+
+  it('has a page for one call and one for the console, under the admin layout', () => {
     expect(admin.meta).toMatchObject({ admin: true });
     expect(children.map((route) => [route.path, route.name])).toEqual(
       expect.arrayContaining([
-        ['voice_reviews/:reviewId?', 'nav.voice_reviews'],
+        ['voice_console', 'nav.voice_console'],
+        ['voice_reviews/:reviewId', 'nav.voice_reviews'],
         ['voice_calls/:sessionId', 'nav.voice_call'],
       ]),
+    );
+  });
+
+  it('gives the console and the call page a readable title', () => {
+    const title = (path: string) =>
+      children.find((route) => route.path === path)?.meta?.title;
+    expect(title('voice_console')).toBe('~~AI Call Console');
+    expect(title('voice_calls/:sessionId')).toBe('~~AI Call');
+  });
+
+  it('sends the old Call Auditor list link to the console tab', async () => {
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [
+        {
+          path: '/admin',
+          children: children.map((route) => ({
+            ...route,
+            component: { render: () => null },
+          })) as RouteRecordRaw[],
+        },
+      ],
+    });
+    await router.push('/admin/voice_reviews');
+    expect(router.currentRoute.value.fullPath).toBe(
+      '/admin/voice_console?view=auditor',
     );
   });
 });

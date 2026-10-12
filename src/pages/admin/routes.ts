@@ -26,7 +26,7 @@ const AdminPortalFiles = () => import('./AdminPortalFiles.vue');
 const AdminDebug = () => import('./AdminDebug.vue');
 const AdminPhoneHistory = () => import('./AdminPhoneHistory.vue');
 const AdminVoiceConsole = () => import('./AdminVoiceConsole.vue');
-const AdminVoiceReviews = () => import('./AdminVoiceReviews.vue');
+const AdminVoiceReviewLink = () => import('./AdminVoiceReviewLink.vue');
 const AdminVoiceCall = () => import('./AdminVoiceCall.vue');
 
 const routes = [
@@ -162,18 +162,26 @@ const routes = [
         path: 'voice_console',
         name: 'nav.voice_console',
         component: AdminVoiceConsole,
+        // fillHeight: the page fits the screen, and its table scrolls inside.
+        meta: { title: '~~AI Call Console', fillHeight: true },
+      },
+      {
+        // The Call Auditor is a tab of the console now.
+        path: 'voice_reviews',
+        redirect: { name: 'nav.voice_console', query: { view: 'auditor' } },
       },
       {
         // An old link with a review id goes on to the page of its call.
-        path: 'voice_reviews/:reviewId?',
+        path: 'voice_reviews/:reviewId',
         name: 'nav.voice_reviews',
-        component: AdminVoiceReviews,
+        component: AdminVoiceReviewLink,
       },
       {
         // One call: its review, conversation and debug details.
         path: 'voice_calls/:sessionId',
         name: 'nav.voice_call',
         component: AdminVoiceCall,
+        meta: { title: '~~AI Call' },
       },
       {
         path: 'debug',

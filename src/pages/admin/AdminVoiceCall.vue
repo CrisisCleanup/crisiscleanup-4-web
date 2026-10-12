@@ -220,7 +220,7 @@ const LISTS = computed<Record<CallOrigin, { to: object; label: string }>>(
       label: t('~~Call history'),
     },
     auditor: {
-      to: { name: 'nav.voice_reviews' },
+      to: { name: 'nav.voice_console', query: { view: 'auditor' } },
       label: t('~~Call Auditor'),
     },
   }),

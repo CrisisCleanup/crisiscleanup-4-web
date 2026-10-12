@@ -1,5 +1,5 @@
 /**
- * LiveKit side of the admin Voice Console: join a room with a token from
+ * LiveKit side of the admin AI Call Console: join a room with a token from
  * `/admins/voice_console/token`, stream the transcript and the agent's
  * `cc.intake` events into reactive call state, and drive a simulated caller.
  *

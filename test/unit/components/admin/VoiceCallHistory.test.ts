@@ -99,7 +99,7 @@ describe('VoiceCallHistory table', () => {
     const wrapper = mount(VoiceCallHistory, { global: { stubs } });
     await flushPromises();
     expect(queries).toEqual([
-      { offset: '0', limit: '25', include_test: 'false' },
+      { offset: '0', limit: '100', include_test: 'false' },
     ]);
     expect(
       wrapper.get(testId('testVoiceHistoryCount')).attributes('data-count'),
@@ -116,7 +116,7 @@ describe('VoiceCallHistory table', () => {
 
     expect(queries.at(-1)).toEqual({
       offset: '0',
-      limit: '25',
+      limit: '100',
       status: 'completed',
       has_case: 'false',
       flag: 'second_case',

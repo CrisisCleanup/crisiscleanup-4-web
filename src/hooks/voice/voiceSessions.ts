@@ -1,5 +1,5 @@
 /**
- * Calls of the Voice Console (`/admins/voice_console/sessions`): row and
+ * Calls of the AI Call Console (`/admins/voice_console/sessions`): row and
  * detail shapes, the labels for call flags, the readable names of the rules
  * in the decision timeline, and the link to the page of one call.
  */

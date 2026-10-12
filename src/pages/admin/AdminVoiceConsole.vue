@@ -1,6 +1,7 @@
 <template>
   <div
     class="flex flex-col gap-4 bg-crisiscleanup-smoke p-3"
+    :class="{ 'voice-console-fill': fillsPage }"
     data-testid="testAdminVoiceConsole"
   >
     <div
@@ -14,7 +15,7 @@
         type="button"
         role="tab"
         :aria-selected="view === item.key"
-        class="-mb-px min-h-[40px] whitespace-nowrap border-b-2 px-1 text-sm font-semibold"
+        class="-mb-px min-h-[40px] shrink-0 whitespace-nowrap border-b-2 px-1 text-sm font-semibold"
         :class="
           view === item.key
             ? 'border-primary-dark'
@@ -27,15 +28,27 @@
       </button>
     </div>
 
+    <!-- A section mounts when first opened, then stays, so its filters and
+         page survive a switch of tab. -->
     <section
-      v-if="view === 'calls'"
-      class="min-w-0 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
+      v-if="visited.has('calls')"
+      v-show="view === 'calls'"
+      class="voice-console-section flex min-w-0 flex-col rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
     >
       <VoiceCallHistory />
     </section>
 
     <section
-      v-else-if="view === 'metrics'"
+      v-if="visited.has('auditor')"
+      v-show="view === 'auditor'"
+      class="voice-console-section flex min-w-0 flex-col rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
+    >
+      <VoiceAuditorList />
+    </section>
+
+    <section
+      v-if="visited.has('metrics')"
+      v-show="view === 'metrics'"
       class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
     >
       <VoiceOverviewMetrics />
@@ -54,7 +67,9 @@
         }}
       </div>
 
-      <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,1fr)]">
+      <div
+        class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,1fr)]"
+      >
         <!-- Call -->
         <section
           class="flex flex-col gap-3 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
@@ -464,6 +479,7 @@ import { useToast } from 'vue-toastification';
 import VoiceCasePanel from '@/components/admin/voice/VoiceCasePanel.vue';
 import VoiceToolLog from '@/components/admin/voice/VoiceToolLog.vue';
 import VoiceMetrics from '@/components/admin/voice/VoiceMetrics.vue';
+import VoiceAuditorList from '@/components/admin/voice/VoiceAuditorList.vue';
 import VoiceCallHistory from '@/components/admin/voice/VoiceCallHistory.vue';
 import VoiceOverviewMetrics from '@/components/admin/voice/VoiceOverviewMetrics.vue';
 import { downloadText } from '@/components/admin/voice/download';
@@ -551,23 +567,31 @@ const tabs = computed(() => [
 ]);
 
 // The page sections. The section is in the URL (?view=calls) so it links.
-type View = 'calls' | 'metrics' | 'test';
+type View = 'calls' | 'auditor' | 'metrics' | 'test';
+const VIEWS: View[] = ['calls', 'auditor', 'metrics', 'test'];
 const route = useRoute();
 const router = useRouter();
 const views = computed(() => [
   { key: 'calls' as const, label: t('voiceConsole.history', 'Call history') },
+  { key: 'auditor' as const, label: t('~~Call Auditor') },
   { key: 'metrics' as const, label: t('~~Overall metrics') },
   { key: 'test' as const, label: t('~~Test a call') },
 ]);
 const view = computed<View>({
-  get: () =>
-    (['calls', 'metrics', 'test'] as const).find(
-      (key) => key === route.query.view,
-    ) ?? 'calls',
+  get: () => VIEWS.find((key) => key === route.query.view) ?? 'calls',
   set: (key: View) => {
     void router.replace({ query: { ...route.query, view: key } });
   },
 });
+
+const visited = reactive(new Set<View>());
+watch(view, (key: View) => visited.add(key), { immediate: true });
+
+// The two lists fit the screen, with the table scrolling inside; the other
+// sections are as tall as their content.
+const fillsPage = computed(
+  () => view.value === 'calls' || view.value === 'auditor',
+);
 
 const isLive = computed(() => status.value === 'live');
 const target = computed(() =>
@@ -738,3 +762,37 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+/* When the screen is tall enough, a list takes the height that is left, so
+   the page-size and page buttons below its table stay on screen. The table
+   body scrolls (its min-height keeps a few rows in view). On a screen that
+   is not tall enough, or is narrow, the page scrolls instead. */
+@media (min-width: 768px) and (min-height: 48rem) {
+  .voice-console-fill,
+  .voice-console-section,
+  :deep(.voice-list) {
+    min-height: 0;
+    flex: 1 1 0;
+  }
+  .voice-console-section,
+  :deep(.voice-list),
+  :deep(.voice-table),
+  :deep(.voice-table .table-grid) {
+    display: flex;
+    flex-direction: column;
+  }
+  :deep(.voice-table),
+  :deep(.voice-table .table-grid) {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+  :deep(.voice-table .body) {
+    flex: 1 1 auto;
+  }
+  :deep(.voice-table .footer),
+  :deep(.voice-table .header) {
+    flex-shrink: 0;
+  }
+}
+</style>
