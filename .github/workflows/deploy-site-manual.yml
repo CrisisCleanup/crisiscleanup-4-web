@@ -109,13 +109,20 @@ jobs:
           echo "id=$DIST_ID" >> "$GITHUB_OUTPUT"
           echo "Found distribution: $DIST_ID"
 
+      # Keep the files of earlier builds: open tabs on an earlier build still
+      # load their chunks. Without them, each open tab reloads the page.
+      # index.html goes last, so it never names a chunk that is not uploaded.
       - name: Sync to S3 (dry run)
         if: inputs.dry_run
-        run: aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --delete --dryrun
+        run: |
+          aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --exclude index.html --dryrun
+          aws s3 cp dist/index.html s3://${{ steps.bucket.outputs.name }}/index.html --cache-control no-cache --dryrun
 
       - name: Sync to S3
         if: ${{ !inputs.dry_run }}
-        run: aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --delete
+        run: |
+          aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --exclude index.html
+          aws s3 cp dist/index.html s3://${{ steps.bucket.outputs.name }}/index.html --cache-control no-cache
 
       - name: Invalidate CloudFront
         if: ${{ !inputs.dry_run }}

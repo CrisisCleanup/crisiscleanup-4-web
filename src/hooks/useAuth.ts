@@ -215,6 +215,7 @@ const authStore = () => {
     { writeDefaults: false },
   );
   let isCodeExchange = false;
+  let isRefresh = false;
 
   const route = useRoute();
   const router = useRouter();
@@ -369,8 +370,16 @@ const authStore = () => {
     }
   });
 
-  // Logout on exchange error.
+  // Handle a failed token request.
   whenever(exchangeState.error, async (exchangeError) => {
+    // A failed refresh gets new tokens from the API session instead.
+    // Logout ends that session, which also signs out the other open tabs.
+    if (isRefresh) {
+      debug('refresh failed; authorizing again: %O', exchangeError);
+      authState.status = AuthStatus.ANONYMOUS;
+      return;
+    }
+
     if (isCodeExchange && !codeExchangeRetried.value) {
       debug('code exchange failed; requesting a new code: %O', exchangeError);
       codeExchangeRetried.value = true;
@@ -532,6 +541,7 @@ const authStore = () => {
     });
 
     isCodeExchange = true;
+    isRefresh = false;
     await exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
@@ -586,6 +596,7 @@ const authStore = () => {
       refresh_token: authState.refreshToken,
     });
     isCodeExchange = false;
+    isRefresh = true;
     return exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
@@ -637,6 +648,7 @@ const authStore = () => {
     });
 
     isCodeExchange = false;
+    isRefresh = false;
     await exchangeState.execute('/o/token/', {
       withCredentials: true,
       headers: {
