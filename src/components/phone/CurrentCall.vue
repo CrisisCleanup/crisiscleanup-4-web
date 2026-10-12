@@ -10,6 +10,7 @@ import { getQueryString } from '@/utils/urls';
 import moment from '@/utils/dates';
 import PhoneFaqRAG from '@/components/phone/PhoneFaqRAG.vue';
 import CurrentCallVoicemail from '@/components/phone/CurrentCallVoicemail.vue';
+import OutboundDuplicateTag from '@/components/phone/OutboundDuplicateTag.vue';
 import BasePill from '@/components/BasePill.vue';
 import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
 import useVoicemailContext from '@/hooks/phone/useVoicemailContext';
@@ -144,6 +145,12 @@ const suggestedScript = computed(() => {
         >
           {{ $t('phoneDashboard.existing_cases') }}
         </h3>
+        <!-- Cases in this disaster for the number, and AI calls from it. -->
+        <OutboundDuplicateTag
+          v-if="call?.incident_id?.length"
+          class="p-2 text-[13px]"
+          :outbound="call"
+        />
         <div
           v-if="cases.length > 0"
           class="max-h-80 overflow-auto flex flex-col gap-2 -mx-1 px-1"
