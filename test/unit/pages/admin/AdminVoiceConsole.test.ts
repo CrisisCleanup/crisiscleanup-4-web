@@ -16,6 +16,17 @@ vi.mock('@/hooks/voice/useVoiceConsole', () => ({
 }));
 vi.mock('vue-toastification', () => ({ useToast: () => ({ error: vi.fn() }) }));
 
+// The page section is in the URL (?view=...).
+const nav = vi.hoisted(() => ({
+  query: {} as Record<string, string>,
+  replace: vi.fn(),
+}));
+vi.mock('vue-router', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('vue-router')>()),
+  useRoute: () => ({ query: nav.query }),
+  useRouter: () => ({ replace: nav.replace }),
+}));
+
 const apiConfig = {
   targets: [{ key: 'local', label: 'Local', url: 'ws://localhost', agent: '' }],
   languages: { en: 'English', es: 'Español' },
@@ -46,6 +57,7 @@ function mountConsole() {
         VoiceToolLog: true,
         VoiceMetrics: true,
         VoiceCallHistory: true,
+        VoiceOverviewMetrics: true,
       },
     },
   });
@@ -55,6 +67,7 @@ describe('AdminVoiceConsole model settings', () => {
   const status = ref('idle');
   beforeEach(() => {
     vi.clearAllMocks();
+    nav.query = { view: 'test' };
     status.value = 'idle';
     consoleState.current = {
       call: reactive(createCallState()),
@@ -271,6 +284,58 @@ describe('AdminVoiceConsole model settings', () => {
       wrapper.get<HTMLButtonElement>('[data-testid="testVoiceStartCallButton"]')
         .element.disabled,
     ).toBe(true);
+    wrapper.unmount();
+  });
+});
+
+describe('AdminVoiceConsole sections', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    consoleState.current = {
+      call: reactive(createCallState()),
+      status: ref('idle'),
+      agentState: ref(''),
+      elapsed: ref(0),
+      muted: ref(false),
+      log: ref([]),
+      simulation: reactive({ running: false, status: '' }),
+      connect,
+      disconnect: vi.fn(),
+      setMuted: vi.fn(),
+      runSimulation,
+      stopSimulation: vi.fn(),
+    };
+    vi.mocked(axios.get).mockImplementation(async (url) => ({
+      data: url.endsWith('/config') ? apiConfig : { scenarios: [] },
+    }));
+  });
+
+  it('opens on the overall metrics, with the test call kept hidden', async () => {
+    nav.query = {};
+    const wrapper = mountConsole();
+    await flushPromises();
+    expect(
+      wrapper.findComponent({ name: 'VoiceOverviewMetrics' }).exists(),
+    ).toBe(true);
+    // v-show hides the section but keeps the call alive.
+    expect(
+      wrapper.get('[data-testid="testVoiceConsoleTestNotice"]').element
+        .parentElement?.style.display,
+    ).toBe('none');
+    wrapper.unmount();
+  });
+
+  it('shows the call history for ?view=calls and puts the section in the URL', async () => {
+    nav.query = { view: 'calls' };
+    const wrapper = mountConsole();
+    await flushPromises();
+    expect(wrapper.findComponent({ name: 'VoiceCallHistory' }).exists()).toBe(
+      true,
+    );
+    await wrapper
+      .get('[data-testid="testVoiceConsoleView-test"]')
+      .trigger('click');
+    expect(nav.replace).toHaveBeenCalledWith({ query: { view: 'test' } });
     wrapper.unmount();
   });
 });

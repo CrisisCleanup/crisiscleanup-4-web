@@ -1,0 +1,299 @@
+/**
+ * Overall metrics of the voice intake line (`/admins/voice_console/metrics`):
+ * one table of metrics over 1 hour, 3 hours, a day, a week and 30 days, each
+ * with the change since the window before it, and a trend of buckets.
+ */
+import axios from 'axios';
+import { getErrorMessage } from '@/utils/errors';
+
+export type MetricFormat = 'count' | 'percent' | 'seconds' | 'usd';
+export type MetricWindow = '1h' | '3h' | '24h' | '7d' | '30d';
+export type MetricValues = Partial<Record<MetricWindow, number | null>>;
+
+export interface Metric {
+  key: string;
+  label: string;
+  format: MetricFormat;
+  values: MetricValues;
+  previous: MetricValues;
+}
+
+export interface MetricsResponse {
+  generated_at: string;
+  windows: MetricWindow[];
+  metrics: Metric[];
+}
+
+export interface TrendBucket {
+  start: string;
+  calls: number;
+  cases_created: number;
+  callback_offers: number;
+  errors: number;
+  open_issues: number;
+}
+
+export type TrendSeries = Exclude<keyof TrendBucket, 'start'>;
+
+export const REFRESH_MS = 60_000;
+
+export function metricsUrl(path = '') {
+  return `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_console/metrics${
+    path ? `/${path}` : ''
+  }`;
+}
+
+export const WINDOW_LABELS: Record<MetricWindow, string> = {
+  '1h': '~~1 hour',
+  '3h': '~~3 hours',
+  '24h': '~~1 day',
+  '7d': '~~1 week',
+  '30d': '~~30 days',
+};
+
+export const METRIC_GROUPS: { title: string; keys: string[] }[] = [
+  {
+    title: '~~Volume',
+    keys: ['calls', 'intake_calls', 'cases_created', 'second_cases'],
+  },
+  {
+    title: '~~Outcomes',
+    keys: ['case_rate', 'abandoned', 'missed_cases', 'avg_duration'],
+  },
+  {
+    title: '~~Callbacks',
+    keys: ['callback_offers', 'callback_accept_rate', 'callback_requests'],
+  },
+  {
+    title: '~~Quality',
+    keys: [
+      'errors',
+      'save_retries',
+      'approximate_locations',
+      'reviews_done',
+      'open_issues',
+      'auto_fixes',
+      'manual_fixes',
+    ],
+  },
+  { title: '~~Cost', keys: ['cost_usd', 'cost_per_case'] },
+];
+
+/** A rise in these is bad news. */
+const UP_IS_BAD = new Set([
+  'abandoned',
+  'missed_cases',
+  'errors',
+  'save_retries',
+  'approximate_locations',
+  'open_issues',
+  'cost_per_case',
+  'callback_offers',
+]);
+/** A rise or fall in these says nothing about how the line does. */
+const NEUTRAL = new Set(['cost_usd', 'avg_duration']);
+
+export interface MetricGroup {
+  title: string;
+  metrics: Metric[];
+}
+
+/** The metrics in table groups; unknown keys go last, in a group of their own. */
+export function groupMetrics(metrics: Metric[]): MetricGroup[] {
+  const byKey = new Map(metrics.map((metric) => [metric.key, metric]));
+  const known = new Set(METRIC_GROUPS.flatMap((group) => group.keys));
+  const groups: MetricGroup[] = METRIC_GROUPS.map((group) => ({
+    title: group.title,
+    metrics: group.keys.flatMap((key) => byKey.get(key) ?? []),
+  }));
+  groups.push({
+    title: '~~Other',
+    metrics: metrics.filter((metric) => !known.has(metric.key)),
+  });
+  return groups.filter((group) => group.metrics.length > 0);
+}
+
+/**
+ * A value as the table shows it. Percent values are fractions: 0.625 is 62.5%.
+ */
+export function formatMetricValue(
+  value: number | null | undefined,
+  format: MetricFormat,
+): string {
+  if (value === null || value === undefined) return '—';
+  switch (format) {
+    case 'percent': {
+      const percent = value * 100;
+      return `${Number.isInteger(percent) ? percent : percent.toFixed(1)}%`;
+    }
+    case 'seconds': {
+      return value < 60
+        ? `${Math.round(value)}s`
+        : `${Math.floor(value / 60)}m ${Math.round(value % 60)}s`;
+    }
+    case 'usd': {
+      return `$${value.toFixed(Math.abs(value) >= 1 ? 2 : 3)}`;
+    }
+    default: {
+      return value.toLocaleString();
+    }
+  }
+}
+
+export type DeltaTone = 'good' | 'bad' | 'neutral';
+
+export interface MetricDelta {
+  direction: 'up' | 'down' | 'flat';
+  /** "+12%", "-3 pts", "new" or "0" */
+  text: string;
+  tone: DeltaTone;
+}
+
+/**
+ * The change of a window against the window before it. Counts, seconds and
+ * money change by percent; a percent metric changes in points. Undefined when
+ * either side is unknown.
+ */
+export function metricDelta(
+  metric: Pick<Metric, 'key' | 'format'>,
+  current: number | null | undefined,
+  previous: number | null | undefined,
+): MetricDelta | undefined {
+  if (
+    current === null ||
+    current === undefined ||
+    previous === null ||
+    previous === undefined
+  ) {
+    return undefined;
+  }
+  const diff = current - previous;
+  if (Math.abs(diff) < 1e-9) {
+    return { direction: 'flat', text: '0', tone: 'neutral' };
+  }
+  const direction = diff > 0 ? 'up' : 'down';
+  let tone: DeltaTone = 'neutral';
+  if (!NEUTRAL.has(metric.key)) {
+    const upIsBad = UP_IS_BAD.has(metric.key);
+    tone = diff > 0 === upIsBad ? 'bad' : 'good';
+  }
+  const sign = diff > 0 ? '+' : '-';
+  let text: string;
+  if (metric.format === 'percent') {
+    text = `${sign}${Math.abs(diff * 100)
+      .toFixed(1)
+      .replace(/\.0$/, '')} pts`;
+  } else if (previous === 0) {
+    text = 'new';
+  } else {
+    text = `${sign}${Math.round(Math.abs(diff / previous) * 100)}%`;
+  }
+  return { direction, text, tone };
+}
+
+/** "just now", "42 s ago", "3 min ago". */
+export function timeAgo(since: Date | number, now: Date | number): string {
+  const seconds = Math.max(0, Math.round((Number(now) - Number(since)) / 1000));
+  if (seconds < 10) return 'just now';
+  if (seconds < 60) return `${seconds} s ago`;
+  return `${Math.floor(seconds / 60)} min ago`;
+}
+
+/** Bucket label for the trend chart. */
+export function bucketLabel(start: string, window: MetricWindow): string {
+  const date = new Date(start);
+  return window === '7d' || window === '30d'
+    ? date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+    : date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+/**
+ * Load the metrics and the trend, and load them again every minute while
+ * the page is visible.
+ */
+export function useVoiceOverview() {
+  const includeTest = ref(false);
+  const windowKey = ref<MetricWindow>('24h');
+  const overview = ref<MetricsResponse>();
+  const trend = ref<TrendBucket[]>([]);
+  const loading = ref(false);
+  const error = ref('');
+  const updatedAt = ref<Date>();
+  const now = useNow({ interval: 15_000 });
+  const visibility = useDocumentVisibility();
+
+  async function loadTrend() {
+    const { data } = await axios.get<{ buckets: TrendBucket[] }>(
+      metricsUrl('trend'),
+      {
+        params: {
+          window: windowKey.value,
+          include_test: includeTest.value,
+        },
+      },
+    );
+    trend.value = data.buckets;
+  }
+
+  async function load() {
+    loading.value = true;
+    error.value = '';
+    try {
+      const [metrics] = await Promise.all([
+        axios.get<MetricsResponse>(metricsUrl(), {
+          params: { include_test: includeTest.value },
+        }),
+        loadTrend(),
+      ]);
+      overview.value = metrics.data;
+      updatedAt.value = new Date();
+    } catch (error_) {
+      error.value = getErrorMessage(error_);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  // The window only changes the trend.
+  async function changeWindow(next: MetricWindow) {
+    windowKey.value = next;
+    try {
+      await loadTrend();
+    } catch (error_) {
+      error.value = getErrorMessage(error_);
+    }
+  }
+
+  useIntervalFn(() => {
+    if (visibility.value === 'visible') void load();
+  }, REFRESH_MS);
+  // Back on the tab after a long time away: do not wait for the next tick.
+  watch(visibility, (state: string) => {
+    if (
+      state === 'visible' &&
+      (!updatedAt.value || Date.now() - updatedAt.value.getTime() >= REFRESH_MS)
+    ) {
+      void load();
+    }
+  });
+  watch(includeTest, () => void load());
+
+  const updatedAgo = computed(() =>
+    updatedAt.value ? timeAgo(updatedAt.value, now.value) : '',
+  );
+
+  onMounted(load);
+
+  return {
+    includeTest,
+    window: windowKey,
+    overview,
+    trend,
+    loading,
+    error,
+    updatedAt,
+    updatedAgo,
+    load,
+    changeWindow,
+  };
+}

@@ -4,398 +4,455 @@
     data-testid="testAdminVoiceConsole"
   >
     <div
-      class="rounded border border-primary-dark bg-primary-light/30 p-2 text-sm"
-      data-testid="testVoiceConsoleTestNotice"
+      class="flex gap-4 overflow-x-auto border-b border-crisiscleanup-grey-100"
+      role="tablist"
+      data-testid="testVoiceConsoleViews"
     >
-      {{
-        t(
-          'voiceConsole.test_call_notice',
-          'Calls from this page are test calls. No text message goes to the caller, and a case the agent creates is flagged for deletion and removed after one hour.',
-        )
-      }}
+      <button
+        v-for="item in views"
+        :key="item.key"
+        type="button"
+        role="tab"
+        :aria-selected="view === item.key"
+        class="-mb-px min-h-[40px] whitespace-nowrap border-b-2 px-1 text-sm font-semibold"
+        :class="
+          view === item.key
+            ? 'border-primary-dark'
+            : 'border-transparent text-crisiscleanup-dark-300'
+        "
+        :data-testid="`testVoiceConsoleView-${item.key}`"
+        @click="view = item.key"
+      >
+        {{ item.label }}
+      </button>
     </div>
 
-    <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,1fr)]">
-      <!-- Call -->
-      <section
-        class="flex flex-col gap-3 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
+    <section
+      v-if="view === 'metrics'"
+      class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
+    >
+      <VoiceOverviewMetrics />
+    </section>
+    <section
+      v-else-if="view === 'calls'"
+      class="min-w-0 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
+    >
+      <VoiceCallHistory />
+    </section>
+
+    <div v-show="view === 'test'" class="flex flex-col gap-4">
+      <div
+        class="rounded border border-primary-dark bg-primary-light/30 p-2 text-sm"
+        data-testid="testVoiceConsoleTestNotice"
       >
-        <fieldset
-          class="grid min-w-0 grid-cols-2 gap-3 border-0 p-0 md:grid-cols-4"
-          :disabled="settingsLocked"
-          :class="{ 'opacity-60': settingsLocked }"
+        {{
+          t(
+            'voiceConsole.test_call_notice',
+            'Calls from this page are test calls. No text message goes to the caller, and a case the agent creates is flagged for deletion and removed after one hour.',
+          )
+        }}
+      </div>
+
+      <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,1fr)]">
+        <!-- Call -->
+        <section
+          class="flex flex-col gap-3 rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
         >
-          <label
-            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+          <fieldset
+            class="grid min-w-0 grid-cols-2 gap-3 border-0 p-0 md:grid-cols-4"
+            :disabled="settingsLocked"
+            :class="{ 'opacity-60': settingsLocked }"
           >
-            {{ t('voiceConsole.line', 'Line') }}
-            <select
-              v-model="settings.language"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
-              data-testid="testVoiceLanguageSelect"
+            <label
+              class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
             >
-              <option
-                v-for="(label, code) in config.languages"
-                :key="code"
-                :value="code"
+              {{ t('voiceConsole.line', 'Line') }}
+              <select
+                v-model="settings.language"
+                class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
+                data-testid="testVoiceLanguageSelect"
               >
-                {{ label }}
-              </option>
-            </select>
-          </label>
-          <label
-            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            {{ t('voiceConsole.model', 'Model') }}
-            <select
-              :key="configLoaded ? 'ready' : 'loading'"
-              v-model="settings.model"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
-              data-testid="testVoiceModelSelect"
+                <option
+                  v-for="(label, code) in config.languages"
+                  :key="code"
+                  :value="code"
+                >
+                  {{ label }}
+                </option>
+              </select>
+            </label>
+            <label
+              class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
             >
-              <option
-                v-for="model in config.models"
-                :key="model"
-                :value="model"
+              {{ t('voiceConsole.model', 'Model') }}
+              <select
+                :key="configLoaded ? 'ready' : 'loading'"
+                v-model="settings.model"
+                class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
+                data-testid="testVoiceModelSelect"
               >
-                {{ model }}
-              </option>
-            </select>
-          </label>
-          <label
-            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            {{ t('voiceConsole.voice', 'Voice') }}
-            <select
-              :key="settings.model"
-              v-model="settings.voice"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
-              data-testid="testVoiceVoiceSelect"
+                <option
+                  v-for="model in config.models"
+                  :key="model"
+                  :value="model"
+                >
+                  {{ model }}
+                </option>
+              </select>
+            </label>
+            <label
+              class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
             >
-              <option v-for="voice in voices" :key="voice" :value="voice">
-                {{ voice }}
-              </option>
-            </select>
-          </label>
-          <label
-            v-if="isGptLive"
-            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            {{ t('~~Backend') }}
-            <select
-              v-model="settings.backend"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
-              data-testid="testVoiceBackendSelect"
-            >
-              <option
-                v-for="backend in backendOptions"
-                :key="backend"
-                :value="backend"
+              {{ t('voiceConsole.voice', 'Voice') }}
+              <select
+                :key="settings.model"
+                v-model="settings.voice"
+                class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
+                data-testid="testVoiceVoiceSelect"
               >
-                {{ backend === 'decisions' ? 'Decisions' : 'Responses' }}
-              </option>
-            </select>
-          </label>
-          <label
-            class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            {{ t('~~Intake flow') }}
-            <select
-              v-model="settings.flow"
-              :disabled="usesDecisions"
-              class="mt-1 rounded border p-1.5 text-sm normal-case text-black"
-              data-testid="testVoiceFlowSelect"
+                <option v-for="voice in voices" :key="voice" :value="voice">
+                  {{ voice }}
+                </option>
+              </select>
+            </label>
+            <label
+              v-if="isGptLive"
+              class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
             >
-              <option v-for="flow in flowOptions" :key="flow" :value="flow">
+              {{ t('~~Backend') }}
+              <select
+                v-model="settings.backend"
+                class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
+                data-testid="testVoiceBackendSelect"
+              >
+                <option
+                  v-for="backend in backendOptions"
+                  :key="backend"
+                  :value="backend"
+                >
+                  {{ backend === 'decisions' ? 'Decisions' : 'Responses' }}
+                </option>
+              </select>
+            </label>
+            <label
+              class="flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
+            >
+              {{ t('~~Intake flow') }}
+              <select
+                v-model="settings.flow"
+                :disabled="usesDecisions"
+                class="mt-1 rounded border p-1.5 max-md:min-h-[40px] text-sm normal-case text-black"
+                data-testid="testVoiceFlowSelect"
+              >
+                <option v-for="flow in flowOptions" :key="flow" :value="flow">
+                  {{
+                    flow === 'questions'
+                      ? t('~~Server asks the questions')
+                      : t('~~Model fills the form')
+                  }}
+                </option>
+              </select>
+            </label>
+            <div
+              class="flex flex-col justify-end text-xs text-crisiscleanup-dark-300"
+            >
+              <span v-if="target"
+                >{{ target.label }} ·
                 {{
-                  flow === 'questions'
-                    ? t('~~Server asks the questions')
-                    : t('~~Model fills the form')
-                }}
+                  target.agent ||
+                  t('voiceConsole.auto_dispatch', 'automatic dispatch')
+                }}</span
+              >
+            </div>
+          </fieldset>
+
+          <div
+            v-if="isGptLive"
+            class="rounded bg-crisiscleanup-grey-100/40 p-3 text-sm"
+            data-testid="testVoiceModelInfo"
+          >
+            <p>
+              {{
+                t(
+                  '~~GPT-Live (gpt-live-1) handles the spoken conversation. Luna (gpt-6-luna) runs the tools that read and save case information.',
+                )
+              }}
+            </p>
+            <p v-if="usesDecisions" class="mt-1">
+              {{
+                t(
+                  '~~Decisions routes each request before Luna runs the allowed tools. This backend uses the questions flow.',
+                )
+              }}
+            </p>
+            <p v-else class="mt-1">
+              {{
+                t(
+                  '~~Responses connects GPT-Live to Luna through the native Live backend. You can compare either intake flow.',
+                )
+              }}
+            </p>
+          </div>
+
+          <div
+            class="flex flex-wrap items-center gap-3 border-y border-crisiscleanup-grey-100 py-3"
+          >
+            <BaseButton
+              class="max-md:!min-h-[40px]"
+              variant="solid"
+              :action="startCall"
+              :disabled="!canStartCall"
+              :text="
+                isLive
+                  ? t('voiceConsole.on_call', 'On call')
+                  : t('voiceConsole.start_call', 'Start call')
+              "
+              :alt="t('voiceConsole.start_call', 'Start call')"
+              data-testid="testVoiceStartCallButton"
+            />
+            <BaseButton
+              class="max-md:!min-h-[40px]"
+              variant="outline"
+              :action="disconnect"
+              :disabled="!isLive"
+              :text="t('voiceConsole.hang_up', 'Hang up')"
+              :alt="t('voiceConsole.hang_up', 'Hang up')"
+              data-testid="testVoiceHangUpButton"
+            />
+            <BaseCheckbox
+              :model-value="muted"
+              :disabled="!isLive"
+              @update:model-value="setMuted"
+            >
+              {{ t('voiceConsole.mute', 'Mute mic') }}
+            </BaseCheckbox>
+            <span class="ml-auto flex items-center gap-3 text-sm">
+              <span class="font-semibold uppercase" :class="agentStateClass">{{
+                agentStateLabel
+              }}</span>
+              <span class="text-xl font-bold tabular-nums">{{
+                formatClock(elapsed)
+              }}</span>
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold">
+              {{ t('voiceConsole.transcript', 'Transcript') }}
+            </h2>
+            <div class="flex gap-3 text-sm">
+              <button
+                type="button"
+                class="underline max-md:min-h-[40px]"
+                @click="exportJson"
+              >
+                {{ t('voiceConsole.export_json', 'Export JSON') }}
+              </button>
+              <button
+                type="button"
+                class="underline max-md:min-h-[40px]"
+                @click="exportText"
+              >
+                {{ t('voiceConsole.export_text', 'Export text') }}
+              </button>
+            </div>
+          </div>
+          <div
+            ref="transcriptEl"
+            class="flex h-[40vh] flex-col gap-2 overflow-y-auto"
+            data-testid="testVoiceTranscript"
+          >
+            <p
+              v-if="call.transcript.length === 0"
+              class="text-sm text-crisiscleanup-dark-300"
+            >
+              {{
+                t(
+                  'voiceConsole.transcript_empty',
+                  'Start a call, or run a simulated caller. The conversation shows here as it happens.',
+                )
+              }}
+            </p>
+            <div
+              v-for="line in call.transcript"
+              :key="line.id"
+              class="grid grid-cols-[4.5rem_1fr] gap-2 text-sm"
+            >
+              <span
+                class="pt-1.5 text-right text-xs font-bold uppercase"
+                :class="whoClass(line.who)"
+              >
+                {{ whoLabel(line.who) }}
+                <span
+                  class="block font-normal normal-case text-crisiscleanup-dark-300"
+                  >{{ line.at }}</span
+                >
+              </span>
+              <span
+                class="rounded px-3 py-1.5"
+                :class="[
+                  bubbleClass(line.who),
+                  { 'italic opacity-60': !line.final },
+                ]"
+                >{{ line.text }}</span
+              >
+            </div>
+          </div>
+
+          <!-- Simulated caller -->
+          <div
+            class="flex flex-col gap-2 border-t border-crisiscleanup-grey-100 pt-3"
+            data-testid="testVoiceSimulatedCaller"
+          >
+            <h2 class="text-lg font-semibold">
+              {{ t('voiceConsole.simulated_caller', 'Simulated caller') }}
+            </h2>
+            <p class="text-sm text-crisiscleanup-dark-300">
+              {{
+                t(
+                  'voiceConsole.simulated_caller_help',
+                  'A small model plays the caller from the fact sheet and answers out loud. Load an eval scenario or write your own facts.',
+                )
+              }}
+            </p>
+            <select
+              v-model="scenarioKey"
+              class="rounded border p-1.5 text-sm max-md:min-h-[40px]"
+              data-testid="testVoiceScenarioSelect"
+              @change="loadScenario"
+            >
+              <option value="">
+                {{ t('voiceConsole.pick_scenario', 'Pick an eval scenario…') }}
+              </option>
+              <option
+                v-for="scenario in scenarios"
+                :key="scenario.key"
+                :value="scenario.key"
+              >
+                {{ scenario.title }}
               </option>
             </select>
-          </label>
+            <p
+              v-if="expectation"
+              class="rounded bg-crisiscleanup-green-100/15 p-2 text-sm"
+            >
+              {{ t('voiceConsole.pass_looks_like', 'Pass looks like:') }}
+              {{ expectation }}
+            </p>
+            <textarea
+              v-model="facts"
+              rows="7"
+              class="rounded border p-2 font-mono text-xs"
+              data-testid="testVoiceFacts"
+            />
+            <div class="flex items-center gap-3">
+              <BaseButton
+                class="max-md:!min-h-[40px]"
+                variant="solid"
+                size="small"
+                :action="runSimulated"
+                :disabled="
+                  simulation.running ||
+                  !facts.trim() ||
+                  (!isLive && !canStartCall)
+                "
+                :text="
+                  t('voiceConsole.run_simulated_call', 'Run simulated call')
+                "
+                :alt="
+                  t('voiceConsole.run_simulated_call', 'Run simulated call')
+                "
+                data-testid="testVoiceRunSimulationButton"
+              />
+              <BaseButton
+                class="max-md:!min-h-[40px]"
+                variant="outline"
+                size="small"
+                :action="stopSimulation"
+                :disabled="!simulation.running"
+                :text="t('actions.stop', 'Stop')"
+                :alt="t('actions.stop', 'Stop')"
+              />
+              <span class="text-sm text-crisiscleanup-dark-300">{{
+                simulation.status
+              }}</span>
+            </div>
+            <details class="text-xs text-crisiscleanup-dark-300">
+              <summary class="cursor-pointer">
+                {{ t('voiceConsole.connection_log', 'Connection log') }}
+              </summary>
+              <ul class="max-h-40 overflow-y-auto font-mono">
+                <li v-for="(entry, index) in log" :key="index">{{ entry }}</li>
+              </ul>
+            </details>
+          </div>
+        </section>
+
+        <!-- Inspector -->
+        <aside
+          class="self-start rounded-lg border border-crisiscleanup-grey-100 bg-white p-4 lg:sticky lg:top-3"
+        >
           <div
-            class="flex flex-col justify-end text-xs text-crisiscleanup-dark-300"
+            class="mb-3 flex gap-4 border-b border-crisiscleanup-grey-100"
+            role="tablist"
           >
-            <span v-if="target"
-              >{{ target.label }} ·
+            <button
+              v-for="tab in tabs"
+              :key="tab.key"
+              type="button"
+              role="tab"
+              :aria-selected="activeTab === tab.key"
+              class="-mb-px border-b-2 pb-2 text-sm font-semibold max-md:min-h-[40px]"
+              :class="
+                activeTab === tab.key
+                  ? 'border-primary-dark'
+                  : 'border-transparent text-crisiscleanup-dark-300'
+              "
+              @click="activeTab = tab.key"
+            >
+              {{ tab.label }}
+              <span
+                v-if="tab.key === 'tools' && call.tools.length > 0"
+                class="text-xs text-primary-dark"
+                >{{ call.tools.length }}</span
+              >
+            </button>
+          </div>
+          <VoiceCasePanel
+            v-if="activeTab === 'case'"
+            :case-state="call.caseState"
+            :finalized="call.finalized"
+          />
+          <VoiceToolLog v-else-if="activeTab === 'tools'" :tools="call.tools" />
+          <VoiceMetrics
+            v-else
+            :metrics="call.metrics"
+            :model="call.config?.model || settings.model"
+          />
+          <p
+            v-if="call.config"
+            class="mt-3 text-xs text-crisiscleanup-dark-300"
+          >
+            {{ t('voiceConsole.agent_running', 'Agent running') }}
+            {{ call.config.model }} · {{ call.config.voice }} ·
+            {{ call.config.language }}
+            <span v-if="call.config.backend">
+              ·
               {{
-                target.agent ||
-                t('voiceConsole.auto_dispatch', 'automatic dispatch')
+                call.config.backend === 'decisions' ? 'Decisions' : 'Responses'
               }}</span
             >
-          </div>
-        </fieldset>
-
-        <div
-          v-if="isGptLive"
-          class="rounded bg-crisiscleanup-grey-100/40 p-3 text-sm"
-          data-testid="testVoiceModelInfo"
-        >
-          <p>
-            {{
-              t(
-                '~~GPT-Live (gpt-live-1) handles the spoken conversation. Luna (gpt-6-luna) runs the tools that read and save case information.',
-              )
-            }}
-          </p>
-          <p v-if="usesDecisions" class="mt-1">
-            {{
-              t(
-                '~~Decisions routes each request before Luna runs the allowed tools. This backend uses the questions flow.',
-              )
-            }}
-          </p>
-          <p v-else class="mt-1">
-            {{
-              t(
-                '~~Responses connects GPT-Live to Luna through the native Live backend. You can compare either intake flow.',
-              )
-            }}
-          </p>
-        </div>
-
-        <div
-          class="flex flex-wrap items-center gap-3 border-y border-crisiscleanup-grey-100 py-3"
-        >
-          <BaseButton
-            variant="solid"
-            :action="startCall"
-            :disabled="!canStartCall"
-            :text="
-              isLive
-                ? t('voiceConsole.on_call', 'On call')
-                : t('voiceConsole.start_call', 'Start call')
-            "
-            :alt="t('voiceConsole.start_call', 'Start call')"
-            data-testid="testVoiceStartCallButton"
-          />
-          <BaseButton
-            variant="outline"
-            :action="disconnect"
-            :disabled="!isLive"
-            :text="t('voiceConsole.hang_up', 'Hang up')"
-            :alt="t('voiceConsole.hang_up', 'Hang up')"
-            data-testid="testVoiceHangUpButton"
-          />
-          <BaseCheckbox
-            :model-value="muted"
-            :disabled="!isLive"
-            @update:model-value="setMuted"
-          >
-            {{ t('voiceConsole.mute', 'Mute mic') }}
-          </BaseCheckbox>
-          <span class="ml-auto flex items-center gap-3 text-sm">
-            <span class="font-semibold uppercase" :class="agentStateClass">{{
-              agentStateLabel
-            }}</span>
-            <span class="text-xl font-bold tabular-nums">{{
-              formatClock(elapsed)
-            }}</span>
-          </span>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold">
-            {{ t('voiceConsole.transcript', 'Transcript') }}
-          </h2>
-          <div class="flex gap-3 text-sm">
-            <button type="button" class="underline" @click="exportJson">
-              {{ t('voiceConsole.export_json', 'Export JSON') }}
-            </button>
-            <button type="button" class="underline" @click="exportText">
-              {{ t('voiceConsole.export_text', 'Export text') }}
-            </button>
-          </div>
-        </div>
-        <div
-          ref="transcriptEl"
-          class="flex h-[40vh] flex-col gap-2 overflow-y-auto"
-          data-testid="testVoiceTranscript"
-        >
-          <p
-            v-if="call.transcript.length === 0"
-            class="text-sm text-crisiscleanup-dark-300"
-          >
-            {{
-              t(
-                'voiceConsole.transcript_empty',
-                'Start a call, or run a simulated caller. The conversation shows here as it happens.',
-              )
-            }}
-          </p>
-          <div
-            v-for="line in call.transcript"
-            :key="line.id"
-            class="grid grid-cols-[4.5rem_1fr] gap-2 text-sm"
-          >
-            <span
-              class="pt-1.5 text-right text-xs font-bold uppercase"
-              :class="whoClass(line.who)"
+            <span v-if="call.config.flow">
+              ·
+              {{
+                call.config.flow === 'questions'
+                  ? t('~~Server asks the questions')
+                  : t('~~Model fills the form')
+              }}</span
             >
-              {{ whoLabel(line.who) }}
-              <span
-                class="block font-normal normal-case text-crisiscleanup-dark-300"
-                >{{ line.at }}</span
-              >
-            </span>
-            <span
-              class="rounded px-3 py-1.5"
-              :class="[
-                bubbleClass(line.who),
-                { 'italic opacity-60': !line.final },
-              ]"
-              >{{ line.text }}</span
-            >
-          </div>
-        </div>
-
-        <!-- Simulated caller -->
-        <div
-          class="flex flex-col gap-2 border-t border-crisiscleanup-grey-100 pt-3"
-          data-testid="testVoiceSimulatedCaller"
-        >
-          <h2 class="text-lg font-semibold">
-            {{ t('voiceConsole.simulated_caller', 'Simulated caller') }}
-          </h2>
-          <p class="text-sm text-crisiscleanup-dark-300">
-            {{
-              t(
-                'voiceConsole.simulated_caller_help',
-                'A small model plays the caller from the fact sheet and answers out loud. Load an eval scenario or write your own facts.',
-              )
-            }}
           </p>
-          <select
-            v-model="scenarioKey"
-            class="rounded border p-1.5 text-sm"
-            data-testid="testVoiceScenarioSelect"
-            @change="loadScenario"
-          >
-            <option value="">
-              {{ t('voiceConsole.pick_scenario', 'Pick an eval scenario…') }}
-            </option>
-            <option
-              v-for="scenario in scenarios"
-              :key="scenario.key"
-              :value="scenario.key"
-            >
-              {{ scenario.title }}
-            </option>
-          </select>
-          <p
-            v-if="expectation"
-            class="rounded bg-crisiscleanup-green-100/15 p-2 text-sm"
-          >
-            {{ t('voiceConsole.pass_looks_like', 'Pass looks like:') }}
-            {{ expectation }}
-          </p>
-          <textarea
-            v-model="facts"
-            rows="7"
-            class="rounded border p-2 font-mono text-xs"
-            data-testid="testVoiceFacts"
-          />
-          <div class="flex items-center gap-3">
-            <BaseButton
-              variant="solid"
-              size="small"
-              :action="runSimulated"
-              :disabled="
-                simulation.running ||
-                !facts.trim() ||
-                (!isLive && !canStartCall)
-              "
-              :text="t('voiceConsole.run_simulated_call', 'Run simulated call')"
-              :alt="t('voiceConsole.run_simulated_call', 'Run simulated call')"
-              data-testid="testVoiceRunSimulationButton"
-            />
-            <BaseButton
-              variant="outline"
-              size="small"
-              :action="stopSimulation"
-              :disabled="!simulation.running"
-              :text="t('actions.stop', 'Stop')"
-              :alt="t('actions.stop', 'Stop')"
-            />
-            <span class="text-sm text-crisiscleanup-dark-300">{{
-              simulation.status
-            }}</span>
-          </div>
-          <details class="text-xs text-crisiscleanup-dark-300">
-            <summary class="cursor-pointer">
-              {{ t('voiceConsole.connection_log', 'Connection log') }}
-            </summary>
-            <ul class="max-h-40 overflow-y-auto font-mono">
-              <li v-for="(entry, index) in log" :key="index">{{ entry }}</li>
-            </ul>
-          </details>
-        </div>
-      </section>
-
-      <!-- Inspector -->
-      <aside
-        class="self-start rounded-lg border border-crisiscleanup-grey-100 bg-white p-4 lg:sticky lg:top-3"
-      >
-        <div
-          class="mb-3 flex gap-4 border-b border-crisiscleanup-grey-100"
-          role="tablist"
-        >
-          <button
-            v-for="tab in tabs"
-            :key="tab.key"
-            type="button"
-            role="tab"
-            :aria-selected="activeTab === tab.key"
-            class="-mb-px border-b-2 pb-2 text-sm font-semibold"
-            :class="
-              activeTab === tab.key
-                ? 'border-primary-dark'
-                : 'border-transparent text-crisiscleanup-dark-300'
-            "
-            @click="activeTab = tab.key"
-          >
-            {{ tab.label }}
-            <span
-              v-if="tab.key === 'tools' && call.tools.length > 0"
-              class="text-xs text-primary-dark"
-              >{{ call.tools.length }}</span
-            >
-          </button>
-        </div>
-        <VoiceCasePanel
-          v-if="activeTab === 'case'"
-          :case-state="call.caseState"
-          :finalized="call.finalized"
-        />
-        <VoiceToolLog v-else-if="activeTab === 'tools'" :tools="call.tools" />
-        <VoiceMetrics
-          v-else-if="activeTab === 'metrics'"
-          :metrics="call.metrics"
-          :model="call.config?.model || settings.model"
-        />
-        <VoiceCallHistory v-else />
-        <p v-if="call.config" class="mt-3 text-xs text-crisiscleanup-dark-300">
-          {{ t('voiceConsole.agent_running', 'Agent running') }}
-          {{ call.config.model }} · {{ call.config.voice }} ·
-          {{ call.config.language }}
-          <span v-if="call.config.backend">
-            ·
-            {{
-              call.config.backend === 'decisions' ? 'Decisions' : 'Responses'
-            }}</span
-          >
-          <span v-if="call.config.flow">
-            ·
-            {{
-              call.config.flow === 'questions'
-                ? t('~~Server asks the questions')
-                : t('~~Model fills the form')
-            }}</span
-          >
-        </p>
-      </aside>
+        </aside>
+      </div>
     </div>
   </div>
 </template>
@@ -407,6 +464,7 @@ import VoiceCasePanel from '@/components/admin/voice/VoiceCasePanel.vue';
 import VoiceToolLog from '@/components/admin/voice/VoiceToolLog.vue';
 import VoiceMetrics from '@/components/admin/voice/VoiceMetrics.vue';
 import VoiceCallHistory from '@/components/admin/voice/VoiceCallHistory.vue';
+import VoiceOverviewMetrics from '@/components/admin/voice/VoiceOverviewMetrics.vue';
 import { downloadText } from '@/components/admin/voice/download';
 import {
   useVoiceConsole,
@@ -482,15 +540,33 @@ const scenarios = ref<Scenario[]>([]);
 const scenarioKey = ref('');
 const facts = ref('');
 const expectation = ref('');
-const activeTab = ref<'case' | 'tools' | 'metrics' | 'history'>('case');
+const activeTab = ref<'case' | 'tools' | 'metrics'>('case');
 const transcriptEl = ref<HTMLElement | null>(null);
 
 const tabs = computed(() => [
   { key: 'case' as const, label: t('voiceConsole.case', 'Case') },
   { key: 'tools' as const, label: t('voiceConsole.tools', 'Tools') },
   { key: 'metrics' as const, label: t('voiceConsole.metrics', 'Metrics') },
-  { key: 'history' as const, label: t('voiceConsole.history', 'History') },
 ]);
+
+// The page sections. The section is in the URL (?view=calls) so it links.
+type View = 'metrics' | 'calls' | 'test';
+const route = useRoute();
+const router = useRouter();
+const views = computed(() => [
+  { key: 'metrics' as const, label: t('~~Overall metrics') },
+  { key: 'calls' as const, label: t('voiceConsole.history', 'Call history') },
+  { key: 'test' as const, label: t('~~Test a call') },
+]);
+const view = computed<View>({
+  get: () =>
+    (['metrics', 'calls', 'test'] as const).find(
+      (key) => key === route.query.view,
+    ) ?? 'metrics',
+  set: (key: View) => {
+    void router.replace({ query: { ...route.query, view: key } });
+  },
+});
 
 const isLive = computed(() => status.value === 'live');
 const target = computed(() =>
