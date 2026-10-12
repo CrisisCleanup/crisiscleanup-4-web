@@ -3,6 +3,8 @@ import {
   findEvidence,
   parseSpeechTurns,
   placeDecisions,
+  rawSpeechLines,
+  rawSpeechText,
   seekSeconds,
 } from '@/hooks/voice/voiceTranscript';
 import {
@@ -34,6 +36,49 @@ describe('parseSpeechTurns', () => {
       ['assistant', 'Thanks.'],
     ]);
     expect(turns.map((t) => t.id)).toEqual([0, 1, 2]);
+  });
+});
+
+describe('rawSpeechLines', () => {
+  const transcript = [
+    'assistant: Hello.',
+    'assistant: What is your name?',
+    'user: John, J-O-H-N',
+    'and Smith.',
+    '[tool] save_case({"name": "John"})',
+    '[tool result] {"ok": true,',
+    '  "case": "R12"}',
+    '[tool error] note: boom',
+    '[tool metadata] {"timestamp": "2026-10-11T12:00:00Z"}',
+    'assistant: Thanks.',
+  ].join('\n');
+
+  it('keeps speech in order as stored, with its continuation lines', () => {
+    expect(rawSpeechLines(transcript)).toEqual([
+      { id: 0, role: 'assistant', text: 'Hello.' },
+      { id: 1, role: 'assistant', text: 'What is your name?' },
+      { id: 2, role: 'user', text: 'John, J-O-H-N\nand Smith.' },
+      { id: 3, role: 'assistant', text: 'Thanks.' },
+    ]);
+  });
+
+  it('drops every kind of tool line and their continuations', () => {
+    const text = rawSpeechText(transcript);
+    expect(text).not.toMatch(/\[tool|save_case|"ok"|R12|boom|timestamp/);
+    expect(text).toBe(
+      [
+        'assistant: Hello.',
+        'assistant: What is your name?',
+        'user: John, J-O-H-N',
+        'and Smith.',
+        'assistant: Thanks.',
+      ].join('\n'),
+    );
+  });
+
+  it('is empty for a call with no transcript', () => {
+    expect(rawSpeechLines('')).toEqual([]);
+    expect(rawSpeechText('[tool] save_case({})\n[tool result] ok')).toBe('');
   });
 });
 

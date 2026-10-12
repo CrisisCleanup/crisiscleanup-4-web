@@ -32,8 +32,19 @@
         :text="t('~~Accept {n} suggested fixes', { n: openSimple.length })"
         :alt="t('~~Accept {n} suggested fixes', { n: openSimple.length })"
       />
+      <button
+        v-if="transcriptHidden"
+        type="button"
+        class="hidden min-h-[40px] items-center rounded border border-crisiscleanup-dark-100 px-2 py-1 text-xs font-semibold lg:inline-flex"
+        data-testid="testVoiceRawTranscriptShow"
+        @click="transcriptHidden = false"
+      >
+        {{ t('~~Show transcript') }}
+      </button>
     </div>
 
+    <!-- Wide: findings with the raw transcript under them, and the case form
+         beside them. Narrow: findings, transcript, form, stacked. -->
     <div class="grid gap-4" :class="{ 'lg:grid-cols-2': showForm }">
       <div class="min-w-0">
         <dl class="mb-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1">
@@ -93,9 +104,16 @@
             @move="moveIncident(correction)"
           />
         </section>
+
+        <VoiceReviewRawTranscript
+          v-model:hidden="transcriptHidden"
+          class="lg:sticky lg:top-2"
+          :transcript="review.transcript"
+          :evidence="selectedEvidence"
+        />
       </div>
 
-      <div v-if="showForm" class="min-w-0">
+      <div v-if="showForm" class="min-w-0 lg:sticky lg:top-2 lg:self-start">
         <label
           v-if="newCase && !review.incident_id"
           class="mb-2 flex flex-col text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
@@ -150,6 +168,8 @@ import { useToast } from 'vue-toastification';
 import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
 import VoiceCorrectionCard from './VoiceCorrectionCard.vue';
 import VoiceReviewCaseForm from './VoiceReviewCaseForm.vue';
+import VoiceReviewRawTranscript from './VoiceReviewRawTranscript.vue';
+import { useTranscriptHidden } from '@/hooks/voice/useTranscriptHidden';
 import Incident from '@/models/Incident';
 import {
   caseUrl,
@@ -234,13 +254,13 @@ const groups = computed(() => {
 const hoveredId = ref<number>();
 const selectedId = ref<number>();
 const activeId = computed(() => hoveredId.value ?? selectedId.value);
-watch(activeId, (id?: number) =>
-  emit(
-    'evidence',
-    review.value.corrections.find((c: VoiceCorrection) => c.id === id)
-      ?.evidence,
-  ),
+const selectedEvidence = computed(
+  () =>
+    review.value.corrections.find(
+      (c: VoiceCorrection) => c.id === activeId.value,
+    )?.evidence,
 );
+watch(selectedEvidence, (evidence?: string) => emit('evidence', evidence));
 const cards = new Map<number, { startDismiss: () => void }>();
 function setCard(id: number, card: unknown) {
   if (card) cards.set(id, card as { startDismiss: () => void });
@@ -264,6 +284,9 @@ const formIncidentId = computed(
 const showForm = computed(
   () => Boolean(review.value?.worksite) || Boolean(newCase.value),
 );
+
+// The reviewer can hide the raw transcript on wide screens.
+const transcriptHidden = useTranscriptHidden();
 
 function canUseInForm(correction: VoiceCorrection) {
   return (

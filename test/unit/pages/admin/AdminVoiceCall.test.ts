@@ -292,6 +292,20 @@ describe('AdminVoiceCall tabs', () => {
     );
   });
 
+  it('shows the raw transcript on the review tab, not the conversation', async () => {
+    serve(session(), review());
+    const wrapper = await mountPage();
+    expect(
+      wrapper
+        .findAll(testId('testVoiceRawTranscriptLine'))
+        .map((line) => line.text()),
+    ).toEqual([
+      'assistant: What is your name?',
+      'user: John, J-O-H-N.',
+      'assistant: Thanks.',
+    ]);
+  });
+
   it.each([
     ['all issues are closed', { open_issues: 0 }],
     ['the call has no review', { review_id: null, open_issues: 0 }],

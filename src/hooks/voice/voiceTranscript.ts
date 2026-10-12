@@ -6,15 +6,19 @@
 import type { SessionDecision, SpeechTurn } from './voiceSessions';
 
 const SPEECH_PREFIXES = ['assistant: ', 'user: '];
-const TOOL_PREFIXES = ['[tool] ', '[tool result] '];
+const TOOL_PREFIXES = [
+  '[tool] ',
+  '[tool result] ',
+  '[tool error] ',
+  '[tool metadata] ',
+];
 
 /**
- * Spoken turns of the stored transcript (`assistant: ...` / `user: ...`
- * lines). Tool lines are left out, a line without a prefix continues the
- * turn before it, and adjacent turns of one speaker are joined, as the API
- * does for `speech_turns`.
+ * The speech of the stored transcript, one entry for each `assistant: ...` /
+ * `user: ...` line. Tool lines and their continuations are left out, and a
+ * line without a prefix continues the speech line before it.
  */
-export function parseSpeechTurns(transcript: string): SpeechTurn[] {
+function speechEntries(transcript: string) {
   const entries: { role: string; text: string }[] = [];
   let inSpeech = false;
   for (const line of (transcript || '').split('\n')) {
@@ -31,6 +35,34 @@ export function parseSpeechTurns(transcript: string): SpeechTurn[] {
       entries.at(-1)!.text += `\n${line}`;
     }
   }
+  return entries;
+}
+
+/**
+ * The raw speech lines of the call, as stored: no tool lines, no joining of
+ * adjacent lines of one speaker.
+ */
+export function rawSpeechLines(transcript: string) {
+  return speechEntries(transcript).map((entry, id) => ({
+    id,
+    role: entry.role,
+    text: entry.text.trimEnd(),
+  }));
+}
+
+/** The raw speech lines as text, for the clipboard. */
+export function rawSpeechText(transcript: string) {
+  return rawSpeechLines(transcript)
+    .map((line) => `${line.role}: ${line.text}`)
+    .join('\n');
+}
+
+/**
+ * Spoken turns of the stored transcript. Adjacent turns of one speaker are
+ * joined, as the API does for `speech_turns`.
+ */
+export function parseSpeechTurns(transcript: string): SpeechTurn[] {
+  const entries = speechEntries(transcript);
   const turns: SpeechTurn[] = [];
   for (const entry of entries) {
     const text = entry.text.replaceAll(/\s+/g, ' ').trim();

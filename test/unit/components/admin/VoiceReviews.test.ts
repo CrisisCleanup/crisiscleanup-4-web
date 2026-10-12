@@ -163,6 +163,89 @@ describe('VoiceReviewDetail', () => {
   });
 });
 
+describe('VoiceReviewDetail raw transcript', () => {
+  beforeEach(() => localStorage.clear());
+
+  it('shows the raw transcript next to the findings, with no tool lines', async () => {
+    const wrapper = mountReviewPane({
+      ...review(),
+      transcript:
+        'assistant: Name?\nuser: John.\n[tool] save({})\n[tool result] ok',
+    });
+    await flushPromises();
+    expect(
+      wrapper
+        .findAll(testId('testVoiceRawTranscriptLine'))
+        .map((line) => line.text()),
+    ).toEqual(['assistant: Name?', 'user: John.']);
+  });
+
+  it('marks the quote of the chosen finding in the transcript', async () => {
+    const wrapper = mountReviewPane(review());
+    await flushPromises();
+    await wrapper.get(testId('testVoiceCorrection')).trigger('click');
+    expect(wrapper.get(testId('testVoiceRawEvidenceMark')).text()).toBe(
+      'John, J-O-H-N',
+    );
+  });
+
+  it('keeps the choice to hide it, and brings it back', async () => {
+    const wrapper = mountReviewPane(review());
+    await flushPromises();
+    const panel = () => wrapper.get(testId('testVoiceRawTranscript'));
+    expect(panel().classes()).not.toContain('lg:hidden');
+    expect(wrapper.find(testId('testVoiceRawTranscriptShow')).exists()).toBe(
+      false,
+    );
+
+    await wrapper.get(testId('testVoiceRawTranscriptHide')).trigger('click');
+    expect(panel().classes()).toContain('lg:hidden');
+    expect(localStorage.getItem('voiceReviewTranscriptHidden')).toBe('1');
+
+    // A new visit starts hidden, too.
+    const again = mountReviewPane(review());
+    await flushPromises();
+    expect(again.get(testId('testVoiceRawTranscript')).classes()).toContain(
+      'lg:hidden',
+    );
+
+    await again.get(testId('testVoiceRawTranscriptShow')).trigger('click');
+    expect(again.get(testId('testVoiceRawTranscript')).classes()).not.toContain(
+      'lg:hidden',
+    );
+    expect(localStorage.getItem('voiceReviewTranscriptHidden')).toBeNull();
+  });
+
+  it('works when the browser keeps no storage', async () => {
+    const getItem = vi
+      .spyOn(Storage.prototype, 'getItem')
+      .mockImplementation(() => {
+        throw new Error('blocked');
+      });
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new Error('blocked');
+      });
+    const wrapper = mountReviewPane(review());
+    await flushPromises();
+    await wrapper.get(testId('testVoiceRawTranscriptHide')).trigger('click');
+    expect(wrapper.get(testId('testVoiceRawTranscript')).classes()).toContain(
+      'lg:hidden',
+    );
+    getItem.mockRestore();
+    setItem.mockRestore();
+  });
+
+  it('says so when the call has no transcript', async () => {
+    const wrapper = mountReviewPane({ ...review(), transcript: '' });
+    await flushPromises();
+    expect(wrapper.get(testId('testVoiceRawTranscriptEmpty')).text()).toBe(
+      '~~No transcript',
+    );
+  });
+});
+
 describe('VoiceAuditorList', () => {
   it('lists open issues and counts earlier calls before it queues them', async () => {
     const posted: unknown[] = [];
