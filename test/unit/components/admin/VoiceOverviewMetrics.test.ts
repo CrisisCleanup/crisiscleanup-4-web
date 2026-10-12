@@ -68,8 +68,8 @@ const METRICS = [
     key: 'cost_usd',
     label: 'Est. cost',
     format: 'usd',
-    values: { ...values(null), '24h': 12.5 },
-    previous: { ...values(null), '24h': 10 },
+    values: { ...values(null), '1h': 0.5, '24h': 12.5, '7d': 70 },
+    previous: { ...values(null), '1h': 0.25, '24h': 10, '7d': 70 },
   },
 ];
 
@@ -126,8 +126,16 @@ async function openCompare(wrapper: Awaited<ReturnType<typeof mountOverview>>) {
   await wrapper.get(testId('testVoiceCompareToggle')).trigger('click');
 }
 
+function projected(
+  wrapper: Awaited<ReturnType<typeof mountOverview>>,
+  id: string,
+) {
+  return wrapper.get(testId(`testVoiceProjection-${id}`)).text();
+}
+
 afterEach(() => {
   vi.useRealTimers();
+  localStorage.clear();
   nav.query = {};
   nav.replace.mockClear();
 });
@@ -282,7 +290,7 @@ describe('VoiceOverviewMetrics', () => {
       wrapper
         .get(testId('testVoiceHeadlines'))
         .findAll('[data-testid^="testVoiceCard-"]'),
-    ).toHaveLength(3);
+    ).toHaveLength(4);
     expect(wrapper.get(testId('testVoiceGroup-~~Volume')).text()).toContain(
       'Second cases',
     );
@@ -392,5 +400,160 @@ describe('VoiceOverviewMetrics', () => {
 
     await toggle.trigger('click');
     expect(wrapper.find('table').exists()).toBe(false);
+  });
+
+  describe('average cost per call', () => {
+    const card = (wrapper: Awaited<ReturnType<typeof mountOverview>>) =>
+      wrapper
+        .get(testId('testVoiceHeadlines'))
+        .get(testId('testVoiceCard-cost_per_call'));
+
+    it('is a headline card with the change against the window before', async () => {
+      mockApi({ metrics: [], trend: [] });
+      const wrapper = await mountOverview();
+
+      // 24h: $12.50 over 30 calls. The day before: $10 over 60 calls.
+      expect(card(wrapper).text()).toContain('Avg cost per call');
+      expect(card(wrapper).get(testId('testVoiceCardValue')).text()).toBe(
+        '$0.417',
+      );
+      const delta = card(wrapper).get(testId('testVoiceCardDelta'));
+      expect(delta.text()).toContain('+150%');
+      expect(delta.attributes('data-tone')).toBe('bad');
+
+      await wrapper.get(testId('testVoiceWindow-7d')).trigger('click');
+      await flushPromises();
+      expect(card(wrapper).get(testId('testVoiceCardValue')).text()).toBe(
+        '$1.75',
+      );
+      expect(
+        card(wrapper).get(testId('testVoiceCardDelta')).attributes('data-tone'),
+      ).toBe('neutral');
+
+      // No cost in 30 days: a dash.
+      await wrapper.get(testId('testVoiceWindow-30d')).trigger('click');
+      await flushPromises();
+      expect(card(wrapper).get(testId('testVoiceCardValue')).text()).toBe('—');
+    });
+
+    it('is a row of the compare table too', async () => {
+      mockApi({ metrics: [], trend: [] });
+      const wrapper = await mountOverview();
+      await openCompare(wrapper);
+      expect(
+        wrapper
+          .get(testId('testVoiceMetricCell-cost_per_call-1h'))
+          .get(testId('testVoiceMetricValue'))
+          .text(),
+      ).toBe('$0.050');
+    });
+  });
+
+  describe('cost projection', () => {
+    it('projects the cost of the picked time frame, and follows a new one', async () => {
+      mockApi({ metrics: [], trend: [] });
+      const wrapper = await mountOverview();
+
+      // 24h: $12.50 over 30 calls.
+      expect(wrapper.get(testId('testVoiceProjectionBasis')).text()).toBe(
+        '~~At the last {window} rate',
+      );
+      expect(projected(wrapper, 'day')).toBe('$12.50');
+      expect(projected(wrapper, 'week')).toBe('$87.50');
+      expect(projected(wrapper, 'month')).toBe('$375.00');
+      expect(projected(wrapper, 'call')).toBe('$0.417');
+      // $10 the day before: up 25%, and up is bad.
+      const change = wrapper.get(testId('testVoiceProjectionChange'));
+      expect(change.text()).toContain('+25%');
+      expect(change.attributes('data-tone')).toBe('bad');
+      expect(
+        wrapper.find(testId('testVoiceProjectionShortHint')).exists(),
+      ).toBe(false);
+
+      // 7d: $70 over 40 calls is $10 a day, as in the week before.
+      await wrapper.get(testId('testVoiceWindow-7d')).trigger('click');
+      await flushPromises();
+      expect(projected(wrapper, 'day')).toBe('$10.00');
+      expect(projected(wrapper, 'week')).toBe('$70.00');
+      expect(projected(wrapper, 'month')).toBe('$300.00');
+      expect(projected(wrapper, 'call')).toBe('$1.75');
+      expect(
+        wrapper
+          .get(testId('testVoiceProjectionChange'))
+          .attributes('data-tone'),
+      ).toBe('neutral');
+
+      // 1h: $0.50 in an hour is $12 a day; the hour before cost half.
+      await wrapper.get(testId('testVoiceWindow-1h')).trigger('click');
+      await flushPromises();
+      expect(projected(wrapper, 'day')).toBe('$12.00');
+      expect(projected(wrapper, 'month')).toBe('$360.00');
+      expect(projected(wrapper, 'call')).toBe('$0.050');
+      expect(wrapper.get(testId('testVoiceProjectionChange')).text()).toContain(
+        '+100%',
+      );
+      expect(wrapper.get(testId('testVoiceProjectionShortHint')).text()).toBe(
+        '~~Short window: projection is rough',
+      );
+      expect(wrapper.get(testId('testVoiceCostProjection')).text()).toContain(
+        'Excludes phone and LiveKit',
+      );
+    });
+
+    it('shows a dash for a time frame with no cost', async () => {
+      mockApi({ metrics: [], trend: [] });
+      const wrapper = await mountOverview();
+      await wrapper.get(testId('testVoiceWindow-30d')).trigger('click');
+      await flushPromises();
+
+      expect(wrapper.find(testId('testVoiceProjection-day')).exists()).toBe(
+        false,
+      );
+      expect(wrapper.get(testId('testVoiceProjectionEmpty')).text()).toContain(
+        '—',
+      );
+      expect(wrapper.find(testId('testVoiceExpectedCalls')).exists()).toBe(
+        false,
+      );
+    });
+
+    it('projects expected calls per day, and remembers them', async () => {
+      mockApi({ metrics: [], trend: [] });
+      const wrapper = await mountOverview();
+      const input = wrapper.get(testId('testVoiceExpectedCalls'));
+      // The default is the calls per day of the time frame.
+      expect(input.attributes('placeholder')).toBe('30');
+
+      await input.setValue('100');
+      // $0.4167 a call times 100 calls; no change against the day before.
+      expect(projected(wrapper, 'day')).toBe('$41.67');
+      expect(projected(wrapper, 'week')).toBe('$291.67');
+      expect(projected(wrapper, 'month')).toBe('$1,250');
+      expect(projected(wrapper, 'call')).toBe('$0.417');
+      expect(wrapper.find(testId('testVoiceProjectionChange')).exists()).toBe(
+        false,
+      );
+      expect(localStorage.getItem('voiceCostExpectedCallsPerDay')).toBe('100');
+
+      // Not a number: back to the rate of the time frame.
+      await input.setValue('abc');
+      expect(projected(wrapper, 'day')).toBe('$12.50');
+
+      await input.setValue('');
+      expect(localStorage.getItem('voiceCostExpectedCallsPerDay')).toBeNull();
+    });
+
+    it('starts with the expected calls kept on the device', async () => {
+      localStorage.setItem('voiceCostExpectedCallsPerDay', '60');
+      mockApi({ metrics: [], trend: [] });
+      const wrapper = await mountOverview();
+      expect(
+        (
+          wrapper.get(testId('testVoiceExpectedCalls'))
+            .element as HTMLInputElement
+        ).value,
+      ).toBe('60');
+      expect(projected(wrapper, 'day')).toBe('$25.00');
+    });
   });
 });

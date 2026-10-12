@@ -66,7 +66,7 @@
 
     <template v-if="overview">
       <section
-        class="grid grid-cols-2 gap-3 md:grid-cols-3"
+        class="grid grid-cols-2 gap-3 max-md:[&>:last-child:nth-child(odd)]:col-span-2 md:grid-cols-4 md:[&>:last-child:nth-child(4n+3)]:col-span-2"
         :aria-label="t('~~Headline metrics')"
         data-testid="testVoiceHeadlines"
       >
@@ -103,6 +103,11 @@
             @select="selectSeries(metric)"
           />
         </div>
+        <VoiceCostProjection
+          v-if="group.title === COST_GROUP"
+          :metrics="metrics"
+          :window-key="windowKey"
+        />
       </section>
       <p class="text-xs text-crisiscleanup-dark-300">
         {{
@@ -287,8 +292,10 @@
 </template>
 
 <script setup lang="ts">
+import VoiceCostProjection from '@/components/admin/voice/VoiceCostProjection.vue';
 import VoiceMetricCard from '@/components/admin/voice/VoiceMetricCard.vue';
 import {
+  COST_GROUP,
   HEADLINE_KEYS,
   TREND_SERIES,
   WINDOW_LABELS,
@@ -297,6 +304,7 @@ import {
   groupMetrics,
   metricDelta,
   useVoiceOverview,
+  withCostPerCall,
   type Metric,
   type MetricWindow,
   type TrendBucket,
@@ -337,7 +345,7 @@ const DELTA_CLASSES = {
 const windows = computed<MetricWindow[]>(
   () => overview.value?.windows ?? ['1h', '3h', '24h', '7d', '30d'],
 );
-const metrics = computed(() => overview.value?.metrics ?? []);
+const metrics = computed(() => withCostPerCall(overview.value?.metrics ?? []));
 // The headline metrics have large cards; the groups hold the rest.
 const headlines = computed(() =>
   HEADLINE_KEYS.flatMap((key) =>
