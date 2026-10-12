@@ -1,85 +1,42 @@
 <template>
   <div class="text-sm" data-testid="testVoiceReviewDetail">
-    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-      <button
-        type="button"
-        class="font-semibold underline max-md:min-h-[40px]"
-        @click="emit('back')"
+    <div class="mb-3 flex flex-wrap items-center gap-2">
+      <BaseButton
+        class="max-md:!min-h-[40px]"
+        variant="outline"
+        size="small"
+        data-testid="testVoiceReviewAgain"
+        :action="reviewAgain"
+        :text="t('~~Review again')"
+        :alt="t('~~Review again')"
+      />
+      <a
+        v-for="link in caseLinks"
+        :key="link.id"
+        :href="link.href"
+        target="_blank"
+        rel="noopener"
+        class="inline-flex min-h-[40px] items-center rounded border border-crisiscleanup-dark-100 px-2 py-1 text-xs font-semibold"
+        data-testid="testVoiceReviewOpenCase"
       >
-        ← {{ t('~~All calls') }}
-      </button>
-      <div class="flex flex-wrap items-center gap-2">
-        <BaseButton
-          v-if="review"
-          class="max-md:!min-h-[40px]"
-          variant="outline"
-          size="small"
-          data-testid="testVoiceReviewAgain"
-          :action="reviewAgain"
-          :text="t('~~Review again')"
-          :alt="t('~~Review again')"
-        />
-        <a
-          v-for="link in caseLinks"
-          :key="link.id"
-          :href="link.href"
-          target="_blank"
-          rel="noopener"
-          class="inline-flex min-h-[40px] items-center rounded border border-crisiscleanup-dark-100 px-2 py-1 text-xs font-semibold"
-          data-testid="testVoiceReviewOpenCase"
-        >
-          {{ t('~~Edit case {number}', { number: link.case_number }) }}
-          ↗
-        </a>
-        <BaseButton
-          v-if="openSimple.length > 0"
-          class="max-md:!min-h-[40px]"
-          variant="solid"
-          size="small"
-          data-testid="testVoiceReviewApplySimple"
-          :action="applySimple"
-          :text="t('~~Accept {n} suggested fixes', { n: openSimple.length })"
-          :alt="t('~~Accept {n} suggested fixes', { n: openSimple.length })"
-        />
-      </div>
+        {{ t('~~Edit case {number}', { number: link.case_number }) }}
+        ↗
+      </a>
+      <BaseButton
+        v-if="openSimple.length > 0"
+        class="max-md:!min-h-[40px]"
+        variant="solid"
+        size="small"
+        data-testid="testVoiceReviewApplySimple"
+        :action="applySimple"
+        :text="t('~~Accept {n} suggested fixes', { n: openSimple.length })"
+        :alt="t('~~Accept {n} suggested fixes', { n: openSimple.length })"
+      />
     </div>
 
-    <Spinner v-if="!review" />
-    <div v-else class="grid gap-4" :class="{ 'lg:grid-cols-2': showForm }">
+    <div class="grid gap-4" :class="{ 'lg:grid-cols-2': showForm }">
       <div class="min-w-0">
-        <audio
-          v-if="review.audio_url"
-          ref="audioEl"
-          controls
-          preload="metadata"
-          class="mb-3 w-full"
-          :src="review.audio_url"
-          data-testid="testVoiceReviewAudio"
-        />
-        <p v-else class="mb-3 text-crisiscleanup-dark-300">
-          {{ t('~~No recording was saved for this call.') }}
-        </p>
-
         <dl class="mb-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1">
-          <dt class="text-crisiscleanup-dark-300">{{ t('~~Case') }}</dt>
-          <dd data-testid="testVoiceReviewCases">
-            <template v-if="caseLinks.length > 0">
-              <span
-                v-for="(link, index) in caseLinks"
-                :key="link.id"
-                data-testid="testVoiceReviewCaseNumber"
-              >
-                <template v-if="index > 0">, </template>{{ link.case_number }}
-              </span>
-            </template>
-            <template v-else>{{ t('~~No case') }}</template>
-          </dd>
-          <template v-if="review.flags?.length">
-            <dt class="text-crisiscleanup-dark-300">{{ t('~~Flags') }}</dt>
-            <dd><VoiceFlagPills :flags="review.flags" /></dd>
-          </template>
-          <dt class="text-crisiscleanup-dark-300">{{ t('~~Call') }}</dt>
-          <dd>{{ review.session.call_id }} · {{ review.session.status }}</dd>
           <dt class="text-crisiscleanup-dark-300">{{ t('~~Reviewer') }}</dt>
           <dd>{{ review.model || '—' }}</dd>
           <dt class="text-crisiscleanup-dark-300">{{ t('~~Summary') }}</dt>
@@ -134,20 +91,6 @@
             @use="useInForm(correction)"
             @create="startNewCase(correction)"
             @move="moveIncident(correction)"
-          />
-        </section>
-
-        <section>
-          <h3
-            class="mb-2 text-[12px] font-semibold uppercase tracking-[0.04em] text-crisiscleanup-grey-900"
-          >
-            {{ t('~~Transcript') }}
-          </h3>
-          <VoiceReviewTranscript
-            :turns="turns"
-            :match="match"
-            :can-seek="Boolean(review.audio_url)"
-            @seek="seekTo"
           />
         </section>
       </div>
@@ -206,8 +149,6 @@ import axios from 'axios';
 import { useToast } from 'vue-toastification';
 import PaneEmpty from '@/components/phone/foundation/PaneEmpty.vue';
 import VoiceCorrectionCard from './VoiceCorrectionCard.vue';
-import VoiceFlagPills from './VoiceFlagPills.vue';
-import VoiceReviewTranscript from './VoiceReviewTranscript.vue';
 import VoiceReviewCaseForm from './VoiceReviewCaseForm.vue';
 import Incident from '@/models/Incident';
 import {
@@ -217,6 +158,7 @@ import {
   formChanges,
   incidentMove,
   missedCaseDetails,
+  queueReview,
   voiceReviewUrl,
   type MissedCaseDetails,
   type CorrectionAction,
@@ -224,29 +166,33 @@ import {
   type VoiceCorrection,
   type VoiceReviewWithTranscript,
 } from '@/hooks/voice/voiceReviews';
-import {
-  caseEditPath,
-  sessionsUrl,
-  type SessionDetail,
-  type SpeechTurn,
-} from '@/hooks/voice/voiceSessions';
-import {
-  findEvidence,
-  parseSpeechTurns,
-  seekSeconds,
-} from '@/hooks/voice/voiceTranscript';
+import { caseEditPath } from '@/hooks/voice/voiceSessions';
 import { getErrorMessage } from '@/utils/errors';
 import useDialogs from '@/hooks/useDialogs';
 
-const props = defineProps<{ reviewId: number }>();
-const emit = defineEmits<{ back: [] }>();
+const props = withDefaults(
+  defineProps<{
+    review: VoiceReviewWithTranscript;
+    /** The tab shows; the keys work only then. */
+    active?: boolean;
+  }>(),
+  { active: true },
+);
+const emit = defineEmits<{
+  /** The API sent the review again after a change. */
+  'update:review': [review: VoiceReviewWithTranscript];
+  /** The call changed (a case was saved or moved): load it again. */
+  reload: [];
+  /** The words the chosen finding quotes, or nothing. */
+  evidence: [evidence: string | undefined];
+}>();
 
 const { t } = useI18n();
 const $toasted = useToast();
 const router = useRouter();
 const { confirm: confirmDialog } = useDialogs();
 
-const review = ref<VoiceReviewWithTranscript>();
+const review = toRef(props, 'review');
 // Why an apply did not go through, shown on the correction itself.
 const problems = ref<Record<number, string>>({});
 
@@ -284,60 +230,21 @@ const groups = computed(() => {
   ].filter((group) => group.items.length > 0);
 });
 
-// The words of the call, with their time in the recording when known.
-const sessionTurns = ref<SpeechTurn[]>([]);
-const turns = computed<SpeechTurn[]>(() => {
-  const given = review.value?.speech_turns?.length
-    ? review.value.speech_turns
-    : sessionTurns.value;
-  return given.length > 0
-    ? given
-    : parseSpeechTurns(review.value?.transcript ?? '');
-});
-const audioEl = ref<HTMLAudioElement>();
-
 // The finding under the mouse, or chosen with the keyboard.
 const hoveredId = ref<number>();
 const selectedId = ref<number>();
 const activeId = computed(() => hoveredId.value ?? selectedId.value);
-const match = computed(() => {
-  const active = review.value?.corrections.find(
-    (c: VoiceCorrection) => c.id === activeId.value,
-  );
-  return active?.evidence
-    ? findEvidence(turns.value, active.evidence)
-    : undefined;
-});
+watch(activeId, (id?: number) =>
+  emit(
+    'evidence',
+    review.value.corrections.find((c: VoiceCorrection) => c.id === id)
+      ?.evidence,
+  ),
+);
 const cards = new Map<number, { startDismiss: () => void }>();
 function setCard(id: number, card: unknown) {
   if (card) cards.set(id, card as { startDismiss: () => void });
   else cards.delete(id);
-}
-
-function seekTo(line: { turn: SpeechTurn; index: number; count: number }) {
-  const audio = audioEl.value;
-  if (!audio) return;
-  const go = () => {
-    const seconds = seekSeconds(
-      line.turn,
-      line.index,
-      line.count,
-      audio.duration,
-    );
-    if (seconds === undefined) return;
-    audio.currentTime = seconds;
-    void audio.play?.();
-  };
-  // The length of the recording is not known until its start has loaded.
-  if (
-    typeof line.turn.offset_seconds !== 'number' &&
-    !Number.isFinite(audio.duration)
-  ) {
-    audio.addEventListener('loadedmetadata', go, { once: true });
-    audio.load();
-  } else {
-    go();
-  }
 }
 
 const caseForm = ref<InstanceType<typeof VoiceReviewCaseForm>>();
@@ -441,7 +348,7 @@ async function moveIncident(correction: VoiceCorrection) {
       },
     });
     usedInForm.value = new Set();
-    await load();
+    emit('reload');
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }
@@ -476,7 +383,7 @@ async function onCaseSaved(worksite: { id: number }) {
       );
     }
     usedInForm.value = new Set();
-    await load();
+    emit('reload');
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }
@@ -486,33 +393,6 @@ async function onCaseSaved(worksite: { id: number }) {
 function reloadCaseForm() {
   usedInForm.value = new Set();
   caseForm.value?.reload();
-}
-
-async function load() {
-  try {
-    const { data } = await axios.get<VoiceReviewWithTranscript>(
-      voiceReviewUrl(String(props.reviewId)),
-    );
-    review.value = data;
-    void loadSessionTurns(data.session.id);
-  } catch (error) {
-    $toasted.error(getErrorMessage(error));
-  }
-}
-
-let turnsLoadedFor: number | undefined;
-// Only the console call has the time of each line; the review can go without.
-async function loadSessionTurns(sessionId: number) {
-  if (turnsLoadedFor === sessionId) return;
-  turnsLoadedFor = sessionId;
-  try {
-    const { data } = await axios.get<SessionDetail>(
-      sessionsUrl(String(sessionId)),
-    );
-    sessionTurns.value = data.speech_turns ?? [];
-  } catch {
-    sessionTurns.value = [];
-  }
 }
 
 async function undo(correction: VoiceCorrection) {
@@ -529,7 +409,7 @@ async function undo(correction: VoiceCorrection) {
   if (answer !== 'yes') return;
   await act(correction, 'undo');
   // The undo can unlink a case, so the call shows its cases again.
-  if (!problems.value[correction.id]) await load();
+  if (!problems.value[correction.id]) emit('reload');
 }
 
 async function act(
@@ -557,12 +437,8 @@ async function act(
 // Run the reviewer again on this call, for example after the reviewer
 // changed. Open issues are replaced; fixed and dismissed ones stay.
 async function reviewAgain() {
-  if (!review.value) return;
   try {
-    await axios.post(voiceReviewUrl('backfill'), {
-      session: review.value.session.id,
-      force: true,
-    });
+    await queueReview(review.value.session.id);
     $toasted.success(
       t('~~The call is queued for review. Reload in a minute for the result.'),
     );
@@ -575,9 +451,9 @@ async function applySimple() {
   try {
     const { data } = await axios.post<
       VoiceReviewWithTranscript & { results: Record<string, string> }
-    >(voiceReviewUrl(`${props.reviewId}/apply_simple`));
+    >(voiceReviewUrl(`${review.value.id}/apply_simple`));
     const { results, ...detail } = data;
-    review.value = detail;
+    emit('update:review', detail);
     reloadCaseForm();
     problems.value = Object.fromEntries(
       Object.entries(results)
@@ -630,7 +506,7 @@ function onKeydown(event: KeyboardEvent) {
     event.metaKey ||
     event.altKey ||
     isTyping(event.target) ||
-    !review.value
+    !props.active
   ) {
     return;
   }
@@ -659,6 +535,4 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 useEventListener(window, 'keydown', onKeydown);
-
-watch(() => props.reviewId, load, { immediate: true });
 </script>

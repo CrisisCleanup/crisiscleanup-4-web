@@ -6,11 +6,8 @@
     <section
       class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4"
     >
-      <VoiceReviewDetail
-        v-if="selectedId"
-        :review-id="selectedId"
-        @back="closeReview"
-      />
+      <!-- An old link with a review id: find its call, then go there. -->
+      <Spinner v-if="selectedId" />
 
       <div v-else class="text-sm">
         <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
@@ -242,7 +239,7 @@ import AjaxTable from '@/components/AjaxTable.vue';
 import useEmitter from '@/hooks/useEmitter';
 import { makeTableColumns } from '@/utils/table';
 import VoiceAutoFix from '@/components/admin/voice/VoiceAutoFix.vue';
-import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
+import { callRoute } from '@/hooks/voice/voiceSessions';
 import {
   KIND_LABELS,
   duplicateUrl,
@@ -275,7 +272,7 @@ type View = 'open' | 'all' | 'failed';
 const view = ref<View>('open');
 // An issue kind (see KIND_LABELS), or '' for every kind.
 const kindFilter = ref('');
-// The review in the URL (/admin/voice_reviews/<id>), so it can be linked.
+// A review id in the URL (/admin/voice_reviews/<id>) is an old link.
 const selectedId = computed(() => Number(route.params.reviewId) || undefined);
 const since = ref(moment().subtract(7, 'day').format('YYYY-MM-DD'));
 const pendingCount = ref<number>();
@@ -308,12 +305,32 @@ function refresh() {
   emitter.emit('refreshTable-voiceReviews');
 }
 
+// Back from a call page, where issues may have been fixed: load the list again.
+let shownBefore = false;
+onActivated(() => {
+  if (shownBefore) refresh();
+  shownBefore = true;
+});
+
 function openReview(review: VoiceReview) {
-  void router.push({
-    name: 'nav.voice_reviews',
-    params: { reviewId: review.id },
-  });
+  void router.push(callRoute(review.session.id, 'review'));
 }
+
+// The call page replaces the old review page; an old link goes on to it.
+watch(
+  selectedId,
+  async (id?: number) => {
+    if (!id) return;
+    try {
+      const { data } = await axios.get<VoiceReview>(voiceReviewUrl(String(id)));
+      await router.replace(callRoute(data.session.id, 'review'));
+    } catch (error) {
+      $toasted.error(getErrorMessage(error));
+      await router.replace({ name: 'nav.voice_reviews' });
+    }
+  },
+  { immediate: true },
+);
 
 function caseNumbers(review: VoiceReview) {
   return reviewCases(review)
@@ -401,10 +418,5 @@ async function backfill(dryRun: boolean) {
   } catch (error) {
     $toasted.error(getErrorMessage(error));
   }
-}
-
-function closeReview() {
-  // The table mounts again and loads the list with any changes.
-  void router.push({ name: 'nav.voice_reviews' });
 }
 </script>

@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   findEvidence,
   parseSpeechTurns,
+  placeDecisions,
   seekSeconds,
 } from '@/hooks/voice/voiceTranscript';
 import {
+  type SessionDecision,
   flagClasses,
   flagLabel,
   humanize,
@@ -121,5 +123,62 @@ describe('correctionStatusLabel', () => {
     expect(correctionStatusLabel({ ...base, status: 'dismissed' })).toBe(
       '~~Dismissed',
     );
+  });
+});
+
+describe('placeDecisions', () => {
+  const turns = [
+    { id: 0, role: 'assistant', text: 'How can I help?' },
+    { id: 1, role: 'user', text: 'This is ridiculous, I need a tarp.' },
+    { id: 2, role: 'assistant', text: 'What is your name?' },
+    { id: 3, role: 'user', text: 'My name is John.' },
+  ];
+  const decision = (turn: number, caller_text: string): SessionDecision => ({
+    turn,
+    at: null,
+    caller_text,
+    route: 'intake',
+    callback: '',
+    intake_answer: false,
+    service_question: false,
+    rules_applied: [],
+    actions: [],
+  });
+
+  it('puts a decision under the caller line with its words', () => {
+    const { byTurn, unplaced } = placeDecisions(turns, [
+      decision(1, 'This is ridiculous'),
+      decision(2, 'my name is John'),
+    ]);
+    expect(byTurn.get(1)?.map((p) => [p.decision.turn, p.exact])).toEqual([
+      [1, true],
+    ]);
+    expect(byTurn.get(3)?.map((p) => [p.decision.turn, p.exact])).toEqual([
+      [2, true],
+    ]);
+    expect(unplaced).toEqual([]);
+  });
+
+  it('puts two decisions of one joined line under that line, in order', () => {
+    const { byTurn } = placeDecisions(
+      [{ id: 0, role: 'user', text: 'Hello there. My name is John.' }],
+      [decision(1, 'Hello there'), decision(2, 'My name is John')],
+    );
+    expect(byTurn.get(0)?.map((p) => p.decision.turn)).toEqual([1, 2]);
+  });
+
+  it('falls back to the order of the caller lines, then to unplaced', () => {
+    const { byTurn, unplaced } = placeDecisions(turns, [
+      decision(1, 'garbled words that match nothing'),
+      decision(2, ''),
+      decision(3, 'a third caller line that does not exist'),
+    ]);
+    expect(byTurn.get(1)?.map((p) => [p.decision.turn, p.exact])).toEqual([
+      [1, false],
+    ]);
+    expect(byTurn.get(3)?.map((p) => [p.decision.turn, p.exact])).toEqual([
+      [2, false],
+    ]);
+    expect(unplaced.map((d) => d.turn)).toEqual([3]);
   });
 });

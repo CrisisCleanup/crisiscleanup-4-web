@@ -27,6 +27,7 @@ const AdminDebug = () => import('./AdminDebug.vue');
 const AdminPhoneHistory = () => import('./AdminPhoneHistory.vue');
 const AdminVoiceConsole = () => import('./AdminVoiceConsole.vue');
 const AdminVoiceReviews = () => import('./AdminVoiceReviews.vue');
+const AdminVoiceCall = () => import('./AdminVoiceCall.vue');
 
 const routes = [
   {
@@ -163,10 +164,16 @@ const routes = [
         component: AdminVoiceConsole,
       },
       {
-        // An optional review id opens that review, so it can be linked.
+        // An old link with a review id goes on to the page of its call.
         path: 'voice_reviews/:reviewId?',
         name: 'nav.voice_reviews',
         component: AdminVoiceReviews,
+      },
+      {
+        // One call: its review, conversation and debug details.
+        path: 'voice_calls/:sessionId',
+        name: 'nav.voice_call',
+        component: AdminVoiceCall,
       },
       {
         path: 'debug',

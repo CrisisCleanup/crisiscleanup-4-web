@@ -1,10 +1,12 @@
-import { RouterLinkStub, flushPromises, mount } from '@vue/test-utils';
+import { flushPromises, mount } from '@vue/test-utils';
 import { rest } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import BaseButton from '@/components/BaseButton.vue';
 import VoiceAutoFix from '@/components/admin/voice/VoiceAutoFix.vue';
-import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import { server } from '../../../setupTests';
+import {
+  mountReviewPane,
+  reviewPaneGlobal,
+} from '../../fixtures/voiceReviewPane';
 
 vi.mock('vue-router', async (importOriginal) => ({
   ...(await importOriginal<typeof import('vue-router')>()),
@@ -18,15 +20,7 @@ vi.mock('@/hooks/useDialogs', () => ({
 }));
 
 const reviewsUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_reviews`;
-const sessionsUrl = `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_console/sessions`;
-const stubs = {
-  components: { BaseButton },
-  stubs: {
-    Spinner: true,
-    RouterLink: RouterLinkStub,
-    VoiceReviewCaseForm: true,
-  },
-};
+const stubs = reviewPaneGlobal;
 
 function testId(id: string) {
   return `[data-testid="${id}"]`;
@@ -85,20 +79,8 @@ function review(corrections = [correction()], overrides = {}) {
   };
 }
 
-async function mountReview(data: ReturnType<typeof review>, turns?: unknown[]) {
-  server.use(
-    rest.get(`${reviewsUrl}/7`, (_req, res, ctx) => res(ctx.json(data))),
-    rest.get(`${sessionsUrl}/3`, (_req, res, ctx) =>
-      turns
-        ? res(ctx.json({ speech_turns: turns }))
-        : res(ctx.status(404), ctx.json({})),
-    ),
-  );
-  const wrapper = mount(VoiceReviewDetail, {
-    props: { reviewId: 7 },
-    global: stubs,
-    attachTo: document.body,
-  });
+async function mountReview(data: ReturnType<typeof review>) {
+  const wrapper = mountReviewPane(data);
   await flushPromises();
   mounted.push(wrapper);
   return wrapper;
@@ -269,14 +251,13 @@ describe('correction card', () => {
 });
 
 describe('every case of the call', () => {
-  it('links and lists a second case, and shows the flags', async () => {
+  it('links a second case so it opens in a new tab', async () => {
     const wrapper = await mountReview(
       review([], {
         cases: [
           { id: 55, case_number: 'R12', incident_id: 248 },
           { id: 56, case_number: 'R13', incident_id: 248 },
         ],
-        flags: ['second_case', 'callback_offered'],
       }),
     );
     const links = wrapper.findAll(testId('testVoiceReviewOpenCase'));
@@ -284,84 +265,27 @@ describe('every case of the call', () => {
       '/incident/248/work/55/edit',
       '/incident/248/work/56/edit',
     ]);
-    expect(wrapper.get(testId('testVoiceReviewCases')).text()).toBe('R12, R13');
-    expect(wrapper.findAll('[data-flag]').map((pill) => pill.text())).toEqual([
-      '~~Second case',
-      '~~Callback offered',
-    ]);
   });
 });
 
-describe('transcript', () => {
-  function mockAudio(wrapper: Awaited<ReturnType<typeof mountReview>>) {
-    const audio = wrapper.get(testId('testVoiceReviewAudio'))
-      .element as HTMLAudioElement;
-    const times: number[] = [];
-    Object.defineProperty(audio, 'currentTime', {
-      configurable: true,
-      get: () => times.at(-1) ?? 0,
-      set: (value: number) => times.push(value),
+describe('evidence', () => {
+  it('tells the page the quoted words of a finding that is hovered or chosen', async () => {
+    const heard: (string | undefined)[] = [];
+    const wrapper = mountReviewPane(review(), {
+      onEvidence: (text) => heard.push(text),
     });
-    Object.defineProperty(audio, 'duration', {
-      configurable: true,
-      value: 80,
-    });
-    const play = vi.fn(() => Promise.resolve());
-    audio.play = play;
-    return { times, play };
-  }
-
-  it('seeks to the offset of a line, or to its place in the call', async () => {
-    const wrapper = await mountReview(review(), [
-      {
-        id: 0,
-        role: 'assistant',
-        text: 'What is your name?',
-        offset_seconds: 1.5,
-      },
-      { id: 1, role: 'user', text: 'John, J-O-H-N.', offset_seconds: 4 },
-      {
-        id: 2,
-        role: 'assistant',
-        text: 'And your phone?',
-        offset_seconds: null,
-      },
-      { id: 3, role: 'user', text: '918 555 0142.', offset_seconds: null },
-    ]);
-    const { times, play } = mockAudio(wrapper);
-    const lines = wrapper.findAll(testId('testVoiceTranscriptLine'));
-    expect(lines).toHaveLength(4);
-
-    await lines[1].trigger('click');
-    // No offset: line 3 of 4 is three quarters into an 80 second call.
-    await lines[3].trigger('click');
-    expect(times).toEqual([4, 60]);
-    expect(play).toHaveBeenCalledTimes(2);
-  });
-
-  it('seeks in proportion when only the stored transcript is there', async () => {
-    const wrapper = await mountReview(review());
-    const { times } = mockAudio(wrapper);
-    await wrapper
-      .findAll(testId('testVoiceTranscriptLine'))[2]
-      .trigger('click');
-    expect(times).toEqual([40]);
-  });
-
-  it('marks the quoted words when a finding is hovered or chosen', async () => {
-    const wrapper = await mountReview(review());
-    expect(wrapper.find(testId('testVoiceEvidenceMark')).exists()).toBe(false);
+    mounted.push(wrapper);
+    await flushPromises();
 
     await wrapper.get(testId('testVoiceCorrection')).trigger('mouseenter');
-    expect(wrapper.get(testId('testVoiceEvidenceMark')).text()).toBe(
-      'John, J-O-H-N',
-    );
     await wrapper.get(testId('testVoiceCorrection')).trigger('mouseleave');
-    expect(wrapper.find(testId('testVoiceEvidenceMark')).exists()).toBe(false);
-
     // A click on the card keeps it chosen.
     await wrapper.get(testId('testVoiceCorrection')).trigger('click');
-    expect(wrapper.find(testId('testVoiceEvidenceMark')).exists()).toBe(true);
+    expect(heard).toEqual([
+      'Caller: "John, J-O-H-N."',
+      undefined,
+      'Caller: "John, J-O-H-N."',
+    ]);
   });
 });
 

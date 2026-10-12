@@ -1,8 +1,10 @@
 /**
- * Call history of the Voice Console (`/admins/voice_console/sessions`):
- * row and detail shapes, the labels for call flags, and the readable names
- * of the rules in the decision timeline.
+ * Calls of the Voice Console (`/admins/voice_console/sessions`): row and
+ * detail shapes, the labels for call flags, the readable names of the rules
+ * in the decision timeline, and the link to the page of one call.
  */
+
+import { formatCost } from './voiceConsoleState';
 
 export interface SessionCase {
   id: number;
@@ -151,4 +153,53 @@ export function formatWhen(iso: string | null | undefined) {
         minute: '2-digit',
       })
     : '—';
+}
+
+export type CallTab = 'review' | 'conversation' | 'debug';
+
+/** The page of one call (`/admin/voice_calls/<id>`), on a tab if given. */
+export function callRoute(sessionId: number, tab?: CallTab) {
+  return {
+    name: 'nav.voice_call',
+    params: { sessionId },
+    ...(tab ? { query: { tab } } : {}),
+  };
+}
+
+type Translate = (key: string, fallback?: string) => string;
+
+/** The outcome of a call in words, with where a referral went. */
+export function outcomeLabel(
+  session: Pick<SessionRow, 'status' | 'referral'>,
+  t: Translate,
+) {
+  const label = t(
+    `voiceConsole.status_${session.status}`,
+    SESSION_STATUSES[session.status]
+      ? t(SESSION_STATUSES[session.status])
+      : session.status,
+  );
+  return session.status === 'referred' && session.referral
+    ? `${label} · ${session.referral}`
+    : label;
+}
+
+export function outcomeClass(status: string) {
+  return {
+    'text-crisiscleanup-green-900 font-semibold': status === 'completed',
+    'text-crisiscleanup-red-700 font-semibold': status === 'failed',
+    'text-crisiscleanup-dark-300':
+      status === 'abandoned' || status === 'in_progress',
+  };
+}
+
+/** The cost of a call; Live calls with no estimate say so. */
+export function costLabel(
+  session: Pick<SessionRow, 'model' | 'estimated_cost_usd'>,
+  t: Translate,
+) {
+  return session.model === 'gpt-live-1' &&
+    typeof session.estimated_cost_usd !== 'number'
+    ? t('~~Not estimated')
+    : formatCost(session.estimated_cost_usd);
 }

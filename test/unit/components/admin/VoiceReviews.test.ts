@@ -3,16 +3,17 @@ import { rest } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type * as VueRouter from 'vue-router';
 import BaseButton from '@/components/BaseButton.vue';
-import VoiceReviewDetail from '@/components/admin/voice/VoiceReviewDetail.vue';
 import AdminVoiceReviews from '@/pages/admin/AdminVoiceReviews.vue';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { formatValue } from '@/hooks/voice/voiceReviews';
 import { server } from '../../../setupTests';
+import { mountReviewPane } from '../../fixtures/voiceReviewPane';
 
 // A reactive route and a push that sets its params, like the real router.
 const nav = vi.hoisted(() => ({
   route: undefined as unknown as { params: Record<string, unknown> },
   push: vi.fn(),
+  replace: vi.fn(),
 }));
 vi.mock('vue-router', async (importOriginal) => {
   const { reactive } = await import('vue');
@@ -25,6 +26,7 @@ vi.mock('vue-router', async (importOriginal) => {
     useRouter: () => ({
       resolve: (path: string) => ({ href: path }),
       push: nav.push,
+      replace: nav.replace,
     }),
     useRoute: () => nav.route,
   };
@@ -113,15 +115,11 @@ describe('VoiceReviewDetail', () => {
       }),
     ]);
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(data))),
       rest.post(`${baseUrl}/corrections/1/apply`, (_req, res, ctx) =>
         res(ctx.json(correction({ status: 'applied' }))),
       ),
     );
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: stubs,
-    });
+    const wrapper = mountReviewPane(data);
     await flushPromises();
 
     expect(wrapper.text()).toContain('Name misspelled');
@@ -144,7 +142,6 @@ describe('VoiceReviewDetail', () => {
 
   it('shows why the API refused a fix', async () => {
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(review()))),
       rest.post(`${baseUrl}/corrections/1/apply`, (_req, res, ctx) =>
         res(
           ctx.status(409),
@@ -155,10 +152,7 @@ describe('VoiceReviewDetail', () => {
         ),
       ),
     );
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: stubs,
-    });
+    const wrapper = mountReviewPane(review());
     await flushPromises();
     await wrapper.get(testId('testVoiceCorrectionApply')).trigger('click');
     await flushPromises();
@@ -202,17 +196,12 @@ describe('AdminVoiceReviews', () => {
     ).toBe('120');
 
     await row.trigger('click');
-    await flushPromises();
-    // The review opens at its own URL, so it can be linked.
+    // The row opens the page of its call, on the review tab.
     expect(nav.push).toHaveBeenLastCalledWith({
-      name: 'nav.voice_reviews',
-      params: { reviewId: 7 },
+      name: 'nav.voice_call',
+      params: { sessionId: 3 },
+      query: { tab: 'review' },
     });
-    expect(wrapper.find(testId('testVoiceReviewDetail')).exists()).toBe(true);
-    await wrapper
-      .get(testId('testVoiceReviewDetail') + ' button')
-      .trigger('click');
-    await flushPromises();
 
     await wrapper.get(testId('testVoiceReviewCheck')).trigger('click');
     await flushPromises();
@@ -225,23 +214,59 @@ describe('AdminVoiceReviews', () => {
   });
 });
 
+describe('AdminVoiceReviews old links', () => {
+  beforeEach(() => {
+    nav.route.params = {};
+    nav.replace.mockReset();
+  });
+
+  it('sends a review id to the page of its call', async () => {
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(review()))),
+    );
+    nav.route.params = { reviewId: '7' };
+    mount(AdminVoiceReviews, { global: stubs });
+    await flushPromises();
+    expect(nav.replace).toHaveBeenCalledWith({
+      name: 'nav.voice_call',
+      params: { sessionId: 3 },
+      query: { tab: 'review' },
+    });
+  });
+
+  it('goes back to the list when the review is gone', async () => {
+    server.use(
+      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
+        res(ctx.status(404), ctx.json({ error: 'Not found' })),
+      ),
+    );
+    nav.route.params = { reviewId: '7' };
+    mount(AdminVoiceReviews, { global: stubs });
+    await flushPromises();
+    expect(nav.replace).toHaveBeenCalledWith({ name: 'nav.voice_reviews' });
+  });
+
+  it('shows the list when there is no review id', async () => {
+    server.use(
+      rest.get(baseUrl, (_req, res, ctx) =>
+        res(ctx.json({ count: 0, results: [] })),
+      ),
+    );
+    const wrapper = mount(AdminVoiceReviews, { global: stubs });
+    await flushPromises();
+    expect(nav.replace).not.toHaveBeenCalled();
+    expect(wrapper.find(testId('testVoiceReviewTable')).exists()).toBe(true);
+  });
+});
+
 describe('VoiceReviewDetail actions', () => {
-  it('plays the recording and opens the case in a new tab', async () => {
+  it('opens the case in a new tab', async () => {
     const data = review([
       correction({ id: 2, kind: 'work_type', simple: false, field: 'tarp' }),
     ]);
-    server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(data))),
-    );
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: stubs,
-    });
+    const wrapper = mountReviewPane(data);
     await flushPromises();
 
-    expect(wrapper.get(testId('testVoiceReviewAudio')).attributes('src')).toBe(
-      'https://signed.example/3.ogg',
-    );
     const open = wrapper.get(testId('testVoiceCorrectionOpenCase'));
     expect(open.attributes('href')).toBe('/incident/248/work/55/edit');
     expect(open.attributes('target')).toBe('_blank');
@@ -263,20 +288,6 @@ describe('VoiceReviewDetail actions', () => {
     };
     const bodies: unknown[] = [];
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
-        res(
-          ctx.json(
-            review([
-              correction({
-                kind: 'address',
-                field: 'address',
-                current_value: { ...suggested, address: '12 Oak St' },
-                suggested_value: suggested,
-              }),
-            ]),
-          ),
-        ),
-      ),
       rest.post(`${baseUrl}/corrections/1/apply`, async (req, res, ctx) => {
         const body: { value: Record<string, string> } = await req.json();
         bodies.push(body);
@@ -292,10 +303,16 @@ describe('VoiceReviewDetail actions', () => {
         );
       }),
     );
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: stubs,
-    });
+    const wrapper = mountReviewPane(
+      review([
+        correction({
+          kind: 'address',
+          field: 'address',
+          current_value: { ...suggested, address: '12 Oak St' },
+          suggested_value: suggested,
+        }),
+      ]),
+    );
     await flushPromises();
 
     await wrapper.get(testId('testVoiceCorrectionEdit')).trigger('click');
@@ -441,15 +458,7 @@ describe('AdminVoiceReviews missed cases', () => {
 
 describe('VoiceReviewDetail missed case duplicates', () => {
   it('links the possible duplicate on the card', async () => {
-    server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) =>
-        res(ctx.json(missedReview(7, [DUPLICATE]))),
-      ),
-    );
-    const wrapper = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: stubs,
-    });
+    const wrapper = mountReviewPane(missedReview(7, [DUPLICATE]));
     await flushPromises();
     const box = wrapper.get(testId('testVoiceCorrectionDuplicates'));
     expect(box.text()).toContain('Q77');
@@ -461,16 +470,12 @@ describe('Call Auditor review again', () => {
   it('re-runs one call and can include reviewed calls in a backfill', async () => {
     const posted: unknown[] = [];
     server.use(
-      rest.get(`${baseUrl}/7`, (_req, res, ctx) => res(ctx.json(review()))),
       rest.post(`${baseUrl}/backfill`, async (req, res, ctx) => {
         posted.push(await req.json());
         return res(ctx.json({ dry_run: false, count: 1, session_ids: [3] }));
       }),
     );
-    const detail = mount(VoiceReviewDetail, {
-      props: { reviewId: 7 },
-      global: stubs,
-    });
+    const detail = mountReviewPane(review());
     await flushPromises();
     await detail.get(testId('testVoiceReviewAgain')).trigger('click');
     await flushPromises();

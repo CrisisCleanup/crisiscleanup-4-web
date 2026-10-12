@@ -6,6 +6,7 @@
  * with one click; the rest describe a hand edit.
  */
 
+import axios from 'axios';
 import type { SpeechTurn } from './voiceSessions';
 
 export interface VoiceCorrection {
@@ -83,6 +84,17 @@ export function voiceReviewUrl(path = '') {
   return `${import.meta.env.VITE_APP_API_BASE_URL}/admins/voice_reviews${
     path ? `/${path}` : ''
   }`;
+}
+
+/**
+ * Queue a review of one call, also when it has a review already (the API's
+ * force option). Open issues are replaced; fixed and dismissed ones stay.
+ */
+export async function queueReview(sessionId: number) {
+  await axios.post(voiceReviewUrl('backfill'), {
+    session: sessionId,
+    force: true,
+  });
 }
 
 export const ADDRESS_PARTS = [

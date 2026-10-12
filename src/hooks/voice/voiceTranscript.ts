@@ -3,7 +3,7 @@
  * transcript, find the words a finding quotes, and pick where to seek the
  * recording when a line is clicked.
  */
-import type { SpeechTurn } from './voiceSessions';
+import type { SessionDecision, SpeechTurn } from './voiceSessions';
 
 const SPEECH_PREFIXES = ['assistant: ', 'user: '];
 const TOOL_PREFIXES = ['[tool] ', '[tool result] '];
@@ -124,4 +124,50 @@ export function seekSeconds(
   return Number.isFinite(duration) && duration > 0 && count > 0
     ? (index / count) * duration
     : undefined;
+}
+
+export interface PlacedDecision {
+  decision: SessionDecision;
+  /** The caller's words were found in the line, not guessed from the order. */
+  exact: boolean;
+}
+
+/**
+ * Put each decision under the caller line it answers. The caller's words
+ * decide, searching forward from the last match; when they are not found,
+ * the number of the decision picks the caller line in order. A decision that
+ * fits no line stays in `unplaced`.
+ */
+export function placeDecisions(
+  turns: Pick<SpeechTurn, 'id' | 'role' | 'text'>[],
+  decisions: SessionDecision[],
+) {
+  const callers = turns
+    .filter((turn) => turn.role === 'user')
+    .map((turn) => ({ id: turn.id, text: normalize(turn.text).text }));
+  const byTurn = new Map<number, PlacedDecision[]>();
+  const unplaced: SessionDecision[] = [];
+  let cursor = 0;
+  for (const decision of decisions) {
+    const said = normalize(decision.caller_text || '').text;
+    let at =
+      said.length >= 2
+        ? callers.findIndex(
+            (caller, index) => index >= cursor && caller.text.includes(said),
+          )
+        : -1;
+    const exact = at !== -1;
+    if (!exact) at = decision.turn - 1;
+    const caller = callers[at];
+    if (!caller) {
+      unplaced.push(decision);
+      continue;
+    }
+    cursor = at;
+    byTurn.set(caller.id, [
+      ...(byTurn.get(caller.id) ?? []),
+      { decision, exact },
+    ]);
+  }
+  return { byTurn, unplaced };
 }
