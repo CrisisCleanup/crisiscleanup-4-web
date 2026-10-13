@@ -244,7 +244,10 @@ axios.interceptors.response.use(
   (error) => {
     if (
       error instanceof AxiosError &&
-      [400, 408, 409, 422, 502].includes(error.response?.status as number)
+      [400, 408, 409, 422, 502].includes(error.response?.status as number) &&
+      // A caller that handles this error itself (e.g. the duplicate check).
+      !(error.config as { skipErrorToast?: boolean } | undefined)
+        ?.skipErrorToast
     ) {
       getAndToastWarningMessage(error);
     }

@@ -552,6 +552,8 @@ import { buildForm, groupBy, nest } from '../../utils/form';
 import { getErrorMessage } from '../../utils/errors';
 import Incident from '../../models/Incident';
 import useDialogs from '../../hooks/useDialogs';
+import { createWithDuplicateCheck } from '../../hooks/worksite/createWithDuplicateCheck';
+import type { Config, Response } from '@vuex-orm/plugin-axios';
 import useEmitter from '../../hooks/useEmitter';
 import BaseSelect from '../BaseSelect.vue';
 import WorksiteImageSection from './WorksiteImageSection.vue';
@@ -570,7 +572,6 @@ import worksite from '@/store/modules/worksite';
 import { formatNationalNumber } from '@/filters';
 import Flag from '@/components/work/Flag.vue';
 import AddressDisplay from '@/components/AddressDisplay.vue';
-import type { Response } from '@vuex-orm/plugin-axios';
 import {
   formatWorksiteAddress,
   formatWorksiteAddressHtml,
@@ -631,6 +632,12 @@ export default defineComponent({
     useDraft: {
       type: Boolean,
       default: true,
+    },
+    // On for the Call Auditor: a new case is checked for duplicates first,
+    // and the user confirms before it is saved anyway.
+    checkDuplicates: {
+      type: Boolean,
+      default: false,
     },
     formClasses: {
       type: String,
@@ -1212,6 +1219,37 @@ export default defineComponent({
       return !invalid;
     }
 
+    async function confirmPossibleDuplicate(error: AxiosError) {
+      // The API puts the matches under data: {errors, data: {potential_duplicates}}.
+      const body = error.response?.data as
+        | { data?: { potential_duplicates?: { case_number?: string }[] } }
+        | undefined;
+      const numbers = (body?.data?.potential_duplicates ?? [])
+        .map((duplicate) => duplicate.case_number)
+        .filter(Boolean)
+        .join(', ');
+      const result = await confirm({
+        title: t('~~Possible duplicate'),
+        content: numbers
+          ? t(
+              '~~This might be a duplicate of {numbers}. Are you sure you still want to create it?',
+              { numbers },
+            )
+          : t(
+              '~~This might be a duplicate. Are you sure you still want to create it?',
+            ),
+        actions: {
+          no: {
+            text: t('actions.cancel'),
+            type: 'outline',
+            buttonClass: 'border border-black',
+          },
+          yes: { text: t('~~Create anyway'), type: 'solid' },
+        },
+      });
+      return result === 'yes';
+    }
+
     async function saveWorksite(reload = true, isRetry = false) {
       let firstErrorField;
       let firstErrorMessage = '';
@@ -1348,12 +1386,26 @@ export default defineComponent({
             await Worksite.api().favorite(worksite.value.id);
           }
         } else {
-          const response = await Worksite.api().post('/worksites', {
-            ...worksite.value,
-            incident: props.incidentId,
-            skip_duplicate_check: true,
-            send_sms: true,
-          });
+          const create = (skipDuplicateCheck: boolean) =>
+            Worksite.api().post(
+              '/worksites',
+              {
+                ...worksite.value,
+                incident: props.incidentId,
+                skip_duplicate_check: skipDuplicateCheck,
+                send_sms: true,
+              },
+              // The duplicate check's 409 is asked about, not toasted.
+              (skipDuplicateCheck ? {} : { skipErrorToast: true }) as Config,
+            );
+          const response = await createWithDuplicateCheck(
+            create,
+            props.checkDuplicates,
+            confirmPossibleDuplicate,
+          );
+          if (response === null) {
+            return false;
+          }
 
           if (response.response instanceof AxiosError) {
             // if error is a 403, save the current details to local storage and reload the page with a query param

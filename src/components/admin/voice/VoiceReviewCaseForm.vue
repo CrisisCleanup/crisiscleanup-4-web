@@ -18,6 +18,7 @@
         :is-editing="Boolean(worksiteId)"
         :data-prefill="prefill"
         :use-draft="false"
+        check-duplicates
         disable-claim-and-save
         @saved-worksite="onSaved"
       />
