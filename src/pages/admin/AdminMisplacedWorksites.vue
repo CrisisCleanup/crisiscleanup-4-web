@@ -48,7 +48,28 @@
               {{ [selected.city, selected.state].filter(Boolean).join(', ') }}
             </span>
           </div>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <BaseButton
+              variant="text"
+              size="small"
+              icon="chevron-left"
+              :action="() => step(-1)"
+              :disabled="busy || index === 0"
+              :alt="$t('actions.previous')"
+              data-testid="testMisplacedPreviousButton"
+            />
+            <span class="text-sm" data-testid="testMisplacedPosition">
+              {{ index + 1 }} / {{ rows.length }}
+            </span>
+            <BaseButton
+              variant="text"
+              size="small"
+              icon="chevron-right"
+              :action="() => step(1)"
+              :disabled="busy || index === rows.length - 1"
+              :alt="$t('actions.next')"
+              data-testid="testMisplacedNextButton"
+            />
             <BaseButton
               variant="outline"
               size="medium"
@@ -80,6 +101,7 @@
             </div>
             <MisplacedWorksiteMap
               :incident-id="selected.current_incident_id"
+              :worksite-id="selected.worksite_id"
               :latitude="selected.latitude"
               :longitude="selected.longitude"
             />
@@ -92,6 +114,7 @@
             </div>
             <MisplacedWorksiteMap
               :incident-id="selected.incident_id_contained"
+              :worksite-id="selected.worksite_id"
               :latitude="selected.latitude"
               :longitude="selected.longitude"
             />
@@ -100,60 +123,36 @@
       </div>
 
       <div
-        class="overflow-x-auto border border-crisiscleanup-grey-100 bg-white"
+        class="grid grid-cols-1 gap-3 border border-crisiscleanup-grey-100 bg-white p-3 text-sm sm:grid-cols-2 xl:grid-cols-4"
+        data-testid="testMisplacedDetails"
       >
-        <table
-          class="w-full text-left text-xs"
-          data-testid="testMisplacedTable"
-        >
-          <thead>
-            <tr class="border-b">
-              <th
-                v-for="column in columns"
-                :key="column"
-                class="whitespace-nowrap p-2 font-semibold"
-              >
-                {{ column }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="row in rows"
-              :key="row.worksite_id"
-              class="cursor-pointer border-b hover:bg-crisiscleanup-light-grey"
-              :class="{
-                'bg-crisiscleanup-light-grey':
-                  row.worksite_id === selected.worksite_id,
-              }"
-              @click="selectedId = row.worksite_id"
-            >
-              <td
-                v-for="column in columns"
-                :key="column"
-                class="whitespace-nowrap p-2"
-              >
+        <div v-for="group in details" :key="group.title">
+          <div class="mb-1 font-semibold">{{ group.title }}</div>
+          <dl class="grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
+            <template v-for="item in group.items" :key="item.label">
+              <dt class="text-crisiscleanup-grey-700">{{ item.label }}</dt>
+              <dd class="min-w-0 break-words">
                 <a
-                  v-if="column === 'url'"
+                  v-if="item.href && item.value"
                   class="text-primary-dark underline"
-                  :href="row.url"
-                  target="_blank"
+                  :href="item.href"
+                  :target="item.href.startsWith('http') ? '_blank' : undefined"
                   rel="noopener"
-                  @click.stop
                 >
-                  {{ row.url }}
+                  {{ item.value }}
                 </a>
-                <template v-else>{{ row[column] }}</template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                <template v-else>{{ item.value || '—' }}</template>
+              </dd>
+            </template>
+          </dl>
+        </div>
       </div>
     </template>
   </section>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import MisplacedWorksiteMap from '@/components/admin/MisplacedWorksiteMap.vue';
 import {
@@ -165,25 +164,7 @@ import {
 } from '@/hooks/useMisplacedWorksites';
 import { getErrorMessage } from '@/utils/errors';
 
-// Every column of the "Worksites that need to be moved" report.
-const columns = [
-  'current_incident_id',
-  'created_ago',
-  'worksite_id',
-  'city',
-  'state',
-  'current_incident_name',
-  'time_after_incident',
-  'url',
-  'incident_id_contained',
-  'move_to_this_incident',
-  'time_after_contained_incident',
-  'user_name',
-  'user_email',
-  'user_mobile',
-  'organization',
-] as const;
-
+const { t } = useI18n();
 const $toasted = useToast();
 const rows = ref<MisplacedWorksite[]>([]);
 const selectedId = ref<number>();
@@ -195,6 +176,74 @@ const selected = computed(
     rows.value.find((row) => row.worksite_id === selectedId.value) ??
     rows.value[0],
 );
+
+const index = computed(() =>
+  selected.value ? rows.value.indexOf(selected.value) : 0,
+);
+
+function step(offset: number) {
+  selectedId.value = rows.value[index.value + offset]?.worksite_id;
+}
+
+/** Every column of the "Worksites that need to be moved" report, grouped. */
+const details = computed(() => {
+  const row = selected.value;
+  if (!row) return [];
+  return [
+    {
+      title: t('~~Worksite'),
+      items: [
+        { label: t('~~ID'), value: row.worksite_id, href: row.url },
+        { label: t('~~Link'), value: row.url, href: row.url },
+        { label: t('~~City'), value: row.city },
+        { label: t('~~State'), value: row.state },
+        {
+          label: t('~~Created'),
+          value: t('~~{time} ago', { time: row.created_ago }),
+        },
+      ],
+    },
+    {
+      title: t('~~Current incident'),
+      items: [
+        { label: t('~~Name'), value: row.current_incident_name },
+        { label: t('~~ID'), value: row.current_incident_id },
+        { label: t('~~Created after start'), value: row.time_after_incident },
+      ],
+    },
+    {
+      title: t('~~Proposed incident'),
+      items: [
+        { label: t('~~Name'), value: row.move_to_this_incident },
+        { label: t('~~ID'), value: row.incident_id_contained },
+        {
+          label: t('~~Created after start'),
+          value: row.time_after_contained_incident,
+        },
+      ],
+    },
+    {
+      title: t('~~Created by'),
+      items: [
+        { label: t('~~Name'), value: row.user_name },
+        {
+          label: t('~~Email'),
+          value: row.user_email,
+          href: row.user_email ? `mailto:${row.user_email}` : undefined,
+        },
+        {
+          label: t('~~Mobile'),
+          value: row.user_mobile,
+          href: row.user_mobile ? `tel:${row.user_mobile}` : undefined,
+        },
+        { label: t('~~Organization'), value: row.organization },
+      ],
+    },
+  ] as {
+    title: string;
+    items: { label: string; value: unknown; href?: string }[];
+  }[];
+});
 
 async function load(refresh = false) {
   loading.value = true;
