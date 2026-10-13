@@ -135,7 +135,8 @@ function showWorksite() {
 
 onMounted(() => {
   if (!mapElement.value) return;
-  map = new L.Map(mapElement.value);
+  // The page scrolls past the maps; zoom with the buttons.
+  map = new L.Map(mapElement.value, { scrollWheelZoom: false });
   L.tileLayer(mapTileLayer, { attribution: mapAttribution }).addTo(map);
   void showBoundaries();
   showWorksite();
