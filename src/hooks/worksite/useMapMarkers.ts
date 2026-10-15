@@ -1,20 +1,22 @@
 import * as L from 'leaflet';
-import type { Sprite } from 'pixi.js';
+import type { Sprite, Container } from 'pixi.js';
 import type { LatLng } from 'leaflet';
+import { throttle } from 'lodash';
 import { getMarkerLayer } from '../../utils/map';
-import useRenderedMarkers from './useRenderedMarkers';
+import useRenderedMarkers, { type MapMarkerSprite } from './useRenderedMarkers';
 import useEmitter from '@/hooks/useEmitter';
 import { templates } from '@/icons/icons_templates';
 import { i18n } from '@/modules/i18n';
 import { store } from '@/store';
-import type { LayerGroup, PixiLayer } from '@/utils/types/map';
+import type { LayerGroup, MarkerLayer } from '@/utils/types/map';
 import type Worksite from '@/models/Worksite';
 
 export interface MapMarkersUtils {
   setupMarkers: (
     worksiteMarkers: Array<Sprite & Worksite>,
     visibleIds: string[],
-  ) => { workTypes: Record<string, any>; sprites: any };
+  ) => { workTypes: Record<string, boolean>; sprites: MapMarkerSprite[] };
+  getMarkerSprites: () => MapMarkerSprite[];
   addMarkerToMap: (location: LatLng) => void;
   jumpToCase: (worksite: Worksite | undefined, showPopup: boolean) => void;
   loadMarker: (marker: Sprite & Worksite, index: number) => void;
@@ -23,80 +25,86 @@ export interface MapMarkersUtils {
 export default function useMapMarkers(
   map: L.Map,
   onMarkerClick: (marker: Sprite & Worksite) => void,
-  getPixiContainer: () => any,
+  getPixiContainer: () => Container | undefined,
   removeLayer: (key: string) => void,
 ): MapMarkersUtils {
   const addToVisited = (wId: number) =>
     store.commit('worksite/addVisitedWorksite', wId);
 
-  // Setup markers function
+  let worksiteLayer: MarkerLayer | undefined;
+  let renderer: ReturnType<typeof useRenderedMarkers> | undefined;
+  let casesById = new Map<string, Sprite & Worksite>();
+  const timers = new Set<ReturnType<typeof setTimeout>>();
+  let disposed = false;
+
+  const later = (callback: () => void, delay: number) => {
+    const timer = setTimeout(() => {
+      timers.delete(timer);
+      if (!disposed) callback();
+    }, delay);
+    timers.add(timer);
+  };
+  map.once('unload', () => {
+    disposed = true;
+    for (const timer of timers) clearTimeout(timer);
+    timers.clear();
+    addCursor.cancel();
+  });
+
+  const handleMapClick = (event: L.LeafletMouseEvent) => {
+    const marker = renderer?.findMarker(event.latlng);
+    if (!marker) return;
+    const worksite = casesById.get(marker.id);
+    if (!worksite) return;
+    onMarkerClick(worksite);
+    addToVisited(Number(marker.id));
+    renderer?.renderMarkerSprite(worksite, 0);
+  };
+
+  let hoveredId: string | undefined;
+  const addCursor = throttle((event: L.LeafletMouseEvent) => {
+    const marker = renderer?.findMarker(event.latlng);
+    const overlay = (
+      worksiteLayer as (MarkerLayer & { _container?: HTMLElement }) | undefined
+    )?._container;
+    if (!overlay || hoveredId === marker?.id) return;
+    hoveredId = marker?.id;
+    overlay.classList.toggle('cursor-pointer', Boolean(marker));
+    overlay.title = marker?.case_number || '';
+  }, 32);
+
   const setupMarkers = (
     worksiteMarkers: Array<Sprite & Worksite>,
     visibleIds: string[],
   ) => {
-    // Clean up existing event handlers
-    map.off('click');
-    map.off('mousemove');
-
-    removeLayer('marker_layer');
-    const worksiteLayer = getMarkerLayer([], map, {});
-    worksiteLayer.addTo(map);
-
-    const { workTypes, findMarker, renderMarkerSprite } = useRenderedMarkers(
-      map,
-      worksiteMarkers,
-      visibleIds,
+    if (disposed) return { workTypes: {}, sprites: [] };
+    casesById = new Map(
+      worksiteMarkers.map((marker) => [String(marker.id), marker]),
     );
-
-    // Click handler - match original logic exactly
-    const handleMapClick = (e: L.LeafletMouseEvent) => {
-      const marker = findMarker(e.latlng);
-      if (marker) {
-        // Find the actual worksite marker
-        const markerToRerender =
-          worksiteMarkers.find((m) => m.id.toString() === marker.id) ?? marker;
-        if (markerToRerender) {
-          // Cast marker to match expected type (same as original)
-          onMarkerClick(markerToRerender as any);
-          addToVisited(Number(marker.id));
-
-          try {
-            renderMarkerSprite(
-              markerToRerender as any,
-              (markerToRerender as any).index || 0,
-            );
-          } catch (error) {
-            console.error(error);
-          }
-          map.panBy([1, 0]);
-        }
-      }
-    };
-
-    map.on('click', handleMapClick);
-
-    // Cursor handling - match original logic
-    function addCursor(e: L.LeafletMouseEvent) {
-      const marker = findMarker(e.latlng);
-      const container = (worksiteLayer as any)._container;
-
-      if (marker && container) {
-        L.DomUtil.addClass(container, 'cursor-pointer');
-        container.setAttribute('title', marker.case_number);
-      } else if (container) {
-        L.DomUtil.removeClass(container, 'cursor-pointer');
-        container.setAttribute('title', '');
-      }
+    if (renderer) {
+      renderer.updateMarkers(worksiteMarkers, visibleIds);
+    } else {
+      worksiteLayer = getMarkerLayer([], map, {});
+      worksiteLayer.addTo(map);
+      renderer = useRenderedMarkers(map, worksiteMarkers, visibleIds);
+      map.on('click', handleMapClick);
+      map.on('mousemove', addCursor);
+      worksiteLayer.once('remove', () => {
+        map.off('click', handleMapClick);
+        map.off('mousemove', addCursor);
+        addCursor.cancel();
+        renderer = undefined;
+        worksiteLayer = undefined;
+        casesById.clear();
+      });
     }
-
-    map.on('mousemove', L.Util.throttle(addCursor as any, 32, {}));
-    map.panBy([1, 0]);
-
-    return {
-      workTypes,
-      sprites: getPixiContainer()?.children,
-      loadMarker: renderMarkerSprite,
-    };
+    hoveredId = undefined;
+    const overlay = (
+      worksiteLayer as MarkerLayer & { _container?: HTMLElement }
+    )._container;
+    overlay?.classList.remove('cursor-pointer');
+    if (overlay) overlay.title = '';
+    return { workTypes: renderer.workTypes, sprites: renderer.sprites };
   };
 
   const addMarkerToMap = async (location: LatLng) => {
@@ -143,11 +151,11 @@ export default function useMapMarkers(
       })
       .openTooltip();
 
-    setTimeout(() => {
+    later(() => {
       if (container) {
         container.visible = true;
       }
-      map.panBy([1, 0]);
+      worksiteLayer?.requestRedraw();
     }, 400);
   };
 
@@ -159,7 +167,9 @@ export default function useMapMarkers(
     if (map && worksite && container) {
       container.visible = false;
       map.setView([worksite.latitude, worksite.longitude], 18);
-      addToVisited(worksite.id as number);
+      addToVisited(Number(worksite.id));
+      const marker = casesById.get(String(worksite.id));
+      if (marker) renderer?.renderMarkerSprite(marker, 0);
 
       if (showPopup) {
         const popup = L.popup({ className: 'pixi-popup' });
@@ -167,22 +177,26 @@ export default function useMapMarkers(
           .setLatLng([worksite.latitude, worksite.longitude])
           .setContent(`<b>${worksite.name} (${worksite.case_number}</b>)`)
           .openOn(map);
-        setTimeout(() => {
+        later(() => {
           map.closePopup();
         }, 5000);
       }
 
-      setTimeout(() => {
+      later(() => {
         container.visible = true;
-        map.panBy([1, 0]);
+        worksiteLayer?.requestRedraw();
       }, 400);
     }
   };
 
   return {
     setupMarkers,
+    getMarkerSprites: () => renderer?.sprites || [],
     addMarkerToMap,
     jumpToCase,
-    loadMarker: (marker, index) => {}, // Will be set by setupMarkers
+    loadMarker: (marker, index) => {
+      casesById.set(String(marker.id), marker);
+      renderer?.renderMarkerSprite(marker, index);
+    },
   };
 }

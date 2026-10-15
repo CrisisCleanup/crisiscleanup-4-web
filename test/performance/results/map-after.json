@@ -1,0 +1,156 @@
+{
+  "count": 10000,
+  "initial": {
+    "renderMs": 3.6000003814697266,
+    "renders": 3,
+    "synchronousMs": 61.09999990463257,
+    "untilLastRenderMs": 73.09999990463257
+  },
+  "samples": [
+    {
+      "filter": {
+        "renderMs": 2.200000286102295,
+        "renders": 2,
+        "synchronousMs": 14.600000381469728,
+        "untilLastRenderMs": 22.600000381469727
+      },
+      "pan": {
+        "renderMs": 1,
+        "renders": 1,
+        "synchronousMs": 3.5999999046325684,
+        "untilLastRenderMs": 3.5999999046325684
+      },
+      "zoom": {
+        "renderMs": 44.600000858306885,
+        "renders": 1916,
+        "synchronousMs": 1.9000000953674316,
+        "untilLastRenderMs": 250.40000009536743
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 0.2999997138977051,
+        "renders": 1,
+        "synchronousMs": 18.09999990463257,
+        "untilLastRenderMs": 18.799999713897705
+      },
+      "pan": {
+        "renderMs": 0.19999980926513672,
+        "renders": 1,
+        "synchronousMs": 0.5,
+        "untilLastRenderMs": 0.5
+      },
+      "zoom": {
+        "renderMs": 176.39999866485596,
+        "renders": 493,
+        "synchronousMs": 3.299999713897705,
+        "untilLastRenderMs": 251.1999998092651
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 6.200000286102295,
+        "untilLastRenderMs": 6.800000190734863
+      },
+      "pan": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 0.7000002861022949,
+        "untilLastRenderMs": 0.7000002861022949
+      },
+      "zoom": {
+        "renderMs": 60.100000858306885,
+        "renders": 1585,
+        "synchronousMs": 1.9000000953674316,
+        "untilLastRenderMs": 250.7000002861023
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 5.900000095367432,
+        "untilLastRenderMs": 6.199999809265137
+      },
+      "pan": {
+        "renderMs": 0.20000028610229492,
+        "renders": 1,
+        "synchronousMs": 0.4000000953674317,
+        "untilLastRenderMs": 0.4000000953674317
+      },
+      "zoom": {
+        "renderMs": 161.59999990463257,
+        "renders": 485,
+        "synchronousMs": 2.8000001907348633,
+        "untilLastRenderMs": 250.7000002861023
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 8.900000095367432,
+        "untilLastRenderMs": 9.5
+      },
+      "pan": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 1.299999713897705,
+        "untilLastRenderMs": 1.1999998092651367
+      },
+      "zoom": {
+        "renderMs": 71.20000410079956,
+        "renders": 1548,
+        "synchronousMs": 1,
+        "untilLastRenderMs": 251.09999990463257
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 5.200000286102295,
+        "untilLastRenderMs": 5.5
+      },
+      "pan": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 0.4000000953674317,
+        "untilLastRenderMs": 0.4000000953674317
+      },
+      "zoom": {
+        "renderMs": 181.7000088691711,
+        "renders": 496,
+        "synchronousMs": 3.5999999046325684,
+        "untilLastRenderMs": 252.6999998092651
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 0.5,
+        "renders": 1,
+        "synchronousMs": 15.099999904632568,
+        "untilLastRenderMs": 16.90000009536743
+      },
+      "pan": {
+        "renderMs": 0.09999990463256836,
+        "renders": 1,
+        "synchronousMs": 0.6999998092651367,
+        "untilLastRenderMs": 0.6999998092651367
+      },
+      "zoom": {
+        "renderMs": 81.60000324249268,
+        "renders": 1550,
+        "synchronousMs": 0.6999998092651367,
+        "untilLastRenderMs": 251.5
+      }
+    }
+  ],
+  "size": {
+    "x": 1200,
+    "y": 700
+  },
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36"
+}

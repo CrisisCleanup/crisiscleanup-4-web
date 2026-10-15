@@ -1528,15 +1528,14 @@ export default defineComponent({
     }
 
     const getSviList = useMemoize((_) => {
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
-      const list = container?.children.map((marker: any) => {
+      const sprites = mapUtils?.getMarkerSprites();
+      const list = sprites?.map((marker: any) => {
         return {
           id: marker.id,
           svi: marker.svi,
         };
       });
-      if (list && container) {
+      if (list && sprites) {
         list.sort((a, b) => {
           return (b.svi || 1) - (a.svi || 1);
         });
@@ -1546,40 +1545,37 @@ export default defineComponent({
     });
 
     function filterSvi(value: number) {
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
+      const sprites = mapUtils?.getMarkerSprites();
       if (!showSviSlider.value) return;
 
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         dateSliderValue.value = 100;
       }
       sviSliderValue.value = Number(value);
-      const sviList = getSviList(container?.children?.length);
-      if (sviList && container) {
+      const sviList = getSviList(sprites?.length);
+      if (sviList && sprites) {
         const count = Math.floor((sviList.length * Number(value)) / 100);
         const filteredSvi = sviList.slice(0, count);
         const minSvi = filteredSvi.at(-1)?.svi || 0.999;
-        for (const markerSprite of container.children) {
+        for (const markerSprite of sprites) {
           markerSprite.visible = markerSprite.svi > minSvi;
         }
 
-        layer._renderer.render(container);
-        layer.redraw();
+        mapUtils?.getCurrentMarkerLayer()?.requestRedraw();
       }
 
       updateUserState({});
     }
 
     const getDatesList = useMemoize((_) => {
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
-      const list = container?.children.map((marker: any) => {
+      const sprites = mapUtils?.getMarkerSprites();
+      const list = sprites?.map((marker: any) => {
         return {
           id: marker.id,
           updated_at: marker.updated_at_moment,
         };
       });
-      if (list && container) {
+      if (list && sprites) {
         list.sort((a, b) => {
           return b.updated_at - a.updated_at;
         });
@@ -1592,9 +1588,8 @@ export default defineComponent({
     const dateSliderTo = ref<string>('');
 
     const getDateSliderFrom = useMemoize((_) => {
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
-      const list = getDatesList(container?.children?.length);
+      const sprites = mapUtils?.getMarkerSprites();
+      const list = getDatesList(sprites?.length);
       if (list) {
         return `${moment({ hours: 0 }).diff(
           list[0]?.updated_at,
@@ -1606,12 +1601,11 @@ export default defineComponent({
     });
 
     const getDateSliderTo = useMemoize((_) => {
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
-      const list = getDatesList(container?.children?.length);
+      const sprites = mapUtils?.getMarkerSprites();
+      const list = getDatesList(sprites?.length);
       if (list) {
         return `${moment({ hours: 0 }).diff(
-          list.at(-1).updated_at,
+          list.at(-1)?.updated_at,
           'days',
         )} days ago`;
       }
@@ -1620,14 +1614,13 @@ export default defineComponent({
     });
 
     function filterDates(value: number) {
-      const layer = mapUtils?.getCurrentMarkerLayer();
-      const container = layer?._pixiContainer;
+      const sprites = mapUtils?.getMarkerSprites();
       if (sviSliderValue.value !== 100 && dateSliderValue.value !== 100) {
         filterSvi(100);
       }
-      const dl = getDatesList(container?.children?.length);
-      dateSliderFrom.value = getDateSliderFrom(container?.children?.length);
-      dateSliderTo.value = getDateSliderTo(container?.children?.length);
+      const dl = getDatesList(sprites?.length);
+      dateSliderFrom.value = getDateSliderFrom(sprites?.length);
+      dateSliderTo.value = getDateSliderTo(sprites?.length);
       if (value === 0) return;
       dateSliderValue.value = Number(value);
 
@@ -1635,12 +1628,11 @@ export default defineComponent({
         const count = Math.floor((dl.length * Number(value)) / 100);
         const filteredDates = dl.slice(0, count);
         const minDate = filteredDates.at(-1)?.updated_at;
-        for (const markerSprite of container?.children || []) {
+        for (const markerSprite of sprites || []) {
           markerSprite.visible = markerSprite.updated_at_moment > minDate;
         }
 
-        layer?._renderer.render(container);
-        layer?.redraw();
+        mapUtils?.getCurrentMarkerLayer()?.requestRedraw();
       }
 
       updateUserState({});
@@ -2179,19 +2171,11 @@ export default defineComponent({
             loadCase(m);
           },
           ({ workTypes }) => {
+            getSviList.clear();
+            getDatesList.clear();
+            getDateSliderFrom.clear();
+            getDateSliderTo.clear();
             availableWorkTypes.value = workTypes;
-
-            const states = currentUser?.value?.getStatesForIncident(
-              currentIncidentId.value,
-              true,
-            );
-            if (states.mapViewPort) {
-              const { _northEast, _southWest } = states.mapViewPort;
-              mapUtils?.getMap().fitBounds([
-                [_northEast.lat, _northEast.lng],
-                [_southWest.lat, _southWest.lng],
-              ]);
-            }
 
             loadUserLocations({}).then((response) => {
               userLocations.value = response;
@@ -2202,7 +2186,7 @@ export default defineComponent({
               // Used to trigger calculation of labels ofr updated slider
               filterDates(0);
             });
-            updateUserState({ mapViewPort: states.mapViewPort });
+            updateUserState({});
             loadStatesForUser();
           },
           false,

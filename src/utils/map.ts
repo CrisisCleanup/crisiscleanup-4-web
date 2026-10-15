@@ -1,6 +1,5 @@
-import type { Sprite } from 'pixi.js';
+import type { Sprite, Texture } from 'pixi.js';
 import {
-  Texture,
   Container,
   settings as PixiSettings,
   utils as pixiUtils,
@@ -12,7 +11,8 @@ import 'leaflet/dist/leaflet.css';
 import type Worksite from '../models/Worksite';
 import type {
   LayerGroup,
-  type PixiDisplayObjectWithCachedProps,
+  MarkerLayer,
+  PixiDisplayObjectWithCachedProps,
 } from '@/utils/types/map';
 import User from '@/models/User';
 import type { UserLocation } from '@/models/types';
@@ -158,98 +158,103 @@ export function getMarkerLayer(
   markers: Worksite[],
   map: L.Map,
   context: Record<string, any>,
-) {
+): MarkerLayer {
   const pixiContainer = new Container();
   context.pixiContainer = pixiContainer;
+  let animationFrame: number | undefined;
+  let redrawFrame: number | undefined;
+  let previousZoom: number | undefined;
+  let destroyed = false;
+  const loadingTextures = new Set<Texture['baseTexture']>();
+  const textureLoaded = (texture: Texture['baseTexture']) => {
+    loadingTextures.delete(texture);
+    layer.requestRedraw();
+  };
 
-  let frame: number | undefined;
-  const layer = (function () {
-    let firstDraw = true;
-    // Let prevCenter;
-    const doubleBuffering = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    return L.pixiOverlay(
-      function (utils) {
-        const zoom = utils.getMap().getZoom();
-        // Const center = utils.getMap().getCenter();
-        if (frame) {
-          cancelAnimationFrame(frame);
-          frame = undefined;
+  const layer = L.pixiOverlay(
+    (utils) => {
+      if (destroyed) return;
+      if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+      if (redrawFrame !== undefined) cancelAnimationFrame(redrawFrame);
+      animationFrame = undefined;
+      redrawFrame = undefined;
+
+      const zoom = utils.getMap().getZoom();
+      const animateZoom = previousZoom !== undefined && zoom !== previousZoom;
+      previousZoom = zoom;
+      const container = utils.getContainer();
+      const renderer = utils.getRenderer();
+      const scale = 0.75 / utils.getScale();
+      const sprites = (layer.prepareMarkers?.() || container.children).filter(
+        (sprite) => sprite.visible && sprite.renderable,
+      ) as PixiDisplayObjectWithCachedProps[];
+
+      for (const sprite of sprites) {
+        const texture =
+          zoom >= INTERACTIVE_ZOOM_LEVEL
+            ? sprite.detailedTexture || sprite.basicTexture
+            : sprite.basicTexture;
+        if (texture && sprite.texture !== texture) sprite.texture = texture;
+        if (
+          texture &&
+          !texture.baseTexture.valid &&
+          !loadingTextures.has(texture.baseTexture)
+        ) {
+          loadingTextures.add(texture.baseTexture);
+          texture.baseTexture.once('loaded', textureLoaded);
         }
+        sprite.currentScale = sprite.scale.x;
+        if (!animateZoom) sprite.scale.set(scale);
+      }
 
-        const container = utils.getContainer();
-        const renderer = utils.getRenderer();
-        const scale = utils.getScale();
-        const invScale = 0.75 / scale;
-        if (firstDraw) {
-          // PrevZoom = zoom;
-          // prevCenter = center;
-        }
-
-        let start: number | undefined = null;
-        const delta = 250;
-
-        for (const markerSprite of container.children as PixiDisplayObjectWithCachedProps[]) {
-          if (firstDraw) {
-            markerSprite.scale.set(invScale);
-          } else {
-            markerSprite.currentScale = markerSprite.scale.x;
-            markerSprite.targetScale = invScale;
+      if (animateZoom && sprites.length > 0 && container.visible) {
+        let start: number | undefined;
+        const animate = (timestamp: number) => {
+          if (destroyed) return;
+          start ??= timestamp;
+          const progress = Math.min((timestamp - start) / 250, 1);
+          const eased =
+            progress * progress * (2.2 - 1.6 * progress) + 0.4 * progress;
+          for (const sprite of sprites) {
+            const from = sprite.currentScale ?? scale;
+            sprite.scale.set(from + eased * (scale - from));
           }
-        }
-
-        function animate(timestamp: number) {
-          if (!isRenderablePixiTarget(container, renderer)) return;
-          if (start === null) start = timestamp;
-          const progress = timestamp - start;
-          let lambda = progress / delta;
-          if (lambda > 1) lambda = 1;
-          lambda *= 0.4 + lambda * (2.2 + lambda * -1.6);
-          for (const markerSprite of container.children as PixiDisplayObjectWithCachedProps[]) {
-            markerSprite.texture =
-              zoom >= INTERACTIVE_ZOOM_LEVEL
-                ? markerSprite.detailedTexture || markerSprite.basicTexture
-                : markerSprite.basicTexture;
-
-            if (markerSprite.currentScale && markerSprite.targetScale) {
-              markerSprite.scale.set(
-                markerSprite.currentScale +
-                  lambda *
-                    (markerSprite.targetScale - markerSprite.currentScale),
-              );
-            } else {
-              console.error(
-                'markerSprite currentScale or targetScale is undefined',
-                markerSprite,
-              );
-            }
-          }
-
           renderPixiTarget(container, renderer);
-          if (progress < delta) {
-            frame = requestAnimationFrame(animate);
-          }
-        }
+          animationFrame =
+            progress < 1 ? requestAnimationFrame(animate) : undefined;
+        };
+        animationFrame = requestAnimationFrame(animate);
+      }
+      renderPixiTarget(container, renderer);
+    },
+    pixiContainer,
+    {
+      doubleBuffering: /iPad|iPhone|iPod/.test(navigator.userAgent),
+      destroyInteractionManager: true,
+    },
+  ) as MarkerLayer;
 
-        if (!firstDraw) {
-          frame = requestAnimationFrame(animate);
-        }
+  layer.requestRedraw = () => {
+    if (destroyed || redrawFrame !== undefined) return;
+    redrawFrame = requestAnimationFrame(() => {
+      redrawFrame = undefined;
+      if (!destroyed && map.hasLayer(layer)) layer.redraw();
+    });
+  };
 
-        firstDraw = false;
-        renderPixiTarget(container, renderer);
-      },
-      pixiContainer,
-      {
-        doubleBuffering,
-        destroyInteractionManager: true,
-      },
-    );
-  })();
-  patchLayerAnimationCleanup(layer, () => {
-    if (frame) {
-      cancelAnimationFrame(frame);
-      frame = undefined;
-    }
-  });
+  const destroyOverlay = layer.destroy.bind(layer);
+  layer.destroy = () => {
+    if (destroyed) return;
+    destroyed = true;
+    if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+    if (redrawFrame !== undefined) cancelAnimationFrame(redrawFrame);
+    for (const texture of loadingTextures) texture.off('loaded', textureLoaded);
+    loadingTextures.clear();
+    layer.disposeMarkers?.();
+    destroyOverlay();
+    pixiContainer.destroy({ children: true });
+  };
+  layer.once('remove', layer.destroy);
   layer.key = 'marker_layer';
   return layer;
 }
