@@ -1,0 +1,27 @@
+{
+  "attached": 325,
+  "center": {
+    "lat": 35,
+    "lng": -80
+  },
+  "checks": [
+    "Viewport contains only nearby sprites",
+    "Full case list remains available to slider filters",
+    "Asynchronous SVG textures are loaded",
+    "Repeated filters preserve the layer and canvas",
+    "Filter redraws do not move the map",
+    "Slider-hidden sprite is detached from the canvas",
+    "Panning does not reveal a slider-hidden case",
+    "Clearing the slider filter restores the case",
+    "Hide markers keeps the layer hidden",
+    "Show markers redraws without moving the map",
+    "Low zoom uses basic textures",
+    "Interactive zoom restores loaded detailed textures",
+    "Moving a case updates its projected position"
+  ],
+  "clickAt": {
+    "x": 600,
+    "y": 350
+  },
+  "total": 10000
+}

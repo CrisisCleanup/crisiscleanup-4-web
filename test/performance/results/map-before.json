@@ -1,0 +1,156 @@
+{
+  "count": 10000,
+  "initial": {
+    "renderMs": 208.8000011444092,
+    "renders": 117,
+    "synchronousMs": 103.89999961853027,
+    "untilLastRenderMs": 622.5
+  },
+  "samples": [
+    {
+      "filter": {
+        "renderMs": 309.9999976158142,
+        "renders": 154,
+        "synchronousMs": 67.30000019073486,
+        "untilLastRenderMs": 588.3000001907349
+      },
+      "pan": {
+        "renderMs": 181.49999904632568,
+        "renders": 101,
+        "synchronousMs": 6.300000190734863,
+        "untilLastRenderMs": 253.09999990463257
+      },
+      "zoom": {
+        "renderMs": 195.69999647140503,
+        "renders": 81,
+        "synchronousMs": 6.800000190734863,
+        "untilLastRenderMs": 252.90000009536743
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 343.1000008583069,
+        "renders": 248,
+        "synchronousMs": 65.59999990463257,
+        "untilLastRenderMs": 590.1999998092651
+      },
+      "pan": {
+        "renderMs": 180.39999723434448,
+        "renders": 94,
+        "synchronousMs": 12.199999809265137,
+        "untilLastRenderMs": 254.6999998092651
+      },
+      "zoom": {
+        "renderMs": 183.699999332428,
+        "renders": 113,
+        "synchronousMs": 7.099999904632568,
+        "untilLastRenderMs": 252.40000009536743
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 343.1000032424927,
+        "renders": 225,
+        "synchronousMs": 70.69999980926514,
+        "untilLastRenderMs": 592.0999999046326
+      },
+      "pan": {
+        "renderMs": 177.49999952316284,
+        "renders": 129,
+        "synchronousMs": 12.199999809265137,
+        "untilLastRenderMs": 253.09999990463257
+      },
+      "zoom": {
+        "renderMs": 179.79999828338623,
+        "renders": 99,
+        "synchronousMs": 4.199999809265137,
+        "untilLastRenderMs": 252.09999990463257
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 351.30000162124634,
+        "renders": 269,
+        "synchronousMs": 43.799999713897705,
+        "untilLastRenderMs": 559
+      },
+      "pan": {
+        "renderMs": 176.90000295639038,
+        "renders": 119,
+        "synchronousMs": 6,
+        "untilLastRenderMs": 252.3000001907349
+      },
+      "zoom": {
+        "renderMs": 181.2999997138977,
+        "renders": 125,
+        "synchronousMs": 4.900000095367432,
+        "untilLastRenderMs": 251.8000001907349
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 350.9000024795532,
+        "renders": 285,
+        "synchronousMs": 46.5,
+        "untilLastRenderMs": 563.4000000953674
+      },
+      "pan": {
+        "renderMs": 180.79999828338623,
+        "renders": 157,
+        "synchronousMs": 3.799999713897705,
+        "untilLastRenderMs": 252.89999961853027
+      },
+      "zoom": {
+        "renderMs": 193.09999990463257,
+        "renders": 137,
+        "synchronousMs": 3.6999998092651367,
+        "untilLastRenderMs": 253
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 348.49999713897705,
+        "renders": 236,
+        "synchronousMs": 63.90000009536743,
+        "untilLastRenderMs": 581.0999999046326
+      },
+      "pan": {
+        "renderMs": 183.29999780654907,
+        "renders": 139,
+        "synchronousMs": 11.5,
+        "untilLastRenderMs": 253.1999998092651
+      },
+      "zoom": {
+        "renderMs": 186.10000228881836,
+        "renders": 135,
+        "synchronousMs": 3.200000286102295,
+        "untilLastRenderMs": 253
+      }
+    },
+    {
+      "filter": {
+        "renderMs": 342.6000032424927,
+        "renders": 223,
+        "synchronousMs": 64.80000019073486,
+        "untilLastRenderMs": 575.5
+      },
+      "pan": {
+        "renderMs": 183.5999970436096,
+        "renders": 138,
+        "synchronousMs": 8.800000190734863,
+        "untilLastRenderMs": 252.7000002861023
+      },
+      "zoom": {
+        "renderMs": 186.40000104904175,
+        "renders": 100,
+        "synchronousMs": 6.400000095367432,
+        "untilLastRenderMs": 253.59999990463257
+      }
+    }
+  ],
+  "size": {
+    "x": 1200,
+    "y": 700
+  },
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36"
+}

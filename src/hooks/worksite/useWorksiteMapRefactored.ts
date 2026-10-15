@@ -55,6 +55,7 @@ export default function useWorksiteMap(
     visibleIds: string[],
   ) => {
     if (map) {
+      clearTimeout(initialLoad);
       const result = markerUtils.setupMarkers(newMarkers, visibleIds);
       onLoadMarkers(result, map);
     }
@@ -64,10 +65,11 @@ export default function useWorksiteMap(
   // Also provide immediate feedback with empty result to prevent blocking
   onLoadMarkers({ workTypes: {} }, map);
 
-  setTimeout(() => {
+  const initialLoad = setTimeout(() => {
     const result = markerUtils.setupMarkers(markers, visibleMarkerIds);
     onLoadMarkers(result, map);
   }, 0);
+  map.once('unload', () => clearTimeout(initialLoad));
 
   // Get map function
   const getMap = () => map;

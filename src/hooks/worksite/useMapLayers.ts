@@ -4,12 +4,12 @@ import type { Container } from 'pixi.js';
 import type { LatLng, HeatLayer } from 'leaflet';
 import { getMarkerLayer } from '../../utils/map';
 import { getErrorMessage } from '@/utils/errors';
-import type { LayerGroup, PixiLayer } from '@/utils/types/map';
+import type { LayerGroup, PixiLayer, MarkerLayer } from '@/utils/types/map';
 
 export interface MapLayersUtils {
   removeLayer: (key: string) => void;
   getPixiContainer: () => Container | undefined;
-  getCurrentMarkerLayer: () => (L.Layer & PixiLayer) | undefined;
+  getCurrentMarkerLayer: () => MarkerLayer | undefined;
   addHeatMap: (points: LatLng[]) => void;
   removeHeatMap: () => void;
   hideMarkers: () => void;
@@ -44,11 +44,11 @@ export default function useMapLayers(map: L.Map): MapLayersUtils {
     return container;
   };
 
-  const getCurrentMarkerLayer = (): (L.Layer & PixiLayer) | undefined => {
-    let l: (L.Layer & PixiLayer) | undefined = undefined;
+  const getCurrentMarkerLayer = (): MarkerLayer | undefined => {
+    let l: MarkerLayer | undefined;
     map.eachLayer((layer) => {
       if ((layer as L.Layer & PixiLayer).key === 'marker_layer') {
-        l = layer as L.Layer & PixiLayer;
+        l = layer as MarkerLayer;
       }
     });
     return l;
@@ -69,7 +69,7 @@ export default function useMapLayers(map: L.Map): MapLayersUtils {
     const currentMarkerLayer = getCurrentMarkerLayer();
     if (currentMarkerLayer) {
       currentMarkerLayer._pixiContainer.visible = false;
-      map.panBy([1, 0]);
+      currentMarkerLayer.requestRedraw();
     }
   };
 
@@ -77,7 +77,7 @@ export default function useMapLayers(map: L.Map): MapLayersUtils {
     const currentMarkerLayer = getCurrentMarkerLayer();
     if (currentMarkerLayer) {
       currentMarkerLayer._pixiContainer.visible = true;
-      map.panBy([1, 0]);
+      currentMarkerLayer.requestRedraw();
     }
   };
 

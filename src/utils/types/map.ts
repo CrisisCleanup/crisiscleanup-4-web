@@ -1,5 +1,6 @@
 import type { LeafletPixiOverlayUtils } from 'leaflet-pixi-overlay';
-import type { Container, Texture, DisplayObject } from 'pixi.js';
+import type { Container, Texture, DisplayObject, Sprite } from 'pixi.js';
+import type { Layer } from 'leaflet';
 
 export interface PixiLayer {
   key: string;
@@ -10,6 +11,13 @@ export interface PixiLayer {
 
   _renderer: any;
   redraw: any;
+}
+
+export interface MarkerLayer extends Layer, PixiLayer {
+  requestRedraw: () => void;
+  prepareMarkers?: () => Sprite[];
+  disposeMarkers?: () => void;
+  destroy: () => void;
 }
 
 export interface LayerGroup {
