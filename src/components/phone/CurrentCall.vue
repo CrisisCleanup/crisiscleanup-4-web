@@ -78,6 +78,7 @@ watch(
         });
     }
   },
+  { immediate: true },
 );
 
 const suggestedScript = computed(() => {
