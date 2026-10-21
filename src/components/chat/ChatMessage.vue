@@ -120,12 +120,25 @@
       <base-button
         class="bg-crisiscleanup-dark-blue"
         data-testid="testSendMessageButton"
-        :disabled="!Boolean(replyContent)"
+        :disabled="!replyContent || isSending"
+        :show-spinner="isSending"
         ccu-icon="plane"
         :action="sendReply"
         :alt="$t('actions.send_message')"
       />
     </div>
+    <p v-if="deliveryError" role="alert" class="text-red-700 text-sm">
+      {{
+        $t('~~Message not confirmed. Your draft is kept. Try sending again.')
+      }}
+    </p>
+    <p v-if="draftStorageError" role="alert" class="text-red-700 text-sm">
+      {{
+        $t(
+          '~~Your browser cannot save this draft. Keep this page open until your message is sent.',
+        )
+      }}
+    </p>
   </div>
 </template>
 
@@ -144,6 +157,8 @@ import { DbService, USER_DATABASE } from '@/services/db.service';
 // eslint-disable-next-line import/no-unresolved
 import { api as viewerApi } from 'v-viewer';
 import Editor from '@/components/Editor.vue';
+import { ChatDeliveryKey } from '@/hooks/useChatDelivery';
+import { useChatDraft } from '@/hooks/useChatDraft';
 
 export default defineComponent({
   name: 'ChatMessage',
@@ -167,9 +182,21 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const showActions = ref(false);
-    const replyContent = ref('');
+    const delivery = inject(ChatDeliveryKey);
+    if (!delivery)
+      throw new Error('Chat messages require a delivery provider.');
+    const {
+      content: replyContent,
+      isSending,
+      error: deliveryError,
+      storageError: draftStorageError,
+      send: sendDraft,
+    } = useChatDraft(
+      delivery,
+      computed(() => props.message.id),
+    );
     const showReplies = ref(false);
-    const showReplyBox = ref(false);
+    const showReplyBox = ref(Boolean(replyContent.value));
     const userObject = ref(null);
     const messageContainer = ref(null);
 
@@ -193,10 +220,10 @@ export default defineComponent({
       return moment(date).isSame(moment(), 'day');
     };
 
-    const sendReply = () => {
-      emit('onReply', replyContent.value);
-      replyContent.value = '';
-    };
+    async function sendReply() {
+      const content = replyContent.value;
+      if (await sendDraft()) emit('sent', content);
+    }
 
     onMounted(async () => {
       userObject.value = await DbService.getItem(
@@ -242,6 +269,9 @@ export default defineComponent({
       showReplyBox,
       isToday,
       replyContent,
+      isSending,
+      deliveryError,
+      draftStorageError,
       userObject,
       messageContainer,
       linkedContent,

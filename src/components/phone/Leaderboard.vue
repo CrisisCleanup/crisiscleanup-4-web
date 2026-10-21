@@ -281,7 +281,7 @@ export default defineComponent({
     });
 
     onBeforeUnmount(() => {
-      socket.value.close();
+      socket.value?.close();
       if (pollId) {
         clearInterval(pollId);
       }

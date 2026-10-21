@@ -4,9 +4,8 @@ const BASE_RECONNECT_DELAY_MS = 1000;
 const MAX_RECONNECT_DELAY_MS = 30_000;
 const MAX_JITTER_MS = 500;
 
-// 1000 normal, 1001 going away, 1008 policy violation, 4401/4403 app-level auth.
-// On these we stop reconnecting; a fresh scope must re-invoke the hook.
-const NON_RECOVERABLE_CLOSE_CODES = new Set([1000, 1001, 1008, 4401, 4403]);
+// Retrying a rejected connection needs new credentials.
+const NON_RECOVERABLE_CLOSE_CODES = new Set([1008, 4401, 4403]);
 
 export function useWebSockets<MessageT extends Record<string, any>>(
   url: string,
@@ -22,7 +21,7 @@ export function useWebSockets<MessageT extends Record<string, any>>(
   let intentionallyClosed = false;
 
   function scheduleReconnect() {
-    if (intentionallyClosed) return;
+    if (intentionallyClosed || reconnectTimer !== undefined) return;
     const delay =
       Math.min(BASE_RECONNECT_DELAY_MS * 2 ** attempt, MAX_RECONNECT_DELAY_MS) +
       Math.floor(Math.random() * MAX_JITTER_MS);
@@ -34,11 +33,15 @@ export function useWebSockets<MessageT extends Record<string, any>>(
   }
 
   function connect() {
-    socket = new WebSocket(
-      `${endpoint}${url}?bearer=${authStore.currentAccessToken.value}`,
+    const token = authStore.currentAccessToken.value;
+    if (intentionallyClosed || !token) return;
+    const connection = new WebSocket(
+      `${endpoint}${url}?bearer=${encodeURIComponent(token)}`,
     );
+    socket = connection;
 
-    socket.addEventListener('message', (e) => {
+    connection.addEventListener('message', (e) => {
+      if (socket !== connection || intentionallyClosed) return;
       try {
         cb(JSON.parse(e.data));
       } catch (error) {
@@ -46,44 +49,69 @@ export function useWebSockets<MessageT extends Record<string, any>>(
       }
     });
 
-    socket.addEventListener('open', () => {
+    connection.addEventListener('open', () => {
+      if (socket !== connection) return;
       attempt = 0;
     });
 
-    socket.addEventListener('error', (e) => {
+    connection.addEventListener('error', (e) => {
+      if (socket !== connection) return;
       console.error(`Socket onError (${name})`, e);
     });
 
-    socket.addEventListener('close', (e) => {
-      if (intentionallyClosed) return;
+    connection.addEventListener('close', (e) => {
+      if (socket !== connection || intentionallyClosed) return;
       if (NON_RECOVERABLE_CLOSE_CODES.has(e.code)) return;
       scheduleReconnect();
     });
   }
 
   const send = (message: Record<any, any>) => {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
+    if (
+      intentionallyClosed ||
+      !socket ||
+      socket.readyState !== WebSocket.OPEN
+    ) {
       console.error(`Socket send skipped (${name}); socket is not open`);
       return false;
     }
 
-    socket.send(JSON.stringify(message));
-    return true;
+    try {
+      socket.send(JSON.stringify(message));
+      return true;
+    } catch (error) {
+      console.error(`Socket send failed (${name})`, error);
+      return false;
+    }
   };
 
-  function close() {
-    intentionallyClosed = true;
+  function disconnect() {
     if (reconnectTimer !== undefined) {
       clearTimeout(reconnectTimer);
       reconnectTimer = undefined;
     }
+    const previous = socket;
+    socket = undefined;
     if (
-      socket &&
-      socket.readyState !== WebSocket.CLOSED &&
-      socket.readyState !== WebSocket.CLOSING
+      previous &&
+      previous.readyState !== WebSocket.CLOSED &&
+      previous.readyState !== WebSocket.CLOSING
     ) {
-      socket.close();
+      previous.close();
     }
+  }
+
+  const stopWatchingToken = watch(authStore.currentAccessToken, () => {
+    if (intentionallyClosed) return;
+    disconnect();
+    attempt = 0;
+    connect();
+  });
+
+  function close() {
+    intentionallyClosed = true;
+    stopWatchingToken();
+    disconnect();
   }
 
   connect();
