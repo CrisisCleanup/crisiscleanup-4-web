@@ -237,11 +237,11 @@
                 <!-- Chat Message -->
                 <ChatMessage
                   :message="message"
+                  @sent="afterSend"
                   @on-favorite="(message: any) => toggleFavorite(message, true)"
                   @on-unfavorite="
                     (message: any) => toggleFavorite(message, false)
                   "
-                  @on-reply="(content) => sendMessage(message.id, content)"
                 />
               </template>
             </div>
@@ -308,13 +308,36 @@
                     <base-button
                       variant="solid"
                       data-testid="testSendMessageButton"
-                      :disabled="!Boolean(currentMessage)"
+                      :disabled="!currentMessage || isSending"
+                      :show-spinner="isSending"
                       ccu-icon="plane"
                       :action="sendMessage"
                       :alt="$t('actions.send_message')"
                     />
                   </div>
                 </div>
+                <p
+                  v-if="deliveryError"
+                  role="alert"
+                  class="text-red-700 text-sm"
+                >
+                  {{
+                    $t(
+                      '~~Message not confirmed. Your draft is kept. Try sending again.',
+                    )
+                  }}
+                </p>
+                <p
+                  v-if="draftStorageError"
+                  role="alert"
+                  class="text-red-700 text-sm"
+                >
+                  {{
+                    $t(
+                      '~~Your browser cannot save this draft. Keep this page open until your message is sent.',
+                    )
+                  }}
+                </p>
               </div>
             </div>
           </div>
@@ -329,6 +352,7 @@
                 :key="favorite.id"
                 data-testid="testFavoritesContent"
                 :message="favorite"
+                @sent="afterSend"
               />
             </div>
           </div>
@@ -356,6 +380,7 @@
                 :key="chat.id"
                 data-testid="testFavoritesContent"
                 :message="chat"
+                @sent="afterSend"
               />
             </div>
           </div>
@@ -395,6 +420,12 @@ import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
 import { generateUUID } from '@/utils/helpers';
 import Editor from '@/components/Editor.vue';
+import {
+  ChatDeliveryKey,
+  useChatDelivery,
+  type ChatSubmission,
+} from '@/hooks/useChatDelivery';
+import { useChatDraft } from '@/hooks/useChatDraft';
 
 export default defineComponent({
   name: 'Chat',
@@ -426,21 +457,34 @@ export default defineComponent({
   setup(props, { emit }) {
     const socket = ref<WebSocket | null>(null);
     const online_users_socket = ref<WebSocket | null>(null);
-    const currentMessage = ref('');
     const search = ref('');
     const messages = ref<Message[]>([]);
     const favorites = ref<Message[]>([]);
     const searchResults = ref<Message[]>([]);
     const allOnlineUsers = ref<number[]>([]);
     const mobileOnlineUsers = ref<number[]>([]);
-    const urgent = ref(false);
     const loadingMessages = ref(false);
     const searchLoading = ref(false);
-    let sendToWebsocket: (data: Partial<Message>) => boolean;
+    let sendToWebsocket: (data: ChatSubmission) => boolean = () => false;
     const messagesBox = ref<HTMLDivElement | null>(null);
     const { currentUser, updateUserStates, userStates } = useCurrentUser();
     const { t } = useI18n();
     const $toasted = useToast();
+    const delivery = useChatDelivery({
+      userId: computed(() => currentUser.value?.id),
+      groupId: computed(() => props.chat.id),
+      sendToSocket: (data) => sendToWebsocket(data),
+      onMessage: receiveMessage,
+    });
+    provide(ChatDeliveryKey, delivery);
+    const {
+      content: currentMessage,
+      urgent,
+      isSending,
+      error: deliveryError,
+      storageError: draftStorageError,
+      send: sendDraft,
+    } = useChatDraft(delivery);
 
     const conversationId = ref(generateUUID());
     const collectionId = computed(
@@ -471,7 +515,7 @@ export default defineComponent({
     const sortedMessages = computed(() => {
       const currentMessages = [...messages.value];
       currentMessages.sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
-      return _.uniqWith(currentMessages, _.isEqual);
+      return _.uniqBy(currentMessages, (message) => message.uuid ?? message.id);
     });
 
     const expandedOrganizations = ref<{ [key: number]: boolean }>({});
@@ -615,6 +659,7 @@ export default defineComponent({
           `${import.meta.env.VITE_APP_API_BASE_URL}/chat_messages?${queryString}`,
         );
         messages.value = [...messages.value, ...response.data.results];
+        for (const message of response.data.results) delivery.confirm(message);
         if (scroll) {
           nextTick(() => {
             if (messagesBox.value) {
@@ -688,24 +733,49 @@ export default defineComponent({
       }
     }
 
-    async function sendMessage(parentId = null, content = null) {
-      const messageContent = content || currentMessage.value;
-      const sent = sendToWebsocket({
-        content: messageContent,
-        is_urgent: urgent.value,
-        parent_message_id: parentId,
-      } as Partial<Message>);
-      if (!sent) {
-        $toasted.error(
-          t('~~Chat is reconnecting. Please try sending again in a moment.'),
-        );
+    async function sendMessage() {
+      const messageContent = currentMessage.value;
+      if (!(await sendDraft())) return;
+      await afterSend(messageContent);
+    }
+
+    async function afterSend(messageContent: string) {
+      submitQuestion(messageContent);
+      await updateUserStates({ [props.stateKey]: moment().toISOString() }, {});
+    }
+
+    function receiveMessage(data: Message) {
+      if (data.parent_message) {
+        for (const collection of [
+          messages.value,
+          favorites.value,
+          searchResults.value,
+        ]) {
+          const parent = collection.find(
+            (message: Message) => message.id === data.parent_message,
+          );
+          if (parent) {
+            parent.replies = _.uniqBy(
+              [...(parent.replies ?? []), data],
+              (message) => message.uuid ?? message.id,
+            );
+          }
+        }
         return;
       }
-
-      submitQuestion(messageContent);
-      currentMessage.value = '';
-      urgent.value = false;
-      await updateUserStates({ [props.stateKey]: moment().toISOString() }, {});
+      const existing = messages.value.find(
+        (message: Message) =>
+          message.id === data.id || (data.uuid && data.uuid === message.uuid),
+      );
+      if (existing) return;
+      messages.value = [...messages.value, data];
+      if (String(data.created_by) !== String(currentUser.value?.id)) {
+        emit(data.is_urgent ? 'onNewUrgentMessage' : 'onNewMessage');
+      }
+      nextTick(() => {
+        if (messagesBox.value)
+          messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
+      });
     }
 
     async function toggleFavorite(
@@ -773,32 +843,7 @@ export default defineComponent({
       const { socket: s, send } = useWebSockets<Message>(
         `/ws/chat/${props.chat.id}`,
         'chat',
-        (data: Message) => {
-          if (data.parent_message) {
-            const parent = messages.value.find(
-              (message) => message.id === data.parent_message,
-            );
-            if (parent) {
-              parent.replies = parent.replies || [];
-              parent.replies.push(data);
-            }
-          } else {
-            messages.value = [...messages.value, data];
-            if (String(data.created_by) !== String(currentUser?.value?.id)) {
-              if (data.is_urgent) {
-                emit('onNewUrgentMessage');
-              } else {
-                emit('onNewMessage');
-              }
-            }
-
-            nextTick(() => {
-              if (messagesBox.value) {
-                messagesBox.value.scrollTop = messagesBox.value.scrollHeight;
-              }
-            });
-          }
-        },
+        delivery.receive,
       );
 
       const { socket: online_users_s } = useWebSockets(
@@ -854,11 +899,15 @@ export default defineComponent({
       favorites,
       currentMessage,
       urgent,
+      isSending,
+      deliveryError,
+      draftStorageError,
       loadingMessages,
       sortedMessages,
       messagesBox,
       handleWheel,
       sendMessage,
+      afterSend,
       toggleFavorite,
       focusNewsTab,
       throttle,

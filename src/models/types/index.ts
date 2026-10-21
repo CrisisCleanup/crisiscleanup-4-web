@@ -116,6 +116,9 @@ export interface OrganizationRole {
 
 export interface Message {
   id: number;
+  uuid?: string;
+  message_group?: number;
+  replies?: Message[];
   created_by: number;
   timestamp: number;
   content: string;
