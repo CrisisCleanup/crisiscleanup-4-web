@@ -64,6 +64,10 @@ const tabs = reactive<Tab[]>([
     title: '~~Misplaced Worksites',
   },
   {
+    key: 'nav.outreach_console',
+    title: '~~Outreach Console',
+  },
+  {
     key: 'nav.debug',
   },
 ]);

@@ -29,6 +29,7 @@ const AdminVoiceConsole = () => import('./AdminVoiceConsole.vue');
 const AdminVoiceReviewLink = () => import('./AdminVoiceReviewLink.vue');
 const AdminVoiceCall = () => import('./AdminVoiceCall.vue');
 const AdminMisplacedWorksites = () => import('./AdminMisplacedWorksites.vue');
+const AdminOutreachConsole = () => import('./AdminOutreachConsole.vue');
 
 const routes = [
   {
@@ -188,6 +189,11 @@ const routes = [
         path: 'misplaced_worksites',
         name: 'nav.misplaced_worksites',
         component: AdminMisplacedWorksites,
+      },
+      {
+        path: 'outreach_console',
+        name: 'nav.outreach_console',
+        component: AdminOutreachConsole,
       },
       {
         path: 'debug',
