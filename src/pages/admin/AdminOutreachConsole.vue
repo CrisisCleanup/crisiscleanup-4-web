@@ -239,6 +239,86 @@
       />
     </div>
 
+    <!-- Discovery -->
+    <div class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4">
+      <h2 class="mb-3 text-lg font-bold">{{ $t('~~Find organizations') }}</h2>
+      <p class="mb-3 text-sm text-crisiscleanup-grey-700">
+        {{
+          $t(
+            '~~Searches Google Places around the incident, then reads each organization’s own website for a public email. Preview saves nothing.',
+          )
+        }}
+      </p>
+      <div class="flex flex-wrap items-end gap-3">
+        <label class="text-sm">
+          {{ $t('~~Incident id') }}
+          <input
+            v-model.number="incidentId"
+            type="number"
+            class="ml-1 w-28 rounded border p-1"
+            data-testid="testOutreachDiscoverIncident"
+          />
+        </label>
+        <label class="text-sm">
+          {{ $t('~~Miles') }}
+          <input
+            v-model.number="discover.radius"
+            type="number"
+            min="1"
+            max="31"
+            class="ml-1 w-20 rounded border p-1"
+          />
+        </label>
+        <label class="text-sm">
+          <input v-model="discover.findEmails" type="checkbox" />
+          {{ $t('~~Look for emails') }}
+        </label>
+        <BaseButton
+          variant="outline"
+          size="medium"
+          :action="() => findOrganizations(false)"
+          :disabled="busy || !incidentId"
+          :text="$t('~~Preview')"
+          :alt="$t('~~Preview')"
+          data-testid="testOutreachDiscoverPreview"
+        />
+        <BaseButton
+          variant="solid"
+          size="medium"
+          :action="() => findOrganizations(true)"
+          :disabled="busy || !incidentId"
+          :text="$t('~~Find and save')"
+          :alt="$t('~~Find and save')"
+          data-testid="testOutreachDiscoverSave"
+        />
+      </div>
+      <table
+        v-if="found"
+        class="mt-3 w-full text-left text-sm"
+        data-testid="testOutreachFound"
+      >
+        <thead>
+          <tr class="bg-[#f8f9fa]">
+            <th class="p-2">{{ $t('~~Name') }}</th>
+            <th class="p-2">{{ $t('~~Miles') }}</th>
+            <th class="p-2">{{ $t('~~Email') }}</th>
+            <th class="p-2">{{ $t('~~Website') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="found.length === 0">
+            <td class="p-2" colspan="4">{{ $t('~~Nothing found.') }}</td>
+          </tr>
+          <tr v-for="row in found" :key="row.source_ref" class="border-t">
+            <td class="p-2">{{ row.name }}</td>
+            <td class="p-2">{{ row.miles }}</td>
+            <td class="p-2">{{ row.email || '—' }}</td>
+            <td class="p-2">{{ row.url }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- Dispatcher -->
     <div class="rounded-lg border border-crisiscleanup-grey-100 bg-white p-4">
       <h2 class="mb-3 text-lg font-bold">{{ $t('~~Dispatcher') }}</h2>
@@ -322,6 +402,7 @@ import { useToast } from 'vue-toastification';
 import {
   clearDemo,
   createDemo,
+  discoverOrganizations,
   dispatchPreview,
   enroll,
   getSwitches,
@@ -334,6 +415,7 @@ import {
   sendTestEmail,
   setSwitches,
   type DueCampaign,
+  type FoundOrganization,
   type OutreachContact,
   type OutreachFlags,
   type OutreachLogRow,
@@ -355,6 +437,8 @@ const contactId = ref<number>();
 const incidentId = ref<number>();
 const testTo = ref('');
 const demo = reactive({ lat: 35, lng: -90, cases: 150 });
+const discover = reactive({ radius: 25, findEmails: true });
+const found = ref<FoundOrganization[]>();
 
 type SwitchKey = Exclude<keyof OutreachFlags, 'environment'>;
 const switchItems: { key: SwitchKey; label: string; help: string }[] = [
@@ -496,6 +580,27 @@ async function startCampaign() {
   if (result) {
     $toasted.success(
       t('~~Started {count} campaign(s).', { count: result.enrolled }),
+    );
+  }
+}
+
+async function findOrganizations(save: boolean) {
+  const result = await guard(() =>
+    discoverOrganizations({
+      incident_id: incidentId.value!,
+      radius_miles: discover.radius,
+      find_emails: discover.findEmails,
+      save,
+    }),
+  );
+  if (!result) return;
+  found.value = result.results;
+  if (save) {
+    await refreshContacts();
+    $toasted.success(
+      t('~~Saved {count} organization(s) as contacts.', {
+        count: result.results.length,
+      }),
     );
   }
 }

@@ -164,6 +164,30 @@ export async function enroll(incidentId: number, contactIds: number[]) {
   return data;
 }
 
+export interface FoundOrganization {
+  source_ref: string;
+  name: string;
+  kind: string;
+  address: string;
+  phone: string;
+  url: string;
+  email: string;
+  miles: number;
+}
+
+export async function discoverOrganizations(body: {
+  incident_id: number;
+  radius_miles: number;
+  find_emails: boolean;
+  save: boolean;
+}) {
+  const { data } = await axios.post<{
+    saved: boolean;
+    results: FoundOrganization[];
+  }>(`${root}/discover`, body);
+  return data;
+}
+
 export async function dispatchPreview() {
   const { data } = await axios.get<DueCampaign[]>(`${root}/dispatch_preview`);
   return data;
