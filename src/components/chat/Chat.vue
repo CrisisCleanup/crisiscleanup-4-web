@@ -1,12 +1,12 @@
 <template>
   <div
-    class="flex-1 p-3 sm:p-4 flex flex-col w-full bg-white rounded shadow-crisiscleanup-card"
+    class="chat-shell flex-1 min-w-0 p-3 sm:p-4 flex flex-col w-full bg-white rounded shadow-crisiscleanup-card"
   >
     <div
-      class="flex items-center justify-between gap-3 pb-3 border-b border-black/5"
+      class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-black/5"
     >
       <h2 class="text-[17px] font-bold tracking-tight text-black truncate m-0">
-        {{ chat.name }}
+        {{ chat.name || $t('chat.chat') }}
       </h2>
       <div
         v-if="onlineUsersWithData?.length"
@@ -25,13 +25,26 @@
       </div>
     </div>
 
+    <button
+      type="button"
+      class="chat-support-toggle mt-3 min-h-10 rounded-md border border-crisiscleanup-grey-100 px-3 py-2 text-sm font-semibold text-left hover:bg-crisiscleanup-smoke"
+      data-testid="testChatSupportToggle"
+      :aria-expanded="supportOpen"
+      @click="supportOpen = !supportOpen"
+    >
+      {{
+        supportOpen
+          ? $t('~~Hide Spinny and online users')
+          : $t('~~Spinny and online users')
+      }}
+    </button>
     <div
-      class="flex flex-col md:flex-row gap-3 md:gap-6 mt-3"
+      class="chat-layout flex flex-col gap-3 mt-3"
       :class="fill ? 'flex-1 min-h-0' : 'h-full'"
     >
       <div
-        class="w-full md:w-[280px] md:flex-none flex flex-col gap-6"
-        :class="fill ? 'min-h-0' : ''"
+        class="chat-support w-full flex-none flex-col gap-5"
+        :class="[fill ? 'min-h-0' : '', { 'chat-support--open': supportOpen }]"
       >
         <!-- Spinny: gently-branded AI surface, always visible -->
         <section
@@ -196,17 +209,17 @@
       </div>
       <tabs
         :tab-details-classes="fill ? 'flex-1 min-h-0' : ''"
-        class="flex-1"
+        class="chat-conversation flex-1 min-w-0"
         :class="fill ? 'min-w-0 min-h-0 flex flex-col chat-tabs--fill' : ''"
       >
         <tab :name="$t('chat.chat')">
-          <div class="message-container flex flex-col h-full">
+          <div class="message-container flex flex-col h-full min-h-0">
             <div
               id="messages"
               ref="messagesBox"
               data-testid="testMessagesContent"
               class="flex flex-col flex-grow py-2 space-y-2 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch"
-              :class="fill ? 'h-72 md:h-auto md:min-h-0' : 'h-72 md:h-120'"
+              :class="fill ? 'min-h-0' : 'h-72 md:h-120'"
               @wheel="handleWheel"
               @ontouchmove="handleWheel"
             >
@@ -246,14 +259,16 @@
               </template>
             </div>
             <div
-              class="mt-4 pt-3 border-t transition-colors"
+              class="chat-composer mt-3 flex-none rounded-md border bg-white transition-colors focus-within:ring-1 focus-within:ring-crisiscleanup-dark-blue/30"
               :class="
-                urgent ? 'border-crisiscleanup-chat-red' : 'border-black/5'
+                urgent
+                  ? 'border-crisiscleanup-chat-red'
+                  : 'border-crisiscleanup-grey-100'
               "
             >
               <div
                 v-if="urgent"
-                class="text-crisiscleanup-chat-red flex items-center mb-1"
+                class="text-crisiscleanup-chat-red flex items-center px-3 pt-2 text-xs font-semibold"
               >
                 <ccu-icon
                   :alt="$t('chat.urgent')"
@@ -275,7 +290,7 @@
                   ]"
                 />
                 <div
-                  class="flex items-center justify-between py-2 gap-2 flex-wrap"
+                  class="flex items-center gap-x-4 gap-y-2 flex-wrap border-t border-crisiscleanup-grey-100 bg-crisiscleanup-smoke/40 px-3 py-2 rounded-b-md"
                 >
                   <base-checkbox
                     v-model="urgent"
@@ -285,7 +300,7 @@
                   </base-checkbox>
                   <button
                     type="button"
-                    class="text-[11px] underline underline-offset-2 text-crisiscleanup-dark-blue hover:text-black"
+                    class="text-xs underline underline-offset-2 text-crisiscleanup-dark-blue hover:text-black"
                     data-testid="testFocusNewsTabLink"
                     @click="focusNewsTab"
                   >
@@ -304,16 +319,18 @@
                     />
                     {{ $t('chat.ask_spinny') }}
                   </button>
-                  <div class="flex">
+                  <div class="ml-auto flex flex-none">
                     <base-button
                       variant="solid"
                       data-testid="testSendMessageButton"
                       :disabled="!currentMessage || isSending"
                       :show-spinner="isSending"
-                      ccu-icon="plane"
+                      class="h-10 w-10 flex-none !p-0"
                       :action="sendMessage"
                       :alt="$t('actions.send_message')"
-                    />
+                    >
+                      <IconSend class="h-4 w-4" aria-hidden="true" />
+                    </base-button>
                   </div>
                 </div>
                 <p
@@ -419,6 +436,7 @@ import { DbService, USER_DATABASE } from '@/services/db.service';
 import MarkdownRenderer from '@/components/MarkdownRender.vue';
 import { useRAG, useRAGConversations, useRAGCollections } from '@/hooks';
 import { generateUUID } from '@/utils/helpers';
+import IconSend from '~icons/lucide/send';
 import Editor from '@/components/Editor.vue';
 import {
   ChatDeliveryKey,
@@ -430,6 +448,7 @@ import { useChatDraft } from '@/hooks/useChatDraft';
 export default defineComponent({
   name: 'Chat',
   components: {
+    IconSend,
     Editor,
     FontAwesomeIcon,
     Avatar,
@@ -869,6 +888,7 @@ export default defineComponent({
       online_users_socket?.value?.close();
     });
 
+    const supportOpen = ref(false);
     const spinnyQuery = ref('');
     const spinnyInputRef = ref<{ input?: HTMLInputElement | null } | null>(
       null,
@@ -886,6 +906,7 @@ export default defineComponent({
       spinnyQuery.value = '';
     }
     async function openSpinny() {
+      supportOpen.value = true;
       await nextTick();
       const el = (spinnyInputRef.value as any)?.$el as HTMLElement | undefined;
       el?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
@@ -894,6 +915,7 @@ export default defineComponent({
     }
 
     return {
+      supportOpen,
       socket,
       messages,
       favorites,
@@ -934,6 +956,50 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.chat-shell {
+  container-type: inline-size;
+}
+
+.chat-support {
+  display: none;
+}
+
+.chat-support--open {
+  display: flex;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+@container (min-width: 48rem) {
+  .chat-layout {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .chat-support-toggle {
+    display: none;
+  }
+
+  .chat-support {
+    display: flex;
+    width: 15rem;
+    max-height: none;
+  }
+}
+
+.chat-composer :deep(.ql-toolbar.ql-snow),
+.chat-composer :deep(.ql-container.ql-snow) {
+  border: 0;
+}
+
+.chat-composer :deep(.ql-toolbar.ql-snow) {
+  @apply border-b border-crisiscleanup-grey-100;
+}
+
+.chat-composer :deep(.ql-editor) {
+  @apply min-h-24 text-sm leading-relaxed;
+}
+
 .organization-group {
   margin-bottom: 1rem;
 }

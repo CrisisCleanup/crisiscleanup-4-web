@@ -14,9 +14,9 @@ import CurrentCall from '@/components/phone/CurrentCall.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import BasePill from '@/components/BasePill.vue';
 import Chat from '@/components/chat/Chat.vue';
+import { useChatUnread } from '@/hooks/useChatUnread';
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
-import moment from '@/utils/dates';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import PhoneOutbound from '@/models/PhoneOutbound';
 import { useToast } from 'vue-toastification';
@@ -43,7 +43,7 @@ const emit = defineEmits([
   'onReportBug',
   'resetPhoneSystem',
 ]);
-const { caseId } = defineProps({
+const props = defineProps({
   caseId: {
     type: Number,
     default: null,
@@ -53,10 +53,11 @@ const { caseId } = defineProps({
     default: null,
   },
 });
+const { caseId } = props;
 const expanded = ref(false);
 const sideBarExpanded = ref(true);
 const { t } = useI18n();
-const { updateUserStates, isAdmin, userPreferences } = useCurrentUser();
+const { isAdmin, userPreferences } = useCurrentUser();
 const { currentUser } = useCurrentUser();
 const mq = useMq();
 const { clearCache, isClearing } = useClearCache();
@@ -111,13 +112,6 @@ const sections = computed(() => {
       text: t('chat.chat'),
       icon: IconMessageCircle,
       alt: t('chat.chat'),
-      onOpen: () => {
-        updateUserStates({
-          chat_last_seen: moment().toISOString(),
-        });
-        unreadChatCount.value = 0;
-        unreadUrgentChatCount.value = 0;
-      },
     },
     {
       view: 'reportBug',
@@ -179,8 +173,6 @@ const { text, copy } = useClipboard({
 });
 const remainingCallbacks = ref(0);
 const remainingCalldowns = ref(0);
-const unreadChatCount = ref(0);
-const unreadUrgentChatCount = ref(0);
 const unreadNewsCount = ref(0);
 
 const showCompleteCallScreen = ref(false);
@@ -229,6 +221,11 @@ function setManualOutbound(phone) {
 }
 
 const currentView = ref('');
+const { unreadCount: unreadChatCount, urgentCount: unreadUrgentChatCount } =
+  useChatUnread(
+    computed(() => props.selectedChat?.id),
+    computed(() => expanded.value && currentView.value === 'chat'),
+  );
 const connectFirst = useConnectFirst({
   emit,
 });
@@ -593,11 +590,7 @@ const {
                 v-if="selectedChat"
                 :chat="selectedChat"
                 fill
-                class="bg-white min-h-full md:h-full"
-                @unread-count="unreadChatCount = $event"
-                @unread-urgent-count="unreadUrgentChatCount = $event"
-                @on-new-message="unreadChatCount += 1"
-                @on-new-urgent-message="unreadUrgentChatCount += 1"
+                class="bg-white h-full min-h-0"
               />
             </template>
             <template v-if="currentView === 'reportBug'">
@@ -845,10 +838,10 @@ const {
               :class="sideBarExpanded ? '' : 'absolute top-1 right-1'"
             >
               <BasePill v-if="unreadChatCount > 0" variant="incident">{{
-                unreadChatCount
+                unreadChatCount > 99 ? '99+' : unreadChatCount
               }}</BasePill>
               <BasePill v-if="unreadUrgentChatCount > 0" variant="urgent">{{
-                unreadUrgentChatCount
+                unreadUrgentChatCount > 99 ? '99+' : unreadUrgentChatCount
               }}</BasePill>
             </span>
           </button>
@@ -925,10 +918,10 @@ const {
           class="absolute top-1 right-2 flex gap-1"
         >
           <BasePill v-if="unreadChatCount > 0" variant="incident">{{
-            unreadChatCount
+            unreadChatCount > 99 ? '99+' : unreadChatCount
           }}</BasePill>
           <BasePill v-if="unreadUrgentChatCount > 0" variant="urgent">{{
-            unreadUrgentChatCount
+            unreadUrgentChatCount > 99 ? '99+' : unreadUrgentChatCount
           }}</BasePill>
         </span>
       </button>
