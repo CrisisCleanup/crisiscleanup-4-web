@@ -11,6 +11,7 @@ export function useWebSockets<MessageT extends Record<string, any>>(
   url: string,
   name: string,
   cb: (data: MessageT) => object | void,
+  onOpen?: () => void,
 ) {
   const endpoint = import.meta.env.VITE_APP_API_BASE_URL.replace('http', 'ws');
   const authStore = useAuthStore();
@@ -52,6 +53,7 @@ export function useWebSockets<MessageT extends Record<string, any>>(
     connection.addEventListener('open', () => {
       if (socket !== connection) return;
       attempt = 0;
+      onOpen?.();
     });
 
     connection.addEventListener('error', (e) => {

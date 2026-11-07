@@ -136,6 +136,38 @@ describe('Chat.vue', () => {
     mockUpdateUserStates.mockClear();
   });
 
+  it('toggles support without clearing the message draft', async () => {
+    const wrapper = buildWrapper();
+    await flushPromises();
+    await wrapper.find('textarea').setValue('Unsent draft');
+    const toggle = wrapper.find('[data-testid="testChatSupportToggle"]');
+
+    await toggle.trigger('click');
+    expect(toggle.attributes('aria-expanded')).toBe('true');
+    await toggle.trigger('click');
+    expect(toggle.attributes('aria-expanded')).toBe('false');
+    expect(
+      (wrapper.find('textarea').element as HTMLTextAreaElement).value,
+    ).toBe('Unsent draft');
+    wrapper.unmount();
+  });
+
+  it('opens support from the existing Ask Spinny shortcut', async () => {
+    const wrapper = buildWrapper();
+    await flushPromises();
+    await wrapper
+      .find('[data-testid="testAskSpinnyShortcut"]')
+      .trigger('click');
+
+    expect(
+      wrapper
+        .find('[data-testid="testChatSupportToggle"]')
+        .attributes('aria-expanded'),
+    ).toBe('true');
+    expect(mockSubmitQuestion).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
   it('should render messages', async () => {
     const wrapper = buildWrapper();
 

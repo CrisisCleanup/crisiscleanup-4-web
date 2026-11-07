@@ -2431,6 +2431,8 @@ export default defineComponent({
         @apply h-full;
       }
       &--chat {
+        width: min(60rem, calc(100cqw - 4rem));
+        max-height: calc(100dvh - 12rem);
       }
       &--news {
         height: 60vh;
@@ -2512,6 +2514,7 @@ export default defineComponent({
   /* Container for map */
   &__main {
     @apply flex flex-col;
+    container-type: inline-size;
 
     &-header {
       @apply flex items-center;

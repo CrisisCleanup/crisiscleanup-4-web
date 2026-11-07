@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-start space-x-3 chat-message w-full hover:bg-crisiscleanup-smoke rounded px-2 py-1.5 cursor-pointer transition-colors"
+    class="flex items-start gap-3 chat-message w-full hover:bg-crisiscleanup-smoke rounded-md px-2 py-3 transition-colors"
     :class="
       message.is_urgent
         ? 'border-l-2 border-crisiscleanup-red-900 pl-3 -ml-[2px]'
@@ -14,22 +14,25 @@
       :url="getUserAvatarLink(message?.full_name ?? '')"
       data-testid="testAvatarIcon"
       :custom-size="{ width: '40px', height: '40px' }"
-      inner-classes="shadow"
+      class="flex-none"
+      inner-classes=""
     />
-    <div class="relative flex justify-between w-full">
+    <div class="relative min-w-0 flex-1">
       <!-- Existing message content -->
       <div>
-        <div class="flex items-center justify-start gap-3 mt-0.5">
-          <div class="text-gray-800 font-semibold">
+        <div
+          class="flex min-h-8 flex-wrap items-baseline gap-x-2 gap-y-0.5 pr-24"
+        >
+          <div class="min-w-0 break-words text-black font-semibold">
             <UserDetailsTooltip
               :dark="false"
-              :name-class="'text-h3 font-h3 text-crisiscleanup-dark-500 name-tooltip'"
+              :name-class="'text-sm font-semibold text-black name-tooltip'"
               :user="message.created_by"
               data-testid="testCreatedByTooltip"
               :user-object="userObject"
             />
           </div>
-          <div class="text-gray-500 text-sm">
+          <div class="text-crisiscleanup-grey-900 text-xs whitespace-nowrap">
             <!-- If date is not today, include date -->
             <template v-if="!isToday(message.created_at)">{{
               formatDateString(message.created_at, 'MMM D')
@@ -37,14 +40,17 @@
             {{ formatDateString(message.created_at, 'h:mm A') }}
           </div>
         </div>
-        <div ref="messageContainer" class="text-gray-700 mt-1 w-11/12">
+        <div
+          ref="messageContainer"
+          class="chat-message__body text-black text-sm leading-relaxed mt-1 [overflow-wrap:anywhere]"
+        >
           <span v-html="linkedContent"></span>
         </div>
       </div>
       <!-- Existing message content -->
       <div
         v-if="message.is_urgent || message.is_favorite ? true : showActions"
-        class="actions-bar absolute top-1 right-2 mt-3 transform -translate-y-1/2 cursor-pointer flex items-center gap-1 bg-gray-100 p-2 rounded"
+        class="actions-bar absolute top-0 right-0 cursor-pointer flex min-h-8 items-center gap-3 border border-black/5 bg-white px-2 py-1.5 rounded-md text-sm text-crisiscleanup-grey-900 shadow-sm"
       >
         <!-- Urgent Icon -->
         <font-awesome-icon
@@ -81,9 +87,11 @@
   </div>
   <!-- Replies -->
   <template v-if="message.replies && message.replies.length > 0 && !isReply">
-    <div class="flex items-center gap-3 mt-3">
+    <div
+      class="ml-[60px] mr-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-2 text-xs"
+    >
       <button
-        class="text-blue-600 hover:text-blue-800"
+        class="font-semibold text-crisiscleanup-dark-blue hover:underline underline-offset-2"
         @click="
           () => {
             showReplies = !showReplies;
@@ -95,21 +103,24 @@
         <span v-else>Show replies</span>
         ({{ message.replies.length }})
       </button>
-      <span class="text-gray-400 text-xs">
+      <span class="text-crisiscleanup-grey-900 text-xs">
         {{ $t('chat.last_reply') }}
         {{ moment(message.replies.at(-1).created_at).fromNow() }}
       </span>
     </div>
   </template>
-  <div v-if="showReplies || showReplyBox" class="mx-12">
+  <div
+    v-if="showReplies || showReplyBox"
+    class="ml-4 mr-2 border-l-2 border-crisiscleanup-grey-100 pl-3 sm:ml-[60px] sm:pl-4"
+  >
     <div v-for="reply in message.replies" :key="reply.id">
       <ChatMessage :message="reply" class="my-1" is-reply />
     </div>
     <!-- Textarea for reply -->
-    <div class="flex items-center gap-3 mt-3">
+    <div class="flex flex-wrap items-end gap-2 py-3 sm:flex-nowrap">
       <Editor
         v-model="replyContent"
-        class="w-full rounded-lg"
+        class="chat-reply-editor min-w-0 w-full rounded-md border border-crisiscleanup-grey-100 bg-white"
         image-handler-type="inline"
         :quill-options="[
           ['bold', 'italic', 'underline', 'strike', 'blockquote'],
@@ -118,14 +129,16 @@
         ]"
       />
       <base-button
-        class="bg-crisiscleanup-dark-blue"
+        class="ml-auto self-end h-10 w-10 flex-none !p-0"
+        variant="solid"
         data-testid="testSendMessageButton"
         :disabled="!replyContent || isSending"
         :show-spinner="isSending"
-        ccu-icon="plane"
         :action="sendReply"
         :alt="$t('actions.send_message')"
-      />
+      >
+        <IconSend class="h-4 w-4" aria-hidden="true" />
+      </base-button>
     </div>
     <p v-if="deliveryError" role="alert" class="text-red-700 text-sm">
       {{
@@ -156,6 +169,7 @@ import { getUserAvatarLink } from '@/utils/urls';
 import { DbService, USER_DATABASE } from '@/services/db.service';
 // eslint-disable-next-line import/no-unresolved
 import { api as viewerApi } from 'v-viewer';
+import IconSend from '~icons/lucide/send';
 import Editor from '@/components/Editor.vue';
 import { ChatDeliveryKey } from '@/hooks/useChatDelivery';
 import { useChatDraft } from '@/hooks/useChatDraft';
@@ -163,6 +177,7 @@ import { useChatDraft } from '@/hooks/useChatDraft';
 export default defineComponent({
   name: 'ChatMessage',
   components: {
+    IconSend,
     Editor,
     CcuIcon,
     Avatar,
@@ -280,4 +295,27 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.chat-message__body :deep(img),
+.chat-message__body :deep(iframe) {
+  max-width: 100%;
+}
+
+.chat-message__body :deep(pre) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.chat-reply-editor :deep(.ql-toolbar.ql-snow),
+.chat-reply-editor :deep(.ql-container.ql-snow) {
+  border: 0;
+}
+
+.chat-reply-editor :deep(.ql-toolbar.ql-snow) {
+  @apply border-b border-crisiscleanup-grey-100;
+}
+
+.chat-reply-editor :deep(.ql-editor) {
+  @apply min-h-24 text-sm leading-relaxed;
+}
+</style>
