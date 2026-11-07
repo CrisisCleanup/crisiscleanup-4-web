@@ -171,6 +171,7 @@ import { DbService, USER_DATABASE } from '@/services/db.service';
 import { api as viewerApi } from 'v-viewer';
 import IconSend from '~icons/lucide/send';
 import Editor from '@/components/Editor.vue';
+import { formatChatMessage } from '@/utils/chat';
 import { ChatDeliveryKey } from '@/hooks/useChatDelivery';
 import { useChatDraft } from '@/hooks/useChatDraft';
 
@@ -215,13 +216,9 @@ export default defineComponent({
     const userObject = ref(null);
     const messageContainer = ref(null);
 
-    const linkedContent = computed(() => {
-      const raw = props.message?.content ?? '';
-      return raw.replaceAll(
-        /(?<!["=>])\b(https?:\/\/[^\s"<]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-crisiscleanup-dark-blue underline underline-offset-2 hover:opacity-80">$1</a>',
-      );
-    });
+    const linkedContent = computed(() =>
+      formatChatMessage(props.message?.content ?? ''),
+    );
 
     const getUserInitials = (id: number) => {
       const user = User.find(id);

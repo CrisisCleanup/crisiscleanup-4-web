@@ -718,10 +718,12 @@ export default (
       container.visible = false;
       map.setView([worksite.latitude, worksite.longitude], 18);
       if (showPopup) {
+        const content = document.createElement('b');
+        content.textContent = `${worksite.name} (${worksite.case_number})`;
         const popup = L.popup({ className: 'pixi-popup' });
         popup
           .setLatLng([worksite.latitude, worksite.longitude])
-          .setContent(`<b>${worksite.name} (${worksite.case_number}</b>)`)
+          .setContent(content)
           .openOn(map);
         setTimeout(() => {
           map.closePopup();

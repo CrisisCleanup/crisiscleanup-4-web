@@ -107,6 +107,7 @@
     "debug": "^4.3.6",
     "defu": "^6.1.4",
     "detect-browser-language": "0.0.2",
+    "dompurify": "^3.4.17",
     "floating-vue": "5.2.2",
     "geojson": "^0.5.0",
     "hex-to-rgba": "^2.0.1",
