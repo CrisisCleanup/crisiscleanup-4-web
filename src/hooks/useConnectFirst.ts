@@ -308,8 +308,12 @@ export default function useConnectFirst(context: {
   }
 
   async function removeNumberFromQueue(number: string) {
-    await PhoneOutbound.api().completeCallsForPhoneNumber(number);
-    $toasted.success(t('info.dnis_removed_from_queue'));
+    try {
+      await PhoneOutbound.api().completeCallsForPhoneNumber(number);
+      $toasted.success(t('info.dnis_removed_from_queue'));
+    } catch (error) {
+      $toasted.error(getErrorMessage(error));
+    }
   }
 
   onMounted(async () => {
