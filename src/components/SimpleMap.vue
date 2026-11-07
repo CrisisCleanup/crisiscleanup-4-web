@@ -51,8 +51,9 @@ function handleAutoCollapseLegend() {
   }
 }
 
+useEventListener(window, 'resize', handleAutoCollapseLegend);
+
 onMounted(() => {
-  window.addEventListener('resize', handleAutoCollapseLegend);
   handleAutoCollapseLegend();
 });
 

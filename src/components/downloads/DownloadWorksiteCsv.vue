@@ -12,19 +12,25 @@ const { t } = useI18n();
 
 // Reactive variables for UI feedback
 const waitingForFile = ref(true);
-const errorMessage = ref<string | null>(null);
-const message = ref<string | null>(null);
+const errorMessage = ref<string>();
+const message = ref<string>();
+
+let disposed = false;
+let timer: ReturnType<typeof setTimeout> | undefined;
+const controller = new AbortController();
 
 // Function to download the file
 const downloadFile = async (fileId: string) => {
   try {
     const url = `/files/${fileId}`;
-    const { data } = await axios.get(url);
+    const { data } = await axios.get(url, { signal: controller.signal });
+    if (disposed) return;
     const csvUrl = data.csv_url;
     forceFileDownloadFromURl(csvUrl, data.filename_original);
     waitingForFile.value = false;
     message.value = t('downloads.download_complete');
   } catch (error) {
+    if (disposed) return;
     console.error('Error downloading file:', error);
     errorMessage.value = t('downloads.download_failed');
     waitingForFile.value = false;
@@ -32,28 +38,41 @@ const downloadFile = async (fileId: string) => {
 };
 
 onMounted(() => {
-  const maxAttempts = props.wait || 20; // 20 seconds by default
+  const maxAttempts = props.wait || 20;
   let attempts = 0;
 
-  const interval = setInterval(async () => {
+  const checkStatus = async () => {
+    if (disposed) return;
     attempts += 1;
     try {
-      const { data } = await axios.get(`/user_downloads/${props.downloadId}`);
+      const { data } = await axios.get(`/user_downloads/${props.downloadId}`, {
+        signal: controller.signal,
+      });
+      if (disposed) return;
       if (data.file) {
-        clearInterval(interval);
         await downloadFile(data.file);
       } else if (attempts >= maxAttempts) {
-        clearInterval(interval);
         message.value = t('info.processing_download_d');
         waitingForFile.value = false;
+      } else {
+        timer = setTimeout(() => void checkStatus(), 1000);
       }
     } catch (error) {
+      if (disposed) return;
       console.error('Error checking file status:', error);
-      clearInterval(interval);
-      errorMessage.value = 'An error occurred while checking the file status.';
+      errorMessage.value = t(
+        '~~An error occurred while checking the file status.',
+      );
       waitingForFile.value = false;
     }
-  }, 1000);
+  };
+  timer = setTimeout(() => void checkStatus(), 1000);
+});
+
+onBeforeUnmount(() => {
+  disposed = true;
+  clearTimeout(timer);
+  controller.abort();
 });
 </script>
 

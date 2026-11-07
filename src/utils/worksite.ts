@@ -4,7 +4,6 @@ import axios from 'axios';
 import { DbService, WORKSITE_IMAGES_DATABASE } from '@/services/db.service';
 import { generateHash } from './helpers';
 import type Worksite from '@/models/Worksite';
-import createDebug from 'debug';
 import User from '@/models/User';
 
 export type CachedCase = Worksite;
@@ -18,8 +17,6 @@ export interface WorksiteChange {
   incident_id: number;
   invalidated_at: string | null;
 }
-
-const debug = createDebug('@ccu:utils:worksite');
 
 const loadCases = async (query: Record<string, unknown>) => {
   const response = await axios.get<CachedCaseResponse>(
@@ -86,168 +83,69 @@ const loadUserLocations = async (query: Record<string, unknown>) => {
   return response.data;
 };
 
-const loadCasesCached = async (query: Record<string, unknown>) => {
-  const queryKeys = Object.keys(query).sort();
-  const sortedQuery: Record<string, unknown> = {};
-  for (const key of queryKeys) {
-    sortedQuery[key] = query[key];
-  }
-
-  const queryHash = generateHash(JSON.stringify(sortedQuery));
-  const cacheKeys = {
-    CASES: `cachedCases:${queryHash}`,
-    UPDATED: `casesUpdated:${queryHash}`,
-    RECONCILED: `casesReconciled:${queryHash}`,
-  };
-  debug('loadCasesCached::QueryHash %o | %s', query, queryHash);
-  const cachedCases = (await DbService.getItem(
-    cacheKeys.CASES,
-  )) as CachedCaseResponse;
-  const casesUpdatedAt = (await DbService.getItem(cacheKeys.UPDATED)) as string; // ISO date string
-  const casesReconciledAt = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
-    moment().toISOString()) as string; // ISO date string
-  if (cachedCases) {
-    const [response, worksiteChanges] = await Promise.all([
-      loadCases({
-        ...query,
-        updated_at__gt: casesUpdatedAt,
-      }),
-      loadWorksiteChanges(casesReconciledAt),
-    ]);
-
-    for (const change of worksiteChanges) {
-      const itemIndex = cachedCases.results.findIndex(
-        (o) => o.id === change.worksite_id,
-      );
-      if (itemIndex > -1) {
-        if (change.invalidated_at !== null) {
-          // Remove invalidated worksites
-          cachedCases.results.splice(itemIndex, 1);
-        } else if (
-          change.incident_id !== cachedCases.results[itemIndex].incident
-        ) {
-          // Remove worksites moved to different incidents
-          cachedCases.results.splice(itemIndex, 1);
-        }
-      }
-    }
-
-    await DbService.setItem(cacheKeys.RECONCILED, moment().toISOString());
-    await DbService.setItem(cacheKeys.CASES, cachedCases);
-
-    if (response.count === 0) {
-      return cachedCases;
-    }
-
-    for (const element of response.results) {
-      const itemIndex = cachedCases.results.findIndex(
-        (o) => o.id === element.id,
-      );
-      if (itemIndex > -1) {
-        cachedCases.results[itemIndex] = element;
-      } else {
-        cachedCases.results.push(element);
-      }
-    }
-
-    cachedCases.count = cachedCases.results.length;
-
-    await DbService.setItem(cacheKeys.CASES, cachedCases);
-    await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
-    return cachedCases;
-  }
-
-  const results = await loadCases(query);
-  await DbService.setItem(cacheKeys.CASES, results);
-  await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
-  return results;
-};
-
-const loadCasesCachedWithPagination = async (
+const loadCachedCaseRecords = async (
   query: Record<string, unknown>,
-) => {
-  const queryKeys = Object.keys(query).sort();
-  const sortedQuery: Record<string, unknown> = {};
-  for (const key of queryKeys) {
-    sortedQuery[key] = query[key];
+  load: (query: Record<string, unknown>) => Promise<CachedCaseResponse>,
+): Promise<CachedCaseResponse> => {
+  // Filtered deltas cannot report cases that stop matching the query.
+  if (Object.keys(query).some((key) => key !== 'incident')) {
+    return load(query);
   }
 
-  query = {
-    ...query,
-    limit: 5000,
-  };
-
-  const queryHash = generateHash(JSON.stringify(sortedQuery));
+  const queryHash = generateHash(JSON.stringify(query));
   const cacheKeys = {
     CASES: `cachedCases:${queryHash}`,
     UPDATED: `casesUpdated:${queryHash}`,
     RECONCILED: `casesReconciled:${queryHash}`,
   };
-  debug('loadCasesCached::QueryHash %o | %s', query, queryHash);
-  const cachedCases = (await DbService.getItem(
-    cacheKeys.CASES,
-  )) as CachedCaseResponse;
-  const casesUpdatedAt = (await DbService.getItem(cacheKeys.UPDATED)) as string; // ISO date string
-  const casesReconciledAt = ((await DbService.getItem(cacheKeys.RECONCILED)) ||
-    moment().toISOString()) as string; // ISO date string
+  const cachedCases = (await DbService.getItem(cacheKeys.CASES)) as
+    | CachedCaseResponse
+    | undefined;
+  const updatedAt = (await DbService.getItem(cacheKeys.UPDATED)) as
+    | string
+    | undefined;
+  const reconciledAt = (await DbService.getItem(cacheKeys.RECONCILED)) as
+    | string
+    | undefined;
+  // Capture the cursor before the requests so concurrent changes are not skipped.
+  const requestedAt = moment().toISOString();
+  let results: CachedCaseResponse;
 
-  if (cachedCases) {
-    const [response, worksiteChanges] = await Promise.all([
-      loadCasesPaginated({
-        ...query,
-        updated_at__gt: casesUpdatedAt,
-      }),
-      loadWorksiteChanges(casesReconciledAt),
+  if (cachedCases && updatedAt) {
+    const [response, changes] = await Promise.all([
+      load({ ...query, updated_at__gt: updatedAt }),
+      loadWorksiteChanges(reconciledAt || updatedAt),
     ]);
-
-    // Reconcile data
-    for (const change of worksiteChanges) {
-      const itemIndex = cachedCases.results.findIndex(
-        (o) => o.id === change.worksite_id,
-      );
-      if (itemIndex > -1) {
-        if (change.invalidated_at !== null) {
-          // Remove invalidated worksites
-          cachedCases.results.splice(itemIndex, 1);
-        } else if (
-          change.incident_id !== cachedCases.results[itemIndex].incident
-        ) {
-          // Remove worksites moved to different incidents
-          cachedCases.results.splice(itemIndex, 1);
-        }
+    const byId = new Map(cachedCases.results.map((item) => [item.id, item]));
+    for (const change of changes) {
+      const cached = byId.get(change.worksite_id);
+      if (
+        cached &&
+        (change.invalidated_at != undefined ||
+          change.incident_id !== cached.incident)
+      ) {
+        byId.delete(change.worksite_id);
       }
     }
-
-    await DbService.setItem(cacheKeys.RECONCILED, moment().toISOString());
-    await DbService.setItem(cacheKeys.CASES, cachedCases);
-
-    if (response.results.length === 0) {
-      return cachedCases;
-    }
-
-    for (const element of response.results) {
-      const itemIndex = cachedCases.results.findIndex(
-        (o) => o.id === element.id,
-      );
-      if (itemIndex > -1) {
-        cachedCases.results[itemIndex] = element;
-      } else {
-        cachedCases.results.push(element);
-      }
-    }
-
-    cachedCases.count = cachedCases.results.length;
-
-    await DbService.setItem(cacheKeys.CASES, cachedCases);
-    await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
-    return cachedCases;
+    for (const item of response.results) byId.set(item.id, item);
+    results = { count: byId.size, results: [...byId.values()] };
+  } else {
+    results = await load(query);
   }
 
-  const results = await loadCasesPaginated(query);
   await DbService.setItem(cacheKeys.CASES, results);
-  await DbService.setItem(cacheKeys.UPDATED, moment().toISOString());
+  await DbService.setItem(cacheKeys.UPDATED, requestedAt);
+  await DbService.setItem(cacheKeys.RECONCILED, requestedAt);
   return results;
 };
+
+const loadCasesCached = (query: Record<string, unknown>) =>
+  loadCachedCaseRecords(query, loadCases);
+
+const loadCasesCachedWithPagination = (query: Record<string, unknown>) =>
+  loadCachedCaseRecords(query, (params) =>
+    loadCasesPaginated({ ...params, limit: 5000 }),
+  );
 
 const loadCaseImagesCached = async (query) => {
   // Sort the query keys

@@ -104,6 +104,7 @@ import BaseInput from '../BaseInput.vue';
 import Worksite from '@/models/Worksite';
 import { getWorkTypeImage } from '@/filters/index';
 import { useRecentWorksites } from '@/hooks/useRecentWorksites';
+import { getErrorMessage } from '@/utils/errors';
 import type WorkType from '@/models/WorkType';
 import Badge from '@/components/Badge.vue';
 
@@ -270,29 +271,85 @@ export default defineComponent({
       return _results;
     });
 
-    window.addEventListener('keydown', (e) => {
+    useEventListener(window, 'keydown', (e) => {
       if (e.key === 'Escape' || e.key === 'Tab') {
         emit('clearSuggestions');
       }
     });
 
-    async function worksitesSearch(value: string) {
-      emit('input', value);
-      if (props.useWorksites) {
-        const sites = await searchWorksites(value, currentIncidentId.value);
-        worksites.value = sites.data.results;
-        emit('onWorksiteSearch', worksites.value);
-      }
+    let requestId = 0;
+    let controller: AbortController | undefined;
+    let blurTimer: ReturnType<typeof setTimeout> | undefined;
 
-      if (props.useGeocoder) {
-        geocoderResults.value = await geocoderSearch(value);
-      }
+    function cancelSearch() {
+      requestId += 1;
+      controller?.abort();
     }
 
-    function searchWorksites(search: string, incidentId: number) {
-      return axios.get(
+    async function worksitesSearch(value: string) {
+      cancelSearch();
+      const currentRequest = requestId;
+      const incidentId = currentIncidentId.value;
+      controller = new AbortController();
+      const isCurrent = () => currentRequest === requestId;
+      const handleError = (error: unknown) => {
+        if (isCurrent() && !axios.isCancel(error)) getErrorMessage(error);
+      };
+      await Promise.all([
+        props.useWorksites
+          ? searchWorksites(value, incidentId, controller.signal)
+              .then((sites) => {
+                if (!isCurrent()) return;
+                worksites.value = sites.data.results;
+                emit('onWorksiteSearch', worksites.value);
+              })
+              .catch(handleError)
+          : undefined,
+        props.useGeocoder
+          ? geocoderSearch(value)
+              .then((results) => {
+                if (isCurrent()) geocoderResults.value = results;
+              })
+              .catch(handleError)
+          : undefined,
+      ]);
+    }
+
+    const debouncedSearch = debounce(worksitesSearch, 300);
+    function onSearch(value: string) {
+      cancelSearch();
+      emit('input', value);
+      if (!value.trim()) {
+        debouncedSearch.cancel();
+        worksites.value = [];
+        geocoderResults.value = [];
+        emit('onWorksiteSearch', []);
+        return;
+      }
+      debouncedSearch(value);
+    }
+
+    watch([currentIncidentId, () => props.query], () => {
+      cancelSearch();
+      debouncedSearch.cancel();
+      worksites.value = [];
+      geocoderResults.value = [];
+    });
+    onBeforeUnmount(() => {
+      cancelSearch();
+      debouncedSearch.cancel();
+      clearTimeout(blurTimer);
+    });
+
+    function searchWorksites(
+      search: string,
+      incidentId: number,
+      signal: AbortSignal,
+    ) {
+      return axios.get<{ results: Worksite[] }>(
         `/worksites?fields=id,name,address,case_number,postal_code,city,state,incident,work_types`,
         {
+          signal,
           params: {
             limit: 3,
             search,
@@ -322,7 +379,8 @@ export default defineComponent({
     }
 
     function onBlur() {
-      setTimeout(() => {
+      clearTimeout(blurTimer);
+      blurTimer = setTimeout(() => {
         emit('blur');
         isFocused.value = false;
       }, 200);
@@ -353,7 +411,7 @@ export default defineComponent({
       currentUser,
       iconClasses,
       worksitesSearch,
-      debouncedSearch: debounce(worksitesSearch, 300),
+      debouncedSearch: onSearch,
       results,
       getWorkImage,
       isFocused,

@@ -12,7 +12,7 @@
           (value) => {
             search = value;
             meta.pagination.page = 1;
-            throttle(getData, 1000)();
+            queueRefresh();
           }
         "
       ></base-input>
@@ -45,7 +45,6 @@ import { throttle } from 'lodash';
 import type { PropType } from 'vue';
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import axios from 'axios';
-import { getQueryString } from '../utils/urls';
 import Table from './Table.vue';
 import useEmitter from '@/hooks/useEmitter';
 
@@ -142,9 +141,19 @@ export default defineComponent({
       },
     });
 
+    let requestId = 0;
+    let controller: AbortController | undefined;
+    const cancelRequest = () => {
+      requestId += 1;
+      controller?.abort();
+    };
+
     const getData = async (tableMeta: TableMeta = {}) => {
+      cancelRequest();
+      const currentRequest = requestId;
+      controller = new AbortController();
       loading.value = true;
-      const pagination = tableMeta.pagination || meta.value.pagination;
+      const pagination = { ...(tableMeta.pagination || meta.value.pagination) };
       const sorter = tableMeta.sorter || meta.value.sorter;
       const params = {
         offset: pagination ? pagination.pageSize * (pagination.page - 1) : 0,
@@ -162,7 +171,9 @@ export default defineComponent({
       try {
         const response = await axios.get(`${props.url}`, {
           params,
+          signal: controller.signal,
         });
+        if (currentRequest !== requestId) return;
         data.value = response.data.results || response.data;
         meta.value.pagination = {
           ...pagination,
@@ -174,10 +185,18 @@ export default defineComponent({
         emit('update:items', data.value);
         emit('dataFetched', response.data.count);
       } catch (error_) {
-        emit('error', error_);
+        if (currentRequest === requestId && !axios.isCancel(error_)) {
+          emit('error', error_);
+        }
       } finally {
-        loading.value = false;
+        if (currentRequest === requestId) loading.value = false;
       }
+    };
+
+    const throttledRefresh = throttle(() => void getData(), 1000);
+    const queueRefresh = () => {
+      cancelRequest();
+      throttledRefresh();
     };
 
     onMounted(async () => {
@@ -187,14 +206,20 @@ export default defineComponent({
     watch(
       () => props.query,
       () => {
-        throttle(getData, 1000)();
+        meta.value.pagination.page = 1;
+        queueRefresh();
       },
     );
 
+    const refreshEvent = `refreshTable-${props.tableId}`;
+    const refresh = () => void getData();
     onBeforeMount(() => {
-      emitter.on(`refreshTable-${props.tableId}`, async () => {
-        await getData();
-      });
+      emitter.on(refreshEvent, refresh);
+    });
+    onBeforeUnmount(() => {
+      emitter.off(refreshEvent, refresh);
+      throttledRefresh.cancel();
+      cancelRequest();
     });
 
     return {
@@ -203,7 +228,7 @@ export default defineComponent({
       meta,
       search,
       visible,
-      throttle,
+      queueRefresh,
       getData,
       loading,
     };
