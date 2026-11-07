@@ -131,7 +131,7 @@ describe('AdminVoiceConsole model settings', () => {
     wrapper.unmount();
   });
 
-  it('prefers GPT-Live when the API defaults to Realtime Mini', async () => {
+  it('uses the API default even when GPT-Live is available', async () => {
     vi.mocked(axios.get).mockImplementation(async (url) => ({
       data: url.endsWith('/config')
         ? {
@@ -148,18 +148,18 @@ describe('AdminVoiceConsole model settings', () => {
     expect(
       wrapper.get<HTMLSelectElement>('[data-testid="testVoiceModelSelect"]')
         .element.value,
-    ).toBe('gpt-live-1');
+    ).toBe('gpt-realtime-2.1-mini');
     expect(
       wrapper.get<HTMLSelectElement>('[data-testid="testVoiceVoiceSelect"]')
         .element.value,
-    ).toBe('marin');
+    ).toBe('echo');
     await wrapper
       .get('[data-testid="testVoiceStartCallButton"]')
       .trigger('click');
     expect(connect).toHaveBeenCalledWith({
       language: 'en',
-      model: 'gpt-live-1',
-      voice: 'marin',
+      model: 'gpt-realtime-2.1-mini',
+      voice: 'echo',
       backend: 'responses',
       flow: 'questions',
     });

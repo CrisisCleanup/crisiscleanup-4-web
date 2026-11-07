@@ -740,11 +740,9 @@ onMounted(async () => {
     ]);
     config.value = configResponse.data;
     scenarios.value = scenarioResponse.data.scenarios;
-    settings.model = config.value.models.includes('gpt-live-1')
-      ? 'gpt-live-1'
-      : config.value.models.includes(config.value.default_model)
-        ? config.value.default_model
-        : (config.value.models[0] ?? '');
+    settings.model = config.value.models.includes(config.value.default_model)
+      ? config.value.default_model
+      : (config.value.models[0] ?? '');
     settings.backend = backendOptions.value.includes(
       config.value.default_backend ?? '',
     )
