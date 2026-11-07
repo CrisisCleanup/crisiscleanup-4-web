@@ -1112,7 +1112,8 @@ export default defineComponent({
     const isViewing = ref<boolean>(false);
     const caseImages = ref<Record<string, any>[]>([]);
     const userLocations = ref<Record<string, any>[]>([]);
-    const mapLoading = ref<boolean>(false);
+    const pendingMapRequests = ref(0);
+    const mapLoading = computed(() => pendingMapRequests.value > 0);
     const collapsedForm = ref<boolean>(false);
     const collapsedUtilityBar = ref<boolean>(false);
     const loading = ref<boolean>(false);
@@ -1282,35 +1283,38 @@ export default defineComponent({
     });
 
     async function getWorksites() {
-      mapLoading.value = true;
-      const response = await loadCasesCached({
-        ...worksiteQuery.value,
-      });
-      mapLoading.value = false;
-
-      if ($can('beta_feature.enable_feed') || $can('development_mode')) {
-        loadCaseImagesCached({
-          ...worksiteQuery.value,
-        }).then((response) => {
-          caseImages.value = response.results;
-        });
+      pendingMapRequests.value += 1;
+      try {
+        const response = await loadCasesCached({ ...worksiteQuery.value });
+        if ($can('beta_feature.enable_feed') || $can('development_mode')) {
+          loadCaseImagesCached({ ...worksiteQuery.value })
+            .then((response) => {
+              caseImages.value = response.results;
+            })
+            .catch(getErrorMessage);
+        }
+        return response.results;
+      } finally {
+        pendingMapRequests.value -= 1;
       }
-      return response.results;
     }
 
     async function getAllWorksites() {
-      mapLoading.value = true;
-      const response = await loadCasesCached({
-        incident: currentIncidentId.value,
-      });
-      mapLoading.value = false;
-      allWorksiteCount.value = response.results.length;
-      uniqueSviCount.value = new Set(
-        response.results
-          .map((w: { svi?: number | null }) => w.svi)
-          .filter((svi: number | null | undefined) => svi != undefined),
-      ).size;
-      return response.results;
+      pendingMapRequests.value += 1;
+      try {
+        const response = await loadCasesCached({
+          incident: currentIncidentId.value,
+        });
+        allWorksiteCount.value = response.results.length;
+        uniqueSviCount.value = new Set(
+          response.results
+            .map((w: { svi?: number | null }) => w.svi)
+            .filter((svi: number | null | undefined) => svi != null),
+        ).size;
+        return response.results;
+      } finally {
+        pendingMapRequests.value -= 1;
+      }
     }
 
     // Filter changes can start several reloads at once. Only the newest one
@@ -2122,48 +2126,48 @@ export default defineComponent({
       }
       isInitializingMap = true;
 
-      if (mapUtils) {
-        // Save the last position before the map goes. On an incident
-        // change (force), it belongs to the previous incident: drop it.
-        if (force) {
-          saveMapViewPort.cancel();
-        } else {
-          saveMapViewPort.flush();
+      try {
+        if (mapUtils) {
+          // Save the last position before the map goes. On an incident
+          // change (force), it belongs to the previous incident: drop it.
+          if (force) {
+            saveMapViewPort.cancel();
+          } else {
+            saveMapViewPort.flush();
+          }
+
+          destroyLeafletMap(mapUtils.getMap());
+          mapUtils = null;
         }
 
-        destroyLeafletMap(mapUtils.getMap());
-        mapUtils = null;
-      }
+        const requestId = ++mapDataRequestId;
+        const [allWorksites, markers] = await Promise.all([
+          getAllWorksites(),
+          getWorksites(),
+        ]);
+        if (requestId === mapDataRequestId) {
+          filteredWorksiteCount.value = countCases(markers);
+        }
 
-      const requestId = ++mapDataRequestId;
-      const [allWorksites, markers] = await Promise.all([
-        getAllWorksites(),
-        getWorksites(),
-      ]);
-      if (requestId === mapDataRequestId) {
-        filteredWorksiteCount.value = countCases(markers);
-      }
+        if (route.query.work_type__claimed_by) {
+          Organization.api().get(
+            `/organizations/${route.query.work_type__claimed_by}`,
+          );
+        }
 
-      if (route.query.work_type__claimed_by) {
-        Organization.api().get(
-          `/organizations/${route.query.work_type__claimed_by}`,
+        const states = currentUser?.value?.getStatesForIncident(
+          currentIncidentId.value,
+          true,
         );
-      }
+        let bounds;
+        if (states.mapViewPort) {
+          const { _northEast, _southWest } = states.mapViewPort;
+          bounds = [
+            [_northEast.lat, _northEast.lng],
+            [_southWest.lat, _southWest.lng],
+          ];
+        }
 
-      const states = currentUser?.value?.getStatesForIncident(
-        currentIncidentId.value,
-        true,
-      );
-      let bounds;
-      if (states.mapViewPort) {
-        const { _northEast, _southWest } = states.mapViewPort;
-        bounds = [
-          [_northEast.lat, _northEast.lng],
-          [_southWest.lat, _southWest.lng],
-        ];
-      }
-
-      try {
         mapUtils = useWorksiteMap(
           allWorksites,
           markers.map((m: { id: any }) => m.id),
