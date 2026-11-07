@@ -162,7 +162,7 @@
     "vue3-promise-dialog": "^0.3.4",
     "vuedraggable": "^4.1.0",
     "vuex": "^4.1.0",
-    "zod": "^3.23.0"
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
