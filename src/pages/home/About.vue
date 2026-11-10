@@ -201,13 +201,13 @@
         <div class="flex flex-col items-center px-5 sm:px-0">
           <img src="@/assets/headshots/ginanewby.jpg" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Gina Newby</span><br />
-            {{ $t('about.gina_newby_title') }}
+            <span class="font-bold">Lene Dotzler</span><br />
+            {{ $t('about.lene_dotzler_title') }}
           </p>
           <base-text
             variant="body"
             class="pt-2"
-            v-html="$t('about.gina_newby_bio')"
+            v-html="$t('about.lene_dotzler_bio')"
           >
           </base-text>
         </div>
@@ -263,34 +263,6 @@
         <!-- Headshots -->
 
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/sam_brown.png" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Sam Brown</span><br />
-            {{ $t('about.sam_brown_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.sam_brown_bio')"
-          >
-          </base-text>
-        </div>
-
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/daniel_hebert.png" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Daniel Hebert</span><br />
-            {{ $t('about.daniel_hebert_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.daniel_hebert_bio')"
-          >
-          </base-text>
-        </div>
-
-        <div class="flex flex-col items-center px-5 sm:px-0">
           <img src="@/assets/headshots/triston_lewis.png" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Triston Lewis</span><br />
@@ -305,20 +277,6 @@
         </div>
 
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/bradenmars.jpg" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Braden Mars</span><br />
-            {{ $t('about.braden_mars_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.braden_mars_bio')"
-          >
-          </base-text>
-        </div>
-
-        <div class="flex flex-col items-center px-5 sm:px-0">
           <img src="@/assets/headshots/deeppanchal.jpg" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Deep Panchal</span><br />
@@ -328,20 +286,6 @@
             variant="body"
             class="pt-2"
             v-html="$t('about.deep_panchal_bio')"
-          >
-          </base-text>
-        </div>
-
-        <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/jaimi_sun.png" class="m-5" />
-          <p class="text-3xl px-0.5 pb-5">
-            <span class="font-bold">Jaimi Sun</span><br />
-            {{ $t('about.jaimi_sun_title') }}
-          </p>
-          <base-text
-            variant="body"
-            class="pt-2"
-            v-html="$t('about.jaimi_sun_bio')"
           >
           </base-text>
         </div>
@@ -394,6 +338,77 @@
       </h1>
 
       <div class="images-grid sm:grid-cols-3" data-testid="testAlumniDiv">
+
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <!--<img src="@/assets/headshots/ginanewby.jpg" class="m-5" />-->
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Gina Newby</span><br />
+            {{ $t('about.gina_newby_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.gina_newby_bio')"
+          >
+          </base-text>
+        </div>
+
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <!--<img src="@/assets/headshots/sam_brown.png" class="m-5" />-->
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Sam Brown</span><br />
+            {{ $t('about.sam_brown_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.sam_brown_bio')"
+          >
+          </base-text>
+        </div>
+
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <!--<img src="@/assets/headshots/daniel_hebert.png" class="m-5" />-->
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Daniel Hebert</span><br />
+            {{ $t('about.daniel_hebert_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.daniel_hebert_bio')"
+          >
+          </base-text>
+        </div>
+
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <!--<img src="@/assets/headshots/bradenmars.jpg" class="m-5" />-->
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Braden Mars</span><br />
+            {{ $t('about.braden_mars_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.braden_mars_bio')"
+          >
+          </base-text>
+        </div>
+
+        <div class="flex flex-col items-center px-5 sm:px-0">
+          <!--<img src="@/assets/headshots/jaimi_sun.png" class="m-5" />-->
+          <p class="text-3xl px-0.5 pb-5">
+            <span class="font-bold">Jaimi Sun</span><br />
+            {{ $t('about.jaimi_sun_title') }}
+          </p>
+          <base-text
+            variant="body"
+            class="pt-2"
+            v-html="$t('about.jaimi_sun_bio')"
+          >
+          </base-text>
+        </div>
+
         <div class="flex flex-col items-center px-5 sm:px-0">
           <!--<img src="@/assets/headshots/dankaupilla.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">

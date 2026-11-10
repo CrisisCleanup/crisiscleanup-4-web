@@ -185,7 +185,7 @@ const fromEmailOptions = [
   },
   { value: 'aaron', label: 'Aaron Titus (aaron@crisiscleanup.org)' },
   { value: 'jeri', label: 'Jeri Curry (jeri@crisiscleanup.org)' },
-  { value: 'gina', label: 'Gina Newby (gina@crisiscleanup.org)' },
+  { value: 'lene', label: 'Lene Dotzler (lene@crisiscleanup.org)' },
   { value: 'ross', label: 'Ross Arroyo (ross@crisiscleanup.org)' },
 ];
 
