@@ -228,6 +228,7 @@ onMounted(async () => {
                     "
                     :pdf="asset.files[0]"
                     :show-download-button="false"
+                    lazy
                     @click-pdf="() => downloadAsset(asset, true)"
                   />
                   <img

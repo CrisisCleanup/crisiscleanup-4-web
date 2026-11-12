@@ -66,6 +66,7 @@
                       :pdf="asset.files[0]"
                       :show-download-button="false"
                       :width="75"
+                      lazy
                     />
                     <img
                       v-else
