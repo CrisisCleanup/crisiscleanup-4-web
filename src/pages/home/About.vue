@@ -581,13 +581,27 @@
       >
         <div class="flex flex-col items-center justify-start">
           <img
-            src="@/assets/partners/fdem_logo.jpg"
+            src="@/assets/partners/co_dhsem_logo.jpeg"
             class="m-5 h-24 w-auto object-contain"
           />
           <p class="text-xl text-center px-0.5 pb-5">
             <span class="font-bold"
-              ><a href="https://www.facebook.com/FLSERT/" target="_blank"
-                >Florida Division of Emergency Management</a
+              ><a href="https://dhsem.colorado.gov/" target="_blank"
+                >Colorado DHSEM</a
+              ></span
+            >
+          </p>
+        </div>
+
+        <div class="flex flex-col items-center justify-start">
+          <img
+            src="@/assets/partners/serve_alabama_logo.jpg"
+            class="m-5 h-24 w-auto object-contain"
+          />
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.servealabama.gov/" target="_blank"
+                >Alabama Governor’s Office of Volunteer Services</a
               ></span
             >
           </p>
@@ -631,6 +645,18 @@
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
         data-testid="testPastSupporters"
       >
+
+        <div class="flex flex-col items-center justify-start">
+          <!--<img src="@/assets/partners/fdem_logo.jpg" class="m-5 h-24 w-auto object-contain" />-->
+          <p class="text-xl text-center px-0.5 pb-5">
+            <span class="font-bold"
+              ><a href="https://www.facebook.com/FLSERT/" target="_blank"
+                >Florida Division of Emergency Management</a
+              ></span
+            >
+          </p>
+        </div>
+
         <div class="flex flex-col items-center justify-start min-h-[120px]">
           <!--<img src="@/assets/partners/arc_logo.jpg" class="m-5" />-->
           <p class="text-lg text-center px-2 pb-3">
