@@ -551,7 +551,7 @@ export default defineComponent({
 
       const formHeight = `${topHeight}px`;
       return {
-        'grid-template-rows': `auto calc(100vh - ${formHeight} - var(--safe-area-inset-bottom)) 80px`,
+        'grid-template-rows': `auto calc(var(--cc-viewport-height) - ${formHeight} - var(--safe-area-inset-bottom)) 80px`,
       };
     });
 

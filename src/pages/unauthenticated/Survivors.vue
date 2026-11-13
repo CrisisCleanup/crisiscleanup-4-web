@@ -371,7 +371,7 @@
          form replaces it, so the page does not jump when the token arrives. -->
     <section
       v-else-if="!tokenLoaded"
-      class="min-h-screen flex justify-center pt-16"
+      class="min-h-viewport flex justify-center pt-16"
       data-testid="testSurvivorLoadingDiv"
     >
       <spinner />

@@ -18,7 +18,7 @@
           :text="$t('actions.logout')"
           :alt="$t('actions.logout')"
           variant="solid"
-          class="px-6 p-3 logout-button"
+          class="px-6 p-3"
           :action="logout"
         >
           {{ $t('actions.logout') }}
@@ -47,10 +47,5 @@ export default defineComponent({
 <style>
 .verification-modal a {
   @apply text-primary-dark underline;
-}
-@media only screen and (max-width: 1223px) and (orientation: landscape) {
-  .logout-button {
-    @apply w-full m-2;
-  }
 }
 </style>

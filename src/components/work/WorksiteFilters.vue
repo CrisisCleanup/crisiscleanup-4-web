@@ -1347,12 +1347,7 @@ export default defineComponent({
 
 <style scoped>
 .modal-item {
-  height: 450px;
+  height: min(450px, calc(var(--cc-viewport-height) * 0.68));
   overflow: auto;
-}
-@media only screen and (max-width: 1223px) and (orientation: landscape) {
-  .modal-item {
-    height: 68vh;
-  }
 }
 </style>

@@ -952,11 +952,6 @@ export default defineComponent({
 
 .map-item {
   position: relative;
-  min-height: 400px;
-}
-@media only screen and (max-width: 1223px) and (orientation: landscape) {
-  .map-item {
-    min-height: 200px;
-  }
+  min-height: min(400px, calc(var(--cc-viewport-height) * 0.5));
 }
 </style>

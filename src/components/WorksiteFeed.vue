@@ -1,7 +1,7 @@
 <template>
   <div
     ref="feed"
-    class="feed overflow-auto p-3 mt-16 md:mt-0 relative md:min-h-[calc(100vh-13rem)] md:h-[calc(100vh-13rem)]"
+    class="feed overflow-auto p-3 mt-16 md:mt-0 relative md:min-h-[calc(var(--cc-viewport-height)-13rem)] md:h-[calc(var(--cc-viewport-height)-13rem)]"
   >
     <template v-if="currentFeedItem">
       <transition :name="slideDirection" mode="out-in" :style="cssVars">

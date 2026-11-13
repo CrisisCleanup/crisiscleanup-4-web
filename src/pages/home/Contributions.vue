@@ -78,22 +78,4 @@ export default defineComponent({
 .doc-link {
   @apply text-base;
 }
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      'nav . main main main .'
-      'nav . main main main .'
-      'actions actions main main main .'
-      '. . main main main .';
-    overflow: auto;
-
-    .grid {
-      &--overlay {
-        grid-row: 1 / span 5;
-        grid-column: 1 / span 3;
-      }
-    }
-  }
-}
 </style>

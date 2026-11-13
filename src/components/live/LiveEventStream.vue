@@ -46,7 +46,7 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { momentFromNow } from '@/filters';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 
 interface Event {
   id: string;
@@ -66,7 +66,7 @@ export default defineComponent({
   name: 'LiveEventStream',
   setup() {
     const { t } = useI18n();
-    const mq = useMq();
+    const { isMobile, isLargeScreen } = useViewport();
 
     const cards = ref<EventCard[]>([]);
 
@@ -74,7 +74,7 @@ export default defineComponent({
       // Civic-bulletin aesthetic — visible activity at every viewport.
       // The pre-redesign default of "1 row on mobile" made the feed look
       // dead on a phone even when the back-end was busy.
-      const limit = mq.sm ? 5 : mq.lgPlus ? 8 : 6;
+      const limit = isMobile.value ? 5 : isLargeScreen.value ? 8 : 6;
       return cards.value.slice(0, limit);
     });
 

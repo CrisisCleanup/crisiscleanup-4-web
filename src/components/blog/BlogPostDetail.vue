@@ -1,7 +1,7 @@
 <template>
   <main
     v-if="author"
-    class="bg-crisiscleanup-light-smoke antialiased flex flex-col h-max min-h-screen"
+    class="bg-crisiscleanup-light-smoke antialiased flex flex-col h-max min-h-viewport"
   >
     <div class="mx-auto bg-crisiscleanup-light-smoke flex-grow">
       <article

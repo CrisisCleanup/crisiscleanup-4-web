@@ -1,16 +1,16 @@
 <template>
-  <div v-if="mq" class="ccu-table-card w-full">
+  <div class="ccu-table-card w-full">
     <div v-if="$slots.toolbar" class="ccu-table-toolbar">
       <slot name="toolbar" />
     </div>
     <div class="table-grid js-table w-full">
       <div
-        v-if="!hideHeader && !mq.mdMinus"
+        v-if="!hideHeader && !isMobile"
         class="header text-crisiscleanup-grey-900 bg-crisiscleanup-smoke"
         :style="gridStyleHeader"
       >
         <div
-          v-if="enableSelection && !mq.mdMinus"
+          v-if="enableSelection && !isMobile"
           class="flex items-center px-3 py-2.5 border-b bg-crisiscleanup-smoke"
         >
           <base-checkbox
@@ -20,7 +20,7 @@
           />
         </div>
         <div
-          v-if="hasRowDetails && !mq.mdMinus"
+          v-if="hasRowDetails && !isMobile"
           class="flex items-center px-3 py-2.5 border-b bg-crisiscleanup-smoke"
         ></div>
         <div
@@ -136,7 +136,7 @@
           @click="rowClick(item, $event)"
         >
           <div
-            v-if="enableSelection && !mq.mdMinus"
+            v-if="enableSelection && !isMobile"
             class="flex items-center p-2"
           >
             <base-checkbox
@@ -150,10 +150,7 @@
               "
             />
           </div>
-          <div
-            v-if="hasRowDetails && !mq.mdMinus"
-            class="flex items-center p-2"
-          >
+          <div v-if="hasRowDetails && !isMobile" class="flex items-center p-2">
             <font-awesome-icon
               class="cursor-pointer"
               size="md"
@@ -176,7 +173,7 @@
             @click="handleColumnAction(column, item[column.key], item)"
           >
             <slot :name="column.key" :item="item">
-              <span v-if="mq.mdMinus" class="font-semibold mr-2">
+              <span v-if="isMobile" class="font-semibold mr-2">
                 {{ column.title }}:
               </span>
               <template
@@ -220,7 +217,7 @@
         class="footer flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 border-t border-crisiscleanup-grey-100"
       >
         <div
-          v-if="!mq.mdMinus"
+          v-if="!isMobile"
           class="flex items-center gap-2 text-[12px] text-crisiscleanup-grey-900"
         >
           <span>{{ $t('tableVue.per_page') }}</span>
@@ -235,7 +232,7 @@
             @update:model-value="onSelectPageSize"
           />
         </div>
-        <div v-if="!mq.mdMinus">
+        <div v-if="!isMobile">
           <div class="flex items-center gap-1 js-page-triggers">
             <button
               type="button"
@@ -314,7 +311,7 @@
 <script lang="ts">
 import type { PropType, StyleValue } from 'vue';
 import { computed, ref, defineComponent } from 'vue';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import { exportCSVFile } from '../utils/downloads';
 import useLogEvent from '@/hooks/useLogEvent';
 
@@ -428,7 +425,7 @@ export default defineComponent({
     'rowClick',
   ],
   setup(props, { emit }) {
-    const mq = useMq();
+    const { isMobile } = useViewport();
 
     const pageSizes = [5, 10, 20, 100, 500, 1000];
     const visiblePagesCount = 5;
@@ -506,7 +503,7 @@ export default defineComponent({
     const gridStyleRow = computed(() => {
       return {
         display: 'grid',
-        'grid-template-columns': mq.mdMinus ? 'auto' : gridTemplate.value,
+        'grid-template-columns': isMobile.value ? 'auto' : gridTemplate.value,
         ...props.rowStyle,
       };
     });
@@ -694,7 +691,7 @@ export default defineComponent({
       exportTableCSV,
       handleColumnAction,
       internalColumnSearch,
-      mq,
+      isMobile,
     };
   },
 });

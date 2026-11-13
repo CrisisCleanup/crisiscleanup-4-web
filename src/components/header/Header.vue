@@ -12,7 +12,7 @@
         searchable
         item-key="id"
         label="label"
-        class="ccu-incident-picker min-w-[320px]"
+        class="ccu-incident-picker w-[320px] min-w-[160px] shrink"
         @update:model-value="
           (payload: string) => $emit('update:incident', payload)
         "
@@ -84,7 +84,7 @@
         </template>
       </BaseSelect>
 
-      <div v-if="can('development_mode')" class="flex gap-2">
+      <div v-if="can('development_mode')" class="hidden lg:flex gap-2">
         <base-button
           class="p-1.5"
           variant="solid"
@@ -112,7 +112,7 @@
       </div>
     </div>
 
-    <div class="flex h-full items-center gap-3.5">
+    <div class="flex h-full flex-none items-center gap-3.5">
       <div
         v-if="can && can('phone_agent')"
         class="flex items-center"

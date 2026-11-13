@@ -1,5 +1,5 @@
 <template>
-  <template v-if="mq.mdMinus">
+  <template v-if="isMobile">
     <div
       v-if="!isEditing && !isNew"
       class="fixed inset-x-0 top-12 bottom-16 flex flex-col"
@@ -162,23 +162,6 @@
             {{ currentIncident?.short_name }}</span
           >
         </div>
-        <base-button
-          v-if="$mq === 'sm'"
-          data-testid="testShowMapIcon"
-          type="bare"
-          icon="map"
-          class="text-gray-700 pt-2"
-          :action="
-            () => {
-              showMobileMap = true;
-              $nextTick(() => {
-                map.invalidateSize();
-              });
-            }
-          "
-          :text="$t('casesVue.show_map')"
-          :alt="$t('casesVue.show_map')"
-        />
       </div>
       <div v-if="showingDetails" class="phone-system__form-toggler">
         <base-button
@@ -193,7 +176,12 @@
             }
           "
         />
-        <span class="text-base">{{ $t('actions.history') }}</span>
+        <span v-if="showHistory" class="text-base">{{
+          $t('actions.history')
+        }}</span>
+        <span v-else-if="showFlags" class="text-base">{{
+          $t('actions.flag')
+        }}</span>
         <div></div>
       </div>
       <div class="flex-1 min-h-0 overflow-y-auto">
@@ -203,6 +191,25 @@
           :incident-id="currentIncidentId"
           :worksite-id="worksiteId"
         ></CaseHistory>
+        <CaseFlag
+          v-else-if="showFlags"
+          data-testid="testShowFlagsDiv"
+          :incident-id="String(currentIncidentId)"
+          :worksite-id="worksiteId"
+          @reload-case="
+            () => {
+              reloadCase();
+              showFlags = false;
+            }
+          "
+          @reload-map="
+            () => {
+              reloadMap();
+              showFlags = false;
+            }
+          "
+          @clear-case="clearCase"
+        ></CaseFlag>
         <WorksiteForm
           v-else
           ref="worksiteForm"
@@ -451,23 +458,6 @@
               {{ currentIncident?.short_name }}</span
             >
           </div>
-          <base-button
-            v-if="$mq === 'sm'"
-            data-testid="testShowMapIcon"
-            type="bare"
-            icon="map"
-            class="text-gray-700 pt-2"
-            :action="
-              () => {
-                showMobileMap = true;
-                $nextTick(() => {
-                  map.invalidateSize();
-                });
-              }
-            "
-            :text="$t('casesVue.show_map')"
-            :alt="$t('casesVue.show_map')"
-          />
         </div>
         <div v-if="showingDetails" class="phone-system__form-toggler">
           <base-button
@@ -553,7 +543,7 @@ import { useStore } from 'vuex';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import moment from '@/utils/dates';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import PhoneComponentButton from '../../components/phone/PhoneComponentButton.vue';
 import ManualDialer from '../../components/phone/ManualDialer.vue';
 import AjaxTable from '../../components/AjaxTable.vue';
@@ -660,7 +650,7 @@ export default defineComponent({
     const store = useStore();
     const { currentUser, isPhoneAgent, addUserRole } = useCurrentUser();
     const phoneService = reactive(usePhoneService());
-    const mq = useMq();
+    const { isMobile } = useViewport();
 
     const { updateUserStates } = useCurrentUser();
 
@@ -686,7 +676,6 @@ export default defineComponent({
     const searchingWorksites = ref(false);
     const dialing = ref(false);
     const tabs = ref(null);
-    const showMobileMap = ref(false);
     const remainingCallbacks = ref(0);
     const remainingCalldowns = ref(0);
     const unreadNewsCount = ref(0);
@@ -1443,15 +1432,6 @@ export default defineComponent({
     }
 
     watch(
-      () => worksiteId.value,
-      (newValue, oldValue) => {
-        if (oldValue !== newValue) {
-          showMobileMap.value = false;
-        }
-      },
-    );
-
-    watch(
       () => isOnCall.value,
       (newValue, oldValue) => {
         if (oldValue && !newValue) {
@@ -1549,7 +1529,6 @@ export default defineComponent({
       searchingWorksites,
       dialing,
       tabs,
-      showMobileMap,
       remainingCallbacks,
       remainingCalldowns,
       unreadNewsCount,
@@ -1610,7 +1589,7 @@ export default defineComponent({
       reportBug,
       reloadMap,
       reloadCase,
-      mq,
+      isMobile,
       showingSearchModal,
       mobileSearch,
       can: $can,

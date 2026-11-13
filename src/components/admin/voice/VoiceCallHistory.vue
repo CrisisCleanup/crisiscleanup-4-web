@@ -120,7 +120,7 @@
         }}</span>
       </template>
       <template #cases="{ item }">
-        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+        <span v-if="isMobile" class="mr-2 font-semibold"
           >{{ t('~~Case') }}:</span
         >
         <VoiceCaseLinks :session="item" />
@@ -129,7 +129,7 @@
         <VoiceFlagPills :flags="item.flags ?? []" />
       </template>
       <template #open_issues="{ item }">
-        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+        <span v-if="isMobile" class="mr-2 font-semibold"
           >{{ t('~~Open issues') }}:</span
         >
         <router-link
@@ -147,7 +147,7 @@
         <span v-else class="text-crisiscleanup-dark-300">—</span>
       </template>
       <template #duration_seconds="{ item }">
-        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+        <span v-if="isMobile" class="mr-2 font-semibold"
           >{{ t('~~Length') }}:</span
         >
         <span class="tabular-nums">
@@ -159,7 +159,7 @@
         </span>
       </template>
       <template #estimated_cost_usd="{ item }">
-        <span v-if="mq.mdMinus" class="mr-2 font-semibold"
+        <span v-if="isMobile" class="mr-2 font-semibold"
           >{{ t('~~Est. model cost') }}:</span
         >
         <span class="tabular-nums">
@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import AjaxTable from '@/components/AjaxTable.vue';
 import { makeTableColumns } from '@/utils/table';
 import { formatClock } from '@/hooks/voice/voiceConsoleState';
@@ -192,7 +192,7 @@ import VoiceFlagPills from './VoiceFlagPills.vue';
 import VoiceHistoryStrip from './VoiceHistoryStrip.vue';
 
 const { t } = useI18n();
-const mq = useMq();
+const { isMobile } = useViewport();
 const router = useRouter();
 const { emitter } = useEmitter();
 

@@ -28,7 +28,7 @@
           :text="$t('actions.accept')"
           :alt="$t('actions.accept')"
           variant="solid"
-          class="px-6 p-3 accept-button"
+          class="px-6 p-3"
           :action="
             () => {
               $emit('acceptedTerms');
@@ -63,13 +63,5 @@ export default defineComponent({
 }
 .tos {
   @apply p-3;
-}
-@media only screen and (max-width: 1223px) and (orientation: landscape) {
-  .accept-button {
-    @apply w-full m-2;
-  }
-  .tos {
-    @apply px-3;
-  }
 }
 </style>

@@ -36,48 +36,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid:
-      [r1] 'logo . main main main main survivors' 20% [r1end]
-      [r2] 'nav . main main main main main' [r2end]
-      [r3] 'actions . main main main main main' [r3end]
-      [r4] '. . . . footer footer .' [r4end]
-      / auto;
-
-    .grid {
-      &--main {
-        align-self: center;
-        @apply sm:mx-10 h-full;
-        overflow: auto;
-        grid-row: main-start / span actions-end;
-      }
-      &--overlay {
-        grid-column: 1 / span 5;
-      }
-      &--footer {
-        height: auto;
-        display: flex;
-        justify-content: space-evenly;
-        @apply my-1;
-      }
-    }
-  }
-}
-@media only screen and (max-width: 640px) {
-  .homegrid {
-    height: 100vh;
-    &.grid-container {
-      grid:
-        [r1] 'logo survivors' [r1end]
-        [r4] 'nav nav' [r4end]
-        [r2] 'main main' [r2end]
-        [r3] 'actions actions' [r3end]
-        / auto;
-      grid-template-rows: 0.5fr 0.5fr 4fr 1fr;
-    }
-  }
-}
 .resp-video {
   position: absolute;
   top: 0;

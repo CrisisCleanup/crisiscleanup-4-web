@@ -1,7 +1,7 @@
 <template>
   <template v-if="isPageReady">
     <!-- For mobile screens -->
-    <template v-if="mq.mdMinus">
+    <template v-if="isMobile">
       <div class="flex flex-col">
         <header
           class="fixed inset-x-0 top-0 h-12 z-header bg-white border-b border-crisiscleanup-grey-100 flex items-center px-3 gap-2"
@@ -178,23 +178,7 @@
     <!-- For desktop screens -->
     <template v-else>
       <div class="layout" data-testid="testIsAuthenticatedDiv">
-        <div
-          class="sidebar h-full overflow-auto"
-          :class="{ 'slide-over': slideOverVisible }"
-        >
-          <div
-            v-if="slideOverVisible"
-            class="flex items-center justify-end p-1.5"
-          >
-            <font-awesome-icon
-              icon="times"
-              :alt="$t('nav.hide_navigation')"
-              data-testid="testAuthenticatedToggleIcon"
-              class="menu-button mx-2 cursor-pointer text-white self-end"
-              size="2xl"
-              @click="toggle"
-            />
-          </div>
+        <div class="sidebar h-full overflow-auto">
           <NavMenu
             :key="route"
             :routes="routes"
@@ -203,14 +187,6 @@
           />
         </div>
         <div class="header flex items-center">
-          <font-awesome-icon
-            icon="bars"
-            :alt="$t('nav.show_navigation')"
-            data-testid="testHamburgerIcon"
-            class="menu-button mx-3 cursor-pointer"
-            size="2xl"
-            @click="toggle"
-          />
           <Header
             :current-incident="currentIncident"
             :incidents="incidents"
@@ -219,41 +195,39 @@
           />
         </div>
         <main class="main">
-          <div class="h-full overflow-auto w-screen md:w-auto">
+          <div class="h-full overflow-auto">
             <slot />
           </div>
         </main>
-        <template v-if="showAcceptTermsModal">
-          <TermsandConditionsModal
-            :organization="currentOrganization"
-            data-testid="testShowAcceptTermsModal"
-            @accepted-terms="acceptTermsAndConditions"
-          />
-        </template>
-        <template
-          v-if="
-            currentOrganization &&
-            (!currentOrganization.is_active || !currentOrganization.is_verified)
-          "
-        >
-          <OrganizationInactiveModal @user-logged-out="logoutApp" />
-        </template>
-        <div v-if="showLoginModal">
-          <modal
-            modal-classes="bg-white max-w-lg shadow p-5"
-            :closeable="false"
-          >
-            <LoginForm :redirect="false" />
-            <template #footer>
-              <div></div>
-            </template>
-          </modal>
-        </div>
       </div>
     </template>
+
+    <TermsandConditionsModal
+      v-if="showAcceptTermsModal"
+      :organization="currentOrganization"
+      data-testid="testShowAcceptTermsModal"
+      @accepted-terms="acceptTermsAndConditions"
+    />
+    <OrganizationInactiveModal
+      v-if="
+        currentOrganization &&
+        (!currentOrganization.is_active || !currentOrganization.is_verified)
+      "
+      @user-logged-out="logoutApp"
+    />
+    <modal
+      v-if="showLoginModal"
+      modal-classes="bg-white max-w-lg shadow p-5"
+      :closeable="false"
+    >
+      <LoginForm :redirect="false" />
+      <template #footer>
+        <div></div>
+      </template>
+    </modal>
   </template>
   <!--   Page spinner -->
-  <div v-else class="flex h-screen items-center justify-center">
+  <div v-else class="flex h-viewport items-center justify-center">
     <spinner show-quote allow-reset />
   </div>
 </template>
@@ -265,7 +239,7 @@ import { useAsyncState } from '@vueuse/core';
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import Incident from '@/models/Incident';
 import Organization from '@/models/Organization';
 import Language from '@/models/Language';
@@ -298,7 +272,6 @@ import useEmitter from '@/hooks/useEmitter';
 import AppDownloadLinks from '@/components/AppDownloadLinks.vue';
 import OrganizationInactiveModal from '@/components/modals/OrganizationInactiveModal.vue';
 import { getErrorMessage } from '@/utils/errors';
-import { isLandscape } from '@/utils/helpers';
 import createDebug from 'debug';
 import type { Portal } from '@/models/types';
 import { VERSION_3_LAUNCH_DATE } from '@/constants';
@@ -323,7 +296,7 @@ export default defineComponent({
     LucideMenu,
   },
   setup() {
-    const mq = useMq();
+    const { isMobile } = useViewport();
 
     const {
       currentUser,
@@ -352,7 +325,6 @@ export default defineComponent({
     const { emitter } = useEmitter();
     const { routes } = useAuthenticatedRoutes();
 
-    const slideOverVisible = ref(false);
     const showAcceptTermsModal = ref(false);
     const showingMoreLinks = ref(false);
 
@@ -409,10 +381,6 @@ export default defineComponent({
     const incidentFieldsStr = computedEager(() =>
       Incident.basicFields().join(','),
     );
-
-    const toggle = () => {
-      slideOverVisible.value = !slideOverVisible.value;
-    };
 
     const currentOrganization = computed(() =>
       Organization.find(currentUser?.value?.organization?.id),
@@ -672,10 +640,7 @@ export default defineComponent({
       acceptTermsAndConditions,
       logoutApp: () => authStore.logout(),
       handleChange,
-      isLandscape,
-      slideOverVisible,
-      toggle,
-      mq,
+      isMobile,
       showIncidentSelectionModal,
     };
   },
@@ -685,64 +650,44 @@ export default defineComponent({
 <style lang="postcss" scoped>
 .layout {
   width: 100vw;
-  height: 100vh;
+  height: var(--cc-viewport-height);
   display: grid;
-  grid-template-rows: 80px 1fr;
-  grid-auto-columns: 1fr;
-  grid-auto-rows: 1fr;
-  grid-auto-flow: row;
+  /* `minmax(0, 1fr)` and not `1fr`: the column must not grow to the width of
+     the header content, or the page scrolls sideways on a narrow screen. */
+  grid-template-columns: calc(96px + env(safe-area-inset-left)) minmax(0, 1fr);
+  grid-template-rows: 64px 1fr;
   grid-template-areas:
-    'header'
-    'main';
+    'sidebar header'
+    'sidebar main';
   padding-bottom: env(safe-area-inset-bottom);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* On a short screen the shell gives its height and width to the page: the
+   header is lower, and the sidebar shows icons without labels. */
+@media (max-height: 500px) {
+  .layout {
+    grid-template-columns: calc(56px + env(safe-area-inset-left)) minmax(0, 1fr);
+    grid-template-rows: 48px 1fr;
+  }
 }
 
 .sidebar {
-  @apply bg-crisiscleanup-dark-500 z-sidebar;
+  @apply z-sidebar;
   grid-area: sidebar;
-  display: none;
-}
-
-.sidebar.slide-over {
-  display: block;
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 150px;
-  height: 100%;
+  background-color: theme('colors.crisiscleanup-dark.900');
+  padding-left: env(safe-area-inset-left);
 }
 
 .header {
   grid-area: header;
+  min-width: 0;
 }
 
 .main {
   grid-area: main;
   min-height: 0;
   min-width: 0;
-}
-
-@media (min-width: 768px) {
-  .layout {
-    display: grid;
-    grid-template-columns: 96px 1fr;
-    grid-template-rows: 64px 1fr;
-    grid-auto-columns: 1fr;
-    grid-auto-rows: 1fr;
-    grid-auto-flow: row;
-    grid-template-areas:
-      'sidebar header'
-      'sidebar main';
-  }
-
-  .sidebar {
-    display: block;
-    background-color: theme('colors.crisiscleanup-dark.900');
-  }
-
-  .menu-button {
-    display: none;
-  }
 }
 
 .incident-tile :deep(.standard-icon),

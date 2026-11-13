@@ -83,7 +83,11 @@ const verifyOtpAndLogin = async () => {
             {{ $t('loginWithPhone.get_code') }}
           </div>
         </section>
-        <form ref="form" class="w-108 flex flex-col gap-4" autocomplete="off">
+        <form
+          ref="form"
+          class="w-108 max-w-full flex flex-col gap-4"
+          autocomplete="off"
+        >
           <PhoneNumberInput
             v-model="phoneNumber"
             data-testid="testPhoneNumberInput"
@@ -106,7 +110,7 @@ const verifyOtpAndLogin = async () => {
           v-if="showOtpCodeModal"
           data-testid="testShowRequestAccessModalModal"
           :title="$t('loginWithPhone.code_verification')"
-          modal-classes="w-108"
+          modal-classes="w-108 max-w-full"
           @close="showOtpCodeModal = false"
         >
           <div class="flex justify-around m-5">

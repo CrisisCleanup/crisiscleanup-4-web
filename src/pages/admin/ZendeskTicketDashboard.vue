@@ -2,7 +2,7 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import * as _ from 'lodash-es';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import TicketCards from '@/components/Tickets/TicketCards.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import type {
@@ -34,7 +34,7 @@ import {
   getTicketFieldValue,
 } from '@/utils/zendeskTickets';
 
-const mq = useMq();
+const { isMobile } = useViewport();
 const { emitter } = useEmitter();
 const { t } = useI18n();
 const axiosInstance = axios.create({
@@ -581,20 +581,20 @@ onMounted(() => {
       @row-click="(v) => showTicketModal(v)"
     >
       <template #status="slotProps">
-        <span v-if="mq.mdMinus" class="font-bold">Status: </span>
+        <span v-if="isMobile" class="font-bold">Status: </span>
         <div :class="[slotProps.item.status + '-tag', 'ticket-status text-xl']">
           {{ capitalize(slotProps.item.status) }}
         </div>
       </template>
       <template #created_at="slotProps">
         <BaseText
-          ><span v-if="mq.mdMinus" class="font-bold">Created At: </span>
+          ><span v-if="isMobile" class="font-bold">Created At: </span>
           {{ momentFromNow(slotProps.item.created_at) }}
         </BaseText>
       </template>
 
       <template #account_type="slotProps">
-        <span v-if="mq.mdMinus" class="font-bold">Account Type: </span>
+        <span v-if="isMobile" class="font-bold">Account Type: </span>
         <div
           v-if="slotProps.item.user.ccu_user"
           style="color: #3498db"
@@ -613,7 +613,7 @@ onMounted(() => {
       </template>
 
       <template #roles="slotProps">
-        <span v-if="mq.mdMinus" class="font-bold">Roles: </span>
+        <span v-if="isMobile" class="font-bold">Roles: </span>
         <UserRolesSelect
           v-if="slotProps.item.user.ccu_user"
           style="pointer-events: none"
@@ -627,14 +627,14 @@ onMounted(() => {
       </template>
       <template #assignee="slotProps">
         <BaseText
-          ><span v-if="mq.mdMinus" class="font-bold">Assignee: </span>
+          ><span v-if="isMobile" class="font-bold">Assignee: </span>
           {{ findAgentName(slotProps.item.assignee_id) ?? '-' }}
         </BaseText>
       </template>
       <template #app="slotProps">
         <div class="flex-row md:justify-center md:items-center md:w-full">
           <BaseText>
-            <span v-if="mq.mdMinus" class="font-bold">App: </span>
+            <span v-if="isMobile" class="font-bold">App: </span>
             <span
               v-if="
                 !getAppTypeIcons(
@@ -659,14 +659,14 @@ onMounted(() => {
       </template>
       <template #requester="slotProps">
         <BaseText>
-          <span v-if="mq.mdMinus" class="font-bold">Requester:</span>
+          <span v-if="isMobile" class="font-bold">Requester:</span>
           {{ slotProps.item.requesterName }}
         </BaseText>
       </template>
 
       <template #phone="slotProps">
         <BaseText>
-          <span v-if="mq.mdMinus" class="font-bold">Phone: </span>
+          <span v-if="isMobile" class="font-bold">Phone: </span>
           <PhoneNumberDisplay
             v-if="slotProps.item.requesterPhone"
             :phone-number="slotProps.item.requesterPhone"
@@ -678,14 +678,14 @@ onMounted(() => {
 
       <template #location="slotProps">
         <BaseText>
-          <span v-if="mq.mdMinus" class="font-bold">Location: </span
+          <span v-if="isMobile" class="font-bold">Location: </span
           >{{ slotProps.item.requesterLocation || '-' }}
         </BaseText>
       </template>
 
       <template #description="slotProps">
         <BaseText>
-          <span v-if="mq.mdMinus" class="font-bold">Description: </span
+          <span v-if="isMobile" class="font-bold">Description: </span
           >{{ removeSubmittedFromFooter(slotProps.item.subject) }}
         </BaseText>
       </template>
@@ -696,7 +696,7 @@ onMounted(() => {
           :text="t('helpdesk.open_ticket_status')"
           variant="primary"
           class="p-2 rounded-md text-lg"
-          :class="mq.mdMinus && 'w-full'"
+          :class="isMobile && 'w-full'"
         />
       </template>
 
@@ -705,7 +705,7 @@ onMounted(() => {
           :href="`https://crisiscleanup.zendesk.com/agent/tickets/${slotProps.item.id}`"
           text-variant="bodysm"
           class="px-2 w-14 border rounded-md flex items-center justify-center"
-          :class="mq.mdMinus && 'w-full'"
+          :class="isMobile && 'w-full'"
           target="_blank"
         >
           <img
@@ -728,10 +728,10 @@ onMounted(() => {
   <modal
     v-if="ticketModal"
     closeable
-    :fullscreen="mq.mdMinus"
+    :fullscreen="isMobile"
     modal-classes="w-full max-w-7xl h-full overflow-auto bg-crisiscleanup-smoke"
     modal-header-classes="sticky top-0 z-10 bg-white"
-    :class="mq.lgPlus ? 'p-5' : ''"
+    class="lg:p-5"
     @close="showTicketModal()"
   >
     <template #header>

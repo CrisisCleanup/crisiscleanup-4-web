@@ -90,7 +90,7 @@ export default defineConfig(async ({ command }) => {
             // runtime helpers (__vitePreload, CJS interop), which put those
             // chunks onto the initial-route critical path.
             if (
-              /[/\\](vue|vue-router|vue-i18n|vuex|@vuex-orm|@vueuse|dayjs|lodash|lodash-es|axios|debug|vue-toastification|floating-vue|vue3-mq|vue3-promise-dialog|@fortawesome)[/\\]/.test(
+              /[/\\](vue|vue-router|vue-i18n|vuex|@vuex-orm|@vueuse|dayjs|lodash|lodash-es|axios|debug|vue-toastification|floating-vue|vue3-promise-dialog|@fortawesome)[/\\]/.test(
                 id,
               )
             ) {

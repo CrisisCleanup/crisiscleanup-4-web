@@ -1,5 +1,167 @@
 <template>
-  <template v-if="mq.mdMinus">
+  <!-- The case panel (header, form, history and flags) is the same on a
+     phone and on a desktop. Only the layout around it is different. -->
+  <component :is="DefineCasePanel">
+    <CaseHeader
+      v-if="worksite"
+      :worksite="worksite"
+      class="border-l border-r"
+      can-edit
+      show-case-tabs
+      :is-viewing-worksite="isViewing"
+      @close-worksite="clearCase"
+      @on-jump-to-case="jumpToCase"
+      @reload-map="reloadMap"
+      @on-share-worksite="() => shareWorksite(worksite?.id)"
+      @on-download-worksite="
+        () => {
+          downloadWorksites([worksite?.id]);
+        }
+      "
+      @on-print-worksite="() => printWorksite(worksite?.id)"
+      @on-flag-case="
+        () => {
+          showFlags = true;
+          showHistory = false;
+        }
+      "
+      @on-edit-case="
+        () => {
+          isViewing = false;
+          isEditing = true;
+          router.push(
+            `/incident/${currentIncidentId}/work/${worksite?.id}/edit`,
+          );
+        }
+      "
+      @on-exit-edit-case="
+        () => {
+          isViewing = true;
+          isEditing = false;
+          router.push(`/incident/${currentIncidentId}/work/${worksite?.id}`);
+        }
+      "
+      @on-show-history="
+        () => {
+          showFlags = false;
+          showHistory = true;
+        }
+      "
+    />
+    <div v-else class="work-page__form-header">
+      <div
+        class="flex h-full items-center cursor-pointer border-b-2 border-primary-light p-3"
+        @click="() => clearCase()"
+      >
+        <ccu-icon
+          :alt="$t('casesVue.new_case')"
+          type="active"
+          size="small"
+          data-testid="testNewCaseIcon"
+        />
+        <span class="px-1 mt-0.5">{{ $t('casesVue.new_case') }}</span>
+      </div>
+      <div
+        v-if="mostRecentlySavedWorksite && mostRecentlySavedWorksite.id"
+        class="h-full p-3 flex items-center justify-center"
+        @click="() => loadCase(mostRecentlySavedWorksite)"
+      >
+        Case
+        {{ mostRecentlySavedWorksite && mostRecentlySavedWorksite.case_number }}
+        <ccu-icon
+          :alt="$t('actions.cancel')"
+          data-testid="testCancelButton"
+          size="xs"
+          type="cancel"
+          class="ml-2"
+          :action="
+            () => {
+              mostRecentlySavedWorksite = null;
+            }
+          "
+        />
+      </div>
+    </div>
+    <div v-if="showingDetails" class="work-page__form-toggler">
+      <base-button
+        icon="arrow-left"
+        data-testid="testHistoryButton"
+        icon-size="medium"
+        :action="
+          () => {
+            showHistory = false;
+            showFlags = false;
+          }
+        "
+        :alt="$t('actions.history')"
+      />
+      <span v-if="showHistory" class="text-base">{{
+        $t('actions.history')
+      }}</span>
+      <span v-if="showFlags" class="text-base">{{ $t('actions.flag') }}</span>
+      <div></div>
+    </div>
+    <div class="min-h-0" :class="isMobile ? 'h-full' : 'h-auto'">
+      <CaseHistory
+        v-if="showHistory"
+        data-testid="testShowHistoryDiv"
+        :incident-id="Number(currentIncidentId)"
+        :worksite-id="worksiteId"
+      ></CaseHistory>
+      <CaseFlag
+        v-else-if="showFlags"
+        data-testid="testShowFlagsDiv"
+        :incident-id="String(currentIncidentId)"
+        :worksite-id="worksiteId"
+        @reload-case="
+          () => {
+            reloadCase();
+            showFlags = false;
+          }
+        "
+        @reload-map="
+          () => {
+            reloadMap();
+            showFlags = false;
+          }
+        "
+        @clear-case="clearCase"
+      ></CaseFlag>
+      <WorksiteView
+        v-else-if="isViewing"
+        :key="worksiteId"
+        data-testid="testWorksiteFormDiv"
+        :worksite-id="worksiteId"
+        :incident-id="String(currentIncidentId)"
+        :top-height="300"
+        @reload-case="reloadMap"
+        @close-worksite="clearCase"
+        @on-reset-form="clearCase"
+        @case-loaded="
+          () => {
+            if (route && route.query.showOnMap) {
+              jumpToCase();
+            }
+          }
+        "
+      />
+      <WorksiteForm
+        v-else
+        ref="worksiteForm"
+        :key="worksiteId"
+        :incident-id="String(currentIncidentId)"
+        :worksite-id="worksiteId"
+        :is-editing="isEditing"
+        class="border shadow"
+        @jump-to-case="jumpToCase"
+        @saved-worksite="handleWorksiteSave"
+        @close-worksite="clearCase"
+        @navigate-to-worksite="handleWorksiteNavigation"
+        @geocoded="addMarkerToMap"
+      />
+    </div>
+  </component>
+  <template v-if="isMobile">
     <div v-if="!isViewing && !isEditing">
       <SimpleMap
         v-if="showingMap"
@@ -27,7 +189,7 @@
       />
       <WorksiteFeed
         v-else-if="showingFeed"
-        class="h-[calc(100vh-11rem)] mt-16"
+        class="h-[calc(var(--cc-viewport-height)-11rem)] mt-16"
         :current-user-location="currentUserLocation"
         @load-case="loadCase"
       />
@@ -166,162 +328,12 @@
       v-else
       class=""
       :style="{
-        height: worksite ? 'calc(100vh - 13rem)' : 'calc(100vh - 11rem)',
+        height: worksite
+          ? 'calc(var(--cc-viewport-height) - 13rem)'
+          : 'calc(var(--cc-viewport-height) - 11rem)',
       }"
     >
-      <CaseHeader
-        v-if="worksite"
-        :worksite="worksite"
-        class="border-l border-r"
-        can-edit
-        show-case-tabs
-        :is-viewing-worksite="isViewing"
-        @close-worksite="clearCase"
-        @on-jump-to-case="jumpToCase"
-        @reload-map="reloadMap"
-        @on-share-worksite="() => shareWorksite(worksite?.id)"
-        @on-download-worksite="
-          () => {
-            downloadWorksites([worksite?.id]);
-          }
-        "
-        @on-print-worksite="() => printWorksite(worksite?.id)"
-        @on-flag-case="
-          () => {
-            showFlags = true;
-            showHistory = false;
-          }
-        "
-        @on-edit-case="
-          () => {
-            isViewing = false;
-            isEditing = true;
-            router.push(
-              `/incident/${currentIncidentId}/work/${worksite?.id}/edit`,
-            );
-          }
-        "
-        @on-show-history="
-          () => {
-            showFlags = false;
-            showHistory = true;
-          }
-        "
-      />
-      <div v-else class="work-page__form-header">
-        <div
-          class="flex h-full items-center cursor-pointer border-b-2 border-primary-light p-3"
-          @click="() => clearCase()"
-        >
-          <ccu-icon
-            :alt="$t('casesVue.new_case')"
-            type="active"
-            size="small"
-            data-testid="testNewCaseIcon"
-          />
-          <span class="px-1 mt-0.5">{{ $t('casesVue.new_case') }}</span>
-        </div>
-        <div
-          v-if="mostRecentlySavedWorksite && mostRecentlySavedWorksite.id"
-          class="h-full p-3 flex items-center justify-center"
-          @click="() => loadCase(mostRecentlySavedWorksite)"
-        >
-          Case
-          {{
-            mostRecentlySavedWorksite && mostRecentlySavedWorksite.case_number
-          }}
-          <ccu-icon
-            :alt="$t('actions.cancel')"
-            data-testid="testCancelButton"
-            size="xs"
-            type="cancel"
-            class="ml-2"
-            :action="
-              () => {
-                mostRecentlySavedWorksite = null;
-              }
-            "
-          />
-        </div>
-      </div>
-      <div v-if="showingDetails" class="work-page__form-toggler">
-        <base-button
-          icon="arrow-left"
-          data-testid="testHistoryButton"
-          icon-size="medium"
-          :action="
-            () => {
-              showHistory = false;
-              showFlags = false;
-            }
-          "
-          :alt="$t('actions.history')"
-        />
-        <span v-if="showHistory" class="text-base">{{
-          $t('actions.history')
-        }}</span>
-        <span v-if="showFlags" class="text-base">{{ $t('actions.flag') }}</span>
-        <div></div>
-      </div>
-      <div class="h-full min-h-0">
-        <CaseHistory
-          v-if="showHistory"
-          data-testid="testShowHistoryDiv"
-          :incident-id="Number(currentIncidentId)"
-          :worksite-id="worksiteId"
-        ></CaseHistory>
-        <CaseFlag
-          v-else-if="showFlags"
-          data-testid="testShowFlagsDiv"
-          :incident-id="String(currentIncidentId)"
-          :worksite-id="worksiteId"
-          @reload-case="
-            () => {
-              reloadCase();
-              showFlags = false;
-            }
-          "
-          @reload-map="
-            () => {
-              reloadMap();
-              showFlags = false;
-            }
-          "
-          @clear-case="clearCase"
-        ></CaseFlag>
-        <WorksiteView
-          v-else-if="isViewing"
-          :key="worksiteId"
-          data-testid="testWorksiteFormDiv"
-          :worksite-id="worksiteId"
-          :incident-id="String(currentIncidentId)"
-          :top-height="300"
-          @reload-case="reloadMap"
-          @close-worksite="clearCase"
-          @on-reset-form="clearCase"
-          @case-loaded="
-            () => {
-              if (route && route.query.showOnMap) {
-                jumpToCase();
-              }
-            }
-          "
-        />
-        <WorksiteForm
-          v-else
-          ref="worksiteForm"
-          :key="worksiteId"
-          :incident-id="String(currentIncidentId)"
-          :worksite-id="worksiteId"
-          :is-editing="isEditing"
-          class="border shadow"
-          @jump-to-case="jumpToCase"
-          @saved-worksite="handleWorksiteSave"
-          @close-worksite="clearCase"
-          @navigate-to-worksite="handleWorksiteNavigation"
-          @geocoded="addMarkerToMap"
-        />
-      </div>
+      <component :is="CasePanel" />
     </div>
   </template>
   <template v-else>
@@ -698,7 +710,7 @@
           >
             <WorksiteFeed
               :key="currentIncidentId"
-              class="h-[calc(100vh-11rem)]"
+              class="h-[calc(var(--cc-viewport-height)-11rem)]"
               :current-user-location="currentUserLocation"
               @load-case="loadCase"
             />
@@ -773,7 +785,9 @@
             <WorksiteTable
               :worksite-query="worksiteQuery"
               class=""
-              :body-style="{ height: 'calc(100vh - 22rem)' }"
+              :body-style="{
+                height: 'calc(var(--cc-viewport-height) - 22rem)',
+              }"
               @row-click="loadCase"
               @selection-changed="onSelectionChanged"
             />
@@ -781,184 +795,7 @@
         </div>
       </div>
       <div class="work-page__form h-full min-h-0">
-        <CaseHeader
-          v-if="worksite"
-          :worksite="worksite"
-          class="border-l border-r"
-          can-edit
-          show-case-tabs
-          :is-viewing-worksite="isViewing"
-          @close-worksite="clearCase"
-          @on-jump-to-case="jumpToCase"
-          @reload-map="reloadMap"
-          @on-share-worksite="() => shareWorksite(worksite?.id)"
-          @on-download-worksite="
-            () => {
-              downloadWorksites([worksite?.id]);
-            }
-          "
-          @on-print-worksite="() => printWorksite(worksite?.id)"
-          @on-flag-case="
-            () => {
-              showFlags = true;
-              showHistory = false;
-            }
-          "
-          @on-edit-case="
-            () => {
-              isViewing = false;
-              isEditing = true;
-              router.push(
-                `/incident/${currentIncidentId}/work/${worksite?.id}/edit`,
-              );
-            }
-          "
-          @on-exit-edit-case="
-            () => {
-              isViewing = true;
-              isEditing = false;
-              router.push(
-                `/incident/${currentIncidentId}/work/${worksite?.id}`,
-              );
-            }
-          "
-          @on-show-history="
-            () => {
-              showFlags = false;
-              showHistory = true;
-            }
-          "
-        />
-        <div v-else class="work-page__form-header">
-          <div
-            class="flex h-full items-center cursor-pointer border-b-2 border-primary-light p-3"
-            @click="() => clearCase()"
-          >
-            <ccu-icon
-              :alt="$t('casesVue.new_case')"
-              type="active"
-              size="small"
-              data-testid="testNewCaseIcon"
-            />
-            <span class="px-1 mt-0.5">{{ $t('casesVue.new_case') }}</span>
-          </div>
-          <div
-            v-if="mostRecentlySavedWorksite && mostRecentlySavedWorksite.id"
-            class="h-full p-3 flex items-center justify-center"
-            @click="() => loadCase(mostRecentlySavedWorksite)"
-          >
-            Case
-            {{
-              mostRecentlySavedWorksite && mostRecentlySavedWorksite.case_number
-            }}
-            <ccu-icon
-              :alt="$t('actions.cancel')"
-              data-testid="testCancelButton"
-              size="xs"
-              type="cancel"
-              class="ml-2"
-              :action="
-                () => {
-                  mostRecentlySavedWorksite = null;
-                }
-              "
-            />
-          </div>
-          <base-button
-            v-if="$mq === 'sm'"
-            data-testid="testShowMapButton"
-            type="bare"
-            icon="map"
-            class="text-gray-700 pt-2"
-            :action="
-              () => {
-                showMobileMap = true;
-              }
-            "
-            :text="$t('casesVue.show_map')"
-            :alt="$t('casesVue.show_map')"
-          />
-        </div>
-        <div v-if="showingDetails" class="work-page__form-toggler">
-          <base-button
-            icon="arrow-left"
-            data-testid="testHistoryButton"
-            icon-size="medium"
-            :action="
-              () => {
-                showHistory = false;
-                showFlags = false;
-              }
-            "
-            :alt="$t('actions.history')"
-          />
-          <span v-if="showHistory" class="text-base">{{
-            $t('actions.history')
-          }}</span>
-          <span v-if="showFlags" class="text-base">{{
-            $t('actions.flag')
-          }}</span>
-          <div></div>
-        </div>
-        <div class="h-auto min-h-0">
-          <CaseHistory
-            v-if="showHistory"
-            data-testid="testShowHistoryDiv"
-            :incident-id="Number(currentIncidentId)"
-            :worksite-id="worksiteId"
-          ></CaseHistory>
-          <CaseFlag
-            v-else-if="showFlags"
-            data-testid="testShowFlagsDiv"
-            :incident-id="String(currentIncidentId)"
-            :worksite-id="worksiteId"
-            @reload-case="
-              () => {
-                reloadCase();
-                showFlags = false;
-              }
-            "
-            @reload-map="
-              () => {
-                reloadMap();
-                showFlags = false;
-              }
-            "
-            @clear-case="clearCase"
-          ></CaseFlag>
-          <WorksiteView
-            v-else-if="isViewing"
-            :key="worksiteId"
-            data-testid="testWorksiteFormDiv"
-            :worksite-id="worksiteId"
-            :incident-id="String(currentIncidentId)"
-            :top-height="300"
-            @reload-case="reloadMap"
-            @close-worksite="clearCase"
-            @on-reset-form="clearCase"
-            @case-loaded="
-              () => {
-                if (route && route.query.showOnMap) {
-                  jumpToCase();
-                }
-              }
-            "
-          />
-          <WorksiteForm
-            v-else
-            ref="worksiteForm"
-            :key="worksiteId"
-            :incident-id="String(currentIncidentId)"
-            :worksite-id="worksiteId"
-            :is-editing="isEditing"
-            class="border shadow"
-            @jump-to-case="jumpToCase"
-            @saved-worksite="handleWorksiteSave"
-            @close-worksite="clearCase"
-            @navigate-to-worksite="handleWorksiteNavigation"
-            @geocoded="addMarkerToMap"
-          />
-        </div>
+        <component :is="CasePanel" />
       </div>
     </div>
   </template>
@@ -973,7 +810,7 @@ import type { Sprite } from 'pixi.js';
 import moment from '@/utils/dates';
 import type { LatLng } from 'leaflet';
 import * as L from 'leaflet';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import WorksiteSearchInput from '../components/work/WorksiteSearchInput.vue';
 import PhoneComponentButton from '../components/phone/PhoneComponentButton.vue';
 import SimpleMap from '../components/SimpleMap.vue';
@@ -1062,7 +899,8 @@ export default defineComponent({
     const { t } = useI18n();
     const store = useStore();
     const { emitter } = useEmitter();
-    const mq = useMq();
+    const { isMobile, isShort } = useViewport();
+    const [DefineCasePanel, CasePanel] = createReusableTemplate();
     const { $can } = useAcl();
 
     const { currentIncidentId, currentIncident } = useCurrentIncident();
@@ -1107,7 +945,6 @@ export default defineComponent({
     const showingFeed = ref<boolean>(false);
     const showHistory = ref<boolean>(false);
     const showFlags = ref<boolean>(false);
-    const showMobileMap = ref<boolean>(false);
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
     const caseImages = ref<Record<string, any>[]>([]);
@@ -1115,7 +952,9 @@ export default defineComponent({
     const pendingMapRequests = ref(0);
     const mapLoading = computed(() => pendingMapRequests.value > 0);
     const collapsedForm = ref<boolean>(false);
-    const collapsedUtilityBar = ref<boolean>(false);
+    // On a short screen the toolbar takes most of the height of the map, so it
+    // starts closed. The user can open it with the chevron.
+    const collapsedUtilityBar = ref<boolean>(isShort.value);
     const loading = ref<boolean>(false);
     const downloadingWorksites = ref<boolean>(false);
     const allWorksiteCount = ref<number>(0);
@@ -2001,7 +1840,7 @@ export default defineComponent({
       showHistory.value = false;
       showFlags.value = false;
       router.push(`/incident/${currentIncidentId.value}/work`);
-      if (mq.mdMinus) {
+      if (isMobile.value) {
         showMap(true);
       }
     }
@@ -2347,7 +2186,6 @@ export default defineComponent({
       showFlags,
       selectCase,
       showingDetails,
-      showMobileMap,
       onUpdateQuery,
       onUpdateFilters,
       clearFilters,
@@ -2401,7 +2239,9 @@ export default defineComponent({
       queryFilterLabel,
       getOrganizationName,
       clearQuery,
-      mq,
+      isMobile,
+      DefineCasePanel,
+      CasePanel,
       showingSearchModal,
       caseImages,
       photoMap,
@@ -2436,7 +2276,7 @@ export default defineComponent({
       }
       &--chat {
         width: min(60rem, calc(100cqw - 4rem));
-        max-height: calc(100dvh - 12rem);
+        max-height: calc(var(--cc-viewport-height) - 12rem);
       }
       &--news {
         height: 60vh;

@@ -88,7 +88,7 @@ const downloadAsset = async (asset: IncidentAniAsset, asLink = false) => {
   // in case user's been on the page for a while
   try {
     await fetchAssets();
-    const groupedAssets = assets.value as GroupedAssets;
+    const groupedAssets = assets.value;
     for (const assetType in groupedAssets) {
       const groupAssets = groupedAssets[assetType];
       const matchingAsset = groupAssets.find((a) => a.id == asset.id);
@@ -204,7 +204,9 @@ onMounted(async () => {
 
       <tabs ref="tabsRef" @tab-selected="onSelectTab">
         <tab name="Resources">
-          <div class="overflow-auto h-[calc(100vh-200px)] bg-white">
+          <div
+            class="overflow-auto h-[calc(var(--cc-viewport-height)-200px)] bg-white"
+          >
             <Card
               v-for="(assetGroup, assetType) in assets"
               :key="assetType"
@@ -265,11 +267,13 @@ onMounted(async () => {
         <tab name="Latest">
           <BlogPosts
             :cms-items="cmsItems"
-            class="px-5 h-[calc(100vh-55px)] bg-white"
+            class="px-5 h-[calc(var(--cc-viewport-height)-55px)] bg-white"
           />
         </tab>
         <tab name="Reports">
-          <div class="overflow-auto h-[calc(100vh-55px)] bg-white">
+          <div
+            class="overflow-auto h-[calc(var(--cc-viewport-height)-55px)] bg-white"
+          >
             <spinner v-if="loadingReports" size="xl" />
             <div
               v-for="[key, value] in Object.entries(transformedData)"
@@ -294,7 +298,9 @@ onMounted(async () => {
           </div>
         </tab>
         <tab name="Magazines">
-          <div class="overflow-auto h-[calc(100vh-55px)] bg-white">
+          <div
+            class="overflow-auto h-[calc(var(--cc-viewport-height)-55px)] bg-white"
+          >
             <MagazineList
               :filters="{
                 incident_ids__contains: route.params.id,

@@ -4,6 +4,8 @@
     :to="route.to"
     class="menu-item router-link"
     :class="isActive ? 'menu-item--active' : ''"
+    :title="label"
+    :aria-label="label"
     :data-testid="`test${route.key}Link`"
   >
     <div :key="route.key" class="flex flex-col items-center relative">
@@ -23,8 +25,8 @@
         v-bind="iconProps"
         :linked="true"
       />
-      <div class="menu-text mt-1 text-center">
-        {{ route.text || $t(`nav.${route.key}`) }}
+      <div class="menu-text mt-1 text-center short:hidden">
+        {{ label }}
       </div>
     </div>
   </router-link>
@@ -56,6 +58,10 @@ export default defineComponent({
           };
     });
 
+    const label = computed(
+      () => (props.route.text as string) || t(`nav.${props.route.key}`),
+    );
+
     const route = useRoute();
     const isActive = computed(() => {
       const routeName = route.name as string;
@@ -66,6 +72,7 @@ export default defineComponent({
     return {
       isActive,
       iconProps,
+      label,
     };
   },
 });
@@ -78,7 +85,7 @@ a:focus {
   outline: 0;
 }
 .menu-item {
-  @apply px-2 py-2.5 border-b border-crisiscleanup-dark-400;
+  @apply px-2 py-2.5 border-b border-crisiscleanup-dark-400 short:px-1 short:py-1.5;
 }
 
 .menu-item:hover {

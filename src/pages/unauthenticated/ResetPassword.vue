@@ -41,7 +41,7 @@
         v-if="tokenValid === true"
         ref="form"
         data-testid="testPasswordResetFormDiv"
-        class="w-108 flex flex-col"
+        class="w-108 max-w-full flex flex-col"
         autocomplete="off"
       >
         <base-input
@@ -181,16 +181,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      '. main main main main main'
-      '. main main main main main'
-      '. main main main main main';
-  }
-}
-
 .input {
   @apply m-1;
 }

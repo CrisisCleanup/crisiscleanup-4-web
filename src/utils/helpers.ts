@@ -98,12 +98,6 @@ export function getApiUrl(endpoint: string): string {
   return `${import.meta.env.VITE_APP_API_BASE_URL}${endpoint}`;
 }
 
-export function isLandscape() {
-  return window.matchMedia(
-    'only screen and (max-device-width: 1223px) and (orientation: landscape)',
-  ).matches;
-}
-
 // source: https://github.com/Chalarangelo/30-seconds-of-code
 export const generateUUID = (): string =>
   // eslint-disable-next-line unicorn/prefer-string-replace-all, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/restrict-plus-operands

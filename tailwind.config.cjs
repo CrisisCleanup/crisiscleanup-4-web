@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require('tailwindcss/colors');
+const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -52,12 +53,14 @@ module.exports = {
         md: '4rem',
         lg: '6rem',
         xl: '8rem',
+        viewport: 'var(--cc-viewport-height)',
       },
       minHeight: {
         sm: '2rem',
         md: '4rem',
         lg: '6rem',
         xl: '8rem',
+        viewport: 'var(--cc-viewport-height)',
       },
       fontWeight: {
         h1: '600',
@@ -216,6 +219,7 @@ module.exports = {
         12: 'repeat(12, minmax(0, 1fr))',
         30: 'repeat(30, 1fr)',
       },
+      height: { viewport: 'var(--cc-viewport-height)' },
       zIndex: {
         'popover': 100,
         'toolbar': 300,
@@ -239,5 +243,11 @@ module.exports = {
       textColor: ['disabled'],
     },
   },
-  plugins: [],
+  plugins: [
+    // A phone in landscape is about 400px tall. `short:` styles apply there.
+    // `useViewport().isShort` uses the same height, so change both together.
+    plugin(({ addVariant }) => {
+      addVariant('short', '@media (max-height: 500px)');
+    }),
+  ],
 };

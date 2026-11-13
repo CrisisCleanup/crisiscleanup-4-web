@@ -32,7 +32,7 @@
       </div>
     </div>
     <div class="grid--main w-screen">
-      <div v-if="loading" class="flex h-screen items-center justify-center">
+      <div v-if="loading" class="flex h-viewport items-center justify-center">
         <spinner show-quote />
       </div>
       <div v-else class="flex flex-col items-center">
@@ -252,17 +252,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      '. top top top top top'
-      '. main main main main main'
-      '. main main main main main'
-      '. main main main main main';
-  }
-}
-
 .input {
   @apply m-1;
 }

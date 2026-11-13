@@ -23,7 +23,7 @@ import { useToast } from 'vue-toastification';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import PhoneDoctor from '@/components/phone/PhoneDoctor.vue';
 import CallSimulator from '@/components/phone/CallSimulator.vue';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import { useClearCache } from '@/hooks/useClearCache';
 import IconPhoneIncoming from '~icons/lucide/phone-incoming';
 import IconPhoneOutgoing from '~icons/lucide/phone-outgoing';
@@ -59,7 +59,7 @@ const sideBarExpanded = ref(true);
 const { t } = useI18n();
 const { isAdmin, userPreferences } = useCurrentUser();
 const { currentUser } = useCurrentUser();
-const mq = useMq();
+const { isMobile } = useViewport();
 const { clearCache, isClearing } = useClearCache();
 
 const callSimulatorEnabled = computed(
@@ -360,7 +360,7 @@ const viewToTitleMap: Record<string, string> = {
 };
 
 const useBottomNav = computed(() => {
-  return mq.mdMinus;
+  return isMobile.value;
 });
 
 onBeforeUnmount(() => {

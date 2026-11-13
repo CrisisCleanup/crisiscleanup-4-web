@@ -1,6 +1,6 @@
 <template>
   <Home class="overflow-auto">
-    <div class="grid--main h-screen" data-testid="testAboutDiv">
+    <div class="grid--main h-viewport" data-testid="testAboutDiv">
       <!--- Title --->
       <div class="flex flex-col m-5" data-testid="testAboutDescriptionDiv">
         <h1 class="text-4xl px-0.5 text-crisiscleanup-dark-500 font-bold pb-8">
@@ -954,21 +954,6 @@ export default defineComponent({
 <style scoped>
 .about > li {
   @apply underline;
-}
-@media only screen and (max-width: 640px) {
-  .homegrid {
-    height: 100vh;
-
-    &.grid-container {
-      grid:
-        [r1] 'logo survivors' [r1end]
-        [r4] 'nav nav' [r4end]
-        [r3] 'actions actions' [r3end]
-        [r2] 'main main' [r2end]
-        / auto;
-      grid-template-rows: 0.5fr 0.5fr 4fr 1fr;
-    }
-  }
 }
 
 .resp-video {

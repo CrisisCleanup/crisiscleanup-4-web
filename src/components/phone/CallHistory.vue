@@ -10,11 +10,6 @@
         enable-search
         :query="{ sort: '-created_at', user: currentUser.id }"
         data-testid="testAgentHistoryTable"
-        @row-click="
-          (item) => {
-            if ($mq === 'sm') $emit('rowClick', item);
-          }
-        "
       >
         <template #incident="{ item }">
           <div
