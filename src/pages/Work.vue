@@ -1052,7 +1052,7 @@ export default defineComponent({
     const { t } = useI18n();
     const store = useStore();
     const { emitter } = useEmitter();
-    const { isMobile } = useViewport();
+    const { isMobile, isShort } = useViewport();
     const { $can } = useAcl();
 
     const { currentIncidentId, currentIncident } = useCurrentIncident();
@@ -1104,7 +1104,9 @@ export default defineComponent({
     const pendingMapRequests = ref(0);
     const mapLoading = computed(() => pendingMapRequests.value > 0);
     const collapsedForm = ref<boolean>(false);
-    const collapsedUtilityBar = ref<boolean>(false);
+    // On a short screen the toolbar takes most of the height of the map, so it
+    // starts closed. The user can open it with the chevron.
+    const collapsedUtilityBar = ref<boolean>(isShort.value);
     const loading = ref<boolean>(false);
     const downloadingWorksites = ref<boolean>(false);
     const allWorksiteCount = ref<number>(0);

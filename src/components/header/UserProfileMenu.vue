@@ -16,6 +16,7 @@
           data-testid="testAvatarIcon"
           class="p-1"
           size="small"
+          :custom-size="compactAvatarSize"
         />
         <base-text variant="h3" class="p-3" regular :class="[...styles.title]">
           <span
@@ -91,6 +92,7 @@ import { computed } from 'vue';
 import Avatar from '../Avatar.vue';
 import User from '@/models/User';
 import { useCurrentUser } from '@/hooks';
+import { useViewport } from '@/hooks/useViewport';
 
 export default defineComponent({
   name: 'UserProfileMenu',
@@ -103,6 +105,13 @@ export default defineComponent({
   },
   setup(props) {
     const { currentUser } = useCurrentUser();
+    const { isShort } = useViewport();
+
+    // The header is 48px high on a short screen, and the default avatar is
+    // 60px.
+    const compactAvatarSize = computed(() =>
+      isShort.value ? { width: '40px', height: '40px' } : undefined,
+    );
 
     const styles = computed(() => ({
       title:
@@ -114,6 +123,7 @@ export default defineComponent({
     return {
       styles,
       currentUser,
+      compactAvatarSize,
     };
   },
 });

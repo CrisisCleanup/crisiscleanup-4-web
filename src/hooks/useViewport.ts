@@ -1,4 +1,8 @@
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import {
+  breakpointsTailwind,
+  useBreakpoints,
+  useMediaQuery,
+} from '@vueuse/core';
 
 // `breakpointsTailwind` holds Tailwind's default screens, which are the same
 // values as `theme.screens` in tailwind.config.cjs. Templates chosen in script
@@ -7,6 +11,8 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isMobile = breakpoints.smaller('md');
 const isLargeScreen = breakpoints.greaterOrEqual('lg');
+// The same height as the `short:` variant in tailwind.config.cjs.
+const isShort = useMediaQuery('(max-height: 500px)');
 
 /**
  * Viewport flags for logic that CSS cannot express, such as choosing between a
@@ -14,5 +20,5 @@ const isLargeScreen = breakpoints.greaterOrEqual('lg');
  * difference is only style.
  */
 export function useViewport() {
-  return { isMobile, isLargeScreen };
+  return { isMobile, isLargeScreen, isShort };
 }

@@ -663,6 +663,15 @@ export default defineComponent({
   padding-right: env(safe-area-inset-right);
 }
 
+/* On a short screen the shell gives its height and width to the page: the
+   header is lower, and the sidebar shows icons without labels. */
+@media (max-height: 500px) {
+  .layout {
+    grid-template-columns: calc(56px + env(safe-area-inset-left)) minmax(0, 1fr);
+    grid-template-rows: 48px 1fr;
+  }
+}
+
 .sidebar {
   @apply z-sidebar;
   grid-area: sidebar;

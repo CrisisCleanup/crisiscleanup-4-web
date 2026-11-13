@@ -6,7 +6,7 @@
       :aria-label="$t('nav.home')"
     >
       <div
-        class="logo flex justify-center px-2 py-4 border-b border-crisiscleanup-dark-400"
+        class="logo flex justify-center px-2 py-4 short:px-1 short:py-1.5 border-b border-crisiscleanup-dark-400"
       >
         <img
           :src="portal?.logo_url || logo"
@@ -26,8 +26,11 @@
         :route="r"
       />
     </div>
-    <PoweredByRingCentral v-if="isPhonePage" class="pt-4 pb-12 px-4" />
-    <PoweredByAws v-else class="pt-4 pb-12 px-4" type="square" />
+    <PoweredByRingCentral
+      v-if="isPhonePage"
+      class="pt-4 pb-12 px-4 short:hidden"
+    />
+    <PoweredByAws v-else class="pt-4 pb-12 px-4 short:hidden" type="square" />
   </div>
 </template>
 
