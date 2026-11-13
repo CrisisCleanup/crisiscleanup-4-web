@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import type Incident from '@/models/Incident';
 import type { DisasterIcons } from '@/icons';
 import { DISASTER_ICONS, EASTER_EGG_DISASTER_ICONS } from '@/icons';

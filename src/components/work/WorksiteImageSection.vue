@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import { defineAsyncComponent } from 'vue';
 import { useToast } from 'vue-toastification';
 import DragDrop from '../DragDrop.vue';

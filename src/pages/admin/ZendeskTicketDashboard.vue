@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import { useMq } from 'vue3-mq';
 import TicketCards from '@/components/Tickets/TicketCards.vue';
 import useCurrentUser from '@/hooks/useCurrentUser';

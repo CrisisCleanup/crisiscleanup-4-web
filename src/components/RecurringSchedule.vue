@@ -118,7 +118,7 @@
 
 <script lang="ts">
 import { RRule } from 'rrule';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { useI18n } from 'vue-i18n';
 import { ref, defineComponent, onMounted } from 'vue';
 import moment from '@/utils/dates';

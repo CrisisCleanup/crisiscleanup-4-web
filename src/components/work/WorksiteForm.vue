@@ -537,7 +537,7 @@
 </template>
 
 <script lang="ts">
-import { sortBy, uniqueId } from 'lodash';
+import { sortBy, uniqueId } from 'lodash-es';
 import moment from '@/utils/dates';
 import * as turf from '@turf/turf';
 import * as L from 'leaflet';

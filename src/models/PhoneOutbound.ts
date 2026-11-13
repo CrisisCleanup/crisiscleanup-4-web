@@ -1,4 +1,4 @@
-import { isArray, isNil, omitBy } from 'lodash';
+import { isArray, isNil, omitBy } from 'lodash-es';
 import CCUModel from '@/models/base';
 import { AxiosError } from 'axios';
 import { getErrorMessage } from '@/utils/errors';

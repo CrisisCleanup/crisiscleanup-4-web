@@ -386,7 +386,7 @@
 import moment from '@/utils/dates';
 import axios from 'axios';
 import { useStore } from 'vuex';
-import { shuffle, throttle } from 'lodash';
+import { shuffle, throttle } from 'lodash-es';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import { getQueryString } from '@/utils/urls';

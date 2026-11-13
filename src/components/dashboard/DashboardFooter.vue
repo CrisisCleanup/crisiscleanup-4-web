@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import useNavigation from '@/hooks/useNavigation';
 import DownloadAppFooter from '@/components/dashboard/DownloadAppFooter.vue';
 import { formatIncidentPhoneNumbers } from '@/filters';

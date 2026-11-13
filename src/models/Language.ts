@@ -2,7 +2,7 @@
  * Language Model
  */
 import detectBrowserLanguage from 'detect-browser-language';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import CCUModel from '@/models/base';
 import { i18n } from '@/modules/i18n';
 import type { Config } from '@vuex-orm/plugin-axios';

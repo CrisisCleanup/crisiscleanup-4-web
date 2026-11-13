@@ -245,6 +245,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      lodash-es:
+        specifier: ^4.17.21
+        version: 4.17.21
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -395,6 +398,9 @@ importers:
         version: 1.9.14
       '@types/lodash':
         specifier: ^4.17.7
+        version: 4.17.12
+      '@types/lodash-es':
+        specifier: ^4.17.12
         version: 4.17.12
       '@types/markdown-it':
         specifier: ^14.1.2
@@ -2717,6 +2723,9 @@ packages:
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+
+  '@types/lodash-es@4.17.12':
+    resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
 
   '@types/lodash@4.17.12':
     resolution: {integrity: sha512-sviUmCE8AYdaF/KIHLDJBQgeYzPBI0vf/17NaYehBJfYD1j6/L95Slh07NlyK2iNyBNaEkb3En2jRt+a8y3xZQ==}
@@ -9906,6 +9915,10 @@ snapshots:
       '@types/geojson': 7946.0.14
 
   '@types/linkify-it@5.0.0': {}
+
+  '@types/lodash-es@4.17.12':
+    dependencies:
+      '@types/lodash': 4.17.12
 
   '@types/lodash@4.17.12': {}
 

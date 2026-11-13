@@ -156,7 +156,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 import BaseButton from '@/components/BaseButton.vue';
 import CcuIcon from '@/components/BaseIcon.vue';
 import { useToast } from 'vue-toastification';

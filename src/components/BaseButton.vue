@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'lodash-es';
 import type { PropType } from 'vue';
 import { ref, computed, defineComponent } from 'vue';
 import type {

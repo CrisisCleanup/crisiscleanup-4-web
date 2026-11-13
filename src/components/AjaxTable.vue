@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { throttle } from 'lodash';
+import { throttle } from 'lodash-es';
 import type { PropType } from 'vue';
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import axios from 'axios';

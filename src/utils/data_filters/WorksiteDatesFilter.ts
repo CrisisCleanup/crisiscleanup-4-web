@@ -1,5 +1,5 @@
 import moment from '@/utils/dates';
-import { omitBy, isNull } from 'lodash';
+import { omitBy, isNull } from 'lodash-es';
 import { i18n } from '@/modules/i18n';
 import Filter from './Filter';
 

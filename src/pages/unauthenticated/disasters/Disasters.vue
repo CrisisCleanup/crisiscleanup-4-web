@@ -139,7 +139,7 @@ import moment from '@/utils/dates';
 import type Incident from '@/models/Incident';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
-import camelCase from 'lodash/camelCase';
+import { camelCase } from 'lodash-es';
 import Accordion from '@/components/accordion/Accordion.vue';
 import AccordionItem from '@/components/accordion/AccordionItem.vue';
 import type { Ani } from '@/models/types';

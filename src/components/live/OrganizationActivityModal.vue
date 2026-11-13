@@ -297,7 +297,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import { useI18n } from 'vue-i18n';
 import type { PropType } from 'vue';
 import { reactive, toRefs } from 'vue';

@@ -1020,7 +1020,7 @@ import AjaxTable from '@/components/AjaxTable.vue';
 import { momentFromNow } from '@/filters';
 import { packWorksiteFilters } from '@/utils/data_filters/worksiteFilters';
 import User from '@/models/User';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import Spinner from '@/components/Spinner.vue';
 import DownloadWorksiteCsv from '@/components/downloads/DownloadWorksiteCsv.vue';
 import WorksiteNavigationIcons from '@/pages/WorksiteNavigationIcons.vue';
@@ -1309,7 +1309,7 @@ export default defineComponent({
         uniqueSviCount.value = new Set(
           response.results
             .map((w: { svi?: number | null }) => w.svi)
-            .filter((svi: number | null | undefined) => svi != null),
+            .filter((svi: number | null | undefined) => svi != undefined),
         ).size;
         return response.results;
       } finally {

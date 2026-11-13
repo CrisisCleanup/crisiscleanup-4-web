@@ -83,7 +83,7 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import useDialogs from '@/hooks/useDialogs';
 import { formatNationalNumber } from '@/filters';
-import camelCase from 'lodash/camelCase';
+import { camelCase } from 'lodash-es';
 import Spinner from '@/components/Spinner.vue';
 
 const { component } = useDialogs();

@@ -121,7 +121,7 @@
 <script lang="ts">
 import { ref, computed, defineComponent } from 'vue';
 import type { PropType } from 'vue';
-import { uniqueId } from 'lodash';
+import { uniqueId } from 'lodash-es';
 
 export interface BaseInputProps {
   textAreaAutoResize?: boolean;

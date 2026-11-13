@@ -5,7 +5,7 @@ import { useCurrentIncident } from '@/hooks';
 import { useRouter } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 
 const { t } = useI18n();
 const { currentIncidentId } = useCurrentIncident();

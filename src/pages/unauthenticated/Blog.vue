@@ -172,7 +172,7 @@ import BlogPost from '../../components/blog/BlogPostDetail.vue';
 import Pagination from '../../components/blog/Pagination.vue';
 import User from '@/models/User';
 import BaseInput from '@/components/BaseInput.vue';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 import Spinner from '@/components/Spinner.vue';
 import Home from '@/layouts/Home.vue';
 import moment from '@/utils/dates';

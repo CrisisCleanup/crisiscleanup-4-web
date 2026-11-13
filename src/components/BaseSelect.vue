@@ -122,7 +122,7 @@ import Multiselect from '@vueform/multiselect';
 import type { PropType } from 'vue';
 import { computed, h, nextTick, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { isEmpty as empty, kebabCase, uniqueId, xor } from 'lodash';
+import { isEmpty as empty, kebabCase, uniqueId, xor } from 'lodash-es';
 
 export default defineComponent({
   name: 'BaseSelect',

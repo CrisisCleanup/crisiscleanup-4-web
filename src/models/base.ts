@@ -3,7 +3,7 @@
  */
 import type { Fields } from '@vuex-orm/core';
 import { Model } from '@vuex-orm/core';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import type { CCUBaseFields } from '@/models/types';
 
 export default class CCUModel extends Model {

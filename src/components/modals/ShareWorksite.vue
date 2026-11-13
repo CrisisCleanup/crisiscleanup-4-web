@@ -78,7 +78,7 @@
 import { ref } from 'vue';
 import type { TagInputData } from '@sipec/vue3-tags-input';
 import { createTags } from '@sipec/vue3-tags-input';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import UserSearchInput from '@/components/UserSearchInput.vue';
 import type User from '@/models/User';
 

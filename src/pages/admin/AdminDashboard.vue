@@ -436,7 +436,7 @@
 
 <script lang="ts">
 import { useStore } from 'vuex';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';

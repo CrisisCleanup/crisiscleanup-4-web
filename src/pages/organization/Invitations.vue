@@ -225,7 +225,7 @@ import Invitation from '@/models/Invitation';
 import AjaxTable from '@/components/AjaxTable.vue';
 import UserTransferRequestTable from '@/components/UserTransferRequestTable.vue';
 import { makeTableColumns } from '@/utils/table';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import useDialogs from '@/hooks/useDialogs';
 import QRCode from '@/components/QRCode.vue';
 import CreateNewPersistentInvitation from '@/components/CreateNewPersistentInvitation.vue';

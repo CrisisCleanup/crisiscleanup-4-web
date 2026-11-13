@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { kebabCase } from 'lodash';
+import { kebabCase } from 'lodash-es';
 import type { PropType } from 'vue';
 import { computed, defineComponent, ref } from 'vue';
 import type { ICON_SIZES, ICONS } from '../constants';

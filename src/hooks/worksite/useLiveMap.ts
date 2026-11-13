@@ -9,7 +9,7 @@ import {
   Texture,
   utils as pixiUtils,
 } from 'pixi.js';
-import { orderBy } from 'lodash';
+import { orderBy } from 'lodash-es';
 import type { Ref } from 'vue';
 import {
   degreesToRadians,

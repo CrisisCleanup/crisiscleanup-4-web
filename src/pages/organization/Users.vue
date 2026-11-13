@@ -584,7 +584,7 @@
 </template>
 
 <script lang="ts">
-import { mapKeys, startCase, throttle } from 'lodash';
+import { mapKeys, startCase, throttle } from 'lodash-es';
 import { useMq } from 'vue3-mq';
 import { useToast } from 'vue-toastification';
 import InviteUsers from '@/components/modals/InviteUsers.vue';

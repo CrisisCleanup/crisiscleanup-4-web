@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 import useCreateList from '@/hooks/lists/useCreateList';
 import BaseButton from '@/components/BaseButton.vue';
 

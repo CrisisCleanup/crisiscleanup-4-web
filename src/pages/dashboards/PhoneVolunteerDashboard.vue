@@ -14,7 +14,7 @@ import useDialogs from '@/hooks/useDialogs';
 import axios from 'axios';
 import BaseButton from '@/components/BaseButton.vue';
 import { useI18n } from 'vue-i18n';
-import { throttle } from 'lodash';
+import { throttle } from 'lodash-es';
 import TrainingBanner from '@/components/dashboard/TrainingBanner.vue';
 import GeneralStats from '@/components/phone/GeneralStats.vue';
 

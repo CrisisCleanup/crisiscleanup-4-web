@@ -1,4 +1,4 @@
-import { zipObject } from 'lodash';
+import { zipObject } from 'lodash-es';
 import moment from '@/utils/dates';
 import axios from 'axios';
 import { StorageService } from '../services/storage.service';
