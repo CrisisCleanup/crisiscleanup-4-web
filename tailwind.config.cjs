@@ -52,12 +52,14 @@ module.exports = {
         md: '4rem',
         lg: '6rem',
         xl: '8rem',
+        viewport: 'var(--cc-viewport-height)',
       },
       minHeight: {
         sm: '2rem',
         md: '4rem',
         lg: '6rem',
         xl: '8rem',
+        viewport: 'var(--cc-viewport-height)',
       },
       fontWeight: {
         h1: '600',
@@ -216,6 +218,7 @@ module.exports = {
         12: 'repeat(12, minmax(0, 1fr))',
         30: 'repeat(30, 1fr)',
       },
+      height: { viewport: 'var(--cc-viewport-height)' },
       zIndex: {
         'popover': 100,
         'toolbar': 300,
