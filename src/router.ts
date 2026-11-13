@@ -28,6 +28,12 @@ declare module 'vue-router' {
      * The scroll behavior for this route.
      */
     noscroll?: boolean;
+    /**
+     * Keep the page mounted when the layout changes between the phone shell
+     * and the desktop shell. Set it only for a page that can change its own
+     * template in place.
+     */
+    keepOnLayoutChange?: boolean;
   }
 }
 
@@ -140,7 +146,12 @@ const routes = [
     path: '/incident/:incident_id/work',
     component: Work,
     name: 'nav.work',
-    meta: { id: 'work', layout: 'authenticated', noscroll: true },
+    meta: {
+      id: 'work',
+      layout: 'authenticated',
+      noscroll: true,
+      keepOnLayoutChange: true,
+    },
     children: [
       {
         path: ':id',

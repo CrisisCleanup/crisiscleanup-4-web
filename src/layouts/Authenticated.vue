@@ -1,5 +1,13 @@
 <template>
   <template v-if="isPageReady">
+    <!-- A page with meta.keepOnLayoutChange is rendered one time and moved
+         into the shell that is on screen. A change of shell, such as a phone
+         that rotates, then keeps the page and its state. Other pages are
+         rendered again by the new shell, because they set up their map and
+         their listeners only when they mount. -->
+    <Teleport v-if="keepsPage && pageSlot" :to="pageSlot">
+      <slot />
+    </Teleport>
     <!-- For mobile screens -->
     <template v-if="isMobile">
       <div class="flex flex-col">
@@ -119,8 +127,8 @@
             </template>
           </v-popover>
         </header>
-        <main class="pt-12 pb-16">
-          <slot />
+        <main :ref="setPageSlot" class="pt-12 pb-16">
+          <slot v-if="!keepsPage" />
         </main>
         <footer
           style="width: 100svw"
@@ -195,8 +203,8 @@
           />
         </div>
         <main class="main">
-          <div class="h-full overflow-auto">
-            <slot />
+          <div :ref="setPageSlot" class="h-full overflow-auto">
+            <slot v-if="!keepsPage" />
           </div>
         </main>
       </div>
@@ -326,6 +334,17 @@ export default defineComponent({
     const { routes } = useAuthenticatedRoutes();
 
     const showAcceptTermsModal = ref(false);
+
+    // The element of the current shell that holds the page. A shell that
+    // leaves the screen reports null. The function ignores it, so the page
+    // stays mounted until the new shell reports its own element.
+    const keepsPage = computed(() => route.meta.keepOnLayoutChange === true);
+    const pageSlot = ref<HTMLElement>();
+    const setPageSlot = (element: unknown) => {
+      if (element instanceof HTMLElement) {
+        pageSlot.value = element;
+      }
+    };
     const showingMoreLinks = ref(false);
 
     watch(
@@ -641,6 +660,9 @@ export default defineComponent({
       logoutApp: () => authStore.logout(),
       handleChange,
       isMobile,
+      keepsPage,
+      pageSlot,
+      setPageSlot,
       showIncidentSelectionModal,
     };
   },
