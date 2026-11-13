@@ -367,6 +367,15 @@
         :alt="$t('actions.save')"
       />
     </section>
+    <!-- The tall placeholder keeps the questions below the screen until the
+         form replaces it, so the page does not jump when the token arrives. -->
+    <section
+      v-else-if="!tokenLoaded"
+      class="min-h-screen flex justify-center pt-16"
+      data-testid="testSurvivorLoadingDiv"
+    >
+      <spinner />
+    </section>
     <section v-else class="px-8 py-4">
       <base-text variant="h1">
         {{ $t('survivorContact.invalid_expired_token') }}
@@ -451,6 +460,7 @@ export default defineComponent({
       imageList: [],
       showImgModal: false,
       loading: false,
+      tokenLoaded: false,
       gettingLocation: false,
       addressSet: true,
       hideDetailedAddressFields: true,
@@ -668,6 +678,7 @@ export default defineComponent({
         // this.$log.debug(error);
       } finally {
         state.loading = false;
+        state.tokenLoaded = true;
       }
     }
 
@@ -721,13 +732,14 @@ export default defineComponent({
         `${import.meta.env.VITE_APP_API_BASE_URL}/incidents/${incidentId}?fields=id,name,short_name,start_at`,
       );
       state.survivorIncident = response.data;
-      console.info('Response', response);
     }
 
     onMounted(async () => {
-      await getFaqs();
+      // The form does not need the questions, so it does not wait for them.
+      const faqsLoaded = getFaqs();
       await getSurvivorToken();
       await getSurvivorIncident();
+      await faqsLoaded;
     });
 
     return {
