@@ -112,15 +112,20 @@ jobs:
       # Keep the files of earlier builds: open tabs on an earlier build still
       # load their chunks. Without them, each open tab reloads the page.
       # index.html goes last, so it never names a chunk that is not uploaded.
+      # A file in assets/ has a content hash in its name, so a browser can
+      # keep it for a year. The PDFs there have fixed names, so the second
+      # sync uploads them without that header.
       - name: Sync to S3 (dry run)
         if: inputs.dry_run
         run: |
+          aws s3 sync dist/assets/ s3://${{ steps.bucket.outputs.name }}/assets/ --exclude "*.pdf" --cache-control "public, max-age=31536000, immutable" --dryrun
           aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --exclude index.html --dryrun
           aws s3 cp dist/index.html s3://${{ steps.bucket.outputs.name }}/index.html --cache-control no-cache --dryrun
 
       - name: Sync to S3
         if: ${{ !inputs.dry_run }}
         run: |
+          aws s3 sync dist/assets/ s3://${{ steps.bucket.outputs.name }}/assets/ --exclude "*.pdf" --cache-control "public, max-age=31536000, immutable"
           aws s3 sync dist/ s3://${{ steps.bucket.outputs.name }} --exclude index.html
           aws s3 cp dist/index.html s3://${{ steps.bucket.outputs.name }}/index.html --cache-control no-cache
 
