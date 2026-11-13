@@ -338,7 +338,6 @@
       </h1>
 
       <div class="images-grid sm:grid-cols-3" data-testid="testAlumniDiv">
-
         <div class="flex flex-col items-center px-5 sm:px-0">
           <!--<img src="@/assets/headshots/ginanewby.jpg" class="m-5" />-->
           <p class="text-3xl px-0.5 pb-5">
@@ -645,7 +644,6 @@
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8"
         data-testid="testPastSupporters"
       >
-
         <div class="flex flex-col items-center justify-start">
           <!--<img src="@/assets/partners/fdem_logo.jpg" class="m-5 h-24 w-auto object-contain" />-->
           <p class="text-xl text-center px-0.5 pb-5">
