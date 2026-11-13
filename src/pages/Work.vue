@@ -1,7 +1,9 @@
 <template>
-  <!-- The case panel (header, form, history and flags) is the same on a
-     phone and on a desktop. Only the layout around it is different. -->
-  <component :is="DefineCasePanel">
+  <!-- The case panel (header, form, history and flags) is rendered one time
+     and moved into the layout that is on screen. A change of layout, such as
+     a phone that rotates, then keeps the form and the text that the user
+     typed. -->
+  <Teleport v-if="showCasePanel && casePanelSlot" :to="casePanelSlot">
     <CaseHeader
       v-if="worksite"
       :worksite="worksite"
@@ -160,7 +162,7 @@
         @geocoded="addMarkerToMap"
       />
     </div>
-  </component>
+  </Teleport>
   <template v-if="isMobile">
     <div v-if="!isViewing && !isEditing">
       <SimpleMap
@@ -326,15 +328,13 @@
     </div>
     <div
       v-else
-      class=""
+      :ref="setCasePanelSlot"
       :style="{
         height: worksite
           ? 'calc(var(--cc-viewport-height) - 13rem)'
           : 'calc(var(--cc-viewport-height) - 11rem)',
       }"
-    >
-      <component :is="CasePanel" />
-    </div>
+    ></div>
   </template>
   <template v-else>
     <div class="work-page h-full" :class="{ collapsedForm }">
@@ -794,9 +794,7 @@
           </div>
         </div>
       </div>
-      <div class="work-page__form h-full min-h-0">
-        <component :is="CasePanel" />
-      </div>
+      <div :ref="setCasePanelSlot" class="work-page__form h-full min-h-0"></div>
     </div>
   </template>
 </template>
@@ -900,7 +898,6 @@ export default defineComponent({
     const store = useStore();
     const { emitter } = useEmitter();
     const { isMobile, isShort } = useViewport();
-    const [DefineCasePanel, CasePanel] = createReusableTemplate();
     const { $can } = useAcl();
 
     const { currentIncidentId, currentIncident } = useCurrentIncident();
@@ -947,6 +944,21 @@ export default defineComponent({
     const showFlags = ref<boolean>(false);
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
+
+    // The element of the current layout that holds the case panel. A layout
+    // that leaves the screen reports null. The function ignores it, so the
+    // panel stays mounted until the new layout reports its own element.
+    const casePanelSlot = ref<HTMLElement>();
+    const setCasePanelSlot = (element: unknown) => {
+      if (element instanceof HTMLElement) {
+        casePanelSlot.value = element;
+      }
+    };
+    // The phone layout shows the map and no case panel until the user opens
+    // or edits a case.
+    const showCasePanel = computed(
+      () => !isMobile.value || isViewing.value || isEditing.value,
+    );
     const caseImages = ref<Record<string, any>[]>([]);
     const userLocations = ref<Record<string, any>[]>([]);
     const pendingMapRequests = ref(0);
@@ -2240,8 +2252,9 @@ export default defineComponent({
       getOrganizationName,
       clearQuery,
       isMobile,
-      DefineCasePanel,
-      CasePanel,
+      showCasePanel,
+      casePanelSlot,
+      setCasePanelSlot,
       showingSearchModal,
       caseImages,
       photoMap,
