@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { truncate } from 'lodash';
+import { truncate } from 'lodash-es';
 import moment from '@/utils/dates';
 import useDialogs from '@/hooks/useDialogs';
 

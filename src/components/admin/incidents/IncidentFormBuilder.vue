@@ -84,7 +84,8 @@
 </template>
 <script lang="ts">
 import Draggable from 'vuedraggable';
-import _, { debounce } from 'lodash';
+import * as _ from 'lodash-es';
+import { debounce } from 'lodash-es';
 import { computed, onMounted, ref, watch } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';

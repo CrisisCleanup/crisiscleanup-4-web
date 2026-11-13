@@ -198,7 +198,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
 import { timezoneNames as getTimezoneNames } from '@/utils/dates';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import type { VueDatePicker } from '@vuepic/vue-datepicker';
 import FloatingInput from '@/components/FloatingInput.vue';
 import { formatNationalNumber } from '@/filters';

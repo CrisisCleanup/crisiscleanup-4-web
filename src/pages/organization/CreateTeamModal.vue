@@ -298,7 +298,7 @@ import WorksiteStatusDropdown from '@/components/WorksiteStatusDropdown.vue';
 import type User from '@/models/User';
 import { useCurrentIncident, useCurrentUser } from '@/hooks';
 import WorksiteSearchAndFilters from '@/components/work/WorksiteSearchAndFilters.vue';
-import { uniqBy } from 'lodash';
+import { uniqBy } from 'lodash-es';
 
 export default defineComponent({
   name: 'CreateTeamModal',

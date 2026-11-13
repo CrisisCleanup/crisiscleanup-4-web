@@ -142,7 +142,7 @@ import {
 } from 'vue';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
-import { padStart, truncate } from 'lodash';
+import { padStart, truncate } from 'lodash-es';
 import User from '../../models/User';
 import Avatar from '../Avatar.vue';
 import UserDetailsTooltip from '../user/DetailsTooltip.vue';

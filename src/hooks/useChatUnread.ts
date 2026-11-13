@@ -1,5 +1,5 @@
 import { ref, watch, type Ref } from 'vue';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 import axios from 'axios';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { useWebSockets } from '@/hooks/useWebSockets';

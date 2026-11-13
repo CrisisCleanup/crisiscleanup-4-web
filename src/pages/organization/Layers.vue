@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import { useToast } from 'vue-toastification';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import LayerUploadTool from '@/components/locations/LayerUploadTool.vue';
 import LocationTable from '@/components/LocationTable.vue';
 import Location from '@/models/Location';

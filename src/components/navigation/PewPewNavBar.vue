@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import { useStore } from 'vuex';
 import { useI18n } from 'vue-i18n';
 import LucideHandshake from '~icons/lucide/handshake';

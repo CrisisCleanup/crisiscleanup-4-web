@@ -4,7 +4,7 @@ import axios from 'axios';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { i18n } from '@/modules/i18n';
 import PhoneService from './phone.service';
-import { reject } from 'lodash';
+import { reject } from 'lodash-es';
 
 export default class PhoneTestService extends PhoneService {
   constructor() {

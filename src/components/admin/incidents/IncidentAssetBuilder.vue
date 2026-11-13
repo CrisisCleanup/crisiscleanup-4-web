@@ -258,7 +258,7 @@ import CcuIcon from '@/components/BaseIcon.vue';
 import QRCode from 'qrcode-svg';
 import { i18n } from '@/modules/i18n';
 import { i18nService } from '@/services/i18n.service';
-import size from 'lodash/size';
+import { size } from 'lodash-es';
 import BaseSelect from '@/components/BaseSelect.vue';
 import { useCurrentIncident } from '@/hooks';
 import type { VueDatePicker } from '@vuepic/vue-datepicker';

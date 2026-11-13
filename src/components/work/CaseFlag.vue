@@ -382,7 +382,7 @@
 </template>
 
 <script lang="ts">
-import { orderBy } from 'lodash';
+import { orderBy } from 'lodash-es';
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';

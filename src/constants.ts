@@ -1,7 +1,7 @@
 /**
  * Various Constants
  */
-import { snakeCase } from 'lodash';
+import { snakeCase } from 'lodash-es';
 import type { SnakeCasedProperties } from 'type-fest';
 
 // ICONS

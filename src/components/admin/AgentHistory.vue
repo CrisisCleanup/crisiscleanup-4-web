@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import axios from 'axios';
-import { get } from 'lodash';
+import { get } from 'lodash-es';
 import type PhoneOutbound from '@/models/PhoneOutbound';
 import { hash } from '@/utils/promise';
 import AjaxTable from '@/components/AjaxTable.vue';

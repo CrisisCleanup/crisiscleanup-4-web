@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { useResizeObserver } from '@vueuse/core';
-import debounce from 'lodash/debounce';
+import { debounce } from 'lodash-es';
 
 export default function useLiveChart(
   chartId: string,

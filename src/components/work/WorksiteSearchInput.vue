@@ -96,7 +96,7 @@
 import { computed, ref } from 'vue';
 import axios from 'axios';
 import { useStore } from 'vuex';
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import { useFuse, type UseFuseOptions } from '@vueuse/integrations/useFuse';
 import useCurrentUser from '../../hooks/useCurrentUser';
 import GeocoderService from '../../services/geocoder.service';

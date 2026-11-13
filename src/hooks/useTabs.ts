@@ -12,7 +12,7 @@ import {
   watchEffect,
   isRef,
 } from 'vue';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import type {
   RouteLocationNormalized,
   Router,

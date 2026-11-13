@@ -1,5 +1,5 @@
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import moment from '@/utils/dates';
 import enums from '../store/modules/enums';
 import { resolveStatusColors, templates } from '../icons/icons_templates';

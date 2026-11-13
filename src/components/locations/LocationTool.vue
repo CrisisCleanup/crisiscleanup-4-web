@@ -319,7 +319,7 @@ import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import * as turf from '@turf/turf';
 import { useStore } from 'vuex';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import { useRefHistory } from '@vueuse/core';
 import type { PropType } from 'vue';
 import {

@@ -5,7 +5,7 @@
 <script lang="ts">
 import { onMounted } from 'vue';
 import * as d3 from 'd3';
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 
 export default defineComponent({
   name: 'CaseDonutChart',

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import * as _ from 'lodash-es';
 import type { TagInputData } from '@sipec/vue3-tags-input';
 import { createTags } from '@sipec/vue3-tags-input';
 import User from '@/models/User';

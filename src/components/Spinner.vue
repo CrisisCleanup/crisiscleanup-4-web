@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { sample } from 'lodash';
+import { sample } from 'lodash-es';
 import { useCurrentUser } from '@/hooks';
 
 const RANDOM_QUOTES = [

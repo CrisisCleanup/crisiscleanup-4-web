@@ -1,7 +1,7 @@
 import * as L from 'leaflet';
 import type { Sprite, Container } from 'pixi.js';
 import type { LatLng } from 'leaflet';
-import { throttle } from 'lodash';
+import { throttle } from 'lodash-es';
 import { getMarkerLayer } from '../../utils/map';
 import useRenderedMarkers, { type MapMarkerSprite } from './useRenderedMarkers';
 import useEmitter from '@/hooks/useEmitter';

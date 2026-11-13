@@ -11,12 +11,9 @@ vi.mock('vue-i18n', () => ({
 }));
 
 // Mock the lodash dependency
-vi.mock('lodash', () => ({
-  __esModule: true,
-  default: {
-    uniqueId: vi.fn(() => 'unique-id'),
-    startCase: vi.fn((str) => str),
-  },
+vi.mock('lodash-es', () => ({
+  uniqueId: vi.fn(() => 'unique-id'),
+  startCase: vi.fn((str) => str),
 }));
 
 // Mock the d3 module

@@ -5,7 +5,7 @@
 <script lang="ts">
 import { onMounted } from 'vue';
 import * as d3 from 'd3';
-import { sumBy } from 'lodash';
+import { sumBy } from 'lodash-es';
 import type { Portal } from '@/models/types';
 
 export default defineComponent({
