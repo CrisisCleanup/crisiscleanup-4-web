@@ -167,7 +167,7 @@
             v-for="column of columns"
             :key="column.key"
             :data-testid="`testColumn${column.key && item.id}Column`"
-            class="flex items-center p-2 cursor-pointer"
+            class="flex items-center p-2 cursor-pointer break-words"
             :class="column.class || []"
             :style="column.style || []"
             @click="handleColumnAction(column, item[column.key], item)"
@@ -183,14 +183,12 @@
                   column.transformer
                 "
               >
-                <span v-if="column.transformer">{{
-                  column.transformer(item[column.key], item)
-                }}</span>
-                <span v-else>{{
-                  column.subKey
-                    ? item[column.key][column.subKey]
-                    : item[column.key]
-                }}</span>
+                <span
+                  class="min-w-0"
+                  :class="{ truncate: column.truncate }"
+                  :title="column.truncate ? cellText(column, item) : undefined"
+                  >{{ cellText(column, item) }}</span
+                >
               </template>
             </slot>
           </div>
@@ -357,6 +355,8 @@ export interface TableColumnOption<T = Record<string, unknown>> {
   getSelectValues: (data: TableDataItem[]) => any;
   transformer: (value: any, data: T) => any;
   action: (...args: any[]) => any;
+  /** Show the text on one line with an ellipsis, and not on many lines. */
+  truncate: boolean;
 }
 
 export default defineComponent({
@@ -471,6 +471,15 @@ export default defineComponent({
       );
       return currentGroup;
     });
+
+    // The text of a cell that has no slot. A column with `truncate` shows one
+    // line with an ellipsis, and the full text as a tooltip. Other columns
+    // wrap, so the text never covers the next column.
+    function cellText(column: Partial<TableColumnOption>, item: TableDataItem) {
+      const value = item[column.key as string] as any;
+      if (column.transformer) return column.transformer(value, item);
+      return column.subKey ? value[column.subKey] : value;
+    }
 
     const gridTemplate = computed(() => {
       const columnWidths = props.columns.map((column) => column.width || '1fr');
@@ -680,6 +689,7 @@ export default defineComponent({
       gridStyleHeader,
       gridStyleBody,
       gridStyleRow,
+      cellText,
       setChecked,
       setShowingDetails,
       setAllChecked,

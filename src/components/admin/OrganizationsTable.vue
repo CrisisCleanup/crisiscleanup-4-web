@@ -36,7 +36,7 @@
       </div>
     </template>
     <template #actions="slotProps">
-      <div class="flex mr-2 w-full items-center">
+      <div class="flex flex-wrap gap-y-1 mr-2 w-full items-center">
         <base-button
           v-if="!slotProps.item.approved_by && !slotProps.item.rejected_by"
           data-testid="testApproveButton"

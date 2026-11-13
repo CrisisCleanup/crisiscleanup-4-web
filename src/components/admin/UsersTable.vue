@@ -9,32 +9,32 @@
     @change="$emit('change', $event)"
   >
     <template #actions="slotProps">
-      <base-button
-        :text="$t('actions.login_as')"
-        :alt="$t('actions.login_as')"
-        data-testid="testLoginAsButton"
-        variant="solid"
-        size="small"
-        class="mx-2"
-        :action="
-          () => {
-            loginAs(slotProps.item.id);
-          }
-        "
-      />
-      <base-button
-        :text="$t('actions.see_events')"
-        :alt="$t('actions.see_events')"
-        data-testid="testSeeEventsButton"
-        variant="solid"
-        size="small"
-        class="mx-2"
-        :action="
-          () => {
-            showUserEvents(slotProps.item);
-          }
-        "
-      />
+      <div class="flex flex-wrap items-center gap-1">
+        <base-button
+          :text="$t('actions.login_as')"
+          :alt="$t('actions.login_as')"
+          data-testid="testLoginAsButton"
+          variant="solid"
+          size="small"
+          :action="
+            () => {
+              loginAs(slotProps.item.id);
+            }
+          "
+        />
+        <base-button
+          :text="$t('actions.see_events')"
+          :alt="$t('actions.see_events')"
+          data-testid="testSeeEventsButton"
+          variant="solid"
+          size="small"
+          :action="
+            () => {
+              showUserEvents(slotProps.item);
+            }
+          "
+        />
+      </div>
     </template>
     <template #active_roles="slotProps">
       {{ getHighestRole(slotProps.item.active_roles) }}
