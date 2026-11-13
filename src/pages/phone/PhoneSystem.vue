@@ -176,7 +176,12 @@
             }
           "
         />
-        <span class="text-base">{{ $t('actions.history') }}</span>
+        <span v-if="showHistory" class="text-base">{{
+          $t('actions.history')
+        }}</span>
+        <span v-else-if="showFlags" class="text-base">{{
+          $t('actions.flag')
+        }}</span>
         <div></div>
       </div>
       <div class="flex-1 min-h-0 overflow-y-auto">
@@ -186,6 +191,25 @@
           :incident-id="currentIncidentId"
           :worksite-id="worksiteId"
         ></CaseHistory>
+        <CaseFlag
+          v-else-if="showFlags"
+          data-testid="testShowFlagsDiv"
+          :incident-id="String(currentIncidentId)"
+          :worksite-id="worksiteId"
+          @reload-case="
+            () => {
+              reloadCase();
+              showFlags = false;
+            }
+          "
+          @reload-map="
+            () => {
+              reloadMap();
+              showFlags = false;
+            }
+          "
+          @clear-case="clearCase"
+        ></CaseFlag>
         <WorksiteForm
           v-else
           ref="worksiteForm"
