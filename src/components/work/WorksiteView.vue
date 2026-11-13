@@ -383,12 +383,12 @@
       </div>
     </div>
 
-    <div class="form-footer flex justify-between p-3 gap-2">
+    <div class="form-footer flex items-center justify-between p-3 gap-2">
       <base-button
         v-if="workTypesClaimedByOrganization.length > 0"
         :data-testid="`testUnclaimButton`"
-        size="medium"
-        class="m-1 text-black p-3 px-4 border-2 border-black flex-grow"
+        size="large"
+        class="text-black border-2 border-black flex-grow"
         :text="$t('actions.unclaim')"
         :alt="$t('actions.unclaim')"
         :action="
@@ -400,9 +400,9 @@
       <base-button
         v-if="workTypesUnclaimed.length > 0"
         :data-testid="`testClaimButton`"
-        size="medium"
+        size="large"
         variant="solid"
-        class="m-1 text-black p-3 px-4 flex-grow"
+        class="text-black flex-grow"
         :text="$t('actions.claim')"
         :alt="$t('actions.claim')"
         :action="
@@ -416,8 +416,8 @@
       <base-button
         v-if="workTypesClaimedByOthersUnrequested.length > 0"
         :data-testid="`testRequestButton`"
-        size="medium"
-        class="m-1 text-black p-3 px-4 border-2 border-black flex-grow"
+        size="large"
+        class="text-black border-2 border-black flex-grow"
         :text="$t('actions.request')"
         :alt="$t('actions.request')"
         :action="
@@ -428,10 +428,10 @@
         "
       />
       <base-button
-        size="medium"
+        size="large"
         data-testid="testCloseWorksiteButton"
         variant="solid"
-        class="m-1 text-black p-3 px-4 flex-grow"
+        class="text-black flex-grow"
         :text="$t('actions.done')"
         :alt="$t('actions.done')"
         :action="

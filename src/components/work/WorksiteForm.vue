@@ -494,7 +494,7 @@
         </div>
       </template>
     </div>
-    <div class="form-footer flex justify-between p-3 gap-2">
+    <div class="form-footer flex items-center justify-between p-3 gap-2">
       <base-button
         size="large"
         data-testid="testCloseWorksiteButton"

@@ -106,7 +106,7 @@ export default defineComponent({
     },
   },
 
-  setup(props) {
+  setup(props, { slots }) {
     const delay = async (ms: number) =>
       new Promise((res) => setTimeout(res, ms));
     const loading = ref(false);
@@ -125,13 +125,34 @@ export default defineComponent({
       () => props.selector || `js-${kebabCase(buttonTitle.value)}`,
     );
 
+    // A button with a background or a border has one of three heights. A
+    // caller that gives no size gets the medium height. A button that looks
+    // like text (a link, or no variant) has no height of its own, because it
+    // often wraps other content.
+    const hasBox = computed(
+      () =>
+        ['solid', 'outline', 'outline-dark', 'danger'].includes(
+          props.variant,
+        ) || ['primary', 'danger', 'warning'].includes(props.type),
+    );
+    const buttonSize = computed(() => {
+      if (['large', 'lg'].includes(props.size)) return 'large';
+      if (['small', 'sm'].includes(props.size)) return 'small';
+      if (['medium', 'md'].includes(props.size) || hasBox.value) {
+        return 'medium';
+      }
+      return '';
+    });
+    const isIconOnly = computed(() => props.text === '' && !slots.default);
+
     const styles = computed(() => {
       const styleObject = {
-        'large text-h3 font-h3': ['large', 'lg'].includes(props.size),
-        'medium text-sans text-h4 font-h4': ['medium', 'md'].includes(
-          props.size,
-        ),
-        'small text-bodysm font-bodysm': ['small', 'sm'].includes(props.size),
+        'large text-h3 font-h3': buttonSize.value === 'large',
+        'medium text-sans text-h4 font-h4':
+          buttonSize.value === 'medium' && props.size !== '',
+        medium: buttonSize.value === 'medium',
+        'small text-bodysm font-bodysm': buttonSize.value === 'small',
+        'icon-only': isIconOnly.value,
         disabled: props.disabled,
         // **** DEPRECATED ****
         primary: props.type === 'primary',
@@ -289,22 +310,44 @@ button.text.disabled:hover {
   @apply text-crisiscleanup-grey-900;
 }
 
+/* The three button heights. The padding is set here, and not by the caller,
+   so that all buttons of one size have the same height. A label that wraps
+   to two lines makes the button taller. */
+button.small,
+button.medium,
+button.large {
+  line-height: 1.2;
+}
+
 button.small {
-  min-height: 24px;
-  padding-left: 15px;
-  padding-right: 15px;
+  min-height: 28px;
+  padding: 2px 12px;
 }
 
 button.medium {
-  min-height: 32px;
-  padding-left: 20px;
-  padding-right: 20px;
+  min-height: 36px;
+  padding: 4px 16px;
 }
 
 button.large {
-  min-height: 50px;
-  padding-left: 34px;
-  padding-right: 34px;
+  min-height: 44px;
+  padding: 4px 20px;
+}
+
+/* A button with an icon and no label is a square. */
+button.small.icon-only {
+  min-width: 28px;
+  padding: 0;
+}
+
+button.medium.icon-only {
+  min-width: 36px;
+  padding: 0;
+}
+
+button.large.icon-only {
+  min-width: 44px;
+  padding: 0;
 }
 
 button.text-dark {
