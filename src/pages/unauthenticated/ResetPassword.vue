@@ -41,7 +41,7 @@
         v-if="tokenValid === true"
         ref="form"
         data-testid="testPasswordResetFormDiv"
-        class="w-108 flex flex-col"
+        class="w-108 max-w-full flex flex-col"
         autocomplete="off"
       >
         <base-input

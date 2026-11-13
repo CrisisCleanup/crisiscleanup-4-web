@@ -4,7 +4,7 @@
       v-if="invitation && invitation.existing_user"
       ref="form"
       data-testid="testInvitationTransferFormDiv"
-      class="form w-108 flex flex-col"
+      class="form w-108 max-w-full flex flex-col"
       @submit.prevent
     >
       <div
@@ -52,7 +52,12 @@
         :disabled="!transferOption || transferOption === 'none'"
       />
     </form>
-    <form v-else ref="form" class="form w-108 flex flex-col" @submit.prevent>
+    <form
+      v-else
+      ref="form"
+      class="form w-108 max-w-full flex flex-col"
+      @submit.prevent
+    >
       <div
         v-if="invitation"
         class="text-2xl font-light"

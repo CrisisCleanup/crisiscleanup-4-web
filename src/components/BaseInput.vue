@@ -330,6 +330,9 @@ export default defineComponent({
 
     const defaultInputClasses = computed(() => ({
       'flex-grow': true,
+      // An input does not shrink below its default width of about 20
+      // characters, so it must be told that it can.
+      'min-w-0': true,
       'text-base': !props.inputClasses,
       xlarge: props.size === 'xlarge',
       large: props.size === 'large',

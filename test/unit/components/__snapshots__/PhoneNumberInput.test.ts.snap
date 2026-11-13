@@ -12,7 +12,7 @@ exports[`PhoneNumberInput > should render correctly and match snapshot 1`] = `
   >
     <input
       autocomplete="off"
-      class="flex-grow text-base large"
+      class="flex-grow min-w-0 text-base large"
       data-v-82c69faf=""
       id="base-input-5"
       pattern=".*"
@@ -43,7 +43,7 @@ exports[`PhoneNumberInput > should render correctly and match snapshot when requ
   >
     <input
       autocomplete="off"
-      class="flex-grow text-base large"
+      class="flex-grow min-w-0 text-base large"
       data-v-82c69faf=""
       id="base-input-7"
       pattern=".*"
@@ -82,7 +82,7 @@ exports[`PhoneNumberInput > should render correctly and match snapshot with labe
   >
     <input
       autocomplete="off"
-      class="flex-grow text-base large"
+      class="flex-grow min-w-0 text-base large"
       data-v-82c69faf=""
       id="base-input-6"
       pattern=".*"

@@ -9,7 +9,11 @@
           {{ $t('actions.accept_invite') }}
         </div>
       </div>
-      <form ref="form" class="w-108 flex flex-col" autocomplete="off">
+      <form
+        ref="form"
+        class="w-108 max-w-full flex flex-col"
+        autocomplete="off"
+      >
         <fieldset>
           <base-text variant="body" weight="700" class="mt-4 mb-2 pt-8">
             {{ $t('actions.accept_invite') }}
