@@ -252,17 +252,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      '. top top top top top'
-      '. main main main main main'
-      '. main main main main main'
-      '. main main main main main';
-  }
-}
-
 .input {
   @apply m-1;
 }

@@ -9,7 +9,11 @@
           {{ $t('resetPassword.enter_email_for_reset_instructions') }}
         </div>
       </div>
-      <form ref="form" class="w-108 flex flex-col" autocomplete="off">
+      <form
+        ref="form"
+        class="w-108 max-w-full flex flex-col"
+        autocomplete="off"
+      >
         <base-input
           v-model="email"
           data-testid="testYourEmailTextInput"
@@ -113,16 +117,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      '. main main main main main'
-      '. main main main main main'
-      '. main main main main main';
-  }
-}
-
 .input {
   @apply m-1;
 }

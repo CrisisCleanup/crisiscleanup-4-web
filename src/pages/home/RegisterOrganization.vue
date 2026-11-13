@@ -334,25 +334,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      'nav . main main main main'
-      'nav . main main main main'
-      'actions actions main main main main'
-      '. . main main main main';
-    overflow: auto;
-
-    .grid {
-      &--overlay {
-        grid-row: 1 / span 5;
-        grid-column: 1 / span 3;
-      }
-    }
-  }
-}
-
 .form-field {
   @apply w-full sm:w-2/5 m-3;
 }
@@ -366,19 +347,6 @@ export default defineComponent({
 }
 
 @media only screen and (max-width: 640px) {
-  .homegrid {
-    height: var(--cc-viewport-height);
-    &.grid-container {
-      grid-template-areas:
-        'logo'
-        'main'
-        'survivors'
-        'nav'
-        'actions';
-      grid-template-rows: 0.5fr 0.5fr 4fr 1fr;
-    }
-  }
-
   .form-field {
     @apply w-full;
   }

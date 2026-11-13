@@ -11,7 +11,7 @@
         </a>
       </div>
     </div>
-    <IncidentContact v-if="!noHotline" class="w-full md:w-max hotline m-8" />
+    <IncidentContact v-if="!noHotline" class="md:w-max hotline m-8" />
     <div class="main">
       <slot />
     </div>
@@ -318,22 +318,42 @@ ol.fifteen > li:before {
 <style scoped>
 .main-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(5, 1fr);
   grid-template-areas:
-    'logo . . . hotline'
-    'nav main main main main'
-    'register main main main main'
-    '. . . footer footer';
+    'logo logo logo logo logo'
+    'hotline hotline hotline hotline hotline'
+    'main main main main main'
+    'register register register register register'
+    'nav nav nav nav nav'
+    'footer footer footer footer footer';
 }
 
 .main-grid.no-hotline {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:
-    'logo main main main main'
-    'nav main main main main'
-    'register main main main main'
-    '. main main main main';
+    'logo logo logo logo logo'
+    'main main main main main'
+    'main main main main main'
+    'register register register register register'
+    'nav nav nav nav nav'
+    'footer footer footer footer footer';
+}
+
+@media (min-width: theme('screens.md')) {
+  .main-grid {
+    grid-template-areas:
+      'logo . . . hotline'
+      'nav main main main main'
+      'register main main main main'
+      '. . . footer footer';
+  }
+
+  .main-grid.no-hotline {
+    grid-template-areas:
+      'logo main main main main'
+      'nav main main main main'
+      'register main main main main'
+      '. main main main main';
+  }
 }
 
 .logo {
@@ -344,6 +364,10 @@ ol.fifteen > li:before {
 }
 .main {
   grid-area: main;
+  /* A grid item does not shrink below its content by default. Without this, a
+     long URL or a wide table makes the page scroll sideways on a phone. */
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 .register {
   grid-area: register;
@@ -356,29 +380,5 @@ ol.fifteen > li:before {
 }
 .globe {
   grid-area: globe;
-}
-@media screen and (max-width: 768px) {
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    grid-template-areas:
-      'logo logo logo logo logo'
-      'hotline hotline hotline hotline hotline'
-      'main main main main main'
-      'register register register register register'
-      'nav nav nav nav nav'
-      'footer footer footer footer footer';
-  }
-  .main-grid.no-hotline {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-    grid-template-areas:
-      'logo logo logo logo logo'
-      'main main main main main'
-      'main main main main main'
-      'register register register register register'
-      'nav nav nav nav nav'
-      'footer footer footer footer footer';
-  }
 }
 </style>

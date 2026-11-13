@@ -38,78 +38,80 @@
         <ol class="outline four">
           <li>
             <div v-html="$t('privacy.how_used_intro')"></div>
-            <table>
-              <thead>
-                <tr>
-                  <th>{{ $t('privacy.table_th_info_collected') }}</th>
-                  <th>{{ $t('privacy.table_th_info_primary_purpose') }}</th>
-                  <th>{{ $t('privacy.table_th_info_required') }}</th>
-                  <th>{{ $t('privacy.table_th_shared_participants') }}</th>
-                  <th>{{ $t('privacy.table_th_shared_public') }}</th>
-                  <th>{{ $t('privacy.table_th_pii_npii') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{{ $t('privacy.table_client_contact_info') }}</td>
-                  <td>{{ $t('privacy.table_empower_recovery') }}</td>
-                  <td>{{ $t('privacy.table_required') }}</td>
-                  <td>{{ $t('privacy.table_shared_orgs') }}</td>
-                  <td>{{ $t('privacy.table_not_shared_public') }}</td>
-                  <td>{{ $t('privacy.table_pii') }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t('privacy.table_lat_lon') }}</td>
-                  <td>{{ $t('privacy.table_derived_from_address') }}</td>
-                  <td>{{ $t('privacy.table_required') }}</td>
-                  <td>{{ $t('privacy.table_shared_orgs') }}</td>
-                  <td>{{ $t('privacy.table_randomized_public') }}</td>
-                  <td>{{ $t('privacy.table_pii') }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t('privacy.table_priortization_info') }}</td>
-                  <td>{{ $t('privacy.table_variety_questions') }}</td>
-                  <td>{{ $t('privacy.table_optional') }}</td>
-                  <td>{{ $t('privacy.table_shared_orgs') }}</td>
-                  <td>{{ $t('privacy.table_not_shared_public') }}</td>
-                  <td>{{ $t('privacy.table_npii') }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t('privacy.table_damage_info') }}</td>
-                  <td>
-                    {{ $t('privacy.table_variety_questions_response') }}
-                  </td>
-                  <td>{{ $t('privacy.table_optional') }}</td>
-                  <td>{{ $t('privacy.table_shared_orgs') }}</td>
-                  <td>{{ $t('privacy.table_some_shared_public') }}</td>
-                  <td>{{ $t('privacy.table_npii') }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t('privacy.table_your_name_contact') }}</td>
-                  <td>{{ $t('privacy.table_your_name_contact_purpose') }}</td>
-                  <td>{{ $t('privacy.table_required') }}</td>
-                  <td>{{ $t('privacy.table_shared_orgs') }}</td>
-                  <td>{{ $t('privacy.table_not_shared_public') }}</td>
-                  <td>{{ $t('privacy.table_pii') }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t('privacy.table_usage_habits') }}</td>
-                  <td>{{ $t('privacy.table_usage_habits_google') }}</td>
-                  <td>{{ $t('privacy.table_some_optional_no_cookies') }}</td>
-                  <td>{{ $t('privacy.table_shared_only_aggregate') }}</td>
-                  <td>{{ $t('privacy.table_shared_only_aggregate') }}</td>
-                  <td>{{ $t('privacy.table_npii') }}</td>
-                </tr>
-                <tr>
-                  <td>{{ $t('privacy.table_your_materials') }}</td>
-                  <td>{{ $t('privacy.table_videos_pictures') }}</td>
-                  <td>{{ $t('privacy.table_optional') }}</td>
-                  <td>{{ $t('privacy.table_shared_orgs') }}</td>
-                  <td>{{ $t('privacy.table_shared_public') }}</td>
-                  <td>{{ $t('privacy.table_npii') }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <div class="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ $t('privacy.table_th_info_collected') }}</th>
+                    <th>{{ $t('privacy.table_th_info_primary_purpose') }}</th>
+                    <th>{{ $t('privacy.table_th_info_required') }}</th>
+                    <th>{{ $t('privacy.table_th_shared_participants') }}</th>
+                    <th>{{ $t('privacy.table_th_shared_public') }}</th>
+                    <th>{{ $t('privacy.table_th_pii_npii') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>{{ $t('privacy.table_client_contact_info') }}</td>
+                    <td>{{ $t('privacy.table_empower_recovery') }}</td>
+                    <td>{{ $t('privacy.table_required') }}</td>
+                    <td>{{ $t('privacy.table_shared_orgs') }}</td>
+                    <td>{{ $t('privacy.table_not_shared_public') }}</td>
+                    <td>{{ $t('privacy.table_pii') }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t('privacy.table_lat_lon') }}</td>
+                    <td>{{ $t('privacy.table_derived_from_address') }}</td>
+                    <td>{{ $t('privacy.table_required') }}</td>
+                    <td>{{ $t('privacy.table_shared_orgs') }}</td>
+                    <td>{{ $t('privacy.table_randomized_public') }}</td>
+                    <td>{{ $t('privacy.table_pii') }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t('privacy.table_priortization_info') }}</td>
+                    <td>{{ $t('privacy.table_variety_questions') }}</td>
+                    <td>{{ $t('privacy.table_optional') }}</td>
+                    <td>{{ $t('privacy.table_shared_orgs') }}</td>
+                    <td>{{ $t('privacy.table_not_shared_public') }}</td>
+                    <td>{{ $t('privacy.table_npii') }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t('privacy.table_damage_info') }}</td>
+                    <td>
+                      {{ $t('privacy.table_variety_questions_response') }}
+                    </td>
+                    <td>{{ $t('privacy.table_optional') }}</td>
+                    <td>{{ $t('privacy.table_shared_orgs') }}</td>
+                    <td>{{ $t('privacy.table_some_shared_public') }}</td>
+                    <td>{{ $t('privacy.table_npii') }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t('privacy.table_your_name_contact') }}</td>
+                    <td>{{ $t('privacy.table_your_name_contact_purpose') }}</td>
+                    <td>{{ $t('privacy.table_required') }}</td>
+                    <td>{{ $t('privacy.table_shared_orgs') }}</td>
+                    <td>{{ $t('privacy.table_not_shared_public') }}</td>
+                    <td>{{ $t('privacy.table_pii') }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t('privacy.table_usage_habits') }}</td>
+                    <td>{{ $t('privacy.table_usage_habits_google') }}</td>
+                    <td>{{ $t('privacy.table_some_optional_no_cookies') }}</td>
+                    <td>{{ $t('privacy.table_shared_only_aggregate') }}</td>
+                    <td>{{ $t('privacy.table_shared_only_aggregate') }}</td>
+                    <td>{{ $t('privacy.table_npii') }}</td>
+                  </tr>
+                  <tr>
+                    <td>{{ $t('privacy.table_your_materials') }}</td>
+                    <td>{{ $t('privacy.table_videos_pictures') }}</td>
+                    <td>{{ $t('privacy.table_optional') }}</td>
+                    <td>{{ $t('privacy.table_shared_orgs') }}</td>
+                    <td>{{ $t('privacy.table_shared_public') }}</td>
+                    <td>{{ $t('privacy.table_npii') }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <p v-html="$t('privacy.visitor_npii_collected')"></p>
             <p v-html="$t('privacy.how_use_visitor_npii')"></p>
           </li>
@@ -162,38 +164,6 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-.homegrid {
-  &.grid-container {
-    grid-template-areas:
-      'logo . . . . survivors'
-      'nav . main main main .'
-      'nav . main main main .'
-      'actions actions main main main .'
-      '. . main main main .';
-    overflow: auto;
-
-    .grid {
-      &--overlay {
-        grid-row: 1 / span 5;
-        grid-column: 1 / span 3;
-      }
-    }
-  }
-}
-@media only screen and (max-width: 640px) {
-  .homegrid {
-    height: var(--cc-viewport-height);
-    &.grid-container {
-      grid:
-        [r1] 'logo survivors' [r1end]
-        [r4] 'nav nav' [r4end]
-        [r2] 'main main' [r2end]
-        [r3] 'actions actions' [r3end]
-        / auto;
-      grid-template-rows: 0.5fr 0.5fr 4fr 1fr;
-    }
-  }
-}
 .form-field {
   @apply w-2/5 m-3;
 }

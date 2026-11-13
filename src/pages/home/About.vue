@@ -955,21 +955,6 @@ export default defineComponent({
 .about > li {
   @apply underline;
 }
-@media only screen and (max-width: 640px) {
-  .homegrid {
-    height: var(--cc-viewport-height);
-
-    &.grid-container {
-      grid:
-        [r1] 'logo survivors' [r1end]
-        [r4] 'nav nav' [r4end]
-        [r3] 'actions actions' [r3end]
-        [r2] 'main main' [r2end]
-        / auto;
-      grid-template-rows: 0.5fr 0.5fr 4fr 1fr;
-    }
-  }
-}
 
 .resp-video {
   position: absolute;
