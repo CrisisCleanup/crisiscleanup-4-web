@@ -1,5 +1,5 @@
 import { i18n } from '@/modules/i18n';
-import { MD5 } from 'crypto-js';
+import MD5 from 'crypto-js/md5';
 import { store } from '@/store';
 import type { Ani, Portal } from '@/models/types';
 import _ from 'lodash';
