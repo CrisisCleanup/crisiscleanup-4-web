@@ -19,7 +19,7 @@
       </slot>
     </div>
 
-    <template v-if="mq.mdMinus">
+    <template v-if="isMobile">
       <modal v-show="showComponent" @close="() => (showComponent = false)">
         <slot name="component"></slot>
       </modal>
@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { onBeforeMount, ref, watch } from 'vue';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import useEmitter from '../../hooks/useEmitter';
 import Modal from '@/components/Modal.vue';
 
@@ -71,7 +71,7 @@ export default defineComponent({
     const showComponent = ref(false);
     const top = ref(0);
     const { emitter } = useEmitter();
-    const mq = useMq();
+    const { isMobile } = useViewport();
 
     function toggleComponent() {
       if (props.keepOpen) {
@@ -112,7 +112,7 @@ export default defineComponent({
       top,
       showComponent,
       toggleComponent,
-      mq,
+      isMobile,
     };
   },
 });

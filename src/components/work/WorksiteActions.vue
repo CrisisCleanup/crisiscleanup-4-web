@@ -1,5 +1,5 @@
 <template>
-  <template v-if="mq.mdMinus">
+  <template v-if="isMobile">
     <base-button
       text=""
       data-testid="testSearchButton"
@@ -633,7 +633,7 @@
 import { computed, defineComponent, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import LocationType from '../../models/LocationType';
 import Team from '../../models/Team';
 import Incident from '../../models/Incident';
@@ -668,7 +668,7 @@ export default defineComponent({
   emits: ['applyLocation', 'applyTeamGeoJson', 'toggleUserLocations'],
   setup(props, { emit }) {
     const store = useStore();
-    const mq = useMq();
+    const { isMobile } = useViewport();
     const { currentUser, currentOrganization } = useCurrentUser();
     const currentIncidentId = computed(
       () => store.getters['incident/currentIncidentId'],
@@ -879,7 +879,7 @@ export default defineComponent({
       filtersCount,
       pdas,
       showingHeatMap,
-      mq,
+      isMobile,
       toggleUserLocations,
       showingUserLocations,
       search,

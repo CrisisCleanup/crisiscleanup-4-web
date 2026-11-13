@@ -415,7 +415,6 @@ import PewPewNavBar from '@/components/navigation/PewPewNavBar.vue';
 import { useAuthStore } from '@/hooks';
 import PhoneNumberDisplay from '@/components/PhoneNumberDisplay.vue';
 import type { Sprite, WorksiteType } from '@/types';
-import { useMq } from 'vue3-mq';
 
 interface QueryFilter {
   start_date: moment.Dayjs;
@@ -458,7 +457,6 @@ export default {
     const { t } = useI18n();
     const authStore = useAuthStore();
     const route = useRoute();
-    const mq = useMq();
 
     // State
     const queryFilter = ref<QueryFilter>({
@@ -945,7 +943,6 @@ export default {
       logout: () => authStore.logout(),
       $t: (text: string) => (text ? t(text) : undefined),
       showSidebar,
-      mq,
     };
   },
 };

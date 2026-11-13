@@ -776,7 +776,6 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from 'vue-toastification';
 import { useRoute, useRouter } from 'vue-router';
 import moment from '@/utils/dates';
-import { useMq } from 'vue3-mq';
 import { getErrorMessage } from '../../utils/errors';
 import LocationTool from '../../components/locations/LocationTool.vue';
 import { hash, cachedGet } from '../../utils/promise';
@@ -808,8 +807,6 @@ export default defineComponent({
     const { confirm, selection, component } = useDialogs();
     const { saveCapabilities } = useCapabilities();
     const { currentIncidentId } = useCurrentIncident();
-
-    const mq = useMq();
 
     const state = reactive({
       apiUrl: import.meta.env.VITE_APP_API_BASE_URL,
@@ -1535,7 +1532,6 @@ export default defineComponent({
       copyUsers,
       copyApiKey,
       generateApiKey,
-      $mq: mq.current,
       editLocation,
       notifyOrganization,
     };

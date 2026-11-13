@@ -51,7 +51,7 @@
             v-for="child in capability.children"
             :key="`${capability.id}:${child.id}`"
           >
-            <div class="border-b p-2 py-4" :class="$mq === 'sm' ? 'w-60' : ''">
+            <div class="border-b p-2 py-4">
               {{ $t(child.name_t) }}
             </div>
             <template

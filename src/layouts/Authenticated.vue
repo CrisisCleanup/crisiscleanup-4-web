@@ -1,7 +1,7 @@
 <template>
   <template v-if="isPageReady">
     <!-- For mobile screens -->
-    <template v-if="mq.mdMinus">
+    <template v-if="isMobile">
       <div class="flex flex-col">
         <header
           class="fixed inset-x-0 top-0 h-12 z-header bg-white border-b border-crisiscleanup-grey-100 flex items-center px-3 gap-2"
@@ -265,7 +265,7 @@ import { useAsyncState } from '@vueuse/core';
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import Incident from '@/models/Incident';
 import Organization from '@/models/Organization';
 import Language from '@/models/Language';
@@ -323,7 +323,7 @@ export default defineComponent({
     LucideMenu,
   },
   setup() {
-    const mq = useMq();
+    const { isMobile } = useViewport();
 
     const {
       currentUser,
@@ -675,7 +675,7 @@ export default defineComponent({
       isLandscape,
       slideOverVisible,
       toggle,
-      mq,
+      isMobile,
       showIncidentSelectionModal,
     };
   },

@@ -1,5 +1,5 @@
 <template>
-  <template v-if="mq.mdMinus">
+  <template v-if="isMobile">
     <div v-if="!isViewing && !isEditing">
       <SimpleMap
         v-if="showingMap"
@@ -864,20 +864,6 @@
               "
             />
           </div>
-          <base-button
-            v-if="$mq === 'sm'"
-            data-testid="testShowMapButton"
-            type="bare"
-            icon="map"
-            class="text-gray-700 pt-2"
-            :action="
-              () => {
-                showMobileMap = true;
-              }
-            "
-            :text="$t('casesVue.show_map')"
-            :alt="$t('casesVue.show_map')"
-          />
         </div>
         <div v-if="showingDetails" class="work-page__form-toggler">
           <base-button
@@ -973,7 +959,7 @@ import type { Sprite } from 'pixi.js';
 import moment from '@/utils/dates';
 import type { LatLng } from 'leaflet';
 import * as L from 'leaflet';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import WorksiteSearchInput from '../components/work/WorksiteSearchInput.vue';
 import PhoneComponentButton from '../components/phone/PhoneComponentButton.vue';
 import SimpleMap from '../components/SimpleMap.vue';
@@ -1062,7 +1048,7 @@ export default defineComponent({
     const { t } = useI18n();
     const store = useStore();
     const { emitter } = useEmitter();
-    const mq = useMq();
+    const { isMobile } = useViewport();
     const { $can } = useAcl();
 
     const { currentIncidentId, currentIncident } = useCurrentIncident();
@@ -1107,7 +1093,6 @@ export default defineComponent({
     const showingFeed = ref<boolean>(false);
     const showHistory = ref<boolean>(false);
     const showFlags = ref<boolean>(false);
-    const showMobileMap = ref<boolean>(false);
     const isEditing = ref<boolean>(false);
     const isViewing = ref<boolean>(false);
     const caseImages = ref<Record<string, any>[]>([]);
@@ -2001,7 +1986,7 @@ export default defineComponent({
       showHistory.value = false;
       showFlags.value = false;
       router.push(`/incident/${currentIncidentId.value}/work`);
-      if (mq.mdMinus) {
+      if (isMobile.value) {
         showMap(true);
       }
     }
@@ -2347,7 +2332,6 @@ export default defineComponent({
       showFlags,
       selectCase,
       showingDetails,
-      showMobileMap,
       onUpdateQuery,
       onUpdateFilters,
       clearFilters,
@@ -2401,7 +2385,7 @@ export default defineComponent({
       queryFilterLabel,
       getOrganizationName,
       clearQuery,
-      mq,
+      isMobile,
       showingSearchModal,
       caseImages,
       photoMap,

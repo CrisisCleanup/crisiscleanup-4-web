@@ -11,8 +11,7 @@
             {{ $t(capability.name_t) }}
           </div>
           <div
-            class="grid text-center p-1"
-            :class="[$mq === 'sm' ? '' : 'text-bodyxsm']"
+            class="grid text-center p-1 text-bodyxsm"
             :style="`grid-template-columns: repeat(${phases.length}, minmax(0, 1fr));`"
           >
             <div

@@ -1,5 +1,5 @@
 <template>
-  <template v-if="mq.mdMinus">
+  <template v-if="isMobile">
     <div class="p-3 grid grid-cols-1 gap-2">
       <InviteUsers />
       <base-input
@@ -585,7 +585,7 @@
 
 <script lang="ts">
 import { mapKeys, startCase, throttle } from 'lodash-es';
-import { useMq } from 'vue3-mq';
+import { useViewport } from '@/hooks/useViewport';
 import { useToast } from 'vue-toastification';
 import InviteUsers from '@/components/modals/InviteUsers.vue';
 import User from '@/models/User';
@@ -625,7 +625,7 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore();
-    const mq = useMq();
+    const { isMobile } = useViewport();
     const { t } = useI18n();
     const $toasted = useToast();
     const { currentIncidentId, currentIncident, isCurrentIncidentLoading } =
@@ -828,7 +828,7 @@ export default defineComponent({
       onFilter,
       onSearch,
       onSelectedUser,
-      mq,
+      isMobile,
       showUserFilterModal,
       selectedUser,
       saveUser,

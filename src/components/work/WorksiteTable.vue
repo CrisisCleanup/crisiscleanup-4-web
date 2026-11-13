@@ -56,7 +56,6 @@ import {
   getStatusName,
 } from '../../filters';
 import AjaxTable from '@/components/AjaxTable.vue';
-import { useMq } from 'vue3-mq';
 import ColoredCircle from '@/components/ColoredCircle.vue';
 import Table from '@/components/Table.vue';
 
@@ -71,7 +70,6 @@ export default defineComponent({
 
   setup() {
     const { t } = useI18n();
-    const mq = useMq();
 
     const columns = ref([
       {
@@ -124,7 +122,6 @@ export default defineComponent({
       getColorForStatus,
       getWorkTypeName,
       getStatusName,
-      mq,
     };
   },
 });

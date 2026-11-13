@@ -113,7 +113,6 @@ import { store } from './store';
 import 'vue-toastification/dist/index.css';
 
 // Responsive
-import { Vue3Mq } from 'vue3-mq';
 
 // Popover
 import { Dropdown, VTooltip, Menu } from 'floating-vue';
@@ -288,7 +287,6 @@ const buildApp = (app: VueApp) =>
     .use(store)
     // provide axios globally
     .provide('axios', axios)
-    .use(Vue3Mq)
     .use(router)
     .use(i18n)
     .use(Toast, {

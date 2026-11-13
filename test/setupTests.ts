@@ -4,7 +4,6 @@ import { setupServer } from 'msw/node';
 import { rest } from 'msw';
 import { config, flushPromises } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
-import { Vue3Mq } from 'vue3-mq';
 
 const i18n = createI18n({
   legacy: false,
@@ -18,7 +17,7 @@ config.global.mocks = {
   $t: (string: string, context: Record<string, any>) => string, // just return translation key
 };
 
-config.global.plugins = [i18n, Vue3Mq];
+config.global.plugins = [i18n];
 
 vi.mock('@/modules/i18n', () => ({
   i18n: {
@@ -55,12 +54,6 @@ vi.mock('vue-json-viewer', () => {
   return {
     __esModule: true,
     default: vi.fn(),
-  };
-});
-vi.mock('vue3-mq', async () => {
-  const actual = await vi.importActual<Record<string, unknown>>('vue3-mq');
-  return {
-    ...actual,
   };
 });
 

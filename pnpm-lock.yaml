@@ -341,9 +341,6 @@ importers:
       vue3-apexcharts:
         specifier: ^1.5.2
         version: 1.7.0(apexcharts@3.54.1)(vue@3.5.12(typescript@5.6.3))
-      vue3-mq:
-        specifier: ^4.0.0
-        version: 4.0.0(vue@3.5.12(typescript@5.6.3))
       vue3-promise-dialog:
         specifier: ^0.3.4
         version: 0.3.4(vue@3.5.12(typescript@5.6.3))
@@ -7081,11 +7078,6 @@ packages:
     peerDependencies:
       apexcharts: '> 3.0.0'
       vue: '> 3.0.0'
-
-  vue3-mq@4.0.0:
-    resolution: {integrity: sha512-uyWNLFG+NPqpYW7MlXfW7fpT/B3GMfD9R72KM9zlHK/358digw1ZTiU6y+4KyK9ejrQ7TPaZQ4+/0ANXkqYHjA==}
-    peerDependencies:
-      vue: ^3.0.5
 
   vue3-promise-dialog@0.3.4:
     resolution: {integrity: sha512-JquYYE+1lxuGgncD8Q+8KTFAWUJsNWnhuYPSsOFRKzz3kz66Rjz5pdlEW6GLfUlV3cKak9T8b3mV49B4ouEgVg==}
@@ -14738,10 +14730,6 @@ snapshots:
   vue3-apexcharts@1.7.0(apexcharts@3.54.1)(vue@3.5.12(typescript@5.6.3)):
     dependencies:
       apexcharts: 3.54.1
-      vue: 3.5.12(typescript@5.6.3)
-
-  vue3-mq@4.0.0(vue@3.5.12(typescript@5.6.3)):
-    dependencies:
       vue: 3.5.12(typescript@5.6.3)
 
   vue3-promise-dialog@0.3.4(vue@3.5.12(typescript@5.6.3)):
