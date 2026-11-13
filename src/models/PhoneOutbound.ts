@@ -108,7 +108,8 @@ export default class PhoneOutbound extends CCUModel {
       async getRemainingCallbackCount(incidentId: string) {
         try {
           const phoneOutbound = await this.get(
-            `/phone_outbound?incident_id=${incidentId}&completion__lt=1&limit=1&filter_ani=1&locked_at__isnull=True&call_type=callback`,
+            `/phone_outbound/count?incident_id=${incidentId}&completion__lt=1&filter_ani=1&locked_at__isnull=True&call_type=callback`,
+            { save: false },
           );
           const {
             response: { data },
@@ -121,7 +122,8 @@ export default class PhoneOutbound extends CCUModel {
       async getRemainingCalldownCount(incidentId: string) {
         try {
           const phoneOutbound = await this.get(
-            `/phone_outbound?incident_id=${incidentId}&completion__lt=1&limit=1&filter_ani=1&locked_at__isnull=True&call_type=calldown`,
+            `/phone_outbound/count?incident_id=${incidentId}&completion__lt=1&filter_ani=1&locked_at__isnull=True&call_type=calldown`,
+            { save: false },
           );
           const {
             response: { data },
