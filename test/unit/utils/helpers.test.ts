@@ -69,15 +69,8 @@ describe('utils > helpers', () => {
     expect(r0).toBe('hello world');
   });
 
-  test('generateHash', () => {
-    const str = 'test';
-    vi.mock('crypto-js', () => ({
-      MD5(s: string) {
-        return `hashed:${s}`;
-      },
-    }));
-    const result = generateHash(str);
-    expect(result).toMatchInlineSnapshot('"hashed:test"');
+  test('generateHash returns the MD5 hex digest of a string', () => {
+    expect(generateHash('test')).toBe('098f6bcd4621d373cade4e832627b4f6');
   });
 
   test('getApiUrl', () => {

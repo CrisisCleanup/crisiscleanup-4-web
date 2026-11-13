@@ -103,7 +103,6 @@ import Badge from './components/Badge.vue';
 import BasePill from './components/BasePill.vue';
 import Tag from './components/Tag.vue';
 import Modal from './components/Modal.vue';
-import Authenticated from './layouts/Authenticated.vue';
 
 // Icons
 
@@ -267,7 +266,12 @@ const buildApp = (app: VueApp) =>
     .component('BasePill', BasePill)
     .component('Tag', Tag)
     .component('TagInput', VueTagsInput)
-    .component('AuthenticatedLayout', Authenticated)
+    // A visitor who is not signed in never renders this layout, so it loads
+    // only when a route needs it.
+    .component(
+      'AuthenticatedLayout',
+      defineAsyncComponent(() => import('./layouts/Authenticated.vue')),
+    )
     .component('UnauthenticatedLayout', Unauthenticated)
     .component('BaseSelect', BaseSelect)
     .component('BaseCheckbox', BaseCheckbox)
