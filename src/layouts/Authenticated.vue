@@ -127,7 +127,7 @@
             </template>
           </v-popover>
         </header>
-        <main :ref="setPageSlot" class="pt-12 pb-16">
+        <main :ref="setPageSlot" class="ccu-mobile-main pt-12">
           <slot v-if="!keepsPage" />
         </main>
         <footer
@@ -681,7 +681,6 @@ export default defineComponent({
   grid-template-areas:
     'sidebar header'
     'sidebar main';
-  padding-bottom: env(safe-area-inset-bottom);
   padding-right: env(safe-area-inset-right);
 }
 
@@ -699,6 +698,7 @@ export default defineComponent({
   grid-area: sidebar;
   background-color: theme('colors.crisiscleanup-dark.900');
   padding-left: env(safe-area-inset-left);
+  padding-bottom: var(--cc-safe-area-bottom);
 }
 
 .header {
@@ -710,6 +710,9 @@ export default defineComponent({
   grid-area: main;
   min-height: 0;
   min-width: 0;
+  /* The sidebar goes to the bottom edge of the screen. Only the page stays
+     above the home indicator of a phone. */
+  padding-bottom: var(--cc-safe-area-bottom);
 }
 
 .incident-tile :deep(.standard-icon),
@@ -723,11 +726,16 @@ export default defineComponent({
   justify-content: center;
 }
 
+/* The bottom nav is 4rem high, plus the home indicator area of a phone. */
+.ccu-mobile-main {
+  padding-bottom: calc(4rem + var(--cc-safe-area-bottom));
+}
+
 .ccu-mobile-nav {
   background-color: theme('colors.crisiscleanup-dark.900');
   border-top: 1px solid theme('colors.crisiscleanup-dark.500');
   padding-top: 6px;
-  padding-bottom: max(6px, env(safe-area-inset-bottom));
+  padding-bottom: max(6px, var(--cc-safe-area-bottom));
 }
 
 .ccu-mobile-nav__link {

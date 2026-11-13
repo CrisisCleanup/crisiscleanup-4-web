@@ -22,6 +22,9 @@
    */
   :root {
     --cc-viewport-height: 100vh;
+    /* The height of the home indicator area at the bottom of a phone, and 0
+       on other screens. */
+    --cc-safe-area-bottom: env(safe-area-inset-bottom, 0px);
   }
   @supports (height: 100dvh) {
     :root {

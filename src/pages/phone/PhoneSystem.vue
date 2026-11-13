@@ -2,7 +2,7 @@
   <template v-if="isMobile">
     <div
       v-if="!isEditing && !isNew"
-      class="fixed inset-x-0 top-12 bottom-16 flex flex-col"
+      class="phone-system__mobile fixed inset-x-0 top-12 flex flex-col"
     >
       <div
         class="flex-none z-toolbar bg-white border-b border-crisiscleanup-grey-100 shadow-sm"
@@ -123,7 +123,10 @@
         />
       </div>
     </div>
-    <div v-else class="fixed inset-x-0 top-12 bottom-16 flex flex-col bg-white">
+    <div
+      v-else
+      class="phone-system__mobile fixed inset-x-0 top-12 flex flex-col bg-white"
+    >
       <CaseHeader
         v-if="worksite"
         data-testid="testCaseHeaderDiv"
@@ -1601,9 +1604,17 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
+/* The phone layout of this page sits between the top bar and the bottom nav.
+   The nav is 4rem high, plus the home indicator area of a phone. */
+.phone-system__mobile {
+  bottom: calc(4rem + var(--cc-safe-area-bottom));
+}
+
 .phone-system {
   @apply grid flex-grow h-full overflow-hidden;
-  grid-template-columns: minmax(0, auto) minmax(auto, 400px);
+  /* The form column is 400px on a wide screen and goes down to 300px, so the
+     map keeps most of a narrow screen. */
+  grid-template-columns: minmax(0, auto) minmax(auto, clamp(300px, 36vw, 400px));
   grid-template-rows: minmax(0, 1fr);
 
   /* Container for map */
