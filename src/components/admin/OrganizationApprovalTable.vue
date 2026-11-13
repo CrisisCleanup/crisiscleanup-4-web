@@ -50,7 +50,7 @@
     </template>
 
     <template #actions="slotProps">
-      <div class="flex mr-2 justify-end w-full items-center">
+      <div class="flex flex-wrap gap-y-1 mr-2 justify-end w-full items-center">
         <ccu-icon
           v-if="slotProps.item.approved_by"
           v-tooltip="{
@@ -303,7 +303,7 @@ export default defineComponent({
           title: t('adminOrganization.admin_notes'),
           dataIndex: 'admin_notes',
           key: 'admin_notes',
-          width: 'minmax(200px, 20%)',
+          width: 'minmax(180px, 20%)',
         },
         {
           title: t('incidentApprovalTable.incident'),
@@ -324,7 +324,7 @@ export default defineComponent({
           title: '',
           dataIndex: 'actions',
           key: 'actions',
-          width: 'minmax(125px, 18%)',
+          width: 'minmax(190px, 18%)',
         },
       ],
     };

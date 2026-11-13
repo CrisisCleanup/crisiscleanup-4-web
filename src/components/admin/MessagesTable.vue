@@ -71,32 +71,32 @@ const showDetails = async (message) => {
       </div>
     </template>
     <template #actions="slotProps">
-      <base-button
-        :text="$t('actions.show_details')"
-        :alt="$t('actions.show_details')"
-        data-testid="testShowDetailsButton"
-        variant="solid"
-        size="small"
-        class="mx-2"
-        :action="
-          () => {
-            showDetails(slotProps.item);
-          }
-        "
-      />
-      <base-button
-        :text="$t('actions.show_json')"
-        :alt="$t('actions.show_json')"
-        data-testid="testShowJsonButton"
-        variant="solid"
-        size="small"
-        class="mx-2"
-        :action="
-          () => {
-            showJson(slotProps.item);
-          }
-        "
-      />
+      <div class="flex flex-wrap items-center gap-1">
+        <base-button
+          :text="$t('actions.show_details')"
+          :alt="$t('actions.show_details')"
+          data-testid="testShowDetailsButton"
+          variant="solid"
+          size="small"
+          :action="
+            () => {
+              showDetails(slotProps.item);
+            }
+          "
+        />
+        <base-button
+          :text="$t('actions.show_json')"
+          :alt="$t('actions.show_json')"
+          data-testid="testShowJsonButton"
+          variant="solid"
+          size="small"
+          :action="
+            () => {
+              showJson(slotProps.item);
+            }
+          "
+        />
+      </div>
     </template>
   </AjaxTable>
 </template>
