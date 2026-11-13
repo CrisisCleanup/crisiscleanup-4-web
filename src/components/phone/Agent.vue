@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <div class="flex items-center justify-between">
+    <div class="flex flex-wrap items-center justify-end gap-y-1">
       <base-button
         v-if="isOnCall || caller"
         data-testid="testIsOnCallButton"

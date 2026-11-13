@@ -437,7 +437,7 @@
 
             <!-- RIGHT: refine + actions + collapse -->
             <div
-              class="flex flex-wrap items-center gap-1 flex-none md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+              class="flex flex-wrap items-center gap-1 min-w-0 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
             >
               <WorksiteRefine
                 v-if="!showingTable && !showingPhotoMap && !showingFeed"
