@@ -1,5 +1,5 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { flushPromises, mount } from '@vue/test-utils';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PdfViewer from '@/components/PdfViewer.vue';
 import { createI18n } from 'vue-i18n';
 
@@ -276,5 +276,61 @@ describe('PdfViewer', () => {
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain('1 / 5');
+  });
+
+  describe('lazy rendering', () => {
+    let showInViewport: () => void;
+
+    beforeEach(() => {
+      vi.stubGlobal(
+        'IntersectionObserver',
+        class {
+          constructor(callback: IntersectionObserverCallback) {
+            showInViewport = () =>
+              callback(
+                [{ isIntersecting: true } as IntersectionObserverEntry],
+                this as unknown as IntersectionObserver,
+              );
+          }
+
+          observe() {}
+
+          unobserve() {}
+
+          disconnect() {}
+        },
+      );
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    function mountLazy(props = {}) {
+      return mount(PdfViewer, {
+        props: { pdf: mockPdf, lazy: true, ...props },
+        global: { plugins: [i18n] },
+      });
+    }
+
+    it('holds a lazy PDF back until it scrolls into view', async () => {
+      const wrapper = mountLazy();
+      await flushPromises();
+
+      expect(wrapper.find('.vue-pdf-embed').exists()).toBe(false);
+
+      showInViewport();
+      await flushPromises();
+
+      expect(wrapper.find('.vue-pdf-embed').exists()).toBe(true);
+    });
+
+    it('keeps the space of a lazy PDF before it renders', async () => {
+      const wrapper = mountLazy({ width: 75 });
+      await flushPromises();
+
+      const placeholder = wrapper.find('[data-testid="testPdfPlaceholder"]');
+      expect(placeholder.attributes('style')).toContain('width: 75px');
+    });
   });
 });
