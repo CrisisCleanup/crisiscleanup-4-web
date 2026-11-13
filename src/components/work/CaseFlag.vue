@@ -610,7 +610,9 @@ export default defineComponent({
   --safe-area-inset-bottom: env(safe-area-inset-bottom);
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: calc(100vh - 330px - var(--safe-area-inset-bottom)) 80px;
+  grid-template-rows:
+    calc(var(--cc-viewport-height) - 330px - var(--safe-area-inset-bottom))
+    80px;
 }
 </style>
 

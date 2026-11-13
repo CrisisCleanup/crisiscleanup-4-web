@@ -55,7 +55,7 @@
       <div
         v-else
         ref="listEl"
-        class="relative max-h-[60vh] overflow-y-auto p-2 font-mono text-xs leading-5 lg:max-h-[calc(100vh-8rem)]"
+        class="relative max-h-[60vh] overflow-y-auto p-2 font-mono text-xs leading-5 lg:max-h-[calc(var(--cc-viewport-height)-8rem)]"
         data-testid="testVoiceRawTranscriptLines"
       >
         <p

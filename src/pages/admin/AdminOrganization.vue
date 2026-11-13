@@ -763,7 +763,7 @@
       </modal>
     </div>
   </template>
-  <div v-else class="flex h-screen items-center justify-center">
+  <div v-else class="flex h-viewport items-center justify-center">
     <spinner />
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <div class="main-grid md:h-screen" :class="noHotline ? 'no-hotline' : ''">
+  <div class="main-grid md:h-viewport" :class="noHotline ? 'no-hotline' : ''">
     <div class="logo m-8 flex items-center justify-center md:block">
       <div class="w-40 md:w-52">
         <a href="/live">

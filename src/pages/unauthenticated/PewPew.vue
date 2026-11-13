@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pewpew min-h-screen w-full"
+    class="pewpew min-h-viewport w-full"
     :style="styles"
     data-testid="testPewPewDiv"
   >

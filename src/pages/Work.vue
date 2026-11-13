@@ -27,7 +27,7 @@
       />
       <WorksiteFeed
         v-else-if="showingFeed"
-        class="h-[calc(100vh-11rem)] mt-16"
+        class="h-[calc(var(--cc-viewport-height)-11rem)] mt-16"
         :current-user-location="currentUserLocation"
         @load-case="loadCase"
       />
@@ -166,7 +166,9 @@
       v-else
       class=""
       :style="{
-        height: worksite ? 'calc(100vh - 13rem)' : 'calc(100vh - 11rem)',
+        height: worksite
+          ? 'calc(var(--cc-viewport-height) - 13rem)'
+          : 'calc(var(--cc-viewport-height) - 11rem)',
       }"
     >
       <CaseHeader
@@ -698,7 +700,7 @@
           >
             <WorksiteFeed
               :key="currentIncidentId"
-              class="h-[calc(100vh-11rem)]"
+              class="h-[calc(var(--cc-viewport-height)-11rem)]"
               :current-user-location="currentUserLocation"
               @load-case="loadCase"
             />
@@ -773,7 +775,9 @@
             <WorksiteTable
               :worksite-query="worksiteQuery"
               class=""
-              :body-style="{ height: 'calc(100vh - 22rem)' }"
+              :body-style="{
+                height: 'calc(var(--cc-viewport-height) - 22rem)',
+              }"
               @row-click="loadCase"
               @selection-changed="onSelectionChanged"
             />
@@ -2420,7 +2424,7 @@ export default defineComponent({
       }
       &--chat {
         width: min(60rem, calc(100cqw - 4rem));
-        max-height: calc(100dvh - 12rem);
+        max-height: calc(var(--cc-viewport-height) - 12rem);
       }
       &--news {
         height: 60vh;

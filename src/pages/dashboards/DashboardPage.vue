@@ -5,7 +5,7 @@
   >
     <div
       v-if="loadingActionItems && !allDataLoaded"
-      class="h-screen flex items-center justify-center"
+      class="h-viewport flex items-center justify-center"
     >
       <spinner size="lg" />
     </div>

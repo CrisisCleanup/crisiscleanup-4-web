@@ -5,7 +5,7 @@
       :locations="locations"
       :meta="locationsMeta"
       :loading="locationsLoading"
-      :body-style="{ height: 'calc(100vh - 30rem)' }"
+      :body-style="{ height: 'calc(var(--cc-viewport-height) - 30rem)' }"
       data-testid="testLocationsTable"
       @change="handleTableChange"
       @delete-location="deleteLocation"

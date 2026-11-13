@@ -330,7 +330,7 @@ export default defineComponent({
    */
   .leaderboard {
     height: auto;
-    max-height: calc(100vh - 240px);
+    max-height: calc(var(--cc-viewport-height) - 240px);
   }
   .leaderboard__list {
     flex: 1 1 auto;

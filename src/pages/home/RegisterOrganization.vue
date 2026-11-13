@@ -367,7 +367,7 @@ export default defineComponent({
 
 @media only screen and (max-width: 640px) {
   .homegrid {
-    height: 100vh;
+    height: var(--cc-viewport-height);
     &.grid-container {
       grid-template-areas:
         'logo'

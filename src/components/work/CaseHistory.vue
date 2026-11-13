@@ -141,6 +141,8 @@ export default defineComponent({
 .intake-view {
   --safe-area-inset-bottom: env(safe-area-inset-bottom);
   grid-template-columns: 1fr;
-  grid-template-rows: calc(100vh - 240px - var(--safe-area-inset-bottom));
+  grid-template-rows: calc(
+    var(--cc-viewport-height) - 240px - var(--safe-area-inset-bottom)
+  );
 }
 </style>

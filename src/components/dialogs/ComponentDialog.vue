@@ -157,7 +157,7 @@ export default defineComponent({
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: var(--cc-viewport-height);
   background-color: rgba(0, 0, 0, 0.5);
   display: table;
   transition: opacity 0.3s ease;
