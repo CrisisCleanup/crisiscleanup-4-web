@@ -134,7 +134,8 @@ describe('models > PhoneOutbound', () => {
     const count = await actions.getRemainingCallbackCount('incident-id');
 
     expect(getMock).toHaveBeenCalledWith(
-      '/phone_outbound?incident_id=incident-id&completion__lt=1&limit=1&filter_ani=1&locked_at__isnull=True&call_type=callback',
+      '/phone_outbound/count?incident_id=incident-id&completion__lt=1&filter_ani=1&locked_at__isnull=True&call_type=callback',
+      { save: false },
     );
     expect(count).toBe(10);
 
@@ -150,7 +151,8 @@ describe('models > PhoneOutbound', () => {
     const count = await actions.getRemainingCalldownCount('incident-id');
 
     expect(getMock).toHaveBeenCalledWith(
-      '/phone_outbound?incident_id=incident-id&completion__lt=1&limit=1&filter_ani=1&locked_at__isnull=True&call_type=calldown',
+      '/phone_outbound/count?incident_id=incident-id&completion__lt=1&filter_ani=1&locked_at__isnull=True&call_type=calldown',
+      { save: false },
     );
     expect(count).toBe(5);
 
