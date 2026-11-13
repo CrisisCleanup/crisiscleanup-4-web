@@ -9,7 +9,11 @@
     >
       <spinner size="lg" />
     </div>
-    <div v-else class="flex flex-col" data-testid="testMainContent">
+    <div
+      v-else
+      class="flex flex-col w-full min-w-0"
+      data-testid="testMainContent"
+    >
       <header
         class="bg-white border p-4 md:p-6 items-start md:items-center gap-3 flex flex-col md:flex-row md:justify-between"
         data-testid="testHeader"

@@ -4,7 +4,7 @@
     data-testid="testMyOrganizationDashboardDiv"
   >
     <div
-      class="h-max bg-white mx-5 border-t md:flex grid grid-cols-2 justify-around text-crisiscleanup-grey-700"
+      class="h-max bg-white mx-5 border-t md:flex md:flex-wrap grid grid-cols-2 justify-around text-crisiscleanup-grey-700"
     >
       <template v-for="r in routes">
         <router-link
