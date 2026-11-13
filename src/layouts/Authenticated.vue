@@ -652,7 +652,9 @@ export default defineComponent({
   width: 100vw;
   height: var(--cc-viewport-height);
   display: grid;
-  grid-template-columns: calc(96px + env(safe-area-inset-left)) 1fr;
+  /* `minmax(0, 1fr)` and not `1fr`: the column must not grow to the width of
+     the header content, or the page scrolls sideways on a narrow screen. */
+  grid-template-columns: calc(96px + env(safe-area-inset-left)) minmax(0, 1fr);
   grid-template-rows: 64px 1fr;
   grid-template-areas:
     'sidebar header'
@@ -670,6 +672,7 @@ export default defineComponent({
 
 .header {
   grid-area: header;
+  min-width: 0;
 }
 
 .main {
