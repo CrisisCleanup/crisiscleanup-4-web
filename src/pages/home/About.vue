@@ -882,6 +882,7 @@
       >
         <div class="flex flex-col m-5">
           <ul class="text-xl text-crisiscleanup-dark-400 font-hairline about">
+            <!--
             <li>
               <a
                 href="https://app.dev.crisiscleanup.io/"
@@ -891,6 +892,7 @@
               >
             </li>
             <br />
+            -->
             <li>
               <a
                 href="/training"
