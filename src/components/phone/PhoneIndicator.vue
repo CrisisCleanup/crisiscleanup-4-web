@@ -30,7 +30,8 @@ export default defineComponent({
     const { isTakingCalls } = useConnectFirst(context);
     const icon = ref(null);
     function setSvgStyle() {
-      const svgDoc = icon.value.getSVGDocument();
+      // The icon can finish loading after the component is gone.
+      const svgDoc = icon.value?.getSVGDocument();
       const iconColor = isTakingCalls.value ? 'green' : 'red';
       if (svgDoc) {
         svgDoc.querySelectorAll('path')[0].style.fill = iconColor;

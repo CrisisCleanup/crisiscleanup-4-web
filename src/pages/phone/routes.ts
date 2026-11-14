@@ -9,6 +9,7 @@ const routes = [
       id: 'phone',
       layout: 'authenticated',
       noscroll: true,
+      keepOnLayoutChange: true,
     },
     children: [
       {

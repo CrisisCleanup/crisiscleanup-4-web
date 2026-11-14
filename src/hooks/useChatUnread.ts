@@ -1,4 +1,4 @@
-import { ref, watch, type Ref } from 'vue';
+import { effectScope, ref, watch, type Ref } from 'vue';
 import { debounce } from 'lodash-es';
 import axios from 'axios';
 import useCurrentUser from '@/hooks/useCurrentUser';
@@ -61,19 +61,28 @@ export function useChatUnread(
       const scheduleRefresh = debounce(() => void refresh(), 300, {
         maxWait: 2000,
       });
-      const connection = useWebSockets<Message>(
-        `/ws/chat/${id}`,
-        'chat unread',
-        (message) => {
-          if (message.created_by !== currentUser.value?.id) scheduleRefresh();
-        },
-        scheduleRefresh,
+      // The connection has a watcher of its own, and `close` stops it. In a
+      // scope of its own, that watcher is not in the scope of the component.
+      // Without this, a cleanup that runs while Vue stops the component
+      // takes a watcher out of the list that Vue is going through, and the
+      // unmount throws.
+      const connectionScope = effectScope(true);
+      const connection = connectionScope.run(() =>
+        useWebSockets<Message>(
+          `/ws/chat/${id}`,
+          'chat unread',
+          (message) => {
+            if (message.created_by !== currentUser.value?.id) scheduleRefresh();
+          },
+          scheduleRefresh,
+        ),
       );
       scheduleRefresh();
       onCleanup(() => {
         disposed = true;
         scheduleRefresh.cancel();
-        connection.close();
+        connection?.close();
+        connectionScope.stop();
         controller.abort();
       });
     },

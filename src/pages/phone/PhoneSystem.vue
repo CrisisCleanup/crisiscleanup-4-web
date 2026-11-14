@@ -1,4 +1,52 @@
 <template>
+  <!-- The case history, flags and form are rendered one time and moved into
+     the layout that is on screen. A change of layout, such as a phone that
+     rotates, then keeps the form and the text that the user typed. -->
+  <Teleport v-if="showCaseBody && caseBodySlot" :to="caseBodySlot">
+    <CaseHistory
+      v-if="showHistory"
+      data-testid="testHistoryDiv"
+      :incident-id="currentIncidentId"
+      :worksite-id="worksiteId"
+    ></CaseHistory>
+    <CaseFlag
+      v-else-if="showFlags"
+      data-testid="testShowFlagsDiv"
+      :incident-id="String(currentIncidentId)"
+      :worksite-id="worksiteId"
+      @reload-case="
+        () => {
+          reloadCase();
+          showFlags = false;
+        }
+      "
+      @reload-map="
+        () => {
+          reloadMap();
+          showFlags = false;
+        }
+      "
+      @clear-case="clearCase"
+    ></CaseFlag>
+    <WorksiteForm
+      v-else
+      ref="worksiteForm"
+      :key="worksiteId"
+      data-testid="testWorksiteFormDiv"
+      :incident-id="String(currentIncidentId)"
+      :worksite-id="worksiteId"
+      disable-claim-and-save
+      :is-editing="isEditing"
+      :data-prefill="prefillData"
+      class="border shadow"
+      :class="{ 'flex-1 min-h-0': !isMobile }"
+      @jump-to-case="jumpToCase"
+      @saved-worksite="onFormSaved"
+      @close-worksite="onFormClosed"
+      @navigate-to-worksite="onSelectExistingWorksite"
+      @geocoded="addMarkerToMap"
+    />
+  </Teleport>
   <template v-if="isMobile">
     <div
       v-if="!isEditing && !isNew"
@@ -187,62 +235,7 @@
         }}</span>
         <div></div>
       </div>
-      <div class="flex-1 min-h-0 overflow-y-auto">
-        <CaseHistory
-          v-if="showHistory"
-          data-testid="testHistoryDiv"
-          :incident-id="currentIncidentId"
-          :worksite-id="worksiteId"
-        ></CaseHistory>
-        <CaseFlag
-          v-else-if="showFlags"
-          data-testid="testShowFlagsDiv"
-          :incident-id="String(currentIncidentId)"
-          :worksite-id="worksiteId"
-          @reload-case="
-            () => {
-              reloadCase();
-              showFlags = false;
-            }
-          "
-          @reload-map="
-            () => {
-              reloadMap();
-              showFlags = false;
-            }
-          "
-          @clear-case="clearCase"
-        ></CaseFlag>
-        <WorksiteForm
-          v-else
-          ref="worksiteForm"
-          :key="worksiteId"
-          data-testid="testWorksiteFormDiv"
-          :incident-id="String(currentIncidentId)"
-          :worksite-id="worksiteId"
-          disable-claim-and-save
-          :is-editing="isEditing"
-          class="border shadow"
-          :data-prefill="prefillData"
-          @jump-to-case="jumpToCase"
-          @saved-worksite="
-            (worksite) => {
-              onSaveCase(worksite);
-              init();
-            }
-          "
-          @close-worksite="
-            () => {
-              clearCase();
-              isNew = false;
-              isEditing = false;
-              init();
-            }
-          "
-          @navigate-to-worksite="onSelectExistingWorksite"
-          @geocoded="addMarkerToMap"
-        />
-      </div>
+      <div :ref="setCaseBodySlot" class="flex-1 min-h-0 overflow-y-auto"></div>
     </div>
   </template>
   <template v-else>
@@ -484,56 +477,10 @@
           <div></div>
         </div>
         <div
+          :ref="setCaseBodySlot"
           class="flex-1 min-h-0 flex flex-col"
           :class="showHistory || showFlags ? 'overflow-y-auto' : ''"
-        >
-          <CaseHistory
-            v-if="showHistory"
-            data-testid="testHistoryDiv"
-            :incident-id="currentIncidentId"
-            :worksite-id="worksiteId"
-          ></CaseHistory>
-          <CaseFlag
-            v-else-if="showFlags"
-            data-testid="testShowFlagsDiv"
-            :incident-id="String(currentIncidentId)"
-            :worksite-id="worksiteId"
-            @reload-case="
-              () => {
-                reloadCase();
-                showFlags = false;
-              }
-            "
-            @reload-map="
-              () => {
-                reloadMap();
-                showFlags = false;
-              }
-            "
-            @clear-case="clearCase"
-          ></CaseFlag>
-          <WorksiteForm
-            v-else
-            ref="worksiteForm"
-            :key="worksiteId"
-            data-testid="testWorksiteFormDiv"
-            :incident-id="String(currentIncidentId)"
-            :worksite-id="worksiteId"
-            disable-claim-and-save
-            :is-editing="isEditing"
-            :data-prefill="prefillData"
-            class="border shadow flex-1 min-h-0"
-            @jump-to-case="jumpToCase"
-            @saved-worksite="
-              (worksite) => {
-                onSaveCase(worksite);
-              }
-            "
-            @close-worksite="clearCase"
-            @navigate-to-worksite="onSelectExistingWorksite"
-            @geocoded="addMarkerToMap"
-          />
-        </div>
+        ></div>
       </div>
     </div>
   </template>
@@ -664,6 +611,22 @@ export default defineComponent({
     const loading = ref(false);
     const isEditing = ref(false);
     const isNew = ref(false);
+
+    // The element of the current layout that holds the case history, flags
+    // and form. A layout that leaves the screen reports null. The function
+    // ignores it, so the form stays mounted until the new layout reports its
+    // own element.
+    const caseBodySlot = ref<HTMLElement>();
+    const setCaseBodySlot = (element: unknown) => {
+      if (element instanceof HTMLElement) {
+        caseBodySlot.value = element;
+      }
+    };
+    // The phone layout shows the map and no form until the user opens or
+    // adds a case.
+    const showCaseBody = computed(
+      () => !isMobile.value || isEditing.value || isNew.value,
+    );
     const mapLoading = ref(false);
     const map = ref(null);
     const hover = ref(false);
@@ -1400,6 +1363,11 @@ export default defineComponent({
       const [group] = chatGroups.value;
       selectedChat.value = group;
       const markers = await getWorksites();
+      // The phone layout has no map element while a case is open. The markers
+      // are loaded now, and the map is built when the user goes back to it.
+      if (isMobile.value && (isEditing.value || isNew.value)) {
+        return;
+      }
       // Tear down any prior map bound to this container so re-init
       // doesn't throw "Map container is already initialized."
       if (mapUtils.value) {
@@ -1418,6 +1386,54 @@ export default defineComponent({
         true,
       );
     }
+
+    // The phone layout shows the map in place of the form, so it goes back to
+    // the map and builds it again when the user saves or closes a case.
+    function onFormSaved(worksite: Worksite) {
+      onSaveCase(worksite);
+      if (isMobile.value) {
+        init();
+      }
+    }
+
+    function onFormClosed() {
+      clearCase();
+      if (isMobile.value) {
+        isNew.value = false;
+        isEditing.value = false;
+        init();
+      }
+    }
+
+    // The two layouts each have their own map element. Take the map down
+    // before the layout changes, and build it again in the new element.
+    watch(
+      isMobile,
+      (mobile) => {
+        if (mapUtils.value) {
+          destroyLeafletMap(mapUtils.value.getMap());
+          mapUtils.value = undefined;
+        }
+        // Keep the form on screen when the user has an open case or has typed
+        // in a new one. Without this, the phone layout shows the map.
+        if (mobile && !isEditing.value && !isNew.value) {
+          if (worksiteId.value) {
+            isEditing.value = true;
+          } else if (worksiteForm.value?.dirtyFields.size > 0) {
+            isNew.value = true;
+          }
+        }
+      },
+      { flush: 'pre' },
+    );
+    watch(
+      isMobile,
+      async (mobile) => {
+        if (mobile !== isMobile.value) return;
+        await init();
+      },
+      { flush: 'post' },
+    );
 
     // Make user a phone agent if not already a phone agent
     async function ensurePhoneAgentRole() {
@@ -1458,6 +1474,8 @@ export default defineComponent({
       },
     );
 
+    let loginCheckTimer: ReturnType<typeof setInterval> | undefined;
+
     onMounted(async () => {
       if (currentUser.value.isAdmin) {
         allowCallType.value = AllowedCallType.INBOUND_ONLY;
@@ -1489,7 +1507,7 @@ export default defineComponent({
       }
       await ensurePhoneAgentRole();
 
-      setInterval(() => {
+      loginCheckTimer = setInterval(() => {
         if (
           isTakingCalls.value &&
           !isOnCall.value &&
@@ -1503,6 +1521,7 @@ export default defineComponent({
     });
 
     onBeforeUnmount(() => {
+      clearInterval(loginCheckTimer);
       if (mapUtils.value) {
         destroyLeafletMap(mapUtils.value.getMap());
         mapUtils.value = undefined;
@@ -1547,6 +1566,11 @@ export default defineComponent({
       incidentsWithActivePhones,
       activeHotlinePills,
       worksiteForm,
+      caseBodySlot,
+      setCaseBodySlot,
+      showCaseBody,
+      onFormSaved,
+      onFormClosed,
       statusTab,
       callTab,
       ...connectFirst,
