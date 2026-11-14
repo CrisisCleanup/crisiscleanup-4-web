@@ -3,9 +3,15 @@ import { effectScope } from 'vue';
 import type { useWebSockets as UseWebSocketsType } from '@/hooks/useWebSockets';
 
 const currentAccessToken = ref<string | undefined>('test-token');
+const tokenExpired = ref(false);
+const refreshAccessToken = vi.fn();
 
 vi.mock('@/hooks/useAuth', () => ({
-  useAuthStore: () => ({ currentAccessToken }),
+  useAuthStore: () => ({
+    currentAccessToken,
+    isAccessTokenExpired: () => tokenExpired.value,
+    refreshAccessToken,
+  }),
 }));
 
 interface MockSocket {
@@ -54,6 +60,8 @@ describe('useWebSockets', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0);
     vi.spyOn(console, 'error').mockImplementation(() => {});
     currentAccessToken.value = 'test-token';
+    tokenExpired.value = false;
+    refreshAccessToken.mockClear();
     installWebSocketMock();
   });
 
@@ -294,6 +302,74 @@ describe('useWebSockets', () => {
     });
 
     expect(handle.send({ content: 'Keep this draft' })).toBe(false);
+    scope.stop();
+  });
+
+  it('asks for a new token, and does not connect, when the access token has expired', async () => {
+    tokenExpired.value = true;
+    const { useWebSockets } = await import('@/hooks/useWebSockets');
+    const scope = effectScope();
+    scope.run(() => {
+      useWebSockets('/ws/test', 'test', () => {});
+    });
+
+    expect(sockets).toHaveLength(0);
+    expect(refreshAccessToken).toHaveBeenCalledTimes(1);
+
+    vi.runAllTimers();
+    expect(sockets).toHaveLength(0);
+    scope.stop();
+  });
+
+  it('asks for a new token, and does not retry, when the server rejects a connection whose token has expired', async () => {
+    const { useWebSockets } = await import('@/hooks/useWebSockets');
+    const scope = effectScope();
+    scope.run(() => {
+      useWebSockets('/ws/test', 'test', () => {});
+    });
+    expect(sockets).toHaveLength(1);
+
+    // The token expires while the tab is idle. The server then refuses the
+    // handshake, which a browser reports as close code 1006.
+    tokenExpired.value = true;
+    sockets[0].dispatch('close', { code: 1006 });
+
+    expect(refreshAccessToken).toHaveBeenCalledTimes(1);
+    vi.runAllTimers();
+    expect(sockets).toHaveLength(1);
+    scope.stop();
+  });
+
+  it('connects with the new token after the expired token is replaced', async () => {
+    tokenExpired.value = true;
+    const { useWebSockets } = await import('@/hooks/useWebSockets');
+    const scope = effectScope();
+    scope.run(() => {
+      useWebSockets('/ws/test', 'test', () => {});
+    });
+    expect(sockets).toHaveLength(0);
+
+    tokenExpired.value = false;
+    currentAccessToken.value = 'new-token';
+    await nextTick();
+
+    expect(sockets).toHaveLength(1);
+    expect(sockets[0].url).toContain('bearer=new-token');
+    scope.stop();
+  });
+
+  it('retries after a delay, without a new token, when the connection drops and the token is still valid', async () => {
+    const { useWebSockets } = await import('@/hooks/useWebSockets');
+    const scope = effectScope();
+    scope.run(() => {
+      useWebSockets('/ws/test', 'test', () => {});
+    });
+
+    sockets[0].dispatch('close', { code: 1006 });
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+
+    vi.runAllTimers();
+    expect(sockets).toHaveLength(2);
     scope.stop();
   });
 });

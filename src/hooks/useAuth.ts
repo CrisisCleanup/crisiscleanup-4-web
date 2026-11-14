@@ -415,6 +415,19 @@ const authStore = () => {
     authState.accessTokenExpiry?.isBefore?.(moment()),
   );
 
+  // A check against the clock at the time of the call. The computed value
+  // above does not change as time passes, so a tab that stays open needs this.
+  const checkAccessTokenExpired = () =>
+    Boolean(authState.accessTokenExpiry?.isBefore?.(moment()));
+
+  // Get a new access token with the refresh token. A call during a refresh
+  // does nothing.
+  const refreshAccessToken = () => {
+    if (authState.status !== AuthStatus.REFRESHING) {
+      authState.status = AuthStatus.REFRESHING;
+    }
+  };
+
   const hasValidAccessToken = logicAnd(
     hasAccessToken,
     logicNot(isAccessTokenExpired),
@@ -685,6 +698,8 @@ const authStore = () => {
     onCurrentUserHook,
     currentUserId,
     currentAccessToken,
+    isAccessTokenExpired: checkAccessTokenExpired,
+    refreshAccessToken,
     loginWithMagicLinkToken,
     requestOtp,
     verifyOtp,

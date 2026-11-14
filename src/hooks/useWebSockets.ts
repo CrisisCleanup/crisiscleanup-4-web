@@ -33,9 +33,20 @@ export function useWebSockets<MessageT extends Record<string, any>>(
     }, delay);
   }
 
+  // The API refuses a connection that has an expired token, and the browser
+  // reports that as a lost connection (close code 1006). A retry with the same
+  // token fails each time, so ask for a new token. The token watcher below
+  // connects again when it arrives.
+  function requestNewTokenIfExpired() {
+    if (!authStore.isAccessTokenExpired()) return false;
+    authStore.refreshAccessToken();
+    return true;
+  }
+
   function connect() {
     const token = authStore.currentAccessToken.value;
     if (intentionallyClosed || !token) return;
+    if (requestNewTokenIfExpired()) return;
     const connection = new WebSocket(
       `${endpoint}${url}?bearer=${encodeURIComponent(token)}`,
     );
@@ -64,6 +75,7 @@ export function useWebSockets<MessageT extends Record<string, any>>(
     connection.addEventListener('close', (e) => {
       if (socket !== connection || intentionallyClosed) return;
       if (NON_RECOVERABLE_CLOSE_CODES.has(e.code)) return;
+      if (requestNewTokenIfExpired()) return;
       scheduleReconnect();
     });
   }
