@@ -16,6 +16,19 @@
   }
 
   /*
+   * A user who asks the system for less motion gets no transitions and no
+   * smooth scroll. Animations stay, because the loading spinner is one.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /*
    * The height of the visible viewport. On a phone, `100vh` includes the area
    * under the browser toolbar, so a full-height layout must use this value.
    * Browsers without `dvh` (Safari before 15.4) keep `100vh`.

@@ -673,6 +673,11 @@ export default defineComponent({
 .layout {
   width: 100vw;
   height: var(--cc-viewport-height);
+  /* The header and the sidebar change size when the screen becomes short.
+     The change is short, so the page does not jump. */
+  transition:
+    grid-template-columns 200ms ease,
+    grid-template-rows 200ms ease;
   display: grid;
   /* `minmax(0, 1fr)` and not `1fr`: the column must not grow to the width of
      the header content, or the page scrolls sideways on a narrow screen. */
