@@ -331,8 +331,8 @@
       :ref="setCasePanelSlot"
       :style="{
         height: worksite
-          ? 'calc(var(--cc-viewport-height) - 13rem)'
-          : 'calc(var(--cc-viewport-height) - 11rem)',
+          ? 'calc(var(--cc-viewport-height) - 13rem - var(--cc-safe-area-bottom))'
+          : 'calc(var(--cc-viewport-height) - 11rem - var(--cc-safe-area-bottom))',
       }"
     ></div>
   </template>
@@ -2349,7 +2349,9 @@ export default defineComponent({
 }
 .work-page {
   @apply grid flex-grow h-full;
-  grid-template-columns: minmax(0, auto) minmax(auto, 400px);
+  /* The form column is 400px on a wide screen and goes down to 300px, so the
+     map keeps most of a narrow screen. */
+  grid-template-columns: minmax(0, auto) minmax(auto, clamp(300px, 36vw, 400px));
 
   &__actions {
     @apply absolute top-0 right-0 flex flex-col select-text z-toolbar;

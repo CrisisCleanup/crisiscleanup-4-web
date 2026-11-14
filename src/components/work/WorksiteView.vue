@@ -888,9 +888,6 @@ export default defineComponent({
 .form {
   display: grid;
   grid-template-rows: auto 1fr 80px;
-  @supports (-webkit-touch-callout: none) {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  }
 
   &--noheader {
     grid-template-rows: auto 80px;
