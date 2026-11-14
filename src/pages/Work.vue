@@ -343,7 +343,7 @@
           <div
             v-if="!collapsedUtilityBar"
             :key="currentIncidentId"
-            class="flex flex-wrap items-center gap-3 w-full p-3"
+            class="work-toolbar flex flex-wrap items-center gap-3 w-full p-3"
           >
             <!-- LEFT: view group + count -->
             <div class="flex items-center gap-3 flex-none">
@@ -398,7 +398,7 @@
 
             <!-- CENTER: search + location -->
             <div
-              class="flex-1 min-w-[200px] flex flex-wrap items-center gap-2 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+              class="work-toolbar__center flex-1 min-w-[200px] flex flex-wrap items-center gap-2 md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
             >
               <div class="flex-1 min-w-[180px]">
                 <WorksiteSearchAndFilters
@@ -425,7 +425,7 @@
                 :options="onLocationSearch"
                 select-classes="bg-white outline-none w-full"
                 wrapper-classes="relative flex items-center box-border cursor-pointer outline-none h-10 w-full"
-                class="flex-none w-full md:w-52"
+                class="work-toolbar__location flex-none w-full md:w-52"
                 size="small"
                 @update:model-value="
                   (location) => {
@@ -437,7 +437,7 @@
 
             <!-- RIGHT: refine + actions + collapse -->
             <div
-              class="flex flex-wrap items-center gap-1 flex-none md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
+              class="work-toolbar__tools flex flex-wrap items-center gap-1 min-w-0 text-[#4c4c4d] md:pl-3 md:border-l md:border-crisiscleanup-grey-100"
             >
               <WorksiteRefine
                 v-if="!showingTable && !showingPhotoMap && !showingFeed"
@@ -2347,6 +2347,67 @@ export default defineComponent({
 .collapsedForm.work-page .work-page__form {
   display: none;
 }
+
+/* When the map column is narrow, the toolbar is a stack: the search and the
+   location box have the same width, and the four actions are a grid of two
+   columns. The rule reads the width of the toolbar, and not of the screen,
+   because the form column also changes the width of the map column. */
+.work-toolbar {
+  container-type: inline-size;
+}
+
+@container (max-width: 440px) {
+  .work-toolbar__center,
+  .work-toolbar__tools {
+    flex-basis: 100%;
+    padding-left: 0;
+    border-left-width: 0;
+  }
+
+  .work-toolbar__center {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+
+    /* The select puts its width class on its inner box too. */
+    .work-toolbar__location,
+    .work-toolbar__location :deep(.mx-auto) {
+      width: 100%;
+    }
+
+    :deep(.mx-4) {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .work-toolbar__tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    /* The actions are in a child component. Its root gives its children to
+       this grid. */
+    :deep(.worksite-actions) {
+      display: contents;
+    }
+
+    /* The button that closes the toolbar goes to the right, below the grid. */
+    > button {
+      grid-column: 2;
+      justify-self: end;
+    }
+
+    :deep(.v-popper),
+    :deep(.v-popper > button),
+    :deep(.worksite-actions > button) {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      justify-content: flex-start;
+    }
+  }
+}
+
 .work-page {
   @apply grid flex-grow h-full;
   /* The form column is 400px on a wide screen and goes down to 300px, so the

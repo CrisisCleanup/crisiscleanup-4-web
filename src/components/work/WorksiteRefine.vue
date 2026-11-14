@@ -3,7 +3,7 @@
     <base-button
       data-testid="testRefineButton"
       variant="text"
-      class="text-base font-thin mx-1 flex items-center gap-1"
+      class="text-base font-thin mx-2"
       ccu-icon="filters"
       icon-size="medium"
       icon-classes="w-4"

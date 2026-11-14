@@ -104,7 +104,10 @@
     </modal>
   </template>
   <template v-else>
-    <div class="flex items-center worksite-actions" style="color: #4c4c4d">
+    <div
+      class="flex flex-wrap items-center worksite-actions"
+      style="color: #4c4c4d"
+    >
       <div v-if="pdas && pdas.length > 0" class="mt-2">
         <base-checkbox
           class="pb-2"
