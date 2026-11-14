@@ -199,7 +199,7 @@
         </div>
 
         <div class="flex flex-col items-center px-5 sm:px-0">
-          <img src="@/assets/headshots/ginanewby.jpg" class="m-5" />
+          <img src="@/assets/headshots/lenedotzler.jpeg" class="m-5" />
           <p class="text-3xl px-0.5 pb-5">
             <span class="font-bold">Lene Dotzler</span><br />
             {{ $t('about.lene_dotzler_title') }}
