@@ -21,6 +21,20 @@ const { selectorStyle, setTab, activeIndex, state } = useTabs({
   },
 });
 
+// Bring the active tab into view when the row scrolls sideways.
+watch(
+  activeIndex,
+  async (index) => {
+    await nextTick();
+    const container = tabContainer.value as HTMLElement | null;
+    container?.children.item(index)?.scrollIntoView({
+      block: 'nearest',
+      inline: 'nearest',
+    });
+  },
+  { immediate: true },
+);
+
 const emit = defineEmits(['onTotalDashboardCountFetched']);
 
 function handleTotalDashboardCountFetched(count: number) {
@@ -32,7 +46,7 @@ function handleTotalDashboardCountFetched(count: number) {
   <div class="page flex flex-col h-full" data-testid="testAdminDashboardDiv">
     <div
       ref="tabContainer"
-      class="h-max bg-white mx-5 border-t md:flex grid grid-cols-2 justify-around page__container relative transition-all"
+      class="h-max flex-none bg-white mx-5 border-t md:flex grid grid-cols-2 justify-around page__container relative transition-all"
     >
       <template v-for="(r, idx) in state.tabs" :key="r.key">
         <div
@@ -72,6 +86,15 @@ function handleTotalDashboardCountFetched(count: number) {
 
 <style scoped lang="postcss">
 .page {
+  /* With many tabs the row is wider than the page. It then scrolls sideways,
+     and the page does not. */
+  &__container {
+    @media (min-width: theme('screens.md')) {
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+  }
+
   &__selector {
     height: 4px;
     @apply bg-primary-light z-50;
