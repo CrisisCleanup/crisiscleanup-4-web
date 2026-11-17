@@ -1,6 +1,7 @@
 <template>
   <div>
     <base-button
+      v-if="!hideTrigger"
       :text="$t('mergeOrganizations.merge_organizations')"
       :alt="$t('mergeOrganizations.merge_organizations')"
       data-testid="testMergeOrganizationsButton"
@@ -85,6 +86,12 @@ import OrganizationSearchInput from '../OrganizationSearchInput.vue';
 export default defineComponent({
   name: 'MergeOrganizations',
   components: { OrganizationSearchInput },
+  props: {
+    hideTrigger: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { t } = useI18n();
     const $toasted = useToast();
@@ -111,7 +118,12 @@ export default defineComponent({
       }
     }
 
+    function open() {
+      showMergeModal.value = true;
+    }
+
     return {
+      open,
       keepOrganization,
       mergeOrganization,
       mergeReason,

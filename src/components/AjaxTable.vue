@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div
+      v-if="enableSearch || $slots['header-actions']"
+      class="flex items-center justify-between pb-3"
+    >
       <base-input
         v-if="enableSearch"
         data-testid="testTableSearchTextInput"

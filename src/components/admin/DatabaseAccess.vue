@@ -26,6 +26,7 @@
       </div>
     </modal>
     <base-button
+      v-if="!hideTrigger"
       :text="$t('databaseAccess.database_access')"
       :alt="$t('databaseAccess.database_access')"
       variant="solid"
@@ -47,6 +48,12 @@ import { getErrorMessage } from '../../utils/errors';
 
 export default defineComponent({
   name: 'DatabaseAccess',
+  props: {
+    hideTrigger: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const $toasted = useToast();
 
@@ -69,7 +76,12 @@ export default defineComponent({
       }
     }
 
+    function open() {
+      showingModal.value = true;
+    }
+
     return {
+      open,
       showingModal,
       addresses,
       addressesToAdd,

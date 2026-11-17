@@ -1,11 +1,12 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex flex-col items-center justify-between">
+    <div class="flex flex-wrap items-center gap-3 m-4 mb-0">
       <base-input
         :model-value="globalSearch"
         data-testid="testGlobalSearch"
         icon="search"
-        class="w-full"
+        class="w-full md:flex-1 md:min-w-[18rem]"
+        width="400"
         :placeholder="$t('actions.search_everywhere')"
         @update:model-value="
           (value) => {
@@ -14,19 +15,8 @@
           }
         "
       ></base-input>
-      <div class="flex gap-2 flex-wrap mt-4 items-center mr-4">
-        <InviteUsers class="" is-admin />
-        <MergeOrganizations is-admin />
-        <FileUpload class="" />
-        <DatabaseAccess class="" />
-        <base-button
-          :text="$t('adminDashboard.arcgis_upload')"
-          :alt="$t('adminDashboard.arcgis_upload')"
-          data-testid="testArcgisUploadButton"
-          variant="solid"
-          size="medium"
-          :action="showArcGisUploader"
-        />
+      <div class="flex flex-wrap gap-2 items-center">
+        <InviteUsers is-admin />
         <base-button
           data-testid="testExportButton"
           size="medium"
@@ -37,98 +27,55 @@
             () => $router.push(`/admin/incident_wizard/${currentIncidentId}`)
           "
         />
-        <base-button
-          size="medium"
-          variant="solid"
-          :text="$t('adminDashboard.show_god_mode')"
-          :alt="$t('adminDashboard.show_god_mode')"
-          :action="() => $router.push('/admin/god_mode')"
-        />
-
-        <base-button
-          size="medium"
-          variant="solid"
-          :text="$t('adminDashboard.save_bulk_sms')"
-          :alt="$t('adminDashboard.save_bulk_sms')"
-          :action="() => $router.push('/admin/send_bulk_sms')"
-        />
-        <base-button
-          size="medium"
-          variant="solid"
-          :text="$t('adminDashboard.send_bulk_email')"
-          :alt="$t('adminDashboard.send_bulk_email')"
-          :action="() => $router.push('/admin/send_bulk_email')"
-        />
-        <base-button
-          size="medium"
-          variant="solid"
-          :text="$t('adminDashboard.magazine')"
-          :alt="$t('adminDashboard.magazine')"
-          :action="() => $router.push('/admin/magazine')"
-        />
+        <v-popover placement="bottom-end">
+          <base-button
+            size="medium"
+            variant="outline"
+            suffix-icon="caret-down"
+            :text="$t('~~More actions')"
+            :alt="$t('~~More actions')"
+          />
+          <template #popper>
+            <div class="flex flex-col p-2 gap-1 min-w-[12rem]">
+              <base-button
+                v-for="item of moreActions"
+                :key="item.text"
+                variant="bare"
+                class="hover:bg-primary-light px-4 py-2 text-left"
+                :text="item.text"
+                :alt="item.text"
+                :data-testid="item.testId"
+                :action="item.action"
+              />
+            </div>
+          </template>
+        </v-popover>
       </div>
     </div>
+    <MergeOrganizations ref="mergeOrganizationsRef" is-admin hide-trigger />
+    <FileUpload ref="fileUploadRef" hide-trigger />
+    <DatabaseAccess ref="databaseAccessRef" hide-trigger />
     <div class="flex" data-testid="testPendingOrganizationsDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-4 flex items-center justify-between border-b">
-          <div class="text-gray-500">
-            {{ $t('adminDashboard.pending_organizations') }}
-          </div>
-          <base-button
-            icon="sync"
-            :action="setOrganizationApprovalQuery"
-            :alt="$t('adminDashboard.refresh_pending_organizations')"
-            data-testid="testRefreshPendingOrganizationsButton"
-          />
-        </div>
-        <div
-          class="py-4 px-4 border-b grid md:grid-cols-3 grid-cols-1 items-center"
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="organizationApprovalVisible"
+          :title="$t('adminDashboard.pending_organizations')"
         >
-          <base-button
-            class="mr-2 md:border-r pr-2"
-            data-testid="testPendingOrganizationsActionRequiredButton"
-            size="medium"
-            :text="$t('adminDashboard.action_required')"
-            :alt="$t('adminDashboard.action_required')"
-            :class="[
-              organizationApprovalView === 'default' ? 'text-primary-dark' : '',
-            ]"
-            variant="text"
-            :action="() => setApprovalView('default')"
-          />
-
-          <base-button
-            class="mr-2 md:border-r pr-2"
-            data-testid="testPendingOrganizationsRecentlyApprovedButton"
-            size="medium"
-            :text="$t('adminDashboard.recently_approved')"
-            :alt="$t('adminDashboard.recently_approved')"
-            :class="[
-              organizationApprovalView === 'approved'
-                ? 'text-primary-dark'
-                : '',
-            ]"
-            variant="text"
-            :action="() => setApprovalView('approved')"
-          />
-
-          <base-button
-            class="mr-2"
-            data-testid="testPendingOrganizationsRecentlyRejectedButton"
-            size="medium"
-            :text="$t('adminDashboard.recently_rejected')"
-            :alt="$t('adminDashboard.recently_rejected')"
-            :class="[
-              organizationApprovalView === 'rejected'
-                ? 'text-primary-dark'
-                : '',
-            ]"
-            variant="text"
-            :action="() => setApprovalView('rejected')"
-          />
-        </div>
-
-        <div class="p-4">
+          <template #actions>
+            <SegmentedTabs
+              :model-value="organizationApprovalView"
+              :options="approvalTabOptions('PendingOrganizations')"
+              @update:model-value="setApprovalView"
+            />
+            <base-button
+              icon="sync"
+              :action="setOrganizationApprovalQuery"
+              :alt="$t('adminDashboard.refresh_pending_organizations')"
+              data-testid="testRefreshPendingOrganizationsButton"
+            />
+          </template>
+        </AdminSectionHeader>
+        <div v-show="organizationApprovalVisible" class="p-4">
           <OrganizationApprovalTable
             :query="organizationApprovalQuery"
             @reload="setOrganizationApprovalQuery"
@@ -140,55 +87,26 @@
       </div>
     </div>
     <div class="flex" data-testid="testRedeployRequestsDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-4 flex items-center justify-between border-b">
-          <div class="text-gray-500">
-            {{ $t('adminDashboard.redeploy_requests') }}
-          </div>
-          <base-button
-            icon="sync"
-            data-testid="testRefreshRedeployRequestsButton"
-            :action="setIncidentApprovalQuery"
-            :alt="$t('adminDashboard.refresh_incident_redeploy_requests')"
-          />
-        </div>
-        <div
-          class="py-4 px-4 border-b grid md:grid-cols-3 grid-cols-1 items-center"
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="redeployVisible"
+          :title="$t('adminDashboard.redeploy_requests')"
         >
-          <base-button
-            class="mr-2 md:border-r pr-2"
-            data-testid="testRedeployRequestsActionRequiredButton"
-            size="medium"
-            :text="$t('adminDashboard.action_required')"
-            :alt="$t('adminDashboard.action_required')"
-            :class="[redeployView === 'default' ? 'text-primary-dark' : '']"
-            variant="text"
-            :action="() => setRedeployViewView('default')"
-          />
-
-          <base-button
-            class="mr-2 md:border-r pr-2"
-            data-testid="testRedeployRequestsRecentlyApprovedButton"
-            size="medium"
-            :text="$t('adminDashboard.recently_approved')"
-            :alt="$t('adminDashboard.recently_approved')"
-            :class="[redeployView === 'approved' ? 'text-primary-dark' : '']"
-            variant="text"
-            :action="() => setRedeployViewView('approved')"
-          />
-
-          <base-button
-            class="mr-2"
-            data-testid="testRedeployRequestsRecentlyRejectedButton"
-            size="medium"
-            :text="$t('adminDashboard.recently_rejected')"
-            :alt="$t('adminDashboard.recently_rejected')"
-            :class="[redeployView === 'rejected' ? 'text-primary-dark' : '']"
-            variant="text"
-            :action="() => setRedeployViewView('rejected')"
-          />
-        </div>
-        <div class="p-4">
+          <template #actions>
+            <SegmentedTabs
+              :model-value="redeployView"
+              :options="approvalTabOptions('RedeployRequests')"
+              @update:model-value="setRedeployViewView"
+            />
+            <base-button
+              icon="sync"
+              :action="setIncidentApprovalQuery"
+              :alt="$t('adminDashboard.refresh_incident_redeploy_requests')"
+              data-testid="testRefreshRedeployRequestsButton"
+            />
+          </template>
+        </AdminSectionHeader>
+        <div v-show="redeployVisible" class="p-4">
           <IncidentApprovalTable
             :query="incidentApprovalQuery"
             @reload="setIncidentApprovalQuery"
@@ -200,38 +118,24 @@
       </div>
     </div>
     <div class="flex" data-testid="testWorksiteImportDiv">
-      <WorksiteImport class="m-4 pt-2 shadow bg-white w-full"></WorksiteImport>
+      <WorksiteImport
+        class="admin-card m-4 shadow bg-white w-full"
+      ></WorksiteImport>
     </div>
     <div class="flex" data-testid="testOrganizationsDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-2 border-b flex items-center">
-          <span class="flex items-center">
-            <base-button
-              class="text-4xl mx-3"
-              :alt="$t('adminDashboard.organizations')"
-              :action="
-                () => {
-                  organizations.visible = !organizations.visible;
-                }
-              "
-              >-</base-button
-            >
-            {{ $t('adminDashboard.organizations') }}
-          </span>
-          <base-input
-            :model-value="organizations.search"
-            data-testid="testOrganizationsSearch"
-            icon="search"
-            class="w-48 md:w-72 mx-4"
-            :placeholder="$t('actions.search')"
-            @update:model-value="
-              (value) => {
-                organizations.search = value;
-                debounce(getOrganizations, 1000)();
-              }
-            "
-          ></base-input>
-        </div>
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="organizations.visible"
+          data-testid="testOrganizationsSearch"
+          :title="$t('adminDashboard.organizations')"
+          :search="organizations.search"
+          @update:search="
+            (value) => {
+              organizations.search = value;
+              debounce(getOrganizations, 1000)();
+            }
+          "
+        />
         <div v-if="organizations.visible" class="p-4">
           <OrganizationsTable
             :organizations="organizations.data"
@@ -243,35 +147,18 @@
       </div>
     </div>
     <div class="flex" data-testid="testUsersDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-2 border-b flex items-center">
-          <span class="flex items-center">
-            <base-button
-              class="text-4xl mx-3"
-              data-testid="testUsersSearch"
-              :alt="$t('adminDashboard.users')"
-              :action="
-                () => {
-                  users.visible = !users.visible;
-                }
-              "
-              >-</base-button
-            >
-            {{ $t('adminDashboard.users') }}
-          </span>
-          <base-input
-            :model-value="users.search"
-            icon="search"
-            class="w-48 md:w-72 mx-4"
-            :placeholder="$t('actions.search')"
-            @update:model-value="
-              (value) => {
-                users.search = value;
-                debounce(getUsers, 1000)();
-              }
-            "
-          ></base-input>
-        </div>
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="users.visible"
+          :title="$t('adminDashboard.users')"
+          :search="users.search"
+          @update:search="
+            (value) => {
+              users.search = value;
+              debounce(getUsers, 1000)();
+            }
+          "
+        />
         <div v-if="users.visible" class="p-4">
           <UsersTable
             :users="users.data"
@@ -283,35 +170,18 @@
       </div>
     </div>
     <div class="flex" data-testid="testGhostUsersDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-2 border-b flex items-center">
-          <span class="flex items-center">
-            <base-button
-              class="text-4xl mx-3"
-              data-testid="testGhostUsersSearch"
-              :alt="$t('adminDashboard.ghost_users')"
-              :action="
-                () => {
-                  ghostUsers.visible = !ghostUsers.visible;
-                }
-              "
-              >-</base-button
-            >
-            {{ $t('adminDashboard.ghost_users') }}
-          </span>
-          <base-input
-            :model-value="ghostUsers.search"
-            icon="search"
-            class="w-48 md:w-72 mx-4"
-            :placeholder="$t('actions.search')"
-            @update:model-value="
-              (value) => {
-                ghostUsers.search = value;
-                debounce(getGhostUsers, 1000)();
-              }
-            "
-          ></base-input>
-        </div>
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="ghostUsers.visible"
+          :title="$t('adminDashboard.ghost_users')"
+          :search="ghostUsers.search"
+          @update:search="
+            (value) => {
+              ghostUsers.search = value;
+              debounce(getGhostUsers, 1000)();
+            }
+          "
+        />
         <div v-if="ghostUsers.visible" class="p-4">
           <GhostUsersTable
             :users="ghostUsers.data"
@@ -323,35 +193,18 @@
       </div>
     </div>
     <div class="flex" data-testid="testInvitationRequestsDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-2 border-b flex items-center">
-          <span class="flex items-center">
-            <base-button
-              class="text-4xl mx-3"
-              data-testid="testInvitationRequestsSearch"
-              :alt="$t('adminDashboard.invitation_requests')"
-              :action="
-                () => {
-                  invitationRequests.visible = !invitationRequests.visible;
-                }
-              "
-              >-</base-button
-            >
-            {{ $t('adminDashboard.invitation_requests') }}
-          </span>
-          <base-input
-            :model-value="invitationRequests.search"
-            icon="search"
-            class="w-48 md:w-72 mx-4"
-            :placeholder="$t('actions.search')"
-            @update:model-value="
-              (value) => {
-                invitationRequests.search = value;
-                debounce(getInvitationRequests, 1000)();
-              }
-            "
-          ></base-input>
-        </div>
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="invitationRequests.visible"
+          :title="$t('adminDashboard.invitation_requests')"
+          :search="invitationRequests.search"
+          @update:search="
+            (value) => {
+              invitationRequests.search = value;
+              debounce(getInvitationRequests, 1000)();
+            }
+          "
+        />
         <div v-if="invitationRequests.visible" class="p-4">
           <InvitationRequestTable
             :requests="invitationRequests.data"
@@ -363,35 +216,18 @@
       </div>
     </div>
     <div class="flex" data-testid="testInvitationsDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-2 border-b flex items-center">
-          <span class="flex items-center">
-            <base-button
-              class="text-4xl mx-3"
-              data-testid="testInvitationsSearch"
-              :alt="$t('adminDashboard.invitations')"
-              :action="
-                () => {
-                  invitations.visible = !invitations.visible;
-                }
-              "
-              >-</base-button
-            >
-            {{ $t('adminDashboard.invitations') }}
-          </span>
-          <base-input
-            :model-value="invitations.search"
-            icon="search"
-            class="w-48 md:w-72 mx-4"
-            :placeholder="$t('actions.search')"
-            @update:model-value="
-              (value) => {
-                invitations.search = value;
-                debounce(getInvitations, 1000)();
-              }
-            "
-          ></base-input>
-        </div>
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="invitations.visible"
+          :title="$t('adminDashboard.invitations')"
+          :search="invitations.search"
+          @update:search="
+            (value) => {
+              invitations.search = value;
+              debounce(getInvitations, 1000)();
+            }
+          "
+        />
         <div v-if="invitations.visible" class="p-4">
           <InvitationTable
             :invitations="invitations.data"
@@ -403,29 +239,13 @@
       </div>
     </div>
     <div class="flex" data-testid="testMessagesDiv">
-      <div class="m-4 pt-2 shadow bg-white w-full">
-        <div class="py-4 px-2 border-b flex items-center">
-          <span class="flex items-center">
-            <base-button
-              class="text-4xl mx-3"
-              data-testid="testInvitationsSearch"
-              :alt="$t('adminDashboard.messages')"
-              :action="
-                () => {
-                  messages.visible = !messages.visible;
-                }
-              "
-              >-</base-button
-            >
-            {{ $t('adminDashboard.messages') }}
-          </span>
-          <base-input
-            v-model="messages.search"
-            icon="search"
-            class="w-48 md:w-72 mx-4"
-            :placeholder="$t('adminDashboard.search_message')"
-          ></base-input>
-        </div>
+      <div class="admin-card m-4 shadow bg-white w-full">
+        <AdminSectionHeader
+          v-model:visible="messages.visible"
+          :title="$t('adminDashboard.messages')"
+          :search="messages.search"
+          @update:search="(value) => (messages.search = value)"
+        />
         <div v-if="messages.visible" class="p-4">
           <MessagesTable :search="messages.search" />
         </div>
@@ -446,6 +266,8 @@ import OrganizationApprovalTable from '../../components/admin/OrganizationApprov
 import InviteUsers from '@/components/modals/InviteUsers.vue';
 import { getQueryString } from '../../utils/urls';
 import { getErrorMessage } from '../../utils/errors';
+import AdminSectionHeader from '../../components/admin/AdminSectionHeader.vue';
+import SegmentedTabs from '../../components/admin/SegmentedTabs.vue';
 import WorksiteImport from '../../components/admin/WorksiteImport.vue';
 import FileUpload from '../../components/FileUpload.vue';
 import OrganizationsTable from '../../components/admin/OrganizationsTable.vue';
@@ -466,6 +288,8 @@ export default defineComponent({
   name: 'AdminDashboard',
   components: {
     BaseInput,
+    AdminSectionHeader,
+    SegmentedTabs,
     MessagesTable,
     DatabaseAccess,
     MergeOrganizations,
@@ -487,6 +311,62 @@ export default defineComponent({
     const { $can } = useAcl();
     const { component } = useDialogs();
 
+    const mergeOrganizationsRef = ref<{ open: () => void }>();
+    const fileUploadRef = ref<{ open: () => void }>();
+    const databaseAccessRef = ref<{ open: () => void }>();
+    const router = useRouter();
+
+    const moreActions = computed(() => [
+      {
+        text: t('mergeOrganizations.merge_organizations'),
+        testId: 'testMergeOrganizationsButton',
+        action: () => mergeOrganizationsRef.value?.open(),
+      },
+      {
+        text: t('fileUpload.file_uploader'),
+        action: () => fileUploadRef.value?.open(),
+      },
+      {
+        text: t('databaseAccess.database_access'),
+        action: () => databaseAccessRef.value?.open(),
+      },
+      {
+        text: t('adminDashboard.arcgis_upload'),
+        testId: 'testArcgisUploadButton',
+        action: showArcGisUploader,
+      },
+      {
+        text: t('adminDashboard.show_god_mode'),
+        action: () => router.push('/admin/god_mode'),
+      },
+      {
+        text: t('adminDashboard.save_bulk_sms'),
+        action: () => router.push('/admin/send_bulk_sms'),
+      },
+      {
+        text: t('adminDashboard.send_bulk_email'),
+        action: () => router.push('/admin/send_bulk_email'),
+      },
+      {
+        text: t('adminDashboard.magazine'),
+        action: () => router.push('/admin/magazine'),
+      },
+    ]);
+
+    function approvalTabOptions(prefix: string) {
+      return [
+        ['default', 'action_required', 'ActionRequired'],
+        ['approved', 'recently_approved', 'RecentlyApproved'],
+        ['rejected', 'recently_rejected', 'RecentlyRejected'],
+      ].map(([value, key, testKey]) => ({
+        value,
+        label: t(`adminDashboard.${key}`),
+        testId: `test${prefix}${testKey}Button`,
+      }));
+    }
+
+    const organizationApprovalVisible = ref(true);
+    const redeployVisible = ref(true);
     const organizationApprovalCount = ref(0);
     const incidentApprovalCount = ref(0);
     const usersToInvite = ref('');
@@ -849,6 +729,13 @@ export default defineComponent({
     });
 
     return {
+      organizationApprovalVisible,
+      redeployVisible,
+      mergeOrganizationsRef,
+      fileUploadRef,
+      databaseAccessRef,
+      moreActions,
+      approvalTabOptions,
       getOrganizations,
       getUsers,
       getGhostUsers,
@@ -887,4 +774,11 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+/* The card already supplies the shadow and rounding; a table inside it
+   would otherwise draw a second, overlapping one. */
+.admin-card :deep(.ccu-table-card) {
+  box-shadow: none;
+  border-radius: 0;
+}
+</style>

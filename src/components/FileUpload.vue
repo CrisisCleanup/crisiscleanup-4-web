@@ -59,6 +59,7 @@
       <template #footer></template>
     </modal>
     <base-button
+      v-if="!hideTrigger"
       :text="$t('fileUpload.file_uploader')"
       :alt="$t('fileUpload.file_uploader')"
       variant="solid"
@@ -106,6 +107,12 @@ const FILE_TYPES = [
 export default defineComponent({
   name: 'FileUpload',
   components: { BaseSelect, OrganizationSearchInput, DragDrop },
+  props: {
+    hideTrigger: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup() {
     const { t } = useI18n();
     const $toasted = useToast();
@@ -117,7 +124,12 @@ export default defineComponent({
     const uploadType = ref('');
     const fileAwareModels = ref({ Report, Organization });
     const fileTypes = FILE_TYPES.map((key) => {
+      function open() {
+        showingUploadModal.value = true;
+      }
+
       return {
+        open,
         value: key,
         name_t: t(key),
       };
