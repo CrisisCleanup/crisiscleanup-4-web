@@ -467,6 +467,7 @@ const RANDOM_QUOTES = [
   'spinner.reverse_tony',
   'spinner.chicken_egg_amazon',
   'spinner.pterodactyl_bathroom',
+  'spinner.front_of_back',
 ];
 
 export default defineComponent({
