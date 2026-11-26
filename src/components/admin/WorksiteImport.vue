@@ -236,17 +236,18 @@
             :key="index"
             class="p-3 bg-red-50 border border-red-200 rounded"
           >
-            <div class="text-sm font-medium text-red-800 mb-2">
-              Row {{ index + 1 }} -
-              {{ new Date(error.timestamp).toLocaleString() }}
+            <div
+              v-if="error.name || error.address"
+              class="text-sm font-medium text-red-800 mb-2"
+            >
+              {{ [error.name, error.address].filter(Boolean).join(', ') }}
             </div>
-            <div class="text-xs text-gray-600 mb-2">
-              <strong>Data:</strong> {{ JSON.stringify(error.row, null, 2) }}
-            </div>
-            <div class="text-xs text-red-600">
-              <strong>Errors:</strong>
-              {{ JSON.stringify(error.errors, null, 2) }}
-            </div>
+            <p class="text-sm text-red-800">{{ error.error }}</p>
+            <pre
+              v-if="error.error_details"
+              class="mt-2 whitespace-pre-wrap break-words text-xs"
+              >{{ JSON.stringify(error.error_details, null, 2) }}</pre
+            >
           </div>
         </div>
       </modal>
@@ -265,6 +266,13 @@ import DragDrop from '../DragDrop.vue';
 import AdminSectionHeader from './AdminSectionHeader.vue';
 import useDialogs from '../../hooks/useDialogs';
 
+interface FailedImportRow {
+  name?: string;
+  address?: string;
+  error: string;
+  error_details?: Record<string, unknown>;
+}
+
 export default defineComponent({
   name: 'WorksiteImport',
   components: { DragDrop, Table, AdminSectionHeader },
@@ -277,7 +285,7 @@ export default defineComponent({
     const imports = ref([]);
     const stuckImports = ref([]);
     const showErrorModal = ref(false);
-    const selectedImportErrors = ref([]);
+    const selectedImportErrors = ref<FailedImportRow[]>([]);
     const refreshingStatus = ref(false);
     const checkingStuck = ref(false);
     const currentRefreshingId = ref(null);
@@ -360,7 +368,7 @@ export default defineComponent({
       }
     }
 
-    function showErrors(importItem: any) {
+    function showErrors(importItem: { recent_errors?: FailedImportRow[] }) {
       selectedImportErrors.value = importItem.recent_errors || [];
       showErrorModal.value = true;
     }
